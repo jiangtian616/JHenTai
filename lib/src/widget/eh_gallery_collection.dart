@@ -69,14 +69,14 @@ Widget EHGalleryCollection({
       key: key,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       sliver: SliverWaterfallFlow(
-        gridDelegate: StyleSetting.crossAxisCountInWaterFallFlow.value == null
+        gridDelegate: styleSetting.crossAxisCountInWaterFallFlow.value == null
             ? SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: listMode == ListMode.waterfallFlowBig ? UIConfig.waterFallFlowCardWidthBig : UIConfig.waterFallFlowCardWidthSmall,
                 mainAxisSpacing: listMode == ListMode.waterfallFlowBig ? 10 : 5,
                 crossAxisSpacing: 5,
               )
             : SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
-                crossAxisCount: StyleSetting.crossAxisCountInWaterFallFlow.value!,
+                crossAxisCount: styleSetting.crossAxisCountInWaterFallFlow.value!,
                 mainAxisSpacing: listMode == ListMode.waterfallFlowBig ? 10 : 5,
                 crossAxisSpacing: 5,
               ),

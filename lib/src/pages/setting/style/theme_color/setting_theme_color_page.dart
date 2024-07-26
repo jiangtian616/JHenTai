@@ -17,13 +17,13 @@ class SettingThemeColorPage extends StatefulWidget {
 }
 
 class _SettingThemeColorPageState extends State<SettingThemeColorPage> {
-  Brightness selectedBrightness = StyleSetting.currentBrightness();
+  Brightness selectedBrightness = styleSetting.currentBrightness();
 
   @override
   Widget build(BuildContext context) {
     ThemeData previewThemeData = selectedBrightness == Brightness.light
-        ? ThemeConfig.theme(StyleSetting.lightThemeColor.value, Brightness.light)
-        : ThemeConfig.theme(StyleSetting.darkThemeColor.value, Brightness.dark);
+        ? ThemeConfig.theme(styleSetting.lightThemeColor.value, Brightness.light)
+        : ThemeConfig.theme(styleSetting.darkThemeColor.value, Brightness.dark);
 
     return Theme(
       data: previewThemeData,
@@ -56,13 +56,13 @@ class _SettingThemeColorPageState extends State<SettingThemeColorPage> {
                     height: 24,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: selectedBrightness == Brightness.light ? StyleSetting.lightThemeColor.value : StyleSetting.darkThemeColor.value,
+                      color: selectedBrightness == Brightness.light ? styleSetting.lightThemeColor.value : styleSetting.darkThemeColor.value,
                     ),
                   ),
                   onPressed: () async {
                     Color? newColor = await Get.dialog(
                       _ColorSettingDialog(
-                        initialColor: selectedBrightness == Brightness.light ? StyleSetting.lightThemeColor.value : StyleSetting.darkThemeColor.value,
+                        initialColor: selectedBrightness == Brightness.light ? styleSetting.lightThemeColor.value : styleSetting.darkThemeColor.value,
                         resetColor: selectedBrightness == Brightness.light ? UIConfig.defaultLightThemeColor : UIConfig.defaultDarkThemeColor,
                       ),
                     );
@@ -72,14 +72,14 @@ class _SettingThemeColorPageState extends State<SettingThemeColorPage> {
                     }
 
                     if (selectedBrightness == Brightness.light) {
-                      StyleSetting.saveLightThemeColor(newColor);
-                      Get.rootController.theme = ThemeConfig.theme(StyleSetting.lightThemeColor.value, Brightness.light);
+                      styleSetting.saveLightThemeColor(newColor);
+                      Get.rootController.theme = ThemeConfig.theme(styleSetting.lightThemeColor.value, Brightness.light);
                     } else {
-                      StyleSetting.saveDarkThemeColor(newColor);
-                      Get.rootController.darkTheme = ThemeConfig.theme(StyleSetting.darkThemeColor.value, Brightness.dark);
+                      styleSetting.saveDarkThemeColor(newColor);
+                      Get.rootController.darkTheme = ThemeConfig.theme(styleSetting.darkThemeColor.value, Brightness.dark);
                     }
 
-                    if (selectedBrightness == StyleSetting.currentBrightness()) {
+                    if (selectedBrightness == styleSetting.currentBrightness()) {
                       Get.rootController.updateSafely();
                     }
 

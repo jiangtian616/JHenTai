@@ -654,8 +654,8 @@ class EHScrollBehaviourWithScrollBar extends MaterialScrollBehavior {
       case Axis.vertical:
         return ScrollbarTheme(
           data: ScrollbarThemeData(
-            radius: StyleSetting.isInMobileLayout ? CupertinoScrollbar.defaultRadius : const Radius.circular(8),
-            thickness: MaterialStateProperty.all(StyleSetting.isInMobileLayout ? CupertinoScrollbar.defaultThickness : 8),
+            radius: styleSetting.isInMobileLayout ? CupertinoScrollbar.defaultRadius : const Radius.circular(8),
+            thickness: MaterialStateProperty.all(styleSetting.isInMobileLayout ? CupertinoScrollbar.defaultThickness : 8),
           ),
           child: Scrollbar(controller: details.controller, child: child),
         );

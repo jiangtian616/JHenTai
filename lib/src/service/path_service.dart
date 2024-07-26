@@ -23,7 +23,7 @@ class PathService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   Directory? systemDownloadDir;
 
   @override
-  Future<void> doInit() async {
+  Future<void> doOnInit() async {
     await Future.wait([
       getTemporaryDirectory().then((value) => tempDir = value),
       getApplicationDocumentsDirectory().then((value) => appDocDir = value).catchError((error) => null),
@@ -32,6 +32,9 @@ class PathService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
       getDownloadsDirectory().then((value) => systemDownloadDir = value).catchError((error) => null),
     ]);
   }
+
+  @override
+  void doOnReady() {}
 
   Directory getVisibleDir() {
     if (Platform.isAndroid && externalStorageDir != null) {

@@ -94,7 +94,7 @@ class EHImage extends StatelessWidget {
             ? buildNetworkImage(context)
             : buildFileImage(context);
 
-    if (heroTag != null && StyleSetting.isInMobileLayout) {
+    if (heroTag != null && styleSetting.isInMobileLayout) {
       child = Hero(tag: heroTag!, child: child);
     }
 

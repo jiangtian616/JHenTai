@@ -1,166 +1,69 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
+import 'package:jhentai/src/service/jh_service.dart';
 import 'package:jhentai/src/utils/log.dart';
 
 import '../model/jh_layout.dart';
-import '../service/storage_service.dart';
 
-enum ListMode {
-  listWithoutTags,
-  listWithTags,
-  waterfallFlowSmall,
-  waterfallFlowBig,
-  flat,
-  flatWithoutTags,
-  waterfallFlowMedium,
-}
+StyleSetting styleSetting = StyleSetting();
 
-class StyleSetting {
-  static Rx<ThemeMode> themeMode = ThemeMode.system.obs;
-  static Rx<Color> lightThemeColor = UIConfig.defaultLightThemeColor.obs;
-  static Rx<Color> darkThemeColor = UIConfig.defaultDarkThemeColor.obs;
-  static Rx<ListMode> listMode = ListMode.listWithTags.obs;
-  static RxnInt crossAxisCountInWaterFallFlow = RxnInt(null);
-  static RxnInt crossAxisCountInGridDownloadPageForGroup = RxnInt(null);
-  static RxnInt crossAxisCountInGridDownloadPageForGallery = RxnInt(null);
-  static RxnInt crossAxisCountInDetailPage = RxnInt(null);
-  static RxMap<String, ListMode> pageListMode = <String, ListMode>{}.obs;
-  static RxBool moveCover2RightSide = false.obs;
-  static Rx<LayoutMode> layout = PlatformDispatcher.instance.views.first.physicalSize.width / PlatformDispatcher.instance.views.first.devicePixelRatio < 600
+class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
+  Rx<ThemeMode> themeMode = ThemeMode.system.obs;
+  Rx<Color> lightThemeColor = UIConfig.defaultLightThemeColor.obs;
+  Rx<Color> darkThemeColor = UIConfig.defaultDarkThemeColor.obs;
+  Rx<ListMode> listMode = ListMode.listWithTags.obs;
+  RxnInt crossAxisCountInWaterFallFlow = RxnInt(null);
+  RxnInt crossAxisCountInGridDownloadPageForGroup = RxnInt(null);
+  RxnInt crossAxisCountInGridDownloadPageForGallery = RxnInt(null);
+  RxnInt crossAxisCountInDetailPage = RxnInt(null);
+  RxMap<String, ListMode> pageListMode = <String, ListMode>{}.obs;
+  RxBool moveCover2RightSide = false.obs;
+  Rx<LayoutMode> layout = PlatformDispatcher.instance.views.first.physicalSize.width / PlatformDispatcher.instance.views.first.devicePixelRatio < 600
       ? LayoutMode.mobileV2.obs
       : GetPlatform.isDesktop
           ? LayoutMode.desktop.obs
           : LayoutMode.tabletV2.obs;
 
-  static bool get isInWaterFlowListMode =>
-      listMode.value == ListMode.waterfallFlowBig || listMode.value == ListMode.waterfallFlowSmall || listMode.value == ListMode.waterfallFlowMedium;
+  bool get isInWaterFlowListMode => listMode.value == ListMode.waterfallFlowBig || listMode.value == ListMode.waterfallFlowSmall || listMode.value == ListMode.waterfallFlowMedium;
 
-  static Brightness currentBrightness() => themeMode.value == ThemeMode.system
+  Brightness currentBrightness() => themeMode.value == ThemeMode.system
       ? PlatformDispatcher.instance.platformBrightness
       : themeMode.value == ThemeMode.light
           ? Brightness.light
           : Brightness.dark;
 
   /// If the current window width is too small, App will degrade to mobile mode. Use [actualLayout] to indicate actual layout.
-  static LayoutMode actualLayout = layout.value;
+  LayoutMode actualLayout = PlatformDispatcher.instance.views.first.physicalSize.width / PlatformDispatcher.instance.views.first.devicePixelRatio < 600
+      ? LayoutMode.mobileV2
+      : GetPlatform.isDesktop
+          ? LayoutMode.desktop
+          : LayoutMode.tabletV2;
 
-  static bool get isInMobileLayout => actualLayout == LayoutMode.mobileV2 || actualLayout == LayoutMode.mobile;
+  bool get isInMobileLayout => actualLayout == LayoutMode.mobileV2 || actualLayout == LayoutMode.mobile;
 
-  static bool get isInTabletLayout => actualLayout == LayoutMode.tabletV2 || actualLayout == LayoutMode.tablet;
+  bool get isInTabletLayout => actualLayout == LayoutMode.tabletV2 || actualLayout == LayoutMode.tablet;
 
-  static bool get isInV1Layout => actualLayout == LayoutMode.mobile || actualLayout == LayoutMode.tablet;
+  bool get isInV1Layout => actualLayout == LayoutMode.mobile || actualLayout == LayoutMode.tablet;
 
-  static bool get isInV2Layout => actualLayout == LayoutMode.mobileV2 || actualLayout == LayoutMode.tabletV2;
+  bool get isInV2Layout => actualLayout == LayoutMode.mobileV2 || actualLayout == LayoutMode.tabletV2;
 
-  static bool get isInDesktopLayout => actualLayout == LayoutMode.desktop;
+  bool get isInDesktopLayout => actualLayout == LayoutMode.desktop;
 
-  static void init() {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.styleSetting.key);
-    if (map != null) {
-      _initFromMap(map);
-      Log.debug('init StyleSetting success', false);
-    } else {
-      Log.debug('init StyleSetting success: default', false);
-    }
-  }
+  @override
+  ConfigEnum get configEnum => ConfigEnum.styleSetting;
 
-  static saveThemeMode(ThemeMode themeMode) {
-    Log.debug('saveThemeMode:${themeMode.name}');
-    StyleSetting.themeMode.value = themeMode;
-    _save();
+  @override
+  void doOnReady() {}
 
-    Get.changeThemeMode(themeMode);
-  }
+  @override
+  void applyConfig(String configString) {
+    Map map = jsonDecode(configString);
 
-  static saveLightThemeColor(Color color) {
-    Log.debug('saveLightThemeColor:$color');
-    StyleSetting.lightThemeColor.value = color;
-    _save();
-  }
-
-  static saveDarkThemeColor(Color color) {
-    Log.debug('saveDarkThemeColor:$color');
-    StyleSetting.darkThemeColor.value = color;
-    _save();
-  }
-
-  static saveListMode(ListMode listMode) {
-    Log.debug('saveListMode:${listMode.name}');
-    StyleSetting.listMode.value = listMode;
-    _save();
-  }
-
-  static saveCrossAxisCountInWaterFallFlow(int? crossAxisCountInWaterFallFlow) {
-    Log.debug('saveCrossAxisCountInWaterFallFlow:$crossAxisCountInWaterFallFlow');
-    StyleSetting.crossAxisCountInWaterFallFlow.value = crossAxisCountInWaterFallFlow;
-    _save();
-  }
-
-  static saveCrossAxisCountInGridDownloadPageForGroup(int? crossAxisCountInGridDownloadPageForGroup) {
-    Log.debug('saveCrossAxisCountInGridDownloadPageForGroup:$crossAxisCountInGridDownloadPageForGroup');
-    StyleSetting.crossAxisCountInGridDownloadPageForGroup.value = crossAxisCountInGridDownloadPageForGroup;
-    _save();
-  }
-
-  static saveCrossAxisCountInGridDownloadPageForGallery(int? crossAxisCountInGridDownloadPageForGallery) {
-    Log.debug('saveCrossAxisCountInGridDownloadPageForGallery:$crossAxisCountInGridDownloadPageForGallery');
-    StyleSetting.crossAxisCountInGridDownloadPageForGallery.value = crossAxisCountInGridDownloadPageForGallery;
-    _save();
-  }
-
-  static saveCrossAxisCountInDetailPage(int? crossAxisCountInDetailPage) {
-    Log.debug('saveCrossAxisCountInDetailPage:$crossAxisCountInDetailPage');
-    StyleSetting.crossAxisCountInDetailPage.value = crossAxisCountInDetailPage;
-    _save();
-  }
-
-  static savePageListMode(String routeName, ListMode? listMode) {
-    Log.debug('savePageListMode:$routeName, $listMode');
-    if (listMode == null) {
-      StyleSetting.pageListMode.remove(routeName);
-    } else {
-      StyleSetting.pageListMode[routeName] = listMode;
-    }
-    _save();
-  }
-
-  static saveMoveCover2RightSide(bool moveCover2RightSide) {
-    Log.debug('saveMoveCover2RightSide:$moveCover2RightSide');
-    StyleSetting.moveCover2RightSide.value = moveCover2RightSide;
-    _save();
-  }
-
-  static saveLayoutMode(LayoutMode layoutMode) {
-    Log.debug('saveLayoutMode:${layoutMode.name}');
-    StyleSetting.layout.value = layoutMode;
-    _save();
-  }
-
-  static Future<void> _save() async {
-    await Get.find<StorageService>().write(ConfigEnum.styleSetting.key, _toMap());
-  }
-
-  static Map<String, dynamic> _toMap() {
-    return {
-      'themeMode': themeMode.value.index,
-      'lightThemeColor': lightThemeColor.value.value,
-      'darkThemeColor': darkThemeColor.value.value,
-      'listMode': listMode.value.index,
-      'crossAxisCountInWaterFallFlow': crossAxisCountInWaterFallFlow.value,
-      'crossAxisCountInGridDownloadPageForGroup': crossAxisCountInGridDownloadPageForGroup.value,
-      'crossAxisCountInGridDownloadPageForGallery': crossAxisCountInGridDownloadPageForGallery.value,
-      'crossAxisCountInDetailPage': crossAxisCountInDetailPage.value,
-      'pageListMode': pageListMode.map((route, listMode) => MapEntry(route, listMode.index)),
-      'moveCover2RightSide': moveCover2RightSide.value,
-      'layout': layout.value.index,
-    };
-  }
-
-  static _initFromMap(Map<String, dynamic> map) {
     themeMode.value = ThemeMode.values[map['themeMode']];
     lightThemeColor.value = Color(map['lightThemeColor'] ?? lightThemeColor.value.value);
     darkThemeColor.value = Color(map['darkThemeColor'] ?? darkThemeColor.value.value);
@@ -183,4 +86,103 @@ class StyleSetting {
     }
     actualLayout = layout.value;
   }
+
+  @override
+  String toConfigString() {
+    return jsonEncode({
+      'themeMode': themeMode.value.index,
+      'lightThemeColor': lightThemeColor.value.value,
+      'darkThemeColor': darkThemeColor.value.value,
+      'listMode': listMode.value.index,
+      'crossAxisCountInWaterFallFlow': crossAxisCountInWaterFallFlow.value,
+      'crossAxisCountInGridDownloadPageForGroup': crossAxisCountInGridDownloadPageForGroup.value,
+      'crossAxisCountInGridDownloadPageForGallery': crossAxisCountInGridDownloadPageForGallery.value,
+      'crossAxisCountInDetailPage': crossAxisCountInDetailPage.value,
+      'pageListMode': pageListMode.map((route, listMode) => MapEntry(route, listMode.index)),
+      'moveCover2RightSide': moveCover2RightSide.value,
+      'layout': layout.value.index,
+    });
+  }
+
+  Future<void> saveThemeMode(ThemeMode themeMode) async {
+    Log.debug('saveThemeMode:${themeMode.name}');
+    this.themeMode.value = themeMode;
+    await save();
+
+    Get.changeThemeMode(themeMode);
+  }
+
+  Future<void> saveLightThemeColor(Color color) async {
+    Log.debug('saveLightThemeColor:$color');
+    this.lightThemeColor.value = color;
+    await save();
+  }
+
+  Future<void> saveDarkThemeColor(Color color) async {
+    Log.debug('saveDarkThemeColor:$color');
+    this.darkThemeColor.value = color;
+    await save();
+  }
+
+  Future<void> saveListMode(ListMode listMode) async {
+    Log.debug('saveListMode:${listMode.name}');
+    this.listMode.value = listMode;
+    await save();
+  }
+
+  Future<void> saveCrossAxisCountInWaterFallFlow(int? crossAxisCountInWaterFallFlow) async {
+    Log.debug('saveCrossAxisCountInWaterFallFlow:$crossAxisCountInWaterFallFlow');
+    this.crossAxisCountInWaterFallFlow.value = crossAxisCountInWaterFallFlow;
+    await save();
+  }
+
+  Future<void> saveCrossAxisCountInGridDownloadPageForGroup(int? crossAxisCountInGridDownloadPageForGroup) async {
+    Log.debug('saveCrossAxisCountInGridDownloadPageForGroup:$crossAxisCountInGridDownloadPageForGroup');
+    this.crossAxisCountInGridDownloadPageForGroup.value = crossAxisCountInGridDownloadPageForGroup;
+    await save();
+  }
+
+  Future<void> saveCrossAxisCountInGridDownloadPageForGallery(int? crossAxisCountInGridDownloadPageForGallery) async {
+    Log.debug('saveCrossAxisCountInGridDownloadPageForGallery:$crossAxisCountInGridDownloadPageForGallery');
+    this.crossAxisCountInGridDownloadPageForGallery.value = crossAxisCountInGridDownloadPageForGallery;
+    await save();
+  }
+
+  Future<void> saveCrossAxisCountInDetailPage(int? crossAxisCountInDetailPage) async {
+    Log.debug('saveCrossAxisCountInDetailPage:$crossAxisCountInDetailPage');
+    this.crossAxisCountInDetailPage.value = crossAxisCountInDetailPage;
+    await save();
+  }
+
+  Future<void> savePageListMode(String routeName, ListMode? listMode) async {
+    Log.debug('savePageListMode:$routeName, $listMode');
+    if (listMode == null) {
+      this.pageListMode.remove(routeName);
+    } else {
+      this.pageListMode[routeName] = listMode;
+    }
+    await save();
+  }
+
+  Future<void> saveMoveCover2RightSide(bool moveCover2RightSide) async {
+    Log.debug('saveMoveCover2RightSide:$moveCover2RightSide');
+    this.moveCover2RightSide.value = moveCover2RightSide;
+    await save();
+  }
+
+  Future<void> saveLayoutMode(LayoutMode layoutMode) async {
+    Log.debug('saveLayoutMode:${layoutMode.name}');
+    this.layout.value = layoutMode;
+    await save();
+  }
+}
+
+enum ListMode {
+  listWithoutTags,
+  listWithTags,
+  waterfallFlowSmall,
+  waterfallFlowBig,
+  flat,
+  flatWithoutTags,
+  waterfallFlowMedium,
 }

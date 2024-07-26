@@ -16,7 +16,7 @@ import '../widget/eh_search_config_dialog.dart';
 void newSearch({String? keyword, SearchConfig? rewriteSearchConfig, bool forceNewRoute = false}) {
   assert(keyword != null || rewriteSearchConfig != null);
 
-  switch (StyleSetting.actualLayout) {
+  switch (styleSetting.actualLayout) {
     case LayoutMode.desktop:
       if (!isRouteAtTop(Routes.desktopSearch)) {
         toRoute(Routes.desktopSearch);
@@ -93,10 +93,10 @@ void newSearch({String? keyword, SearchConfig? rewriteSearchConfig, bool forceNe
 
 Future<void> handleAddQuickSearch() async {
   SearchConfig? originalConfig;
-  if (StyleSetting.actualLayout == LayoutMode.desktop) {
+  if (styleSetting.actualLayout == LayoutMode.desktop) {
     originalConfig = Get.find<DesktopSearchPageLogic>().currentTabLogic.state.searchConfig;
   }
-  if (StyleSetting.isInV2Layout) {
+  if (styleSetting.isInV2Layout) {
     originalConfig = SearchPageMobileV2Logic.current?.state.searchConfig;
   }
 

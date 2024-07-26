@@ -61,7 +61,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
       centerTitle: true,
-      leading: StyleSetting.isInV2Layout
+      leading: styleSetting.isInV2Layout
           ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context))
           : null,
       titleSpacing: 0,

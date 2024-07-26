@@ -18,11 +18,14 @@ class StorageService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean
   List<JHLifeCircleBean> get initDependencies => [pathService];
 
   @override
-  Future<void> doInit() async {
+  Future<void> doOnInit() async {
     _migrateOldConfigFile();
     _storage = GetStorage(storageFileName, pathService.getVisibleDir().path);
     await _storage.initStorage;
   }
+
+  @override
+  void doOnReady() {}
 
   Future<void> write(String key, dynamic value) {
     return _storage.write(key, value);

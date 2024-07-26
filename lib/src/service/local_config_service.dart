@@ -8,6 +8,12 @@ LocalConfigService localConfigService = LocalConfigService();
 class LocalConfigService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   static const String defaultSubConfigKey = '';
 
+  @override
+  Future<void> doOnInit() async {}
+
+  @override
+  void doOnReady() {}
+
   Future<bool> write({required ConfigEnum configKey, String subConfigKey = defaultSubConfigKey, required String value}) {
     return appDb.managers.localConfig.replace(
       LocalConfigCompanion.insert(configKey: configKey.key, subConfigKey: subConfigKey, value: value),

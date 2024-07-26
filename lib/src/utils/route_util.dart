@@ -21,7 +21,7 @@ Future<T?>? toRoute<T>(
   EHPage page = Routes.pages.firstWhere((page) => page.name == routeName);
 
   /// only one [Route]
-  if (StyleSetting.isInMobileLayout || page.side == Side.fullScreen || id == fullScreen) {
+  if (styleSetting.isInMobileLayout || page.side == Side.fullScreen || id == fullScreen) {
     return Get.toNamed(
       routeName,
       arguments: arguments,
@@ -31,7 +31,7 @@ Future<T?>? toRoute<T>(
   }
 
   if (page.side == Side.left) {
-    if (StyleSetting.layout.value == LayoutMode.desktop) {
+    if (styleSetting.layout.value == LayoutMode.desktop) {
       DesktopLayoutPageLogic logic = Get.find<DesktopLayoutPageLogic>();
 
       int? tabIndex = logic.state.icons.firstIndexWhereOrNull((icon) => icon.routeName == routeName);
@@ -53,7 +53,7 @@ Future<T?>? toRoute<T>(
     return Get.toNamed(
       routeName,
       arguments: arguments,
-      id: StyleSetting.isInV2Layout ? leftV2 : left,
+      id: styleSetting.isInV2Layout ? leftV2 : left,
       preventDuplicates: preventDuplicates,
       parameters: parameters,
     );
@@ -62,14 +62,14 @@ Future<T?>? toRoute<T>(
   if (offAllBefore ?? page.offAllBefore) {
     Get.until(
       (route) => route.settings.name == Routes.blank,
-      id: StyleSetting.isInV2Layout ? rightV2 : right,
+      id: styleSetting.isInV2Layout ? rightV2 : right,
     );
 
     Get.engine.addPostFrameCallback((_) {
       Get.toNamed(
         routeName,
         arguments: arguments,
-        id: StyleSetting.isInV2Layout ? rightV2 : right,
+        id: styleSetting.isInV2Layout ? rightV2 : right,
         parameters: parameters,
         preventDuplicates: preventDuplicates,
       );
@@ -86,7 +86,7 @@ Future<T?>? toRoute<T>(
   return Get.toNamed(
     routeName,
     arguments: arguments,
-    id: StyleSetting.isInV2Layout ? rightV2 : right,
+    id: styleSetting.isInV2Layout ? rightV2 : right,
     parameters: parameters,
     preventDuplicates: preventDuplicates,
   );
@@ -105,14 +105,14 @@ void backRoute<T>({
     result: result,
     closeOverlays: closeOverlays,
     canPop: canPop,
-    id: StyleSetting.isInMobileLayout
+    id: styleSetting.isInMobileLayout
         ? null
         : side == Side.left
-            ? StyleSetting.isInV2Layout
+            ? styleSetting.isInV2Layout
                 ? leftV2
                 : left
             : side == Side.right
-                ? StyleSetting.isInV2Layout
+                ? styleSetting.isInV2Layout
                     ? rightV2
                     : right
                 : null,
@@ -129,9 +129,9 @@ void popLeftRoute<T>({
     result: result,
     closeOverlays: closeOverlays,
     canPop: canPop,
-    id: StyleSetting.isInMobileLayout
+    id: styleSetting.isInMobileLayout
         ? null
-        : StyleSetting.isInV2Layout
+        : styleSetting.isInV2Layout
             ? leftV2
             : left,
   );
@@ -148,9 +148,9 @@ void popRightRoute<T>({
     result: result,
     closeOverlays: closeOverlays,
     canPop: canPop,
-    id: StyleSetting.isInMobileLayout
+    id: styleSetting.isInMobileLayout
         ? null
-        : StyleSetting.isInV2Layout
+        : styleSetting.isInV2Layout
             ? rightV2
             : right,
   );
@@ -168,14 +168,14 @@ Future<T?>? offRoute<T>(
   return Get.offNamed(
     routeName,
     arguments: arguments,
-    id: StyleSetting.isInMobileLayout
+    id: styleSetting.isInMobileLayout
         ? null
         : side == Side.left
-            ? StyleSetting.isInV2Layout
+            ? styleSetting.isInV2Layout
                 ? leftV2
                 : left
             : side == Side.right
-                ? StyleSetting.isInV2Layout
+                ? styleSetting.isInV2Layout
                     ? rightV2
                     : right
                 : null,
@@ -190,14 +190,14 @@ void untilRoute({String? currentRoute, required RoutePredicate predicate}) {
 
   return Get.until(
     predicate,
-    id: StyleSetting.isInMobileLayout
+    id: styleSetting.isInMobileLayout
         ? null
         : side == Side.left
-            ? StyleSetting.isInV2Layout
+            ? styleSetting.isInV2Layout
                 ? leftV2
                 : left
             : side == Side.right
-                ? StyleSetting.isInV2Layout
+                ? styleSetting.isInV2Layout
                     ? rightV2
                     : right
                 : null,
@@ -224,12 +224,12 @@ void untilRoute2DesktopHomePage() {
 bool isRouteAtTop(String routeName) {
   Side side = Routes.pages.firstWhereOrNull((page) => page.name == routeName)?.side ?? Side.fullScreen;
 
-  if (StyleSetting.isInMobileLayout || side == Side.fullScreen) {
+  if (styleSetting.isInMobileLayout || side == Side.fullScreen) {
     return Get.currentRoute == routeName;
   }
 
   if (side == Side.left) {
-    if (StyleSetting.actualLayout == LayoutMode.desktop) {
+    if (styleSetting.actualLayout == LayoutMode.desktop) {
       DesktopLayoutPageLogic logic = Get.find<DesktopLayoutPageLogic>();
       return logic.state.icons[logic.state.selectedTabIndex].routeName == routeName || leftRouting.current == routeName;
     }

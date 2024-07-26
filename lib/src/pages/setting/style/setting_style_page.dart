@@ -22,12 +22,12 @@ class SettingStylePage extends StatelessWidget {
             _buildBrightness(),
             _buildThemeColor(),
             _buildListMode(),
-            if (StyleSetting.isInWaterFlowListMode) _buildCrossAxisCountInWaterFallFlow().fadeIn(),
+            if (styleSetting.isInWaterFlowListMode) _buildCrossAxisCountInWaterFallFlow().fadeIn(),
             _buildPageListMode(),
             _buildCrossAxisCountInGridDownloadPageForGroup(),
             _buildCrossAxisCountInGridDownloadPageForGallery(),
             _buildCrossAxisCountInDetailPage(),
-            if (!StyleSetting.isInWaterFlowListMode) _buildMoveCover2RightSide().fadeIn(),
+            if (!styleSetting.isInWaterFlowListMode) _buildMoveCover2RightSide().fadeIn(),
             _buildLayout(context),
           ],
         ).withListTileTheme(context),
@@ -39,10 +39,10 @@ class SettingStylePage extends StatelessWidget {
     return ListTile(
       title: Text('themeMode'.tr),
       trailing: DropdownButton<ThemeMode>(
-        value: StyleSetting.themeMode.value,
+        value: styleSetting.themeMode.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (ThemeMode? newValue) => StyleSetting.saveThemeMode(newValue!),
+        onChanged: (ThemeMode? newValue) => styleSetting.saveThemeMode(newValue!),
         items: [
           DropdownMenuItem(child: Text('light'.tr), value: ThemeMode.light),
           DropdownMenuItem(child: Text('dark'.tr), value: ThemeMode.dark),
@@ -64,10 +64,10 @@ class SettingStylePage extends StatelessWidget {
     return ListTile(
       title: Text('listStyle'.tr),
       trailing: DropdownButton<ListMode>(
-        value: StyleSetting.listMode.value,
+        value: styleSetting.listMode.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (ListMode? newValue) => StyleSetting.saveListMode(newValue!),
+        onChanged: (ListMode? newValue) => styleSetting.saveListMode(newValue!),
         items: [
           DropdownMenuItem(child: Text('flat'.tr), value: ListMode.flat),
           DropdownMenuItem(child: Text('flatWithoutTags'.tr), value: ListMode.flatWithoutTags),
@@ -85,10 +85,10 @@ class SettingStylePage extends StatelessWidget {
     return ListTile(
       title: Text('crossAxisCountInWaterFallFlow'.tr),
       trailing: DropdownButton<int?>(
-        value: StyleSetting.crossAxisCountInWaterFallFlow.value,
+        value: styleSetting.crossAxisCountInWaterFallFlow.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: StyleSetting.saveCrossAxisCountInWaterFallFlow,
+        onChanged: styleSetting.saveCrossAxisCountInWaterFallFlow,
         items: [
           DropdownMenuItem(child: Text('auto'.tr), value: null),
           DropdownMenuItem(child: Text('2'.tr), value: 2),
@@ -105,10 +105,10 @@ class SettingStylePage extends StatelessWidget {
     return ListTile(
       title: Text('crossAxisCountInGridDownloadPageForGroup'.tr),
       trailing: DropdownButton<int?>(
-        value: StyleSetting.crossAxisCountInGridDownloadPageForGroup.value,
+        value: styleSetting.crossAxisCountInGridDownloadPageForGroup.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: StyleSetting.saveCrossAxisCountInGridDownloadPageForGroup,
+        onChanged: styleSetting.saveCrossAxisCountInGridDownloadPageForGroup,
         items: [
           DropdownMenuItem(child: Text('auto'.tr), value: null),
           DropdownMenuItem(child: Text('2'.tr), value: 2),
@@ -125,10 +125,10 @@ class SettingStylePage extends StatelessWidget {
     return ListTile(
       title: Text('crossAxisCountInGridDownloadPageForGallery'.tr),
       trailing: DropdownButton<int?>(
-        value: StyleSetting.crossAxisCountInGridDownloadPageForGallery.value,
+        value: styleSetting.crossAxisCountInGridDownloadPageForGallery.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: StyleSetting.saveCrossAxisCountInGridDownloadPageForGallery,
+        onChanged: styleSetting.saveCrossAxisCountInGridDownloadPageForGallery,
         items: [
           DropdownMenuItem(child: Text('auto'.tr), value: null),
           DropdownMenuItem(child: Text('2'.tr), value: 2),
@@ -145,10 +145,10 @@ class SettingStylePage extends StatelessWidget {
     return ListTile(
       title: Text('crossAxisCountInDetailPage'.tr),
       trailing: DropdownButton<int?>(
-        value: StyleSetting.crossAxisCountInDetailPage.value,
+        value: styleSetting.crossAxisCountInDetailPage.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: StyleSetting.saveCrossAxisCountInDetailPage,
+        onChanged: styleSetting.saveCrossAxisCountInDetailPage,
         items: [
           DropdownMenuItem(child: Text('auto'.tr), value: null),
           DropdownMenuItem(child: Text('2'.tr), value: 2),
@@ -173,20 +173,20 @@ class SettingStylePage extends StatelessWidget {
     return SwitchListTile(
       title: Text('moveCover2RightSide'.tr),
       subtitle: Text('needRestart'.tr),
-      value: StyleSetting.moveCover2RightSide.value,
-      onChanged: StyleSetting.saveMoveCover2RightSide,
+      value: styleSetting.moveCover2RightSide.value,
+      onChanged: styleSetting.saveMoveCover2RightSide,
     );
   }
 
   Widget _buildLayout(BuildContext context) {
     return ListTile(
       title: Text('layoutMode'.tr),
-      subtitle: Text(JHLayout.allLayouts.firstWhere((e) => e.mode == StyleSetting.layout.value).desc),
+      subtitle: Text(JHLayout.allLayouts.firstWhere((e) => e.mode == styleSetting.layout.value).desc),
       trailing: DropdownButton<LayoutMode>(
-        value: StyleSetting.actualLayout,
+        value: styleSetting.actualLayout,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (LayoutMode? newValue) => StyleSetting.saveLayoutMode(newValue!),
+        onChanged: (LayoutMode? newValue) => styleSetting.saveLayoutMode(newValue!),
         items: JHLayout.allLayouts
             .map((e) => DropdownMenuItem(
                   enabled: e.isSupported(),

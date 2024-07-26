@@ -45,7 +45,7 @@ mixin GridBasePage on StatelessWidget implements Scroll2TopPageMixin {
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
       centerTitle: true,
-      leading: StyleSetting.isInV2Layout
+      leading: styleSetting.isInV2Layout
           ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context))
           : null,
       titleSpacing: 0,
@@ -98,7 +98,7 @@ mixin GridBasePage on StatelessWidget implements Scroll2TopPageMixin {
                   }
                 },
                 gridDelegate: state.isAtRoot
-                    ? StyleSetting.crossAxisCountInGridDownloadPageForGroup.value == null
+                    ? styleSetting.crossAxisCountInGridDownloadPageForGroup.value == null
                         ? const SliverGridDelegateWithMaxCrossAxisExtent(
                             maxCrossAxisExtent: UIConfig.downloadPageGridViewCardWidth,
                             mainAxisSpacing: 24,
@@ -106,12 +106,12 @@ mixin GridBasePage on StatelessWidget implements Scroll2TopPageMixin {
                             childAspectRatio: UIConfig.downloadPageGridViewCardAspectRatio,
                           )
                         : SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: StyleSetting.crossAxisCountInGridDownloadPageForGroup.value!,
+                            crossAxisCount: styleSetting.crossAxisCountInGridDownloadPageForGroup.value!,
                             mainAxisSpacing: 24,
                             crossAxisSpacing: 12,
                             childAspectRatio: UIConfig.downloadPageGridViewCardAspectRatio,
                           )
-                    : StyleSetting.crossAxisCountInGridDownloadPageForGallery.value == null
+                    : styleSetting.crossAxisCountInGridDownloadPageForGallery.value == null
                         ? const SliverGridDelegateWithMaxCrossAxisExtent(
                             maxCrossAxisExtent: UIConfig.downloadPageGridViewCardWidth,
                             mainAxisSpacing: 24,
@@ -119,7 +119,7 @@ mixin GridBasePage on StatelessWidget implements Scroll2TopPageMixin {
                             childAspectRatio: UIConfig.downloadPageGridViewCardAspectRatio,
                           )
                         : SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: StyleSetting.crossAxisCountInGridDownloadPageForGallery.value!,
+                            crossAxisCount: styleSetting.crossAxisCountInGridDownloadPageForGallery.value!,
                             mainAxisSpacing: 24,
                             crossAxisSpacing: 12,
                             childAspectRatio: UIConfig.downloadPageGridViewCardAspectRatio,

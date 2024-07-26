@@ -25,11 +25,11 @@ class _WillPopInterceptorState extends State<WillPopInterceptor> {
 
   /// system back
   Future<bool> _handlePopApp() {
-    if (StyleSetting.isInMobileLayout) {
+    if (styleSetting.isInMobileLayout) {
       return _handleDoubleTapPopApp();
     }
 
-    if (StyleSetting.isInTabletLayout) {
+    if (styleSetting.isInTabletLayout) {
       if (Get.global(rightV2).currentState?.canPop() == true) {
         popRightRoute();
         return Future.value(false);
@@ -41,7 +41,7 @@ class _WillPopInterceptorState extends State<WillPopInterceptor> {
       return _handleDoubleTapPopApp();
     }
 
-    if (StyleSetting.isInDesktopLayout) {
+    if (styleSetting.isInDesktopLayout) {
       if (Get.global(right).currentState?.canPop() == true) {
         popRightRoute();
         return Future.value(false);

@@ -101,9 +101,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'JHenTai',
-      themeMode: StyleSetting.themeMode.value,
-      theme: ThemeConfig.theme(StyleSetting.lightThemeColor.value, Brightness.light),
-      darkTheme: ThemeConfig.theme(StyleSetting.darkThemeColor.value, Brightness.dark),
+      themeMode: styleSetting.themeMode.value,
+      theme: ThemeConfig.theme(styleSetting.lightThemeColor.value, Brightness.light),
+      darkTheme: ThemeConfig.theme(styleSetting.darkThemeColor.value, Brightness.dark),
 
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
@@ -167,13 +167,12 @@ Future<void> init() async {
 
   lifeCircleBeans = topologicalSort(lifeCircleBeans);
   for (JHLifeCircleBean bean in lifeCircleBeans) {
-    await bean.init();
+    await bean.onInit();
     Log.debug('Init ${bean.runtimeType} success');
   }
 
   AppUpdateService.init();
 
-  StyleSetting.init();
   NetworkSetting.init();
   await AdvancedSetting.init();
   await SecuritySetting.init();

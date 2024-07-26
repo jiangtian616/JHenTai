@@ -87,24 +87,24 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
         child: LayoutBuilder(
           builder: (_, __) => Obx(
             () {
-              if (StyleSetting.layout.value == LayoutMode.mobileV2 || StyleSetting.layout.value == LayoutMode.mobile) {
-                StyleSetting.actualLayout = LayoutMode.mobileV2;
+              if (styleSetting.layout.value == LayoutMode.mobileV2 || styleSetting.layout.value == LayoutMode.mobile) {
+                styleSetting.actualLayout = LayoutMode.mobileV2;
                 return MobileLayoutPageV2();
               }
 
               /// Device width is under 600, degrade to mobileV2 layout.
               if (fullScreenWidth < 600) {
-                StyleSetting.actualLayout = LayoutMode.mobileV2;
+                styleSetting.actualLayout = LayoutMode.mobileV2;
                 untilRoute2BlankPage();
                 return MobileLayoutPageV2();
               }
 
-              if (StyleSetting.layout.value == LayoutMode.tabletV2 || StyleSetting.layout.value == LayoutMode.tablet) {
-                StyleSetting.actualLayout = LayoutMode.tabletV2;
+              if (styleSetting.layout.value == LayoutMode.tabletV2 || styleSetting.layout.value == LayoutMode.tablet) {
+                styleSetting.actualLayout = LayoutMode.tabletV2;
                 return TabletLayoutPageV2();
               }
 
-              StyleSetting.actualLayout = LayoutMode.desktop;
+              styleSetting.actualLayout = LayoutMode.desktop;
               return DesktopLayoutPage();
             },
           ),

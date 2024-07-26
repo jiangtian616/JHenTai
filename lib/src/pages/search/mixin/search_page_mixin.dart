@@ -63,7 +63,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
       init: logic,
       id: logic.searchFieldId,
       builder: (_) => SizedBox(
-        height: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
+        height: styleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
         child: TextField(
           focusNode: state.searchFieldFocusNode,
           textInputAction: TextInputAction.search,
@@ -89,16 +89,16 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
               child: GestureDetector(child: const Icon(Icons.search), onTap: logic.handleClearAndRefresh),
             ),
             prefixIconConstraints: BoxConstraints(
-              minHeight: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
-              minWidth: StyleSetting.isInDesktopLayout ? 32 : 52,
+              minHeight: styleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
+              minWidth: styleSetting.isInDesktopLayout ? 32 : 52,
             ),
             suffixIcon: MouseRegion(
               cursor: SystemMouseCursors.click,
               child: GestureDetector(child: const Icon(Icons.cancel), onTap: logic.handleTapClearButton),
             ),
             suffixIconConstraints: BoxConstraints(
-              minHeight: StyleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
-              minWidth: StyleSetting.isInDesktopLayout ? 24 : 40,
+              minHeight: styleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
+              minWidth: styleSetting.isInDesktopLayout ? 24 : 40,
             ),
           ),
           onTap: () {

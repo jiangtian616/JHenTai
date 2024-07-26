@@ -34,7 +34,7 @@ class _FocusWidgetState extends State<FocusWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.enableFocus || StyleSetting.actualLayout != LayoutMode.desktop) {
+    if (!widget.enableFocus || styleSetting.actualLayout != LayoutMode.desktop) {
       return widget.child;
     }
 

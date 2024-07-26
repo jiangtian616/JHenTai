@@ -8,10 +8,10 @@ class SettingPageListStylePage extends StatelessWidget {
   SettingPageListStylePage({Key? key}) : super(key: key);
 
   final List<PageListStyleItem> items = [
-    PageListStyleItem(name: 'home'.tr, route: Routes.gallerys, show: () => StyleSetting.isInDesktopLayout),
-    PageListStyleItem(name: 'home'.tr, route: Routes.dashboard, show: () => StyleSetting.isInMobileLayout || StyleSetting.isInTabletLayout),
-    PageListStyleItem(name: 'search'.tr, route: Routes.desktopSearch, show: () => StyleSetting.isInDesktopLayout),
-    PageListStyleItem(name: 'search'.tr, route: Routes.mobileV2Search, show: () => StyleSetting.isInMobileLayout || StyleSetting.isInTabletLayout),
+    PageListStyleItem(name: 'home'.tr, route: Routes.gallerys, show: () => styleSetting.isInDesktopLayout),
+    PageListStyleItem(name: 'home'.tr, route: Routes.dashboard, show: () => styleSetting.isInMobileLayout || styleSetting.isInTabletLayout),
+    PageListStyleItem(name: 'search'.tr, route: Routes.desktopSearch, show: () => styleSetting.isInDesktopLayout),
+    PageListStyleItem(name: 'search'.tr, route: Routes.mobileV2Search, show: () => styleSetting.isInMobileLayout || styleSetting.isInTabletLayout),
     PageListStyleItem(name: 'popular'.tr, route: Routes.popular, show: () => true),
     PageListStyleItem(name: 'ranklist'.tr, route: Routes.ranklist, show: () => true),
     PageListStyleItem(name: 'favorite'.tr, route: Routes.favorite, show: () => true),
@@ -32,10 +32,10 @@ class SettingPageListStylePage extends StatelessWidget {
                 (item) => ListTile(
                   title: Text(item.name),
                   trailing: DropdownButton<ListMode?>(
-                    value: StyleSetting.pageListMode[item.route],
+                    value: styleSetting.pageListMode[item.route],
                     elevation: 4,
                     alignment: AlignmentDirectional.centerEnd,
-                    onChanged: (value) => StyleSetting.savePageListMode(item.route, value),
+                    onChanged: (value) => styleSetting.savePageListMode(item.route, value),
                     items: [
                       DropdownMenuItem(child: Text('global'.tr), value: null),
                       DropdownMenuItem(child: Text('flat'.tr), value: ListMode.flat),

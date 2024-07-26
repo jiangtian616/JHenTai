@@ -85,7 +85,7 @@ class EHGalleryListCard extends StatelessWidget {
       ),
     ];
 
-    if (StyleSetting.moveCover2RightSide.isTrue) {
+    if (styleSetting.moveCover2RightSide.isTrue) {
       children = children.reversed.toList();
     }
 
