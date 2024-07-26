@@ -29,21 +29,21 @@ class VerticalListLayout extends BaseLayout {
           initialScale: 1.0,
           minScale: 1.0,
           maxScale: 2.5,
-          scaleStateCycle: ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
-          enableTapDragZoom: ReadSetting.enableTapDragToScaleUp.isTrue,
+          scaleStateCycle: readSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
+          enableTapDragZoom: readSetting.enableTapDragToScaleUp.isTrue,
           child: EHWheelSpeedControllerForReadPage(
             scrollController: state.itemScrollController,
             child: EHScrollablePositionedList.separated(
               physics: const ClampingScrollPhysics(),
               minCacheExtent: readPageState.readPageInfo.mode == ReadMode.online
-                  ? ReadSetting.preloadDistance * screenHeight * 1
-                  : ReadSetting.preloadDistanceLocal * screenHeight * 1,
+                  ? readSetting.preloadDistance * screenHeight * 1
+                  : readSetting.preloadDistanceLocal * screenHeight * 1,
               initialScrollIndex: readPageState.readPageInfo.initialIndex,
               itemCount: readPageState.readPageInfo.pageCount,
               itemScrollController: state.itemScrollController,
               itemPositionsListener: state.itemPositionsListener,
               itemBuilder: _imageBuilder,
-              separatorBuilder: (_, __) => Obx(() => SizedBox(height: ReadSetting.imageSpace.value.toDouble())),
+              separatorBuilder: (_, __) => Obx(() => SizedBox(height: readSetting.imageSpace.value.toDouble())),
             ),
           ),
         ),
@@ -55,22 +55,22 @@ class VerticalListLayout extends BaseLayout {
     Widget child = Row(
       children: [
         Expanded(
-          flex: 100 - ReadSetting.imageRegionWidthRatio.value,
+          flex: 100 - readSetting.imageRegionWidthRatio.value,
           child: const SizedBox(),
         ),
         Expanded(
-          flex: ReadSetting.imageRegionWidthRatio.value * 2,
+          flex: readSetting.imageRegionWidthRatio.value * 2,
           child: readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index),
         ),
         Expanded(
-          flex: 100 - ReadSetting.imageRegionWidthRatio.value,
+          flex: 100 - readSetting.imageRegionWidthRatio.value,
           child: const SizedBox(),
         ),
       ],
     );
 
     if (GetPlatform.isMobile && index == 0) {
-      return Obx(() => child.marginOnly(top: ReadSetting.notchOptimization.isTrue ? MediaQuery.of(context).padding.top : 0));
+      return Obx(() => child.marginOnly(top: readSetting.notchOptimization.isTrue ? MediaQuery.of(context).padding.top : 0));
     }
 
     return child;

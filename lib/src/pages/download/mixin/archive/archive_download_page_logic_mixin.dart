@@ -138,7 +138,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
       return;
     }
 
-    if (ReadSetting.useThirdPartyViewer.isTrue && ReadSetting.thirdPartyViewerPath.value != null) {
+    if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
       openThirdPartyViewer(archiveDownloadService.computeArchiveUnpackingPath(archive.title, archive.gid));
     } else {
       String storageKey = '${ConfigEnum.readIndexRecord.key}::${archive.gid}';

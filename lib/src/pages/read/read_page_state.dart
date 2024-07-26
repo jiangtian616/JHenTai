@@ -35,7 +35,7 @@ class ReadPageState with ScrollStatusListerState {
   Battery battery = Battery();
   int batteryLevel = 100;
   bool useSuperResolution = false;
-  bool displayFirstPageAlone = ReadSetting.displayFirstPageAlone.value;
+  bool displayFirstPageAlone = readSetting.displayFirstPageAlone.value;
   FocusNode focusNode = FocusNode();
 
   late Size displayRegionSize;

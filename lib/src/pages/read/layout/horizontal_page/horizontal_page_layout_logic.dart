@@ -25,7 +25,7 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
 
   @override
   void toLeft() {
-    if (ReadSetting.isInRight2LeftDirection) {
+    if (readSetting.isInRight2LeftDirection) {
       toNext();
     } else {
       toPrev();
@@ -34,7 +34,7 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
 
   @override
   void toRight() {
-    if (ReadSetting.isInRight2LeftDirection) {
+    if (readSetting.isInRight2LeftDirection) {
       toPrev();
     } else {
       toNext();
@@ -78,10 +78,10 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
     readPageLogic.toggleMenu();
 
     autoModeTimer = Timer.periodic(
-      Duration(milliseconds: (ReadSetting.autoModeInterval.value * 1000).toInt()),
+      Duration(milliseconds: (readSetting.autoModeInterval.value * 1000).toInt()),
       (_) {
         /// changed read setting
-        if (!ReadSetting.isInSinglePageReadDirection) {
+        if (!readSetting.isInSinglePageReadDirection) {
           Get.engine.addPostFrameCallback((_) {
             readPageLogic.closeAutoMode();
           });

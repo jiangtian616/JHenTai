@@ -29,24 +29,24 @@ class HorizontalListLayout extends BaseLayout {
         initialScale: 1.0,
         minScale: 1.0,
         maxScale: 2.5,
-        scaleStateCycle: ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
-        enableTapDragZoom: ReadSetting.enableTapDragToScaleUp.isTrue,
+        scaleStateCycle: readSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
+        enableTapDragZoom: readSetting.enableTapDragToScaleUp.isTrue,
         child: EHWheelSpeedControllerForReadPage(
           scrollController: state.itemScrollController,
           child: EHScrollablePositionedList.separated(
             scrollDirection: Axis.horizontal,
-            reverse: ReadSetting.isInRight2LeftDirection,
+            reverse: readSetting.isInRight2LeftDirection,
             physics: const ClampingScrollPhysics(),
             minCacheExtent: readPageState.readPageInfo.mode == ReadMode.online
-                ? ReadSetting.preloadDistance * screenHeight * 1
-                : ReadSetting.preloadDistanceLocal * screenHeight * 1,
+                ? readSetting.preloadDistance * screenHeight * 1
+                : readSetting.preloadDistanceLocal * screenHeight * 1,
             initialScrollIndex: readPageState.readPageInfo.initialIndex,
             itemCount: readPageState.readPageInfo.pageCount,
             itemScrollController: state.itemScrollController,
             itemPositionsListener: state.itemPositionsListener,
             itemBuilder: (context, index) =>
                 readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index),
-            separatorBuilder: (_, __) => Obx(() => SizedBox(width: ReadSetting.imageSpace.value.toDouble())),
+            separatorBuilder: (_, __) => Obx(() => SizedBox(width: readSetting.imageSpace.value.toDouble())),
           ),
         ),
       ),

@@ -24,7 +24,7 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
 
   @override
   void toLeft() {
-    if (ReadSetting.isInRight2LeftDirection) {
+    if (readSetting.isInRight2LeftDirection) {
       toNext();
     } else {
       toPrev();
@@ -33,7 +33,7 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
 
   @override
   void toRight() {
-    if (ReadSetting.isInRight2LeftDirection) {
+    if (readSetting.isInRight2LeftDirection) {
       toPrev();
     } else {
       toNext();
@@ -43,7 +43,7 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
   /// to prev image or screen
   @override
   void toPrev() {
-    switch (ReadSetting.turnPageMode.value) {
+    switch (readSetting.turnPageMode.value) {
       case TurnPageMode.image:
         return _toPrevImage();
       case TurnPageMode.screen:
@@ -60,7 +60,7 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
   /// to next image or screen
   @override
   void toNext() {
-    switch (ReadSetting.turnPageMode.value) {
+    switch (readSetting.turnPageMode.value) {
       case TurnPageMode.image:
         return _toNextImage();
       case TurnPageMode.screen:
@@ -115,7 +115,7 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
   }
 
   void _toPrevScreen() {
-    if (ReadSetting.enablePageTurnAnime.isFalse) {
+    if (readSetting.enablePageTurnAnime.isFalse) {
       state.itemScrollController.scrollOffset(
         offset: -fullScreenWidth,
         duration: const Duration(milliseconds: 1),
@@ -129,7 +129,7 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
   }
 
   void _toNextScreen() {
-    if (ReadSetting.enablePageTurnAnime.isFalse) {
+    if (readSetting.enablePageTurnAnime.isFalse) {
       state.itemScrollController.scrollOffset(
         offset: fullScreenWidth,
         duration: const Duration(milliseconds: 1),
@@ -144,7 +144,7 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
 
   @override
   void enterAutoMode() {
-    if (ReadSetting.autoModeStyle.value == AutoModeStyle.scroll) {
+    if (readSetting.autoModeStyle.value == AutoModeStyle.scroll) {
       _enterAutoModeByScroll();
     } else {
       _enterAutoModeByTurnPage();
@@ -153,7 +153,7 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
 
   void _enterAutoModeByScroll() {
     int restPageCount = readPageState.readPageInfo.pageCount - readPageState.readPageInfo.currentImageIndex - 1;
-    double totalTime = restPageCount * ReadSetting.autoModeInterval.value;
+    double totalTime = restPageCount * readSetting.autoModeInterval.value;
 
     readPageLogic.toggleMenu();
 
@@ -168,10 +168,10 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
     readPageLogic.toggleMenu();
 
     autoModeTimer = Timer.periodic(
-      Duration(milliseconds: (ReadSetting.autoModeInterval.value * 1000).toInt()),
+      Duration(milliseconds: (readSetting.autoModeInterval.value * 1000).toInt()),
       (_) {
         /// changed read setting
-        if (ReadSetting.readDirection.value != ReadDirection.left2rightList && ReadSetting.readDirection.value != ReadDirection.right2leftList) {
+        if (readSetting.readDirection.value != ReadDirection.left2rightList && readSetting.readDirection.value != ReadDirection.right2leftList) {
           Get.engine.addPostFrameCallback((_) {
             readPageLogic.closeAutoMode();
           });
@@ -224,7 +224,7 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
     if (readPageState.imageContainerSizes[imageIndex] != null) {
       return readPageState.imageContainerSizes[imageIndex]!;
     }
-    return Size((fullScreenWidth - ReadSetting.imageSpace.value) / 2, double.infinity);
+    return Size((fullScreenWidth - readSetting.imageSpace.value) / 2, double.infinity);
   }
 
   @override

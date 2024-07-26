@@ -84,7 +84,7 @@ mixin LocalGalleryDownloadPageLogicMixin on GetxController {
   }
 
   void goToReadPage(LocalGallery gallery) {
-    if (ReadSetting.useThirdPartyViewer.isTrue && ReadSetting.thirdPartyViewerPath.value != null) {
+    if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
       openThirdPartyViewer(gallery.path);
     } else {
       String storageKey = '${ConfigEnum.readIndexRecord.key}::${gallery.title}';

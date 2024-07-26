@@ -20,25 +20,25 @@ class HorizontalPageLayout extends BaseLayout {
   @override
   Widget buildBody(BuildContext context) {
     return EHWheelListener(
-      onPointerScroll: ReadSetting.isInFitWidthReadDirection ? null : logic.onPointerScroll,
+      onPointerScroll: readSetting.isInFitWidthReadDirection ? null : logic.onPointerScroll,
       child: PhotoViewGallery.builder(
         itemCount: readPageState.readPageInfo.pageCount,
         scrollPhysics: const ClampingScrollPhysics(),
         pageController: logic.pageController,
         cacheExtent: readPageState.readPageInfo.mode == ReadMode.online
-            ? ReadSetting.preloadPageCount.value.toDouble()
-            : ReadSetting.preloadPageCountLocal.value.toDouble(),
-        reverse: ReadSetting.isInRight2LeftDirection,
+            ? readSetting.preloadPageCount.value.toDouble()
+            : readSetting.preloadPageCountLocal.value.toDouble(),
+        reverse: readSetting.isInRight2LeftDirection,
         builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
           initialScale: 1.0,
           minScale: 1.0,
           maxScale: 2.5,
-          scaleStateCycle: ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
-          enableTapDragZoom: ReadSetting.enableTapDragToScaleUp.isTrue,
+          scaleStateCycle: readSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
+          enableTapDragZoom: readSetting.enableTapDragToScaleUp.isTrue,
           child: Obx(() {
             Widget item = readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index);
 
-            if (ReadSetting.isInFitWidthReadDirection) {
+            if (readSetting.isInFitWidthReadDirection) {
               item = Center(child: SingleChildScrollView(controller: ScrollController(), child: item));
             }
 

@@ -28,16 +28,16 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
         scrollPhysics: const ClampingScrollPhysics(),
         pageController: state.pageController,
         cacheExtent: readPageState.readPageInfo.mode == ReadMode.online
-            ? (ReadSetting.preloadPageCount.value.toDouble() + 1) / 2
-            : (ReadSetting.preloadPageCountLocal.value.toDouble() + 1) / 2,
-        reverse: ReadSetting.isInRight2LeftDirection,
+            ? (readSetting.preloadPageCount.value.toDouble() + 1) / 2
+            : (readSetting.preloadPageCountLocal.value.toDouble() + 1) / 2,
+        reverse: readSetting.isInRight2LeftDirection,
         itemCount: state.pageCount,
         builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
           initialScale: 1.0,
           minScale: 1.0,
           maxScale: 2.5,
-          scaleStateCycle: ReadSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
-          enableTapDragZoom: ReadSetting.enableTapDragToScaleUp.isTrue,
+          scaleStateCycle: readSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
+          enableTapDragZoom: readSetting.enableTapDragToScaleUp.isTrue,
           child: index < 0 || index >= state.pageCount
               ? null
               : readPageState.readPageInfo.mode == ReadMode.online
@@ -54,7 +54,7 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
       return null;
     }
 
-    if (ReadSetting.isInRight2LeftDirection) {
+    if (readSetting.isInRight2LeftDirection) {
       displayImageIndexes.reverseRange(0, displayImageIndexes.length);
     }
 
@@ -67,7 +67,7 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
       mainAxisSize: MainAxisSize.min,
       children: [
         buildItemInOnlineMode(context, displayImageIndexes[0]),
-        SizedBox(width: ReadSetting.imageSpace.value.toDouble()),
+        SizedBox(width: readSetting.imageSpace.value.toDouble()),
         buildItemInOnlineMode(context, displayImageIndexes[1]),
       ],
     );
@@ -79,7 +79,7 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
       return null;
     }
 
-    if (ReadSetting.isInRight2LeftDirection) {
+    if (readSetting.isInRight2LeftDirection) {
       displayImageIndexes.reverseRange(0, displayImageIndexes.length);
     }
 
@@ -92,7 +92,7 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
       mainAxisSize: MainAxisSize.min,
       children: [
         buildItemInLocalMode(context, displayImageIndexes[0]),
-        SizedBox(width: ReadSetting.imageSpace.value.toDouble()),
+        SizedBox(width: readSetting.imageSpace.value.toDouble()),
         buildItemInLocalMode(context, displayImageIndexes[1]),
       ],
     );

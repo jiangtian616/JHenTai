@@ -55,11 +55,11 @@ class ReadPageLogic extends GetxController {
 
   ReadPageState state = ReadPageState();
 
-  BaseLayoutLogic get layoutLogic => ReadSetting.readDirection.value == ReadDirection.top2bottomList
+  BaseLayoutLogic get layoutLogic => readSetting.readDirection.value == ReadDirection.top2bottomList
       ? Get.find<VerticalListLayoutLogic>()
-      : ReadSetting.isInListReadDirection
+      : readSetting.isInListReadDirection
           ? Get.find<HorizontalListLayoutLogic>()
-          : ReadSetting.isInDoubleColumnReadDirection
+          : readSetting.isInDoubleColumnReadDirection
               ? Get.find<HorizontalDoubleColumnLayoutLogic>()
               : Get.find<HorizontalPageLayoutLogic>();
 
@@ -102,26 +102,26 @@ class ReadPageLogic extends GetxController {
     updateDeviceOrientation();
 
     /// Listen to turn page by volume key change
-    toggleTurnPageByVolumeKeyLister = ever(ReadSetting.enablePageTurnByVolumeKeys, (_) => listen2VolumeKeys());
+    toggleTurnPageByVolumeKeyLister = ever(readSetting.enablePageTurnByVolumeKeys, (_) => listen2VolumeKeys());
 
     /// Listen to immersive mode change
-    toggleCurrentImmersiveModeLister = ever(ReadSetting.enableImmersiveMode, (_) => applyCurrentImmersiveMode());
+    toggleCurrentImmersiveModeLister = ever(readSetting.enableImmersiveMode, (_) => applyCurrentImmersiveMode());
 
     /// Listen to device orientation change
-    toggleDeviceOrientationLister = ever(ReadSetting.deviceDirection, (_) => updateDeviceOrientation());
+    toggleDeviceOrientationLister = ever(readSetting.deviceDirection, (_) => updateDeviceOrientation());
 
     /// Listen to read direction change
-    readDirectionLister = ever(ReadSetting.readDirection, (_) {
+    readDirectionLister = ever(readSetting.readDirection, (_) {
       clearImageContainerSized();
       state.readPageInfo.initialIndex = state.readPageInfo.currentImageIndex;
       updateSafely([layoutId]);
     });
 
-    imageSpaceLister = ever(ReadSetting.imageSpace, (_) {
+    imageSpaceLister = ever(readSetting.imageSpace, (_) {
       updateSafely([layoutId]);
     });
 
-    displayFirstPageAloneListener = ever(ReadSetting.displayFirstPageAlone, (value) {
+    displayFirstPageAloneListener = ever(readSetting.displayFirstPageAlone, (value) {
       if (state.displayFirstPageAlone != value) {
         state.displayFirstPageAlone = value;
         layoutLogic.toggleDisplayFirstPageAlone();
@@ -149,26 +149,26 @@ class ReadPageLogic extends GetxController {
 
     flushReadProgressTimer = Timer.periodic(const Duration(seconds: 5), (_) => _flushReadProgress());
 
-    if (ReadSetting.keepScreenAwakeWhenReading.isTrue) {
+    if (readSetting.keepScreenAwakeWhenReading.isTrue) {
       WakelockPlus.enable();
     }
 
-    if (GetPlatform.isMobile && ReadSetting.enableCustomReadBrightness.isTrue) {
+    if (GetPlatform.isMobile && readSetting.enableCustomReadBrightness.isTrue) {
       applyCurrentBrightness();
     }
-    enableCustomBrightnessListener = ever(ReadSetting.enableCustomReadBrightness, (_) {
-      if (GetPlatform.isMobile && ReadSetting.enableCustomReadBrightness.isTrue) {
+    enableCustomBrightnessListener = ever(readSetting.enableCustomReadBrightness, (_) {
+      if (GetPlatform.isMobile && readSetting.enableCustomReadBrightness.isTrue) {
         applyCurrentBrightness();
       } else {
         resetBrightness();
       }
     });
-    customBrightnessListener = ever(ReadSetting.customBrightness, (_) {
+    customBrightnessListener = ever(readSetting.customBrightness, (_) {
       applyCurrentBrightness();
     });
 
     preloadListener = everAll(
-      [ReadSetting.preloadPageCountLocal, ReadSetting.preloadPageCount, ReadSetting.preloadDistanceLocal, ReadSetting.preloadDistance],
+      [readSetting.preloadPageCountLocal, readSetting.preloadPageCount, readSetting.preloadDistanceLocal, readSetting.preloadDistance],
       (_) => updateSafely([layoutId]),
     );
 
@@ -201,7 +201,7 @@ class ReadPageLogic extends GetxController {
 
     _flushReadProgress();
 
-    if (ReadSetting.enableCustomReadBrightness.isTrue) {
+    if (readSetting.enableCustomReadBrightness.isTrue) {
       resetBrightness();
     }
 
@@ -349,7 +349,7 @@ class ReadPageLogic extends GetxController {
         layoutLogic.toNext();
       }
     });
-    volumeService.setInterceptVolumeEvent(ReadSetting.enablePageTurnByVolumeKeys.value);
+    volumeService.setInterceptVolumeEvent(readSetting.enablePageTurnByVolumeKeys.value);
   }
 
   void restoreVolumeListener() {
@@ -364,7 +364,7 @@ class ReadPageLogic extends GetxController {
       updateSafely([pageId]);
     }
 
-    if (ReadSetting.enableImmersiveMode.isTrue) {
+    if (readSetting.enableImmersiveMode.isTrue) {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     } else {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
@@ -378,8 +378,8 @@ class ReadPageLogic extends GetxController {
   }
 
   void applyCurrentBrightness() {
-    if (GetPlatform.isMobile && ReadSetting.enableCustomReadBrightness.isTrue) {
-      ScreenBrightness().setScreenBrightness(ReadSetting.customBrightness.value.toDouble() / 100);
+    if (GetPlatform.isMobile && readSetting.enableCustomReadBrightness.isTrue) {
+      ScreenBrightness().setScreenBrightness(readSetting.customBrightness.value.toDouble() / 100);
     }
   }
 
@@ -394,13 +394,13 @@ class ReadPageLogic extends GetxController {
       return;
     }
 
-    if (ReadSetting.deviceDirection.value == DeviceDirection.followSystem) {
+    if (readSetting.deviceDirection.value == DeviceDirection.followSystem) {
       restoreDeviceOrientation();
     }
-    if (ReadSetting.deviceDirection.value == DeviceDirection.landscape) {
+    if (readSetting.deviceDirection.value == DeviceDirection.landscape) {
       SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
     }
-    if (ReadSetting.deviceDirection.value == DeviceDirection.portrait) {
+    if (readSetting.deviceDirection.value == DeviceDirection.portrait) {
       SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     }
   }
@@ -448,7 +448,7 @@ class ReadPageLogic extends GetxController {
       return;
     }
 
-    if (ReadSetting.disablePageTurningOnTap.isTrue) {
+    if (readSetting.disablePageTurningOnTap.isTrue) {
       return;
     }
 
@@ -456,7 +456,7 @@ class ReadPageLogic extends GetxController {
       return;
     }
 
-    if (ReadSetting.reverseTurnPageDirection.isTrue) {
+    if (readSetting.reverseTurnPageDirection.isTrue) {
       toRight();
     } else {
       toLeft();
@@ -467,7 +467,7 @@ class ReadPageLogic extends GetxController {
     if (!state.readyToShow) {
       return;
     }
-    if (ReadSetting.disablePageTurningOnTap.isTrue) {
+    if (readSetting.disablePageTurningOnTap.isTrue) {
       return;
     }
 
@@ -475,7 +475,7 @@ class ReadPageLogic extends GetxController {
       return;
     }
 
-    if (ReadSetting.reverseTurnPageDirection.isTrue) {
+    if (readSetting.reverseTurnPageDirection.isTrue) {
       toLeft();
     } else {
       toRight();
@@ -529,7 +529,7 @@ class ReadPageLogic extends GetxController {
 
   /// Sync thumbnails after user scrolling to image whose index is [targetImageIndex]
   void syncThumbnails(int targetImageIndex) {
-    if (ReadSetting.showThumbnails.isFalse) {
+    if (readSetting.showThumbnails.isFalse) {
       return;
     }
 

@@ -37,7 +37,7 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
 
   @override
   void toLeft() {
-    if (ReadSetting.isInRight2LeftDirection) {
+    if (readSetting.isInRight2LeftDirection) {
       toNext();
     } else {
       toPrev();
@@ -46,7 +46,7 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
 
   @override
   void toRight() {
-    if (ReadSetting.isInRight2LeftDirection) {
+    if (readSetting.isInRight2LeftDirection) {
       toPrev();
     } else {
       toNext();
@@ -106,10 +106,10 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
     readPageLogic.toggleMenu();
 
     autoModeTimer = Timer.periodic(
-      Duration(milliseconds: (ReadSetting.autoModeInterval.value * 1000).toInt()),
+      Duration(milliseconds: (readSetting.autoModeInterval.value * 1000).toInt()),
       (_) {
         /// changed read direction
-        if (!ReadSetting.isInDoubleColumnReadDirection) {
+        if (!readSetting.isInDoubleColumnReadDirection) {
           Get.engine.addPostFrameCallback((_) {
             readPageLogic.closeAutoMode();
           });
@@ -143,7 +143,7 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
     if (readPageState.imageContainerSizes[imageIndex] != null) {
       return readPageState.imageContainerSizes[imageIndex]!;
     }
-    return Size((fullScreenWidth - ReadSetting.imageSpace.value) / 2, double.infinity);
+    return Size((fullScreenWidth - readSetting.imageSpace.value) / 2, double.infinity);
   }
 
   FittedSizes getImageFittedSizeIncludeSpread(Size imageSize, bool isSpreadPage) {
@@ -151,7 +151,7 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
       BoxFit.contain,
       Size(imageSize.width, imageSize.height),
       Size(
-        isSpreadPage ? readPageState.displayRegionSize.width : (readPageState.displayRegionSize.width - ReadSetting.imageSpace.value) / 2,
+        isSpreadPage ? readPageState.displayRegionSize.width : (readPageState.displayRegionSize.width - readSetting.imageSpace.value) / 2,
         readPageState.displayRegionSize.height,
       ),
     );

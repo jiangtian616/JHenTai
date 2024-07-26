@@ -113,7 +113,7 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
     return GetBuilder<ReadPageLogic>(
       id: logic.pageId,
       builder: (_) {
-        if (ReadSetting.enableImmersiveMode.isFalse) {
+        if (readSetting.enableImmersiveMode.isFalse) {
           return buildWindow(child: child);
         }
         return child;
@@ -142,13 +142,13 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
             logic.clearImageContainerSized();
             state.displayRegionSize = Size(constraints.maxWidth, constraints.maxHeight);
 
-            if (ReadSetting.readDirection.value == ReadDirection.top2bottomList) {
+            if (readSetting.readDirection.value == ReadDirection.top2bottomList) {
               return VerticalListLayout();
             }
-            if (ReadSetting.isInListReadDirection) {
+            if (readSetting.isInListReadDirection) {
               return HorizontalListLayout();
             }
-            if (ReadSetting.isInDoubleColumnReadDirection) {
+            if (readSetting.isInDoubleColumnReadDirection) {
               return HorizontalDoubleColumnLayout();
             }
             return HorizontalPageLayout();
@@ -167,7 +167,7 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
       right: 0,
       child: Obx(
         () {
-          if (ReadSetting.showStatusInfo.isFalse) {
+          if (readSetting.showStatusInfo.isFalse) {
             return const SizedBox();
           }
 
@@ -233,19 +233,19 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
       children: [
         /// left region
         Expanded(
-          flex: (100 - ReadSetting.gestureRegionWidthRatio.value) ~/ 2,
+          flex: (100 - readSetting.gestureRegionWidthRatio.value) ~/ 2,
           child: GestureDetector(onTap: logic.tapLeftRegion, behavior: HitTestBehavior.opaque),
         ),
 
         /// center region
         Expanded(
-          flex: ReadSetting.gestureRegionWidthRatio.value,
+          flex: readSetting.gestureRegionWidthRatio.value,
           child: GestureDetector(onTap: logic.tapCenterRegion, behavior: HitTestBehavior.opaque),
         ),
 
         /// right region: toRight
         Expanded(
-            flex: (100 - ReadSetting.gestureRegionWidthRatio.value) ~/ 2,
+            flex: (100 - readSetting.gestureRegionWidthRatio.value) ~/ 2,
             child: GestureDetector(onTap: logic.tapRightRegion, behavior: HitTestBehavior.opaque)),
       ],
     );
@@ -311,7 +311,7 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
                 ),
               ),
             Obx(() {
-              if (!ReadSetting.isInDoubleColumnReadDirection) {
+              if (!readSetting.isInDoubleColumnReadDirection) {
                 return const SizedBox();
               }
               return ElevatedButton(
@@ -345,7 +345,7 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
                 ),
               ),
             ),
-            if (ReadSetting.enableBottomMenu.isFalse)
+            if (readSetting.enableBottomMenu.isFalse)
               ElevatedButton(
                 child: const Icon(Icons.settings, color: UIConfig.readPageButtonColor),
                 onPressed: () {
@@ -380,18 +380,18 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
           curve: Curves.ease,
           bottom: state.isMenuOpen
               ? 0
-              : (ReadSetting.showThumbnails.isTrue ? -UIConfig.readPageBottomThumbnailsRegionHeight : 0) -
+              : (readSetting.showThumbnails.isTrue ? -UIConfig.readPageBottomThumbnailsRegionHeight : 0) -
                   UIConfig.readPageBottomSliderHeight -
-                  (ReadSetting.enableBottomMenu.isTrue ? UIConfig.readPageBottomActionHeight : 0) -
+                  (readSetting.enableBottomMenu.isTrue ? UIConfig.readPageBottomActionHeight : 0) -
                   max(MediaQuery.of(context).viewPadding.bottom, UIConfig.readPageBottomSpacingHeight),
           child: ColoredBox(
             color: UIConfig.readPageMenuColor,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (ReadSetting.showThumbnails.isTrue) _buildThumbnails(context),
+                if (readSetting.showThumbnails.isTrue) _buildThumbnails(context),
                 _buildSlider(),
-                if (ReadSetting.enableBottomMenu.isTrue) _buildBottomAction(),
+                if (readSetting.enableBottomMenu.isTrue) _buildBottomAction(),
                 SizedBox(height: max(MediaQuery.of(context).viewPadding.bottom, UIConfig.readPageBottomSpacingHeight)),
               ],
             ),
@@ -410,7 +410,7 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
           scrollController: state.thumbnailsScrollController,
           child: EHScrollablePositionedList.separated(
             scrollDirection: Axis.horizontal,
-            reverse: ReadSetting.isInRight2LeftDirection,
+            reverse: readSetting.isInRight2LeftDirection,
             physics: const ClampingScrollPhysics(),
             minCacheExtent: 1 * fullScreenWidth,
             initialScrollIndex: state.readPageInfo.initialIndex,
@@ -519,7 +519,7 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(ReadSetting.isInRight2LeftDirection ? state.readPageInfo.pageCount.toString() : (state.readPageInfo.currentImageIndex + 1).toString())
+            Text(readSetting.isInRight2LeftDirection ? state.readPageInfo.pageCount.toString() : (state.readPageInfo.currentImageIndex + 1).toString())
                 .marginOnly(left: 36, right: 4),
             Expanded(
               child: Column(
@@ -529,7 +529,7 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
                     child: Material(
                       color: Colors.transparent,
                       child: RotatedBox(
-                        quarterTurns: ReadSetting.isInRight2LeftDirection ? 2 : 0,
+                        quarterTurns: readSetting.isInRight2LeftDirection ? 2 : 0,
                         child: Slider(
                           min: 1,
                           max: state.readPageInfo.pageCount.toDouble(),
@@ -544,7 +544,7 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
                 ],
               ),
             ),
-            Text(ReadSetting.isInRight2LeftDirection ? (state.readPageInfo.currentImageIndex + 1).toString() : state.readPageInfo.pageCount.toString())
+            Text(readSetting.isInRight2LeftDirection ? (state.readPageInfo.currentImageIndex + 1).toString() : state.readPageInfo.pageCount.toString())
                 .marginOnly(right: 36, left: 4),
           ],
         ),
@@ -562,27 +562,27 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
           Material(
             color: Colors.transparent,
             child: PopupMenuButton<ReadDirection>(
-              initialValue: ReadSetting.readDirection.value,
+              initialValue: readSetting.readDirection.value,
               icon: const Icon(Icons.height, color: UIConfig.readPageButtonColor),
               itemBuilder: (_) => ReadDirection.values
                   .map(
                     (e) => PopupMenuItem<ReadDirection>(child: Text(e.name.tr), value: e),
                   )
                   .toList(),
-              onSelected: (ReadDirection value) => ReadSetting.saveReadDirection(value),
+              onSelected: (ReadDirection value) => readSetting.saveReadDirection(value),
             ),
           ),
           Material(
             color: Colors.transparent,
             child: PopupMenuButton<DeviceDirection>(
-              initialValue: ReadSetting.deviceDirection.value,
+              initialValue: readSetting.deviceDirection.value,
               icon: const Icon(Icons.screen_rotation, color: UIConfig.readPageButtonColor),
               itemBuilder: (_) => DeviceDirection.values
                   .map(
                     (e) => PopupMenuItem<DeviceDirection>(child: Text(e.name.tr), value: e),
                   )
                   .toList(),
-              onSelected: (DeviceDirection value) => ReadSetting.saveDeviceDirection(value),
+              onSelected: (DeviceDirection value) => readSetting.saveDeviceDirection(value),
             ),
           ),
           GestureDetector(

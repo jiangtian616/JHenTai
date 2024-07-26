@@ -14,8 +14,8 @@ class AutoModeIntervalDialog extends StatefulWidget {
 }
 
 class _AutoModeIntervalDialogState extends State<AutoModeIntervalDialog> {
-  double interval = ReadSetting.autoModeInterval.value;
-  FixedExtentScrollController scrollController = FixedExtentScrollController(initialItem: ReadSetting.autoModeInterval.value ~/ 0.5 - 1);
+  double interval = readSetting.autoModeInterval.value;
+  FixedExtentScrollController scrollController = FixedExtentScrollController(initialItem: readSetting.autoModeInterval.value ~/ 0.5 - 1);
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +40,7 @@ class _AutoModeIntervalDialogState extends State<AutoModeIntervalDialog> {
         TextButton(
           child: Text('OK'.tr),
           onPressed: () {
-            ReadSetting.saveAutoModeInterval(interval);
+            readSetting.saveAutoModeInterval(interval);
             backRoute(result: true);
           },
         ),

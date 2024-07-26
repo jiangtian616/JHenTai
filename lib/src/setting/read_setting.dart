@@ -1,82 +1,57 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/service/log.dart';
 
-import '../service/storage_service.dart';
+import '../service/jh_service.dart';
 
-enum DeviceDirection { followSystem, landscape, portrait }
+ReadSetting readSetting = ReadSetting();
 
-enum ReadDirection {
-  top2bottomList,
-  left2rightSinglePage,
-  left2rightSinglePageFitWidth,
-  left2rightDoubleColumn,
-  left2rightList,
-  right2leftSinglePage,
-  right2leftSinglePageFitWidth,
-  right2leftDoubleColumn,
-  right2leftList,
-}
-
-enum TurnPageMode {
-  image,
-  screen,
-
-  /// if one image covers the whole screen => screen
-  /// else => image
-  adaptive,
-}
-
-enum AutoModeStyle {
-  scroll,
-  turnPage,
-}
-
-class ReadSetting {
-  static RxBool enableImmersiveMode = true.obs;
-  static RxBool keepScreenAwakeWhenReading = true.obs;
-  static RxBool enableCustomReadBrightness = false.obs;
-  static RxInt customBrightness = 50.obs;
-  static RxInt imageSpace = 6.obs;
-  static RxBool showThumbnails = true.obs;
-  static RxBool showScrollBar = true.obs;
-  static RxBool showStatusInfo = true.obs;
-  static RxBool enablePageTurnByVolumeKeys = true.obs;
-  static RxBool enablePageTurnAnime = true.obs;
-  static RxBool enableDoubleTapToScaleUp = false.obs;
-  static RxBool enableTapDragToScaleUp = false.obs;
-  static RxBool enableBottomMenu = false.obs;
-  static Rx<DeviceDirection> deviceDirection = DeviceDirection.followSystem.obs;
-  static Rx<ReadDirection> readDirection = GetPlatform.isMobile ? ReadDirection.top2bottomList.obs : ReadDirection.left2rightList.obs;
-  static RxBool notchOptimization = false.obs;
-  static RxInt imageRegionWidthRatio = 100.obs;
-  static RxInt gestureRegionWidthRatio = 60.obs;
-  static RxBool useThirdPartyViewer = false.obs;
-  static RxnString thirdPartyViewerPath = RxnString();
-  static RxDouble autoModeInterval = 2.0.obs;
-  static Rx<AutoModeStyle> autoModeStyle = AutoModeStyle.turnPage.obs;
-  static Rx<TurnPageMode> turnPageMode = TurnPageMode.adaptive.obs;
-  static RxInt preloadDistance = 1.obs;
-  static RxInt preloadDistanceLocal = GetPlatform.isIOS ? 3.obs : 8.obs;
-  static RxInt preloadPageCount = 1.obs;
-  static RxInt preloadPageCountLocal = 3.obs;
-  static RxBool displayFirstPageAlone = true.obs;
-  static RxBool reverseTurnPageDirection = false.obs;
-  static RxBool disablePageTurningOnTap = false.obs;
-  static RxBool enableMaxImageKilobyte =
+class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
+  RxBool enableImmersiveMode = true.obs;
+  RxBool keepScreenAwakeWhenReading = true.obs;
+  RxBool enableCustomReadBrightness = false.obs;
+  RxInt customBrightness = 50.obs;
+  RxInt imageSpace = 6.obs;
+  RxBool showThumbnails = true.obs;
+  RxBool showScrollBar = true.obs;
+  RxBool showStatusInfo = true.obs;
+  RxBool enablePageTurnByVolumeKeys = true.obs;
+  RxBool enablePageTurnAnime = true.obs;
+  RxBool enableDoubleTapToScaleUp = false.obs;
+  RxBool enableTapDragToScaleUp = false.obs;
+  RxBool enableBottomMenu = false.obs;
+  Rx<DeviceDirection> deviceDirection = DeviceDirection.followSystem.obs;
+  Rx<ReadDirection> readDirection = GetPlatform.isMobile ? ReadDirection.top2bottomList.obs : ReadDirection.left2rightList.obs;
+  RxBool notchOptimization = false.obs;
+  RxInt imageRegionWidthRatio = 100.obs;
+  RxInt gestureRegionWidthRatio = 60.obs;
+  RxBool useThirdPartyViewer = false.obs;
+  RxnString thirdPartyViewerPath = RxnString();
+  RxDouble autoModeInterval = 2.0.obs;
+  Rx<AutoModeStyle> autoModeStyle = AutoModeStyle.turnPage.obs;
+  Rx<TurnPageMode> turnPageMode = TurnPageMode.adaptive.obs;
+  RxInt preloadDistance = 1.obs;
+  RxInt preloadDistanceLocal = GetPlatform.isIOS ? 3.obs : 8.obs;
+  RxInt preloadPageCount = 1.obs;
+  RxInt preloadPageCountLocal = 3.obs;
+  RxBool displayFirstPageAlone = true.obs;
+  RxBool reverseTurnPageDirection = false.obs;
+  RxBool disablePageTurningOnTap = false.obs;
+  RxBool enableMaxImageKilobyte =
       (GetPlatform.isDesktop || PlatformDispatcher.instance.views.first.physicalSize.width / PlatformDispatcher.instance.views.first.devicePixelRatio >= 600)
           ? false.obs
           : true.obs;
-  static RxInt maxImageKilobyte = (1024 * 5).obs;
+  RxInt maxImageKilobyte = (1024 * 5).obs;
 
-  static bool get isInListReadDirection =>
+  bool get isInListReadDirection =>
       readDirection.value == ReadDirection.top2bottomList ||
       readDirection.value == ReadDirection.left2rightList ||
       readDirection.value == ReadDirection.right2leftList;
 
-  static bool get isInHorizontalReadDirection =>
+  bool get isInHorizontalReadDirection =>
       readDirection.value == ReadDirection.left2rightSinglePage ||
       readDirection.value == ReadDirection.right2leftSinglePage ||
       readDirection.value == ReadDirection.left2rightSinglePageFitWidth ||
@@ -86,268 +61,31 @@ class ReadSetting {
       readDirection.value == ReadDirection.left2rightList ||
       readDirection.value == ReadDirection.right2leftList;
 
-  static bool get isInSinglePageReadDirection =>
+  bool get isInSinglePageReadDirection =>
       readDirection.value == ReadDirection.left2rightSinglePage ||
       readDirection.value == ReadDirection.right2leftSinglePage ||
       readDirection.value == ReadDirection.left2rightSinglePageFitWidth ||
       readDirection.value == ReadDirection.right2leftSinglePageFitWidth;
 
-  static bool get isInFitWidthReadDirection =>
+  bool get isInFitWidthReadDirection =>
       readDirection.value == ReadDirection.left2rightSinglePageFitWidth || readDirection.value == ReadDirection.right2leftSinglePageFitWidth;
 
-  static bool get isInDoubleColumnReadDirection =>
+  bool get isInDoubleColumnReadDirection =>
       readDirection.value == ReadDirection.left2rightDoubleColumn || readDirection.value == ReadDirection.right2leftDoubleColumn;
 
-  static bool get isInRight2LeftDirection =>
+  bool get isInRight2LeftDirection =>
       readDirection.value == ReadDirection.right2leftSinglePage ||
       readDirection.value == ReadDirection.right2leftSinglePageFitWidth ||
       readDirection.value == ReadDirection.right2leftDoubleColumn ||
       readDirection.value == ReadDirection.right2leftList;
 
-  static void init() {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.readSetting.key);
-    if (map != null) {
-      _initFromMap(map);
-      log.debug('init ReadSetting success', false);
-    } else {
-      log.debug('init ReadSetting success: default', false);
-    }
-  }
+  @override
+  ConfigEnum get configEnum => ConfigEnum.readSetting;
 
-  static saveEnableImmersiveMode(bool value) {
-    log.debug('saveEnableImmersiveMode:$value');
-    enableImmersiveMode.value = value;
-    _save();
-  }
+  @override
+  void applyConfig(String configString) {
+    Map map = jsonDecode(configString);
 
-  static saveKeepScreenAwakeWhenReading(bool value) {
-    log.debug('saveKeepScreenAwakeWhenReading:$value');
-    keepScreenAwakeWhenReading.value = value;
-    _save();
-  }
-
-  static saveEnableCustomReadBrightness(bool value) {
-    log.debug('saveEnableCustomReadBrightness:$value');
-    enableCustomReadBrightness.value = value;
-    _save();
-  }
-
-  static saveCustomBrightness(int value) {
-    log.debug('saveCustomBrightness:$value');
-    customBrightness.value = value;
-    _save();
-  }
-
-  static saveImageSpace(int value) {
-    log.debug('saveImageSpace:$value');
-    imageSpace.value = value;
-    _save();
-  }
-
-  static saveShowThumbnails(bool value) {
-    log.debug('saveShowThumbnails:$value');
-    showThumbnails.value = value;
-    _save();
-  }
-
-  static saveShowScrollBar(bool value) {
-    log.debug('saveShowScrollBar:$value');
-    showScrollBar.value = value;
-    _save();
-  }
-
-  static saveShowStatusInfo(bool value) {
-    log.debug('saveShowStatusInfo:$value');
-    showStatusInfo.value = value;
-    _save();
-  }
-
-  static saveAutoModeInterval(double value) {
-    log.debug('saveAutoModeInterval:$value');
-    autoModeInterval.value = value;
-    _save();
-  }
-
-  static saveAutoModeStyle(AutoModeStyle value) {
-    log.debug('saveAutoModeStyle:${value.name}');
-    autoModeStyle.value = value;
-    _save();
-  }
-
-  static saveDeviceDirection(DeviceDirection value) {
-    log.debug('saveDeviceDirection:${value.name}');
-    deviceDirection.value = value;
-    _save();
-  }
-
-  static saveReadDirection(ReadDirection value) {
-    log.debug('saveReadDirection:${value.name}');
-    readDirection.value = value;
-    _save();
-  }
-
-  static saveNotchOptimization(bool value) {
-    log.debug('saveNotchOptimization:$value');
-    notchOptimization.value = value;
-    _save();
-  }
-
-  static saveImageRegionWidthRatio(int value) {
-    log.debug('saveImageRegionWidthRatio:$value');
-    imageRegionWidthRatio.value = value;
-    _save();
-  }
-
-  static saveGestureRegionWidthRatio(int value) {
-    log.debug('saveGestureRegionWidthRatio:$value');
-    gestureRegionWidthRatio.value = value;
-    _save();
-  }
-
-  static saveUseThirdPartyViewer(bool value) {
-    log.debug('saveUseThirdPartyViewer:$value');
-    useThirdPartyViewer.value = value;
-    _save();
-  }
-
-  static saveThirdPartyViewerPath(String? value) {
-    log.debug('saveThirdPartyViewerPath:$value');
-    thirdPartyViewerPath.value = value;
-    _save();
-  }
-
-  static saveEnablePageTurnByVolumeKeys(bool value) {
-    log.debug('saveEnablePageTurnByVolumeKeys:$value');
-    enablePageTurnByVolumeKeys.value = value;
-    _save();
-  }
-
-  static saveEnablePageTurnAnime(bool value) {
-    log.debug('saveEnablePageTurnAnime:$value');
-    enablePageTurnAnime.value = value;
-    _save();
-  }
-
-  static saveEnableDoubleTapToScaleUp(bool value) {
-    log.debug('saveEnableDoubleTapToScaleUp:$value');
-    enableDoubleTapToScaleUp.value = value;
-    _save();
-  }
-
-  static saveEnableTapDragToScaleUp(bool value) {
-    log.debug('saveEnableTapDragToScaleUp:$value');
-    enableTapDragToScaleUp.value = value;
-    _save();
-  }
-
-  static saveEnableBottomMenu(bool value) {
-    log.debug('saveEnableBottomMenu:$value');
-    enableBottomMenu.value = value;
-    _save();
-  }
-
-  static saveTurnPageMode(TurnPageMode value) {
-    log.debug('saveTurnPageMode:${value.name}');
-    turnPageMode.value = value;
-    _save();
-  }
-
-  static savePreloadDistance(int value) {
-    log.debug('savePreloadDistance:$value');
-    preloadDistance.value = value;
-    _save();
-  }
-
-  static savePreloadDistanceLocal(int value) {
-    log.debug('savePreloadDistanceLocal:$value');
-    preloadDistanceLocal.value = value;
-    _save();
-  }
-
-  static savePreloadPageCount(int value) {
-    log.debug('savePreloadPageCount:$value');
-    preloadPageCount.value = value;
-    _save();
-  }
-
-  static savePreloadPageCountLocal(int value) {
-    log.debug('savePreloadPageCountLocal:$value');
-    preloadPageCountLocal.value = value;
-    _save();
-  }
-
-  static saveDisplayFirstPageAlone(bool value) {
-    log.debug('saveDisplayFirstPageAlone:$value');
-    displayFirstPageAlone.value = value;
-    _save();
-  }
-
-  static saveReverseTurnPageDirection(bool value) {
-    log.debug('saveReverseTurnPageDirection:$value');
-    reverseTurnPageDirection.value = value;
-    _save();
-  }
-
-  static saveDisablePageTurningOnTap(bool value) {
-    log.debug('saveDisablePageTurningOnTap:$value');
-    disablePageTurningOnTap.value = value;
-    _save();
-  }
-
-  static saveEnableMaxImageKilobyte(bool value) {
-    log.debug('saveEnableMaxImageKilobyte:$value');
-    enableMaxImageKilobyte.value = value;
-    _save();
-  }
-
-  static saveMaxImageKilobyte(int value) {
-    log.debug('saveMaxImageKilobyte:$value');
-    maxImageKilobyte.value = value;
-    _save();
-  }
-
-  static Future<void> _save() async {
-    await Get.find<StorageService>().write(ConfigEnum.readSetting.key, _toMap());
-  }
-
-  static Map<String, dynamic> _toMap() {
-    return {
-      'enableImmersiveMode': enableImmersiveMode.value,
-      'keepScreenAwakeWhenReading': keepScreenAwakeWhenReading.value,
-      'enableCustomReadBrightness': enableCustomReadBrightness.value,
-      'customBrightness': customBrightness.value,
-      'imageSpace': imageSpace.value,
-      'showThumbnails': showThumbnails.value,
-      'showScrollBar': showScrollBar.value,
-      'showStatusInfo': showStatusInfo.value,
-      'enablePageTurnByVolumeKeys': enablePageTurnByVolumeKeys.value,
-      'enablePageTurnAnime': enablePageTurnAnime.value,
-      'enableDoubleTapToScaleUp': enableDoubleTapToScaleUp.value,
-      'enableTapDragToScaleUp': enableTapDragToScaleUp.value,
-      'enableBottomMenu': enableBottomMenu.value,
-      'autoModeInterval': autoModeInterval.value,
-      'autoModeStyle': autoModeStyle.value.index,
-      'deviceDirection': deviceDirection.value.index,
-      'readDirection': readDirection.value.index,
-      'notchOptimization': notchOptimization.value,
-      'imageRegionWidthRatio': imageRegionWidthRatio.value,
-      'gestureRegionWidthRatio': gestureRegionWidthRatio.value,
-      'useThirdPartyViewer': useThirdPartyViewer.value,
-      'thirdPartyViewerPath': thirdPartyViewerPath.value,
-      'turnPageMode': turnPageMode.value.index,
-      'preloadDistance': preloadDistance.value,
-      'preloadDistanceLocal': preloadDistanceLocal.value,
-      'preloadPageCount': preloadPageCount.value,
-      'preloadPageCountLocal': preloadPageCountLocal.value,
-      'displayFirstPageAlone': displayFirstPageAlone.value,
-      'reverseTurnPageDirection': reverseTurnPageDirection.value,
-      'disablePageTurningOnTap': disablePageTurningOnTap.value,
-      'enableMaxImageKilobyte': enableMaxImageKilobyte.value,
-      'maxImageKilobyte': maxImageKilobyte.value,
-    };
-  }
-
-  static _initFromMap(Map<String, dynamic> map) {
     enableImmersiveMode.value = map['enableImmersiveMode'];
     keepScreenAwakeWhenReading.value = map['keepScreenAwakeWhenReading'] ?? keepScreenAwakeWhenReading.value;
     enableCustomReadBrightness.value = map['enableCustomReadBrightness'] ?? enableCustomReadBrightness.value;
@@ -381,4 +119,268 @@ class ReadSetting {
     enableMaxImageKilobyte.value = map['enableMaxImageKilobyte'] ?? enableMaxImageKilobyte.value;
     maxImageKilobyte.value = map['maxImageKilobyte'] ?? maxImageKilobyte.value;
   }
+
+  @override
+  String toConfigString() {
+    return jsonEncode({
+      'enableImmersiveMode': enableImmersiveMode.value,
+      'keepScreenAwakeWhenReading': keepScreenAwakeWhenReading.value,
+      'enableCustomReadBrightness': enableCustomReadBrightness.value,
+      'customBrightness': customBrightness.value,
+      'imageSpace': imageSpace.value,
+      'showThumbnails': showThumbnails.value,
+      'showScrollBar': showScrollBar.value,
+      'showStatusInfo': showStatusInfo.value,
+      'enablePageTurnByVolumeKeys': enablePageTurnByVolumeKeys.value,
+      'enablePageTurnAnime': enablePageTurnAnime.value,
+      'enableDoubleTapToScaleUp': enableDoubleTapToScaleUp.value,
+      'enableTapDragToScaleUp': enableTapDragToScaleUp.value,
+      'enableBottomMenu': enableBottomMenu.value,
+      'autoModeInterval': autoModeInterval.value,
+      'autoModeStyle': autoModeStyle.value.index,
+      'deviceDirection': deviceDirection.value.index,
+      'readDirection': readDirection.value.index,
+      'notchOptimization': notchOptimization.value,
+      'imageRegionWidthRatio': imageRegionWidthRatio.value,
+      'gestureRegionWidthRatio': gestureRegionWidthRatio.value,
+      'useThirdPartyViewer': useThirdPartyViewer.value,
+      'thirdPartyViewerPath': thirdPartyViewerPath.value,
+      'turnPageMode': turnPageMode.value.index,
+      'preloadDistance': preloadDistance.value,
+      'preloadDistanceLocal': preloadDistanceLocal.value,
+      'preloadPageCount': preloadPageCount.value,
+      'preloadPageCountLocal': preloadPageCountLocal.value,
+      'displayFirstPageAlone': displayFirstPageAlone.value,
+      'reverseTurnPageDirection': reverseTurnPageDirection.value,
+      'disablePageTurningOnTap': disablePageTurningOnTap.value,
+      'enableMaxImageKilobyte': enableMaxImageKilobyte.value,
+      'maxImageKilobyte': maxImageKilobyte.value,
+    });
+  }
+
+  @override
+  Future<void> doOnInit() async {}
+
+  @override
+  void doOnReady() {}
+
+  Future<void> saveEnableImmersiveMode(bool value) async {
+    log.debug('saveEnableImmersiveMode:$value');
+    enableImmersiveMode.value = value;
+    await save();
+  }
+
+  Future<void> saveKeepScreenAwakeWhenReading(bool value) async {
+    log.debug('saveKeepScreenAwakeWhenReading:$value');
+    keepScreenAwakeWhenReading.value = value;
+    await save();
+  }
+
+  Future<void> saveEnableCustomReadBrightness(bool value) async {
+    log.debug('saveEnableCustomReadBrightness:$value');
+    enableCustomReadBrightness.value = value;
+    await save();
+  }
+
+  Future<void> saveCustomBrightness(int value) async {
+    log.debug('saveCustomBrightness:$value');
+    customBrightness.value = value;
+    await save();
+  }
+
+  Future<void> saveImageSpace(int value) async {
+    log.debug('saveImageSpace:$value');
+    imageSpace.value = value;
+    await save();
+  }
+
+  Future<void> saveShowThumbnails(bool value) async {
+    log.debug('saveShowThumbnails:$value');
+    showThumbnails.value = value;
+    await save();
+  }
+
+  Future<void> saveShowScrollBar(bool value) async {
+    log.debug('saveShowScrollBar:$value');
+    showScrollBar.value = value;
+    await save();
+  }
+
+  Future<void> saveShowStatusInfo(bool value) async {
+    log.debug('saveShowStatusInfo:$value');
+    showStatusInfo.value = value;
+    await save();
+  }
+
+  Future<void> saveAutoModeInterval(double value) async {
+    log.debug('saveAutoModeInterval:$value');
+    autoModeInterval.value = value;
+    await save();
+  }
+
+  Future<void> saveAutoModeStyle(AutoModeStyle value) async {
+    log.debug('saveAutoModeStyle:${value.name}');
+    autoModeStyle.value = value;
+    await save();
+  }
+
+  Future<void> saveDeviceDirection(DeviceDirection value) async {
+    log.debug('saveDeviceDirection:${value.name}');
+    deviceDirection.value = value;
+    await save();
+  }
+
+  Future<void> saveReadDirection(ReadDirection value) async {
+    log.debug('saveReadDirection:${value.name}');
+    readDirection.value = value;
+    await save();
+  }
+
+  Future<void> saveNotchOptimization(bool value) async {
+    log.debug('saveNotchOptimization:$value');
+    notchOptimization.value = value;
+    await save();
+  }
+
+  Future<void> saveImageRegionWidthRatio(int value) async {
+    log.debug('saveImageRegionWidthRatio:$value');
+    imageRegionWidthRatio.value = value;
+    await save();
+  }
+
+  Future<void> saveGestureRegionWidthRatio(int value) async {
+    log.debug('saveGestureRegionWidthRatio:$value');
+    gestureRegionWidthRatio.value = value;
+    await save();
+  }
+
+  Future<void> saveUseThirdPartyViewer(bool value) async {
+    log.debug('saveUseThirdPartyViewer:$value');
+    useThirdPartyViewer.value = value;
+    await save();
+  }
+
+  Future<void> saveThirdPartyViewerPath(String? value) async {
+    log.debug('saveThirdPartyViewerPath:$value');
+    thirdPartyViewerPath.value = value;
+    await save();
+  }
+
+  Future<void> saveEnablePageTurnByVolumeKeys(bool value) async {
+    log.debug('saveEnablePageTurnByVolumeKeys:$value');
+    enablePageTurnByVolumeKeys.value = value;
+    await save();
+  }
+
+  Future<void> saveEnablePageTurnAnime(bool value) async {
+    log.debug('saveEnablePageTurnAnime:$value');
+    enablePageTurnAnime.value = value;
+    await save();
+  }
+
+  Future<void> saveEnableDoubleTapToScaleUp(bool value) async {
+    log.debug('saveEnableDoubleTapToScaleUp:$value');
+    enableDoubleTapToScaleUp.value = value;
+    await save();
+  }
+
+  Future<void> saveEnableTapDragToScaleUp(bool value) async {
+    log.debug('saveEnableTapDragToScaleUp:$value');
+    enableTapDragToScaleUp.value = value;
+    await save();
+  }
+
+  Future<void> saveEnableBottomMenu(bool value) async {
+    log.debug('saveEnableBottomMenu:$value');
+    enableBottomMenu.value = value;
+    await save();
+  }
+
+  Future<void> saveTurnPageMode(TurnPageMode value) async {
+    log.debug('saveTurnPageMode:${value.name}');
+    turnPageMode.value = value;
+    await save();
+  }
+
+  Future<void> savePreloadDistance(int value) async {
+    log.debug('savePreloadDistance:$value');
+    preloadDistance.value = value;
+    await save();
+  }
+
+  Future<void> savePreloadDistanceLocal(int value) async {
+    log.debug('savePreloadDistanceLocal:$value');
+    preloadDistanceLocal.value = value;
+    await save();
+  }
+
+  Future<void> savePreloadPageCount(int value) async {
+    log.debug('savePreloadPageCount:$value');
+    preloadPageCount.value = value;
+    await save();
+  }
+
+  Future<void> savePreloadPageCountLocal(int value) async {
+    log.debug('savePreloadPageCountLocal:$value');
+    preloadPageCountLocal.value = value;
+    await save();
+  }
+
+  Future<void> saveDisplayFirstPageAlone(bool value) async {
+    log.debug('saveDisplayFirstPageAlone:$value');
+    displayFirstPageAlone.value = value;
+    await save();
+  }
+
+  Future<void> saveReverseTurnPageDirection(bool value) async {
+    log.debug('saveReverseTurnPageDirection:$value');
+    reverseTurnPageDirection.value = value;
+    await save();
+  }
+
+  Future<void> saveDisablePageTurningOnTap(bool value) async {
+    log.debug('saveDisablePageTurningOnTap:$value');
+    disablePageTurningOnTap.value = value;
+    await save();
+  }
+
+  Future<void> saveEnableMaxImageKilobyte(bool value) async {
+    log.debug('saveEnableMaxImageKilobyte:$value');
+    enableMaxImageKilobyte.value = value;
+    await save();
+  }
+
+  Future<void> saveMaxImageKilobyte(int value) async {
+    log.debug('saveMaxImageKilobyte:$value');
+    maxImageKilobyte.value = value;
+    await save();
+  }
+}
+
+enum DeviceDirection { followSystem, landscape, portrait }
+
+enum ReadDirection {
+  top2bottomList,
+  left2rightSinglePage,
+  left2rightSinglePageFitWidth,
+  left2rightDoubleColumn,
+  left2rightList,
+  right2leftSinglePage,
+  right2leftSinglePageFitWidth,
+  right2leftDoubleColumn,
+  right2leftList,
+}
+
+enum TurnPageMode {
+  image,
+  screen,
+
+  /// if one image covers the whole screen => screen
+  /// else => image
+  adaptive,
+}
+
+enum AutoModeStyle {
+  scroll,
+  turnPage,
 }

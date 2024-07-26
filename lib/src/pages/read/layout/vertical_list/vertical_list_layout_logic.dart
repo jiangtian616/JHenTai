@@ -31,7 +31,7 @@ class VerticalListLayoutLogic extends BaseLayoutLogic {
   void onReady() {
     super.onReady();
 
-    imageRegionWidthRatioListener = ever(ReadSetting.imageRegionWidthRatio, (int value) {
+    imageRegionWidthRatioListener = ever(readSetting.imageRegionWidthRatio, (int value) {
       readPageLogic.clearImageContainerSized();
       updateSafely([verticalLayoutId]);
     });
@@ -57,7 +57,7 @@ class VerticalListLayoutLogic extends BaseLayoutLogic {
   /// to prev image or screen
   @override
   void toPrev() {
-    switch (ReadSetting.turnPageMode.value) {
+    switch (readSetting.turnPageMode.value) {
       case TurnPageMode.image:
         return _toPrevImage();
       case TurnPageMode.screen:
@@ -74,7 +74,7 @@ class VerticalListLayoutLogic extends BaseLayoutLogic {
   /// to next image or screen
   @override
   void toNext() {
-    switch (ReadSetting.turnPageMode.value) {
+    switch (readSetting.turnPageMode.value) {
       case TurnPageMode.image:
         return _toNextImage();
       case TurnPageMode.screen:
@@ -129,7 +129,7 @@ class VerticalListLayoutLogic extends BaseLayoutLogic {
   }
 
   void _toPrevScreen() {
-    if (ReadSetting.enablePageTurnAnime.isFalse) {
+    if (readSetting.enablePageTurnAnime.isFalse) {
       state.itemScrollController.scrollOffset(
         offset: -_getVisibleHeight(),
         duration: const Duration(milliseconds: 1),
@@ -143,7 +143,7 @@ class VerticalListLayoutLogic extends BaseLayoutLogic {
   }
 
   void _toNextScreen() {
-    if (ReadSetting.enablePageTurnAnime.isFalse) {
+    if (readSetting.enablePageTurnAnime.isFalse) {
       state.itemScrollController.scrollOffset(
         offset: _getVisibleHeight(),
         duration: const Duration(milliseconds: 1),
@@ -158,7 +158,7 @@ class VerticalListLayoutLogic extends BaseLayoutLogic {
 
   @override
   void enterAutoMode() {
-    if (ReadSetting.autoModeStyle.value == AutoModeStyle.scroll) {
+    if (readSetting.autoModeStyle.value == AutoModeStyle.scroll) {
       _enterAutoModeByScroll();
     } else {
       _enterAutoModeByTurnPage();
@@ -167,7 +167,7 @@ class VerticalListLayoutLogic extends BaseLayoutLogic {
 
   void _enterAutoModeByScroll() {
     int restPageCount = readPageState.readPageInfo.pageCount - readPageState.readPageInfo.currentImageIndex - 1;
-    double totalTime = restPageCount * ReadSetting.autoModeInterval.value;
+    double totalTime = restPageCount * readSetting.autoModeInterval.value;
 
     readPageLogic.toggleMenu();
 
@@ -182,10 +182,10 @@ class VerticalListLayoutLogic extends BaseLayoutLogic {
     readPageLogic.toggleMenu();
 
     autoModeTimer = Timer.periodic(
-      Duration(milliseconds: (ReadSetting.autoModeInterval.value * 1000).toInt()),
+      Duration(milliseconds: (readSetting.autoModeInterval.value * 1000).toInt()),
       (_) {
         /// changed read direction
-        if (ReadSetting.readDirection.value != ReadDirection.top2bottomList) {
+        if (readSetting.readDirection.value != ReadDirection.top2bottomList) {
           Get.engine.addPostFrameCallback((_) {
             readPageLogic.closeAutoMode();
           });
@@ -234,7 +234,7 @@ class VerticalListLayoutLogic extends BaseLayoutLogic {
   }
 
   double _getVisibleHeight() {
-    return screenHeight - Get.mediaQuery.padding.bottom - (ReadSetting.enableImmersiveMode.isTrue ? 0 : Get.mediaQuery.padding.top);
+    return screenHeight - Get.mediaQuery.padding.bottom - (readSetting.enableImmersiveMode.isTrue ? 0 : Get.mediaQuery.padding.top);
   }
 
   /// Compute image container size when we haven't parsed image's size
@@ -243,7 +243,7 @@ class VerticalListLayoutLogic extends BaseLayoutLogic {
     if (readPageState.imageContainerSizes[imageIndex] != null) {
       return readPageState.imageContainerSizes[imageIndex]!;
     }
-    return Size(readPageState.displayRegionSize.width * ReadSetting.imageRegionWidthRatio.value / 100, readPageState.displayRegionSize.height / 2);
+    return Size(readPageState.displayRegionSize.width * readSetting.imageRegionWidthRatio.value / 100, readPageState.displayRegionSize.height / 2);
   }
 
   /// Compute image container size
@@ -252,7 +252,7 @@ class VerticalListLayoutLogic extends BaseLayoutLogic {
     return applyBoxFit(
       BoxFit.contain,
       Size(imageSize.width, imageSize.height),
-      Size(readPageState.displayRegionSize.width * ReadSetting.imageRegionWidthRatio.value / 100, double.infinity),
+      Size(readPageState.displayRegionSize.width * readSetting.imageRegionWidthRatio.value / 100, double.infinity),
     );
   }
 }

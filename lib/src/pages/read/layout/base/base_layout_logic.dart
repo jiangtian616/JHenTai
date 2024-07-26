@@ -48,9 +48,9 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
 
   @override
   void onInit() {
-    doubleTapGestureSwitcherListener = ever(ReadSetting.enableDoubleTapToScaleUp, (value) => updateSafely([pageId]));
-    tapDragGestureSwitcherListener = ever(ReadSetting.enableTapDragToScaleUp, (value) => updateSafely([pageId]));
-    showScrollBarListener = ever(ReadSetting.showScrollBar, (value) => updateSafely([pageId]));
+    doubleTapGestureSwitcherListener = ever(readSetting.enableDoubleTapToScaleUp, (value) => updateSafely([pageId]));
+    tapDragGestureSwitcherListener = ever(readSetting.enableTapDragToScaleUp, (value) => updateSafely([pageId]));
+    showScrollBarListener = ever(readSetting.showScrollBar, (value) => updateSafely([pageId]));
     super.onInit();
   }
 
@@ -76,7 +76,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   void toNext();
 
   void toImageIndex(int imageIndex) {
-    if (ReadSetting.enablePageTurnAnime.isFalse) {
+    if (readSetting.enablePageTurnAnime.isFalse) {
       jump2ImageIndex(imageIndex);
     } else {
       scroll2ImageIndex(imageIndex);

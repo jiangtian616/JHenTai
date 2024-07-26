@@ -39,7 +39,7 @@ abstract class BaseLayout extends StatelessWidget {
       global: false,
       init: logic,
       builder: (_) => ScrollConfiguration(
-        behavior: ReadSetting.showScrollBar.isTrue ? UIConfig.scrollBehaviourWithScrollBarWithMouse : UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
+        behavior: readSetting.showScrollBar.isTrue ? UIConfig.scrollBehaviourWithScrollBarWithMouse : UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
         child: buildBody(context),
       ),
     );
@@ -146,7 +146,7 @@ abstract class BaseLayout extends StatelessWidget {
         loadingProgressWidgetBuilder: (double progress) => _loadingProgressWidgetBuilder(index, progress),
         failedWidgetBuilder: (ExtendedImageState state) => _failedWidgetBuilder(index, state),
         completedWidgetBuilder: (state) => completedWidgetBuilderCallBack(index, state),
-        maxBytes: ReadSetting.enableMaxImageKilobyte.isTrue ? ReadSetting.maxImageKilobyte.toInt() * 1024 : null,
+        maxBytes: readSetting.enableMaxImageKilobyte.isTrue ? readSetting.maxImageKilobyte.toInt() * 1024 : null,
       ),
     );
   }
@@ -250,7 +250,7 @@ abstract class BaseLayout extends StatelessWidget {
             loadingWidgetBuilder: () => _loadingWidgetBuilder(context, index),
             failedWidgetBuilder: (state) => _failedWidgetBuilderForLocalMode(index, state),
             completedWidgetBuilder: (state) => completedWidgetBuilderForLocalModeCallBack(index, state),
-            maxBytes: ReadSetting.enableMaxImageKilobyte.isTrue ? ReadSetting.maxImageKilobyte.toInt() * 1024 : null,
+            maxBytes: readSetting.enableMaxImageKilobyte.isTrue ? readSetting.maxImageKilobyte.toInt() * 1024 : null,
           ),
         );
       },
@@ -310,7 +310,7 @@ abstract class BaseLayout extends StatelessWidget {
         loadingWidgetBuilder: () => _loadingWidgetBuilder(context, index),
         failedWidgetBuilder: (state) => _failedWidgetBuilderForLocalMode(index, state),
         completedWidgetBuilder: (state) => completedWidgetBuilderForLocalModeCallBack(index, state),
-        maxBytes: ReadSetting.enableMaxImageKilobyte.isTrue ? ReadSetting.maxImageKilobyte.toInt() * 1024 : null,
+        maxBytes: readSetting.enableMaxImageKilobyte.isTrue ? readSetting.maxImageKilobyte.toInt() * 1024 : null,
       ),
     );
   }

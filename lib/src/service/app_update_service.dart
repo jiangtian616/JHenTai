@@ -156,16 +156,16 @@ class AppUpdateService extends GetxService {
       if (oldVersion <= 5) {
         log.info('update read direction setting');
 
-        if (ReadSetting.readDirection.value == ReadDirection.left2rightSinglePageFitWidth) {
-          ReadSetting.saveReadDirection(ReadDirection.left2rightDoubleColumn);
-        } else if (ReadSetting.readDirection.value == ReadDirection.left2rightDoubleColumn) {
-          ReadSetting.saveReadDirection(ReadDirection.left2rightList);
-        } else if (ReadSetting.readDirection.value == ReadDirection.left2rightList) {
-          ReadSetting.saveReadDirection(ReadDirection.right2leftSinglePage);
-        } else if (ReadSetting.readDirection.value == ReadDirection.right2leftSinglePage) {
-          ReadSetting.saveReadDirection(ReadDirection.right2leftDoubleColumn);
-        } else if (ReadSetting.readDirection.value == ReadDirection.right2leftSinglePageFitWidth) {
-          ReadSetting.saveReadDirection(ReadDirection.right2leftList);
+        if (readSetting.readDirection.value == ReadDirection.left2rightSinglePageFitWidth) {
+          readSetting.saveReadDirection(ReadDirection.left2rightDoubleColumn);
+        } else if (readSetting.readDirection.value == ReadDirection.left2rightDoubleColumn) {
+          readSetting.saveReadDirection(ReadDirection.left2rightList);
+        } else if (readSetting.readDirection.value == ReadDirection.left2rightList) {
+          readSetting.saveReadDirection(ReadDirection.right2leftSinglePage);
+        } else if (readSetting.readDirection.value == ReadDirection.right2leftSinglePage) {
+          readSetting.saveReadDirection(ReadDirection.right2leftDoubleColumn);
+        } else if (readSetting.readDirection.value == ReadDirection.right2leftSinglePageFitWidth) {
+          readSetting.saveReadDirection(ReadDirection.right2leftList);
         }
       }
 

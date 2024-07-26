@@ -161,8 +161,6 @@ Future<void> init() async {
 
   AppUpdateService.init();
 
-  ReadSetting.init();
-
   LocalBlockRuleService.init();
 }
 

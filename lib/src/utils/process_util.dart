@@ -9,7 +9,7 @@ import '../setting/read_setting.dart';
 import '../service/log.dart';
 
 void openThirdPartyViewer(String dirPath) {
-  String viewerPath = ReadSetting.thirdPartyViewerPath.value!;
+  String viewerPath = readSetting.thirdPartyViewerPath.value!;
 
   Process.run(
     basename(viewerPath),

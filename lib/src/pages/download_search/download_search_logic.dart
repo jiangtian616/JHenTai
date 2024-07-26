@@ -247,7 +247,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
       return;
     }
 
-    if (ReadSetting.useThirdPartyViewer.isTrue && ReadSetting.thirdPartyViewerPath.value != null) {
+    if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
       openThirdPartyViewer(galleryDownloadService.computeGalleryDownloadAbsolutePath(gallery.title, gallery.gid));
     } else {
       SuperResolutionService superResolutionService = Get.find<SuperResolutionService>();
@@ -276,7 +276,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
       return;
     }
 
-    if (ReadSetting.useThirdPartyViewer.isTrue && ReadSetting.thirdPartyViewerPath.value != null) {
+    if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
       openThirdPartyViewer(archiveDownloadService.computeArchiveUnpackingPath(archive.title, archive.gid));
     } else {
       String storageKey = '${ConfigEnum.readIndexRecord.key}::${archive.gid}';
