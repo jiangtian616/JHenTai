@@ -5,17 +5,8 @@ import '../database/database.dart';
 
 LocalConfigService localConfigService = LocalConfigService();
 
-class LocalConfigService implements JHLifeCircleBean {
+class LocalConfigService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   static const String defaultSubConfigKey = '';
-
-  @override
-  Future<void> onInit() async {}
-
-  @override
-  void onReady() async {}
-
-  @override
-  Future<void> onRefresh() async {}
 
   Future<bool> write({required ConfigEnum configKey, String subConfigKey = defaultSubConfigKey, required String value}) {
     return appDb.managers.localConfig.replace(

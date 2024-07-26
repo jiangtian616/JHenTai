@@ -1,13 +1,40 @@
 import '../main.dart';
+import '../utils/log.dart';
 
-class JHLifeCircleBean {
+abstract interface class JHLifeCircleBean {
   JHLifeCircleBean() {
     lifeCircleBeans.add(this);
   }
 
-  Future<void> onInit() async {}
+  Future<void> init();
 
-  void onReady() async {}
+  void onReady();
+
+  Future<void> onRefresh();
+}
+
+mixin JHLifeCircleBeanErrorCatch {
+  Future<void> init() async {
+    try {
+      await doInit();
+      Log.debug('Init $runtimeType success');
+    } catch (e, stack) {
+      Log.error('Init $runtimeType failed', e, stack);
+    }
+  }
+
+  Future<void> doInit() async {}
+
+  void onReady() {
+    try {
+      doOnReady();
+      Log.debug('OnReady $runtimeType success');
+    } catch (e, stack) {
+      Log.error('OnReady $runtimeType failed', e, stack);
+    }
+  }
+
+  void doOnReady() {}
 
   Future<void> onRefresh() async {}
 }

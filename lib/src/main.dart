@@ -22,7 +22,7 @@ import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/service/tag_search_order_service.dart';
 import 'package:jhentai/src/service/volume_service.dart';
 import 'package:jhentai/src/service/windows_service.dart';
-import 'package:jhentai/src/setting/frame_rate_setting.dart';
+import 'package:jhentai/src/service/frame_rate_service.dart';
 import 'package:jhentai/src/setting/mouse_setting.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
@@ -137,11 +137,10 @@ Future<void> init() async {
   };
 
   for (JHLifeCircleBean bean in lifeCircleBeans) {
-    await bean.onInit();
+    await bean.init();
     Log.debug('Init ${bean.runtimeType} success');
   }
 
-  await FrameRateSetting.init();
   IsolateService.init();
 
   await PathSetting.init();
