@@ -153,6 +153,18 @@ class OldSuperResolutionInfoData extends DataClass
         status: status ?? this.status,
         imageStatuses: imageStatuses ?? this.imageStatuses,
       );
+  OldSuperResolutionInfoData copyWithCompanion(
+      OldSuperResolutionInfoCompanion data) {
+    return OldSuperResolutionInfoData(
+      gid: data.gid.present ? data.gid.value : this.gid,
+      type: data.type.present ? data.type.value : this.type,
+      status: data.status.present ? data.status.value : this.status,
+      imageStatuses: data.imageStatuses.present
+          ? data.imageStatuses.value
+          : this.imageStatuses,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('OldSuperResolutionInfoData(')
@@ -405,6 +417,17 @@ class SuperResolutionInfoData extends DataClass
         status: status ?? this.status,
         imageStatuses: imageStatuses ?? this.imageStatuses,
       );
+  SuperResolutionInfoData copyWithCompanion(SuperResolutionInfoCompanion data) {
+    return SuperResolutionInfoData(
+      gid: data.gid.present ? data.gid.value : this.gid,
+      type: data.type.present ? data.type.value : this.type,
+      status: data.status.present ? data.status.value : this.status,
+      imageStatuses: data.imageStatuses.present
+          ? data.imageStatuses.value
+          : this.imageStatuses,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('SuperResolutionInfoData(')
@@ -748,6 +771,21 @@ class TagData extends DataClass implements Insertable<TagData> {
         intro: intro.present ? intro.value : this.intro,
         links: links.present ? links.value : this.links,
       );
+  TagData copyWithCompanion(TagCompanion data) {
+    return TagData(
+      namespace: data.namespace.present ? data.namespace.value : this.namespace,
+      key: data.key.present ? data.key.value : this.key,
+      translatedNamespace: data.translatedNamespace.present
+          ? data.translatedNamespace.value
+          : this.translatedNamespace,
+      tagName: data.tagName.present ? data.tagName.value : this.tagName,
+      fullTagName:
+          data.fullTagName.present ? data.fullTagName.value : this.fullTagName,
+      intro: data.intro.present ? data.intro.value : this.intro,
+      links: data.links.present ? data.links.value : this.links,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('TagData(')
@@ -1451,6 +1489,44 @@ class ArchiveDownloadedData extends DataClass
         tagRefreshTime:
             tagRefreshTime.present ? tagRefreshTime.value : this.tagRefreshTime,
       );
+  ArchiveDownloadedData copyWithCompanion(ArchiveDownloadedCompanion data) {
+    return ArchiveDownloadedData(
+      gid: data.gid.present ? data.gid.value : this.gid,
+      token: data.token.present ? data.token.value : this.token,
+      title: data.title.present ? data.title.value : this.title,
+      category: data.category.present ? data.category.value : this.category,
+      pageCount: data.pageCount.present ? data.pageCount.value : this.pageCount,
+      galleryUrl:
+          data.galleryUrl.present ? data.galleryUrl.value : this.galleryUrl,
+      coverUrl: data.coverUrl.present ? data.coverUrl.value : this.coverUrl,
+      uploader: data.uploader.present ? data.uploader.value : this.uploader,
+      size: data.size.present ? data.size.value : this.size,
+      publishTime:
+          data.publishTime.present ? data.publishTime.value : this.publishTime,
+      archiveStatusCode: data.archiveStatusCode.present
+          ? data.archiveStatusCode.value
+          : this.archiveStatusCode,
+      archivePageUrl: data.archivePageUrl.present
+          ? data.archivePageUrl.value
+          : this.archivePageUrl,
+      downloadPageUrl: data.downloadPageUrl.present
+          ? data.downloadPageUrl.value
+          : this.downloadPageUrl,
+      downloadUrl:
+          data.downloadUrl.present ? data.downloadUrl.value : this.downloadUrl,
+      isOriginal:
+          data.isOriginal.present ? data.isOriginal.value : this.isOriginal,
+      insertTime:
+          data.insertTime.present ? data.insertTime.value : this.insertTime,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      groupName: data.groupName.present ? data.groupName.value : this.groupName,
+      tags: data.tags.present ? data.tags.value : this.tags,
+      tagRefreshTime: data.tagRefreshTime.present
+          ? data.tagRefreshTime.value
+          : this.tagRefreshTime,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('ArchiveDownloadedData(')
@@ -2299,6 +2375,41 @@ class ArchiveDownloadedOldData extends DataClass
         sortOrder: sortOrder ?? this.sortOrder,
         groupName: groupName.present ? groupName.value : this.groupName,
       );
+  ArchiveDownloadedOldData copyWithCompanion(
+      ArchiveDownloadedOldCompanion data) {
+    return ArchiveDownloadedOldData(
+      gid: data.gid.present ? data.gid.value : this.gid,
+      token: data.token.present ? data.token.value : this.token,
+      title: data.title.present ? data.title.value : this.title,
+      category: data.category.present ? data.category.value : this.category,
+      pageCount: data.pageCount.present ? data.pageCount.value : this.pageCount,
+      galleryUrl:
+          data.galleryUrl.present ? data.galleryUrl.value : this.galleryUrl,
+      coverUrl: data.coverUrl.present ? data.coverUrl.value : this.coverUrl,
+      uploader: data.uploader.present ? data.uploader.value : this.uploader,
+      size: data.size.present ? data.size.value : this.size,
+      publishTime:
+          data.publishTime.present ? data.publishTime.value : this.publishTime,
+      archiveStatusIndex: data.archiveStatusIndex.present
+          ? data.archiveStatusIndex.value
+          : this.archiveStatusIndex,
+      archivePageUrl: data.archivePageUrl.present
+          ? data.archivePageUrl.value
+          : this.archivePageUrl,
+      downloadPageUrl: data.downloadPageUrl.present
+          ? data.downloadPageUrl.value
+          : this.downloadPageUrl,
+      downloadUrl:
+          data.downloadUrl.present ? data.downloadUrl.value : this.downloadUrl,
+      isOriginal:
+          data.isOriginal.present ? data.isOriginal.value : this.isOriginal,
+      insertTime:
+          data.insertTime.present ? data.insertTime.value : this.insertTime,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      groupName: data.groupName.present ? data.groupName.value : this.groupName,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('ArchiveDownloadedOldData(')
@@ -2725,6 +2836,13 @@ class ArchiveGroupData extends DataClass
         groupName: groupName ?? this.groupName,
         sortOrder: sortOrder ?? this.sortOrder,
       );
+  ArchiveGroupData copyWithCompanion(ArchiveGroupCompanion data) {
+    return ArchiveGroupData(
+      groupName: data.groupName.present ? data.groupName.value : this.groupName,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('ArchiveGroupData(')
@@ -3289,6 +3407,39 @@ class GalleryDownloadedData extends DataClass
         tagRefreshTime:
             tagRefreshTime.present ? tagRefreshTime.value : this.tagRefreshTime,
       );
+  GalleryDownloadedData copyWithCompanion(GalleryDownloadedCompanion data) {
+    return GalleryDownloadedData(
+      gid: data.gid.present ? data.gid.value : this.gid,
+      token: data.token.present ? data.token.value : this.token,
+      title: data.title.present ? data.title.value : this.title,
+      category: data.category.present ? data.category.value : this.category,
+      pageCount: data.pageCount.present ? data.pageCount.value : this.pageCount,
+      galleryUrl:
+          data.galleryUrl.present ? data.galleryUrl.value : this.galleryUrl,
+      oldVersionGalleryUrl: data.oldVersionGalleryUrl.present
+          ? data.oldVersionGalleryUrl.value
+          : this.oldVersionGalleryUrl,
+      uploader: data.uploader.present ? data.uploader.value : this.uploader,
+      publishTime:
+          data.publishTime.present ? data.publishTime.value : this.publishTime,
+      downloadStatusIndex: data.downloadStatusIndex.present
+          ? data.downloadStatusIndex.value
+          : this.downloadStatusIndex,
+      insertTime:
+          data.insertTime.present ? data.insertTime.value : this.insertTime,
+      downloadOriginalImage: data.downloadOriginalImage.present
+          ? data.downloadOriginalImage.value
+          : this.downloadOriginalImage,
+      priority: data.priority.present ? data.priority.value : this.priority,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      groupName: data.groupName.present ? data.groupName.value : this.groupName,
+      tags: data.tags.present ? data.tags.value : this.tags,
+      tagRefreshTime: data.tagRefreshTime.present
+          ? data.tagRefreshTime.value
+          : this.tagRefreshTime,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('GalleryDownloadedData(')
@@ -4027,6 +4178,36 @@ class GalleryDownloadedOldData extends DataClass
         sortOrder: sortOrder ?? this.sortOrder,
         groupName: groupName.present ? groupName.value : this.groupName,
       );
+  GalleryDownloadedOldData copyWithCompanion(
+      GalleryDownloadedOldCompanion data) {
+    return GalleryDownloadedOldData(
+      gid: data.gid.present ? data.gid.value : this.gid,
+      token: data.token.present ? data.token.value : this.token,
+      title: data.title.present ? data.title.value : this.title,
+      category: data.category.present ? data.category.value : this.category,
+      pageCount: data.pageCount.present ? data.pageCount.value : this.pageCount,
+      galleryUrl:
+          data.galleryUrl.present ? data.galleryUrl.value : this.galleryUrl,
+      oldVersionGalleryUrl: data.oldVersionGalleryUrl.present
+          ? data.oldVersionGalleryUrl.value
+          : this.oldVersionGalleryUrl,
+      uploader: data.uploader.present ? data.uploader.value : this.uploader,
+      publishTime:
+          data.publishTime.present ? data.publishTime.value : this.publishTime,
+      downloadStatusIndex: data.downloadStatusIndex.present
+          ? data.downloadStatusIndex.value
+          : this.downloadStatusIndex,
+      insertTime:
+          data.insertTime.present ? data.insertTime.value : this.insertTime,
+      downloadOriginalImage: data.downloadOriginalImage.present
+          ? data.downloadOriginalImage.value
+          : this.downloadOriginalImage,
+      priority: data.priority.present ? data.priority.value : this.priority,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      groupName: data.groupName.present ? data.groupName.value : this.groupName,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('GalleryDownloadedOldData(')
@@ -4401,6 +4582,13 @@ class GalleryGroupData extends DataClass
         groupName: groupName ?? this.groupName,
         sortOrder: sortOrder ?? this.sortOrder,
       );
+  GalleryGroupData copyWithCompanion(GalleryGroupCompanion data) {
+    return GalleryGroupData(
+      groupName: data.groupName.present ? data.groupName.value : this.groupName,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('GalleryGroupData(')
@@ -4681,6 +4869,19 @@ class ImageData extends DataClass implements Insertable<ImageData> {
         imageHash: imageHash ?? this.imageHash,
         downloadStatusIndex: downloadStatusIndex ?? this.downloadStatusIndex,
       );
+  ImageData copyWithCompanion(ImageCompanion data) {
+    return ImageData(
+      gid: data.gid.present ? data.gid.value : this.gid,
+      url: data.url.present ? data.url.value : this.url,
+      serialNo: data.serialNo.present ? data.serialNo.value : this.serialNo,
+      path: data.path.present ? data.path.value : this.path,
+      imageHash: data.imageHash.present ? data.imageHash.value : this.imageHash,
+      downloadStatusIndex: data.downloadStatusIndex.present
+          ? data.downloadStatusIndex.value
+          : this.downloadStatusIndex,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('ImageData(')
@@ -4949,6 +5150,16 @@ class GalleryHistoryData extends DataClass
         jsonBody: jsonBody ?? this.jsonBody,
         lastReadTime: lastReadTime ?? this.lastReadTime,
       );
+  GalleryHistoryData copyWithCompanion(GalleryHistoryCompanion data) {
+    return GalleryHistoryData(
+      gid: data.gid.present ? data.gid.value : this.gid,
+      jsonBody: data.jsonBody.present ? data.jsonBody.value : this.jsonBody,
+      lastReadTime: data.lastReadTime.present
+          ? data.lastReadTime.value
+          : this.lastReadTime,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('GalleryHistoryData(')
@@ -5160,6 +5371,16 @@ class GalleryHistoryV2Data extends DataClass
         jsonBody: jsonBody ?? this.jsonBody,
         lastReadTime: lastReadTime ?? this.lastReadTime,
       );
+  GalleryHistoryV2Data copyWithCompanion(GalleryHistoryV2Companion data) {
+    return GalleryHistoryV2Data(
+      gid: data.gid.present ? data.gid.value : this.gid,
+      jsonBody: data.jsonBody.present ? data.jsonBody.value : this.jsonBody,
+      lastReadTime: data.lastReadTime.present
+          ? data.lastReadTime.value
+          : this.lastReadTime,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('GalleryHistoryV2Data(')
@@ -5348,6 +5569,15 @@ class TagCountData extends DataClass implements Insertable<TagCountData> {
         namespaceWithKey: namespaceWithKey ?? this.namespaceWithKey,
         count: count ?? this.count,
       );
+  TagCountData copyWithCompanion(TagCountCompanion data) {
+    return TagCountData(
+      namespaceWithKey: data.namespaceWithKey.present
+          ? data.namespaceWithKey.value
+          : this.namespaceWithKey,
+      count: data.count.present ? data.count.value : this.count,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('TagCountData(')
@@ -5606,6 +5836,17 @@ class DioCacheData extends DataClass implements Insertable<DioCacheData> {
         content: content ?? this.content,
         headers: headers ?? this.headers,
       );
+  DioCacheData copyWithCompanion(DioCacheCompanion data) {
+    return DioCacheData(
+      cacheKey: data.cacheKey.present ? data.cacheKey.value : this.cacheKey,
+      url: data.url.present ? data.url.value : this.url,
+      expireDate:
+          data.expireDate.present ? data.expireDate.value : this.expireDate,
+      content: data.content.present ? data.content.value : this.content,
+      headers: data.headers.present ? data.headers.value : this.headers,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('DioCacheData(')
@@ -5931,6 +6172,18 @@ class BlockRuleData extends DataClass implements Insertable<BlockRuleData> {
         pattern: pattern ?? this.pattern,
         expression: expression ?? this.expression,
       );
+  BlockRuleData copyWithCompanion(BlockRuleCompanion data) {
+    return BlockRuleData(
+      id: data.id.present ? data.id.value : this.id,
+      groupId: data.groupId.present ? data.groupId.value : this.groupId,
+      target: data.target.present ? data.target.value : this.target,
+      attribute: data.attribute.present ? data.attribute.value : this.attribute,
+      pattern: data.pattern.present ? data.pattern.value : this.pattern,
+      expression:
+          data.expression.present ? data.expression.value : this.expression,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('BlockRuleData(')
@@ -6059,8 +6312,246 @@ class BlockRuleCompanion extends UpdateCompanion<BlockRuleData> {
   }
 }
 
+class $LocalConfigTable extends LocalConfig
+    with TableInfo<$LocalConfigTable, LocalConfigData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalConfigTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _configKeyMeta =
+      const VerificationMeta('configKey');
+  @override
+  late final GeneratedColumn<String> configKey = GeneratedColumn<String>(
+      'config_key', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _subConfigKeyMeta =
+      const VerificationMeta('subConfigKey');
+  @override
+  late final GeneratedColumn<String> subConfigKey = GeneratedColumn<String>(
+      'sub_config_key', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _valueMeta = const VerificationMeta('value');
+  @override
+  late final GeneratedColumn<String> value = GeneratedColumn<String>(
+      'value', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [configKey, subConfigKey, value];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_config';
+  @override
+  VerificationContext validateIntegrity(Insertable<LocalConfigData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('config_key')) {
+      context.handle(_configKeyMeta,
+          configKey.isAcceptableOrUnknown(data['config_key']!, _configKeyMeta));
+    } else if (isInserting) {
+      context.missing(_configKeyMeta);
+    }
+    if (data.containsKey('sub_config_key')) {
+      context.handle(
+          _subConfigKeyMeta,
+          subConfigKey.isAcceptableOrUnknown(
+              data['sub_config_key']!, _subConfigKeyMeta));
+    } else if (isInserting) {
+      context.missing(_subConfigKeyMeta);
+    }
+    if (data.containsKey('value')) {
+      context.handle(
+          _valueMeta, value.isAcceptableOrUnknown(data['value']!, _valueMeta));
+    } else if (isInserting) {
+      context.missing(_valueMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {configKey, subConfigKey};
+  @override
+  LocalConfigData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalConfigData(
+      configKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}config_key'])!,
+      subConfigKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sub_config_key'])!,
+      value: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}value'])!,
+    );
+  }
+
+  @override
+  $LocalConfigTable createAlias(String alias) {
+    return $LocalConfigTable(attachedDatabase, alias);
+  }
+}
+
+class LocalConfigData extends DataClass implements Insertable<LocalConfigData> {
+  final String configKey;
+  final String subConfigKey;
+  final String value;
+  const LocalConfigData(
+      {required this.configKey,
+      required this.subConfigKey,
+      required this.value});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['config_key'] = Variable<String>(configKey);
+    map['sub_config_key'] = Variable<String>(subConfigKey);
+    map['value'] = Variable<String>(value);
+    return map;
+  }
+
+  LocalConfigCompanion toCompanion(bool nullToAbsent) {
+    return LocalConfigCompanion(
+      configKey: Value(configKey),
+      subConfigKey: Value(subConfigKey),
+      value: Value(value),
+    );
+  }
+
+  factory LocalConfigData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalConfigData(
+      configKey: serializer.fromJson<String>(json['configKey']),
+      subConfigKey: serializer.fromJson<String>(json['subConfigKey']),
+      value: serializer.fromJson<String>(json['value']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'configKey': serializer.toJson<String>(configKey),
+      'subConfigKey': serializer.toJson<String>(subConfigKey),
+      'value': serializer.toJson<String>(value),
+    };
+  }
+
+  LocalConfigData copyWith(
+          {String? configKey, String? subConfigKey, String? value}) =>
+      LocalConfigData(
+        configKey: configKey ?? this.configKey,
+        subConfigKey: subConfigKey ?? this.subConfigKey,
+        value: value ?? this.value,
+      );
+  LocalConfigData copyWithCompanion(LocalConfigCompanion data) {
+    return LocalConfigData(
+      configKey: data.configKey.present ? data.configKey.value : this.configKey,
+      subConfigKey: data.subConfigKey.present
+          ? data.subConfigKey.value
+          : this.subConfigKey,
+      value: data.value.present ? data.value.value : this.value,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalConfigData(')
+          ..write('configKey: $configKey, ')
+          ..write('subConfigKey: $subConfigKey, ')
+          ..write('value: $value')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(configKey, subConfigKey, value);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalConfigData &&
+          other.configKey == this.configKey &&
+          other.subConfigKey == this.subConfigKey &&
+          other.value == this.value);
+}
+
+class LocalConfigCompanion extends UpdateCompanion<LocalConfigData> {
+  final Value<String> configKey;
+  final Value<String> subConfigKey;
+  final Value<String> value;
+  final Value<int> rowid;
+  const LocalConfigCompanion({
+    this.configKey = const Value.absent(),
+    this.subConfigKey = const Value.absent(),
+    this.value = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LocalConfigCompanion.insert({
+    required String configKey,
+    required String subConfigKey,
+    required String value,
+    this.rowid = const Value.absent(),
+  })  : configKey = Value(configKey),
+        subConfigKey = Value(subConfigKey),
+        value = Value(value);
+  static Insertable<LocalConfigData> custom({
+    Expression<String>? configKey,
+    Expression<String>? subConfigKey,
+    Expression<String>? value,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (configKey != null) 'config_key': configKey,
+      if (subConfigKey != null) 'sub_config_key': subConfigKey,
+      if (value != null) 'value': value,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LocalConfigCompanion copyWith(
+      {Value<String>? configKey,
+      Value<String>? subConfigKey,
+      Value<String>? value,
+      Value<int>? rowid}) {
+    return LocalConfigCompanion(
+      configKey: configKey ?? this.configKey,
+      subConfigKey: subConfigKey ?? this.subConfigKey,
+      value: value ?? this.value,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (configKey.present) {
+      map['config_key'] = Variable<String>(configKey.value);
+    }
+    if (subConfigKey.present) {
+      map['sub_config_key'] = Variable<String>(subConfigKey.value);
+    }
+    if (value.present) {
+      map['value'] = Variable<String>(value.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalConfigCompanion(')
+          ..write('configKey: $configKey, ')
+          ..write('subConfigKey: $subConfigKey, ')
+          ..write('value: $value, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDb extends GeneratedDatabase {
   _$AppDb(QueryExecutor e) : super(e);
+  $AppDbManager get managers => $AppDbManager(this);
   late final $OldSuperResolutionInfoTable oldSuperResolutionInfo =
       $OldSuperResolutionInfoTable(this);
   late final $SuperResolutionInfoTable superResolutionInfo =
@@ -6083,6 +6574,7 @@ abstract class _$AppDb extends GeneratedDatabase {
   late final $TagCountTable tagCount = $TagCountTable(this);
   late final $DioCacheTable dioCache = $DioCacheTable(this);
   late final $BlockRuleTable blockRule = $BlockRuleTable(this);
+  late final $LocalConfigTable localConfig = $LocalConfigTable(this);
   late final Index idxKey =
       Index('idx_key', 'CREATE INDEX idx_key ON tag (_key)');
   late final Index idxTagName =
@@ -6104,7 +6596,9 @@ abstract class _$AppDb extends GeneratedDatabase {
   late final Index gIdxTagRefreshTime = Index('g_idx_tag_refresh_time',
       'CREATE INDEX g_idx_tag_refresh_time ON gallery_downloaded_v2 (tag_refresh_time)');
   late final Index idxLastReadTime = Index('idx_last_read_time',
-      'CREATE INDEX idx_last_read_time ON gallery_history_v2 (lastReadTime)');
+      'CREATE INDEX idx_last_read_time ON gallery_history (lastReadTime)');
+  late final Index idxGh2LastReadTime = Index('idx_gh2_last_read_time',
+      'CREATE INDEX idx_gh2_last_read_time ON gallery_history_v2 (lastReadTime)');
   late final Index idxExpireDate = Index('idx_expire_date',
       'CREATE INDEX idx_expire_date ON dio_cache (expireDate)');
   late final Index idxUrl =
@@ -6133,6 +6627,7 @@ abstract class _$AppDb extends GeneratedDatabase {
         tagCount,
         dioCache,
         blockRule,
+        localConfig,
         idxKey,
         idxTagName,
         aIdxInsertTime,
@@ -6144,9 +6639,2672 @@ abstract class _$AppDb extends GeneratedDatabase {
         gIdxGroupName,
         gIdxTagRefreshTime,
         idxLastReadTime,
+        idxGh2LastReadTime,
         idxExpireDate,
         idxUrl,
         idxGroupId,
         idxTarget
       ];
+}
+
+typedef $$OldSuperResolutionInfoTableCreateCompanionBuilder
+    = OldSuperResolutionInfoCompanion Function({
+  Value<int> gid,
+  required int type,
+  required int status,
+  required String imageStatuses,
+});
+typedef $$OldSuperResolutionInfoTableUpdateCompanionBuilder
+    = OldSuperResolutionInfoCompanion Function({
+  Value<int> gid,
+  Value<int> type,
+  Value<int> status,
+  Value<String> imageStatuses,
+});
+
+class $$OldSuperResolutionInfoTableTableManager extends RootTableManager<
+    _$AppDb,
+    $OldSuperResolutionInfoTable,
+    OldSuperResolutionInfoData,
+    $$OldSuperResolutionInfoTableFilterComposer,
+    $$OldSuperResolutionInfoTableOrderingComposer,
+    $$OldSuperResolutionInfoTableCreateCompanionBuilder,
+    $$OldSuperResolutionInfoTableUpdateCompanionBuilder> {
+  $$OldSuperResolutionInfoTableTableManager(
+      _$AppDb db, $OldSuperResolutionInfoTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer: $$OldSuperResolutionInfoTableFilterComposer(
+              ComposerState(db, table)),
+          orderingComposer: $$OldSuperResolutionInfoTableOrderingComposer(
+              ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> gid = const Value.absent(),
+            Value<int> type = const Value.absent(),
+            Value<int> status = const Value.absent(),
+            Value<String> imageStatuses = const Value.absent(),
+          }) =>
+              OldSuperResolutionInfoCompanion(
+            gid: gid,
+            type: type,
+            status: status,
+            imageStatuses: imageStatuses,
+          ),
+          createCompanionCallback: ({
+            Value<int> gid = const Value.absent(),
+            required int type,
+            required int status,
+            required String imageStatuses,
+          }) =>
+              OldSuperResolutionInfoCompanion.insert(
+            gid: gid,
+            type: type,
+            status: status,
+            imageStatuses: imageStatuses,
+          ),
+        ));
+}
+
+class $$OldSuperResolutionInfoTableFilterComposer
+    extends FilterComposer<_$AppDb, $OldSuperResolutionInfoTable> {
+  $$OldSuperResolutionInfoTableFilterComposer(super.$state);
+  ColumnFilters<int> get gid => $state.composableBuilder(
+      column: $state.table.gid,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get type => $state.composableBuilder(
+      column: $state.table.type,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get status => $state.composableBuilder(
+      column: $state.table.status,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get imageStatuses => $state.composableBuilder(
+      column: $state.table.imageStatuses,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$OldSuperResolutionInfoTableOrderingComposer
+    extends OrderingComposer<_$AppDb, $OldSuperResolutionInfoTable> {
+  $$OldSuperResolutionInfoTableOrderingComposer(super.$state);
+  ColumnOrderings<int> get gid => $state.composableBuilder(
+      column: $state.table.gid,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get type => $state.composableBuilder(
+      column: $state.table.type,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get status => $state.composableBuilder(
+      column: $state.table.status,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get imageStatuses => $state.composableBuilder(
+      column: $state.table.imageStatuses,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+typedef $$SuperResolutionInfoTableCreateCompanionBuilder
+    = SuperResolutionInfoCompanion Function({
+  required int gid,
+  required int type,
+  required int status,
+  required String imageStatuses,
+  Value<int> rowid,
+});
+typedef $$SuperResolutionInfoTableUpdateCompanionBuilder
+    = SuperResolutionInfoCompanion Function({
+  Value<int> gid,
+  Value<int> type,
+  Value<int> status,
+  Value<String> imageStatuses,
+  Value<int> rowid,
+});
+
+class $$SuperResolutionInfoTableTableManager extends RootTableManager<
+    _$AppDb,
+    $SuperResolutionInfoTable,
+    SuperResolutionInfoData,
+    $$SuperResolutionInfoTableFilterComposer,
+    $$SuperResolutionInfoTableOrderingComposer,
+    $$SuperResolutionInfoTableCreateCompanionBuilder,
+    $$SuperResolutionInfoTableUpdateCompanionBuilder> {
+  $$SuperResolutionInfoTableTableManager(
+      _$AppDb db, $SuperResolutionInfoTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer: $$SuperResolutionInfoTableFilterComposer(
+              ComposerState(db, table)),
+          orderingComposer: $$SuperResolutionInfoTableOrderingComposer(
+              ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> gid = const Value.absent(),
+            Value<int> type = const Value.absent(),
+            Value<int> status = const Value.absent(),
+            Value<String> imageStatuses = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SuperResolutionInfoCompanion(
+            gid: gid,
+            type: type,
+            status: status,
+            imageStatuses: imageStatuses,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required int gid,
+            required int type,
+            required int status,
+            required String imageStatuses,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SuperResolutionInfoCompanion.insert(
+            gid: gid,
+            type: type,
+            status: status,
+            imageStatuses: imageStatuses,
+            rowid: rowid,
+          ),
+        ));
+}
+
+class $$SuperResolutionInfoTableFilterComposer
+    extends FilterComposer<_$AppDb, $SuperResolutionInfoTable> {
+  $$SuperResolutionInfoTableFilterComposer(super.$state);
+  ColumnFilters<int> get gid => $state.composableBuilder(
+      column: $state.table.gid,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get type => $state.composableBuilder(
+      column: $state.table.type,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get status => $state.composableBuilder(
+      column: $state.table.status,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get imageStatuses => $state.composableBuilder(
+      column: $state.table.imageStatuses,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$SuperResolutionInfoTableOrderingComposer
+    extends OrderingComposer<_$AppDb, $SuperResolutionInfoTable> {
+  $$SuperResolutionInfoTableOrderingComposer(super.$state);
+  ColumnOrderings<int> get gid => $state.composableBuilder(
+      column: $state.table.gid,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get type => $state.composableBuilder(
+      column: $state.table.type,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get status => $state.composableBuilder(
+      column: $state.table.status,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get imageStatuses => $state.composableBuilder(
+      column: $state.table.imageStatuses,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+typedef $$TagTableCreateCompanionBuilder = TagCompanion Function({
+  required String namespace,
+  required String key,
+  Value<String?> translatedNamespace,
+  Value<String?> tagName,
+  Value<String?> fullTagName,
+  Value<String?> intro,
+  Value<String?> links,
+  Value<int> rowid,
+});
+typedef $$TagTableUpdateCompanionBuilder = TagCompanion Function({
+  Value<String> namespace,
+  Value<String> key,
+  Value<String?> translatedNamespace,
+  Value<String?> tagName,
+  Value<String?> fullTagName,
+  Value<String?> intro,
+  Value<String?> links,
+  Value<int> rowid,
+});
+
+class $$TagTableTableManager extends RootTableManager<
+    _$AppDb,
+    $TagTable,
+    TagData,
+    $$TagTableFilterComposer,
+    $$TagTableOrderingComposer,
+    $$TagTableCreateCompanionBuilder,
+    $$TagTableUpdateCompanionBuilder> {
+  $$TagTableTableManager(_$AppDb db, $TagTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer: $$TagTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$TagTableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<String> namespace = const Value.absent(),
+            Value<String> key = const Value.absent(),
+            Value<String?> translatedNamespace = const Value.absent(),
+            Value<String?> tagName = const Value.absent(),
+            Value<String?> fullTagName = const Value.absent(),
+            Value<String?> intro = const Value.absent(),
+            Value<String?> links = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TagCompanion(
+            namespace: namespace,
+            key: key,
+            translatedNamespace: translatedNamespace,
+            tagName: tagName,
+            fullTagName: fullTagName,
+            intro: intro,
+            links: links,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String namespace,
+            required String key,
+            Value<String?> translatedNamespace = const Value.absent(),
+            Value<String?> tagName = const Value.absent(),
+            Value<String?> fullTagName = const Value.absent(),
+            Value<String?> intro = const Value.absent(),
+            Value<String?> links = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TagCompanion.insert(
+            namespace: namespace,
+            key: key,
+            translatedNamespace: translatedNamespace,
+            tagName: tagName,
+            fullTagName: fullTagName,
+            intro: intro,
+            links: links,
+            rowid: rowid,
+          ),
+        ));
+}
+
+class $$TagTableFilterComposer extends FilterComposer<_$AppDb, $TagTable> {
+  $$TagTableFilterComposer(super.$state);
+  ColumnFilters<String> get namespace => $state.composableBuilder(
+      column: $state.table.namespace,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get key => $state.composableBuilder(
+      column: $state.table.key,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get translatedNamespace => $state.composableBuilder(
+      column: $state.table.translatedNamespace,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get tagName => $state.composableBuilder(
+      column: $state.table.tagName,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get fullTagName => $state.composableBuilder(
+      column: $state.table.fullTagName,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get intro => $state.composableBuilder(
+      column: $state.table.intro,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get links => $state.composableBuilder(
+      column: $state.table.links,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$TagTableOrderingComposer extends OrderingComposer<_$AppDb, $TagTable> {
+  $$TagTableOrderingComposer(super.$state);
+  ColumnOrderings<String> get namespace => $state.composableBuilder(
+      column: $state.table.namespace,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get key => $state.composableBuilder(
+      column: $state.table.key,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get translatedNamespace => $state.composableBuilder(
+      column: $state.table.translatedNamespace,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get tagName => $state.composableBuilder(
+      column: $state.table.tagName,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get fullTagName => $state.composableBuilder(
+      column: $state.table.fullTagName,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get intro => $state.composableBuilder(
+      column: $state.table.intro,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get links => $state.composableBuilder(
+      column: $state.table.links,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+typedef $$ArchiveDownloadedTableCreateCompanionBuilder
+    = ArchiveDownloadedCompanion Function({
+  Value<int> gid,
+  required String token,
+  required String title,
+  required String category,
+  required int pageCount,
+  required String galleryUrl,
+  required String coverUrl,
+  Value<String?> uploader,
+  required int size,
+  required String publishTime,
+  required int archiveStatusCode,
+  required String archivePageUrl,
+  Value<String?> downloadPageUrl,
+  Value<String?> downloadUrl,
+  required bool isOriginal,
+  required String insertTime,
+  Value<int> sortOrder,
+  required String groupName,
+  Value<String> tags,
+  Value<String?> tagRefreshTime,
+});
+typedef $$ArchiveDownloadedTableUpdateCompanionBuilder
+    = ArchiveDownloadedCompanion Function({
+  Value<int> gid,
+  Value<String> token,
+  Value<String> title,
+  Value<String> category,
+  Value<int> pageCount,
+  Value<String> galleryUrl,
+  Value<String> coverUrl,
+  Value<String?> uploader,
+  Value<int> size,
+  Value<String> publishTime,
+  Value<int> archiveStatusCode,
+  Value<String> archivePageUrl,
+  Value<String?> downloadPageUrl,
+  Value<String?> downloadUrl,
+  Value<bool> isOriginal,
+  Value<String> insertTime,
+  Value<int> sortOrder,
+  Value<String> groupName,
+  Value<String> tags,
+  Value<String?> tagRefreshTime,
+});
+
+class $$ArchiveDownloadedTableTableManager extends RootTableManager<
+    _$AppDb,
+    $ArchiveDownloadedTable,
+    ArchiveDownloadedData,
+    $$ArchiveDownloadedTableFilterComposer,
+    $$ArchiveDownloadedTableOrderingComposer,
+    $$ArchiveDownloadedTableCreateCompanionBuilder,
+    $$ArchiveDownloadedTableUpdateCompanionBuilder> {
+  $$ArchiveDownloadedTableTableManager(
+      _$AppDb db, $ArchiveDownloadedTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$ArchiveDownloadedTableFilterComposer(ComposerState(db, table)),
+          orderingComposer: $$ArchiveDownloadedTableOrderingComposer(
+              ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> gid = const Value.absent(),
+            Value<String> token = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String> category = const Value.absent(),
+            Value<int> pageCount = const Value.absent(),
+            Value<String> galleryUrl = const Value.absent(),
+            Value<String> coverUrl = const Value.absent(),
+            Value<String?> uploader = const Value.absent(),
+            Value<int> size = const Value.absent(),
+            Value<String> publishTime = const Value.absent(),
+            Value<int> archiveStatusCode = const Value.absent(),
+            Value<String> archivePageUrl = const Value.absent(),
+            Value<String?> downloadPageUrl = const Value.absent(),
+            Value<String?> downloadUrl = const Value.absent(),
+            Value<bool> isOriginal = const Value.absent(),
+            Value<String> insertTime = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<String> groupName = const Value.absent(),
+            Value<String> tags = const Value.absent(),
+            Value<String?> tagRefreshTime = const Value.absent(),
+          }) =>
+              ArchiveDownloadedCompanion(
+            gid: gid,
+            token: token,
+            title: title,
+            category: category,
+            pageCount: pageCount,
+            galleryUrl: galleryUrl,
+            coverUrl: coverUrl,
+            uploader: uploader,
+            size: size,
+            publishTime: publishTime,
+            archiveStatusCode: archiveStatusCode,
+            archivePageUrl: archivePageUrl,
+            downloadPageUrl: downloadPageUrl,
+            downloadUrl: downloadUrl,
+            isOriginal: isOriginal,
+            insertTime: insertTime,
+            sortOrder: sortOrder,
+            groupName: groupName,
+            tags: tags,
+            tagRefreshTime: tagRefreshTime,
+          ),
+          createCompanionCallback: ({
+            Value<int> gid = const Value.absent(),
+            required String token,
+            required String title,
+            required String category,
+            required int pageCount,
+            required String galleryUrl,
+            required String coverUrl,
+            Value<String?> uploader = const Value.absent(),
+            required int size,
+            required String publishTime,
+            required int archiveStatusCode,
+            required String archivePageUrl,
+            Value<String?> downloadPageUrl = const Value.absent(),
+            Value<String?> downloadUrl = const Value.absent(),
+            required bool isOriginal,
+            required String insertTime,
+            Value<int> sortOrder = const Value.absent(),
+            required String groupName,
+            Value<String> tags = const Value.absent(),
+            Value<String?> tagRefreshTime = const Value.absent(),
+          }) =>
+              ArchiveDownloadedCompanion.insert(
+            gid: gid,
+            token: token,
+            title: title,
+            category: category,
+            pageCount: pageCount,
+            galleryUrl: galleryUrl,
+            coverUrl: coverUrl,
+            uploader: uploader,
+            size: size,
+            publishTime: publishTime,
+            archiveStatusCode: archiveStatusCode,
+            archivePageUrl: archivePageUrl,
+            downloadPageUrl: downloadPageUrl,
+            downloadUrl: downloadUrl,
+            isOriginal: isOriginal,
+            insertTime: insertTime,
+            sortOrder: sortOrder,
+            groupName: groupName,
+            tags: tags,
+            tagRefreshTime: tagRefreshTime,
+          ),
+        ));
+}
+
+class $$ArchiveDownloadedTableFilterComposer
+    extends FilterComposer<_$AppDb, $ArchiveDownloadedTable> {
+  $$ArchiveDownloadedTableFilterComposer(super.$state);
+  ColumnFilters<int> get gid => $state.composableBuilder(
+      column: $state.table.gid,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get token => $state.composableBuilder(
+      column: $state.table.token,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get title => $state.composableBuilder(
+      column: $state.table.title,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get category => $state.composableBuilder(
+      column: $state.table.category,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get pageCount => $state.composableBuilder(
+      column: $state.table.pageCount,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get galleryUrl => $state.composableBuilder(
+      column: $state.table.galleryUrl,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get coverUrl => $state.composableBuilder(
+      column: $state.table.coverUrl,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get uploader => $state.composableBuilder(
+      column: $state.table.uploader,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get size => $state.composableBuilder(
+      column: $state.table.size,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get publishTime => $state.composableBuilder(
+      column: $state.table.publishTime,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get archiveStatusCode => $state.composableBuilder(
+      column: $state.table.archiveStatusCode,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get archivePageUrl => $state.composableBuilder(
+      column: $state.table.archivePageUrl,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get downloadPageUrl => $state.composableBuilder(
+      column: $state.table.downloadPageUrl,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get downloadUrl => $state.composableBuilder(
+      column: $state.table.downloadUrl,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<bool> get isOriginal => $state.composableBuilder(
+      column: $state.table.isOriginal,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get insertTime => $state.composableBuilder(
+      column: $state.table.insertTime,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get sortOrder => $state.composableBuilder(
+      column: $state.table.sortOrder,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get groupName => $state.composableBuilder(
+      column: $state.table.groupName,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get tags => $state.composableBuilder(
+      column: $state.table.tags,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get tagRefreshTime => $state.composableBuilder(
+      column: $state.table.tagRefreshTime,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$ArchiveDownloadedTableOrderingComposer
+    extends OrderingComposer<_$AppDb, $ArchiveDownloadedTable> {
+  $$ArchiveDownloadedTableOrderingComposer(super.$state);
+  ColumnOrderings<int> get gid => $state.composableBuilder(
+      column: $state.table.gid,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get token => $state.composableBuilder(
+      column: $state.table.token,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get title => $state.composableBuilder(
+      column: $state.table.title,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get category => $state.composableBuilder(
+      column: $state.table.category,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get pageCount => $state.composableBuilder(
+      column: $state.table.pageCount,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get galleryUrl => $state.composableBuilder(
+      column: $state.table.galleryUrl,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get coverUrl => $state.composableBuilder(
+      column: $state.table.coverUrl,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get uploader => $state.composableBuilder(
+      column: $state.table.uploader,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get size => $state.composableBuilder(
+      column: $state.table.size,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get publishTime => $state.composableBuilder(
+      column: $state.table.publishTime,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get archiveStatusCode => $state.composableBuilder(
+      column: $state.table.archiveStatusCode,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get archivePageUrl => $state.composableBuilder(
+      column: $state.table.archivePageUrl,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get downloadPageUrl => $state.composableBuilder(
+      column: $state.table.downloadPageUrl,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get downloadUrl => $state.composableBuilder(
+      column: $state.table.downloadUrl,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<bool> get isOriginal => $state.composableBuilder(
+      column: $state.table.isOriginal,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get insertTime => $state.composableBuilder(
+      column: $state.table.insertTime,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get sortOrder => $state.composableBuilder(
+      column: $state.table.sortOrder,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get groupName => $state.composableBuilder(
+      column: $state.table.groupName,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get tags => $state.composableBuilder(
+      column: $state.table.tags,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get tagRefreshTime => $state.composableBuilder(
+      column: $state.table.tagRefreshTime,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+typedef $$ArchiveDownloadedOldTableCreateCompanionBuilder
+    = ArchiveDownloadedOldCompanion Function({
+  required int gid,
+  required String token,
+  required String title,
+  required String category,
+  required int pageCount,
+  required String galleryUrl,
+  required String coverUrl,
+  Value<String?> uploader,
+  required int size,
+  required String publishTime,
+  required int archiveStatusIndex,
+  required String archivePageUrl,
+  Value<String?> downloadPageUrl,
+  Value<String?> downloadUrl,
+  required bool isOriginal,
+  Value<String?> insertTime,
+  Value<int> sortOrder,
+  Value<String?> groupName,
+  Value<int> rowid,
+});
+typedef $$ArchiveDownloadedOldTableUpdateCompanionBuilder
+    = ArchiveDownloadedOldCompanion Function({
+  Value<int> gid,
+  Value<String> token,
+  Value<String> title,
+  Value<String> category,
+  Value<int> pageCount,
+  Value<String> galleryUrl,
+  Value<String> coverUrl,
+  Value<String?> uploader,
+  Value<int> size,
+  Value<String> publishTime,
+  Value<int> archiveStatusIndex,
+  Value<String> archivePageUrl,
+  Value<String?> downloadPageUrl,
+  Value<String?> downloadUrl,
+  Value<bool> isOriginal,
+  Value<String?> insertTime,
+  Value<int> sortOrder,
+  Value<String?> groupName,
+  Value<int> rowid,
+});
+
+class $$ArchiveDownloadedOldTableTableManager extends RootTableManager<
+    _$AppDb,
+    $ArchiveDownloadedOldTable,
+    ArchiveDownloadedOldData,
+    $$ArchiveDownloadedOldTableFilterComposer,
+    $$ArchiveDownloadedOldTableOrderingComposer,
+    $$ArchiveDownloadedOldTableCreateCompanionBuilder,
+    $$ArchiveDownloadedOldTableUpdateCompanionBuilder> {
+  $$ArchiveDownloadedOldTableTableManager(
+      _$AppDb db, $ArchiveDownloadedOldTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer: $$ArchiveDownloadedOldTableFilterComposer(
+              ComposerState(db, table)),
+          orderingComposer: $$ArchiveDownloadedOldTableOrderingComposer(
+              ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> gid = const Value.absent(),
+            Value<String> token = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String> category = const Value.absent(),
+            Value<int> pageCount = const Value.absent(),
+            Value<String> galleryUrl = const Value.absent(),
+            Value<String> coverUrl = const Value.absent(),
+            Value<String?> uploader = const Value.absent(),
+            Value<int> size = const Value.absent(),
+            Value<String> publishTime = const Value.absent(),
+            Value<int> archiveStatusIndex = const Value.absent(),
+            Value<String> archivePageUrl = const Value.absent(),
+            Value<String?> downloadPageUrl = const Value.absent(),
+            Value<String?> downloadUrl = const Value.absent(),
+            Value<bool> isOriginal = const Value.absent(),
+            Value<String?> insertTime = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<String?> groupName = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ArchiveDownloadedOldCompanion(
+            gid: gid,
+            token: token,
+            title: title,
+            category: category,
+            pageCount: pageCount,
+            galleryUrl: galleryUrl,
+            coverUrl: coverUrl,
+            uploader: uploader,
+            size: size,
+            publishTime: publishTime,
+            archiveStatusIndex: archiveStatusIndex,
+            archivePageUrl: archivePageUrl,
+            downloadPageUrl: downloadPageUrl,
+            downloadUrl: downloadUrl,
+            isOriginal: isOriginal,
+            insertTime: insertTime,
+            sortOrder: sortOrder,
+            groupName: groupName,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required int gid,
+            required String token,
+            required String title,
+            required String category,
+            required int pageCount,
+            required String galleryUrl,
+            required String coverUrl,
+            Value<String?> uploader = const Value.absent(),
+            required int size,
+            required String publishTime,
+            required int archiveStatusIndex,
+            required String archivePageUrl,
+            Value<String?> downloadPageUrl = const Value.absent(),
+            Value<String?> downloadUrl = const Value.absent(),
+            required bool isOriginal,
+            Value<String?> insertTime = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<String?> groupName = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ArchiveDownloadedOldCompanion.insert(
+            gid: gid,
+            token: token,
+            title: title,
+            category: category,
+            pageCount: pageCount,
+            galleryUrl: galleryUrl,
+            coverUrl: coverUrl,
+            uploader: uploader,
+            size: size,
+            publishTime: publishTime,
+            archiveStatusIndex: archiveStatusIndex,
+            archivePageUrl: archivePageUrl,
+            downloadPageUrl: downloadPageUrl,
+            downloadUrl: downloadUrl,
+            isOriginal: isOriginal,
+            insertTime: insertTime,
+            sortOrder: sortOrder,
+            groupName: groupName,
+            rowid: rowid,
+          ),
+        ));
+}
+
+class $$ArchiveDownloadedOldTableFilterComposer
+    extends FilterComposer<_$AppDb, $ArchiveDownloadedOldTable> {
+  $$ArchiveDownloadedOldTableFilterComposer(super.$state);
+  ColumnFilters<int> get gid => $state.composableBuilder(
+      column: $state.table.gid,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get token => $state.composableBuilder(
+      column: $state.table.token,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get title => $state.composableBuilder(
+      column: $state.table.title,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get category => $state.composableBuilder(
+      column: $state.table.category,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get pageCount => $state.composableBuilder(
+      column: $state.table.pageCount,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get galleryUrl => $state.composableBuilder(
+      column: $state.table.galleryUrl,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get coverUrl => $state.composableBuilder(
+      column: $state.table.coverUrl,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get uploader => $state.composableBuilder(
+      column: $state.table.uploader,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get size => $state.composableBuilder(
+      column: $state.table.size,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get publishTime => $state.composableBuilder(
+      column: $state.table.publishTime,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get archiveStatusIndex => $state.composableBuilder(
+      column: $state.table.archiveStatusIndex,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get archivePageUrl => $state.composableBuilder(
+      column: $state.table.archivePageUrl,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get downloadPageUrl => $state.composableBuilder(
+      column: $state.table.downloadPageUrl,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get downloadUrl => $state.composableBuilder(
+      column: $state.table.downloadUrl,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<bool> get isOriginal => $state.composableBuilder(
+      column: $state.table.isOriginal,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get insertTime => $state.composableBuilder(
+      column: $state.table.insertTime,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get sortOrder => $state.composableBuilder(
+      column: $state.table.sortOrder,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get groupName => $state.composableBuilder(
+      column: $state.table.groupName,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$ArchiveDownloadedOldTableOrderingComposer
+    extends OrderingComposer<_$AppDb, $ArchiveDownloadedOldTable> {
+  $$ArchiveDownloadedOldTableOrderingComposer(super.$state);
+  ColumnOrderings<int> get gid => $state.composableBuilder(
+      column: $state.table.gid,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get token => $state.composableBuilder(
+      column: $state.table.token,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get title => $state.composableBuilder(
+      column: $state.table.title,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get category => $state.composableBuilder(
+      column: $state.table.category,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get pageCount => $state.composableBuilder(
+      column: $state.table.pageCount,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get galleryUrl => $state.composableBuilder(
+      column: $state.table.galleryUrl,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get coverUrl => $state.composableBuilder(
+      column: $state.table.coverUrl,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get uploader => $state.composableBuilder(
+      column: $state.table.uploader,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get size => $state.composableBuilder(
+      column: $state.table.size,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get publishTime => $state.composableBuilder(
+      column: $state.table.publishTime,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get archiveStatusIndex => $state.composableBuilder(
+      column: $state.table.archiveStatusIndex,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get archivePageUrl => $state.composableBuilder(
+      column: $state.table.archivePageUrl,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get downloadPageUrl => $state.composableBuilder(
+      column: $state.table.downloadPageUrl,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get downloadUrl => $state.composableBuilder(
+      column: $state.table.downloadUrl,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<bool> get isOriginal => $state.composableBuilder(
+      column: $state.table.isOriginal,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get insertTime => $state.composableBuilder(
+      column: $state.table.insertTime,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get sortOrder => $state.composableBuilder(
+      column: $state.table.sortOrder,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get groupName => $state.composableBuilder(
+      column: $state.table.groupName,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+typedef $$ArchiveGroupTableCreateCompanionBuilder = ArchiveGroupCompanion
+    Function({
+  required String groupName,
+  Value<int> sortOrder,
+  Value<int> rowid,
+});
+typedef $$ArchiveGroupTableUpdateCompanionBuilder = ArchiveGroupCompanion
+    Function({
+  Value<String> groupName,
+  Value<int> sortOrder,
+  Value<int> rowid,
+});
+
+class $$ArchiveGroupTableTableManager extends RootTableManager<
+    _$AppDb,
+    $ArchiveGroupTable,
+    ArchiveGroupData,
+    $$ArchiveGroupTableFilterComposer,
+    $$ArchiveGroupTableOrderingComposer,
+    $$ArchiveGroupTableCreateCompanionBuilder,
+    $$ArchiveGroupTableUpdateCompanionBuilder> {
+  $$ArchiveGroupTableTableManager(_$AppDb db, $ArchiveGroupTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$ArchiveGroupTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$ArchiveGroupTableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<String> groupName = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ArchiveGroupCompanion(
+            groupName: groupName,
+            sortOrder: sortOrder,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String groupName,
+            Value<int> sortOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ArchiveGroupCompanion.insert(
+            groupName: groupName,
+            sortOrder: sortOrder,
+            rowid: rowid,
+          ),
+        ));
+}
+
+class $$ArchiveGroupTableFilterComposer
+    extends FilterComposer<_$AppDb, $ArchiveGroupTable> {
+  $$ArchiveGroupTableFilterComposer(super.$state);
+  ColumnFilters<String> get groupName => $state.composableBuilder(
+      column: $state.table.groupName,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get sortOrder => $state.composableBuilder(
+      column: $state.table.sortOrder,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$ArchiveGroupTableOrderingComposer
+    extends OrderingComposer<_$AppDb, $ArchiveGroupTable> {
+  $$ArchiveGroupTableOrderingComposer(super.$state);
+  ColumnOrderings<String> get groupName => $state.composableBuilder(
+      column: $state.table.groupName,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get sortOrder => $state.composableBuilder(
+      column: $state.table.sortOrder,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+typedef $$GalleryDownloadedTableCreateCompanionBuilder
+    = GalleryDownloadedCompanion Function({
+  Value<int> gid,
+  required String token,
+  required String title,
+  required String category,
+  required int pageCount,
+  required String galleryUrl,
+  Value<String?> oldVersionGalleryUrl,
+  Value<String?> uploader,
+  required String publishTime,
+  required int downloadStatusIndex,
+  required String insertTime,
+  Value<bool> downloadOriginalImage,
+  required int priority,
+  Value<int> sortOrder,
+  required String groupName,
+  Value<String> tags,
+  Value<String?> tagRefreshTime,
+});
+typedef $$GalleryDownloadedTableUpdateCompanionBuilder
+    = GalleryDownloadedCompanion Function({
+  Value<int> gid,
+  Value<String> token,
+  Value<String> title,
+  Value<String> category,
+  Value<int> pageCount,
+  Value<String> galleryUrl,
+  Value<String?> oldVersionGalleryUrl,
+  Value<String?> uploader,
+  Value<String> publishTime,
+  Value<int> downloadStatusIndex,
+  Value<String> insertTime,
+  Value<bool> downloadOriginalImage,
+  Value<int> priority,
+  Value<int> sortOrder,
+  Value<String> groupName,
+  Value<String> tags,
+  Value<String?> tagRefreshTime,
+});
+
+class $$GalleryDownloadedTableTableManager extends RootTableManager<
+    _$AppDb,
+    $GalleryDownloadedTable,
+    GalleryDownloadedData,
+    $$GalleryDownloadedTableFilterComposer,
+    $$GalleryDownloadedTableOrderingComposer,
+    $$GalleryDownloadedTableCreateCompanionBuilder,
+    $$GalleryDownloadedTableUpdateCompanionBuilder> {
+  $$GalleryDownloadedTableTableManager(
+      _$AppDb db, $GalleryDownloadedTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$GalleryDownloadedTableFilterComposer(ComposerState(db, table)),
+          orderingComposer: $$GalleryDownloadedTableOrderingComposer(
+              ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> gid = const Value.absent(),
+            Value<String> token = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String> category = const Value.absent(),
+            Value<int> pageCount = const Value.absent(),
+            Value<String> galleryUrl = const Value.absent(),
+            Value<String?> oldVersionGalleryUrl = const Value.absent(),
+            Value<String?> uploader = const Value.absent(),
+            Value<String> publishTime = const Value.absent(),
+            Value<int> downloadStatusIndex = const Value.absent(),
+            Value<String> insertTime = const Value.absent(),
+            Value<bool> downloadOriginalImage = const Value.absent(),
+            Value<int> priority = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<String> groupName = const Value.absent(),
+            Value<String> tags = const Value.absent(),
+            Value<String?> tagRefreshTime = const Value.absent(),
+          }) =>
+              GalleryDownloadedCompanion(
+            gid: gid,
+            token: token,
+            title: title,
+            category: category,
+            pageCount: pageCount,
+            galleryUrl: galleryUrl,
+            oldVersionGalleryUrl: oldVersionGalleryUrl,
+            uploader: uploader,
+            publishTime: publishTime,
+            downloadStatusIndex: downloadStatusIndex,
+            insertTime: insertTime,
+            downloadOriginalImage: downloadOriginalImage,
+            priority: priority,
+            sortOrder: sortOrder,
+            groupName: groupName,
+            tags: tags,
+            tagRefreshTime: tagRefreshTime,
+          ),
+          createCompanionCallback: ({
+            Value<int> gid = const Value.absent(),
+            required String token,
+            required String title,
+            required String category,
+            required int pageCount,
+            required String galleryUrl,
+            Value<String?> oldVersionGalleryUrl = const Value.absent(),
+            Value<String?> uploader = const Value.absent(),
+            required String publishTime,
+            required int downloadStatusIndex,
+            required String insertTime,
+            Value<bool> downloadOriginalImage = const Value.absent(),
+            required int priority,
+            Value<int> sortOrder = const Value.absent(),
+            required String groupName,
+            Value<String> tags = const Value.absent(),
+            Value<String?> tagRefreshTime = const Value.absent(),
+          }) =>
+              GalleryDownloadedCompanion.insert(
+            gid: gid,
+            token: token,
+            title: title,
+            category: category,
+            pageCount: pageCount,
+            galleryUrl: galleryUrl,
+            oldVersionGalleryUrl: oldVersionGalleryUrl,
+            uploader: uploader,
+            publishTime: publishTime,
+            downloadStatusIndex: downloadStatusIndex,
+            insertTime: insertTime,
+            downloadOriginalImage: downloadOriginalImage,
+            priority: priority,
+            sortOrder: sortOrder,
+            groupName: groupName,
+            tags: tags,
+            tagRefreshTime: tagRefreshTime,
+          ),
+        ));
+}
+
+class $$GalleryDownloadedTableFilterComposer
+    extends FilterComposer<_$AppDb, $GalleryDownloadedTable> {
+  $$GalleryDownloadedTableFilterComposer(super.$state);
+  ColumnFilters<int> get gid => $state.composableBuilder(
+      column: $state.table.gid,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get token => $state.composableBuilder(
+      column: $state.table.token,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get title => $state.composableBuilder(
+      column: $state.table.title,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get category => $state.composableBuilder(
+      column: $state.table.category,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get pageCount => $state.composableBuilder(
+      column: $state.table.pageCount,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get galleryUrl => $state.composableBuilder(
+      column: $state.table.galleryUrl,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get oldVersionGalleryUrl => $state.composableBuilder(
+      column: $state.table.oldVersionGalleryUrl,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get uploader => $state.composableBuilder(
+      column: $state.table.uploader,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get publishTime => $state.composableBuilder(
+      column: $state.table.publishTime,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get downloadStatusIndex => $state.composableBuilder(
+      column: $state.table.downloadStatusIndex,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get insertTime => $state.composableBuilder(
+      column: $state.table.insertTime,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<bool> get downloadOriginalImage => $state.composableBuilder(
+      column: $state.table.downloadOriginalImage,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get priority => $state.composableBuilder(
+      column: $state.table.priority,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get sortOrder => $state.composableBuilder(
+      column: $state.table.sortOrder,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get groupName => $state.composableBuilder(
+      column: $state.table.groupName,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get tags => $state.composableBuilder(
+      column: $state.table.tags,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get tagRefreshTime => $state.composableBuilder(
+      column: $state.table.tagRefreshTime,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ComposableFilter imageRefs(
+      ComposableFilter Function($$ImageTableFilterComposer f) f) {
+    final $$ImageTableFilterComposer composer = $state.composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.gid,
+        referencedTable: $state.db.image,
+        getReferencedColumn: (t) => t.gid,
+        builder: (joinBuilder, parentComposers) => $$ImageTableFilterComposer(
+            ComposerState(
+                $state.db, $state.db.image, joinBuilder, parentComposers)));
+    return f(composer);
+  }
+}
+
+class $$GalleryDownloadedTableOrderingComposer
+    extends OrderingComposer<_$AppDb, $GalleryDownloadedTable> {
+  $$GalleryDownloadedTableOrderingComposer(super.$state);
+  ColumnOrderings<int> get gid => $state.composableBuilder(
+      column: $state.table.gid,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get token => $state.composableBuilder(
+      column: $state.table.token,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get title => $state.composableBuilder(
+      column: $state.table.title,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get category => $state.composableBuilder(
+      column: $state.table.category,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get pageCount => $state.composableBuilder(
+      column: $state.table.pageCount,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get galleryUrl => $state.composableBuilder(
+      column: $state.table.galleryUrl,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get oldVersionGalleryUrl => $state.composableBuilder(
+      column: $state.table.oldVersionGalleryUrl,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get uploader => $state.composableBuilder(
+      column: $state.table.uploader,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get publishTime => $state.composableBuilder(
+      column: $state.table.publishTime,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get downloadStatusIndex => $state.composableBuilder(
+      column: $state.table.downloadStatusIndex,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get insertTime => $state.composableBuilder(
+      column: $state.table.insertTime,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<bool> get downloadOriginalImage => $state.composableBuilder(
+      column: $state.table.downloadOriginalImage,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get priority => $state.composableBuilder(
+      column: $state.table.priority,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get sortOrder => $state.composableBuilder(
+      column: $state.table.sortOrder,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get groupName => $state.composableBuilder(
+      column: $state.table.groupName,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get tags => $state.composableBuilder(
+      column: $state.table.tags,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get tagRefreshTime => $state.composableBuilder(
+      column: $state.table.tagRefreshTime,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+typedef $$GalleryDownloadedOldTableCreateCompanionBuilder
+    = GalleryDownloadedOldCompanion Function({
+  Value<int> gid,
+  required String token,
+  required String title,
+  required String category,
+  required int pageCount,
+  required String galleryUrl,
+  Value<String?> oldVersionGalleryUrl,
+  Value<String?> uploader,
+  required String publishTime,
+  required int downloadStatusIndex,
+  Value<String?> insertTime,
+  Value<bool> downloadOriginalImage,
+  Value<int?> priority,
+  Value<int> sortOrder,
+  Value<String?> groupName,
+});
+typedef $$GalleryDownloadedOldTableUpdateCompanionBuilder
+    = GalleryDownloadedOldCompanion Function({
+  Value<int> gid,
+  Value<String> token,
+  Value<String> title,
+  Value<String> category,
+  Value<int> pageCount,
+  Value<String> galleryUrl,
+  Value<String?> oldVersionGalleryUrl,
+  Value<String?> uploader,
+  Value<String> publishTime,
+  Value<int> downloadStatusIndex,
+  Value<String?> insertTime,
+  Value<bool> downloadOriginalImage,
+  Value<int?> priority,
+  Value<int> sortOrder,
+  Value<String?> groupName,
+});
+
+class $$GalleryDownloadedOldTableTableManager extends RootTableManager<
+    _$AppDb,
+    $GalleryDownloadedOldTable,
+    GalleryDownloadedOldData,
+    $$GalleryDownloadedOldTableFilterComposer,
+    $$GalleryDownloadedOldTableOrderingComposer,
+    $$GalleryDownloadedOldTableCreateCompanionBuilder,
+    $$GalleryDownloadedOldTableUpdateCompanionBuilder> {
+  $$GalleryDownloadedOldTableTableManager(
+      _$AppDb db, $GalleryDownloadedOldTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer: $$GalleryDownloadedOldTableFilterComposer(
+              ComposerState(db, table)),
+          orderingComposer: $$GalleryDownloadedOldTableOrderingComposer(
+              ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> gid = const Value.absent(),
+            Value<String> token = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String> category = const Value.absent(),
+            Value<int> pageCount = const Value.absent(),
+            Value<String> galleryUrl = const Value.absent(),
+            Value<String?> oldVersionGalleryUrl = const Value.absent(),
+            Value<String?> uploader = const Value.absent(),
+            Value<String> publishTime = const Value.absent(),
+            Value<int> downloadStatusIndex = const Value.absent(),
+            Value<String?> insertTime = const Value.absent(),
+            Value<bool> downloadOriginalImage = const Value.absent(),
+            Value<int?> priority = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<String?> groupName = const Value.absent(),
+          }) =>
+              GalleryDownloadedOldCompanion(
+            gid: gid,
+            token: token,
+            title: title,
+            category: category,
+            pageCount: pageCount,
+            galleryUrl: galleryUrl,
+            oldVersionGalleryUrl: oldVersionGalleryUrl,
+            uploader: uploader,
+            publishTime: publishTime,
+            downloadStatusIndex: downloadStatusIndex,
+            insertTime: insertTime,
+            downloadOriginalImage: downloadOriginalImage,
+            priority: priority,
+            sortOrder: sortOrder,
+            groupName: groupName,
+          ),
+          createCompanionCallback: ({
+            Value<int> gid = const Value.absent(),
+            required String token,
+            required String title,
+            required String category,
+            required int pageCount,
+            required String galleryUrl,
+            Value<String?> oldVersionGalleryUrl = const Value.absent(),
+            Value<String?> uploader = const Value.absent(),
+            required String publishTime,
+            required int downloadStatusIndex,
+            Value<String?> insertTime = const Value.absent(),
+            Value<bool> downloadOriginalImage = const Value.absent(),
+            Value<int?> priority = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<String?> groupName = const Value.absent(),
+          }) =>
+              GalleryDownloadedOldCompanion.insert(
+            gid: gid,
+            token: token,
+            title: title,
+            category: category,
+            pageCount: pageCount,
+            galleryUrl: galleryUrl,
+            oldVersionGalleryUrl: oldVersionGalleryUrl,
+            uploader: uploader,
+            publishTime: publishTime,
+            downloadStatusIndex: downloadStatusIndex,
+            insertTime: insertTime,
+            downloadOriginalImage: downloadOriginalImage,
+            priority: priority,
+            sortOrder: sortOrder,
+            groupName: groupName,
+          ),
+        ));
+}
+
+class $$GalleryDownloadedOldTableFilterComposer
+    extends FilterComposer<_$AppDb, $GalleryDownloadedOldTable> {
+  $$GalleryDownloadedOldTableFilterComposer(super.$state);
+  ColumnFilters<int> get gid => $state.composableBuilder(
+      column: $state.table.gid,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get token => $state.composableBuilder(
+      column: $state.table.token,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get title => $state.composableBuilder(
+      column: $state.table.title,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get category => $state.composableBuilder(
+      column: $state.table.category,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get pageCount => $state.composableBuilder(
+      column: $state.table.pageCount,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get galleryUrl => $state.composableBuilder(
+      column: $state.table.galleryUrl,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get oldVersionGalleryUrl => $state.composableBuilder(
+      column: $state.table.oldVersionGalleryUrl,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get uploader => $state.composableBuilder(
+      column: $state.table.uploader,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get publishTime => $state.composableBuilder(
+      column: $state.table.publishTime,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get downloadStatusIndex => $state.composableBuilder(
+      column: $state.table.downloadStatusIndex,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get insertTime => $state.composableBuilder(
+      column: $state.table.insertTime,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<bool> get downloadOriginalImage => $state.composableBuilder(
+      column: $state.table.downloadOriginalImage,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get priority => $state.composableBuilder(
+      column: $state.table.priority,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get sortOrder => $state.composableBuilder(
+      column: $state.table.sortOrder,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get groupName => $state.composableBuilder(
+      column: $state.table.groupName,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$GalleryDownloadedOldTableOrderingComposer
+    extends OrderingComposer<_$AppDb, $GalleryDownloadedOldTable> {
+  $$GalleryDownloadedOldTableOrderingComposer(super.$state);
+  ColumnOrderings<int> get gid => $state.composableBuilder(
+      column: $state.table.gid,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get token => $state.composableBuilder(
+      column: $state.table.token,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get title => $state.composableBuilder(
+      column: $state.table.title,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get category => $state.composableBuilder(
+      column: $state.table.category,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get pageCount => $state.composableBuilder(
+      column: $state.table.pageCount,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get galleryUrl => $state.composableBuilder(
+      column: $state.table.galleryUrl,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get oldVersionGalleryUrl => $state.composableBuilder(
+      column: $state.table.oldVersionGalleryUrl,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get uploader => $state.composableBuilder(
+      column: $state.table.uploader,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get publishTime => $state.composableBuilder(
+      column: $state.table.publishTime,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get downloadStatusIndex => $state.composableBuilder(
+      column: $state.table.downloadStatusIndex,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get insertTime => $state.composableBuilder(
+      column: $state.table.insertTime,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<bool> get downloadOriginalImage => $state.composableBuilder(
+      column: $state.table.downloadOriginalImage,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get priority => $state.composableBuilder(
+      column: $state.table.priority,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get sortOrder => $state.composableBuilder(
+      column: $state.table.sortOrder,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get groupName => $state.composableBuilder(
+      column: $state.table.groupName,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+typedef $$GalleryGroupTableCreateCompanionBuilder = GalleryGroupCompanion
+    Function({
+  required String groupName,
+  Value<int> sortOrder,
+  Value<int> rowid,
+});
+typedef $$GalleryGroupTableUpdateCompanionBuilder = GalleryGroupCompanion
+    Function({
+  Value<String> groupName,
+  Value<int> sortOrder,
+  Value<int> rowid,
+});
+
+class $$GalleryGroupTableTableManager extends RootTableManager<
+    _$AppDb,
+    $GalleryGroupTable,
+    GalleryGroupData,
+    $$GalleryGroupTableFilterComposer,
+    $$GalleryGroupTableOrderingComposer,
+    $$GalleryGroupTableCreateCompanionBuilder,
+    $$GalleryGroupTableUpdateCompanionBuilder> {
+  $$GalleryGroupTableTableManager(_$AppDb db, $GalleryGroupTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$GalleryGroupTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$GalleryGroupTableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<String> groupName = const Value.absent(),
+            Value<int> sortOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              GalleryGroupCompanion(
+            groupName: groupName,
+            sortOrder: sortOrder,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String groupName,
+            Value<int> sortOrder = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              GalleryGroupCompanion.insert(
+            groupName: groupName,
+            sortOrder: sortOrder,
+            rowid: rowid,
+          ),
+        ));
+}
+
+class $$GalleryGroupTableFilterComposer
+    extends FilterComposer<_$AppDb, $GalleryGroupTable> {
+  $$GalleryGroupTableFilterComposer(super.$state);
+  ColumnFilters<String> get groupName => $state.composableBuilder(
+      column: $state.table.groupName,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get sortOrder => $state.composableBuilder(
+      column: $state.table.sortOrder,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$GalleryGroupTableOrderingComposer
+    extends OrderingComposer<_$AppDb, $GalleryGroupTable> {
+  $$GalleryGroupTableOrderingComposer(super.$state);
+  ColumnOrderings<String> get groupName => $state.composableBuilder(
+      column: $state.table.groupName,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get sortOrder => $state.composableBuilder(
+      column: $state.table.sortOrder,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+typedef $$ImageTableCreateCompanionBuilder = ImageCompanion Function({
+  required int gid,
+  required String url,
+  required int serialNo,
+  required String path,
+  required String imageHash,
+  required int downloadStatusIndex,
+  Value<int> rowid,
+});
+typedef $$ImageTableUpdateCompanionBuilder = ImageCompanion Function({
+  Value<int> gid,
+  Value<String> url,
+  Value<int> serialNo,
+  Value<String> path,
+  Value<String> imageHash,
+  Value<int> downloadStatusIndex,
+  Value<int> rowid,
+});
+
+class $$ImageTableTableManager extends RootTableManager<
+    _$AppDb,
+    $ImageTable,
+    ImageData,
+    $$ImageTableFilterComposer,
+    $$ImageTableOrderingComposer,
+    $$ImageTableCreateCompanionBuilder,
+    $$ImageTableUpdateCompanionBuilder> {
+  $$ImageTableTableManager(_$AppDb db, $ImageTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$ImageTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$ImageTableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> gid = const Value.absent(),
+            Value<String> url = const Value.absent(),
+            Value<int> serialNo = const Value.absent(),
+            Value<String> path = const Value.absent(),
+            Value<String> imageHash = const Value.absent(),
+            Value<int> downloadStatusIndex = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ImageCompanion(
+            gid: gid,
+            url: url,
+            serialNo: serialNo,
+            path: path,
+            imageHash: imageHash,
+            downloadStatusIndex: downloadStatusIndex,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required int gid,
+            required String url,
+            required int serialNo,
+            required String path,
+            required String imageHash,
+            required int downloadStatusIndex,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ImageCompanion.insert(
+            gid: gid,
+            url: url,
+            serialNo: serialNo,
+            path: path,
+            imageHash: imageHash,
+            downloadStatusIndex: downloadStatusIndex,
+            rowid: rowid,
+          ),
+        ));
+}
+
+class $$ImageTableFilterComposer extends FilterComposer<_$AppDb, $ImageTable> {
+  $$ImageTableFilterComposer(super.$state);
+  ColumnFilters<String> get url => $state.composableBuilder(
+      column: $state.table.url,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get serialNo => $state.composableBuilder(
+      column: $state.table.serialNo,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get path => $state.composableBuilder(
+      column: $state.table.path,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get imageHash => $state.composableBuilder(
+      column: $state.table.imageHash,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get downloadStatusIndex => $state.composableBuilder(
+      column: $state.table.downloadStatusIndex,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  $$GalleryDownloadedTableFilterComposer get gid {
+    final $$GalleryDownloadedTableFilterComposer composer =
+        $state.composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.gid,
+            referencedTable: $state.db.galleryDownloaded,
+            getReferencedColumn: (t) => t.gid,
+            builder: (joinBuilder, parentComposers) =>
+                $$GalleryDownloadedTableFilterComposer(ComposerState(
+                    $state.db,
+                    $state.db.galleryDownloaded,
+                    joinBuilder,
+                    parentComposers)));
+    return composer;
+  }
+}
+
+class $$ImageTableOrderingComposer
+    extends OrderingComposer<_$AppDb, $ImageTable> {
+  $$ImageTableOrderingComposer(super.$state);
+  ColumnOrderings<String> get url => $state.composableBuilder(
+      column: $state.table.url,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get serialNo => $state.composableBuilder(
+      column: $state.table.serialNo,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get path => $state.composableBuilder(
+      column: $state.table.path,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get imageHash => $state.composableBuilder(
+      column: $state.table.imageHash,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get downloadStatusIndex => $state.composableBuilder(
+      column: $state.table.downloadStatusIndex,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  $$GalleryDownloadedTableOrderingComposer get gid {
+    final $$GalleryDownloadedTableOrderingComposer composer =
+        $state.composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.gid,
+            referencedTable: $state.db.galleryDownloaded,
+            getReferencedColumn: (t) => t.gid,
+            builder: (joinBuilder, parentComposers) =>
+                $$GalleryDownloadedTableOrderingComposer(ComposerState(
+                    $state.db,
+                    $state.db.galleryDownloaded,
+                    joinBuilder,
+                    parentComposers)));
+    return composer;
+  }
+}
+
+typedef $$GalleryHistoryTableCreateCompanionBuilder = GalleryHistoryCompanion
+    Function({
+  Value<int> gid,
+  required String jsonBody,
+  required String lastReadTime,
+});
+typedef $$GalleryHistoryTableUpdateCompanionBuilder = GalleryHistoryCompanion
+    Function({
+  Value<int> gid,
+  Value<String> jsonBody,
+  Value<String> lastReadTime,
+});
+
+class $$GalleryHistoryTableTableManager extends RootTableManager<
+    _$AppDb,
+    $GalleryHistoryTable,
+    GalleryHistoryData,
+    $$GalleryHistoryTableFilterComposer,
+    $$GalleryHistoryTableOrderingComposer,
+    $$GalleryHistoryTableCreateCompanionBuilder,
+    $$GalleryHistoryTableUpdateCompanionBuilder> {
+  $$GalleryHistoryTableTableManager(_$AppDb db, $GalleryHistoryTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$GalleryHistoryTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$GalleryHistoryTableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> gid = const Value.absent(),
+            Value<String> jsonBody = const Value.absent(),
+            Value<String> lastReadTime = const Value.absent(),
+          }) =>
+              GalleryHistoryCompanion(
+            gid: gid,
+            jsonBody: jsonBody,
+            lastReadTime: lastReadTime,
+          ),
+          createCompanionCallback: ({
+            Value<int> gid = const Value.absent(),
+            required String jsonBody,
+            required String lastReadTime,
+          }) =>
+              GalleryHistoryCompanion.insert(
+            gid: gid,
+            jsonBody: jsonBody,
+            lastReadTime: lastReadTime,
+          ),
+        ));
+}
+
+class $$GalleryHistoryTableFilterComposer
+    extends FilterComposer<_$AppDb, $GalleryHistoryTable> {
+  $$GalleryHistoryTableFilterComposer(super.$state);
+  ColumnFilters<int> get gid => $state.composableBuilder(
+      column: $state.table.gid,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get jsonBody => $state.composableBuilder(
+      column: $state.table.jsonBody,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get lastReadTime => $state.composableBuilder(
+      column: $state.table.lastReadTime,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$GalleryHistoryTableOrderingComposer
+    extends OrderingComposer<_$AppDb, $GalleryHistoryTable> {
+  $$GalleryHistoryTableOrderingComposer(super.$state);
+  ColumnOrderings<int> get gid => $state.composableBuilder(
+      column: $state.table.gid,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get jsonBody => $state.composableBuilder(
+      column: $state.table.jsonBody,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get lastReadTime => $state.composableBuilder(
+      column: $state.table.lastReadTime,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+typedef $$GalleryHistoryV2TableCreateCompanionBuilder
+    = GalleryHistoryV2Companion Function({
+  Value<int> gid,
+  required String jsonBody,
+  required String lastReadTime,
+});
+typedef $$GalleryHistoryV2TableUpdateCompanionBuilder
+    = GalleryHistoryV2Companion Function({
+  Value<int> gid,
+  Value<String> jsonBody,
+  Value<String> lastReadTime,
+});
+
+class $$GalleryHistoryV2TableTableManager extends RootTableManager<
+    _$AppDb,
+    $GalleryHistoryV2Table,
+    GalleryHistoryV2Data,
+    $$GalleryHistoryV2TableFilterComposer,
+    $$GalleryHistoryV2TableOrderingComposer,
+    $$GalleryHistoryV2TableCreateCompanionBuilder,
+    $$GalleryHistoryV2TableUpdateCompanionBuilder> {
+  $$GalleryHistoryV2TableTableManager(_$AppDb db, $GalleryHistoryV2Table table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$GalleryHistoryV2TableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$GalleryHistoryV2TableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> gid = const Value.absent(),
+            Value<String> jsonBody = const Value.absent(),
+            Value<String> lastReadTime = const Value.absent(),
+          }) =>
+              GalleryHistoryV2Companion(
+            gid: gid,
+            jsonBody: jsonBody,
+            lastReadTime: lastReadTime,
+          ),
+          createCompanionCallback: ({
+            Value<int> gid = const Value.absent(),
+            required String jsonBody,
+            required String lastReadTime,
+          }) =>
+              GalleryHistoryV2Companion.insert(
+            gid: gid,
+            jsonBody: jsonBody,
+            lastReadTime: lastReadTime,
+          ),
+        ));
+}
+
+class $$GalleryHistoryV2TableFilterComposer
+    extends FilterComposer<_$AppDb, $GalleryHistoryV2Table> {
+  $$GalleryHistoryV2TableFilterComposer(super.$state);
+  ColumnFilters<int> get gid => $state.composableBuilder(
+      column: $state.table.gid,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get jsonBody => $state.composableBuilder(
+      column: $state.table.jsonBody,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get lastReadTime => $state.composableBuilder(
+      column: $state.table.lastReadTime,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$GalleryHistoryV2TableOrderingComposer
+    extends OrderingComposer<_$AppDb, $GalleryHistoryV2Table> {
+  $$GalleryHistoryV2TableOrderingComposer(super.$state);
+  ColumnOrderings<int> get gid => $state.composableBuilder(
+      column: $state.table.gid,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get jsonBody => $state.composableBuilder(
+      column: $state.table.jsonBody,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get lastReadTime => $state.composableBuilder(
+      column: $state.table.lastReadTime,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+typedef $$TagCountTableCreateCompanionBuilder = TagCountCompanion Function({
+  required String namespaceWithKey,
+  required int count,
+  Value<int> rowid,
+});
+typedef $$TagCountTableUpdateCompanionBuilder = TagCountCompanion Function({
+  Value<String> namespaceWithKey,
+  Value<int> count,
+  Value<int> rowid,
+});
+
+class $$TagCountTableTableManager extends RootTableManager<
+    _$AppDb,
+    $TagCountTable,
+    TagCountData,
+    $$TagCountTableFilterComposer,
+    $$TagCountTableOrderingComposer,
+    $$TagCountTableCreateCompanionBuilder,
+    $$TagCountTableUpdateCompanionBuilder> {
+  $$TagCountTableTableManager(_$AppDb db, $TagCountTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$TagCountTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$TagCountTableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<String> namespaceWithKey = const Value.absent(),
+            Value<int> count = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TagCountCompanion(
+            namespaceWithKey: namespaceWithKey,
+            count: count,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String namespaceWithKey,
+            required int count,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TagCountCompanion.insert(
+            namespaceWithKey: namespaceWithKey,
+            count: count,
+            rowid: rowid,
+          ),
+        ));
+}
+
+class $$TagCountTableFilterComposer
+    extends FilterComposer<_$AppDb, $TagCountTable> {
+  $$TagCountTableFilterComposer(super.$state);
+  ColumnFilters<String> get namespaceWithKey => $state.composableBuilder(
+      column: $state.table.namespaceWithKey,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get count => $state.composableBuilder(
+      column: $state.table.count,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$TagCountTableOrderingComposer
+    extends OrderingComposer<_$AppDb, $TagCountTable> {
+  $$TagCountTableOrderingComposer(super.$state);
+  ColumnOrderings<String> get namespaceWithKey => $state.composableBuilder(
+      column: $state.table.namespaceWithKey,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get count => $state.composableBuilder(
+      column: $state.table.count,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+typedef $$DioCacheTableCreateCompanionBuilder = DioCacheCompanion Function({
+  required String cacheKey,
+  required String url,
+  required DateTime expireDate,
+  required Uint8List content,
+  required Uint8List headers,
+  Value<int> rowid,
+});
+typedef $$DioCacheTableUpdateCompanionBuilder = DioCacheCompanion Function({
+  Value<String> cacheKey,
+  Value<String> url,
+  Value<DateTime> expireDate,
+  Value<Uint8List> content,
+  Value<Uint8List> headers,
+  Value<int> rowid,
+});
+
+class $$DioCacheTableTableManager extends RootTableManager<
+    _$AppDb,
+    $DioCacheTable,
+    DioCacheData,
+    $$DioCacheTableFilterComposer,
+    $$DioCacheTableOrderingComposer,
+    $$DioCacheTableCreateCompanionBuilder,
+    $$DioCacheTableUpdateCompanionBuilder> {
+  $$DioCacheTableTableManager(_$AppDb db, $DioCacheTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$DioCacheTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$DioCacheTableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<String> cacheKey = const Value.absent(),
+            Value<String> url = const Value.absent(),
+            Value<DateTime> expireDate = const Value.absent(),
+            Value<Uint8List> content = const Value.absent(),
+            Value<Uint8List> headers = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              DioCacheCompanion(
+            cacheKey: cacheKey,
+            url: url,
+            expireDate: expireDate,
+            content: content,
+            headers: headers,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String cacheKey,
+            required String url,
+            required DateTime expireDate,
+            required Uint8List content,
+            required Uint8List headers,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              DioCacheCompanion.insert(
+            cacheKey: cacheKey,
+            url: url,
+            expireDate: expireDate,
+            content: content,
+            headers: headers,
+            rowid: rowid,
+          ),
+        ));
+}
+
+class $$DioCacheTableFilterComposer
+    extends FilterComposer<_$AppDb, $DioCacheTable> {
+  $$DioCacheTableFilterComposer(super.$state);
+  ColumnFilters<String> get cacheKey => $state.composableBuilder(
+      column: $state.table.cacheKey,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get url => $state.composableBuilder(
+      column: $state.table.url,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get expireDate => $state.composableBuilder(
+      column: $state.table.expireDate,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<Uint8List> get content => $state.composableBuilder(
+      column: $state.table.content,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<Uint8List> get headers => $state.composableBuilder(
+      column: $state.table.headers,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$DioCacheTableOrderingComposer
+    extends OrderingComposer<_$AppDb, $DioCacheTable> {
+  $$DioCacheTableOrderingComposer(super.$state);
+  ColumnOrderings<String> get cacheKey => $state.composableBuilder(
+      column: $state.table.cacheKey,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get url => $state.composableBuilder(
+      column: $state.table.url,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get expireDate => $state.composableBuilder(
+      column: $state.table.expireDate,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<Uint8List> get content => $state.composableBuilder(
+      column: $state.table.content,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<Uint8List> get headers => $state.composableBuilder(
+      column: $state.table.headers,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+typedef $$BlockRuleTableCreateCompanionBuilder = BlockRuleCompanion Function({
+  Value<int> id,
+  required String groupId,
+  required int target,
+  required int attribute,
+  required int pattern,
+  required String expression,
+});
+typedef $$BlockRuleTableUpdateCompanionBuilder = BlockRuleCompanion Function({
+  Value<int> id,
+  Value<String> groupId,
+  Value<int> target,
+  Value<int> attribute,
+  Value<int> pattern,
+  Value<String> expression,
+});
+
+class $$BlockRuleTableTableManager extends RootTableManager<
+    _$AppDb,
+    $BlockRuleTable,
+    BlockRuleData,
+    $$BlockRuleTableFilterComposer,
+    $$BlockRuleTableOrderingComposer,
+    $$BlockRuleTableCreateCompanionBuilder,
+    $$BlockRuleTableUpdateCompanionBuilder> {
+  $$BlockRuleTableTableManager(_$AppDb db, $BlockRuleTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$BlockRuleTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$BlockRuleTableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> groupId = const Value.absent(),
+            Value<int> target = const Value.absent(),
+            Value<int> attribute = const Value.absent(),
+            Value<int> pattern = const Value.absent(),
+            Value<String> expression = const Value.absent(),
+          }) =>
+              BlockRuleCompanion(
+            id: id,
+            groupId: groupId,
+            target: target,
+            attribute: attribute,
+            pattern: pattern,
+            expression: expression,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String groupId,
+            required int target,
+            required int attribute,
+            required int pattern,
+            required String expression,
+          }) =>
+              BlockRuleCompanion.insert(
+            id: id,
+            groupId: groupId,
+            target: target,
+            attribute: attribute,
+            pattern: pattern,
+            expression: expression,
+          ),
+        ));
+}
+
+class $$BlockRuleTableFilterComposer
+    extends FilterComposer<_$AppDb, $BlockRuleTable> {
+  $$BlockRuleTableFilterComposer(super.$state);
+  ColumnFilters<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get groupId => $state.composableBuilder(
+      column: $state.table.groupId,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get target => $state.composableBuilder(
+      column: $state.table.target,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get attribute => $state.composableBuilder(
+      column: $state.table.attribute,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get pattern => $state.composableBuilder(
+      column: $state.table.pattern,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get expression => $state.composableBuilder(
+      column: $state.table.expression,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$BlockRuleTableOrderingComposer
+    extends OrderingComposer<_$AppDb, $BlockRuleTable> {
+  $$BlockRuleTableOrderingComposer(super.$state);
+  ColumnOrderings<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get groupId => $state.composableBuilder(
+      column: $state.table.groupId,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get target => $state.composableBuilder(
+      column: $state.table.target,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get attribute => $state.composableBuilder(
+      column: $state.table.attribute,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get pattern => $state.composableBuilder(
+      column: $state.table.pattern,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get expression => $state.composableBuilder(
+      column: $state.table.expression,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+typedef $$LocalConfigTableCreateCompanionBuilder = LocalConfigCompanion
+    Function({
+  required String configKey,
+  required String subConfigKey,
+  required String value,
+  Value<int> rowid,
+});
+typedef $$LocalConfigTableUpdateCompanionBuilder = LocalConfigCompanion
+    Function({
+  Value<String> configKey,
+  Value<String> subConfigKey,
+  Value<String> value,
+  Value<int> rowid,
+});
+
+class $$LocalConfigTableTableManager extends RootTableManager<
+    _$AppDb,
+    $LocalConfigTable,
+    LocalConfigData,
+    $$LocalConfigTableFilterComposer,
+    $$LocalConfigTableOrderingComposer,
+    $$LocalConfigTableCreateCompanionBuilder,
+    $$LocalConfigTableUpdateCompanionBuilder> {
+  $$LocalConfigTableTableManager(_$AppDb db, $LocalConfigTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$LocalConfigTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$LocalConfigTableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<String> configKey = const Value.absent(),
+            Value<String> subConfigKey = const Value.absent(),
+            Value<String> value = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              LocalConfigCompanion(
+            configKey: configKey,
+            subConfigKey: subConfigKey,
+            value: value,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String configKey,
+            required String subConfigKey,
+            required String value,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              LocalConfigCompanion.insert(
+            configKey: configKey,
+            subConfigKey: subConfigKey,
+            value: value,
+            rowid: rowid,
+          ),
+        ));
+}
+
+class $$LocalConfigTableFilterComposer
+    extends FilterComposer<_$AppDb, $LocalConfigTable> {
+  $$LocalConfigTableFilterComposer(super.$state);
+  ColumnFilters<String> get configKey => $state.composableBuilder(
+      column: $state.table.configKey,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get subConfigKey => $state.composableBuilder(
+      column: $state.table.subConfigKey,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get value => $state.composableBuilder(
+      column: $state.table.value,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$LocalConfigTableOrderingComposer
+    extends OrderingComposer<_$AppDb, $LocalConfigTable> {
+  $$LocalConfigTableOrderingComposer(super.$state);
+  ColumnOrderings<String> get configKey => $state.composableBuilder(
+      column: $state.table.configKey,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get subConfigKey => $state.composableBuilder(
+      column: $state.table.subConfigKey,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get value => $state.composableBuilder(
+      column: $state.table.value,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+class $AppDbManager {
+  final _$AppDb _db;
+  $AppDbManager(this._db);
+  $$OldSuperResolutionInfoTableTableManager get oldSuperResolutionInfo =>
+      $$OldSuperResolutionInfoTableTableManager(
+          _db, _db.oldSuperResolutionInfo);
+  $$SuperResolutionInfoTableTableManager get superResolutionInfo =>
+      $$SuperResolutionInfoTableTableManager(_db, _db.superResolutionInfo);
+  $$TagTableTableManager get tag => $$TagTableTableManager(_db, _db.tag);
+  $$ArchiveDownloadedTableTableManager get archiveDownloaded =>
+      $$ArchiveDownloadedTableTableManager(_db, _db.archiveDownloaded);
+  $$ArchiveDownloadedOldTableTableManager get archiveDownloadedOld =>
+      $$ArchiveDownloadedOldTableTableManager(_db, _db.archiveDownloadedOld);
+  $$ArchiveGroupTableTableManager get archiveGroup =>
+      $$ArchiveGroupTableTableManager(_db, _db.archiveGroup);
+  $$GalleryDownloadedTableTableManager get galleryDownloaded =>
+      $$GalleryDownloadedTableTableManager(_db, _db.galleryDownloaded);
+  $$GalleryDownloadedOldTableTableManager get galleryDownloadedOld =>
+      $$GalleryDownloadedOldTableTableManager(_db, _db.galleryDownloadedOld);
+  $$GalleryGroupTableTableManager get galleryGroup =>
+      $$GalleryGroupTableTableManager(_db, _db.galleryGroup);
+  $$ImageTableTableManager get image =>
+      $$ImageTableTableManager(_db, _db.image);
+  $$GalleryHistoryTableTableManager get galleryHistory =>
+      $$GalleryHistoryTableTableManager(_db, _db.galleryHistory);
+  $$GalleryHistoryV2TableTableManager get galleryHistoryV2 =>
+      $$GalleryHistoryV2TableTableManager(_db, _db.galleryHistoryV2);
+  $$TagCountTableTableManager get tagCount =>
+      $$TagCountTableTableManager(_db, _db.tagCount);
+  $$DioCacheTableTableManager get dioCache =>
+      $$DioCacheTableTableManager(_db, _db.dioCache);
+  $$BlockRuleTableTableManager get blockRule =>
+      $$BlockRuleTableTableManager(_db, _db.blockRule);
+  $$LocalConfigTableTableManager get localConfig =>
+      $$LocalConfigTableTableManager(_db, _db.localConfig);
 }

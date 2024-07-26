@@ -20,6 +20,7 @@ import 'package:jhentai/src/database/table/gallery_downloaded.dart';
 import 'package:jhentai/src/database/table/gallery_group.dart';
 import 'package:jhentai/src/database/table/gallery_history.dart';
 import 'package:jhentai/src/database/table/image.dart';
+import 'package:jhentai/src/database/table/local_config.dart';
 import 'package:jhentai/src/database/table/super_resolution_info.dart';
 import 'package:jhentai/src/database/table/tag.dart';
 import 'package:jhentai/src/database/table/tag_count.dart';
@@ -59,13 +60,14 @@ part 'database.g.dart';
     TagCount,
     DioCache,
     BlockRule,
+    LocalConfig,
   ],
 )
 class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 21;
+  int get schemaVersion => 22;
 
   @override
   MigrationStrategy get migration {
@@ -149,6 +151,9 @@ class AppDb extends _$AppDb {
             await m.addColumn(archiveDownloaded, archiveDownloaded.tagRefreshTime);
             await m.createIndex(aIdxTagRefreshTime);
             await m.createTable(galleryHistoryV2);
+          }
+          if (from < 22) {
+            await m.createTable(localConfig);
           }
         } on Exception catch (e) {
           Log.error(e);
