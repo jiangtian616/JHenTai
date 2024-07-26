@@ -17,6 +17,7 @@ import 'package:retry/retry.dart';
 
 import '../database/dao/super_resolution_info_dao.dart';
 import '../model/gallery_image.dart';
+import 'jh_service.dart';
 import 'path_service.dart';
 import '../utils/archive_util.dart';
 import '../utils/eh_executor.dart';
@@ -27,7 +28,9 @@ import '../utils/table.dart' as util;
 import 'archive_download_service.dart';
 import 'gallery_download_service.dart';
 
-class SuperResolutionService extends GetxController {
+SuperResolutionService superResolutionService = SuperResolutionService();
+
+class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   static const String downloadId = 'downloadId';
   static const String superResolutionId = 'superResolutionId';
   static const String superResolutionImageId = 'superResolutionImageId';
@@ -37,20 +40,19 @@ class SuperResolutionService extends GetxController {
 
   EHExecutor executor = EHExecutor(concurrency: 1);
 
-  final GalleryDownloadService galleryDownloadService = Get.find();
-  final ArchiveDownloadService archiveDownloadService = Get.find();
-
   util.Table<int, SuperResolutionType, SuperResolutionInfo> superResolutionInfoTable = util.Table();
 
   static const String imageDirName = 'super_resolution';
 
-  static void init() {
-    Get.put(SuperResolutionService(), permanent: true);
-    log.debug('init SuperResolutionService success', false);
-  }
+  @override
+  List<JHLifeCircleBean> get initDependencies => super.initDependencies
+    ..add(galleryDownloadService)
+    ..add(archiveDownloadService);
 
   @override
-  void onInit() async {
+  Future<void> doOnInit() async {
+    Get.put(this, permanent: true);
+
     if (!await galleryDownloadService.completed) {
       return;
     }
@@ -84,6 +86,9 @@ class SuperResolutionService extends GetxController {
         .toList());
     super.onInit();
   }
+
+  @override
+  void doOnReady() {}
 
   SuperResolutionInfo? get(int gid, SuperResolutionType type) => superResolutionInfoTable.get(gid, type);
 
