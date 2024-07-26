@@ -254,7 +254,7 @@ class AppUpdateService extends GetxService {
             await Future.delayed(const Duration(milliseconds: 500));
 
             List<GalleryHistoryData> historys = await GalleryHistoryDao.selectByPageIndexOld(i, pageSize);
-            Map<int, Gallery> gid2GalleryMap = await IsolateService.run<List<GalleryHistoryData>, Map<int, Gallery>>(
+            Map<int, Gallery> gid2GalleryMap = await isolateService.run<List<GalleryHistoryData>, Map<int, Gallery>>(
               (historys) => historys.map((h) => Gallery.fromJson(json.decode(h.jsonBody))).groupFoldBy((g) => g.gid, (g1, e) => e),
               historys,
             );

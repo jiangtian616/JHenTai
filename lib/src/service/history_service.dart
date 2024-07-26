@@ -8,7 +8,6 @@ import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/model/gallery_history_model.dart';
 import 'package:jhentai/src/service/isolate_service.dart';
-import '../model/gallery.dart';
 import '../utils/log.dart';
 
 class HistoryService extends GetxController {
@@ -40,7 +39,7 @@ class HistoryService extends GetxController {
 
   Future<List<GalleryHistoryModel>> getAllHistory() async {
     List<GalleryHistoryV2Data> historys = await GalleryHistoryDao.selectAll();
-    return IsolateService.run<List<GalleryHistoryV2Data>, List<GalleryHistoryModel>>(
+    return isolateService.run<List<GalleryHistoryV2Data>, List<GalleryHistoryModel>>(
       (historys) => historys.map<GalleryHistoryModel>((h) => GalleryHistoryModel.fromJson(jsonDecode(h.jsonBody))).toList(),
       historys,
     );

@@ -926,7 +926,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     if (parser == null) {
       return response as T;
     }
-    return IsolateService.run((list) => parser(list[0], list[1]), [response.headers, response.data]);
+    return isolateService.run((list) => parser(list[0], list[1]), [response.headers, response.data]);
   }
 
   static Future<Response> _getWithErrorHandler<T>(

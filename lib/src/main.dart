@@ -141,8 +141,6 @@ Future<void> init() async {
     Log.debug('Init ${bean.runtimeType} success');
   }
 
-  IsolateService.init();
-
   await PathSetting.init();
   await StorageService.init();
   AppUpdateService.init();
