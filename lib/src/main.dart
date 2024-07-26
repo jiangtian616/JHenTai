@@ -164,7 +164,6 @@ Future<void> init() async {
   MyTagsSetting.init();
   EHSetting.init();
 
-  DownloadSetting.init();
   await EHRequest.init();
   await JHRequest.init();
 

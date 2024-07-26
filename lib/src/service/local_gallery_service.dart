@@ -122,10 +122,10 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin {
   }
 
   Future<void> _loadGalleriesFromDisk() {
-    List<Future> futures = DownloadSetting.extraGalleryScanPath.map((path) => _parseDirectory(Directory(path), true)).toList();
+    List<Future> futures = downloadSetting.extraGalleryScanPath.map((path) => _parseDirectory(Directory(path), true)).toList();
 
     return Future.wait(futures).onError((error, stackTrace) {
-      log.error('_loadGalleriesFromDisk failed, path: ${DownloadSetting.extraGalleryScanPath}', error, stackTrace);
+      log.error('_loadGalleriesFromDisk failed, path: ${downloadSetting.extraGalleryScanPath}', error, stackTrace);
       return [];
     }).whenComplete(() {
       allGallerys.sort((a, b) => FileUtil.naturalCompare(a.title, b.title));

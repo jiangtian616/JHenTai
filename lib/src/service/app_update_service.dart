@@ -119,7 +119,7 @@ class AppUpdateService extends GetxService {
       if (oldVersion <= 3) {
         log.info('Rename metadata file');
 
-        Directory downloadDir = Directory(DownloadSetting.downloadPath.value);
+        Directory downloadDir = Directory(downloadSetting.downloadPath.value);
         downloadDir.exists().then((exists) {
           if (!exists) {
             return;
@@ -150,7 +150,7 @@ class AppUpdateService extends GetxService {
       if (oldVersion <= 4) {
         log.info('update local gallery path');
 
-        DownloadSetting.removeExtraGalleryScanPath(DownloadSetting.defaultDownloadPath);
+        downloadSetting.removeExtraGalleryScanPath(downloadSetting.defaultDownloadPath);
       }
 
       if (oldVersion <= 5) {

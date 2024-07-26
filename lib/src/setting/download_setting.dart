@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:get/get.dart';
@@ -8,192 +9,37 @@ import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/service/log.dart';
 import 'package:path/path.dart';
 
-import '../service/storage_service.dart';
+import '../service/jh_service.dart';
 import '../utils/toast_util.dart';
 
-class DownloadSetting {
-  static String defaultDownloadPath = join(pathService.getVisibleDir().path, 'download');
-  static RxString downloadPath = defaultDownloadPath.obs;
-  static RxBool downloadOriginalImageByDefault = false.obs;
-  static RxnString defaultGalleryGroup = RxnString();
-  static RxnString defaultArchiveGroup = RxnString();
-  static String defaultExtraGalleryScanPath = join(pathService.getVisibleDir().path, 'local_gallery');
-  static RxList<String> extraGalleryScanPath = <String>[defaultExtraGalleryScanPath].obs;
-  static RxString singleImageSavePath = join(pathService.getVisibleDir().path, 'save').obs;
-  static RxString tempDownloadPath = join(pathService.tempDir.path, EHConsts.appName).obs;
-  static RxInt downloadTaskConcurrency = 6.obs;
-  static RxInt maximum = 2.obs;
-  static Rx<Duration> period = const Duration(seconds: 1).obs;
-  static RxBool downloadAllGallerysOfSamePriority = false.obs;
-  static RxInt archiveDownloadIsolateCount = 1.obs;
-  static RxBool manageArchiveDownloadConcurrency = true.obs;
-  static RxBool deleteArchiveFileAfterDownload = true.obs;
-  static RxBool restoreTasksAutomatically = false.obs;
+DownloadSetting downloadSetting = DownloadSetting();
 
-  static void init() {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.downloadSetting.key);
-    if (map != null) {
-      _initFromMap(map);
-      log.debug('init DownloadSetting success', false);
-    } else {
-      log.debug('init DownloadSetting success: default', false);
-    }
+class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
+  late String defaultDownloadPath;
+  late RxString downloadPath;
+  RxBool downloadOriginalImageByDefault = false.obs;
+  RxnString defaultGalleryGroup = RxnString();
+  RxnString defaultArchiveGroup = RxnString();
+  late String defaultExtraGalleryScanPath;
+  late RxList<String> extraGalleryScanPath;
+  RxString singleImageSavePath = join(pathService.getVisibleDir().path, 'save').obs;
+  RxString tempDownloadPath = join(pathService.tempDir.path, EHConsts.appName).obs;
+  RxInt downloadTaskConcurrency = 6.obs;
+  RxInt maximum = 2.obs;
+  Rx<Duration> period = const Duration(seconds: 1).obs;
+  RxBool downloadAllGallerysOfSamePriority = false.obs;
+  RxInt archiveDownloadIsolateCount = 1.obs;
+  RxBool manageArchiveDownloadConcurrency = true.obs;
+  RxBool deleteArchiveFileAfterDownload = true.obs;
+  RxBool restoreTasksAutomatically = false.obs;
 
-    _ensureDownloadDirExists();
-    _clearTempDownloadPath();
-  }
+  @override
+  ConfigEnum get configEnum => ConfigEnum.downloadSetting;
 
-  static saveDownloadPath(String downloadPath) {
-    log.debug('saveDownloadPath:$downloadPath');
-    DownloadSetting.downloadPath.value = downloadPath;
-    _save();
-  }
+  @override
+  void applyConfig(String configString) {
+    Map map = jsonDecode(configString);
 
-  static addExtraGalleryScanPath(String newPath) {
-    log.debug('addExtraGalleryScanPath:$newPath');
-    extraGalleryScanPath.add(newPath);
-    _save();
-  }
-
-  static removeExtraGalleryScanPath(String path) {
-    log.debug('removeExtraGalleryScanPath:$path');
-    extraGalleryScanPath.remove(path);
-    _save();
-  }
-
-  static saveSingleImageSavePath(String singleImageSavePath) {
-    log.debug('saveSingleImageSavePath:$singleImageSavePath');
-    DownloadSetting.singleImageSavePath.value = singleImageSavePath;
-    _save();
-  }
-
-  static saveDownloadOriginalImageByDefault(bool value) {
-    log.debug('saveDownloadOriginalImageByDefault:$value');
-    DownloadSetting.downloadOriginalImageByDefault.value = value;
-    _save();
-  }
-
-  static saveDefaultGalleryGroup(String? group) {
-    log.debug('saveDefaultGalleryGroup:$group');
-    DownloadSetting.defaultGalleryGroup.value = group;
-    _save();
-  }
-
-  static saveDefaultArchiveGroup(String? group) {
-    log.debug('saveDefaultArchiveGroup:$group');
-    DownloadSetting.defaultArchiveGroup.value = group;
-    _save();
-  }
-
-  static saveDownloadTaskConcurrency(int downloadTaskConcurrency) {
-    log.debug('saveDownloadTaskConcurrency:$downloadTaskConcurrency');
-    DownloadSetting.downloadTaskConcurrency.value = downloadTaskConcurrency;
-    _save();
-
-    Get.find<GalleryDownloadService>().updateExecutor();
-  }
-
-  static saveMaximum(int maximum) {
-    log.debug('saveMaximum:$maximum');
-    DownloadSetting.maximum.value = maximum;
-    _save();
-
-    Get.find<GalleryDownloadService>().updateExecutor();
-  }
-
-  static savePeriod(Duration period) {
-    log.debug('savePeriod:$period');
-    DownloadSetting.period.value = period;
-    _save();
-
-    Get.find<GalleryDownloadService>().updateExecutor();
-  }
-
-  static saveDownloadAllGallerysOfSamePriority(bool value) {
-    log.debug('saveDownloadAllGallerysOfSamePriority:$value');
-    downloadAllGallerysOfSamePriority.value = value;
-    _save();
-  }
-
-  static saveArchiveDownloadIsolateCount(int count) {
-    log.debug('saveArchiveDownloadIsolateCount:$count');
-    archiveDownloadIsolateCount.value = count;
-    _save();
-  }
-
-  static saveManageArchiveDownloadConcurrency(bool value) {
-    log.debug('saveManageArchiveDownloadConcurrency:$value');
-    manageArchiveDownloadConcurrency.value = value;
-    _save();
-  }
-
-  static saveDeleteArchiveFileAfterDownload(bool value) {
-    log.debug('saveDeleteArchiveFileAfterDownload:$value');
-    deleteArchiveFileAfterDownload.value = value;
-    _save();
-  }
-
-  static saveRestoreTasksAutomatically(bool value) {
-    log.debug('saveRestoreTasksAutomatically:$value');
-    restoreTasksAutomatically.value = value;
-    _save();
-  }
-
-  static void _ensureDownloadDirExists() {
-    try {
-      Directory(downloadPath.value).createSync(recursive: true);
-      Directory(defaultExtraGalleryScanPath).createSync(recursive: true);
-      Directory(singleImageSavePath.value).createSync(recursive: true);
-    } on Exception catch (e) {
-      toast('brokenDownloadPathHint'.tr);
-      log.error(e);
-      log.uploadError(
-        e,
-        extraInfos: {
-          'defaultDownloadPath': DownloadSetting.defaultDownloadPath,
-          'downloadPath': DownloadSetting.downloadPath.value,
-          'exists': pathService.getVisibleDir().existsSync(),
-        },
-      );
-    }
-  }
-
-  static void _clearTempDownloadPath() {
-    try {
-      Directory directory = Directory(tempDownloadPath.value);
-      if (directory.existsSync()) {
-        directory.deleteSync(recursive: true);
-      }
-      Directory(tempDownloadPath.value).createSync();
-    } on Exception catch (e) {
-      log.error(e);
-    }
-  }
-
-  static Future<void> _save() async {
-    await Get.find<StorageService>().write(ConfigEnum.downloadSetting.key, _toMap());
-  }
-
-  static Map<String, dynamic> _toMap() {
-    return {
-      'downloadPath': downloadPath.value,
-      'extraGalleryScanPath': extraGalleryScanPath.value,
-      'singleImageSavePath': singleImageSavePath.value,
-      'downloadOriginalImageByDefault': downloadOriginalImageByDefault.value,
-      'defaultGalleryGroup': defaultGalleryGroup.value,
-      'defaultArchiveGroup': defaultArchiveGroup.value,
-      'downloadTaskConcurrency': downloadTaskConcurrency.value,
-      'maximum': maximum.value,
-      'period': period.value.inMilliseconds,
-      'downloadAllGallerysOfSamePriority': downloadAllGallerysOfSamePriority.value,
-      'archiveDownloadIsolateCount': archiveDownloadIsolateCount.value,
-      'manageArchiveDownloadConcurrency': manageArchiveDownloadConcurrency.value,
-      'deleteArchiveFileAfterDownload': deleteArchiveFileAfterDownload.value,
-      'restoreTasksAutomatically': restoreTasksAutomatically.value,
-    };
-  }
-
-  static _initFromMap(Map<String, dynamic> map) {
     if (!GetPlatform.isIOS) {
       downloadPath.value = map['downloadPath'] ?? downloadPath.value;
       singleImageSavePath.value = map['singleImageSavePath'] ?? singleImageSavePath.value;
@@ -216,5 +62,166 @@ class DownloadSetting {
     manageArchiveDownloadConcurrency.value = map['manageArchiveDownloadConcurrency'] ?? manageArchiveDownloadConcurrency.value;
     deleteArchiveFileAfterDownload.value = map['deleteArchiveFileAfterDownload'] ?? deleteArchiveFileAfterDownload.value;
     restoreTasksAutomatically.value = map['restoreTasksAutomatically'] ?? restoreTasksAutomatically.value;
+  }
+
+  @override
+  String toConfigString() {
+    return jsonEncode({
+      'downloadPath': downloadPath.value,
+      'extraGalleryScanPath': extraGalleryScanPath.value,
+      'singleImageSavePath': singleImageSavePath.value,
+      'downloadOriginalImageByDefault': downloadOriginalImageByDefault.value,
+      'defaultGalleryGroup': defaultGalleryGroup.value,
+      'defaultArchiveGroup': defaultArchiveGroup.value,
+      'downloadTaskConcurrency': downloadTaskConcurrency.value,
+      'maximum': maximum.value,
+      'period': period.value.inMilliseconds,
+      'downloadAllGallerysOfSamePriority': downloadAllGallerysOfSamePriority.value,
+      'archiveDownloadIsolateCount': archiveDownloadIsolateCount.value,
+      'manageArchiveDownloadConcurrency': manageArchiveDownloadConcurrency.value,
+      'deleteArchiveFileAfterDownload': deleteArchiveFileAfterDownload.value,
+      'restoreTasksAutomatically': restoreTasksAutomatically.value,
+    });
+  }
+
+  @override
+  Future<void> doOnInit() async {
+    defaultDownloadPath = join(pathService.getVisibleDir().path, 'download');
+    downloadPath.value = defaultDownloadPath;
+    defaultExtraGalleryScanPath = join(pathService.getVisibleDir().path, 'local_gallery');
+    extraGalleryScanPath = <String>[defaultExtraGalleryScanPath].obs;
+    
+    await _ensureDownloadDirExists();
+    await _clearTempDownloadPath();
+  }
+
+  @override
+  void doOnReady() {}
+
+  Future<void> saveDownloadPath(String downloadPath) async {
+    log.debug('saveDownloadPath:$downloadPath');
+    this.downloadPath.value = downloadPath;
+    save();
+  }
+
+  Future<void> addExtraGalleryScanPath(String newPath) async {
+    log.debug('addExtraGalleryScanPath:$newPath');
+    extraGalleryScanPath.add(newPath);
+    save();
+  }
+
+  Future<void> removeExtraGalleryScanPath(String path) async {
+    log.debug('removeExtraGalleryScanPath:$path');
+    extraGalleryScanPath.remove(path);
+    save();
+  }
+
+  Future<void> saveSingleImageSavePath(String singleImageSavePath) async {
+    log.debug('saveSingleImageSavePath:$singleImageSavePath');
+    this.singleImageSavePath.value = singleImageSavePath;
+    save();
+  }
+
+  Future<void> saveDownloadOriginalImageByDefault(bool value) async {
+    log.debug('saveDownloadOriginalImageByDefault:$value');
+    this.downloadOriginalImageByDefault.value = value;
+    save();
+  }
+
+  Future<void> saveDefaultGalleryGroup(String? group) async {
+    log.debug('saveDefaultGalleryGroup:$group');
+    this.defaultGalleryGroup.value = group;
+    save();
+  }
+
+  Future<void> saveDefaultArchiveGroup(String? group) async {
+    log.debug('saveDefaultArchiveGroup:$group');
+    this.defaultArchiveGroup.value = group;
+    save();
+  }
+
+  Future<void> saveDownloadTaskConcurrency(int downloadTaskConcurrency) async {
+    log.debug('saveDownloadTaskConcurrency:$downloadTaskConcurrency');
+    this.downloadTaskConcurrency.value = downloadTaskConcurrency;
+    save();
+
+    Get.find<GalleryDownloadService>().updateExecutor();
+  }
+
+  Future<void> saveMaximum(int maximum) async {
+    log.debug('saveMaximum:$maximum');
+    this.maximum.value = maximum;
+    save();
+
+    Get.find<GalleryDownloadService>().updateExecutor();
+  }
+
+  Future<void> savePeriod(Duration period) async {
+    log.debug('savePeriod:$period');
+    this.period.value = period;
+    save();
+
+    Get.find<GalleryDownloadService>().updateExecutor();
+  }
+
+  Future<void> saveDownloadAllGallerysOfSamePriority(bool value) async {
+    log.debug('saveDownloadAllGallerysOfSamePriority:$value');
+    downloadAllGallerysOfSamePriority.value = value;
+    save();
+  }
+
+  Future<void> saveArchiveDownloadIsolateCount(int count) async {
+    log.debug('saveArchiveDownloadIsolateCount:$count');
+    archiveDownloadIsolateCount.value = count;
+    save();
+  }
+
+  Future<void> saveManageArchiveDownloadConcurrency(bool value) async {
+    log.debug('saveManageArchiveDownloadConcurrency:$value');
+    manageArchiveDownloadConcurrency.value = value;
+    save();
+  }
+
+  Future<void> saveDeleteArchiveFileAfterDownload(bool value) async {
+    log.debug('saveDeleteArchiveFileAfterDownload:$value');
+    deleteArchiveFileAfterDownload.value = value;
+    save();
+  }
+
+  Future<void> saveRestoreTasksAutomatically(bool value) async {
+    log.debug('saveRestoreTasksAutomatically:$value');
+    restoreTasksAutomatically.value = value;
+    save();
+  }
+
+  Future<void> _ensureDownloadDirExists() async {
+    try {
+      await Directory(downloadPath.value).create(recursive: true);
+      await Directory(defaultExtraGalleryScanPath).create(recursive: true);
+      await Directory(singleImageSavePath.value).create(recursive: true);
+    } on Exception catch (e) {
+      toast('brokenDownloadPathHint'.tr);
+      log.error(e);
+      log.uploadError(
+        e,
+        extraInfos: {
+          'defaultDownloadPath': this.defaultDownloadPath,
+          'downloadPath': this.downloadPath.value,
+          'exists': pathService.getVisibleDir().existsSync(),
+        },
+      );
+    }
+  }
+
+  Future<void> _clearTempDownloadPath() async {
+    try {
+      Directory directory = Directory(tempDownloadPath.value);
+      if (await directory.exists()) {
+        await directory.delete(recursive: true);
+      }
+      await Directory(tempDownloadPath.value).create();
+    } on Exception catch (e) {
+      log.error(e);
+    }
   }
 }

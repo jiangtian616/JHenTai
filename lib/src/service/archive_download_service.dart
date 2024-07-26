@@ -81,10 +81,10 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     _completer.complete(true);
 
-    isolateCountListener = ever(DownloadSetting.archiveDownloadIsolateCount, (_) => _onIsolateCountChange());
+    isolateCountListener = ever(downloadSetting.archiveDownloadIsolateCount, (_) => _onIsolateCountChange());
     proxyConfigListener = everAll([networkSetting.proxyAddress, networkSetting.proxyUsername, networkSetting.proxyPassword], (_) => _onProxyConfigChange());
 
-    if (DownloadSetting.restoreTasksAutomatically.isTrue) {
+    if (downloadSetting.restoreTasksAutomatically.isTrue) {
       await restoreTasks();
     }
   }
@@ -366,7 +366,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   Future<int> restoreTasks() async {
     await completed;
 
-    Directory downloadDir = Directory(DownloadSetting.downloadPath.value);
+    Directory downloadDir = Directory(downloadSetting.downloadPath.value);
     if (!await downloadDir.exists()) {
       return 0;
     }
@@ -508,13 +508,13 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   String computePackingFileDownloadPath(ArchiveDownloadedData archive) {
     String title = _computeArchiveTitle(archive.title);
 
-    return join(DownloadSetting.downloadPath.value, 'ArchiveV2 - ${archive.gid} - $title.zip');
+    return join(downloadSetting.downloadPath.value, 'ArchiveV2 - ${archive.gid} - $title.zip');
   }
 
   String computeArchiveUnpackingPath(String rawTitle, int gid) {
     String title = _computeArchiveTitle(rawTitle);
 
-    return join(DownloadSetting.downloadPath.value, 'Archive - $gid - $title');
+    return join(downloadSetting.downloadPath.value, 'Archive - $gid - $title');
   }
 
   void _sortArchives() {
@@ -553,7 +553,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     return JDownloadTask.newTask(
       url: url,
       savePath: computePackingFileDownloadPath(archive),
-      isolateCount: DownloadSetting.archiveDownloadIsolateCount.value,
+      isolateCount: downloadSetting.archiveDownloadIsolateCount.value,
       deleteWhenUrlMismatch: false,
       proxyConfig: EHRequest.currentProxyConfig(),
       onLog: (OutputEvent event) {},
@@ -642,7 +642,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   void _onIsolateCountChange() {
     for (ArchiveDownloadInfo archiveDownloadInfo in archiveDownloadInfos.values) {
       if (archiveDownloadInfo.archiveStatus.code <= ArchiveStatus.unpacking.code && archiveDownloadInfo.downloadTask != null) {
-        archiveDownloadInfo.downloadTask!.changeIsolateCount(DownloadSetting.archiveDownloadIsolateCount.value);
+        archiveDownloadInfo.downloadTask!.changeIsolateCount(downloadSetting.archiveDownloadIsolateCount.value);
       }
     }
   }
@@ -855,7 +855,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     log.download('${archive.title} downloaded bytes: ${task.currentBytes}');
 
     if (task.status != TaskStatus.completed) {
-      if (DownloadSetting.manageArchiveDownloadConcurrency.isTrue) {
+      if (downloadSetting.manageArchiveDownloadConcurrency.isTrue) {
         int currentActiveIsolateCount = archiveDownloadInfos.entries
             .where((e) => e.value.archiveStatus == ArchiveStatus.downloading)
             .where((e) => e.key != archive.gid)
@@ -945,7 +945,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       return pauseDownloadArchive(archive.gid);
     }
 
-    if (DownloadSetting.deleteArchiveFileAfterDownload.isTrue) {
+    if (downloadSetting.deleteArchiveFileAfterDownload.isTrue) {
       _deletePackingFileInDisk(archive);
     }
 
@@ -1114,7 +1114,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
   Future<void> _ensureDownloadDirExists() async {
     try {
-      await Directory(DownloadSetting.downloadPath.value).create(recursive: true);
+      await Directory(downloadSetting.downloadPath.value).create(recursive: true);
     } on Exception catch (e) {
       log.error('Create download directory failed', e);
     }

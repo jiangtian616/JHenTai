@@ -11,7 +11,7 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
+import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:intl/intl.dart';
@@ -93,7 +93,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     _completer.complete(true);
 
-    if (DownloadSetting.restoreTasksAutomatically.isTrue) {
+    if (downloadSetting.restoreTasksAutomatically.isTrue) {
       await restoreTasks();
     }
 
@@ -484,7 +484,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   Future<int> restoreTasks() async {
     await completed;
 
-    io.Directory downloadDir = io.Directory(DownloadSetting.downloadPath.value);
+    io.Directory downloadDir = io.Directory(downloadSetting.downloadPath.value);
     if (!downloadDir.existsSync()) {
       return 0;
     }
@@ -676,8 +676,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   void updateExecutor() {
-    executor.concurrency = DownloadSetting.downloadTaskConcurrency.value;
-    executor.rate = Rate(DownloadSetting.maximum.value, DownloadSetting.period.value);
+    executor.concurrency = downloadSetting.downloadTaskConcurrency.value;
+    executor.rate = Rate(downloadSetting.maximum.value, downloadSetting.period.value);
   }
 
   /// start executor
@@ -685,8 +685,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     log.debug('start download executor');
 
     executor = EHExecutor(
-      concurrency: DownloadSetting.downloadTaskConcurrency.value,
-      rate: Rate(DownloadSetting.maximum.value, DownloadSetting.period.value),
+      concurrency: downloadSetting.downloadTaskConcurrency.value,
+      rate: Rate(downloadSetting.maximum.value, downloadSetting.period.value),
     );
 
     /// Resume gallery whose status is [downloading], order by insertTime
@@ -744,7 +744,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     int groupPriority = galleryDownloadInfos[gallery.gid]!.priority * _priorityBase;
 
-    if (DownloadSetting.downloadAllGallerysOfSamePriority.isTrue) {
+    if (downloadSetting.downloadAllGallerysOfSamePriority.isTrue) {
       return groupPriority;
     }
 
@@ -771,7 +771,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   String computeGalleryDownloadAbsolutePath(String rawTitle, int gid) {
     String title = _computeGalleryTitle(rawTitle);
-    return path.join(DownloadSetting.downloadPath.value, '$gid - $title');
+    return path.join(downloadSetting.downloadPath.value, '$gid - $title');
   }
 
   String _computeImageDownloadAbsolutePath(String title, int gid, String imageUrl, int serialNo) {
@@ -1518,15 +1518,15 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   void _ensureDownloadDirExists() {
     try {
-      io.Directory(DownloadSetting.downloadPath.value).createSync(recursive: true);
+      io.Directory(downloadSetting.downloadPath.value).createSync(recursive: true);
     } on Exception catch (e) {
       toast('brokenDownloadPathHint'.tr);
       log.error(e);
       log.uploadError(
         e,
         extraInfos: {
-          'defaultDownloadPath': DownloadSetting.defaultDownloadPath,
-          'downloadPath': DownloadSetting.downloadPath.value,
+          'defaultDownloadPath': downloadSetting.defaultDownloadPath,
+          'downloadPath': downloadSetting.downloadPath.value,
           'exists': pathService.getVisibleDir().existsSync(),
         },
       );

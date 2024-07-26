@@ -118,7 +118,7 @@ class SecuritySetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     this.hideImagesInAlbum.value = hideImagesInAlbum;
     await save();
 
-    Directory directory = Directory(DownloadSetting.downloadPath.value);
+    Directory directory = Directory(downloadSetting.downloadPath.value);
     File file = File(join(directory.path, '.nomedia'));
     if (hideImagesInAlbum) {
       file.create();

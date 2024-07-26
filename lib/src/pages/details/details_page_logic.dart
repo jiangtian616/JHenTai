@@ -363,10 +363,10 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       ({String group, bool downloadOriginalImage})? result = await Get.dialog(
         EHDownloadDialog(
           title: 'chooseGroup'.tr,
-          currentGroup: DownloadSetting.defaultGalleryGroup.value,
+          currentGroup: downloadSetting.defaultGalleryGroup.value,
           candidates: downloadService.allGroups,
           showDownloadOriginalImageCheckBox: userSetting.hasLoggedIn(),
-          downloadOriginalImage: DownloadSetting.downloadOriginalImageByDefault.value,
+          downloadOriginalImage: downloadSetting.downloadOriginalImageByDefault.value,
         ),
       );
 
@@ -653,7 +653,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         EHArchiveDialog(
           title: 'chooseArchive'.tr,
           archivePageUrl: state.galleryDetails!.archivePageUrl,
-          currentGroup: DownloadSetting.defaultArchiveGroup.value,
+          currentGroup: downloadSetting.defaultArchiveGroup.value,
           candidates: archiveDownloadService.allGroups,
         ),
       );

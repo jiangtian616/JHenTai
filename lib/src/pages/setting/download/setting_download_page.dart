@@ -82,7 +82,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
   Widget _buildDownloadPath() {
     return ListTile(
       title: Text('downloadPath'.tr),
-      subtitle: Text(DownloadSetting.downloadPath.value.breakWord),
+      subtitle: Text(downloadSetting.downloadPath.value.breakWord),
       trailing: changeDownloadPathState == LoadingState.loading ? const CupertinoActivityIndicator() : null,
       onTap: () {
         if (!GetPlatform.isIOS) {
@@ -113,7 +113,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
   Widget _buildSingleImageSavePath() {
     return ListTile(
       title: Text('singleImageSavePath'.tr),
-      subtitle: Text(DownloadSetting.singleImageSavePath.value.breakWord),
+      subtitle: Text(downloadSetting.singleImageSavePath.value.breakWord),
       trailing: GetPlatform.isMacOS ? null : const Icon(Icons.keyboard_arrow_right),
       onTap: GetPlatform.isMacOS ? null : _handleChangeSingleImageSavePath,
     );
@@ -122,13 +122,13 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
   Widget _buildDownloadOriginalImage() {
     return SwitchListTile(
       title: Text('downloadOriginalImageByDefault'.tr),
-      value: DownloadSetting.downloadOriginalImageByDefault.value,
+      value: downloadSetting.downloadOriginalImageByDefault.value,
       onChanged: (value) {
         if (!userSetting.hasLoggedIn()) {
           toast('needLoginToOperate'.tr);
           return;
         }
-        DownloadSetting.saveDownloadOriginalImageByDefault(value);
+        downloadSetting.saveDownloadOriginalImageByDefault(value);
       },
     );
   }
@@ -137,23 +137,23 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     return ListTile(
       title: Text('defaultGalleryGroup'.tr),
       subtitle: Text('longPress2Reset'.tr),
-      trailing: Text(DownloadSetting.defaultGalleryGroup.value ?? '', style: UIConfig.settingPageListTileTrailingTextStyle(context)),
+      trailing: Text(downloadSetting.defaultGalleryGroup.value ?? '', style: UIConfig.settingPageListTileTrailingTextStyle(context)),
       onTap: () async {
         ({String group, bool downloadOriginalImage})? result = await showDialog(
           context: context,
           builder: (_) => EHDownloadDialog(
             title: 'chooseGroup'.tr,
-            currentGroup: DownloadSetting.defaultGalleryGroup.value,
+            currentGroup: downloadSetting.defaultGalleryGroup.value,
             candidates: galleryDownloadService.allGroups,
           ),
         );
 
         if (result != null) {
-          DownloadSetting.saveDefaultGalleryGroup(result.group);
+          downloadSetting.saveDefaultGalleryGroup(result.group);
         }
       },
       onLongPress: () {
-        DownloadSetting.saveDefaultGalleryGroup(null);
+        downloadSetting.saveDefaultGalleryGroup(null);
       },
     ).marginOnly(right: 12);
   }
@@ -162,23 +162,23 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     return ListTile(
         title: Text('defaultArchiveGroup'.tr),
         subtitle: Text('longPress2Reset'.tr),
-        trailing: Text(DownloadSetting.defaultArchiveGroup.value ?? '', style: UIConfig.settingPageListTileTrailingTextStyle(context)),
+        trailing: Text(downloadSetting.defaultArchiveGroup.value ?? '', style: UIConfig.settingPageListTileTrailingTextStyle(context)),
         onTap: () async {
           ({String group, bool downloadOriginalImage})? result = await showDialog(
             context: context,
             builder: (_) => EHDownloadDialog(
               title: 'chooseGroup'.tr,
-              currentGroup: DownloadSetting.defaultArchiveGroup.value,
+              currentGroup: downloadSetting.defaultArchiveGroup.value,
               candidates: archiveDownloadService.allGroups,
             ),
           );
 
           if (result != null) {
-            DownloadSetting.saveDefaultArchiveGroup(result.group);
+            downloadSetting.saveDefaultArchiveGroup(result.group);
           }
         },
         onLongPress: () {
-          DownloadSetting.saveDefaultArchiveGroup(null);
+          downloadSetting.saveDefaultArchiveGroup(null);
         }).marginOnly(right: 12);
   }
 
@@ -186,9 +186,9 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     return ListTile(
       title: Text('downloadTaskConcurrency'.tr),
       trailing: DropdownButton<int>(
-        value: DownloadSetting.downloadTaskConcurrency.value,
+        value: downloadSetting.downloadTaskConcurrency.value,
         elevation: 4,
-        onChanged: (int? newValue) => DownloadSetting.saveDownloadTaskConcurrency(newValue!),
+        onChanged: (int? newValue) => downloadSetting.saveDownloadTaskConcurrency(newValue!),
         items: const [
           DropdownMenuItem(child: Text('2'), value: 2),
           DropdownMenuItem(child: Text('4'), value: 4),
@@ -209,11 +209,11 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           DropdownButton<int>(
-            value: DownloadSetting.maximum.value,
+            value: downloadSetting.maximum.value,
             elevation: 4,
             alignment: AlignmentDirectional.bottomEnd,
             onChanged: (int? newValue) {
-              DownloadSetting.saveMaximum(newValue!);
+              downloadSetting.saveMaximum(newValue!);
             },
             items: const [
               DropdownMenuItem(child: Text('1'), value: 1),
@@ -226,10 +226,10 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
           ),
           Text('${'images'.tr} ${'per'.tr}', style: UIConfig.settingPageListTileTrailingTextStyle(context)).marginSymmetric(horizontal: 8),
           DropdownButton<Duration>(
-            value: DownloadSetting.period.value,
+            value: downloadSetting.period.value,
             elevation: 4,
             alignment: AlignmentDirectional.bottomEnd,
-            onChanged: (Duration? newValue) => DownloadSetting.savePeriod(newValue!),
+            onChanged: (Duration? newValue) => downloadSetting.savePeriod(newValue!),
             items: const [
               DropdownMenuItem(child: Text('1s'), value: Duration(seconds: 1)),
               DropdownMenuItem(child: Text('2s'), value: Duration(seconds: 2)),
@@ -245,8 +245,8 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     return SwitchListTile(
       title: Text('downloadAllGallerysOfSamePriority'.tr),
       subtitle: Text('${'downloadAllGallerysOfSamePriorityHint'.tr} | ${'needRestart'.tr}'),
-      value: DownloadSetting.downloadAllGallerysOfSamePriority.value,
-      onChanged: DownloadSetting.saveDownloadAllGallerysOfSamePriority,
+      value: downloadSetting.downloadAllGallerysOfSamePriority.value,
+      onChanged: downloadSetting.saveDownloadAllGallerysOfSamePriority,
     );
   }
 
@@ -255,9 +255,9 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       title: Text('archiveDownloadIsolateCount'.tr),
       subtitle: Text('archiveDownloadIsolateCountHint'.tr),
       trailing: DropdownButton<int>(
-        value: DownloadSetting.archiveDownloadIsolateCount.value,
+        value: downloadSetting.archiveDownloadIsolateCount.value,
         elevation: 4,
-        onChanged: (int? newValue) => DownloadSetting.saveArchiveDownloadIsolateCount(newValue!),
+        onChanged: (int? newValue) => downloadSetting.saveArchiveDownloadIsolateCount(newValue!),
         items: const [
           DropdownMenuItem(child: Text('1'), value: 1),
           DropdownMenuItem(child: Text('2'), value: 2),
@@ -278,16 +278,16 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     return SwitchListTile(
       title: Text('manageArchiveDownloadConcurrency'.tr),
       subtitle: Text('manageArchiveDownloadConcurrencyHint'.tr),
-      value: DownloadSetting.manageArchiveDownloadConcurrency.value,
-      onChanged: DownloadSetting.saveManageArchiveDownloadConcurrency,
+      value: downloadSetting.manageArchiveDownloadConcurrency.value,
+      onChanged: downloadSetting.saveManageArchiveDownloadConcurrency,
     );
   }
 
   Widget _buildDeleteArchiveFileAfterDownload() {
     return SwitchListTile(
       title: Text('deleteArchiveFileAfterDownload'.tr),
-      value: DownloadSetting.deleteArchiveFileAfterDownload.value,
-      onChanged: DownloadSetting.saveDeleteArchiveFileAfterDownload,
+      value: downloadSetting.deleteArchiveFileAfterDownload.value,
+      onChanged: downloadSetting.saveDeleteArchiveFileAfterDownload,
     );
   }
 
@@ -303,8 +303,8 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     return SwitchListTile(
       title: Text('restoreTasksAutomatically'.tr),
       subtitle: Text('restoreTasksAutomaticallyHint'.tr),
-      value: DownloadSetting.restoreTasksAutomatically.value,
-      onChanged: DownloadSetting.saveRestoreTasksAutomatically,
+      value: downloadSetting.restoreTasksAutomatically.value,
+      onChanged: downloadSetting.saveRestoreTasksAutomatically,
     );
   }
 
@@ -319,7 +319,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
 
     await requestStoragePermission();
 
-    String oldDownloadPath = DownloadSetting.downloadPath.value;
+    String oldDownloadPath = downloadSetting.downloadPath.value;
 
     /// choose new download path
     try {
@@ -354,7 +354,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
         toast('internalError'.tr);
       }
 
-      DownloadSetting.saveDownloadPath(newDownloadPath);
+      downloadSetting.saveDownloadPath(newDownloadPath);
 
       /// to be compatible with the previous version, update the database.
       await galleryDownloadService.updateImagePathAfterDownloadPathChanged();
@@ -370,7 +370,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
   }
 
   Future<void> _handleResetDownloadPath() {
-    return _handleChangeDownloadPath(newDownloadPath: DownloadSetting.defaultDownloadPath);
+    return _handleChangeDownloadPath(newDownloadPath: downloadSetting.defaultDownloadPath);
   }
 
   Future<void> _copyOldFiles(String oldDownloadPath, String newDownloadPath) async {
@@ -401,7 +401,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
   }
 
   Future<void> _handleChangeSingleImageSavePath() async {
-    String oldPath = DownloadSetting.singleImageSavePath.value;
+    String oldPath = downloadSetting.singleImageSavePath.value;
     String? newPath;
 
     /// choose new path
@@ -421,7 +421,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       return;
     }
 
-    DownloadSetting.saveSingleImageSavePath(newPath);
+    downloadSetting.saveSingleImageSavePath(newPath);
   }
 
   Future<void> _restore() async {

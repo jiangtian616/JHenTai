@@ -25,7 +25,7 @@ class ExtraGalleryScanPathPage extends StatelessWidget {
       body: Obx(
         () => ListView(
           padding: const EdgeInsets.only(top: 16),
-          children: DownloadSetting.extraGalleryScanPath
+          children: downloadSetting.extraGalleryScanPath
               .map(
                 (path) => ListTile(
                     title: Text(path), onTap: () => _handleDelete(path)),
@@ -55,14 +55,14 @@ class ExtraGalleryScanPathPage extends StatelessWidget {
       return;
     }
 
-    DownloadSetting.addExtraGalleryScanPath(newPath);
+    downloadSetting.addExtraGalleryScanPath(newPath);
   }
 
   Future<void> _handleDelete(String path) async {
     bool? result = await Get.dialog(EHDialog(title: 'delete'.tr + '?'));
 
     if (result == true) {
-      DownloadSetting.removeExtraGalleryScanPath(path);
+      downloadSetting.removeExtraGalleryScanPath(path);
     }
   }
 }

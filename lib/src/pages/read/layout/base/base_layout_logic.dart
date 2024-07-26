@@ -252,7 +252,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     String fileName = '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index${extension(readPageState.images[index]!.url)}';
 
     if (GetPlatform.isDesktop) {
-      File file = File(join(DownloadSetting.singleImageSavePath.value, fileName));
+      File file = File(join(downloadSetting.singleImageSavePath.value, fileName));
       try {
         await file.create(recursive: true);
         await file.writeAsBytes(data);
@@ -264,7 +264,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
         return;
       }
     } else {
-      File file = File(join(DownloadSetting.tempDownloadPath.value, fileName));
+      File file = File(join(downloadSetting.tempDownloadPath.value, fileName));
       try {
         await file.create(recursive: true);
         await file.writeAsBytes(data);
@@ -289,7 +289,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     }
 
     String fileName = '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_${index}_original${extension(readPageState.images[index]!.originalImageUrl!)}';
-    String downloadPath = join(DownloadSetting.tempDownloadPath.value, fileName);
+    String downloadPath = join(downloadSetting.tempDownloadPath.value, fileName);
     File file = File(downloadPath);
 
     toast('downloading'.tr);
@@ -333,7 +333,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
 
     try {
       if (GetPlatform.isDesktop) {
-        await file.copy(join(DownloadSetting.singleImageSavePath.value, fileName));
+        await file.copy(join(downloadSetting.singleImageSavePath.value, fileName));
         toast('saveSuccess'.tr);
       } else {
         bool success = await _saveFile2Album(downloadPath, fileName);
@@ -359,7 +359,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     }
 
     if (GetPlatform.isDesktop) {
-      image.copy(join(DownloadSetting.singleImageSavePath.value, fileName)).then((_) => toast('success'.tr));
+      image.copy(join(downloadSetting.singleImageSavePath.value, fileName)).then((_) => toast('success'.tr));
     } else {
       _saveFile2Album(filePath, fileName).then((_) => toast('success'.tr));
     }
