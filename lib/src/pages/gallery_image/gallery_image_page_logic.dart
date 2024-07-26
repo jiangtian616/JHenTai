@@ -198,7 +198,7 @@ class GalleryImagePageLogic extends GetxController {
           continue;
         }
 
-        ({Color? tagSetBackGroundColor, WatchedTag tag})? tagInfo = MyTagsSetting.getOnlineTagSetByTagData(tag.tagData);
+        ({Color? tagSetBackGroundColor, WatchedTag tag})? tagInfo = myTagsSetting.getOnlineTagSetByTagData(tag.tagData);
         if (tagInfo == null) {
           continue;
         }

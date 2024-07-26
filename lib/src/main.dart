@@ -161,7 +161,6 @@ Future<void> init() async {
 
   AppUpdateService.init();
 
-  MyTagsSetting.init();
   EHSetting.init();
 
   await EHRequest.init();
@@ -194,7 +193,6 @@ Future<void> onReady() async {
   }
 
   EHSetting.refresh();
-  MyTagsSetting.refreshAllOnlineTagSets();
 
   VolumeService.init();
 

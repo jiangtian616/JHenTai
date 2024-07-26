@@ -125,7 +125,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
 
     getCurrentTagSet();
     
-    MyTagsSetting.refreshOnlineTagSets(state.currentTagSetNo);
+    myTagsSetting.refreshOnlineTagSets(state.currentTagSetNo);
   }
 
   Future<void> handleUpdateTagColor(int tagSetIndex, Color? newColor) async {
@@ -137,7 +137,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
     tagSet.backgroundColor = newColor;
     await _updateTag(tagSet);
 
-    MyTagsSetting.refreshOnlineTagSets(state.currentTagSetNo);
+    myTagsSetting.refreshOnlineTagSets(state.currentTagSetNo);
   }
 
   Future<void> handleUpdateTagWeight(int tagSetIndex, String value) async {
@@ -168,7 +168,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
 
     await _updateTag(tagSet);
 
-    MyTagsSetting.refreshOnlineTagSets(state.currentTagSetNo);
+    myTagsSetting.refreshOnlineTagSets(state.currentTagSetNo);
   }
 
   Future<void> deleteTag(int tagSetIndex) async {
@@ -206,7 +206,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
     state.updateTagState = LoadingState.idle;
     updateSafely([bodyId]);
 
-    MyTagsSetting.refreshOnlineTagSets(state.currentTagSetNo);
+    myTagsSetting.refreshOnlineTagSets(state.currentTagSetNo);
   }
 
   Future<void> showBottomSheet(int index, BuildContext context) async {
@@ -317,7 +317,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
     toast('success'.tr);
     updateSafely(['$tagId::${tag.tagId}']);
 
-    MyTagsSetting.refreshOnlineTagSets(state.currentTagSetNo);
+    myTagsSetting.refreshOnlineTagSets(state.currentTagSetNo);
   }
 
   Future<void> _translateTagNamesIfNeeded() async {

@@ -1197,7 +1197,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           continue;
         }
 
-        ({Color? tagSetBackGroundColor, WatchedTag tag})? tagInfo = MyTagsSetting.getOnlineTagSetByTagData(tag.tagData);
+        ({Color? tagSetBackGroundColor, WatchedTag tag})? tagInfo = myTagsSetting.getOnlineTagSetByTagData(tag.tagData);
         if (tagInfo == null) {
           continue;
         }

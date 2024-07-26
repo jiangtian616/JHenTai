@@ -10,15 +10,22 @@ import 'package:retry/retry.dart';
 import '../exception/eh_site_exception.dart';
 import '../model/tag_set.dart';
 import '../network/eh_request.dart';
+import '../service/jh_service.dart';
 import '../utils/eh_spider_parser.dart';
 import '../service/log.dart';
 
-class MyTagsSetting {
-  static Map<int, ({bool enable, Color? tagSetBackGroundColor, List<WatchedTag> tags})> onlineTags = {};
+MyTagsSetting myTagsSetting = MyTagsSetting();
+
+class MyTagsSetting with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
+  Map<int, ({bool enable, Color? tagSetBackGroundColor, List<WatchedTag> tags})> onlineTags = {};
 
   static const int defaultTagSetNo = 1;
 
-  static void init() {
+  @override
+  List<JHLifeCircleBean> get initDependencies => super.initDependencies..add(userSetting);
+
+  @override
+  Future<void> doOnInit() async {
     /// listen to login and logout
     ever(userSetting.ipbMemberId, (v) {
       if (userSetting.hasLoggedIn()) {
@@ -29,7 +36,12 @@ class MyTagsSetting {
     });
   }
 
-  static Future<void> refreshAllOnlineTagSets() async {
+  @override
+  void doOnReady() {
+    refreshAllOnlineTagSets();
+  }
+
+  Future<void> refreshAllOnlineTagSets() async {
     if (!userSetting.hasLoggedIn()) {
       return;
     }
@@ -67,7 +79,7 @@ class MyTagsSetting {
     }
   }
 
-  static Future<void> refreshOnlineTagSets(int tagSetNo) async {
+  Future<void> refreshOnlineTagSets(int tagSetNo) async {
     if (!userSetting.hasLoggedIn()) {
       return;
     }
@@ -97,7 +109,7 @@ class MyTagsSetting {
     log.info('refresh tag set: $tagSetNo success, length: ${onlineTags[tagSetNo]!.tags.length}');
   }
 
-  static ({Color? tagSetBackGroundColor, WatchedTag tag})? getOnlineTagSetByTagData(TagData tagData) {
+  ({Color? tagSetBackGroundColor, WatchedTag tag})? getOnlineTagSetByTagData(TagData tagData) {
     for (({bool enable, Color? tagSetBackGroundColor, List<WatchedTag> tags}) tagSetInfo in onlineTags.values) {
       WatchedTag? tagSet = tagSetInfo.tags.firstWhereOrNull((tagSet) => tagSet.tagData.namespace == tagData.namespace && tagSet.tagData.key == tagData.key);
       if (tagSet != null) {
@@ -108,17 +120,17 @@ class MyTagsSetting {
     return null;
   }
 
-  static bool containWatchedOnlineTag(TagData tagData) {
+  bool containWatchedOnlineTag(TagData tagData) {
     ({Color? tagSetBackGroundColor, WatchedTag tag})? tagInfo = getOnlineTagSetByTagData(tagData);
     return tagInfo?.tag.watched == true;
   }
 
-  static bool containHiddenOnlineTag(TagData tagData) {
+  bool containHiddenOnlineTag(TagData tagData) {
     ({Color? tagSetBackGroundColor, WatchedTag tag})? tagInfo = getOnlineTagSetByTagData(tagData);
     return tagInfo?.tag.hidden == true;
   }
 
-  static Future<void> _clearOnlineTagSets() async {
+  Future<void> _clearOnlineTagSets() async {
     onlineTags.clear();
     log.info('clear MyTagsSetting success');
   }
