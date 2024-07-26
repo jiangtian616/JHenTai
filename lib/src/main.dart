@@ -11,7 +11,6 @@ import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/cloud_service.dart';
 import 'package:jhentai/src/service/history_service.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
-import 'package:jhentai/src/service/isolate_service.dart';
 import 'package:jhentai/src/service/jh_service.dart';
 import 'package:jhentai/src/service/local_block_rule_service.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
@@ -22,7 +21,6 @@ import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/service/tag_search_order_service.dart';
 import 'package:jhentai/src/service/volume_service.dart';
 import 'package:jhentai/src/service/windows_service.dart';
-import 'package:jhentai/src/service/frame_rate_service.dart';
 import 'package:jhentai/src/setting/mouse_setting.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
@@ -44,7 +42,7 @@ import 'package:jhentai/src/setting/eh_setting.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/setting/security_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
-import 'package:jhentai/src/setting/path_setting.dart';
+import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/setting/tab_bar_setting.dart';
@@ -54,6 +52,37 @@ import 'package:jhentai/src/utils/log.dart';
 import 'config/theme_config.dart';
 
 List<JHLifeCircleBean> lifeCircleBeans = [];
+
+List<JHLifeCircleBean> topologicalSort(List<JHLifeCircleBean> lifeCircleBeans) {
+  // Maps to store the visiting state and result order
+  final visiting = <JHLifeCircleBean, bool>{};
+  final visited = <JHLifeCircleBean, bool>{};
+  final result = <JHLifeCircleBean>[];
+
+  // Helper function for DFS
+  void visit(JHLifeCircleBean node) {
+    if (visited.containsKey(node)) {
+      return;
+    }
+    if (visiting[node] == true) {
+      throw Exception('Circular dependency detected');
+    }
+    visiting[node] = true;
+    for (final dependency in node.initDependencies) {
+      visit(dependency);
+    }
+    visiting[node] = false;
+    visited[node] = true;
+    result.add(node);
+  }
+
+  // Visit all nodes
+  for (final node in lifeCircleBeans) {
+    visit(node);
+  }
+
+  return result.toList();
+}
 
 void main(List<String> args) async {
   if (GetPlatform.isDesktop && runWebViewTitleBarWidget(args)) {
@@ -136,12 +165,12 @@ Future<void> init() async {
     Log.uploadError(details.exception, stackTrace: details.stack);
   };
 
+  lifeCircleBeans = topologicalSort(lifeCircleBeans);
   for (JHLifeCircleBean bean in lifeCircleBeans) {
     await bean.init();
     Log.debug('Init ${bean.runtimeType} success');
   }
 
-  await PathSetting.init();
   await StorageService.init();
   AppUpdateService.init();
 

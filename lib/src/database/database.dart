@@ -27,7 +27,7 @@ import 'package:jhentai/src/database/table/tag_count.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/exception/upload_exception.dart';
 import 'package:jhentai/src/extension/directory_extension.dart';
-import 'package:jhentai/src/setting/path_setting.dart';
+import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:path/path.dart';
 import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
@@ -258,7 +258,7 @@ class AppDb extends _$AppDb {
 
   /// copy files
   Future<void> _updateConfigFileLocation() async {
-    await PathSetting.appSupportDir?.copy(PathSetting.getVisibleDir().path);
+    await pathService.appSupportDir?.copy(pathService.getVisibleDir().path);
   }
 
   Future<void> _deleteImageSizeColumn(Migrator m) async {
@@ -371,13 +371,13 @@ class AppDb extends _$AppDb {
 
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
-    final file = io.File(join(PathSetting.getVisibleDir().path, 'db.sqlite'));
+    final file = io.File(join(pathService.getVisibleDir().path, 'db.sqlite'));
 
     if (Platform.isAndroid) {
       await applyWorkaroundToOpenSqlite3OnOldAndroidVersions();
     }
 
-    sqlite3.tempDirectory = PathSetting.tempDir.path;
+    sqlite3.tempDirectory = pathService.tempDir.path;
 
     return NativeDatabase(file);
   });

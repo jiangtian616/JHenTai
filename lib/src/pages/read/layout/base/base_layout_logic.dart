@@ -26,7 +26,7 @@ import 'package:saver_gallery/saver_gallery.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../../exception/eh_image_exception.dart';
 import '../../../../model/gallery_image.dart';
-import '../../../../setting/path_setting.dart';
+import '../../../../service/path_service.dart';
 import '../../../../setting/read_setting.dart';
 import '../../../../utils/log.dart';
 import '../../../../utils/route_util.dart';
@@ -212,7 +212,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       return;
     }
 
-    String path = join(PathSetting.tempDir.path, '${DateTime.now().hashCode}${extension(readPageState.images[index]!.url)}');
+    String path = join(pathService.tempDir.path, '${DateTime.now().hashCode}${extension(readPageState.images[index]!.url)}');
     File file = File(path);
 
     file.create().then((file) => file.writeAsBytes(data)).then(

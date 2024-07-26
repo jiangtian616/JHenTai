@@ -47,7 +47,7 @@ import '../model/gallery_detail.dart';
 import '../model/gallery_image.dart';
 import '../network/eh_request.dart';
 import '../pages/download/grid/mixin/grid_download_page_service_mixin.dart';
-import '../setting/path_setting.dart';
+import 'path_service.dart';
 import '../utils/eh_executor.dart';
 import '../utils/eh_spider_parser.dart';
 import '../utils/snack_util.dart';
@@ -787,12 +787,12 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   String _computeImageDownloadRelativePath(String title, int gid, String imageUrl, int serialNo) {
     return path.relative(
       _computeImageDownloadAbsolutePath(title, gid, imageUrl, serialNo),
-      from: PathSetting.getVisibleDir().path,
+      from: pathService.getVisibleDir().path,
     );
   }
 
   static String computeImageDownloadAbsolutePathFromRelativePath(String imageRelativePath) {
-    String path = join(PathSetting.getVisibleDir().path, imageRelativePath);
+    String path = join(pathService.getVisibleDir().path, imageRelativePath);
 
     /// I don't know why some images can't be loaded on Windows... If you knows, please tell me
     if (!GetPlatform.isWindows) {
@@ -1201,8 +1201,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     GalleryImage newImage = galleryDownloadInfos[newGallery.gid]!.images[newImageSerialNo]!;
 
-    io.File oldFile = io.File(path.join(PathSetting.getVisibleDir().path, oldImage.path!));
-    await oldFile.copy(path.join(PathSetting.getVisibleDir().path, newImage.path!));
+    io.File oldFile = io.File(path.join(pathService.getVisibleDir().path, oldImage.path!));
+    await oldFile.copy(path.join(pathService.getVisibleDir().path, newImage.path!));
 
     await _updateImageStatus(newGallery, newImage, newImageSerialNo, DownloadStatus.downloaded);
 
@@ -1527,7 +1527,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         extraInfos: {
           'defaultDownloadPath': DownloadSetting.defaultDownloadPath,
           'downloadPath': DownloadSetting.downloadPath.value,
-          'exists': PathSetting.getVisibleDir().existsSync(),
+          'exists': pathService.getVisibleDir().existsSync(),
         },
       );
     }

@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/exception/eh_site_exception.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
-import 'package:jhentai/src/setting/path_setting.dart';
+import 'package:jhentai/src/service/path_service.dart';
 import 'package:logger/logger.dart';
 import 'package:path/path.dart' as path;
 
@@ -23,7 +23,7 @@ class Log {
   static late File _waringLogFile;
   static late File _downloadLogFile;
 
-  static final String logDirPath = path.join(PathSetting.getVisibleDir().path, 'logs');
+  static final String logDirPath = path.join(pathService.getVisibleDir().path, 'logs');
 
   static Future<void> init() async {
     if (AdvancedSetting.enableLogging.value == false) {

@@ -11,7 +11,7 @@ import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_search_order_service.dart';
-import 'package:jhentai/src/setting/path_setting.dart';
+import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:path/path.dart';
@@ -40,7 +40,7 @@ class TagTranslationService extends GetxService {
 
   final String tagStoragePrefix = 'tagTrans::';
   final String downloadUrl = 'https://fastly.jsdelivr.net/gh/EhTagTranslation/DatabaseReleases/db.html.json';
-  final String savePath = join(PathSetting.getVisibleDir().path, 'tag_translation.json');
+  final String savePath = join(pathService.getVisibleDir().path, 'tag_translation.json');
 
   Rx<LoadingState> loadingState = LoadingState.idle.obs;
   RxnString timeStamp = RxnString(null);

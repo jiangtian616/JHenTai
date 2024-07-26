@@ -11,7 +11,7 @@ import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/storage_service.dart';
-import 'package:jhentai/src/setting/path_setting.dart';
+import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/utils/archive_util.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
@@ -26,7 +26,7 @@ import '../utils/toast_util.dart';
 class TagSearchOrderOptimizationService extends GetxService {
   final StorageService storageService = Get.find();
 
-  final String savePath = join(PathSetting.getVisibleDir().path, 'tid_count_tag.csv.gz');
+  final String savePath = join(pathService.getVisibleDir().path, 'tid_count_tag.csv.gz');
 
   static const String releaseUrl = 'https://github.com/mokurin000/e-hentai-tag-count/releases/latest';
 

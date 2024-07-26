@@ -17,7 +17,7 @@ import 'package:retry/retry.dart';
 
 import '../database/dao/super_resolution_info_dao.dart';
 import '../model/gallery_image.dart';
-import '../setting/path_setting.dart';
+import 'path_service.dart';
 import '../utils/archive_util.dart';
 import '../utils/eh_executor.dart';
 import '../utils/log.dart';
@@ -105,8 +105,8 @@ class SuperResolutionService extends GetxController {
     downloadState = LoadingState.loading;
     updateSafely([downloadId]);
 
-    final String modelDownloadPath = join(PathSetting.getVisibleDir().path, '${model.type}.zip');
-    final String extractPath = join(PathSetting.getVisibleDir().path, model.type);
+    final String modelDownloadPath = join(pathService.getVisibleDir().path, '${model.type}.zip');
+    final String extractPath = join(pathService.getVisibleDir().path, model.type);
 
     try {
       await retry(
@@ -437,7 +437,7 @@ class SuperResolutionService extends GetxController {
         '-m',
         join(SuperResolutionSetting.modelDirectoryPath.value!, modelType.modelRelativePath),
       ],
-      workingDirectory: PathSetting.getVisibleDir().path,
+      workingDirectory: pathService.getVisibleDir().path,
       runInShell: true,
     );
   }
@@ -536,7 +536,7 @@ class SuperResolutionService extends GetxController {
   }
 
   String computeImageOutputAbsolutePath(String rawImagePath) {
-    return join(PathSetting.getVisibleDir().path, computeImageOutputRelativePath(rawImagePath));
+    return join(pathService.getVisibleDir().path, computeImageOutputRelativePath(rawImagePath));
   }
 
   String computeImageOutputRelativePath(String rawImagePath) {

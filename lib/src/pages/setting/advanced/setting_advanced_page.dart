@@ -13,7 +13,7 @@ import 'package:jhentai/src/model/config.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/cloud_service.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
-import 'package:jhentai/src/setting/path_setting.dart';
+import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
@@ -302,7 +302,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
 
           return byte2String(totalBytes.toDouble());
         },
-        join(PathSetting.tempDir.path, cacheImageFolderName),
+        join(pathService.tempDir.path, cacheImageFolderName),
       );
     } catch (e) {
       Log.error(e);

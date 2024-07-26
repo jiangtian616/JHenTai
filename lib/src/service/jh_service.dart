@@ -6,6 +6,8 @@ abstract interface class JHLifeCircleBean {
     lifeCircleBeans.add(this);
   }
 
+  List<JHLifeCircleBean> get initDependencies;
+
   Future<void> init();
 
   void onReady();
@@ -14,6 +16,8 @@ abstract interface class JHLifeCircleBean {
 }
 
 mixin JHLifeCircleBeanErrorCatch {
+  List<JHLifeCircleBean> get initDependencies => [];
+
   Future<void> init() async {
     try {
       await doInit();

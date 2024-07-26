@@ -9,7 +9,7 @@ import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/routes.dart';
-import 'package:jhentai/src/setting/path_setting.dart';
+import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
@@ -241,7 +241,7 @@ class LoginPageLogic extends GetxController {
           windowWidth: 800,
           windowHeight: 600,
           title: EHConsts.appName,
-          userDataFolderWindows: PathSetting.getVisibleDir().path,
+          userDataFolderWindows: pathService.getVisibleDir().path,
         ),
       );
       webview.setOnUrlRequestCallback((url) {

@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
-import 'package:jhentai/src/setting/path_setting.dart';
+import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/utils/log.dart';
 import 'package:path/path.dart';
 
@@ -12,15 +12,15 @@ import '../service/storage_service.dart';
 import '../utils/toast_util.dart';
 
 class DownloadSetting {
-  static String defaultDownloadPath = join(PathSetting.getVisibleDir().path, 'download');
+  static String defaultDownloadPath = join(pathService.getVisibleDir().path, 'download');
   static RxString downloadPath = defaultDownloadPath.obs;
   static RxBool downloadOriginalImageByDefault = false.obs;
   static RxnString defaultGalleryGroup = RxnString();
   static RxnString defaultArchiveGroup = RxnString();
-  static String defaultExtraGalleryScanPath = join(PathSetting.getVisibleDir().path, 'local_gallery');
+  static String defaultExtraGalleryScanPath = join(pathService.getVisibleDir().path, 'local_gallery');
   static RxList<String> extraGalleryScanPath = <String>[defaultExtraGalleryScanPath].obs;
-  static RxString singleImageSavePath = join(PathSetting.getVisibleDir().path, 'save').obs;
-  static RxString tempDownloadPath = join(PathSetting.tempDir.path, EHConsts.appName).obs;
+  static RxString singleImageSavePath = join(pathService.getVisibleDir().path, 'save').obs;
+  static RxString tempDownloadPath = join(pathService.tempDir.path, EHConsts.appName).obs;
   static RxInt downloadTaskConcurrency = 6.obs;
   static RxInt maximum = 2.obs;
   static Rx<Duration> period = const Duration(seconds: 1).obs;
@@ -152,7 +152,7 @@ class DownloadSetting {
         extraInfos: {
           'defaultDownloadPath': DownloadSetting.defaultDownloadPath,
           'downloadPath': DownloadSetting.downloadPath.value,
-          'exists': PathSetting.getVisibleDir().existsSync(),
+          'exists': pathService.getVisibleDir().existsSync(),
         },
       );
     }

@@ -19,7 +19,7 @@ import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
-import 'package:jhentai/src/setting/path_setting.dart';
+import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:logger/logger.dart';
@@ -435,7 +435,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
           .map(
             (file) => GalleryImage(
               url: '',
-              path: relative(file.path, from: PathSetting.getVisibleDir().path),
+              path: relative(file.path, from: pathService.getVisibleDir().path),
               downloadStatus: DownloadStatus.downloaded,
             ),
           )
@@ -447,7 +447,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
       List<Future> futures = [];
       for (GalleryImage image in images) {
-        futures.add(FileUtil.computeSha1Hash(File(join(PathSetting.getVisibleDir().path, image.path))).then((value) => image.imageHash = value));
+        futures.add(FileUtil.computeSha1Hash(File(join(pathService.getVisibleDir().path, image.path))).then((value) => image.imageHash = value));
       }
       return Future.wait(futures).then((_) => images);
     });

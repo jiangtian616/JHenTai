@@ -16,7 +16,7 @@ import 'package:jhentai/src/service/isolate_service.dart';
 import 'package:jhentai/src/service/local_block_rule_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
-import 'package:jhentai/src/setting/path_setting.dart';
+import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 import 'package:jhentai/src/setting/super_resolution_setting.dart';
 import 'package:jhentai/src/utils/convert_util.dart';
@@ -43,7 +43,7 @@ class AppUpdateService extends GetxService {
   void onInit() async {
     super.onInit();
 
-    File file = File(join(PathSetting.getVisibleDir().path, 'jhentai.version'));
+    File file = File(join(pathService.getVisibleDir().path, 'jhentai.version'));
     if (!file.existsSync()) {
       file.create().then((_) => file.writeAsString(appVersion.toString()));
       handleFirstOpen();
@@ -187,7 +187,7 @@ class AppUpdateService extends GetxService {
       }
 
       if (oldVersion <= 8) {
-        File cookieFile = File(join(PathSetting.getVisibleDir().path, 'cookies', 'ie0_ps1', 'exhentai.org'));
+        File cookieFile = File(join(pathService.getVisibleDir().path, 'cookies', 'ie0_ps1', 'exhentai.org'));
         if (!cookieFile.existsSync()) {
           return;
         }

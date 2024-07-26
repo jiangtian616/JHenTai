@@ -3,21 +3,27 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 
-class PathSetting {
-  static late Directory tempDir;
+import 'jh_service.dart';
+
+PathService pathService = PathService();
+
+class PathService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
+  /// visible for all
+  late Directory tempDir;
 
   /// visible on ios&windows&macos
-  static Directory? appDocDir;
+  Directory? appDocDir;
 
   /// visible on windows
-  static Directory? appSupportDir;
+  Directory? appSupportDir;
 
   /// visible on android
-  static Directory? externalStorageDir;
+  Directory? externalStorageDir;
 
-  static Directory? systemDownloadDir;
+  Directory? systemDownloadDir;
 
-  static Future<void> init() async {
+  @override
+  Future<void> doInit() async {
     await Future.wait([
       getTemporaryDirectory().then((value) => tempDir = value),
       getApplicationDocumentsDirectory().then((value) => appDocDir = value).catchError((error) => null),
@@ -27,7 +33,7 @@ class PathSetting {
     ]);
   }
 
-  static Directory getVisibleDir() {
+  Directory getVisibleDir() {
     if (Platform.isAndroid && externalStorageDir != null) {
       return externalStorageDir!;
     }
