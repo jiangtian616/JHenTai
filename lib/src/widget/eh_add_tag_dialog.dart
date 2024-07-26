@@ -247,7 +247,7 @@ class EHAddTagDialogLogic extends GetxController {
       state.suggestions = await tagTranslationService.searchTags(lastKeyWord, limit: 100);
     } else {
       try {
-        List<EHRawTag> tags = await EHRequest.requestTagSuggestion(lastKeyWord, EHSpiderParser.tagSuggestion2TagList);
+        List<EHRawTag> tags = await ehRequest.requestTagSuggestion(lastKeyWord, EHSpiderParser.tagSuggestion2TagList);
         state.suggestions = tags
             .map((t) => (
                   searchText: lastKeyWord,

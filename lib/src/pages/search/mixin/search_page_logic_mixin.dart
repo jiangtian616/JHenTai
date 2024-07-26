@@ -124,7 +124,7 @@ mixin SearchPageLogicMixin on BasePageLogic {
     updateSafely();
 
     try {
-      state.redirectUrl = await EHRequest.requestLookup(
+      state.redirectUrl = await ehRequest.requestLookup(
         imagePath: result.files.first.path!,
         imageName: result.files.first.name,
         parser: EHSpiderParser.imageLookup2RedirectUrl,
@@ -202,7 +202,7 @@ mixin SearchPageLogicMixin on BasePageLogic {
     } else {
       String lastPart = keyword.split(' ').last;
       try {
-        List<EHRawTag> tags = await EHRequest.requestTagSuggestion(lastPart, EHSpiderParser.tagSuggestion2TagList);
+        List<EHRawTag> tags = await ehRequest.requestTagSuggestion(lastPart, EHSpiderParser.tagSuggestion2TagList);
         state.suggestions = tags
             .map((t) => (
                   searchText: keyword,
@@ -249,7 +249,7 @@ mixin SearchPageLogicMixin on BasePageLogic {
     }
 
     log.info('Get gallerys data with file search, prevGid:$prevGid, nextGid:$nextGid');
-    return EHRequest.requestGalleryPage(
+    return ehRequest.requestGalleryPage(
       prevGid: prevGid,
       nextGid: nextGid,
       seek: seek,

@@ -93,7 +93,7 @@ class LoginPageLogic extends GetxController {
 
     Map<String, dynamic> userInfoOrErrorMsg;
     try {
-      userInfoOrErrorMsg = await EHRequest.requestLogin(
+      userInfoOrErrorMsg = await ehRequest.requestLogin(
         state.userName!,
         state.password!,
         EHSpiderParser.loginPage2UserInfoOrErrorMsg,
@@ -119,7 +119,7 @@ class LoginPageLogic extends GetxController {
       state.loginState = LoadingState.error;
       update([loadingStateId]);
 
-      return EHRequest.requestLogout();
+      return ehRequest.requestLogout();
     }
 
     log.info('Login success by password.');
@@ -130,7 +130,7 @@ class LoginPageLogic extends GetxController {
       ipbPassHash: userInfoOrErrorMsg['ipbPassHash'],
     );
 
-    EHRequest.requestForum(
+    ehRequest.requestForum(
       userInfoOrErrorMsg['ipbMemberId'],
       EHSpiderParser.forumPage2UserInfo,
     ).then((userInfo) {
@@ -154,14 +154,14 @@ class LoginPageLogic extends GetxController {
       return;
     }
 
-    EHRequest.storeEHCookies([
+    ehRequest.storeEHCookies([
       Cookie('ipb_member_id', state.ipbMemberId!),
       Cookie('ipb_pass_hash', state.ipbPassHash!),
     ]);
 
     bool useEXSite = false;
     if (state.igneous != null && state.igneous != 'null' && state.igneous != 'mystery' && state.igneous != 'deleted') {
-      EHRequest.storeEHCookies([
+      ehRequest.storeEHCookies([
         Cookie('igneous', state.igneous!),
       ]);
       useEXSite = true;
@@ -176,13 +176,13 @@ class LoginPageLogic extends GetxController {
     Map<String, String?>? userInfo;
     try {
       /// get cookie [sk] first
-      await EHRequest.requestHomePage();
-      userInfo = await EHRequest.requestForum(int.parse(state.ipbMemberId!), EHSpiderParser.forumPage2UserInfo);
+      await ehRequest.requestHomePage();
+      userInfo = await ehRequest.requestForum(int.parse(state.ipbMemberId!), EHSpiderParser.forumPage2UserInfo);
     } on DioException catch (e) {
       log.error('loginFail'.tr, e.errorMsg);
       snack('loginFail'.tr, e.errorMsg ?? '', isShort: true);
 
-      EHRequest.removeAllCookies();
+      ehRequest.removeAllCookies();
 
       state.loginState = LoadingState.error;
       update([loadingStateId]);
@@ -191,7 +191,7 @@ class LoginPageLogic extends GetxController {
       log.error('loginFail'.tr, e.toString());
       snack('loginFail'.tr, e.toString(), isShort: true);
 
-      EHRequest.removeAllCookies();
+      ehRequest.removeAllCookies();
 
       state.loginState = LoadingState.error;
       update([loadingStateId]);
@@ -201,7 +201,7 @@ class LoginPageLogic extends GetxController {
     if (userInfo == null) {
       log.info('Login failed by cookie.');
 
-      EHRequest.removeAllCookies();
+      ehRequest.removeAllCookies();
 
       state.loginState = LoadingState.error;
       update([loadingStateId]);
@@ -277,7 +277,7 @@ class LoginPageLogic extends GetxController {
 
     try {
       List<Cookie> cookies = CookieUtil.parse2Cookies(cookieString);
-      EHRequest.storeEHCookies(CookieUtil.parse2Cookies(cookieString));
+      ehRequest.storeEHCookies(CookieUtil.parse2Cookies(cookieString));
 
       int ipbMemberId = int.parse(cookies.firstWhere((cookie) => cookie.name == 'ipb_member_id').value);
       String ipbPassHash = cookies.firstWhere((cookie) => cookie.name == 'ipb_pass_hash').value;
@@ -293,7 +293,7 @@ class LoginPageLogic extends GetxController {
       );
 
       /// get username and avatar
-      Map<String, String?>? userInfo = await EHRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo);
+      Map<String, String?>? userInfo = await ehRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo);
       userSetting.saveUserNameAndAvatarAndNickName(
         userName: userInfo!['userName']!,
         avatarImgUrl: userInfo['avatarImgUrl'],
@@ -322,7 +322,7 @@ class LoginPageLogic extends GetxController {
 
     try {
       List<Cookie> cookies = CookieUtil.parse2Cookies(cookieString);
-      EHRequest.storeEHCookies(CookieUtil.parse2Cookies(cookieString));
+      ehRequest.storeEHCookies(CookieUtil.parse2Cookies(cookieString));
 
       int ipbMemberId = int.parse(cookies.firstWhere((cookie) => cookie.name == 'ipb_member_id').value);
       String ipbPassHash = cookies.firstWhere((cookie) => cookie.name == 'ipb_pass_hash').value;
@@ -337,7 +337,7 @@ class LoginPageLogic extends GetxController {
       );
 
       /// get username and avatar
-      Map<String, String?>? userInfo = await EHRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo);
+      Map<String, String?>? userInfo = await ehRequest.requestForum(ipbMemberId, EHSpiderParser.forumPage2UserInfo);
       userSetting.saveUserNameAndAvatarAndNickName(
         userName: userInfo!['userName']!,
         avatarImgUrl: userInfo['avatarImgUrl'],

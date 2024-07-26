@@ -73,7 +73,7 @@ class GalleryImagePageLogic extends GetxController {
 
     GalleryUrl galleryUrl;
     try {
-      galleryUrl = await EHRequest.requestImagePage<GalleryUrl>(
+      galleryUrl = await ehRequest.requestImagePage<GalleryUrl>(
         state.galleryImagePageUrl.url,
         parser: EHSpiderParser.imagePage2GalleryUrl,
       );
@@ -165,7 +165,7 @@ class GalleryImagePageLogic extends GetxController {
     if (firstLink != null) {
       log.trace('Try to find gallery via firstLink: $firstLink');
       try {
-        ({GalleryDetail galleryDetails, String apikey}) detailPageInfo = await EHRequest.requestDetailPage<({GalleryDetail galleryDetails, String apikey})>(
+        ({GalleryDetail galleryDetails, String apikey}) detailPageInfo = await ehRequest.requestDetailPage<({GalleryDetail galleryDetails, String apikey})>(
           galleryUrl: firstLink.url,
           parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
           useCacheIfAvailable: useCache,
@@ -179,7 +179,7 @@ class GalleryImagePageLogic extends GetxController {
 
     try {
       log.trace('Try to find gallery via secondLink: $secondLink');
-      ({GalleryDetail galleryDetails, String apikey}) detailPageInfo = await EHRequest.requestDetailPage<({GalleryDetail galleryDetails, String apikey})>(
+      ({GalleryDetail galleryDetails, String apikey}) detailPageInfo = await ehRequest.requestDetailPage<({GalleryDetail galleryDetails, String apikey})>(
         galleryUrl: secondLink.url,
         parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
         useCacheIfAvailable: useCache,

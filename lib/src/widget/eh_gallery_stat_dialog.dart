@@ -83,7 +83,7 @@ class _EHGalleryStatDialogState extends State<EHGalleryStatDialog> {
     });
 
     try {
-      galleryStats = await EHRequest.requestStatPage(
+      galleryStats = await ehRequest.requestStatPage(
         gid: widget.gid,
         token: widget.token,
         parser: EHSpiderParser.statPage2GalleryStats,

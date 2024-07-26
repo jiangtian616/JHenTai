@@ -759,7 +759,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
       suggestions = await tagTranslationService.searchTags(keyword, limit: 100);
     } else {
       try {
-        List<EHRawTag> tags = await EHRequest.requestTagSuggestion(keyword, EHSpiderParser.tagSuggestion2TagList);
+        List<EHRawTag> tags = await ehRequest.requestTagSuggestion(keyword, EHSpiderParser.tagSuggestion2TagList);
         suggestions = tags
             .map((t) => (
                   searchText: keyword,

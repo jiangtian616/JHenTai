@@ -262,7 +262,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     log.trace('Gallery deleted: ${state.galleryUrl.url}, try to get metadata');
 
     try {
-      state.galleryMetadata = await EHRequest.requestGalleryMetadata<GalleryMetadata>(
+      state.galleryMetadata = await ehRequest.requestGalleryMetadata<GalleryMetadata>(
         gid: state.galleryUrl.gid,
         token: state.galleryUrl.token,
         parser: EHSpiderParser.galleryMetadataJson2GalleryMetadata,
@@ -317,7 +317,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     List<GalleryThumbnail> newThumbNails;
     try {
-      newThumbNails = await EHRequest.requestDetailPage(
+      newThumbNails = await ehRequest.requestDetailPage(
         galleryUrl: state.galleryUrl.url,
         thumbnailsPageIndex: state.nextPageIndexToLoadThumbnails,
         parser: EHSpiderParser.detailPage2Thumbnails,
@@ -444,7 +444,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       if (currentFavIndex != null && currentFavIndex != userSetting.defaultFavoriteIndex.value) {
         log.info('Get gallery favorite info: ${state.galleryUrl.gid}');
         try {
-          galleryNote = await EHRequest.requestPopupPage<GalleryNote>(
+          galleryNote = await ehRequest.requestPopupPage<GalleryNote>(
             state.galleryUrl.gid,
             state.galleryUrl.token,
             'addfav',
@@ -483,7 +483,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         EHFavoriteDialog(
           selectedIndex: currentFavIndex,
           needInitNote: currentFavIndex != null,
-          initNoteFuture: () => EHRequest.requestPopupPage<GalleryNote>(
+          initNoteFuture: () => ehRequest.requestPopupPage<GalleryNote>(
             state.galleryUrl.gid,
             state.galleryUrl.token,
             'addfav',
@@ -509,7 +509,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     try {
       if (operation.isDelete) {
-        await EHRequest.requestRemoveFavorite(state.galleryUrl.gid, state.galleryUrl.token);
+        await ehRequest.requestRemoveFavorite(state.galleryUrl.gid, state.galleryUrl.token);
         favoriteSetting.decrementFavByIndex(operation.favIndex);
         state.gallery
           ?..favoriteTagIndex = null
@@ -518,7 +518,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           ?..favoriteTagIndex = null
           ..favoriteTagName = null;
       } else {
-        await EHRequest.requestAddFavorite(state.galleryUrl.gid, state.galleryUrl.token, operation.favIndex, operation.note);
+        await ehRequest.requestAddFavorite(state.galleryUrl.gid, state.galleryUrl.token, operation.favIndex, operation.note);
         favoriteSetting.incrementFavByIndex(operation.favIndex);
         favoriteSetting.decrementFavByIndex(currentFavIndex);
         state.gallery
@@ -589,7 +589,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     Map<String, dynamic> ratingInfo;
     try {
-      ratingInfo = await EHRequest.requestSubmitRating(
+      ratingInfo = await ehRequest.requestSubmitRating(
         state.galleryUrl.gid,
         state.galleryUrl.token,
         userSetting.ipbMemberId.value!,
@@ -748,7 +748,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     String result;
     try {
-      result = await EHRequest.requestHHDownload(
+      result = await ehRequest.requestHHDownload(
         url: state.galleryDetails!.archivePageUrl,
         resolution: resolution,
         parser: EHSpiderParser.downloadHHPage2Result,
@@ -908,7 +908,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     String? errMsg;
     try {
-      errMsg = await EHRequest.voteTag(
+      errMsg = await ehRequest.voteTag(
         state.galleryUrl.gid,
         state.galleryUrl.token,
         userSetting.ipbMemberId.value!,
@@ -1069,7 +1069,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     if (firstLink != null) {
       log.trace('Try to find gallery via firstLink: $firstLink');
       try {
-        ({GalleryDetail galleryDetails, String apikey}) detailPageInfo = await EHRequest.requestDetailPage<({GalleryDetail galleryDetails, String apikey})>(
+        ({GalleryDetail galleryDetails, String apikey}) detailPageInfo = await ehRequest.requestDetailPage<({GalleryDetail galleryDetails, String apikey})>(
           galleryUrl: firstLink.url,
           parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
           useCacheIfAvailable: useCache,
@@ -1086,7 +1086,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     try {
       log.trace('Try to find gallery via secondLink: $secondLink');
-      ({GalleryDetail galleryDetails, String apikey}) detailPageInfo = await EHRequest.requestDetailPage<({GalleryDetail galleryDetails, String apikey})>(
+      ({GalleryDetail galleryDetails, String apikey}) detailPageInfo = await ehRequest.requestDetailPage<({GalleryDetail galleryDetails, String apikey})>(
         galleryUrl: secondLink.url,
         parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey,
         useCacheIfAvailable: useCache,
@@ -1214,6 +1214,6 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   void removeCache() {
-    EHRequest.removeCacheByGalleryUrlAndPage(state.galleryUrl.url, 0);
+    ehRequest.removeCacheByGalleryUrlAndPage(state.galleryUrl.url, 0);
   }
 }

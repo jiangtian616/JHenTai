@@ -80,7 +80,7 @@ class TagTranslationService extends GetxService {
     /// download translation metadata
     try {
       await retry(
-        () => EHRequest.download(
+        () => ehRequest.download(
           url: downloadUrl,
           path: savePath,
           receiveTimeout: 10 * 60 * 1000,

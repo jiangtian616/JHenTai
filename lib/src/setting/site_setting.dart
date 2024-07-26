@@ -91,7 +91,7 @@ class SiteSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     }) settings;
     try {
       settings = await retry(
-        () => EHRequest.requestSettingPage(EHSpiderParser.settingPage2SiteSetting),
+        () => ehRequest.requestSettingPage(EHSpiderParser.settingPage2SiteSetting),
         retryIf: (e) => e is DioException,
         maxAttempts: 3,
       );

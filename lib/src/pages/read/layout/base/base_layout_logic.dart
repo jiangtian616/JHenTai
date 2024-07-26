@@ -293,7 +293,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     File file = File(downloadPath);
 
     toast('downloading'.tr);
-    Response response = await EHRequest.download(url: readPageState.images[index]!.originalImageUrl!, path: downloadPath);
+    Response response = await ehRequest.download(url: readPageState.images[index]!.originalImageUrl!, path: downloadPath);
 
     /// what we downloaded is not an image
     if (!response.isRedirect && (response.headers[Headers.contentTypeHeader]?.contains("text/html; charset=UTF-8") ?? false)) {

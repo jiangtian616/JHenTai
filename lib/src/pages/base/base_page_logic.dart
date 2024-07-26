@@ -365,7 +365,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
   Future<GalleryPageInfo> getGalleryPage({String? prevGid, String? nextGid, DateTime? seek}) {
     log.info('$runtimeType get data, prevGid:$prevGid, nextGid:$nextGid');
 
-    return EHRequest.requestGalleryPage(
+    return ehRequest.requestGalleryPage(
       prevGid: prevGid,
       nextGid: nextGid,
       seek: seek,

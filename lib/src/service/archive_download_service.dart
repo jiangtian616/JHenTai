@@ -224,7 +224,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
       try {
         await retry(
-          () => EHRequest.requestCancelArchive(
+          () => ehRequest.requestCancelArchive(
             url: archive.archivePageUrl.replaceFirst('--', '-'),
             cancelToken: archiveDownloadInfo.cancelToken,
           ),
@@ -457,7 +457,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     GalleryDetail galleryDetail;
     try {
       ({GalleryDetail galleryDetails, String apikey}) detailPageInfo = await retry(
-        () => EHRequest.requestDetailPage(galleryUrl: archive.galleryUrl, parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey),
+        () => ehRequest.requestDetailPage(galleryUrl: archive.galleryUrl, parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey),
         retryIf: (e) => e is DioException,
         maxAttempts: _maxRetryTimes,
       );
@@ -555,7 +555,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       savePath: computePackingFileDownloadPath(archive),
       isolateCount: downloadSetting.archiveDownloadIsolateCount.value,
       deleteWhenUrlMismatch: false,
-      proxyConfig: EHRequest.currentProxyConfig(),
+      proxyConfig: ehRequest.currentProxyConfig(),
       onLog: (OutputEvent event) {},
       onProgress: (current, total) {
         ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadInfos[archive.gid]!;
@@ -576,7 +576,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
   Future<void> _check410Reason(String url, ArchiveDownloadedData archive) async {
     try {
-      await EHRequest.get(
+      await ehRequest.get(
         url: url,
         cancelToken: archiveDownloadInfos[archive.gid]?.cancelToken,
       );
@@ -650,7 +650,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   void _onProxyConfigChange() {
     for (ArchiveDownloadInfo archiveDownloadInfo in archiveDownloadInfos.values) {
       if (archiveDownloadInfo.archiveStatus.code <= ArchiveStatus.downloading.code && archiveDownloadInfo.downloadTask != null) {
-        archiveDownloadInfo.downloadTask!.setProxy(EHRequest.currentProxyConfig());
+        archiveDownloadInfo.downloadTask!.setProxy(ehRequest.currentProxyConfig());
       }
     }
   }
@@ -689,7 +689,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     String? downloadPageUrl;
     try {
       downloadPageUrl = await retry(
-        () => EHRequest.requestUnlockArchive(
+        () => ehRequest.requestUnlockArchive(
           url: archive.archivePageUrl.replaceFirst('--', '-'),
           isOriginal: archive.isOriginal,
           cancelToken: archiveDownloadInfo.cancelToken,
@@ -740,7 +740,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     String? downloadPageUrl;
     try {
       downloadPageUrl = await retry(
-        () => EHRequest.requestUnlockArchive(
+        () => ehRequest.requestUnlockArchive(
           url: archive.archivePageUrl.replaceFirst('--', '-'),
           isOriginal: archive.isOriginal,
           cancelToken: archiveDownloadInfo.cancelToken,
@@ -794,7 +794,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     String downloadPath;
     try {
       downloadPath = await retry(
-        () => EHRequest.get(
+        () => ehRequest.get(
           url: archiveDownloadInfo.downloadPageUrl!,
           cancelToken: archiveDownloadInfo.cancelToken,
           parser: EHSpiderParser.downloadArchivePage2DownloadUrl,

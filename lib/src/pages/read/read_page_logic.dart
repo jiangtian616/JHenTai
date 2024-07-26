@@ -235,7 +235,7 @@ class ReadPageLogic extends GetxController {
     DetailPageInfo detailPageInfo;
     try {
       detailPageInfo = await retry(
-        () => EHRequest.requestDetailPage(
+        () => ehRequest.requestDetailPage(
           galleryUrl: state.readPageInfo.galleryUrl!,
           thumbnailsPageIndex: requestPageIndex,
           parser: EHSpiderParser.detailPage2RangeAndThumbnails,
@@ -272,7 +272,7 @@ class ReadPageLogic extends GetxController {
       log.download(
         'Parse image hrefs error, thumbnails count per page is not equal to default setting, parse again. Thumbnails count per page: ${detailPageInfo.thumbnailsCountPerPage}, changed: $thumbnailsCountPerPageChanged',
       );
-      await EHRequest.removeCacheByGalleryUrlAndPage(state.readPageInfo.galleryUrl!, requestPageIndex);
+      await ehRequest.removeCacheByGalleryUrlAndPage(state.readPageInfo.galleryUrl!, requestPageIndex);
       return beginToParseImageHref(index);
     }
 
@@ -322,7 +322,7 @@ class ReadPageLogic extends GetxController {
   }
 
   Future<GalleryImage> requestImage(int index, bool reParse, String? reloadKey) {
-    return EHRequest.requestImagePage(
+    return ehRequest.requestImagePage(
       state.thumbnails[index]!.href,
       reloadKey: reloadKey,
       parser: EHSpiderParser.imagePage2GalleryImage,

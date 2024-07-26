@@ -69,7 +69,7 @@ class TagSearchOrderOptimizationService extends GetxService {
     String tag;
     try {
       tag = await retry(
-        () => EHRequest.get(
+        () => ehRequest.get(
           url: releaseUrl,
           options: Options(followRedirects: false, validateStatus: (status) => status == 302),
           parser: EHSpiderParser.latestReleaseResponse2Tag,
@@ -94,7 +94,7 @@ class TagSearchOrderOptimizationService extends GetxService {
     /// download tag count metadata
     try {
       await retry(
-        () => EHRequest.download(
+        () => ehRequest.download(
           url: 'https://github.com/mokurin000/e-hentai-tag-count/releases/download/$tag/tid_count_tag.csv.gz',
           path: savePath,
           receiveTimeout: 10 * 60 * 1000,

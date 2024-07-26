@@ -110,7 +110,7 @@ class SuperResolutionService extends GetxController {
 
     try {
       await retry(
-        () => EHRequest.download(
+        () => ehRequest.download(
           url: downloadUrl,
           path: modelDownloadPath,
           receiveTimeout: 10 * 60 * 1000,

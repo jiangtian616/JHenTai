@@ -54,7 +54,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
 
     ({List<({int number, String name})> tagSets, bool tagSetEnable, Color? tagSetBackgroundColor, List<WatchedTag> tags, String apikey}) pageInfo;
     try {
-      pageInfo = await EHRequest.requestMyTagsPage(tagSetNo: state.currentTagSetNo, parser: EHSpiderParser.myTagsPage2TagSetNamesAndTagSetsAndApikey);
+      pageInfo = await ehRequest.requestMyTagsPage(tagSetNo: state.currentTagSetNo, parser: EHSpiderParser.myTagsPage2TagSetNamesAndTagSetsAndApikey);
     } on DioException catch (e) {
       log.error('getTagSetFailed'.tr, e.errorMsg);
       snack('getTagSetFailed'.tr, e.errorMsg ?? '', isShort: true);
@@ -98,7 +98,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
     updateSafely([tagSetId, bodyId]);
 
     try {
-      await EHRequest.requestUpdateTagSet(
+      await ehRequest.requestUpdateTagSet(
         tagSetNo: state.currentTagSetNo,
         enable: true,
         color: color2aRGBString(newColor),
@@ -179,7 +179,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
     updateSafely(['$tagId::${tag.tagId}']);
 
     try {
-      await EHRequest.requestDeleteWatchedTag(watchedTagId: state.tags[tagSetIndex].tagId, tagSetNo: state.currentTagSetNo);
+      await ehRequest.requestDeleteWatchedTag(watchedTagId: state.tags[tagSetIndex].tagId, tagSetNo: state.currentTagSetNo);
     } on DioException catch (e) {
       log.error('deleteTagFailed'.tr, e.errorMsg);
       snack('deleteTagFailed'.tr, e.errorMsg ?? '', isShort: true);
@@ -281,7 +281,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
     updateSafely(['$tagId::${tag.tagId}']);
 
     try {
-      await EHRequest.requestUpdateWatchedTag(
+      await ehRequest.requestUpdateWatchedTag(
         apiuid: userSetting.ipbMemberId.value!,
         apikey: state.apikey,
         tagId: tag.tagId,

@@ -51,7 +51,7 @@ class MyTagsSetting with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean 
     ({List<({int number, String name})> tagSets, bool tagSetEnable, Color? tagSetBackgroundColor, List<WatchedTag> tags, String apikey}) defaultTagSetPageInfo;
     try {
       defaultTagSetPageInfo = await retry(
-        () => EHRequest.requestMyTagsPage(tagSetNo: defaultTagSetNo, parser: EHSpiderParser.myTagsPage2TagSetNamesAndTagSetsAndApikey),
+        () => ehRequest.requestMyTagsPage(tagSetNo: defaultTagSetNo, parser: EHSpiderParser.myTagsPage2TagSetNamesAndTagSetsAndApikey),
         retryIf: (e) => e is DioException,
         maxAttempts: 3,
       );
@@ -89,7 +89,7 @@ class MyTagsSetting with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean 
     ({List<({int number, String name})> tagSets, bool tagSetEnable, Color? tagSetBackgroundColor, List<WatchedTag> tags, String apikey}) pageInfo;
     try {
       pageInfo = await retry(
-        () => EHRequest.requestMyTagsPage(tagSetNo: tagSetNo, parser: EHSpiderParser.myTagsPage2TagSetNamesAndTagSetsAndApikey),
+        () => ehRequest.requestMyTagsPage(tagSetNo: tagSetNo, parser: EHSpiderParser.myTagsPage2TagSetNamesAndTagSetsAndApikey),
         retryIf: (e) => e is DioException,
         maxAttempts: 3,
       );

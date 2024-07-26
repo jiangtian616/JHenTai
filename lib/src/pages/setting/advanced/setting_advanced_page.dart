@@ -155,7 +155,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
       title: Text('clearPageCache'.tr),
       subtitle: Text('longPress2Clear'.tr),
       onLongPress: () async {
-        await EHRequest.removeAllCache();
+        await ehRequest.removeAllCache();
         toast('clearSuccess'.tr, isCenter: false);
       },
     );

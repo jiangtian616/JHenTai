@@ -117,7 +117,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
           arguments: {
             'title': 'siteSetting'.tr,
             'url': EHConsts.EUconfig,
-            'cookies': CookieUtil.parse2String(EHRequest.cookies),
+            'cookies': CookieUtil.parse2String(ehRequest.cookies),
           },
         );
 
@@ -192,7 +192,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
 
     Map<String, String> assets;
     try {
-      assets = await EHRequest.requestExchangePage(parser: EHSpiderParser.exchangePage2Assets);
+      assets = await ehRequest.requestExchangePage(parser: EHSpiderParser.exchangePage2Assets);
     } on DioException catch (e) {
       log.error('Get assets failed', e.errorMsg);
       snack('Get assets failed'.tr, e.errorMsg ?? '', isShort: true);
@@ -226,7 +226,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
     });
 
     try {
-      await EHRequest.requestResetImageLimit();
+      await ehRequest.requestResetImageLimit();
     } on DioException catch (e) {
       log.error('Reset limit failed', e.errorMsg);
       snack('Reset limit failed'.tr, e.errorMsg ?? '', isShort: true);

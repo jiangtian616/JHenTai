@@ -82,7 +82,7 @@ class EHSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBe
     try {
       await retry(
         () async {
-          map = await EHRequest.requestHomePage(parser: EHSpiderParser.homePage2ImageLimit);
+          map = await ehRequest.requestHomePage(parser: EHSpiderParser.homePage2ImageLimit);
         },
         retryIf: (e) => e is DioException,
         maxAttempts: 3,
@@ -117,7 +117,7 @@ class EHSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBe
     this.site.value = site;
     await save();
 
-    EHRequest.storeEHCookies([Cookie('sp', site)]);
+    ehRequest.storeEHCookies([Cookie('sp', site)]);
 
     siteSetting.fetchDataFromEH();
   }

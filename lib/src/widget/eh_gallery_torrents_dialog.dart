@@ -64,7 +64,7 @@ class _EHGalleryTorrentsDialogState extends State<EHGalleryTorrentsDialog> {
     });
 
     try {
-      galleryTorrents = await EHRequest.requestTorrentPage<List<GalleryTorrent>>(
+      galleryTorrents = await ehRequest.requestTorrentPage<List<GalleryTorrent>>(
         widget.gid,
         widget.token,
         EHSpiderParser.torrentPage2GalleryTorrent,

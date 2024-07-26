@@ -561,7 +561,7 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
     int? newScore;
 
     try {
-      newScore = await EHRequest.voteComment(
+      newScore = await ehRequest.voteComment(
         detailsPageState.galleryDetails?.galleryUrl.gid ?? detailsPageState.gallery!.gid,
         detailsPageState.galleryDetails?.galleryUrl.token ?? detailsPageState.gallery!.token,
         userSetting.ipbMemberId.value!,

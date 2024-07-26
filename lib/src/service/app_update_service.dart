@@ -207,7 +207,7 @@ class AppUpdateService extends GetxService {
         }
 
         log.info('migrate cookies: $cookies');
-        EHRequest.storeEHCookies(cookies);
+        ehRequest.storeEHCookies(cookies);
       }
 
       if (oldVersion <= 9) {

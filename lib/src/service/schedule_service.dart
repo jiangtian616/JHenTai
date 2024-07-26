@@ -39,7 +39,7 @@ class ScheduleService extends GetxService {
     List<GalleryDownloadedData> gallerys = await GalleryDao.selectGallerysForTagRefresh(pageNo, 25);
     while (gallerys.isNotEmpty) {
       try {
-        List<GalleryMetadata> metadatas = await EHRequest.requestGalleryMetadatas<List<GalleryMetadata>>(
+        List<GalleryMetadata> metadatas = await ehRequest.requestGalleryMetadatas<List<GalleryMetadata>>(
           list: gallerys.map((a) => (gid: a.gid, token: a.token)).toList(),
           parser: EHSpiderParser.galleryMetadataJson2GalleryMetadatas,
         );
@@ -70,7 +70,7 @@ class ScheduleService extends GetxService {
     List<ArchiveDownloadedData> archives = await ArchiveDao.selectArchivesForTagRefresh(pageNo, 25);
     while (archives.isNotEmpty) {
       try {
-        List<GalleryMetadata> metadatas = await EHRequest.requestGalleryMetadatas<List<GalleryMetadata>>(
+        List<GalleryMetadata> metadatas = await ehRequest.requestGalleryMetadatas<List<GalleryMetadata>>(
           list: archives.map((a) => (gid: a.gid, token: a.token)).toList(),
           parser: EHSpiderParser.galleryMetadataJson2GalleryMetadatas,
         );

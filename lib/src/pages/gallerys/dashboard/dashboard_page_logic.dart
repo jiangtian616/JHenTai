@@ -8,7 +8,6 @@ import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
 import '../../../consts/eh_consts.dart';
 import '../../../exception/eh_site_exception.dart';
 import '../../../mixin/scroll_to_top_state_mixin.dart';
-import '../../../model/gallery.dart';
 import '../../../model/gallery_page.dart';
 import '../../../network/eh_request.dart';
 import '../../../utils/eh_spider_parser.dart';
@@ -59,7 +58,7 @@ class DashboardPageLogic extends BasePageLogic {
 
     List<dynamic> gallerysAndPageInfo;
     try {
-      gallerysAndPageInfo = await EHRequest.requestRanklistPage(
+      gallerysAndPageInfo = await ehRequest.requestRanklistPage(
         ranklistType: RanklistType.day,
         pageNo: 0,
         parser: EHSpiderParser.ranklistPage2GalleryPageInfo,
@@ -99,7 +98,7 @@ class DashboardPageLogic extends BasePageLogic {
 
     GalleryPageInfo gallerysPage;
     try {
-      gallerysPage = await EHRequest.requestGalleryPage(
+      gallerysPage = await ehRequest.requestGalleryPage(
         url: EHConsts.EPopular,
         parser: EHSpiderParser.galleryPage2GalleryPageInfo,
       );

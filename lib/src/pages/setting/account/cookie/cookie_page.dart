@@ -21,7 +21,7 @@ class CookiePage extends StatelessWidget {
       ),
       body: ListView(
         padding: const EdgeInsets.only(top: 12),
-        children: EHRequest.cookies
+        children: ehRequest.cookies
             .map(
               (cookie) => ListTile(
                 title: Text(cookie.name),
@@ -36,14 +36,14 @@ class CookiePage extends StatelessWidget {
   }
 
   Future<void> _copyAllCookies() async {
-    await FlutterClipboard.copy(CookieUtil.parse2String(EHRequest.cookies));
+    await FlutterClipboard.copy(CookieUtil.parse2String(ehRequest.cookies));
     toast('hasCopiedToClipboard'.tr);
   }
 
   Future<void> _copyCookies() async {
     await FlutterClipboard.copy(
       CookieUtil.parse2String(
-        EHRequest.cookies
+        ehRequest.cookies
             .where(
               (cookie) => cookie.name == 'ipb_member_id' || cookie.name == 'ipb_pass_hash' || cookie.name == 'igneous',
             )

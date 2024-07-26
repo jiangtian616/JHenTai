@@ -220,7 +220,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
 
     String? errMsg;
     try {
-      errMsg = await EHRequest.voteTag(
+      errMsg = await ehRequest.voteTag(
         widget.gid,
         widget.token,
         userSetting.ipbMemberId.value!,
@@ -302,7 +302,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
     }
 
     try {
-      await EHRequest.requestAddWatchedTag(
+      await ehRequest.requestAddWatchedTag(
         tag: '${widget.tagData.namespace}:${widget.tagData.key}',
         tagWeight: 10,
         watch: watch,

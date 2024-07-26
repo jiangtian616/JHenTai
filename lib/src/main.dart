@@ -161,7 +161,6 @@ Future<void> init() async {
 
   AppUpdateService.init();
 
-  await EHRequest.init();
   await JHRequest.init();
 
   TagTranslationService.init();

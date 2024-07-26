@@ -58,7 +58,7 @@ class FavoritePageLogic extends BasePageLogic {
 
     GalleryPageInfo galleryPage;
     try {
-      galleryPage = await EHRequest.requestChangeFavoriteSortOrder(
+      galleryPage = await ehRequest.requestChangeFavoriteSortOrder(
         result,
         parser: EHSpiderParser.galleryPage2GalleryPageInfo,
       );

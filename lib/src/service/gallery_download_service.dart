@@ -251,7 +251,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     GalleryDetail newGalleryDetail;
     try {
       ({GalleryDetail galleryDetails, String apikey}) detailPageInfo = await retry(
-        () => EHRequest.requestDetailPage(galleryUrl: newVersionGalleryUrl.url, parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey),
+        () => ehRequest.requestDetailPage(galleryUrl: newVersionGalleryUrl.url, parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey),
         retryIf: (e) => e is DioException,
         maxAttempts: _maxRetryTimes,
       );
@@ -637,7 +637,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     GalleryDetail galleryDetail;
     try {
       ({GalleryDetail galleryDetails, String apikey}) detailPageInfo = await retry(
-        () => EHRequest.requestDetailPage(galleryUrl: gallery.galleryUrl, parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey),
+        () => ehRequest.requestDetailPage(galleryUrl: gallery.galleryUrl, parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey),
         retryIf: (e) => e is DioException,
         maxAttempts: _maxRetryTimes,
       );
@@ -909,7 +909,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       DetailPageInfo detailPageInfo;
       try {
         detailPageInfo = await retry(
-          () => EHRequest.requestDetailPage(
+          () => ehRequest.requestDetailPage(
             galleryUrl: gallery.galleryUrl,
             thumbnailsPageIndex: requestPageIndex,
             cancelToken: galleryDownloadInfo.cancelToken,
@@ -954,7 +954,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         log.download(
           'Parse image hrefs error, thumbnails count per page is not equal to default setting, parse again. Thumbnails count per page: ${detailPageInfo.thumbnailsCountPerPage}, changed: $thumbnailsCountPerPageChanged',
         );
-        await EHRequest.removeCacheByGalleryUrlAndPage(gallery.galleryUrl, requestPageIndex);
+        await ehRequest.removeCacheByGalleryUrlAndPage(gallery.galleryUrl, requestPageIndex);
         return _submitTask(
           gid: gallery.gid,
           priority: _computeImageTaskPriority(gallery, serialNo),
@@ -982,7 +982,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       GalleryImage image;
       try {
         image = await retry(
-          () => EHRequest.requestImagePage(
+          () => ehRequest.requestImagePage(
             galleryDownloadInfo.imageHrefs[serialNo]!.href,
             reloadKey: reloadKey,
             cancelToken: galleryDownloadInfo.cancelToken,
@@ -1014,7 +1014,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
           pauseDownloadGallery(gallery);
         }
 
-        EHRequest.removeCacheByUrl(galleryDownloadInfo.imageHrefs[serialNo]!.href);
+        ehRequest.removeCacheByUrl(galleryDownloadInfo.imageHrefs[serialNo]!.href);
 
         return;
       } on EHSiteException catch (e) {
@@ -1078,7 +1078,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       Response response;
       try {
         response = await retry(
-          () => EHRequest.download(
+          () => ehRequest.download(
             url: image.url,
             path: path,
             receiveTimeout: 3 * 60 * 1000,

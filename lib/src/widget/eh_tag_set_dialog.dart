@@ -78,7 +78,7 @@ class _EHTagSetDialogState extends State<EHTagSetDialog> {
 
     ({List<({int number, String name})> tagSets, bool tagSetEnable, Color? tagSetBackgroundColor, List<WatchedTag> tags, String apikey}) pageInfo;
     try {
-      pageInfo = await EHRequest.requestMyTagsPage(
+      pageInfo = await ehRequest.requestMyTagsPage(
         parser: EHSpiderParser.myTagsPage2TagSetNamesAndTagSetsAndApikey,
       );
     } on DioException catch (e) {
