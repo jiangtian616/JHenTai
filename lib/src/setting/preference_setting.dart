@@ -52,7 +52,6 @@ class PreferenceSetting {
     PreferenceSetting.locale.value = locale;
     _save();
     Get.updateLocale(locale);
-    TabBarSetting.reset();
   }
 
   static saveDefaultTab(TabBarIconNameEnum defaultTab) {

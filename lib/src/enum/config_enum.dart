@@ -25,7 +25,6 @@ enum ConfigEnum {
   siteSetting('siteSetting'),
   styleSetting('styleSetting'),
   superResolutionSetting('SuperResolutionSetting'),
-  tabBarSetting('tabBarSetting'),
   userSetting('userSetting'),
   myTagsSetting('MyTagsSetting'),
   downloadSearchPageType('downloadSearchPageType'),
