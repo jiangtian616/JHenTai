@@ -1,29 +1,29 @@
-import 'package:get/get.dart';
+import 'dart:convert';
+
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/model/search_history.dart';
-import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 
 import '../database/database.dart';
-import 'log.dart';
+import 'jh_service.dart';
 
-class SearchHistoryService extends GetxService {
-  StorageService storageService = Get.find();
-  TagTranslationService tagTranslationService = Get.find();
+SearchHistoryService searchHistoryService = SearchHistoryService();
 
+class SearchHistoryService with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
   List<SearchHistory> histories = [];
 
   static const _maxLength = 50;
 
-  static void init() {
-    Get.put(SearchHistoryService(), permanent: true);
-  }
+  @override
+  List<JHLifeCircleBean> get initDependencies => super.initDependencies..add(tagTranslationService);
 
   @override
-  Future<void> onInit() async {
-    super.onInit();
+  ConfigEnum get configEnum => ConfigEnum.searchHistory;
 
-    List searchHistories = storageService.read(ConfigEnum.searchHistory.key) ?? <String>[];
+  @override
+  Future<void> applyConfig(String configString) async {
+    List searchHistories = jsonDecode(configString);
+
     for (String searchHistory in searchHistories) {
       histories.add(
         SearchHistory(
@@ -32,9 +32,18 @@ class SearchHistoryService extends GetxService {
         ),
       );
     }
-
-    log.debug('init SearchHistoryService success');
   }
+
+  @override
+  String toConfigString() {
+    return jsonEncode(histories.map((history) => history.rawKeyword).toList());
+  }
+
+  @override
+  Future<void> doOnInit() async {}
+
+  @override
+  void doOnReady() {}
 
   Future<void> writeHistory(String searchHistory) async {
     histories.removeWhere((history) => history.rawKeyword == searchHistory);
@@ -50,18 +59,18 @@ class SearchHistoryService extends GetxService {
       histories = histories.sublist(0, _maxLength);
     }
 
-    storageService.write(ConfigEnum.searchHistory.key, histories.map((history) => history.rawKeyword).toList());
+    await save();
   }
 
   Future<void> deleteHistory(SearchHistory searchHistory) async {
     if (histories.remove(searchHistory)) {
-      storageService.write(ConfigEnum.searchHistory.key, histories.map((history) => history.rawKeyword).toList());
+      await save();
     }
   }
 
   Future<void> clearHistory() async {
     histories.clear();
-    await storageService.remove(ConfigEnum.searchHistory.key);
+    await clear();
   }
 
   /// find each pair and then translate, remains the parts which can't be translated
