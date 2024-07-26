@@ -102,7 +102,7 @@ class ScheduleService extends GetxService {
 
     int count = 0;
     cacheImageDirectory.list().forEach((FileSystemEntity entity) {
-      if (entity is File && DateTime.now().difference(entity.lastModifiedSync()) > NetworkSetting.cacheImageExpireDuration.value) {
+      if (entity is File && DateTime.now().difference(entity.lastAccessedSync()) > NetworkSetting.cacheImageExpireDuration.value) {
         entity.delete();
         count++;
       }
