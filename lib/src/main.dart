@@ -161,7 +161,6 @@ Future<void> init() async {
 
   AppUpdateService.init();
 
-  ArchiveDownloadService.init();
   LocalGalleryService.init();
   SuperResolutionSetting.init();
   SuperResolutionService.init();

@@ -35,11 +35,14 @@ import '../model/gallery_image.dart';
 import '../pages/download/grid/mixin/grid_download_page_service_mixin.dart';
 import '../utils/archive_util.dart';
 import '../utils/file_util.dart';
+import 'jh_service.dart';
 import 'log.dart';
 import '../utils/snack_util.dart';
 import 'gallery_download_service.dart';
 
-class ArchiveDownloadService extends GetxController with GridBasePageServiceMixin {
+ArchiveDownloadService archiveDownloadService = ArchiveDownloadService();
+
+class ArchiveDownloadService extends GetxController with GridBasePageServiceMixin, JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   static const String archiveStatusId = 'archiveStatusId';
   static const String archiveSpeedComputerId = 'archiveSpeedComputerId';
 
@@ -61,17 +64,13 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   late Worker isolateCountListener;
   late Worker proxyConfigListener;
 
-  static void init() {
-    Get.put(ArchiveDownloadService(), permanent: true);
-  }
-
   @override
-  Future<void> onInit() async {
-    super.onInit();
+  Future<void> doOnInit() async {
+    Get.put(this, permanent: true);
 
     await _instantiateFromDB();
 
-    log.debug('init ArchiveDownloadService success. Tasks count: ${archives.length}');
+    log.debug('Archive download tasks count: ${archives.length}');
 
     for (ArchiveDownloadedData archive in archives) {
       if (archive.archiveStatusCode >= ArchiveStatus.unlocking.code && archive.archiveStatusCode <= ArchiveStatus.unpacking.code) {
@@ -88,6 +87,9 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       await restoreTasks();
     }
   }
+
+  @override
+  void doOnReady() {}
 
   @override
   void onClose() {
@@ -116,7 +118,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     log.info('Begin to handle archive: ${archive.title}, original: ${archive.isOriginal}');
 
     _generateComicInfoInDisk(archive);
-    
+
     /// step 1: request to unlock archive: if we have unlocked before or unlock has completed,
     /// we can get [downloadPageUrl] immediately, otherwise we must wait for a second
     await _unlock(archive);
