@@ -3,24 +3,24 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
+import 'jh_service.dart';
 import 'log.dart';
 
-enum VolumeEventType { volumeUp, volumeDown }
+VolumeService volumeService = VolumeService();
 
-class VolumeService extends GetxService {
+class VolumeService extends GetxService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late final MethodChannel methodChannel;
 
   static const int volumeUp = 1;
   static const int volumeDown = -1;
 
-  static void init() {
-    Get.put(VolumeService(), permanent: true);
-    log.debug('init VolumeService success', false);
+  @override
+  Future<void> doOnInit() async {
+    Get.put(this, permanent: true);
   }
 
   @override
-  Future<void> onInit() async {
-    super.onInit();
+  void doOnReady() {
     if (!GetPlatform.isAndroid) {
       return;
     }
@@ -30,6 +30,7 @@ class VolumeService extends GetxService {
   @override
   void onClose() {
     super.onClose();
+
     cancelListen();
   }
 
@@ -72,3 +73,5 @@ class VolumeService extends GetxService {
     methodChannel.setMethodCallHandler(null);
   }
 }
+
+enum VolumeEventType { volumeUp, volumeDown }
