@@ -166,7 +166,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(
         actions: <CupertinoActionSheetAction>[
-          if (SuperResolutionSetting.modelDirectoryPath.value != null &&
+          if (superResolutionSetting.modelDirectoryPath.value != null &&
               downloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress.downloadStatus == DownloadStatus.downloaded &&
               (superResolutionService.get(gallery.gid, SuperResolutionType.gallery) == null ||
                   superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.paused))

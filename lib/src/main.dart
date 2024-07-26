@@ -161,7 +161,6 @@ Future<void> init() async {
 
   AppUpdateService.init();
 
-  SuperResolutionSetting.init();
   SuperResolutionService.init();
 
   ReadSetting.init();

@@ -1,8 +1,63 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/service/log.dart';
 
-import '../service/storage_service.dart';
+import '../service/jh_service.dart';
+
+SuperResolutionSetting superResolutionSetting = SuperResolutionSetting();
+
+class SuperResolutionSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
+  RxnString modelDirectoryPath = RxnString(null);
+  Rx<ModelType> model = Rx<ModelType>(ModelType.CUGAN);
+  RxInt gpuId = 0.obs;
+
+  @override
+  ConfigEnum get configEnum => ConfigEnum.superResolutionSetting;
+
+  @override
+  void applyConfig(String configString) {
+    Map map = jsonDecode(configString);
+
+    modelDirectoryPath.value = map['modelDirectoryPath'];
+    model.value = map['model'] == null ? ModelType.CUGAN : ModelType.values[map['model']];
+    gpuId.value = map['gpuId'] ?? gpuId.value;
+  }
+
+  @override
+  String toConfigString() {
+    return jsonEncode({
+      'modelDirectoryPath': modelDirectoryPath.value,
+      'model': model.value.index,
+      'gpuId': gpuId.value,
+    });
+  }
+
+  @override
+  Future<void> doOnInit() async {}
+
+  @override
+  void doOnReady() {}
+
+  Future<void> saveModelDirectoryPath(String? modelDirectoryPath) async {
+    log.debug('saveModelDirectoryPath:$modelDirectoryPath');
+    this.modelDirectoryPath.value = modelDirectoryPath;
+    await save();
+  }
+
+  Future<void> saveModel(ModelType model) async {
+    log.debug('saveModel:$model');
+    this.model.value = model;
+    await save();
+  }
+
+  Future<void> saveGpuId(int gpuId) async {
+    log.debug('saveGpuId:$gpuId');
+    this.gpuId.value = gpuId;
+    await save();
+  }
+}
 
 enum ModelType {
   ESRGAN(
@@ -86,56 +141,4 @@ enum ModelType {
   final String linuxModelExtractPath;
 
   final String modelRelativePath;
-}
-
-class SuperResolutionSetting {
-  static RxnString modelDirectoryPath = RxnString(null);
-  static Rx<ModelType> model = Rx<ModelType>(ModelType.CUGAN);
-  static RxInt gpuId = 0.obs;
-
-  static void init() {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.superResolutionSetting.key);
-    if (map != null) {
-      _initFromMap(map);
-      log.debug('init SuperResolutionSetting success', false);
-    } else {
-      log.debug('init SuperResolutionSetting success: default', false);
-    }
-  }
-
-  static saveModelDirectoryPath(String? modelDirectoryPath) {
-    log.debug('saveModelDirectoryPath:$modelDirectoryPath');
-    SuperResolutionSetting.modelDirectoryPath.value = modelDirectoryPath;
-    _save();
-  }
-
-  static saveModel(ModelType model) {
-    log.debug('saveModel:$model');
-    SuperResolutionSetting.model.value = model;
-    _save();
-  }
-
-  static saveGpuId(int gpuId) {
-    log.debug('saveGpuId:$gpuId');
-    SuperResolutionSetting.gpuId.value = gpuId;
-    _save();
-  }
-
-  static Future<void> _save() async {
-    await Get.find<StorageService>().write(ConfigEnum.superResolutionSetting.key, _toMap());
-  }
-
-  static Map<String, dynamic> _toMap() {
-    return {
-      'modelDirectoryPath': modelDirectoryPath.value,
-      'model': model.value?.index,
-      'gpuId': gpuId.value,
-    };
-  }
-
-  static _initFromMap(Map<String, dynamic> map) {
-    modelDirectoryPath.value = map['modelDirectoryPath'];
-    model.value = map['model'] == null ? ModelType.CUGAN : ModelType.values[map['model']];
-    gpuId.value = map['gpuId'] ?? gpuId.value;
-  }
 }

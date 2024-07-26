@@ -170,7 +170,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(
         actions: <CupertinoActionSheetAction>[
-          if (SuperResolutionSetting.modelDirectoryPath.value != null &&
+          if (superResolutionSetting.modelDirectoryPath.value != null &&
               (superResolutionService.get(archive.gid, SuperResolutionType.archive) == null ||
                   superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.paused))
             CupertinoActionSheetAction(

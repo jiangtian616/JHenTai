@@ -156,7 +156,7 @@ class SuperResolutionService extends GetxController {
       return;
     }
 
-    SuperResolutionSetting.saveModelDirectoryPath(dirPath);
+    superResolutionSetting.saveModelDirectoryPath(dirPath);
 
     downloadState = LoadingState.success;
     updateSafely([downloadId]);
@@ -297,7 +297,7 @@ class SuperResolutionService extends GetxController {
         continue;
       }
 
-      if (SuperResolutionSetting.modelDirectoryPath.value == null) {
+      if (superResolutionSetting.modelDirectoryPath.value == null) {
         return;
       }
 
@@ -392,11 +392,11 @@ class SuperResolutionService extends GetxController {
     String inputRelativePath = rawImage.path!;
     String outputRelativePath = computeImageOutputRelativePath(rawImage.path!);
 
-    ModelType modelType = SuperResolutionSetting.model.value;
+    ModelType modelType = superResolutionSetting.model.value;
 
     log.trace(
       'Run: ${join(
-        SuperResolutionSetting.modelDirectoryPath.value!,
+        superResolutionSetting.modelDirectoryPath.value!,
         GetPlatform.isWindows
             ? modelType.windowsExecutableName
             : GetPlatform.isMacOS
@@ -405,16 +405,16 @@ class SuperResolutionService extends GetxController {
       )} '
       '-i $inputRelativePath '
       '-o $outputRelativePath '
-      '-n ${SuperResolutionSetting.model.value.subType} '
+      '-n ${superResolutionSetting.model.value.subType} '
       '-f png '
       '-s 4 '
-      '-g ${SuperResolutionSetting.gpuId.value} '
-      '-m "${join(SuperResolutionSetting.modelDirectoryPath.value!, modelType.modelRelativePath)}"',
+      '-g ${superResolutionSetting.gpuId.value} '
+      '-m "${join(superResolutionSetting.modelDirectoryPath.value!, modelType.modelRelativePath)}"',
     );
 
     return Process.start(
       join(
-        SuperResolutionSetting.modelDirectoryPath.value!,
+        superResolutionSetting.modelDirectoryPath.value!,
         GetPlatform.isWindows
             ? modelType.windowsExecutableName
             : GetPlatform.isMacOS
@@ -427,15 +427,15 @@ class SuperResolutionService extends GetxController {
         '-o',
         outputRelativePath,
         '-n',
-        SuperResolutionSetting.model.value.subType,
+        superResolutionSetting.model.value.subType,
         '-f',
         'png',
         '-s',
         '4',
         '-g',
-        SuperResolutionSetting.gpuId.value.toString(),
+        superResolutionSetting.gpuId.value.toString(),
         '-m',
-        join(SuperResolutionSetting.modelDirectoryPath.value!, modelType.modelRelativePath),
+        join(superResolutionSetting.modelDirectoryPath.value!, modelType.modelRelativePath),
       ],
       workingDirectory: pathService.getVisibleDir().path,
       runInShell: true,

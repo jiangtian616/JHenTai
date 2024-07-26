@@ -183,7 +183,7 @@ class AppUpdateService extends GetxService {
 
       if (oldVersion <= 7) {
         log.info('Clear super-resulotion setting');
-        SuperResolutionSetting.saveModelDirectoryPath(null);
+        superResolutionSetting.saveModelDirectoryPath(null);
       }
 
       if (oldVersion <= 8) {
