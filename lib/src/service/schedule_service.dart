@@ -3,9 +3,6 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:extended_image/extended_image.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/get_instance.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_disposable.dart';
 import 'package:jhentai/src/database/dao/archive_dao.dart';
 import 'package:jhentai/src/database/dao/gallery_dao.dart';
 import 'package:jhentai/src/network/eh_request.dart';
@@ -17,18 +14,17 @@ import 'package:path_provider/path_provider.dart';
 
 import '../database/database.dart';
 import '../model/gallery_metadata.dart';
+import 'jh_service.dart';
 import 'log.dart';
 
-class ScheduleService extends GetxService {
-  static void init() {
-    Get.put(ScheduleService(), permanent: true);
-    log.debug('init ScheduleService success', false);
-  }
+ScheduleService scheduleService = ScheduleService();
+
+class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
+  @override
+  Future<void> doOnInit() async {}
 
   @override
-  Future<void> onInit() async {
-    super.onInit();
-
+  void doOnReady() {
     Timer(const Duration(seconds: 10), refreshGalleryTags);
     Timer(const Duration(seconds: 10), refreshArchiveTags);
     Timer(const Duration(seconds: 5), clearOutdatedImageCache);

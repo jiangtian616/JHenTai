@@ -166,6 +166,4 @@ Future<void> onReady() async {
   for (JHLifeCircleBean bean in lifeCircleBeans) {
     bean.onReady();
   }
-
-  ScheduleService.init();
 }
