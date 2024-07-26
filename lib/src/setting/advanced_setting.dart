@@ -20,9 +20,6 @@ class AdvancedSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   ConfigEnum get configEnum => ConfigEnum.advancedSetting;
 
   @override
-  void doOnReady() {}
-
-  @override
   void applyConfig(String configString) {
     Map map = jsonDecode(configString);
 
@@ -43,6 +40,12 @@ class AdvancedSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
       'inNoImageMode': inNoImageMode.value,
     });
   }
+
+  @override
+  Future<void> doOnInit() async {}
+
+  @override
+  void doOnReady() {}
 
   Future<void> saveEnableLogging(bool enableLogging) async {
     Log.debug('saveEnableLogging:$enableLogging');

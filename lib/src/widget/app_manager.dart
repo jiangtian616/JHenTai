@@ -157,11 +157,11 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
   void _onInactive() {
     Log.debug('App is hidden');
 
-    if (SecuritySetting.enableAuthOnResume.isTrue) {
+    if (securitySetting.enableAuthOnResume.isTrue) {
       lastInactiveTime ??= DateTime.now();
     }
 
-    if ((SecuritySetting.enableAuthOnResume.isTrue || SecuritySetting.enableBlur.isTrue) && !inBlur && !isRouteAtTop(Routes.lock)) {
+    if ((securitySetting.enableAuthOnResume.isTrue || securitySetting.enableBlur.isTrue) && !inBlur && !isRouteAtTop(Routes.lock)) {
       setState(() => inBlur = true);
     }
   }
@@ -173,16 +173,16 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
       return;
     }
 
-    if (SecuritySetting.enableBlur.isFalse) {
+    if (securitySetting.enableBlur.isFalse) {
       return;
     }
 
-    if (SecuritySetting.enableAuthOnResume.isFalse) {
+    if (securitySetting.enableAuthOnResume.isFalse) {
       setState(() => inBlur = false);
       return;
     }
 
-    if ((SecuritySetting.enablePasswordAuth.isTrue || SecuritySetting.enableBiometricAuth.isTrue) &&
+    if ((securitySetting.enablePasswordAuth.isTrue || securitySetting.enableBiometricAuth.isTrue) &&
         DateTime.now().difference(lastInactiveTime!).inSeconds >= 3) {
       toRoute(Routes.lock);
       Future.delayed(const Duration(milliseconds: 300), () => setState(() => inBlur = false));
@@ -196,7 +196,7 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
   /// for Android, blur is invalid when switch app to background(app is still clearly visible in switcher),
   /// so i choose to set FLAG_SECURE to do the same effect.
   void _addSecureFlagForAndroid(BuildContext context) {
-    if (GetPlatform.isAndroid && (SecuritySetting.enableAuthOnResume.isTrue || SecuritySetting.enableBlur.isTrue)) {
+    if (GetPlatform.isAndroid && (securitySetting.enableAuthOnResume.isTrue || securitySetting.enableBlur.isTrue)) {
       FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
     }
   }

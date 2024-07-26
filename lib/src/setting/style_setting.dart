@@ -29,7 +29,8 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
           ? LayoutMode.desktop.obs
           : LayoutMode.tabletV2.obs;
 
-  bool get isInWaterFlowListMode => listMode.value == ListMode.waterfallFlowBig || listMode.value == ListMode.waterfallFlowSmall || listMode.value == ListMode.waterfallFlowMedium;
+  bool get isInWaterFlowListMode =>
+      listMode.value == ListMode.waterfallFlowBig || listMode.value == ListMode.waterfallFlowSmall || listMode.value == ListMode.waterfallFlowMedium;
 
   Brightness currentBrightness() => themeMode.value == ThemeMode.system
       ? PlatformDispatcher.instance.platformBrightness
@@ -58,9 +59,6 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
   ConfigEnum get configEnum => ConfigEnum.styleSetting;
 
   @override
-  void doOnReady() {}
-
-  @override
   void applyConfig(String configString) {
     Map map = jsonDecode(configString);
 
@@ -86,6 +84,12 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
     }
     actualLayout = layout.value;
   }
+
+  @override
+  Future<void> doOnInit() async {}
+
+  @override
+  void doOnReady() {}
 
   @override
   String toConfigString() {

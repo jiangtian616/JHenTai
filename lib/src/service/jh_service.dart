@@ -50,12 +50,11 @@ mixin JHLifeCircleBeanWithConfigStorage {
   Future<void> onInit() async {
     try {
       String? configString = await localConfigService.read(configKey: configEnum);
-      if (configString == null) {
-        Log.debug('Init $runtimeType success with default');
-      } else {
+      if (configString != null) {
         applyConfig(configString);
-        Log.debug('Init $runtimeType success');
       }
+      await doOnInit();
+      Log.debug(configString == null ? 'Init $runtimeType success with default' : 'Init $runtimeType success');
     } catch (e, stack) {
       Log.error('Init $runtimeType failed', e, stack);
     }
@@ -90,7 +89,9 @@ mixin JHLifeCircleBeanWithConfigStorage {
 
   void applyConfig(String configString);
 
-  String toConfigString();
+  Future<void> doOnInit();
 
   void doOnReady();
+
+  String toConfigString();
 }

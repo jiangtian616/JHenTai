@@ -122,7 +122,7 @@ class MyApp extends StatelessWidget {
       translations: LocaleText(),
 
       getPages: Routes.pages,
-      initialRoute: SecuritySetting.enablePasswordAuth.isTrue || SecuritySetting.enableBiometricAuth.isTrue ? Routes.lock : Routes.home,
+      initialRoute: securitySetting.enablePasswordAuth.isTrue || securitySetting.enableBiometricAuth.isTrue ? Routes.lock : Routes.home,
       navigatorObservers: [GetXRouterObserver()],
       builder: (context, child) => AppManager(child: child!),
 
@@ -168,12 +168,10 @@ Future<void> init() async {
   lifeCircleBeans = topologicalSort(lifeCircleBeans);
   for (JHLifeCircleBean bean in lifeCircleBeans) {
     await bean.onInit();
-    Log.debug('Init ${bean.runtimeType} success');
   }
 
   AppUpdateService.init();
 
-  await SecuritySetting.init();
   await Log.init();
   UserSetting.init();
 

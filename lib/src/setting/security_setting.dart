@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:extended_image/extended_image.dart';
@@ -10,39 +11,63 @@ import 'package:jhentai/src/utils/log.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:path/path.dart';
 
-import '../service/storage_service.dart';
+import '../service/jh_service.dart';
 
-class SecuritySetting {
-  static RxBool enableBlur = false.obs;
-  static RxnString encryptedPassword = RxnString(null);
-  static RxBool enablePasswordAuth = false.obs;
-  static RxBool enableBiometricAuth = false.obs;
-  static RxBool enableAuthOnResume = false.obs;
-  static RxBool hideImagesInAlbum = false.obs;
+SecuritySetting securitySetting = SecuritySetting();
 
-  static bool supportBiometricAuth = false;
+class SecuritySetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
+  RxBool enableBlur = false.obs;
+  RxnString encryptedPassword = RxnString(null);
+  RxBool enablePasswordAuth = false.obs;
+  RxBool enableBiometricAuth = false.obs;
+  RxBool enableAuthOnResume = false.obs;
+  RxBool hideImagesInAlbum = false.obs;
 
-  static Future<void> init() async {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.securitySetting.key);
-    if (map != null) {
-      _initFromMap(map);
-      Log.debug('init SecuritySetting success', false);
-    } else {
-      Log.debug('init SecuritySetting success: default', false);
-    }
+  bool supportBiometricAuth = false;
 
+  @override
+  ConfigEnum get configEnum => ConfigEnum.securitySetting;
+
+  @override
+  void applyConfig(String configString) {
+    Map map = jsonDecode(configString);
+
+    enableBlur.value = map['enableBlur'] ?? enableBlur.value;
+    encryptedPassword.value = map['encryptedPassword'] ?? encryptedPassword.value;
+    enablePasswordAuth.value = map['enablePasswordAuth'] ?? enablePasswordAuth.value;
+    enableBiometricAuth.value = map['enableBiometricAuth'] ?? enableBiometricAuth.value;
+    enableAuthOnResume.value = map['enableAuthOnResume'] ?? enableAuthOnResume.value;
+    hideImagesInAlbum.value = map['hideImagesInAlbum'] ?? hideImagesInAlbum.value;
+  }
+
+  @override
+  String toConfigString() {
+    return jsonEncode({
+      'enableBlur': enableBlur.value,
+      'encryptedPassword': encryptedPassword.value,
+      'enablePasswordAuth': enablePasswordAuth.value,
+      'enableBiometricAuth': enableBiometricAuth.value,
+      'enableAuthOnResume': enableAuthOnResume.value,
+      'hideImagesInAlbum': hideImagesInAlbum.value,
+    });
+  }
+
+  @override
+  Future<void> doOnInit() async {
     if (GetPlatform.isMobile) {
       List<BiometricType> types = await LocalAuthentication().getAvailableBiometrics();
       supportBiometricAuth = types.isNotEmpty;
-      Log.debug('supportBiometricAuth:$supportBiometricAuth');
+      Log.debug('Init SecuritySetting.supportBiometricAuth: $supportBiometricAuth');
     }
   }
 
-  static saveEnableBlur(bool enableBlur) {
-    Log.debug('saveEnableBlur:$enableBlur');
+  @override
+  void doOnReady() {}
 
-    SecuritySetting.enableBlur.value = enableBlur;
-    _save();
+  Future<void> saveEnableBlur(bool enableBlur) async {
+    Log.debug('saveEnableBlur:$enableBlur');
+    this.enableBlur.value = enableBlur;
+    await save();
 
     if (!GetPlatform.isAndroid) {
       return;
@@ -59,39 +84,39 @@ class SecuritySetting {
     );
   }
 
-  static savePassword(String rawPassword) {
+  Future<void> savePassword(String rawPassword) async {
     String md5 = keyToMd5(rawPassword);
     Log.debug('saveEncryptedPassword:$md5');
-    SecuritySetting.encryptedPassword.value = md5;
-    _save();
+    this.encryptedPassword.value = md5;
+    await save();
   }
 
-  static saveEnablePasswordAuth(bool enablePasswordAuth) {
+  Future<void> saveEnablePasswordAuth(bool enablePasswordAuth) async {
     Log.debug('saveEnablePasswordAuth:$enablePasswordAuth');
-    SecuritySetting.enablePasswordAuth.value = enablePasswordAuth;
-    _save();
+    this.enablePasswordAuth.value = enablePasswordAuth;
+    await save();
   }
 
-  static saveEnableBiometricAuth(bool enableBiometricAuth) {
+  Future<void> saveEnableBiometricAuth(bool enableBiometricAuth) async {
     Log.debug('saveEnableBiometricAuth:$enableBiometricAuth');
-    SecuritySetting.enableBiometricAuth.value = enableBiometricAuth;
-    _save();
+    this.enableBiometricAuth.value = enableBiometricAuth;
+    await save();
   }
 
-  static saveEnableAuthOnResume(bool enableAuthOnResume) {
+  Future<void> saveEnableAuthOnResume(bool enableAuthOnResume) async {
     Log.debug('saveEnableAuthOnResume:$enableAuthOnResume');
-    SecuritySetting.enableAuthOnResume.value = enableAuthOnResume;
-    _save();
+    this.enableAuthOnResume.value = enableAuthOnResume;
+    await save();
 
     if (enableAuthOnResume) {
       saveEnableBlur(true);
     }
   }
 
-  static saveHideImagesInAlbum(bool hideImagesInAlbum) {
+  Future<void> saveHideImagesInAlbum(bool hideImagesInAlbum) async {
     Log.debug('saveHideImagesInAlbum:$hideImagesInAlbum');
-    SecuritySetting.hideImagesInAlbum.value = hideImagesInAlbum;
-    _save();
+    this.hideImagesInAlbum.value = hideImagesInAlbum;
+    await save();
 
     Directory directory = Directory(DownloadSetting.downloadPath.value);
     File file = File(join(directory.path, '.nomedia'));
@@ -100,29 +125,5 @@ class SecuritySetting {
     } else {
       file.delete().ignore();
     }
-  }
-
-  static Future<void> _save() async {
-    await Get.find<StorageService>().write(ConfigEnum.securitySetting.key, _toMap());
-  }
-
-  static Map<String, dynamic> _toMap() {
-    return {
-      'enableBlur': enableBlur.value,
-      'encryptedPassword': encryptedPassword.value,
-      'enablePasswordAuth': enablePasswordAuth.value,
-      'enableBiometricAuth': enableBiometricAuth.value,
-      'enableAuthOnResume': enableAuthOnResume.value,
-      'hideImagesInAlbum': hideImagesInAlbum.value,
-    };
-  }
-
-  static _initFromMap(Map<String, dynamic> map) {
-    enableBlur.value = map['enableBlur'] ?? enableBlur.value;
-    encryptedPassword.value = map['encryptedPassword'] ?? encryptedPassword.value;
-    enablePasswordAuth.value = map['enablePasswordAuth'] ?? enablePasswordAuth.value;
-    enableBiometricAuth.value = map['enableBiometricAuth'] ?? enableBiometricAuth.value;
-    enableAuthOnResume.value = map['enableAuthOnResume'] ?? enableAuthOnResume.value;
-    hideImagesInAlbum.value = map['hideImagesInAlbum'] ?? hideImagesInAlbum.value;
   }
 }

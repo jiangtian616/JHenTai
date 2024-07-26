@@ -37,9 +37,6 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
   ConfigEnum get configEnum => ConfigEnum.networkSetting;
 
   @override
-  void doOnReady() {}
-
-  @override
   void applyConfig(String configString) {
     Map map = jsonDecode(configString);
 
@@ -68,6 +65,12 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
       'receiveTimeout': receiveTimeout.value,
     });
   }
+
+  @override
+  Future<void> doOnInit() async {}
+
+  @override
+  void doOnReady() {}
 
   Future<void> savePageCacheMaxAge(Duration pageCacheMaxAge) async {
     Log.debug('savePageCacheMaxAge:$pageCacheMaxAge');
@@ -100,7 +103,7 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
     Log.debug('saveConnectTimeout:$connectTimeout');
     this.connectTimeout.value = connectTimeout;
     await save();
-    
+
     EHRequest.setConnectTimeout(connectTimeout);
   }
 
@@ -108,7 +111,7 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
     Log.debug('saveReceiveTimeout:$receiveTimeout');
     this.receiveTimeout.value = receiveTimeout;
     await save();
-    
+
     EHRequest.setReceiveTimeout(receiveTimeout);
   }
 }

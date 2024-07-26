@@ -30,7 +30,7 @@ class _LockPageState extends State<LockPage> with WindowListener, WindowWidgetMi
 
   @override
   void initState() {
-    if (SecuritySetting.enableBiometricAuth.isTrue) {
+    if (securitySetting.enableBiometricAuth.isTrue) {
       SchedulerBinding.instance.addPostFrameCallback((_) => biometricAuth());
     }
     super.initState();
@@ -47,7 +47,7 @@ class _LockPageState extends State<LockPage> with WindowListener, WindowWidgetMi
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (SecuritySetting.enablePasswordAuth.isTrue)
+                if (securitySetting.enablePasswordAuth.isTrue)
                   Pinput(
                     length: 4,
                     controller: controller,
@@ -79,7 +79,7 @@ class _LockPageState extends State<LockPage> with WindowListener, WindowWidgetMi
                       textStyle: TextStyle(fontSize: 24),
                     ),
                     onCompleted: (String value) {
-                      if (keyToMd5(value) != SecuritySetting.encryptedPassword.value) {
+                      if (keyToMd5(value) != securitySetting.encryptedPassword.value) {
                         setState(() {
                           controller.clear();
                           hintText = 'passwordErrorHint'.tr;
@@ -96,7 +96,7 @@ class _LockPageState extends State<LockPage> with WindowListener, WindowWidgetMi
                   alignment: Alignment.center,
                   child: Text(hintText),
                 ),
-                if (SecuritySetting.enableBiometricAuth.isTrue)
+                if (securitySetting.enableBiometricAuth.isTrue)
                   IconButton(onPressed: biometricAuth, icon: const Icon(Icons.fingerprint, size: 40)).marginOnly(top: 24),
               ],
             ),

@@ -18,7 +18,7 @@ class SettingSecurityPage extends StatelessWidget {
           children: [
             if (GetPlatform.isMobile) _buildEnableBlurBackgroundApp(),
             _buildEnablePasswordAuth(),
-            if (SecuritySetting.supportBiometricAuth) _buildEnableBiometricAuth(),
+            if (securitySetting.supportBiometricAuth) _buildEnableBiometricAuth(),
             if (GetPlatform.isMobile) _buildEnableAuthOnResume(),
             if (GetPlatform.isAndroid) _buildHideImagesInAlbum(),
           ],
@@ -30,28 +30,28 @@ class SettingSecurityPage extends StatelessWidget {
   Widget _buildEnableBlurBackgroundApp() {
     return SwitchListTile(
       title: Text('enableBlurBackgroundApp'.tr),
-      value: SecuritySetting.enableBlur.value,
-      onChanged: SecuritySetting.saveEnableBlur,
+      value: securitySetting.enableBlur.value,
+      onChanged: securitySetting.saveEnableBlur,
     );
   }
 
   Widget _buildEnablePasswordAuth() {
     return SwitchListTile(
       title: Text('enablePasswordAuth'.tr),
-      value: SecuritySetting.enablePasswordAuth.value,
+      value: securitySetting.enablePasswordAuth.value,
       onChanged: (value) async {
         if (value) {
           String? password = await Get.dialog(const EHAppPasswordSettingDialog());
 
           if (password != null) {
-            SecuritySetting.savePassword(password);
+            securitySetting.savePassword(password);
             toast('success'.tr);
           } else {
             return;
           }
         }
 
-        SecuritySetting.saveEnablePasswordAuth(value);
+        securitySetting.saveEnablePasswordAuth(value);
       },
     );
   }
@@ -59,8 +59,8 @@ class SettingSecurityPage extends StatelessWidget {
   Widget _buildEnableBiometricAuth() {
     return SwitchListTile(
       title: Text('enableBiometricAuth'.tr),
-      value: SecuritySetting.enableBiometricAuth.value,
-      onChanged: SecuritySetting.saveEnableBiometricAuth,
+      value: securitySetting.enableBiometricAuth.value,
+      onChanged: securitySetting.saveEnableBiometricAuth,
     );
   }
 
@@ -68,16 +68,16 @@ class SettingSecurityPage extends StatelessWidget {
     return SwitchListTile(
       title: Text('enableAuthOnResume'.tr),
       subtitle: Text('enableAuthOnResumeHints'.tr),
-      value: SecuritySetting.enableAuthOnResume.value,
-      onChanged: SecuritySetting.saveEnableAuthOnResume,
+      value: securitySetting.enableAuthOnResume.value,
+      onChanged: securitySetting.saveEnableAuthOnResume,
     );
   }
 
   Widget _buildHideImagesInAlbum() {
     return SwitchListTile(
       title: Text('hideImagesInAlbum'.tr),
-      value: SecuritySetting.hideImagesInAlbum.value,
-      onChanged: SecuritySetting.saveHideImagesInAlbum,
+      value: securitySetting.hideImagesInAlbum.value,
+      onChanged: securitySetting.saveHideImagesInAlbum,
     );
   }
 }
