@@ -99,10 +99,10 @@ class DesktopLayoutPage extends StatelessWidget {
     );
   }
 
-  ColoredBox _buildDoubleColumn(BuildContext context) {
-    return ColoredBox(
-      color: UIConfig.backGroundColor(context),
-      child: ResizableWidget(
+  Widget _buildDoubleColumn(BuildContext context) {
+    return Scaffold(
+      backgroundColor: UIConfig.backGroundColor(context),
+      body: ResizableWidget(
         key: Key(UIConfig.backGroundColor(context).hashCode.toString()),
         separatorSize: 7.5,
         separatorColor: UIConfig.layoutDividerColor(context),

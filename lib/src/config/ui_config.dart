@@ -121,7 +121,7 @@ class UIConfig {
     Color(0xff9755f5),
     Color(0xfffe93ff),
   ];
-  
+
   static Widget loadingAnimation(BuildContext context) =>
       LoadingAnimationWidget.horizontalRotatingDots(color: Theme.of(context).colorScheme.onSurfaceVariant, size: 32);
 
@@ -138,6 +138,7 @@ class UIConfig {
   /// snack
   static Color get snackBackGroundColor => Colors.black.withOpacity(0.7);
   static const Color snackTextColor = Colors.white70;
+  static const double snackWidth = 400;
 
   /// toast
   static Color toastBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.onSurface;
@@ -469,7 +470,7 @@ class UIConfig {
   static const double commentScoreSizeInCommentPage = 10;
 
   static Color commentFooterTextColor(BuildContext context) => Theme.of(context).colorScheme.outline;
-  
+
   static const double commentLinkFontSize = 12;
   static const Color commentLinkColor = Colors.blue;
 

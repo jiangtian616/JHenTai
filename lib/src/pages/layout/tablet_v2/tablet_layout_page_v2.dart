@@ -18,9 +18,9 @@ class TabletLayoutPageV2 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ColoredBox(
-      color: UIConfig.backGroundColor(context),
-      child: ResizableWidget(
+    return Scaffold(
+      backgroundColor: UIConfig.backGroundColor(context),
+      body: ResizableWidget(
         key: Key(UIConfig.backGroundColor(context).hashCode.toString()),
         separatorSize: 7.5,
         separatorColor: UIConfig.layoutDividerColor(context),
