@@ -108,7 +108,7 @@ class _ConfigSyncPageState extends State<ConfigSyncPage> {
     setStateSafely(() => _loadingState = LoadingState.loading);
 
     try {
-      List<CloudConfig> configs = await JHRequest.requestListConfig<List<CloudConfig>>(parser: JHResponseParser.listConfigApi2Configs);
+      List<CloudConfig> configs = await jhRequest.requestListConfig<List<CloudConfig>>(parser: JHResponseParser.listConfigApi2Configs);
       setStateSafely(() {
         this.configs = configs;
         _loadingState = LoadingState.success;
@@ -214,7 +214,7 @@ class _ConfigSyncPageState extends State<ConfigSyncPage> {
     });
 
     try {
-      await JHRequest.requestDeleteConfig(
+      await jhRequest.requestDeleteConfig(
         id: config.id,
         parser: JHResponseParser.api2Success,
       );
@@ -255,7 +255,7 @@ class _ConfigSyncPageState extends State<ConfigSyncPage> {
     }).toList();
 
     try {
-      await JHRequest.requestBatchUploadConfig(
+      await jhRequest.requestBatchUploadConfig(
         configs: uploadConfigs,
         parser: JHResponseParser.api2Success,
       );

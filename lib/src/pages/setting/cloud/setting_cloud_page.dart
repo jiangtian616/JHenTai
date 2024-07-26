@@ -23,7 +23,7 @@ class _SettingCloudPageState extends State<SettingCloudPage> {
   void initState() {
     _loadingState = LoadingState.loading;
 
-    JHRequest.requestAlive(parser: JHResponseParser.api2Success).then((bool alive) {
+    jhRequest.requestAlive(parser: JHResponseParser.api2Success).then((bool alive) {
       setState(() => _loadingState = alive ? LoadingState.success : LoadingState.error);
     }).catchError((e) {
       log.error('requestAlive error: $e');

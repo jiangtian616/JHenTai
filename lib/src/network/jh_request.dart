@@ -6,18 +6,21 @@ import 'package:jhentai/src/consts/jh_consts.dart';
 import 'package:jhentai/src/network/jh_cookie_manager.dart';
 
 import '../service/isolate_service.dart';
+import '../service/jh_service.dart';
 import '../service/storage_service.dart';
 import '../setting/network_setting.dart';
 import '../utils/eh_spider_parser.dart';
-import '../service/log.dart';
 import '../utils/proxy_util.dart';
 
-class JHRequest {
-  static late final Dio _dio;
-  static late final JHCookieManager _cookieManager;
-  static late final String systemProxyAddress;
+JHRequest jhRequest = JHRequest();
 
-  static Future<void> init() async {
+class JHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
+  late final Dio _dio;
+  late final JHCookieManager _cookieManager;
+  late final String systemProxyAddress;
+
+  @override
+  Future<void> doOnInit() async {
     _dio = Dio(BaseOptions(
       connectTimeout: Duration(milliseconds: networkSetting.connectTimeout.value),
       receiveTimeout: Duration(milliseconds: networkSetting.receiveTimeout.value),
@@ -28,11 +31,12 @@ class JHRequest {
     await _initProxy();
 
     _initCookieManager();
-
-    log.debug('init JHRequest success');
   }
 
-  static Future<void> _initProxy() async {
+  @override
+  void doOnReady() {}
+
+  Future<void> _initProxy() async {
     SocksProxy.initProxy(
       onCreate: (client) => client.badCertificateCallback = (_, String host, __) {
         return networkSetting.allIPs.contains(host);
@@ -41,18 +45,18 @@ class JHRequest {
     );
   }
 
-  static void _initCookieManager() {
+  void _initCookieManager() {
     _cookieManager = JHCookieManager(Get.find<StorageService>());
     _dio.interceptors.add(_cookieManager);
   }
 
-  static Future<T> requestAlive<T>({HtmlParser<T>? parser}) async {
+  Future<T> requestAlive<T>({HtmlParser<T>? parser}) async {
     Response response = await _dio.get('${JHConsts.serverAddress}/alive');
 
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestListConfig<T>({int? type, HtmlParser<T>? parser}) async {
+  Future<T> requestListConfig<T>({int? type, HtmlParser<T>? parser}) async {
     Response response = await _dio.get(
       '${JHConsts.serverAddress}/api/config/list',
       queryParameters: {
@@ -63,7 +67,7 @@ class JHRequest {
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestConfigByShareCode<T>({required String shareCode, HtmlParser<T>? parser}) async {
+  Future<T> requestConfigByShareCode<T>({required String shareCode, HtmlParser<T>? parser}) async {
     Response response = await _dio.get(
       '${JHConsts.serverAddress}/api/config/getByShareCode',
       queryParameters: {
@@ -74,7 +78,7 @@ class JHRequest {
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestBatchUploadConfig<T>({
+  Future<T> requestBatchUploadConfig<T>({
     required List<({int type, String version, String config})> configs,
     HtmlParser<T>? parser,
   }) async {
@@ -95,7 +99,7 @@ class JHRequest {
     return _parseResponse(response, parser);
   }
 
-  static Future<T> requestDeleteConfig<T>({required int id, HtmlParser<T>? parser}) async {
+  Future<T> requestDeleteConfig<T>({required int id, HtmlParser<T>? parser}) async {
     Response response = await _dio.post(
       '${JHConsts.serverAddress}/api/config/delete',
       queryParameters: {
@@ -106,7 +110,7 @@ class JHRequest {
     return _parseResponse(response, parser);
   }
 
-  static Future<T> _parseResponse<T>(Response response, HtmlParser<T>? parser) async {
+  Future<T> _parseResponse<T>(Response response, HtmlParser<T>? parser) async {
     if (parser == null) {
       return response as T;
     }
