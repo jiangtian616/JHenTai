@@ -30,7 +30,7 @@ class WindowService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean 
   final Debouncing columnResizedDebouncing = Debouncing(duration: const Duration(milliseconds: 300));
 
   @override
-  List<JHLifeCircleBean> get initDependencies => [pathService, log, localConfigService, preferenceSetting];
+  List<JHLifeCircleBean> get initDependencies => super.initDependencies..addAll([localConfigService, preferenceSetting]);
 
   @override
   Future<void> doOnInit() async {

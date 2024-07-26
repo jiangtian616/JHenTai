@@ -41,7 +41,7 @@ class TagSearchOrderOptimizationService with JHLifeCircleBeanErrorCatch implemen
   bool get isReady => preferenceSetting.enableTagZHSearchOrderOptimization.isTrue && (loadingState.value == LoadingState.success || version.value != null);
 
   @override
-  List<JHLifeCircleBean> get initDependencies => [pathService, log, localConfigService];
+  List<JHLifeCircleBean> get initDependencies => super.initDependencies..add(localConfigService);
 
   @override
   Future<void> doOnInit() async {

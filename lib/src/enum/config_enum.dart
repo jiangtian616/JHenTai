@@ -37,6 +37,9 @@ enum ConfigEnum {
   galleryHistory('history'),
   readIndexRecord('readIndexRecord'),
   quickSearch('quickSearch'),
+  firstOpenInited('firstOpenInited'),
+  renameDownloadMetadata('renameDownloadMetadata'),
+  migrateSearchHistoryV2('migrateSearchHistoryV2'),
   ;
 
   final String key;

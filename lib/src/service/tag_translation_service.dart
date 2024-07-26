@@ -52,14 +52,14 @@ class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCir
   bool get isReady => preferenceSetting.enableTagZHTranslation.isTrue && (loadingState.value == LoadingState.success || timeStamp.value != null);
 
   @override
-  List<JHLifeCircleBean> get initDependencies => [pathService, log, localConfigService];
+  List<JHLifeCircleBean> get initDependencies => super.initDependencies..add(localConfigService);
 
   @override
   Future<void> doOnInit() async {
     localConfigService
         .read(configKey: ConfigEnum.tagTranslationServiceLoadingState)
         .then((value) => loadingState.value = LoadingState.values[value != null ? int.parse(value) : 0]);
-    
+
     localConfigService.read(configKey: ConfigEnum.tagTranslationServiceTimestamp).then((value) => timeStamp.value = value);
   }
 
@@ -77,7 +77,7 @@ class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCir
     if (loadingState.value == LoadingState.loading) {
       return;
     }
-    
+
     log.info('Fetch tag translation data from github');
 
     loadingState.value = LoadingState.loading;

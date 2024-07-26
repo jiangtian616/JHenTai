@@ -32,7 +32,7 @@ mixin JHLifeCircleBeanErrorCatch {
   void onReady() {
     try {
       doOnReady();
-      log.debug('OnReady $runtimeType success');
+      log.trace('OnReady $runtimeType success');
     } catch (e, stack) {
       log.error('OnReady $runtimeType failed', e, stack);
     }

@@ -158,8 +158,6 @@ Future<void> init() async {
   for (JHLifeCircleBean bean in lifeCircleBeans) {
     await bean.onInit();
   }
-
-  AppUpdateService.init();
 }
 
 Future<void> onReady() async {
