@@ -226,7 +226,7 @@ class TagTranslationService extends GetxService {
       }
       String sKeyMerged = searchTextMerged.substring(colonIndex + 1);
 
-      if (sKeyMerged.length <= 1) {
+      if (sKeyMerged.length <= 1 && GetUtils.hasMatch(sKeyMerged, r'^\w+$')) {
         continue;
       }
 
