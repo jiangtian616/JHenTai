@@ -155,7 +155,7 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
   }
 
   void _onInactive() {
-    Log.info('App is hidden');
+    Log.debug('App is hidden');
 
     if (SecuritySetting.enableAuthOnResume.isTrue) {
       lastInactiveTime ??= DateTime.now();
@@ -167,7 +167,7 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
   }
 
   void _onResume() {
-    Log.info('App is shown');
+    Log.debug('App is shown');
 
     if (!inBlur) {
       return;
