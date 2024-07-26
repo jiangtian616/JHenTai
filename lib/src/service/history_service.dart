@@ -1,36 +1,30 @@
 import 'dart:convert';
 
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/get_instance.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:jhentai/src/database/dao/gallery_history_dao.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/model/gallery_history_model.dart';
 import 'package:jhentai/src/service/isolate_service.dart';
+import 'jh_service.dart';
 import 'log.dart';
 
-class HistoryService extends GetxController {
+HistoryService historyService = HistoryService();
+
+class HistoryService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   static const String historyUpdateId = 'historyUpdateId';
 
   static const int pageSize = 100;
 
-  static void init() {
-    Get.put(HistoryService(), permanent: true);
-  }
+  @override
+  Future<void> doOnInit() async {}
 
   @override
-  Future<void> onInit() async {
-    log.debug('init HistoryService success');
-
-    super.onInit();
-  }
+  void doOnReady() {}
 
   Future<int> getPageCount() async {
     int totalCount = await GalleryHistoryDao.selectTotalCount();
     return totalCount == 0 ? 0 : (totalCount - 1) ~/ pageSize + 1;
   }
-
 
   Future<List<GalleryHistoryModel>> getByPageIndex(int pageIndex) async {
     List<GalleryHistoryV2Data> historys = await GalleryHistoryDao.selectByPageIndex(pageIndex, pageSize);
