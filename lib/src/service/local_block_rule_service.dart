@@ -1,25 +1,22 @@
 import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_disposable.dart';
 import 'package:get/get_utils/get_utils.dart';
-import 'package:get/instance_manager.dart';
 import 'package:jhentai/src/database/dao/block_rule_dao.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/model/gallery.dart';
 
 import '../model/gallery_comment.dart';
 import '../model/gallery_tag.dart';
+import 'jh_service.dart';
 import 'log.dart';
 
-class LocalBlockRuleService extends GetxService {
+LocalBlockRuleService localBlockRuleService = LocalBlockRuleService();
+
+class LocalBlockRuleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   final List<LocalBlockRuleHandler> handlers = [];
 
-  static void init() {
-    Get.put(LocalBlockRuleService(), permanent: true);
-  }
-
   @override
-  void onInit() {
+  Future<void> doOnInit() async {
     handlers.addAll([
       GalleryTagEqualLocalBlockRuleHandler(),
       GalleryUploaderEqualLocalBlockRuleHandler(),
@@ -43,10 +40,10 @@ class LocalBlockRuleService extends GetxService {
       GalleryUploaderRegexLocalBlockRuleHandler(),
       CommentUserNameRegexLocalBlockRuleHandler(),
     ]);
-
-    log.debug('init LocalBlockRuleService success');
-    super.onInit();
   }
+
+  @override
+  void doOnReady() {}
 
   LocalBlockRuleHandler getHandlerByRule(LocalBlockRule rule) => handlers.where((h) => h.matchRule(rule)).sorted((a, b) => a.order - b.order).first;
 

@@ -160,8 +160,6 @@ Future<void> init() async {
   }
 
   AppUpdateService.init();
-
-  LocalBlockRuleService.init();
 }
 
 Future<void> onReady() async {
