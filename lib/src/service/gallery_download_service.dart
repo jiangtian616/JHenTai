@@ -47,13 +47,16 @@ import '../model/gallery_detail.dart';
 import '../model/gallery_image.dart';
 import '../network/eh_request.dart';
 import '../pages/download/grid/mixin/grid_download_page_service_mixin.dart';
+import 'jh_service.dart';
 import 'path_service.dart';
 import '../utils/eh_executor.dart';
 import '../utils/eh_spider_parser.dart';
 import '../utils/snack_util.dart';
 
 /// Responsible for local images meta-data and download all images of a gallery
-class GalleryDownloadService extends GetxController with GridBasePageServiceMixin {
+GalleryDownloadService galleryDownloadService = GalleryDownloadService();
+
+class GalleryDownloadService extends GetxController with GridBasePageServiceMixin, JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   final String downloadImageId = 'downloadImageId';
   final String downloadImageUrlId = 'downloadImageUrlId';
   final String galleryDownloadProgressId = 'galleryDownloadProgressId';
@@ -79,15 +82,13 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   Future<bool> get completed => _completer.future;
 
-  static void init() {
-    Get.put(GalleryDownloadService(), permanent: true);
-  }
-
   @override
-  Future<void> onInit() async {
+  Future<void> doOnInit() async {
+    Get.put(this, permanent: true);
+
     await _instantiateFromDB();
 
-    log.debug('init DownloadService success, download task count: ${gallerys.length}');
+    log.debug('Gallery download task count: ${gallerys.length}');
 
     _startExecutor();
 
@@ -99,6 +100,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     super.onInit();
   }
+
+  @override
+  void doOnReady() {}
 
   bool containGallery(int gid) => galleryDownloadInfos.containsKey(gid);
 
