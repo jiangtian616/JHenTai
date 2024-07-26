@@ -147,7 +147,7 @@ class GalleryImagePageLogic extends GetxController {
     /// 1. if redirect is enabled, try EH site first for EX link
     /// 2. if a gallery can't be found in EH site, it may be moved into EX site
     if (!galleryUrl.isEH) {
-      if (EHSetting.redirect2Eh.isTrue) {
+      if (ehSetting.redirect2Eh.isTrue) {
         firstLink = galleryUrl.copyWith(isEH: true);
         secondLink = galleryUrl;
       } else {

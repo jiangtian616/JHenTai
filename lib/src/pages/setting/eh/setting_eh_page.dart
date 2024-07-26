@@ -35,7 +35,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
 
   @override
   void initState() {
-    EHSetting.refresh();
+    ehSetting.fetchDataFromEH();
     getAssets();
     super.initState();
   }
@@ -67,28 +67,28 @@ class _SettingEHPageState extends State<SettingEHPage> {
   Widget _buildSiteSegmentControl() {
     return ListTile(
       title: Text('site'.tr),
-      onTap: () => EHSetting.saveSite(EHSetting.site.value == 'EH' ? 'EX' : 'EH'),
+      onTap: () => ehSetting.saveSite(ehSetting.site.value == 'EH' ? 'EX' : 'EH'),
       trailing: CupertinoSlidingSegmentedControl<String>(
-        groupValue: EHSetting.site.value,
+        groupValue: ehSetting.site.value,
         children: const {
           'EH': Text('E-Hentai'),
           'EX': Text('EXHentai'),
         },
-        onValueChanged: (value) => EHSetting.saveSite(value ?? 'EH'),
+        onValueChanged: (value) => ehSetting.saveSite(value ?? 'EH'),
       ),
     );
   }
 
   Widget _buildRedirect2EH() {
-    if (EHSetting.site.value == 'EH') {
+    if (ehSetting.site.value == 'EH') {
       return const SizedBox();
     }
 
     return SwitchListTile(
       title: Text('redirect2Eh'.tr),
       subtitle: Text('redirect2EhHint'.tr),
-      value: EHSetting.redirect2Eh.value,
-      onChanged: EHSetting.saveRedirect2Eh,
+      value: ehSetting.redirect2Eh.value,
+      onChanged: ehSetting.saveRedirect2Eh,
     ).fadeIn();
   }
 
@@ -131,19 +131,19 @@ class _SettingEHPageState extends State<SettingEHPage> {
       onLongPress: resetLimit,
       child: ListTile(
         title: Text('imageLimits'.tr),
-        subtitle: Text('${'resetCost'.tr} ${EHSetting.resetCost} GP'),
-        onTap: EHSetting.refresh,
+        subtitle: Text('${'resetCost'.tr} ${ehSetting.resetCost} GP'),
+        onTap: ehSetting.fetchDataFromEH,
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             LoadingStateIndicator(
               useCupertinoIndicator: true,
-              loadingState: EHSetting.refreshState.value,
+              loadingState: ehSetting.refreshState.value,
               indicatorRadius: 10,
               idleWidgetBuilder: () => const SizedBox(),
               errorWidgetSameWithIdle: true,
             ).marginOnly(right: 12),
-            Text('${EHSetting.currentConsumption} / ${EHSetting.totalLimit}').marginOnly(right: 4),
+            Text('${ehSetting.currentConsumption} / ${ehSetting.totalLimit}').marginOnly(right: 4),
             const Icon(Icons.keyboard_arrow_right),
           ],
         ),
@@ -247,7 +247,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
       resetLimitLoadingState = LoadingState.success;
     });
 
-    EHSetting.refresh();
+    ehSetting.fetchDataFromEH();
     getAssets();
   }
 }

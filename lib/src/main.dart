@@ -161,8 +161,6 @@ Future<void> init() async {
 
   AppUpdateService.init();
 
-  EHSetting.init();
-
   await EHRequest.init();
   await JHRequest.init();
 
@@ -191,8 +189,6 @@ Future<void> onReady() async {
   for (JHLifeCircleBean bean in lifeCircleBeans) {
     bean.onReady();
   }
-
-  EHSetting.refresh();
 
   VolumeService.init();
 

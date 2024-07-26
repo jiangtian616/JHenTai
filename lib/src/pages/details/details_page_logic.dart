@@ -1051,7 +1051,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     /// 1. if redirect is enabled, try EH site first for EX link
     /// 2. if a gallery can't be found in EH site, it may be moved into EX site
     if (!state.galleryUrl.isEH) {
-      if (EHSetting.redirect2Eh.isTrue && !_galleryOnlyInExSite()) {
+      if (ehSetting.redirect2Eh.isTrue && !_galleryOnlyInExSite()) {
         firstLink = state.galleryUrl.copyWith(isEH: true);
         secondLink = state.galleryUrl;
       } else {

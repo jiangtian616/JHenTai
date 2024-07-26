@@ -216,7 +216,7 @@ class LoginPageLogic extends GetxController {
     update([loadingStateId]);
 
     if (useEXSite) {
-      EHSetting.site.value = 'EX';
+      ehSetting.site.value = 'EX';
     }
     userSetting.saveUserInfo(
       userName: userInfo['userName']!,

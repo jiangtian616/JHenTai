@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -12,43 +13,70 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:retry/retry.dart';
 
 import '../exception/eh_site_exception.dart';
-import '../service/storage_service.dart';
+import '../service/jh_service.dart';
 import '../utils/eh_spider_parser.dart';
 
-class EHSetting {
-  static RxString site = 'EH'.obs;
-  static RxBool redirect2Eh = true.obs;
-  static Rx<LoadingState> refreshState = LoadingState.idle.obs;
-  static RxInt currentConsumption = (-1).obs;
-  static RxInt totalLimit = 5000.obs;
-  static RxInt resetCost = (-1).obs;
+EHSetting ehSetting = EHSetting();
 
-  static void init() {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.EHSetting.key);
-    if (map != null) {
-      _initFromMap(map);
-      log.debug('init EHSetting success, site: $site');
-    } else {
-      log.debug('init EHSetting success: default');
-    }
+class EHSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
+  RxString site = 'EH'.obs;
+  RxBool redirect2Eh = true.obs;
+  Rx<LoadingState> refreshState = LoadingState.idle.obs;
+  RxInt currentConsumption = (-1).obs;
+  RxInt totalLimit = 5000.obs;
+  RxInt resetCost = (-1).obs;
 
+  @override
+  List<JHLifeCircleBean> get initDependencies => super.initDependencies..add(userSetting);
+
+  @override
+  ConfigEnum get configEnum => ConfigEnum.EHSetting;
+
+  @override
+  void applyConfig(String configString) {
+    Map map = jsonDecode(configString);
+
+    site.value = map['site'];
+    redirect2Eh.value = map['redirect2Eh'] ?? redirect2Eh.value;
+    totalLimit.value = map['totalLimit'];
+  }
+
+  @override
+  String toConfigString() {
+    return jsonEncode({
+      'site': site.value,
+      'redirect2Eh': redirect2Eh.value,
+      'totalLimit': totalLimit.value,
+    });
+  }
+
+  @override
+  Future<void> doOnInit() async {
     /// listen to logout
     ever(userSetting.ipbMemberId, (v) {
       if (userSetting.hasLoggedIn()) {
-        refresh();
+        fetchDataFromEH();
       } else {
-        _clear();
+        site.value = 'EH';
+        currentConsumption.value = -1;
+        clear();
       }
     });
   }
 
-  static void refresh() async {
+  @override
+  void doOnReady() {
+    fetchDataFromEH();
+  }
+
+  void fetchDataFromEH() async {
     /// only refresh when logged in
     if (!userSetting.hasLoggedIn()) {
       return;
     }
 
-    log.info('refresh EHSetting');
+    log.info('Fetch eh setting from EH');
+
     refreshState.value = LoadingState.loading;
     Map<String, int> map = {};
     try {
@@ -60,61 +88,37 @@ class EHSetting {
         maxAttempts: 3,
       );
     } on DioException catch (e) {
-      log.error('refresh EHSetting fail', e.errorMsg);
+      log.error('Fetch eh setting from EH fail', e.errorMsg);
       refreshState.value = LoadingState.error;
       return;
     } on EHSiteException catch (e) {
-      log.error('refresh EHSetting fail', e.message);
+      log.error('Fetch eh setting from EH fail', e.message);
       refreshState.value = LoadingState.error;
       return;
     }
+
+    log.info('Fetch eh setting from EH success');
 
     currentConsumption.value = map['currentConsumption']!;
     totalLimit.value = map['totalLimit']!;
     resetCost.value = map['resetCost']!;
     refreshState.value = LoadingState.idle;
-    _save();
-    log.info('refresh EHSetting success');
+    await save();
   }
 
-  static saveRedirect2Eh(bool redirect2Eh) {
+  Future<void> saveRedirect2Eh(bool redirect2Eh) async {
     log.debug('saveRedirect2Eh:$redirect2Eh');
-    EHSetting.redirect2Eh.value = redirect2Eh;
-    _save();
+    this.redirect2Eh.value = redirect2Eh;
+    await save();
   }
 
-  static saveSite(String site) {
+  Future<void> saveSite(String site) async {
     log.debug('saveSite:$site');
-    EHSetting.site.value = site;
-    _save();
+    this.site.value = site;
+    await save();
 
     EHRequest.storeEHCookies([Cookie('sp', site)]);
 
     siteSetting.fetchDataFromEH();
-  }
-
-  static Future<void> _save() async {
-    await Get.find<StorageService>().write(ConfigEnum.EHSetting.key, _toMap());
-  }
-
-  static Future<void> _clear() async {
-    site.value = 'EH';
-    currentConsumption.value = -1;
-    Get.find<StorageService>().remove(ConfigEnum.EHSetting.key);
-    log.info('clear EHSetting success');
-  }
-
-  static Map<String, dynamic> _toMap() {
-    return {
-      'site': site.value,
-      'redirect2Eh': redirect2Eh.value,
-      'totalLimit': totalLimit.value,
-    };
-  }
-
-  static _initFromMap(Map<String, dynamic> map) {
-    site.value = map['site'];
-    redirect2Eh.value = map['redirect2Eh'] ?? redirect2Eh.value;
-    totalLimit.value = map['totalLimit'];
   }
 }
