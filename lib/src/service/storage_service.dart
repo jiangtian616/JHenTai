@@ -1,24 +1,27 @@
 import 'dart:io';
 
-import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:jhentai/src/service/path_service.dart';
 import 'package:path/path.dart';
 
 import '../utils/log.dart';
+import 'jh_service.dart';
 
-class StorageService extends GetxService {
-  static const storageFileName = 'jhentai';
+StorageService storageService = StorageService();
 
-  final GetStorage _storage = GetStorage(storageFileName, pathService.getVisibleDir().path);
+class StorageService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
+  static const String storageFileName = 'jhentai';
 
-  static Future<void> init() async {
+  late final GetStorage _storage;
+
+  @override
+  List<JHLifeCircleBean> get initDependencies => [pathService];
+
+  @override
+  Future<void> doInit() async {
     _migrateOldConfigFile();
-
-    StorageService storageService = StorageService();
-    Get.put(storageService);
-    await storageService._storage.initStorage;
-    Log.debug('init StorageService success', false);
+    _storage = GetStorage(storageFileName, pathService.getVisibleDir().path);
+    await _storage.initStorage;
   }
 
   Future<void> write(String key, dynamic value) {
@@ -33,7 +36,7 @@ class StorageService extends GetxService {
     _storage.remove(key);
   }
 
-  static void _migrateOldConfigFile() {
+  void _migrateOldConfigFile() {
     try {
       File oldConfigFile = File(join(pathService.getVisibleDir().path, '.GetStorage.gs'));
       File oldBakFile = File(join(pathService.getVisibleDir().path, '.GetStorage.bak'));

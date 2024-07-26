@@ -171,7 +171,6 @@ Future<void> init() async {
     Log.debug('Init ${bean.runtimeType} success');
   }
 
-  await StorageService.init();
   AppUpdateService.init();
 
   StyleSetting.init();
