@@ -81,7 +81,6 @@ class AppUpdateService extends GetxService {
     Get.engine.addPostFrameCallback((_) {
       if (PreferenceSetting.locale.value.languageCode == 'zh') {
         PreferenceSetting.saveEnableTagZHTranslation(true);
-        PreferenceSetting.saveEnableTagZHSearchOrderOptimization(true);
         Get.find<TagTranslationService>().refresh();
       }
     });
