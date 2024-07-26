@@ -34,7 +34,7 @@ class FavoriteSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   bool get inited => favoriteTagNames[0] != 'Favorite 0' || favoriteCounts[0] != -1;
 
   @override
-  List<JHLifeCircleBean> get initDependencies => [userSetting];
+  List<JHLifeCircleBean> get initDependencies => super.initDependencies..add(userSetting);
 
   @override
   ConfigEnum get configEnum => ConfigEnum.favoriteSetting;
