@@ -140,7 +140,7 @@ class SettingPreferencePage extends StatelessWidget {
             loadingState: tagSearchOrderOptimizationService.loadingState.value,
             indicatorRadius: 10,
             width: 40,
-            idleWidgetBuilder: () => IconButton(onPressed: tagSearchOrderOptimizationService.refresh, icon: const Icon(Icons.refresh)),
+            idleWidgetBuilder: () => IconButton(onPressed: tagSearchOrderOptimizationService.fetchDataFromGithub, icon: const Icon(Icons.refresh)),
             errorWidgetSameWithIdle: true,
             successWidgetSameWithIdle: true,
           ),
@@ -149,7 +149,7 @@ class SettingPreferencePage extends StatelessWidget {
             onChanged: (value) {
               preferenceSetting.saveEnableTagZHSearchOrderOptimization(value);
               if (value == true && tagSearchOrderOptimizationService.loadingState.value != LoadingState.success) {
-                tagSearchOrderOptimizationService.refresh();
+                tagSearchOrderOptimizationService.fetchDataFromGithub();
               }
             },
           )

@@ -161,8 +161,6 @@ Future<void> init() async {
 
   AppUpdateService.init();
 
-  TagSearchOrderOptimizationService.init();
-
   MouseSetting.init();
 
   QuickSearchService.init();

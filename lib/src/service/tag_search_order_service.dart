@@ -20,10 +20,14 @@ import 'package:path/path.dart';
 import 'package:retry/retry.dart';
 
 import '../utils/byte_util.dart';
+import 'jh_service.dart';
+import 'local_config_service.dart';
 import 'log.dart';
 import '../utils/toast_util.dart';
 
-class TagSearchOrderOptimizationService extends GetxService {
+TagSearchOrderOptimizationService tagSearchOrderOptimizationService = TagSearchOrderOptimizationService();
+
+class TagSearchOrderOptimizationService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   final StorageService storageService = Get.find();
 
   final String savePath = join(pathService.getVisibleDir().path, 'tid_count_tag.csv.gz');
@@ -36,23 +40,26 @@ class TagSearchOrderOptimizationService extends GetxService {
 
   bool get isReady => preferenceSetting.enableTagZHSearchOrderOptimization.isTrue && (loadingState.value == LoadingState.success || version.value != null);
 
-  static void init() {
-    Get.put(TagSearchOrderOptimizationService());
-    log.debug('init TagSearchOrderOptimizationService success');
+  @override
+  List<JHLifeCircleBean> get initDependencies => [pathService, log, localConfigService];
+
+  @override
+  Future<void> doOnInit() async {
+    localConfigService
+        .read(configKey: ConfigEnum.tagSearchOrderOptimizationServiceLoadingState)
+        .then((value) => loadingState.value = LoadingState.values[value != null ? int.parse(value) : 0]);
+
+    localConfigService.read(configKey: ConfigEnum.tagTranslationServiceVersion).then((value) => version.value = value);
   }
 
   @override
-  void onInit() {
-    super.onInit();
-
-    loadingState.value = LoadingState.values[storageService.read(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key) ?? 0];
-    version.value = storageService.read(ConfigEnum.tagTranslationServiceVersion.key);
+  void doOnReady() {
     if (isReady) {
-      refresh();
+      fetchDataFromGithub();
     }
   }
 
-  Future<void> refresh() async {
+  Future<void> fetchDataFromGithub() async {
     if (preferenceSetting.enableTagZHSearchOrderOptimization.isFalse) {
       return;
     }
@@ -60,7 +67,7 @@ class TagSearchOrderOptimizationService extends GetxService {
       return;
     }
 
-    log.info('Refresh tag order optimization data');
+    log.info('Fetch tag order optimization data from github');
 
     loadingState.value = LoadingState.loading;
     downloadProgress.value = '0 KB';
@@ -75,10 +82,10 @@ class TagSearchOrderOptimizationService extends GetxService {
           parser: EHSpiderParser.latestReleaseResponse2Tag,
         ),
         maxAttempts: 5,
-        onRetry: (error) => log.warning('Get tag order optimization data failed, retry.'),
+        onRetry: (error) => log.warning('Fetch tag order optimization data from github failed, retry.'),
       );
     } on DioException catch (e) {
-      log.error('Get tag order optimization data failed after 5 times', e.errorMsg);
+      log.error('Fetch tag order optimization data from github failed after 5 times', e.errorMsg);
       loadingState.value = LoadingState.error;
       storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
       return;
@@ -110,7 +117,7 @@ class TagSearchOrderOptimizationService extends GetxService {
       return;
     }
 
-    log.info('Download tag order optimization data success');
+    log.info('Fetch tag order optimization data from github success');
 
     List<int> bytes = await extractGZipArchive(savePath);
     if (bytes.isEmpty) {
