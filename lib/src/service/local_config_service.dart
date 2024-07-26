@@ -12,10 +12,10 @@ class LocalConfigService implements JHLifeCircleBean {
   Future<void> onInit() async {}
 
   @override
-  Future<void> onReady() async {}
+  void onReady() async {}
 
   @override
-  Future<void> onClose() async {}
+  Future<void> onRefresh() async {}
 
   Future<bool> write({required ConfigEnum configKey, String subConfigKey = defaultSubConfigKey, required String value}) {
     return appDb.managers.localConfig.replace(

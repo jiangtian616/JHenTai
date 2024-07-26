@@ -12,6 +12,7 @@ import 'package:jhentai/src/service/cloud_service.dart';
 import 'package:jhentai/src/service/history_service.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/service/isolate_service.dart';
+import 'package:jhentai/src/service/jh_service.dart';
 import 'package:jhentai/src/service/local_block_rule_service.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
 import 'package:jhentai/src/service/quick_search_service.dart';
@@ -52,12 +53,15 @@ import 'package:jhentai/src/utils/log.dart';
 
 import 'config/theme_config.dart';
 
+List<JHLifeCircleBean> lifeCircleBeans = [];
+
 void main(List<String> args) async {
   if (GetPlatform.isDesktop && runWebViewTitleBarWidget(args)) {
     return;
   }
 
   await init();
+
   runApp(const MyApp());
 }
 
@@ -131,6 +135,11 @@ Future<void> init() async {
     Log.error('Global Error', details.exception, details.stack);
     Log.uploadError(details.exception, stackTrace: details.stack);
   };
+
+  for (JHLifeCircleBean bean in lifeCircleBeans) {
+    await bean.onInit();
+    Log.debug('Init ${bean.runtimeType} success');
+  }
 
   await FrameRateSetting.init();
   IsolateService.init();
@@ -207,6 +216,10 @@ Future<void> init() async {
 }
 
 Future<void> onReady() async {
+  for (JHLifeCircleBean bean in lifeCircleBeans) {
+    bean.onReady();
+  }
+
   FavoriteSetting.refresh();
   SiteSetting.refresh();
   EHSetting.refresh();

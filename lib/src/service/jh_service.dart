@@ -1,7 +1,13 @@
-abstract interface class JHLifeCircleBean {
-  Future<void> onInit();
+import '../main.dart';
 
-  Future<void> onReady();
+class JHLifeCircleBean {
+  JHLifeCircleBean() {
+    lifeCircleBeans.add(this);
+  }
 
-  Future<void> onClose();
+  Future<void> onInit() async {}
+
+  void onReady() async {}
+
+  Future<void> onRefresh() async {}
 }
