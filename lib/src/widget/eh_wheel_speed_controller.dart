@@ -20,7 +20,7 @@ class EHWheelSpeedController extends StatelessWidget {
             return;
           }
 
-          final double delta = event.scrollDelta.dy * MouseSetting.wheelScrollSpeed.value;
+          final double delta = event.scrollDelta.dy * mouseSetting.wheelScrollSpeed.value;
           if (delta == 0) {
             return;
           }

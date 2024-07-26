@@ -16,7 +16,7 @@ class SettingMouseWheelPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(centerTitle: true, title: Text('mouseWheelSetting'.tr)),
       body: Obx(() {
-        TextEditingController wheelScrollSpeedController = TextEditingController(text: MouseSetting.wheelScrollSpeed.value.toString());
+        TextEditingController wheelScrollSpeedController = TextEditingController(text: mouseSetting.wheelScrollSpeed.value.toString());
 
         return ListView(
           padding: const EdgeInsets.only(top: 16),
@@ -38,7 +38,7 @@ class SettingMouseWheelPage extends StatelessWidget {
                         if (value == null) {
                           return;
                         }
-                        MouseSetting.saveWheelScrollSpeed(value);
+                        mouseSetting.saveWheelScrollSpeed(value);
                         toast('saveSuccess'.tr);
                       },
                     ),
@@ -50,7 +50,7 @@ class SettingMouseWheelPage extends StatelessWidget {
                       if (value == null) {
                         return;
                       }
-                      MouseSetting.saveWheelScrollSpeed(value);
+                      mouseSetting.saveWheelScrollSpeed(value);
                       toast('saveSuccess'.tr);
                     },
                   ),

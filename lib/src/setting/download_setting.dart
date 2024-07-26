@@ -90,7 +90,7 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     downloadPath.value = defaultDownloadPath;
     defaultExtraGalleryScanPath = join(pathService.getVisibleDir().path, 'local_gallery');
     extraGalleryScanPath = <String>[defaultExtraGalleryScanPath].obs;
-    
+
     await _ensureDownloadDirExists();
     await _clearTempDownloadPath();
   }
@@ -101,49 +101,49 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   Future<void> saveDownloadPath(String downloadPath) async {
     log.debug('saveDownloadPath:$downloadPath');
     this.downloadPath.value = downloadPath;
-    save();
+    await save();
   }
 
   Future<void> addExtraGalleryScanPath(String newPath) async {
     log.debug('addExtraGalleryScanPath:$newPath');
     extraGalleryScanPath.add(newPath);
-    save();
+    await save();
   }
 
   Future<void> removeExtraGalleryScanPath(String path) async {
     log.debug('removeExtraGalleryScanPath:$path');
     extraGalleryScanPath.remove(path);
-    save();
+    await save();
   }
 
   Future<void> saveSingleImageSavePath(String singleImageSavePath) async {
     log.debug('saveSingleImageSavePath:$singleImageSavePath');
     this.singleImageSavePath.value = singleImageSavePath;
-    save();
+    await save();
   }
 
   Future<void> saveDownloadOriginalImageByDefault(bool value) async {
     log.debug('saveDownloadOriginalImageByDefault:$value');
     this.downloadOriginalImageByDefault.value = value;
-    save();
+    await save();
   }
 
   Future<void> saveDefaultGalleryGroup(String? group) async {
     log.debug('saveDefaultGalleryGroup:$group');
     this.defaultGalleryGroup.value = group;
-    save();
+    await save();
   }
 
   Future<void> saveDefaultArchiveGroup(String? group) async {
     log.debug('saveDefaultArchiveGroup:$group');
     this.defaultArchiveGroup.value = group;
-    save();
+    await save();
   }
 
   Future<void> saveDownloadTaskConcurrency(int downloadTaskConcurrency) async {
     log.debug('saveDownloadTaskConcurrency:$downloadTaskConcurrency');
     this.downloadTaskConcurrency.value = downloadTaskConcurrency;
-    save();
+    await save();
 
     Get.find<GalleryDownloadService>().updateExecutor();
   }
@@ -151,7 +151,7 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   Future<void> saveMaximum(int maximum) async {
     log.debug('saveMaximum:$maximum');
     this.maximum.value = maximum;
-    save();
+    await save();
 
     Get.find<GalleryDownloadService>().updateExecutor();
   }
@@ -159,7 +159,7 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   Future<void> savePeriod(Duration period) async {
     log.debug('savePeriod:$period');
     this.period.value = period;
-    save();
+    await save();
 
     Get.find<GalleryDownloadService>().updateExecutor();
   }
@@ -167,31 +167,31 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   Future<void> saveDownloadAllGallerysOfSamePriority(bool value) async {
     log.debug('saveDownloadAllGallerysOfSamePriority:$value');
     downloadAllGallerysOfSamePriority.value = value;
-    save();
+    await save();
   }
 
   Future<void> saveArchiveDownloadIsolateCount(int count) async {
     log.debug('saveArchiveDownloadIsolateCount:$count');
     archiveDownloadIsolateCount.value = count;
-    save();
+    await save();
   }
 
   Future<void> saveManageArchiveDownloadConcurrency(bool value) async {
     log.debug('saveManageArchiveDownloadConcurrency:$value');
     manageArchiveDownloadConcurrency.value = value;
-    save();
+    await save();
   }
 
   Future<void> saveDeleteArchiveFileAfterDownload(bool value) async {
     log.debug('saveDeleteArchiveFileAfterDownload:$value');
     deleteArchiveFileAfterDownload.value = value;
-    save();
+    await save();
   }
 
   Future<void> saveRestoreTasksAutomatically(bool value) async {
     log.debug('saveRestoreTasksAutomatically:$value');
     restoreTasksAutomatically.value = value;
-    save();
+    await save();
   }
 
   Future<void> _ensureDownloadDirExists() async {

@@ -98,7 +98,6 @@ class FavoriteSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
           Map<String, List> map = await ehRequest.requestFavoritePage(EHSpiderParser.favoritePage2FavoriteTagsAndCounts);
           favoriteTagNames.value = map['favoriteTagNames'] as List<String>;
           favoriteCounts = map['favoriteCounts'] as List<int>;
-          save();
         },
         retryIf: (e) => e is DioException,
         maxAttempts: 3,
@@ -112,6 +111,7 @@ class FavoriteSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     }
 
     log.info('Fetch favorite setting from EH success');
+    await save();
   }
 
   void incrementFavByIndex(int? index) async {

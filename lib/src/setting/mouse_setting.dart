@@ -1,39 +1,42 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 
-import '../service/storage_service.dart';
+import '../service/jh_service.dart';
 import '../service/log.dart';
 
-class MouseSetting {
-  static RxDouble wheelScrollSpeed = 5.0.obs;
+MouseSetting mouseSetting = MouseSetting();
 
-  static void init() {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.mouseSetting.key);
-    if (map != null) {
-      _initFromMap(map);
-      log.debug('init MouseSetting success', false);
-    } else {
-      log.debug('init MouseSetting success: default', false);
-    }
-  }
+class MouseSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
+  RxDouble wheelScrollSpeed = 5.0.obs;
 
-  static saveWheelScrollSpeed(double wheelScrollSpeed) {
-    log.debug('saveWheelScrollSpeed:$wheelScrollSpeed');
-    MouseSetting.wheelScrollSpeed.value = wheelScrollSpeed;
-    _save();
-  }
+  @override
+  ConfigEnum get configEnum => ConfigEnum.mouseSetting;
 
-  static Future<void> _save() async {
-    await Get.find<StorageService>().write(ConfigEnum.mouseSetting.key, _toMap());
-  }
+  @override
+  void applyConfig(String configString) {
+    Map map = jsonDecode(configString);
 
-  static Map<String, dynamic> _toMap() {
-    return {
-      'wheelScrollSpeed': wheelScrollSpeed.value,
-    };
-  }
-
-  static _initFromMap(Map<String, dynamic> map) {
     wheelScrollSpeed.value = map['wheelScrollSpeed'] ?? wheelScrollSpeed.value;
+  }
+
+  @override
+  String toConfigString() {
+    return jsonEncode({
+      'wheelScrollSpeed': wheelScrollSpeed.value,
+    });
+  }
+
+  @override
+  Future<void> doOnInit() async {}
+
+  @override
+  void doOnReady() {}
+
+  Future<void> saveWheelScrollSpeed(double wheelScrollSpeed) async {
+    log.debug('saveWheelScrollSpeed:$wheelScrollSpeed');
+    this.wheelScrollSpeed.value = wheelScrollSpeed;
+    await save();
   }
 }

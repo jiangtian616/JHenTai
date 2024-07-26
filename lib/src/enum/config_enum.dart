@@ -36,6 +36,7 @@ enum ConfigEnum {
   dismissVersion('dismissVersion'),
   galleryHistory('history'),
   readIndexRecord('readIndexRecord'),
+  quickSearch('quickSearch'),
   ;
 
   final String key;

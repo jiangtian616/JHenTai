@@ -1,37 +1,46 @@
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:get/get_rx/get_rx.dart';
+import 'package:get/get_rx/src/rx_types/rx_types.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 
+import 'jh_service.dart';
 import 'log.dart';
 import '../widget/eh_search_config_dialog.dart';
 
-const quickSearchStorageKey = 'quickSearch';
+QuickSearchService quickSearchService = QuickSearchService();
 
-class QuickSearchService extends GetxController {
-  final StorageService _storageService = Get.find();
+class QuickSearchService with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
+  RxMap<String, SearchConfig> quickSearchConfigs = RxMap.of(LinkedHashMap<String, SearchConfig>());
 
-  LinkedHashMap<String, SearchConfig> quickSearchConfigs = LinkedHashMap();
+  @override
+  ConfigEnum get configEnum => ConfigEnum.quickSearch;
 
-  static void init() {
-    Get.put(QuickSearchService());
-    log.debug('init QuickSearchService success', false);
+  @override
+  void applyConfig(String configString) {
+    Map map = jsonDecode(configString);
+
+    quickSearchConfigs.value = LinkedHashMap.from(map.map((key, value) => MapEntry(key, SearchConfig.fromJson(value))));
   }
 
   @override
-  void onInit() async {
-    super.onInit();
-
-    Map? map = _storageService.read(quickSearchStorageKey);
-    if (map != null) {
-      quickSearchConfigs = LinkedHashMap.from(map.map((key, value) => MapEntry(key, SearchConfig.fromJson(value))));
-    }
+  String toConfigString() {
+    return jsonEncode(quickSearchConfigs);
   }
 
-  void addQuickSearch(String name, SearchConfig searchConfig) {
+  @override
+  Future<void> doOnInit() async {}
+
+  @override
+  void doOnReady() {}
+
+  Future<void> addQuickSearch(String name, SearchConfig searchConfig) async {
     if (quickSearchConfigs.containsKey(name)) {
       toast('sameNameExists'.tr, isShort: false);
       return;
@@ -47,23 +56,20 @@ class QuickSearchService extends GetxController {
 
     log.info('Add quick search: $name');
 
-    _storageService.write(quickSearchStorageKey, quickSearchConfigs);
-
     quickSearchConfigs[name] = searchConfig;
-    update();
+    await save();
 
     toast('saveSuccess'.tr);
   }
 
-  void removeQuickSearch(String name) {
+  Future<void> removeQuickSearch(String name) async {
     log.info('Remove quick search: $name');
 
     quickSearchConfigs.remove(name);
-    _storageService.write(quickSearchStorageKey, quickSearchConfigs);
-    update();
+    await save();
   }
 
-  void reOrderQuickSearch(int oldIndex, int newIndex) {
+  Future<void> reOrderQuickSearch(int oldIndex, int newIndex) async {
     log.info('reOrder quick search, oldIndex:$oldIndex, newIndex:$newIndex');
 
     List<MapEntry<String, SearchConfig>> entries = quickSearchConfigs.entries.toList();
@@ -76,13 +82,11 @@ class QuickSearchService extends GetxController {
       entries.removeAt(newIndex > oldIndex ? oldIndex : oldIndex + 1);
     }
 
-    quickSearchConfigs = LinkedHashMap.fromEntries(entries);
-    _storageService.write(quickSearchStorageKey, quickSearchConfigs);
-
-    update();
+    quickSearchConfigs.value = LinkedHashMap.fromEntries(entries);
+    await save();
   }
 
-  void handleUpdateQuickSearch(MapEntry<String, SearchConfig> oldConfig) async {
+  Future<void> handleUpdateQuickSearch(MapEntry<String, SearchConfig> oldConfig) async {
     Map<String, dynamic>? result = await Get.dialog(
       EHSearchConfigDialog(
         type: EHSearchConfigDialogType.update,
@@ -115,9 +119,8 @@ class QuickSearchService extends GetxController {
       entries.insert(index, MapEntry(quickSearchName, searchConfig));
     }
 
-    quickSearchConfigs = LinkedHashMap.fromEntries(entries);
-    _storageService.write(quickSearchStorageKey, quickSearchConfigs);
-    update();
+    quickSearchConfigs.value = LinkedHashMap.fromEntries(entries);
+    await save();
 
     toast('updateSuccess'.tr);
   }

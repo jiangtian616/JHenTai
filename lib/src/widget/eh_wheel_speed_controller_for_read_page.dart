@@ -21,7 +21,7 @@ class EHWheelSpeedControllerForReadPage extends StatelessWidget {
       /// so i call [animateTo] to simulate a faster scroll speed.
       onPointerSignal: (PointerSignalEvent event) {
         if (event is PointerScrollEvent) {
-          final double delta = event.scrollDelta.dy * MouseSetting.wheelScrollSpeed.value;
+          final double delta = event.scrollDelta.dy * mouseSetting.wheelScrollSpeed.value;
 
           if (delta != 0.0) {
             GestureBinding.instance.pointerSignalResolver.resolve(event);

@@ -161,10 +161,6 @@ Future<void> init() async {
 
   AppUpdateService.init();
 
-  MouseSetting.init();
-
-  QuickSearchService.init();
-
   HistoryService.init();
   SearchHistoryService.init();
   PerformanceSetting.init();
