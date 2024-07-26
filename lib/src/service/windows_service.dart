@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
+import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/utils/screen_size_util.dart';
 import 'package:resizable_widget/resizable_widget.dart';
 import 'package:throttling/throttling.dart';
@@ -29,7 +30,7 @@ class WindowService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean 
   final Debouncing columnResizedDebouncing = Debouncing(duration: const Duration(milliseconds: 300));
 
   @override
-  List<JHLifeCircleBean> get initDependencies => [log, localConfigService, preferenceSetting];
+  List<JHLifeCircleBean> get initDependencies => [pathService, log, localConfigService, preferenceSetting];
 
   @override
   Future<void> doOnInit() async {
@@ -43,7 +44,7 @@ class WindowService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean 
 
     if (GetPlatform.isDesktop) {
       await windowManager.ensureInitialized();
-      
+
       WindowOptions windowOptions = WindowOptions(
         center: true,
         size: Size(windowWidth, windowHeight),

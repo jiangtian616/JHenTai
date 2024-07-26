@@ -9,6 +9,7 @@ import 'package:jhentai/src/database/dao/tag_dao.dart';
 import 'package:jhentai/src/enum/eh_namespace.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_search_order_service.dart';
 import 'package:jhentai/src/service/path_service.dart';
@@ -20,6 +21,7 @@ import 'package:retry/retry.dart';
 import '../database/database.dart';
 import '../enum/config_enum.dart';
 import '../model/gallery_tag.dart';
+import 'jh_service.dart';
 import 'log.dart';
 
 typedef TagAutoCompletionMatch = ({
@@ -34,8 +36,9 @@ typedef TagAutoCompletionMatch = ({
   double score,
 });
 
-class TagTranslationService extends GetxService {
-  final StorageService storageService = Get.find();
+TagTranslationService tagTranslationService = TagTranslationService();
+
+class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   final ValueGetter<TagSearchOrderOptimizationService> tagSearchOrderOptimizationServiceGetter = () => Get.find<TagSearchOrderOptimizationService>();
 
   final String tagStoragePrefix = 'tagTrans::';
@@ -48,31 +51,34 @@ class TagTranslationService extends GetxService {
 
   bool get isReady => preferenceSetting.enableTagZHTranslation.isTrue && (loadingState.value == LoadingState.success || timeStamp.value != null);
 
-  static void init() {
-    Get.put(TagTranslationService());
-    log.debug('init TagTranslationService success', false);
+  @override
+  List<JHLifeCircleBean> get initDependencies => [pathService, log, localConfigService];
+
+  @override
+  Future<void> doOnInit() async {
+    localConfigService
+        .read(configKey: ConfigEnum.tagTranslationServiceLoadingState)
+        .then((value) => loadingState.value = LoadingState.values[value != null ? int.parse(value) : 0]);
+    
+    localConfigService.read(configKey: ConfigEnum.tagTranslationServiceTimestamp).then((value) => timeStamp.value = value);
   }
 
   @override
-  void onInit() {
-    super.onInit();
-
-    loadingState.value = LoadingState.values[storageService.read(ConfigEnum.tagTranslationServiceLoadingState.key) ?? 0];
-    timeStamp.value = storageService.read(ConfigEnum.tagTranslationServiceTimestamp.key);
+  void doOnReady() {
     if (isReady) {
-      refresh();
+      fetchDataFromGithub();
     }
   }
 
-  Future<void> refresh() async {
+  Future<void> fetchDataFromGithub() async {
     if (preferenceSetting.enableTagZHTranslation.isFalse) {
       return;
     }
     if (loadingState.value == LoadingState.loading) {
       return;
     }
-
-    log.info('Refresh tag translation data');
+    
+    log.info('Fetch tag translation data from github');
 
     loadingState.value = LoadingState.loading;
     downloadProgress.value = '0 MB';

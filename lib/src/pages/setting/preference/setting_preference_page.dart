@@ -101,7 +101,7 @@ class SettingPreferencePage extends StatelessWidget {
             loadingState: tagTranslationService.loadingState.value,
             indicatorRadius: 10,
             width: 40,
-            idleWidgetBuilder: () => IconButton(onPressed: tagTranslationService.refresh, icon: const Icon(Icons.refresh)),
+            idleWidgetBuilder: () => IconButton(onPressed: tagTranslationService.fetchDataFromGithub, icon: const Icon(Icons.refresh)),
             errorWidgetSameWithIdle: true,
             successWidgetSameWithIdle: true,
           ),
@@ -110,7 +110,7 @@ class SettingPreferencePage extends StatelessWidget {
             onChanged: (value) {
               preferenceSetting.saveEnableTagZHTranslation(value);
               if (value == true && tagTranslationService.loadingState.value != LoadingState.success) {
-                tagTranslationService.refresh();
+                tagTranslationService.fetchDataFromGithub();
               }
             },
           )
