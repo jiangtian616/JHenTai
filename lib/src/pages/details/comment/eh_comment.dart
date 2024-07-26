@@ -144,7 +144,7 @@ class _EHCommentHeader extends StatelessWidget {
           ),
         ),
         Text(
-          PreferenceSetting.showUtcTime.isTrue ? commentTime : DateUtil.transformUtc2LocalTimeString(commentTime),
+          preferenceSetting.showUtcTime.isTrue ? commentTime : DateUtil.transformUtc2LocalTimeString(commentTime),
           style: TextStyle(
             fontSize: inDetailPage ? UIConfig.commentTimeTextSizeInDetailPage : UIConfig.commentTimeTextSizeInCommentPage,
             color: UIConfig.commentTimeTextColor(context),
@@ -480,7 +480,7 @@ class _EHCommentFooterState extends State<_EHCommentFooter> with LoginRequiredMi
       children: [
         if (widget.lastEditTime?.isNotEmpty ?? false)
           Text(
-            '${'lastEditedOn'.tr}: ${PreferenceSetting.showUtcTime.isTrue ? widget.lastEditTime : DateUtil.transformUtc2LocalTimeString(widget.lastEditTime!)}',
+            '${'lastEditedOn'.tr}: ${preferenceSetting.showUtcTime.isTrue ? widget.lastEditTime : DateUtil.transformUtc2LocalTimeString(widget.lastEditTime!)}',
             style: TextStyle(fontSize: UIConfig.commentLastEditTimeTextSize, color: UIConfig.commentFooterTextColor(context)),
           ),
         const Expanded(child: SizedBox()),

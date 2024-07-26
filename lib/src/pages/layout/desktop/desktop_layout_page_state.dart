@@ -118,7 +118,7 @@ class DesktopLayoutPageState with DoubleTapToRefreshStateMixin {
       ),
     ];
 
-    selectedTabIndex = icons.firstIndexWhereOrNull((icon) => icon.name == PreferenceSetting.defaultTab.value) ?? 0;
+    selectedTabIndex = icons.firstIndexWhereOrNull((icon) => icon.name == preferenceSetting.defaultTab.value) ?? 0;
     icons[selectedTabIndex].shouldRender = true;
   }
 }

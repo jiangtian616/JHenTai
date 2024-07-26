@@ -20,7 +20,6 @@ import 'package:jhentai/src/service/search_history_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/service/tag_search_order_service.dart';
 import 'package:jhentai/src/service/volume_service.dart';
-import 'package:jhentai/src/service/windows_service.dart';
 import 'package:jhentai/src/setting/mouse_setting.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/setting/performance_setting.dart';
@@ -41,8 +40,6 @@ import 'package:jhentai/src/setting/security_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
-import 'package:jhentai/src/setting/tab_bar_setting.dart';
-import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/service/log.dart';
 
 import 'config/theme_config.dart';
@@ -113,7 +110,7 @@ class MyApp extends StatelessWidget {
         Locale('ko', 'KR'),
         Locale('pt', 'BR'),
       ],
-      locale: PreferenceSetting.locale.value,
+      locale: preferenceSetting.locale.value,
       fallbackLocale: const Locale('en', 'US'),
       translations: LocaleText(),
 
@@ -123,7 +120,7 @@ class MyApp extends StatelessWidget {
       builder: (context, child) => AppManager(child: child!),
 
       /// enable swipe back feature
-      popGesture: PreferenceSetting.enableSwipeBackGesture.isTrue,
+      popGesture: preferenceSetting.enableSwipeBackGesture.isTrue,
       onReady: onReady,
     );
   }
@@ -131,10 +128,6 @@ class MyApp extends StatelessWidget {
 
 Future<void> init() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  if (GetPlatform.isDesktop) {
-    await windowManager.ensureInitialized();
-  }
 
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.transparent,
@@ -168,8 +161,6 @@ Future<void> init() async {
 
   AppUpdateService.init();
 
-  WindowService.init();
-
   SiteSetting.init();
   FavoriteSetting.init();
   MyTagsSetting.init();
@@ -178,8 +169,6 @@ Future<void> init() async {
   DownloadSetting.init();
   await EHRequest.init();
   await JHRequest.init();
-
-  PreferenceSetting.init();
 
   TagTranslationService.init();
   TagSearchOrderOptimizationService.init();
@@ -200,31 +189,6 @@ Future<void> init() async {
   ReadSetting.init();
 
   LocalBlockRuleService.init();
-
-  if (GetPlatform.isDesktop) {
-    WindowService windowService = Get.find();
-
-    WindowOptions windowOptions = WindowOptions(
-      center: true,
-      size: Size(windowService.windowWidth, windowService.windowHeight),
-      backgroundColor: Colors.transparent,
-      skipTaskbar: false,
-      title: 'JHenTai',
-      titleBarStyle: GetPlatform.isWindows ? TitleBarStyle.hidden : TitleBarStyle.normal,
-    );
-
-    windowManager.waitUntilReadyToShow(windowOptions, () async {
-      await windowManager.show();
-      await windowManager.focus();
-      if (PreferenceSetting.launchInFullScreen.isTrue) {
-        await windowManager.setFullScreen(true);
-      }
-      if (windowService.isMaximized) {
-        await windowManager.maximize();
-      }
-      windowService.inited = true;
-    });
-  }
 }
 
 Future<void> onReady() async {

@@ -126,7 +126,7 @@ class Routes {
 
   static const String configSync = "/setting_cloud/configSync";
 
-  static final Transition defaultTransition = PreferenceSetting.enableSwipeBackGesture.isTrue ? Transition.cupertino : Transition.fadeIn;
+  static final Transition defaultTransition = preferenceSetting.enableSwipeBackGesture.isTrue ? Transition.cupertino : Transition.fadeIn;
 
   static List<EHPage> pages = <EHPage>[
     EHPage(

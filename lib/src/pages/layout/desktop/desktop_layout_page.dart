@@ -137,7 +137,7 @@ class DesktopLayoutPage extends StatelessWidget {
           /// setting name may include path params
           page: Routes.pages.firstWhere((page) => settings.name!.split('?')[0] == page.name).page,
 
-          popGesture: PreferenceSetting.enableSwipeBackGesture.isTrue,
+          popGesture: preferenceSetting.enableSwipeBackGesture.isTrue,
           transition: Transition.fadeIn,
           transitionDuration: const Duration(milliseconds: 150),
         );

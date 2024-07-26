@@ -34,7 +34,7 @@ class TagSearchOrderOptimizationService extends GetxService {
   RxnString version = RxnString(null);
   RxString downloadProgress = RxString('0 MB');
 
-  bool get isReady => PreferenceSetting.enableTagZHSearchOrderOptimization.isTrue && (loadingState.value == LoadingState.success || version.value != null);
+  bool get isReady => preferenceSetting.enableTagZHSearchOrderOptimization.isTrue && (loadingState.value == LoadingState.success || version.value != null);
 
   static void init() {
     Get.put(TagSearchOrderOptimizationService());
@@ -53,7 +53,7 @@ class TagSearchOrderOptimizationService extends GetxService {
   }
 
   Future<void> refresh() async {
-    if (PreferenceSetting.enableTagZHSearchOrderOptimization.isFalse) {
+    if (preferenceSetting.enableTagZHSearchOrderOptimization.isFalse) {
       return;
     }
     if (loadingState.value == LoadingState.loading) {

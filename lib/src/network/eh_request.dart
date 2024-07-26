@@ -341,7 +341,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         'p': thumbnailsPageIndex,
 
         /// show all comments
-        'hc': PreferenceSetting.showAllComments.isTrue ? 1 : 0,
+        'hc': preferenceSetting.showAllComments.isTrue ? 1 : 0,
       },
       cancelToken: cancelToken,
       options: useCacheIfAvailable ? CacheOptions.cacheOptions.toOptions() : CacheOptions.noCacheOptions.toOptions(),

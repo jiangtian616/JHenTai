@@ -14,14 +14,14 @@ mixin Scroll2TopLogicMixin on GetxController {
   Scroll2TopStateMixin get scroll2TopState;
 
   bool get shouldDisplayFAB =>
-      PreferenceSetting.hideScroll2TopButton.value == Scroll2TopButtonModeEnum.never ||
-      (PreferenceSetting.hideScroll2TopButton.value == Scroll2TopButtonModeEnum.scrollDown && scroll2TopState.isScrollingDown) ||
-      (PreferenceSetting.hideScroll2TopButton.value == Scroll2TopButtonModeEnum.scrollUp && !scroll2TopState.isScrollingDown);
+      preferenceSetting.hideScroll2TopButton.value == Scroll2TopButtonModeEnum.never ||
+      (preferenceSetting.hideScroll2TopButton.value == Scroll2TopButtonModeEnum.scrollDown && scroll2TopState.isScrollingDown) ||
+      (preferenceSetting.hideScroll2TopButton.value == Scroll2TopButtonModeEnum.scrollUp && !scroll2TopState.isScrollingDown);
 
   @override
   void onInit() {
     super.onInit();
-    scroll2TopSettingWorker = ever(PreferenceSetting.hideScroll2TopButton, (_) => updateSafely([scroll2TopButtonId]));
+    scroll2TopSettingWorker = ever(preferenceSetting.hideScroll2TopButton, (_) => updateSafely([scroll2TopButtonId]));
   }
 
   @override
@@ -57,7 +57,7 @@ mixin Scroll2TopLogicMixin on GetxController {
     }
 
     // if always or never show FAB, we don't need to update
-    if (PreferenceSetting.hideScroll2TopButton.value == Scroll2TopButtonModeEnum.never || PreferenceSetting.hideScroll2TopButton.value == Scroll2TopButtonModeEnum.always) {
+    if (preferenceSetting.hideScroll2TopButton.value == Scroll2TopButtonModeEnum.never || preferenceSetting.hideScroll2TopButton.value == Scroll2TopButtonModeEnum.always) {
       return false;
     }
 

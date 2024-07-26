@@ -30,7 +30,7 @@ class EHGalleryDetailDialog extends StatelessWidget {
         _Item(name: ('uploader'.tr), value: (galleryDetail.uploader)),
         _Item(
           name: ('publishTime'.tr),
-          value: (PreferenceSetting.showUtcTime.isTrue ? galleryDetail.publishTime : DateUtil.transformUtc2LocalTimeString(galleryDetail.publishTime)),
+          value: (preferenceSetting.showUtcTime.isTrue ? galleryDetail.publishTime : DateUtil.transformUtc2LocalTimeString(galleryDetail.publishTime)),
         ),
         _Item(name: ('language'.tr), value: (galleryDetail.language)),
         _Item(name: ('pageCount'.tr), value: (galleryDetail.pageCount.toString())),

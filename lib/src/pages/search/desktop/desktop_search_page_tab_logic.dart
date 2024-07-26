@@ -19,7 +19,7 @@ class DesktopSearchPageTabLogic extends BasePageLogic with SearchPageLogicMixin 
   @override
   void onReady() {
     String? keyword = newSearchArgument.keyword;
-    SearchBehaviour searchBehaviour = newSearchArgument.keywordSearchBehaviour ?? PreferenceSetting.searchBehaviour.value;
+    SearchBehaviour searchBehaviour = newSearchArgument.keywordSearchBehaviour ?? preferenceSetting.searchBehaviour.value;
     SearchConfig? rewriteSearchConfig = newSearchArgument.rewriteSearchConfig;
 
     if (rewriteSearchConfig != null) {

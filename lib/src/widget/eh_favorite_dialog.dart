@@ -111,8 +111,8 @@ class _EHFavoriteDialogState extends State<EHFavoriteDialog> {
                   leading: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (PreferenceSetting.enableDefaultFavorite.isTrue) Text('asYourDefault'.tr),
-                      if (PreferenceSetting.enableDefaultFavorite.isTrue) Checkbox(value: remember, onChanged: (value) => setState(() => remember = value!)),
+                      if (preferenceSetting.enableDefaultFavorite.isTrue) Text('asYourDefault'.tr),
+                      if (preferenceSetting.enableDefaultFavorite.isTrue) Checkbox(value: remember, onChanged: (value) => setState(() => remember = value!)),
                     ],
                   ),
                   trailing: IconButton(

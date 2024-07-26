@@ -32,7 +32,7 @@ mixin WindowWidgetMixin<T extends StatefulWidget> on State<T>, WindowListener {
   @override
   void onWindowMaximize() {
     setState(() {
-      if (windowService.inited) {
+      if (windowService.windowManagerInited) {
         windowService.saveMaximizeWindow(true);
       }
     });
@@ -41,7 +41,7 @@ mixin WindowWidgetMixin<T extends StatefulWidget> on State<T>, WindowListener {
   @override
   void onWindowUnmaximize() {
     setState(() {
-      if (windowService.inited) {
+      if (windowService.windowManagerInited) {
         windowService.saveMaximizeWindow(false);
       }
     });

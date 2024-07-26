@@ -25,14 +25,14 @@ class SearchPageMobileV2Logic extends BasePageLogic with SearchPageLogicMixin {
   @override
   void onReady() {
     String? keyword;
-    SearchBehaviour searchBehaviour = PreferenceSetting.searchBehaviour.value;
+    SearchBehaviour searchBehaviour = preferenceSetting.searchBehaviour.value;
     SearchConfig? rewriteSearchConfig;
 
     if (Get.arguments is NewSearchArgument) {
       NewSearchArgument argument = Get.arguments;
 
       keyword = argument.keyword;
-      searchBehaviour = argument.keywordSearchBehaviour ?? PreferenceSetting.searchBehaviour.value;
+      searchBehaviour = argument.keywordSearchBehaviour ?? preferenceSetting.searchBehaviour.value;
       rewriteSearchConfig = argument.rewriteSearchConfig;
     }
 

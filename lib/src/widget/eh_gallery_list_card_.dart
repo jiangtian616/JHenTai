@@ -250,7 +250,7 @@ class EHGalleryListCard extends StatelessWidget {
 
   Text _buildTime(BuildContext context) {
     return Text(
-      PreferenceSetting.showUtcTime.isTrue ? gallery.publishTime : DateUtil.transformUtc2LocalTimeString(gallery.publishTime),
+      preferenceSetting.showUtcTime.isTrue ? gallery.publishTime : DateUtil.transformUtc2LocalTimeString(gallery.publishTime),
       style: TextStyle(
           fontSize: UIConfig.galleryCardTextSize,
           color: UIConfig.galleryCardTextColor(context),

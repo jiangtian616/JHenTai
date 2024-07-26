@@ -45,12 +45,12 @@ class SettingPreferencePage extends StatelessWidget {
               _buildShowAllGalleryTitles(),
               _buildShowGalleryTagVoteStatus(),
               _buildShowComments(),
-              if (PreferenceSetting.showComments.isTrue) _buildShowAllComments().fadeIn(const Key('showAllComments')),
+              if (preferenceSetting.showComments.isTrue) _buildShowAllComments().fadeIn(const Key('showAllComments')),
               _buildEnableDefaultFavorite(),
               _buildEnableDefaultTagSet(),
               if (GetPlatform.isDesktop && styleSetting.isInDesktopLayout) _buildLaunchInFullScreen(),
               _buildTagSearchConfig(),
-              if (PreferenceSetting.enableTagZHTranslation.isTrue) _buildShowR18GImageDirectly().fadeIn(const Key('showR18GImageDirectly')),
+              if (preferenceSetting.enableTagZHTranslation.isTrue) _buildShowR18GImageDirectly().fadeIn(const Key('showR18GImageDirectly')),
               _buildShowUtcTime(),
               _buildBlockRules(),
             ],
@@ -64,10 +64,10 @@ class SettingPreferencePage extends StatelessWidget {
     return ListTile(
       title: Text('language'.tr),
       trailing: DropdownButton<Locale>(
-        value: PreferenceSetting.locale.value,
+        value: preferenceSetting.locale.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (Locale? newValue) => PreferenceSetting.saveLanguage(newValue!),
+        onChanged: (Locale? newValue) => preferenceSetting.saveLanguage(newValue!),
         items: LocaleText()
             .keys
             .keys
@@ -106,9 +106,9 @@ class SettingPreferencePage extends StatelessWidget {
             successWidgetSameWithIdle: true,
           ),
           Switch(
-            value: PreferenceSetting.enableTagZHTranslation.value,
+            value: preferenceSetting.enableTagZHTranslation.value,
             onChanged: (value) {
-              PreferenceSetting.saveEnableTagZHTranslation(value);
+              preferenceSetting.saveEnableTagZHTranslation(value);
               if (value == true && tagTranslationService.loadingState.value != LoadingState.success) {
                 tagTranslationService.refresh();
               }
@@ -145,9 +145,9 @@ class SettingPreferencePage extends StatelessWidget {
             successWidgetSameWithIdle: true,
           ),
           Switch(
-            value: PreferenceSetting.enableTagZHSearchOrderOptimization.value,
+            value: preferenceSetting.enableTagZHSearchOrderOptimization.value,
             onChanged: (value) {
-              PreferenceSetting.saveEnableTagZHSearchOrderOptimization(value);
+              preferenceSetting.saveEnableTagZHSearchOrderOptimization(value);
               if (value == true && tagSearchOrderOptimizationService.loadingState.value != LoadingState.success) {
                 tagSearchOrderOptimizationService.refresh();
               }
@@ -162,10 +162,10 @@ class SettingPreferencePage extends StatelessWidget {
     return ListTile(
       title: Text('defaultTab'.tr),
       trailing: DropdownButton<TabBarIconNameEnum>(
-        value: PreferenceSetting.defaultTab.value,
+        value: preferenceSetting.defaultTab.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (TabBarIconNameEnum? newValue) => PreferenceSetting.saveDefaultTab(newValue!),
+        onChanged: (TabBarIconNameEnum? newValue) => preferenceSetting.saveDefaultTab(newValue!),
         items: [
           DropdownMenuItem(
             child: Text(TabBarIconNameEnum.home.name.tr),
@@ -196,16 +196,16 @@ class SettingPreferencePage extends StatelessWidget {
     return SwitchListTile(
       title: Text('simpleDashboardMode'.tr),
       subtitle: Text('simpleDashboardModeHint'.tr),
-      value: PreferenceSetting.simpleDashboardMode.value,
-      onChanged: PreferenceSetting.saveSimpleDashboardMode,
+      value: preferenceSetting.simpleDashboardMode.value,
+      onChanged: preferenceSetting.saveSimpleDashboardMode,
     );
   }
 
   Widget _buildShowBottomNavigation() {
     return SwitchListTile(
       title: Text('hideBottomBar'.tr),
-      value: PreferenceSetting.hideBottomBar.value,
-      onChanged: PreferenceSetting.saveHideBottomBar,
+      value: preferenceSetting.hideBottomBar.value,
+      onChanged: preferenceSetting.saveHideBottomBar,
     );
   }
 
@@ -213,10 +213,10 @@ class SettingPreferencePage extends StatelessWidget {
     return ListTile(
       title: Text('hideScroll2TopButton'.tr),
       trailing: DropdownButton<Scroll2TopButtonModeEnum>(
-        value: PreferenceSetting.hideScroll2TopButton.value,
+        value: preferenceSetting.hideScroll2TopButton.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (Scroll2TopButtonModeEnum? newValue) => PreferenceSetting.saveHideScroll2TopButton(newValue!),
+        onChanged: (Scroll2TopButtonModeEnum? newValue) => preferenceSetting.saveHideScroll2TopButton(newValue!),
         items: [
           DropdownMenuItem(
             child: Text('whenScrollUp'.tr),
@@ -243,8 +243,8 @@ class SettingPreferencePage extends StatelessWidget {
     return SwitchListTile(
       title: Text('preloadGalleryCover'.tr),
       subtitle: Text('preloadGalleryCoverHint'.tr),
-      value: PreferenceSetting.preloadGalleryCover.value,
-      onChanged: PreferenceSetting.savePreloadGalleryCover,
+      value: preferenceSetting.preloadGalleryCover.value,
+      onChanged: preferenceSetting.savePreloadGalleryCover,
     );
   }
 
@@ -252,24 +252,24 @@ class SettingPreferencePage extends StatelessWidget {
     return SwitchListTile(
       title: Text('enableSwipeBackGesture'.tr),
       subtitle: Text('needRestart'.tr),
-      value: PreferenceSetting.enableSwipeBackGesture.value,
-      onChanged: PreferenceSetting.saveEnableSwipeBackGesture,
+      value: preferenceSetting.enableSwipeBackGesture.value,
+      onChanged: preferenceSetting.saveEnableSwipeBackGesture,
     );
   }
 
   Widget _buildEnableLeftMenuDrawerGesture() {
     return SwitchListTile(
       title: Text('enableLeftMenuDrawerGesture'.tr),
-      value: PreferenceSetting.enableLeftMenuDrawerGesture.value,
-      onChanged: PreferenceSetting.saveEnableLeftMenuDrawerGesture,
+      value: preferenceSetting.enableLeftMenuDrawerGesture.value,
+      onChanged: preferenceSetting.saveEnableLeftMenuDrawerGesture,
     );
   }
 
   Widget _buildQuickSearch() {
     return SwitchListTile(
       title: Text('enableQuickSearchDrawerGesture'.tr),
-      value: PreferenceSetting.enableQuickSearchDrawerGesture.value,
-      onChanged: PreferenceSetting.saveEnableQuickSearchDrawerGesture,
+      value: preferenceSetting.enableQuickSearchDrawerGesture.value,
+      onChanged: preferenceSetting.saveEnableQuickSearchDrawerGesture,
     );
   }
 
@@ -285,13 +285,13 @@ class SettingPreferencePage extends StatelessWidget {
               child: Slider(
                 min: 20,
                 max: 300,
-                label: PreferenceSetting.drawerGestureEdgeWidth.value.toString(),
-                value: PreferenceSetting.drawerGestureEdgeWidth.value.toDouble(),
+                label: preferenceSetting.drawerGestureEdgeWidth.value.toString(),
+                value: preferenceSetting.drawerGestureEdgeWidth.value.toDouble(),
                 onChanged: (value) {
-                  PreferenceSetting.drawerGestureEdgeWidth.value = value.toInt();
+                  preferenceSetting.drawerGestureEdgeWidth.value = value.toInt();
                 },
                 onChangeEnd: (value) {
-                  PreferenceSetting.saveDrawerGestureEdgeWidth(value.toInt());
+                  preferenceSetting.saveDrawerGestureEdgeWidth(value.toInt());
                 },
               ),
             ),
@@ -305,8 +305,8 @@ class SettingPreferencePage extends StatelessWidget {
     return SwitchListTile(
       title: Text('showAllGalleryTitles'.tr),
       subtitle: Text('showAllGalleryTitlesHint'.tr),
-      value: PreferenceSetting.showAllGalleryTitles.value,
-      onChanged: PreferenceSetting.saveShowAllGalleryTitles,
+      value: preferenceSetting.showAllGalleryTitles.value,
+      onChanged: preferenceSetting.saveShowAllGalleryTitles,
     );
   }
 
@@ -314,16 +314,16 @@ class SettingPreferencePage extends StatelessWidget {
     return SwitchListTile(
       title: Text('showGalleryTagVoteStatus'.tr),
       subtitle: Text('showGalleryTagVoteStatusHint'.tr),
-      value: PreferenceSetting.showGalleryTagVoteStatus.value,
-      onChanged: PreferenceSetting.saveShowGalleryTagVoteStatus,
+      value: preferenceSetting.showGalleryTagVoteStatus.value,
+      onChanged: preferenceSetting.saveShowGalleryTagVoteStatus,
     );
   }
 
   Widget _buildShowComments() {
     return SwitchListTile(
       title: Text('showComments'.tr),
-      value: PreferenceSetting.showComments.value,
-      onChanged: PreferenceSetting.saveShowComments,
+      value: preferenceSetting.showComments.value,
+      onChanged: preferenceSetting.saveShowComments,
     );
   }
 
@@ -331,34 +331,34 @@ class SettingPreferencePage extends StatelessWidget {
     return SwitchListTile(
       title: Text('showAllComments'.tr),
       subtitle: Text('showAllCommentsHint'.tr),
-      value: PreferenceSetting.showAllComments.value,
-      onChanged: PreferenceSetting.saveShowAllComments,
+      value: preferenceSetting.showAllComments.value,
+      onChanged: preferenceSetting.saveShowAllComments,
     );
   }
 
   Widget _buildShowR18GImageDirectly() {
     return SwitchListTile(
       title: Text('showR18GImageDirectly'.tr),
-      value: PreferenceSetting.showR18GImageDirectly.value,
-      onChanged: PreferenceSetting.saveShowR18GImageDirectly,
+      value: preferenceSetting.showR18GImageDirectly.value,
+      onChanged: preferenceSetting.saveShowR18GImageDirectly,
     );
   }
 
   Widget _buildEnableDefaultFavorite() {
     return SwitchListTile(
       title: Text('enableDefaultFavorite'.tr),
-      subtitle: Text(PreferenceSetting.enableDefaultFavorite.isTrue ? 'enableDefaultFavoriteHint'.tr : 'disableDefaultFavoriteHint'.tr),
-      value: PreferenceSetting.enableDefaultFavorite.value,
-      onChanged: PreferenceSetting.saveEnableDefaultFavorite,
+      subtitle: Text(preferenceSetting.enableDefaultFavorite.isTrue ? 'enableDefaultFavoriteHint'.tr : 'disableDefaultFavoriteHint'.tr),
+      value: preferenceSetting.enableDefaultFavorite.value,
+      onChanged: preferenceSetting.saveEnableDefaultFavorite,
     );
   }
 
   Widget _buildEnableDefaultTagSet() {
     return SwitchListTile(
       title: Text('enableDefaultTagSet'.tr),
-      subtitle: Text(PreferenceSetting.enableDefaultTagSet.isTrue ? 'enableDefaultTagSetHint'.tr : 'disableDefaultTagSetHint'.tr),
-      value: PreferenceSetting.enableDefaultTagSet.value,
-      onChanged: PreferenceSetting.saveEnableDefaultTagSet,
+      subtitle: Text(preferenceSetting.enableDefaultTagSet.isTrue ? 'enableDefaultTagSetHint'.tr : 'disableDefaultTagSetHint'.tr),
+      value: preferenceSetting.enableDefaultTagSet.value,
+      onChanged: preferenceSetting.saveEnableDefaultTagSet,
     );
   }
 
@@ -366,8 +366,8 @@ class SettingPreferencePage extends StatelessWidget {
     return SwitchListTile(
       title: Text('launchInFullScreen'.tr),
       subtitle: Text('launchInFullScreenHint'.tr),
-      value: PreferenceSetting.launchInFullScreen.value,
-      onChanged: PreferenceSetting.saveLaunchInFullScreen,
+      value: preferenceSetting.launchInFullScreen.value,
+      onChanged: preferenceSetting.saveLaunchInFullScreen,
     );
   }
 
@@ -375,17 +375,17 @@ class SettingPreferencePage extends StatelessWidget {
     return ListTile(
       title: Text('searchBehaviour'.tr),
       subtitle: Text(
-        PreferenceSetting.searchBehaviour.value == SearchBehaviour.inheritAll
+        preferenceSetting.searchBehaviour.value == SearchBehaviour.inheritAll
             ? 'inheritAllHint'.tr
-            : PreferenceSetting.searchBehaviour.value == SearchBehaviour.inheritPartially
+            : preferenceSetting.searchBehaviour.value == SearchBehaviour.inheritPartially
                 ? 'inheritPartiallyHint'.tr
                 : 'noneHint'.tr,
       ),
       trailing: DropdownButton<SearchBehaviour>(
-        value: PreferenceSetting.searchBehaviour.value,
+        value: preferenceSetting.searchBehaviour.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (SearchBehaviour? newValue) => PreferenceSetting.saveTagSearchConfig(newValue!),
+        onChanged: (SearchBehaviour? newValue) => preferenceSetting.saveTagSearchConfig(newValue!),
         items: [
           DropdownMenuItem(
             child: Text('inheritAll'.tr),
@@ -407,8 +407,8 @@ class SettingPreferencePage extends StatelessWidget {
   Widget _buildShowUtcTime() {
     return SwitchListTile(
       title: Text('showUtcTime'.tr),
-      value: PreferenceSetting.showUtcTime.value,
-      onChanged: PreferenceSetting.saveShowUtcTime,
+      value: preferenceSetting.showUtcTime.value,
+      onChanged: preferenceSetting.saveShowUtcTime,
     );
   }
 

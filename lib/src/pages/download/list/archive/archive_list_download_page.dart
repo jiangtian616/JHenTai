@@ -295,7 +295,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                 style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
               ),
             Text(
-              PreferenceSetting.showUtcTime.isTrue ? archive.publishTime : DateUtil.transformUtc2LocalTimeString(archive.publishTime),
+              preferenceSetting.showUtcTime.isTrue ? archive.publishTime : DateUtil.transformUtc2LocalTimeString(archive.publishTime),
               style: TextStyle(fontSize: UIConfig.downloadPageCardTextSize, color: UIConfig.downloadPageCardTextColor(context)),
             ),
           ],

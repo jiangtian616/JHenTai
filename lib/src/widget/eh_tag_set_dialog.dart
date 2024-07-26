@@ -57,7 +57,7 @@ class _EHTagSetDialogState extends State<EHTagSetDialog> {
                 ),
               )
               .toList(),
-        if (_loadingState == LoadingState.success && PreferenceSetting.enableDefaultTagSet.isTrue)
+        if (_loadingState == LoadingState.success && preferenceSetting.enableDefaultTagSet.isTrue)
           ListTile(
             dense: true,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),

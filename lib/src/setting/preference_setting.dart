@@ -1,217 +1,47 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/model/tab_bar_icon.dart';
-import 'package:jhentai/src/setting/tab_bar_setting.dart';
 
-import '../service/storage_service.dart';
+import '../service/jh_service.dart';
 import '../utils/locale_util.dart';
 import '../service/log.dart';
 
-enum Scroll2TopButtonModeEnum { scrollUp, scrollDown, never, always }
+PreferenceSetting preferenceSetting = PreferenceSetting();
 
-enum SearchBehaviour { inheritAll, inheritPartially, none }
+class PreferenceSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
+  Rx<Locale> locale = computeDefaultLocale(PlatformDispatcher.instance.locale).obs;
+  RxBool enableTagZHTranslation = false.obs;
+  RxBool enableTagZHSearchOrderOptimization = false.obs;
+  Rx<TabBarIconNameEnum> defaultTab = TabBarIconNameEnum.home.obs;
+  RxBool simpleDashboardMode = false.obs;
+  RxBool hideBottomBar = false.obs;
+  Rx<Scroll2TopButtonModeEnum> hideScroll2TopButton = Scroll2TopButtonModeEnum.scrollDown.obs;
+  RxBool preloadGalleryCover = false.obs;
+  RxBool enableSwipeBackGesture = true.obs;
+  RxBool enableLeftMenuDrawerGesture = true.obs;
+  RxBool enableQuickSearchDrawerGesture = true.obs;
+  RxInt drawerGestureEdgeWidth = 100.obs;
+  RxBool showAllGalleryTitles = false.obs;
+  RxBool showGalleryTagVoteStatus = false.obs;
+  RxBool showComments = true.obs;
+  RxBool showAllComments = false.obs;
+  RxBool enableDefaultFavorite = false.obs;
+  RxBool enableDefaultTagSet = true.obs;
+  RxBool launchInFullScreen = false.obs;
+  Rx<SearchBehaviour> searchBehaviour = SearchBehaviour.inheritAll.obs;
+  RxBool showR18GImageDirectly = false.obs;
+  RxBool showUtcTime = false.obs;
 
-class PreferenceSetting {
-  static Rx<Locale> locale = computeDefaultLocale(PlatformDispatcher.instance.locale).obs;
-  static RxBool enableTagZHTranslation = false.obs;
-  static RxBool enableTagZHSearchOrderOptimization = false.obs;
-  static Rx<TabBarIconNameEnum> defaultTab = TabBarIconNameEnum.home.obs;
-  static RxBool simpleDashboardMode = false.obs;
-  static RxBool hideBottomBar = false.obs;
-  static Rx<Scroll2TopButtonModeEnum> hideScroll2TopButton = Scroll2TopButtonModeEnum.scrollDown.obs;
-  static RxBool preloadGalleryCover = false.obs;
-  static RxBool enableSwipeBackGesture = true.obs;
-  static RxBool enableLeftMenuDrawerGesture = true.obs;
-  static RxBool enableQuickSearchDrawerGesture = true.obs;
-  static RxInt drawerGestureEdgeWidth = 100.obs;
-  static RxBool showAllGalleryTitles = false.obs;
-  static RxBool showGalleryTagVoteStatus = false.obs;
-  static RxBool showComments = true.obs;
-  static RxBool showAllComments = false.obs;
-  static RxBool enableDefaultFavorite = false.obs;
-  static RxBool enableDefaultTagSet = true.obs;
-  static RxBool launchInFullScreen = false.obs;
-  static Rx<SearchBehaviour> searchBehaviour = SearchBehaviour.inheritAll.obs;
-  static RxBool showR18GImageDirectly = false.obs;
-  static RxBool showUtcTime = false.obs;
+  @override
+  ConfigEnum get configEnum => ConfigEnum.preferenceSetting;
 
-  static void init() {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.preferenceSetting.key);
-    if (map != null) {
-      _initFromMap(map);
-      log.debug('init PreferenceSetting success', false);
-    } else {
-      log.debug('init PreferenceSetting success: default', false);
-    }
-  }
+  @override
+  void applyConfig(String configString) {
+    Map map = jsonDecode(configString);
 
-  static saveLanguage(Locale locale) async {
-    log.debug('saveLanguage:$locale');
-    PreferenceSetting.locale.value = locale;
-    _save();
-    Get.updateLocale(locale);
-  }
-
-  static saveDefaultTab(TabBarIconNameEnum defaultTab) {
-    log.debug('saveDefaultTab:$defaultTab');
-    PreferenceSetting.defaultTab.value = defaultTab;
-    _save();
-  }
-
-  static saveEnableTagZHTranslation(bool enableTagZHTranslation) {
-    log.debug('saveEnableTagZHTranslation:$enableTagZHTranslation');
-    PreferenceSetting.enableTagZHTranslation.value = enableTagZHTranslation;
-    _save();
-  }
-
-  static saveEnableTagZHSearchOrderOptimization(bool enableTagZHSearchOrderOptimization) {
-    log.debug('saveEnableTagZHSearchOrderOptimization:$enableTagZHSearchOrderOptimization');
-    PreferenceSetting.enableTagZHSearchOrderOptimization.value = enableTagZHSearchOrderOptimization;
-    _save();
-  }
-
-  static saveSimpleDashboardMode(bool simpleDashboardMode) {
-    log.debug('saveSimpleDashboardMode:$simpleDashboardMode');
-    PreferenceSetting.simpleDashboardMode.value = simpleDashboardMode;
-    _save();
-  }
-
-  static saveHideBottomBar(bool hideBottomBar) {
-    log.debug('saveHideBottomBar:$hideBottomBar');
-    PreferenceSetting.hideBottomBar.value = hideBottomBar;
-    _save();
-  }
-
-  static savePreloadGalleryCover(bool preloadGalleryCover) {
-    log.debug('savePreloadGalleryCover:$preloadGalleryCover');
-    PreferenceSetting.preloadGalleryCover.value = preloadGalleryCover;
-    _save();
-  }
-
-  static saveEnableSwipeBackGesture(bool enableSwipeBackGesture) {
-    log.debug('saveEnableSwipeBackGesture:$enableSwipeBackGesture');
-    PreferenceSetting.enableSwipeBackGesture.value = enableSwipeBackGesture;
-    _save();
-  }
-
-  static saveEnableLeftMenuDrawerGesture(bool enableLeftMenuDrawerGesture) {
-    log.debug('saveEnableLeftMenuDrawerGesture:$enableLeftMenuDrawerGesture');
-    PreferenceSetting.enableLeftMenuDrawerGesture.value = enableLeftMenuDrawerGesture;
-    _save();
-  }
-
-  static saveEnableQuickSearchDrawerGesture(bool enableQuickSearchDrawerGesture) {
-    log.debug('saveEnableQuickSearchDrawerGesture:$enableQuickSearchDrawerGesture');
-    PreferenceSetting.enableQuickSearchDrawerGesture.value = enableQuickSearchDrawerGesture;
-    _save();
-  }
-
-  static saveDrawerGestureEdgeWidth(int drawerGestureEdgeWidth) {
-    log.debug('saveDrawerGestureEdgeWidth:$drawerGestureEdgeWidth');
-    PreferenceSetting.drawerGestureEdgeWidth.value = drawerGestureEdgeWidth;
-    _save();
-  }
-
-  static saveHideScroll2TopButton(Scroll2TopButtonModeEnum hideScroll2TopButton) {
-    log.debug('saveHideScroll2TopButton:$hideScroll2TopButton');
-    PreferenceSetting.hideScroll2TopButton.value = hideScroll2TopButton;
-    _save();
-  }
-
-  static saveShowAllGalleryTitles(bool showAllGalleryTitles) {
-    log.debug('saveShowAllGalleryTitles:$showAllGalleryTitles');
-    PreferenceSetting.showAllGalleryTitles.value = showAllGalleryTitles;
-    _save();
-  }
-
-  static saveShowGalleryTagVoteStatus(bool showGalleryTagVoteStatus) {
-    log.debug('saveShowGalleryTagVoteStatus:$showGalleryTagVoteStatus');
-    PreferenceSetting.showGalleryTagVoteStatus.value = showGalleryTagVoteStatus;
-    _save();
-  }
-
-  static saveShowComments(bool showComments) {
-    log.debug('saveShowComments:$showComments');
-    PreferenceSetting.showComments.value = showComments;
-    _save();
-  }
-
-  static saveShowAllComments(bool showAllComments) {
-    log.debug('saveShowAllComments:$showAllComments');
-    PreferenceSetting.showAllComments.value = showAllComments;
-    _save();
-  }
-
-  static saveEnableDefaultFavorite(bool enableDefaultFavorite) {
-    log.debug('saveEnableDefaultFavorite:$enableDefaultFavorite');
-    PreferenceSetting.enableDefaultFavorite.value = enableDefaultFavorite;
-    _save();
-  }
-
-  static saveEnableDefaultTagSet(bool enableDefaultTagSet) {
-    log.debug('saveEnableDefaultTagSet:$enableDefaultTagSet');
-    PreferenceSetting.enableDefaultTagSet.value = enableDefaultTagSet;
-    _save();
-  }
-
-  static saveLaunchInFullScreen(bool launchInFullScreen) {
-    log.debug('saveLaunchInFullScreen:$launchInFullScreen');
-    PreferenceSetting.launchInFullScreen.value = launchInFullScreen;
-    _save();
-  }
-
-  static saveTagSearchConfig(SearchBehaviour tagSearchConfig) {
-    log.debug('saveTagSearchConfig:$tagSearchConfig');
-    PreferenceSetting.searchBehaviour.value = tagSearchConfig;
-    _save();
-  }
-
-  static saveShowR18GImageDirectly(bool showR18GImageDirectly) {
-    log.debug('saveShowR18GImageDirectly:$showR18GImageDirectly');
-    PreferenceSetting.showR18GImageDirectly.value = showR18GImageDirectly;
-    _save();
-  }
-  
-  static saveShowUtcTime(bool showUtcTime) {
-    log.debug('saveShowUtcTime:$showUtcTime');
-    PreferenceSetting.showUtcTime.value = showUtcTime;
-    _save();
-  }
-
-  static Future<void> _save() async {
-    await Get.find<StorageService>().write(ConfigEnum.preferenceSetting.key, _toMap());
-  }
-
-  static Map<String, dynamic> _toMap() {
-    return {
-      'locale': locale.value.toString(),
-      'showR18GImageDirectly': showR18GImageDirectly.value,
-      'enableTagZHTranslation': enableTagZHTranslation.value,
-      'enableTagZHSearchOrderOptimization': enableTagZHSearchOrderOptimization.value,
-      'defaultTab': defaultTab.value.index,
-      'preloadGalleryCover': preloadGalleryCover.value,
-      'enableSwipeBackGesture': enableSwipeBackGesture.value,
-      'enableLeftMenuDrawerGesture': enableLeftMenuDrawerGesture.value,
-      'enableQuickSearchDrawerGesture': enableQuickSearchDrawerGesture.value,
-      'drawerGestureEdgeWidth': drawerGestureEdgeWidth.value,
-      'simpleDashboardMode': simpleDashboardMode.value,
-      'hideBottomBar': hideBottomBar.value,
-      'hideScroll2TopButton': hideScroll2TopButton.value.index,
-      'showAllGalleryTitles': showAllGalleryTitles.value,
-      'showGalleryTagVoteStatus': showGalleryTagVoteStatus.value,
-      'showComments': showComments.value,
-      'showAllComments': showAllComments.value,
-      'tagSearchConfig': searchBehaviour.value.index,
-      'enableDefaultFavorite': enableDefaultFavorite.value,
-      'enableDefaultTagSet': enableDefaultTagSet.value,
-      'launchInFullScreen': launchInFullScreen.value,
-      'showUtcTime': showUtcTime.value,
-    };
-  }
-
-  static _initFromMap(Map<String, dynamic> map) {
     if ((map['locale'] != null)) {
       locale.value = localeCode2Locale(map['locale']);
     }
@@ -237,4 +67,175 @@ class PreferenceSetting {
     launchInFullScreen.value = map['launchInFullScreen'] ?? launchInFullScreen.value;
     showUtcTime.value = map['showUtcTime'] ?? showUtcTime.value;
   }
+
+  @override
+  String toConfigString() {
+    return jsonEncode({
+      'locale': locale.value.toString(),
+      'showR18GImageDirectly': showR18GImageDirectly.value,
+      'enableTagZHTranslation': enableTagZHTranslation.value,
+      'enableTagZHSearchOrderOptimization': enableTagZHSearchOrderOptimization.value,
+      'defaultTab': defaultTab.value.index,
+      'preloadGalleryCover': preloadGalleryCover.value,
+      'enableSwipeBackGesture': enableSwipeBackGesture.value,
+      'enableLeftMenuDrawerGesture': enableLeftMenuDrawerGesture.value,
+      'enableQuickSearchDrawerGesture': enableQuickSearchDrawerGesture.value,
+      'drawerGestureEdgeWidth': drawerGestureEdgeWidth.value,
+      'simpleDashboardMode': simpleDashboardMode.value,
+      'hideBottomBar': hideBottomBar.value,
+      'hideScroll2TopButton': hideScroll2TopButton.value.index,
+      'showAllGalleryTitles': showAllGalleryTitles.value,
+      'showGalleryTagVoteStatus': showGalleryTagVoteStatus.value,
+      'showComments': showComments.value,
+      'showAllComments': showAllComments.value,
+      'tagSearchConfig': searchBehaviour.value.index,
+      'enableDefaultFavorite': enableDefaultFavorite.value,
+      'enableDefaultTagSet': enableDefaultTagSet.value,
+      'launchInFullScreen': launchInFullScreen.value,
+      'showUtcTime': showUtcTime.value,
+    });
+  }
+
+  @override
+  Future<void> doOnInit() async {}
+
+  @override
+  void doOnReady() {}
+
+  Future<void> saveLanguage(Locale locale) async {
+    log.debug('saveLanguage:$locale');
+    this.locale.value = locale;
+    await save();
+    Get.updateLocale(locale);
+  }
+
+  Future<void> saveDefaultTab(TabBarIconNameEnum defaultTab) async {
+    log.debug('saveDefaultTab:$defaultTab');
+    this.defaultTab.value = defaultTab;
+    await save();
+  }
+
+  Future<void> saveEnableTagZHTranslation(bool enableTagZHTranslation) async {
+    log.debug('saveEnableTagZHTranslation:$enableTagZHTranslation');
+    this.enableTagZHTranslation.value = enableTagZHTranslation;
+    await save();
+  }
+
+  Future<void> saveEnableTagZHSearchOrderOptimization(bool enableTagZHSearchOrderOptimization) async {
+    log.debug('saveEnableTagZHSearchOrderOptimization:$enableTagZHSearchOrderOptimization');
+    this.enableTagZHSearchOrderOptimization.value = enableTagZHSearchOrderOptimization;
+    await save();
+  }
+
+  Future<void> saveSimpleDashboardMode(bool simpleDashboardMode) async {
+    log.debug('saveSimpleDashboardMode:$simpleDashboardMode');
+    this.simpleDashboardMode.value = simpleDashboardMode;
+    await save();
+  }
+
+  Future<void> saveHideBottomBar(bool hideBottomBar) async {
+    log.debug('saveHideBottomBar:$hideBottomBar');
+    this.hideBottomBar.value = hideBottomBar;
+    await save();
+  }
+
+  Future<void> savePreloadGalleryCover(bool preloadGalleryCover) async {
+    log.debug('savePreloadGalleryCover:$preloadGalleryCover');
+    this.preloadGalleryCover.value = preloadGalleryCover;
+    await save();
+  }
+
+  Future<void> saveEnableSwipeBackGesture(bool enableSwipeBackGesture) async {
+    log.debug('saveEnableSwipeBackGesture:$enableSwipeBackGesture');
+    this.enableSwipeBackGesture.value = enableSwipeBackGesture;
+    await save();
+  }
+
+  Future<void> saveEnableLeftMenuDrawerGesture(bool enableLeftMenuDrawerGesture) async {
+    log.debug('saveEnableLeftMenuDrawerGesture:$enableLeftMenuDrawerGesture');
+    this.enableLeftMenuDrawerGesture.value = enableLeftMenuDrawerGesture;
+    await save();
+  }
+
+  Future<void> saveEnableQuickSearchDrawerGesture(bool enableQuickSearchDrawerGesture) async {
+    log.debug('saveEnableQuickSearchDrawerGesture:$enableQuickSearchDrawerGesture');
+    this.enableQuickSearchDrawerGesture.value = enableQuickSearchDrawerGesture;
+    await save();
+  }
+
+  Future<void> saveDrawerGestureEdgeWidth(int drawerGestureEdgeWidth) async {
+    log.debug('saveDrawerGestureEdgeWidth:$drawerGestureEdgeWidth');
+    this.drawerGestureEdgeWidth.value = drawerGestureEdgeWidth;
+    await save();
+  }
+
+  Future<void> saveHideScroll2TopButton(Scroll2TopButtonModeEnum hideScroll2TopButton) async {
+    log.debug('saveHideScroll2TopButton:$hideScroll2TopButton');
+    this.hideScroll2TopButton.value = hideScroll2TopButton;
+    await save();
+  }
+
+  Future<void> saveShowAllGalleryTitles(bool showAllGalleryTitles) async {
+    log.debug('saveShowAllGalleryTitles:$showAllGalleryTitles');
+    this.showAllGalleryTitles.value = showAllGalleryTitles;
+    await save();
+  }
+
+  Future<void> saveShowGalleryTagVoteStatus(bool showGalleryTagVoteStatus) async {
+    log.debug('saveShowGalleryTagVoteStatus:$showGalleryTagVoteStatus');
+    this.showGalleryTagVoteStatus.value = showGalleryTagVoteStatus;
+    await save();
+  }
+
+  Future<void> saveShowComments(bool showComments) async {
+    log.debug('saveShowComments:$showComments');
+    this.showComments.value = showComments;
+    await save();
+  }
+
+  Future<void> saveShowAllComments(bool showAllComments) async {
+    log.debug('saveShowAllComments:$showAllComments');
+    this.showAllComments.value = showAllComments;
+    await save();
+  }
+
+  Future<void> saveEnableDefaultFavorite(bool enableDefaultFavorite) async {
+    log.debug('saveEnableDefaultFavorite:$enableDefaultFavorite');
+    this.enableDefaultFavorite.value = enableDefaultFavorite;
+    await save();
+  }
+
+  Future<void> saveEnableDefaultTagSet(bool enableDefaultTagSet) async {
+    log.debug('saveEnableDefaultTagSet:$enableDefaultTagSet');
+    this.enableDefaultTagSet.value = enableDefaultTagSet;
+    await save();
+  }
+
+  Future<void> saveLaunchInFullScreen(bool launchInFullScreen) async {
+    log.debug('saveLaunchInFullScreen:$launchInFullScreen');
+    this.launchInFullScreen.value = launchInFullScreen;
+    await save();
+  }
+
+  Future<void> saveTagSearchConfig(SearchBehaviour tagSearchConfig) async {
+    log.debug('saveTagSearchConfig:$tagSearchConfig');
+    this.searchBehaviour.value = tagSearchConfig;
+    await save();
+  }
+
+  Future<void> saveShowR18GImageDirectly(bool showR18GImageDirectly) async {
+    log.debug('saveShowR18GImageDirectly:$showR18GImageDirectly');
+    this.showR18GImageDirectly.value = showR18GImageDirectly;
+    await save();
+  }
+
+  Future<void> saveShowUtcTime(bool showUtcTime) async {
+    log.debug('saveShowUtcTime:$showUtcTime');
+    this.showUtcTime.value = showUtcTime;
+    await save();
+  }
 }
+
+enum Scroll2TopButtonModeEnum { scrollUp, scrollDown, never, always }
+
+enum SearchBehaviour { inheritAll, inheritPartially, none }

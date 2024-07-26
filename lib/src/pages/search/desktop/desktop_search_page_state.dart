@@ -22,7 +22,7 @@ class DesktopSearchPageState with Scroll2TopStateMixin {
 
   DesktopSearchPageState() {
     DesktopSearchPageTabLogic newTabLogic = DesktopSearchPageTabLogic(
-      NewSearchArgument(keyword: '', keywordSearchBehaviour: PreferenceSetting.searchBehaviour.value),
+      NewSearchArgument(keyword: '', keywordSearchBehaviour: preferenceSetting.searchBehaviour.value),
       false,
     );
     tabLogics.add(newTabLogic);

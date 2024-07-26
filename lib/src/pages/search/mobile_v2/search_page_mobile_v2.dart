@@ -38,9 +38,9 @@ class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMob
         () => Scaffold(
           key: scaffoldKey,
           appBar: buildAppBar(context),
-          drawerEdgeDragWidth: PreferenceSetting.drawerGestureEdgeWidth.value.toDouble(),
+          drawerEdgeDragWidth: preferenceSetting.drawerGestureEdgeWidth.value.toDouble(),
           endDrawer: Drawer(width: 278, child: QuickSearchPage()),
-          endDrawerEnableOpenDragGesture: PreferenceSetting.enableQuickSearchDrawerGesture.isTrue,
+          endDrawerEnableOpenDragGesture: preferenceSetting.enableQuickSearchDrawerGesture.isTrue,
           body: SafeArea(child: buildBody(context)),
           floatingActionButton: buildFloatingActionButton(),
           resizeToAvoidBottomInset: false,

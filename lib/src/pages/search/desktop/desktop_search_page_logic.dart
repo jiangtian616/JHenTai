@@ -48,7 +48,7 @@ class DesktopSearchPageLogic extends GetxController with Scroll2TopLogicMixin {
 
   void addNewTab({String? keyword, SearchConfig? rewriteSearchConfig, bool loadImmediately = true}) {
     DesktopSearchPageTabLogic newTabLogic = DesktopSearchPageTabLogic(
-      NewSearchArgument(keyword: keyword, keywordSearchBehaviour: PreferenceSetting.searchBehaviour.value, rewriteSearchConfig: rewriteSearchConfig),
+      NewSearchArgument(keyword: keyword, keywordSearchBehaviour: preferenceSetting.searchBehaviour.value, rewriteSearchConfig: rewriteSearchConfig),
       loadImmediately,
     );
 

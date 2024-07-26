@@ -191,7 +191,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
           controller: state.scrollController,
           slivers: [
             CupertinoSliverRefreshControl(onRefresh: logic.handleRefresh),
-            if (PreferenceSetting.showAllGalleryTitles.isTrue) _buildSubTitle(context),
+            if (preferenceSetting.showAllGalleryTitles.isTrue) _buildSubTitle(context),
             buildDetail(context),
             buildDivider(),
             buildNewVersionHint(),
@@ -199,7 +199,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
             buildCopyRightRemovedHint(),
             buildLoadingDetailsIndicator(),
             buildTags(),
-            if (PreferenceSetting.showComments.isTrue) buildComments(),
+            if (preferenceSetting.showComments.isTrue) buildComments(),
             buildThumbnails(),
             buildLoadingThumbnailIndicator(context),
           ],
@@ -666,7 +666,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
             : state.gallery != null
                 ? state.gallery!.publishTime
                 : state.galleryMetadata?.publishTime;
-        if (publishTime != null && PreferenceSetting.showUtcTime.isFalse) {
+        if (publishTime != null && preferenceSetting.showUtcTime.isFalse) {
           publishTime = DateUtil.transformUtc2LocalTimeString(publishTime);
         }
         publishTime ??= '...';
@@ -982,8 +982,8 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                 height: 1,
               ),
             ),
-            onPressed: disabled ? null : () => logic.handleTapFavorite(useDefault: PreferenceSetting.enableDefaultFavorite.isTrue),
-            onLongPress: disabled || PreferenceSetting.enableDefaultFavorite.isFalse ? null : () => logic.handleTapFavorite(useDefault: false),
+            onPressed: disabled ? null : () => logic.handleTapFavorite(useDefault: preferenceSetting.enableDefaultFavorite.isTrue),
+            onLongPress: disabled || preferenceSetting.enableDefaultFavorite.isFalse ? null : () => logic.handleTapFavorite(useDefault: false),
           ),
           errorWidgetSameWithIdle: true,
         );
@@ -1255,7 +1255,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         tagData: TagData(
           namespace: 'rows',
           key: category,
-          tagName: PreferenceSetting.enableTagZHTranslation.isTrue ? EHNamespace.findNameSpaceFromDescOrAbbr(category)?.chineseDesc : null,
+          tagName: preferenceSetting.enableTagZHTranslation.isTrue ? EHNamespace.findNameSpaceFromDescOrAbbr(category)?.chineseDesc : null,
         ),
       ),
       addNameSpaceColor: true,
@@ -1270,7 +1270,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
             onTap: (tag) => newSearch(keyword: '${tag.tagData.namespace}:"${tag.tagData.key}\$"', forceNewRoute: true),
             onSecondaryTap: logic.showTagDialog,
             onLongPress: logic.showTagDialog,
-            showTagStatus: PreferenceSetting.showGalleryTagVoteStatus.isTrue,
+            showTagStatus: preferenceSetting.showGalleryTagVoteStatus.isTrue,
           ),
         )
         .toList();

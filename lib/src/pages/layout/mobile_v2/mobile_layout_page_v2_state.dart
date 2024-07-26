@@ -44,8 +44,8 @@ class MobileLayoutPageV2State with DoubleTapToRefreshStateMixin {
         routeName: Routes.dashboard,
         selectedIcon: const Icon(Icons.home),
         unselectedIcon: const Icon(Icons.home_outlined),
-        page: () => PreferenceSetting.simpleDashboardMode.isTrue ? const SimpleDashboardPage() : const DashboardPage(),
-        scrollController: () => PreferenceSetting.simpleDashboardMode.isTrue
+        page: () => preferenceSetting.simpleDashboardMode.isTrue ? const SimpleDashboardPage() : const DashboardPage(),
+        scrollController: () => preferenceSetting.simpleDashboardMode.isTrue
             ? Get.find<SimpleDashboardPageLogic>().scroll2TopState.scrollController
             : Get.find<DashboardPageLogic>().scroll2TopState.scrollController,
         shouldRender: false,
@@ -123,7 +123,7 @@ class MobileLayoutPageV2State with DoubleTapToRefreshStateMixin {
       ),
     ];
 
-    selectedDrawerTabIndex = icons.firstIndexWhereOrNull((icon) => icon.name == PreferenceSetting.defaultTab.value) ?? 0;
+    selectedDrawerTabIndex = icons.firstIndexWhereOrNull((icon) => icon.name == preferenceSetting.defaultTab.value) ?? 0;
     icons[selectedDrawerTabIndex].shouldRender = true;
   }
 }

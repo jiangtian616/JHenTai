@@ -43,7 +43,7 @@ mixin JHLifeCircleBeanErrorCatch {
 }
 
 mixin JHLifeCircleBeanWithConfigStorage {
-  List<JHLifeCircleBean> get initDependencies => [localConfigService];
+  List<JHLifeCircleBean> get initDependencies => [log, localConfigService];
 
   ConfigEnum get configEnum;
 
@@ -86,11 +86,11 @@ mixin JHLifeCircleBeanWithConfigStorage {
   Future<bool> save() {
     return localConfigService.write(configKey: configEnum, value: toConfigString());
   }
-  
+
   Future<bool> clear() {
     return localConfigService.delete(configKey: configEnum);
   }
-  
+
   void applyConfig(String configString);
 
   Future<void> doOnInit();

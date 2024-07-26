@@ -28,14 +28,14 @@ void newSearch({String? keyword, SearchConfig? rewriteSearchConfig, bool forceNe
       } else {
         if (rewriteSearchConfig != null) {
           desktopSearchPageLogic.currentTabLogic.state.searchConfig = rewriteSearchConfig;
-        } else if (PreferenceSetting.searchBehaviour.value == SearchBehaviour.inheritAll) {
+        } else if (preferenceSetting.searchBehaviour.value == SearchBehaviour.inheritAll) {
           desktopSearchPageLogic.currentTabLogic.state.searchConfig.keyword = keyword;
-        } else if (PreferenceSetting.searchBehaviour.value == SearchBehaviour.inheritPartially) {
+        } else if (preferenceSetting.searchBehaviour.value == SearchBehaviour.inheritPartially) {
           desktopSearchPageLogic.currentTabLogic.state.searchConfig.keyword = keyword;
           desktopSearchPageLogic.currentTabLogic.state.searchConfig.tags?.clear();
           desktopSearchPageLogic.currentTabLogic.state.searchConfig.language = null;
           desktopSearchPageLogic.currentTabLogic.state.searchConfig.enableAllCategories();
-        } else if (PreferenceSetting.searchBehaviour.value == SearchBehaviour.none) {
+        } else if (preferenceSetting.searchBehaviour.value == SearchBehaviour.none) {
           desktopSearchPageLogic.currentTabLogic.state.searchConfig = SearchConfig(keyword: keyword);
         }
         desktopSearchPageLogic.handleClearAndRefresh();
@@ -48,7 +48,7 @@ void newSearch({String? keyword, SearchConfig? rewriteSearchConfig, bool forceNe
           Routes.mobileV2Search,
           arguments: NewSearchArgument(
             keyword: keyword,
-            keywordSearchBehaviour: PreferenceSetting.searchBehaviour.value,
+            keywordSearchBehaviour: preferenceSetting.searchBehaviour.value,
             rewriteSearchConfig: rewriteSearchConfig,
           ),
         );
@@ -62,14 +62,14 @@ void newSearch({String? keyword, SearchConfig? rewriteSearchConfig, bool forceNe
       if (isRouteAtTop(Routes.mobileV2Search) && !forceNewRoute) {
         if (rewriteSearchConfig != null) {
           SearchPageMobileV2Logic.current!.state.searchConfig = rewriteSearchConfig;
-        } else if (PreferenceSetting.searchBehaviour.value == SearchBehaviour.inheritAll) {
+        } else if (preferenceSetting.searchBehaviour.value == SearchBehaviour.inheritAll) {
           SearchPageMobileV2Logic.current!.state.searchConfig.keyword = keyword;
-        } else if (PreferenceSetting.searchBehaviour.value == SearchBehaviour.inheritPartially) {
+        } else if (preferenceSetting.searchBehaviour.value == SearchBehaviour.inheritPartially) {
           SearchPageMobileV2Logic.current!.state.searchConfig.keyword = keyword;
           SearchPageMobileV2Logic.current!.state.searchConfig.tags?.clear();
           SearchPageMobileV2Logic.current!.state.searchConfig.language = null;
           SearchPageMobileV2Logic.current!.state.searchConfig.enableAllCategories();
-        } else if (PreferenceSetting.searchBehaviour.value == SearchBehaviour.none) {
+        } else if (preferenceSetting.searchBehaviour.value == SearchBehaviour.none) {
           SearchPageMobileV2Logic.current!.state.searchConfig = SearchConfig(keyword: keyword);
         }
         SearchPageMobileV2Logic.current!.handleClearAndRefresh();
@@ -80,7 +80,7 @@ void newSearch({String? keyword, SearchConfig? rewriteSearchConfig, bool forceNe
         Routes.mobileV2Search,
         arguments: NewSearchArgument(
           keyword: keyword,
-          keywordSearchBehaviour: PreferenceSetting.searchBehaviour.value,
+          keywordSearchBehaviour: preferenceSetting.searchBehaviour.value,
           rewriteSearchConfig: rewriteSearchConfig,
         ),
         preventDuplicates: false,

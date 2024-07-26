@@ -25,9 +25,9 @@ class SettingSuperResolutionPage extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.help),
             onPressed: () => launchUrlString(
-              PreferenceSetting.locale.value.languageCode == 'zh'
+              preferenceSetting.locale.value.languageCode == 'zh'
                   ? 'https://github.com/jiangtian616/JHenTai/wiki/%E5%9B%BE%E7%89%87%E8%B6%85%E5%88%86%E8%BE%A8%E7%8E%87%E6%94%BE%E5%A4%A7%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95'
-                  : PreferenceSetting.locale.value.languageCode == 'ko'
+                  : preferenceSetting.locale.value.languageCode == 'ko'
                       ? 'https://github.com/jiangtian616/JHenTai/wiki/AI-%EC%B4%88%EA%B3%A0%ED%99%94%EC%A7%88-%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%82%AC%EC%9A%A9-%EB%B0%A9%EB%B2%95'
                       : 'https://github.com/jiangtian616/JHenTai/wiki/AI-Image-Super-Resolution-Usage',
             ),

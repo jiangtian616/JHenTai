@@ -115,7 +115,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
             }
             return Center(
               child: EHWarningImage(
-                warning: PreferenceSetting.showR18GImageDirectly.isFalse && element.attributes['nsfw'] == 'R18G',
+                warning: preferenceSetting.showR18GImageDirectly.isFalse && element.attributes['nsfw'] == 'R18G',
                 src: element.attributes['src']!,
               ).marginSymmetric(vertical: 20),
             );
@@ -155,9 +155,9 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
         size: UIConfig.tagDialogButtonSize,
         color: liked ? UIConfig.tagDialogLikedButtonColor(context) : UIConfig.tagDialogButtonColor(context),
       ),
-      onTap: (bool liked) => liked ? Future.value(true) : handleAddWatchedTag(true, useDefault: PreferenceSetting.enableDefaultTagSet.isTrue),
+      onTap: (bool liked) => liked ? Future.value(true) : handleAddWatchedTag(true, useDefault: preferenceSetting.enableDefaultTagSet.isTrue),
       onLongPress:
-          PreferenceSetting.enableDefaultTagSet.isFalse ? null : (bool liked) => liked ? Future.value(true) : handleAddWatchedTag(true, useDefault: false),
+          preferenceSetting.enableDefaultTagSet.isFalse ? null : (bool liked) => liked ? Future.value(true) : handleAddWatchedTag(true, useDefault: false),
     );
   }
 
@@ -169,9 +169,9 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
         size: UIConfig.tagDialogButtonSize,
         color: liked ? UIConfig.tagDialogLikedButtonColor(context) : UIConfig.tagDialogButtonColor(context),
       ),
-      onTap: (bool liked) => liked ? Future.value(true) : handleAddWatchedTag(false, useDefault: PreferenceSetting.enableDefaultTagSet.isTrue),
+      onTap: (bool liked) => liked ? Future.value(true) : handleAddWatchedTag(false, useDefault: preferenceSetting.enableDefaultTagSet.isTrue),
       onLongPress:
-          PreferenceSetting.enableDefaultTagSet.isFalse ? null : (bool liked) => liked ? Future.value(true) : handleAddWatchedTag(false, useDefault: false),
+          preferenceSetting.enableDefaultTagSet.isFalse ? null : (bool liked) => liked ? Future.value(true) : handleAddWatchedTag(false, useDefault: false),
     );
   }
 
@@ -274,7 +274,7 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
       return true;
     }
 
-    if (useDefault && PreferenceSetting.enableDefaultTagSet.isTrue && userSetting.defaultTagSetNo.value != null) {
+    if (useDefault && preferenceSetting.enableDefaultTagSet.isTrue && userSetting.defaultTagSetNo.value != null) {
       _doAddNewTagSet(userSetting.defaultTagSetNo.value!, watch);
       return true;
     }

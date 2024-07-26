@@ -69,7 +69,7 @@ class AppUpdateService extends GetxService {
 
   void handleFirstOpen() {
     /// temp
-    PreferenceSetting.saveSimpleDashboardMode(true);
+    preferenceSetting.saveSimpleDashboardMode(true);
 
     StorageService storageService = Get.find();
     SearchConfig searchConfig = SearchConfig()
@@ -79,8 +79,8 @@ class AppUpdateService extends GetxService {
     storageService.write('${ConfigEnum.searchConfig.key}: GallerysPageLogic', searchConfig.toJson());
 
     Get.engine.addPostFrameCallback((_) {
-      if (PreferenceSetting.locale.value.languageCode == 'zh') {
-        PreferenceSetting.saveEnableTagZHTranslation(true);
+      if (preferenceSetting.locale.value.languageCode == 'zh') {
+        preferenceSetting.saveEnableTagZHTranslation(true);
         Get.find<TagTranslationService>().refresh();
       }
     });
@@ -100,19 +100,19 @@ class AppUpdateService extends GetxService {
         Map<String, dynamic>? styleSettingMap = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.styleSetting.key);
 
         if (styleSettingMap?['locale'] != null) {
-          PreferenceSetting.saveLanguage(localeCode2Locale(styleSettingMap!['locale']));
+          preferenceSetting.saveLanguage(localeCode2Locale(styleSettingMap!['locale']));
         }
         if (styleSettingMap?['enableTagZHTranslation'] != null) {
-          PreferenceSetting.saveEnableTagZHTranslation(styleSettingMap!['enableTagZHTranslation']);
+          preferenceSetting.saveEnableTagZHTranslation(styleSettingMap!['enableTagZHTranslation']);
         }
         if (styleSettingMap?['showR18GImageDirectly'] != null) {
-          PreferenceSetting.saveShowR18GImageDirectly(styleSettingMap!['showR18GImageDirectly']);
+          preferenceSetting.saveShowR18GImageDirectly(styleSettingMap!['showR18GImageDirectly']);
         }
         if (styleSettingMap?['enableQuickSearchDrawerGesture'] != null) {
-          PreferenceSetting.saveEnableQuickSearchDrawerGesture(styleSettingMap!['enableQuickSearchDrawerGesture']);
+          preferenceSetting.saveEnableQuickSearchDrawerGesture(styleSettingMap!['enableQuickSearchDrawerGesture']);
         }
         if (styleSettingMap?['hideBottomBar'] != null) {
-          PreferenceSetting.saveHideBottomBar(styleSettingMap!['hideBottomBar']);
+          preferenceSetting.saveHideBottomBar(styleSettingMap!['hideBottomBar']);
         }
       }
 

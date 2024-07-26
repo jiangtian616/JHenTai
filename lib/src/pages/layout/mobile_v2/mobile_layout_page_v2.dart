@@ -27,13 +27,13 @@ class MobileLayoutPageV2 extends StatelessWidget {
     return Obx(
       () => Scaffold(
         key: MobileLayoutPageV2State.scaffoldKey,
-        drawerEdgeDragWidth: PreferenceSetting.drawerGestureEdgeWidth.value.toDouble(),
+        drawerEdgeDragWidth: preferenceSetting.drawerGestureEdgeWidth.value.toDouble(),
         drawer: buildLeftDrawer(context),
-        drawerEnableOpenDragGesture: PreferenceSetting.enableLeftMenuDrawerGesture.isTrue,
+        drawerEnableOpenDragGesture: preferenceSetting.enableLeftMenuDrawerGesture.isTrue,
         endDrawer: buildRightDrawer(),
-        endDrawerEnableOpenDragGesture: PreferenceSetting.enableQuickSearchDrawerGesture.isTrue,
+        endDrawerEnableOpenDragGesture: preferenceSetting.enableQuickSearchDrawerGesture.isTrue,
         body: buildBody(),
-        bottomNavigationBar: PreferenceSetting.hideBottomBar.isTrue ? null : buildBottomNavigationBar(context),
+        bottomNavigationBar: preferenceSetting.hideBottomBar.isTrue ? null : buildBottomNavigationBar(context),
       ),
     );
   }

@@ -46,7 +46,7 @@ class TagTranslationService extends GetxService {
   RxnString timeStamp = RxnString(null);
   RxString downloadProgress = RxString('0 MB');
 
-  bool get isReady => PreferenceSetting.enableTagZHTranslation.isTrue && (loadingState.value == LoadingState.success || timeStamp.value != null);
+  bool get isReady => preferenceSetting.enableTagZHTranslation.isTrue && (loadingState.value == LoadingState.success || timeStamp.value != null);
 
   static void init() {
     Get.put(TagTranslationService());
@@ -65,7 +65,7 @@ class TagTranslationService extends GetxService {
   }
 
   Future<void> refresh() async {
-    if (PreferenceSetting.enableTagZHTranslation.isFalse) {
+    if (preferenceSetting.enableTagZHTranslation.isFalse) {
       return;
     }
     if (loadingState.value == LoadingState.loading) {

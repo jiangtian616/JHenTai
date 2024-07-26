@@ -1,22 +1,25 @@
 import 'dart:math';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
-import 'package:jhentai/src/service/storage_service.dart';
+import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/utils/screen_size_util.dart';
 import 'package:resizable_widget/resizable_widget.dart';
 import 'package:throttling/throttling.dart';
+import 'package:window_manager/window_manager.dart';
 
+import '../setting/preference_setting.dart';
+import 'jh_service.dart';
 import 'log.dart';
 
-class WindowService extends GetxService {
-  final StorageService storageService = Get.find<StorageService>();
+WindowService windowService = WindowService();
 
-  bool inited = false;
+class WindowService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
+  bool windowManagerInited = false;
 
   double windowWidth = 1280;
   double windowHeight = 720;
-
   bool isMaximized = false;
   bool isFullScreen = false;
 
@@ -25,20 +28,49 @@ class WindowService extends GetxService {
   final Debouncing windowResizedDebouncing = Debouncing(duration: const Duration(milliseconds: 300));
   final Debouncing columnResizedDebouncing = Debouncing(duration: const Duration(milliseconds: 300));
 
-  static void init() {
-    Get.put(WindowService(), permanent: true);
+  @override
+  List<JHLifeCircleBean> get initDependencies => [log, localConfigService, preferenceSetting];
+
+  @override
+  Future<void> doOnInit() async {
+    windowWidth = await localConfigService.read(configKey: ConfigEnum.windowWidth).then((value) => value != null ? double.parse(value) : windowWidth);
+    windowHeight = await localConfigService.read(configKey: ConfigEnum.windowHeight).then((value) => value != null ? double.parse(value) : windowHeight);
+    isMaximized = await localConfigService.read(configKey: ConfigEnum.windowMaximize).then((value) => value != null ? value == 'true' : isMaximized);
+    isFullScreen = await localConfigService.read(configKey: ConfigEnum.windowFullScreen).then((value) => value != null ? value == 'true' : isFullScreen);
+    leftColumnWidthRatio =
+        await localConfigService.read(configKey: ConfigEnum.leftColumnWidthRatio).then((value) => value != null ? double.parse(value) : leftColumnWidthRatio);
+    leftColumnWidthRatio = max(0.01, leftColumnWidthRatio);
+
+    if (GetPlatform.isDesktop) {
+      await windowManager.ensureInitialized();
+      
+      WindowOptions windowOptions = WindowOptions(
+        center: true,
+        size: Size(windowWidth, windowHeight),
+        backgroundColor: Colors.transparent,
+        skipTaskbar: false,
+        title: 'JHenTai',
+        titleBarStyle: GetPlatform.isWindows ? TitleBarStyle.hidden : TitleBarStyle.normal,
+      );
+
+      windowManager.waitUntilReadyToShow(windowOptions, () async {
+        await windowManager.show();
+        await windowManager.focus();
+        if (preferenceSetting.launchInFullScreen.isTrue) {
+          await windowManager.setFullScreen(true);
+        }
+        if (isMaximized) {
+          await windowManager.maximize();
+        }
+        windowManagerInited = true;
+      });
+    }
+
+    log.info('Init WindowService success');
   }
 
   @override
-  void onInit() {
-    super.onInit();
-    windowWidth = storageService.read(ConfigEnum.windowWidth.key) ?? windowWidth;
-    windowHeight = storageService.read(ConfigEnum.windowHeight.key) ?? windowHeight;
-    isMaximized = storageService.read(ConfigEnum.windowMaximize.key) ?? false;
-    isFullScreen = storageService.read(ConfigEnum.windowFullScreen.key) ?? false;
-    leftColumnWidthRatio = storageService.read(ConfigEnum.leftColumnWidthRatio.key) ?? leftColumnWidthRatio;
-    leftColumnWidthRatio = max(0.01, leftColumnWidthRatio);
-  }
+  void doOnReady() {}
 
   void handleColumnResized(List<WidgetSizeInfo> infoList) {
     if (leftColumnWidthRatio == infoList[0].percentage) {
@@ -49,7 +81,7 @@ class WindowService extends GetxService {
       leftColumnWidthRatio = max(0.01, infoList[0].percentage);
 
       log.info('Resize left column ratio to: $leftColumnWidthRatio');
-      storageService.write(ConfigEnum.leftColumnWidthRatio.key, leftColumnWidthRatio);
+      localConfigService.write(configKey: ConfigEnum.leftColumnWidthRatio, value: leftColumnWidthRatio.toString());
     });
   }
 
@@ -60,22 +92,22 @@ class WindowService extends GetxService {
 
       log.info('Resize window to: $windowWidth x $windowHeight');
 
-      storageService.write(ConfigEnum.windowWidth.key, windowWidth);
-      storageService.write(ConfigEnum.windowHeight.key, windowHeight);
+      localConfigService.write(configKey: ConfigEnum.windowWidth, value: windowWidth.toString());
+      localConfigService.write(configKey: ConfigEnum.windowHeight, value: windowHeight.toString());
     });
   }
 
-  void saveMaximizeWindow(bool isMaximized) {
+  Future<bool> saveMaximizeWindow(bool isMaximized) {
     log.info(isMaximized ? 'Maximized window' : 'Restored window');
 
     this.isMaximized = isMaximized;
-    storageService.write(ConfigEnum.windowMaximize.key, isMaximized);
+    return localConfigService.write(configKey: ConfigEnum.windowMaximize, value: isMaximized.toString());
   }
 
-  void saveFullScreen(bool isFullScreen) {
+  Future<bool> saveFullScreen(bool isFullScreen) {
     log.info(isFullScreen ? 'Enter full screen' : 'Leave full screen');
 
     this.isFullScreen = isFullScreen;
-    storageService.write(ConfigEnum.windowFullScreen.key, isFullScreen);
+    return localConfigService.write(configKey: ConfigEnum.windowFullScreen, value: isFullScreen.toString());
   }
 }
