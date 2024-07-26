@@ -1,39 +1,42 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 
-import '../service/storage_service.dart';
+import '../service/jh_service.dart';
 import '../service/log.dart';
 
-class PerformanceSetting {
-  static RxInt maxGalleryNum4Animation = 30.obs;
+PerformanceSetting performanceSetting = PerformanceSetting();
 
-  static Future<void> init() async {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.performanceSetting.key);
-    if (map != null) {
-      _initFromMap(map);
-      log.debug('init PerformanceSetting success');
-    } else {
-      log.debug('init PerformanceSetting success: default');
-    }
+class PerformanceSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
+  RxInt maxGalleryNum4Animation = 30.obs;
+
+  @override
+  ConfigEnum get configEnum => ConfigEnum.performanceSetting;
+
+  @override
+  void applyConfig(String configString) {
+    Map map = jsonDecode(configString);
+
+    maxGalleryNum4Animation.value = map['maxGalleryNum4Animation'] ?? maxGalleryNum4Animation.value;
   }
 
-  static void setMaxGalleryNum4Animation(int value) {
+  @override
+  String toConfigString() {
+    return jsonEncode({
+      'maxGalleryNum4Animation': maxGalleryNum4Animation.value,
+    });
+  }
+
+  @override
+  Future<void> doOnInit() async {}
+
+  @override
+  void doOnReady() {}
+
+  Future<void> setMaxGalleryNum4Animation(int value) async {
     log.debug('setMaxGalleryNum4Animation:$value');
     maxGalleryNum4Animation.value = value;
-    _save();
-  }
-
-  static Future<void> _save() async {
-    await Get.find<StorageService>().write(ConfigEnum.performanceSetting.key, _toMap());
-  }
-
-  static Map<String, dynamic> _toMap() {
-    return {
-      'maxGalleryNum4Animation': maxGalleryNum4Animation.value,
-    };
-  }
-
-  static _initFromMap(Map<String, dynamic> map) {
-    maxGalleryNum4Animation.value = map['maxGalleryNum4Animation'] ?? maxGalleryNum4Animation.value;
+    await save();
   }
 }

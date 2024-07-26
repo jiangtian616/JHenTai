@@ -29,7 +29,7 @@ class ArchiveListDownloadPageLogic extends GetxController
 
     state.displayGroups = Set.from(storageService.read(ConfigEnum.displayArchiveGroups.key) ?? ['default'.tr]);
 
-    maxGalleryNum4AnimationListener = ever(PerformanceSetting.maxGalleryNum4Animation, (_) => updateSafely([bodyId]));
+    maxGalleryNum4AnimationListener = ever(performanceSetting.maxGalleryNum4Animation, (_) => updateSafely([bodyId]));
   }
 
   @override

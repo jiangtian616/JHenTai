@@ -11,7 +11,7 @@ import '../../../utils/toast_util.dart';
 class SettingPerformancePage extends StatelessWidget {
   SettingPerformancePage({super.key});
 
-  final TextEditingController maxGalleryNum4AnimationController = TextEditingController(text: PerformanceSetting.maxGalleryNum4Animation.value.toString());
+  final TextEditingController maxGalleryNum4AnimationController = TextEditingController(text: performanceSetting.maxGalleryNum4Animation.value.toString());
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +52,7 @@ class SettingPerformancePage extends StatelessWidget {
               if (value == null) {
                 return;
               }
-              PerformanceSetting.setMaxGalleryNum4Animation(value);
+              performanceSetting.setMaxGalleryNum4Animation(value);
               toast('saveSuccess'.tr);
             },
             icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),

@@ -137,7 +137,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
         builder: (_) => NotificationListener<UserScrollNotification>(
           onNotification: logic.onUserScroll,
           child: GroupedList<String, GalleryDownloadedData>(
-            maxGalleryNum4Animation: PerformanceSetting.maxGalleryNum4Animation.value,
+            maxGalleryNum4Animation: performanceSetting.maxGalleryNum4Animation.value,
             scrollController: state.scrollController,
             controller: state.groupedListController,
             groups: Map.fromEntries(logic.downloadService.allGroups.map((e) => MapEntry(e, state.displayGroups.contains(e)))),
