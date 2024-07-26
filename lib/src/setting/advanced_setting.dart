@@ -1,76 +1,76 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/utils/log.dart';
 
-import '../service/storage_service.dart';
+import '../service/jh_service.dart';
 
-class AdvancedSetting {
-  static RxBool enableLogging = true.obs;
-  static RxBool enableVerboseLogging = kDebugMode.obs;
-  static RxBool enableCheckUpdate = true.obs;
-  static RxBool enableCheckClipboard = true.obs;
-  static RxBool inNoImageMode = false.obs;
+AdvancedSetting advancedSetting = AdvancedSetting();
 
-  static Future<void> init() async {
-    Map<String, dynamic>? map = Get.find<StorageService>().read<Map<String, dynamic>>(ConfigEnum.advancedSetting.key);
-    if (map != null) {
-      _initFromMap(map);
-      Log.debug('init AdvancedSetting success', false);
-    } else {
-      Log.debug('init AdvancedSetting success: default', false);
-    }
-  }
+class AdvancedSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
+  RxBool enableLogging = true.obs;
+  RxBool enableVerboseLogging = kDebugMode.obs;
+  RxBool enableCheckUpdate = true.obs;
+  RxBool enableCheckClipboard = true.obs;
+  RxBool inNoImageMode = false.obs;
 
-  static saveEnableLogging(bool enableLogging) {
-    Log.debug('saveEnableLogging:$enableLogging');
-    AdvancedSetting.enableLogging.value = enableLogging;
-    _save();
-  }
+  @override
+  ConfigEnum get configEnum => ConfigEnum.advancedSetting;
 
-  static saveEnableVerboseLogging(bool enableVerboseLogging) {
-    Log.debug('saveEnableVerboseLogging:$enableVerboseLogging');
-    AdvancedSetting.enableVerboseLogging.value = enableVerboseLogging;
-    _save();
-  }
+  @override
+  void doOnReady() {}
 
-  static saveEnableCheckUpdate(bool enableCheckUpdate) {
-    Log.debug('saveEnableCheckUpdate:$enableCheckUpdate');
-    AdvancedSetting.enableCheckUpdate.value = enableCheckUpdate;
-    _save();
-  }
+  @override
+  void applyConfig(String configString) {
+    Map map = jsonDecode(configString);
 
-  static saveEnableCheckClipboard(bool enableCheckClipboard) {
-    Log.debug('saveEnableCheckClipboard:$enableCheckClipboard');
-    AdvancedSetting.enableCheckClipboard.value = enableCheckClipboard;
-    _save();
-  }
-
-  static saveInNoImageMode(bool inNoImageMode) {
-    Log.debug('saveInNoImageMode:$inNoImageMode');
-    AdvancedSetting.inNoImageMode.value = inNoImageMode;
-    _save();
-  }
-
-  static Future<void> _save() async {
-    await Get.find<StorageService>().write(ConfigEnum.advancedSetting.key, _toMap());
-  }
-
-  static Map<String, dynamic> _toMap() {
-    return {
-      'enableLogging': enableLogging.value,
-      'enableVerboseLogging': enableVerboseLogging.value,
-      'enableCheckUpdate': enableCheckUpdate.value,
-      'enableCheckClipboard': enableCheckClipboard.value,
-      'inNoImageMode': inNoImageMode.value,
-    };
-  }
-
-  static _initFromMap(Map<String, dynamic> map) {
     enableLogging.value = map['enableLogging'];
     enableVerboseLogging.value = map['enableVerboseLogging'] ?? enableVerboseLogging.value;
     enableCheckUpdate.value = map['enableCheckUpdate'] ?? enableCheckUpdate.value;
     enableCheckClipboard.value = map['enableCheckClipboard'] ?? enableCheckClipboard.value;
     inNoImageMode.value = map['inNoImageMode'] ?? inNoImageMode.value;
+  }
+
+  @override
+  String toConfigString() {
+    return jsonEncode({
+      'enableLogging': enableLogging.value,
+      'enableVerboseLogging': enableVerboseLogging.value,
+      'enableCheckUpdate': enableCheckUpdate.value,
+      'enableCheckClipboard': enableCheckClipboard.value,
+      'inNoImageMode': inNoImageMode.value,
+    });
+  }
+
+  Future<void> saveEnableLogging(bool enableLogging) async {
+    Log.debug('saveEnableLogging:$enableLogging');
+    this.enableLogging.value = enableLogging;
+    await save();
+  }
+
+  Future<void> saveEnableVerboseLogging(bool enableVerboseLogging) async {
+    Log.debug('saveEnableVerboseLogging:$enableVerboseLogging');
+    this.enableVerboseLogging.value = enableVerboseLogging;
+    await save();
+  }
+
+  Future<void> saveEnableCheckUpdate(bool enableCheckUpdate) async {
+    Log.debug('saveEnableCheckUpdate:$enableCheckUpdate');
+    this.enableCheckUpdate.value = enableCheckUpdate;
+    await save();
+  }
+
+  Future<void> saveEnableCheckClipboard(bool enableCheckClipboard) async {
+    Log.debug('saveEnableCheckClipboard:$enableCheckClipboard');
+    this.enableCheckClipboard.value = enableCheckClipboard;
+    await save();
+  }
+
+  Future<void> saveInNoImageMode(bool inNoImageMode) async {
+    Log.debug('saveInNoImageMode:$inNoImageMode');
+    this.inNoImageMode.value = inNoImageMode;
+    await save();
   }
 }

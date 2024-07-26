@@ -63,7 +63,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
           padding: const EdgeInsets.only(top: 16),
           children: [
             _buildEnableLogging(),
-            if (AdvancedSetting.enableLogging.isTrue) _buildRecordAllLogs().fadeIn(),
+            if (advancedSetting.enableLogging.isTrue) _buildRecordAllLogs().fadeIn(),
             _buildOpenLogs(),
             _buildClearLogs(context),
             _buildClearImageCache(context),
@@ -85,7 +85,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     return ListTile(
       title: Text('enableLogging'.tr),
       subtitle: Text('needRestart'.tr),
-      trailing: Switch(value: AdvancedSetting.enableLogging.value, onChanged: AdvancedSetting.saveEnableLogging),
+      trailing: Switch(value: advancedSetting.enableLogging.value, onChanged: advancedSetting.saveEnableLogging),
     );
   }
 
@@ -93,8 +93,8 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     return SwitchListTile(
       title: Text('enableVerboseLogging'.tr),
       subtitle: Text('needRestart'.tr),
-      value: AdvancedSetting.enableVerboseLogging.value,
-      onChanged: AdvancedSetting.saveEnableVerboseLogging,
+      value: advancedSetting.enableVerboseLogging.value,
+      onChanged: advancedSetting.saveEnableVerboseLogging,
     );
   }
 
@@ -172,16 +172,16 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   Widget _buildCheckUpdate() {
     return SwitchListTile(
       title: Text('checkUpdateAfterLaunchingApp'.tr),
-      value: AdvancedSetting.enableCheckUpdate.value,
-      onChanged: AdvancedSetting.saveEnableCheckUpdate,
+      value: advancedSetting.enableCheckUpdate.value,
+      onChanged: advancedSetting.saveEnableCheckUpdate,
     );
   }
 
   Widget _buildCheckClipboard() {
     return SwitchListTile(
       title: Text('checkClipboard'.tr),
-      value: AdvancedSetting.enableCheckClipboard.value,
-      onChanged: AdvancedSetting.saveEnableCheckClipboard,
+      value: advancedSetting.enableCheckClipboard.value,
+      onChanged: advancedSetting.saveEnableCheckClipboard,
     );
   }
 
@@ -208,8 +208,8 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   Widget _buildInNoImageMode() {
     return SwitchListTile(
       title: Text('noImageMode'.tr),
-      value: AdvancedSetting.inNoImageMode.value,
-      onChanged: AdvancedSetting.saveInNoImageMode,
+      value: advancedSetting.inNoImageMode.value,
+      onChanged: advancedSetting.saveInNoImageMode,
     );
   }
 

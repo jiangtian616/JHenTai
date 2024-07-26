@@ -88,7 +88,7 @@ class EHImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget child = AdvancedSetting.inNoImageMode.isTrue
+    Widget child = advancedSetting.inNoImageMode.isTrue
         ? const SizedBox()
         : galleryImage.path == null
             ? buildNetworkImage(context)

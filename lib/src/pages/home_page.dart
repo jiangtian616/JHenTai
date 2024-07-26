@@ -114,7 +114,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
   }
 
   Future<void> _checkUpdate() async {
-    if (AdvancedSetting.enableCheckUpdate.isFalse) {
+    if (advancedSetting.enableCheckUpdate.isFalse) {
       return;
     }
 
@@ -220,7 +220,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
 
   /// a gallery url exists in clipboard, show dialog to check whether enter detail page
   void _handleUrlInClipBoard() async {
-    if (AdvancedSetting.enableCheckClipboard.isFalse) {
+    if (advancedSetting.enableCheckClipboard.isFalse) {
       return;
     }
 

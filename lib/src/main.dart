@@ -173,7 +173,6 @@ Future<void> init() async {
 
   AppUpdateService.init();
 
-  await AdvancedSetting.init();
   await SecuritySetting.init();
   await Log.init();
   UserSetting.init();
