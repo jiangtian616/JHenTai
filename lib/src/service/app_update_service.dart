@@ -477,6 +477,7 @@ class MigrateStorageConfigHandler implements UpdateHandler {
         ehSetting,
         mouseSetting,
         networkSetting,
+        preferenceSetting,
         performanceSetting,
         readSetting,
         securitySetting,
@@ -550,6 +551,13 @@ class MigrateStorageConfigHandler implements UpdateHandler {
       futures.add(Future(() async {
         await localConfigService.write(configKey: ConfigEnum.performanceSetting, value: jsonEncode(performanceSettingMap));
         await performanceSetting.refresh();
+      }));
+    }
+    Map? preferenceSettingMap = storageService.read(ConfigEnum.preferenceSetting.key);
+    if (preferenceSettingMap != null) {
+      futures.add(Future(() async {
+        await localConfigService.write(configKey: ConfigEnum.preferenceSetting, value: jsonEncode(preferenceSettingMap));
+        await preferenceSetting.refresh();
       }));
     }
     Map? readSettingMap = storageService.read(ConfigEnum.readSetting.key);
@@ -707,8 +715,6 @@ class MigrateStorageConfigHandler implements UpdateHandler {
   Future<void> onReady() async {
     log.info('MigrateStorageConfigHandler onReady');
 
-    List<Future> futures = [];
-
     Iterable<String>? keys = storageService.getKeys();
     if (keys != null) {
       Map<String, int> gid2ReadIndexMap = {};
@@ -733,24 +739,24 @@ class MigrateStorageConfigHandler implements UpdateHandler {
           );
         }).toList();
 
-        localConfigs.partition(200).forEach((List<LocalConfigCompanion> localConfigCompanions) {
-          futures.add(localConfigService.batchWrite(localConfigCompanions));
-        });
+        for (List<LocalConfigCompanion> localConfigCompanions in localConfigs.partition(200)) {
+          await localConfigService.batchWrite(localConfigCompanions);
+          await Future.delayed(const Duration(milliseconds: 200));
+        }
       }
     }
 
     Map? map = storageService.read(ConfigEnum.quickSearch.key);
     if (map != null) {
       Map<String, SearchConfig> quickSearchConfigs = LinkedHashMap.from(map.map((key, value) => MapEntry(key, SearchConfig.fromJson(value))));
-      futures.add(localConfigService.write(configKey: ConfigEnum.quickSearch, value: jsonEncode(quickSearchConfigs)));
+      await localConfigService.write(configKey: ConfigEnum.quickSearch, value: jsonEncode(quickSearchConfigs));
     }
 
     List? searchHistories = storageService.read(ConfigEnum.searchHistory.key);
     if (searchHistories != null) {
-      futures.add(localConfigService.write(configKey: ConfigEnum.searchHistory, value: jsonEncode(searchHistories)));
+      await localConfigService.write(configKey: ConfigEnum.searchHistory, value: jsonEncode(searchHistories));
     }
 
-    await Future.wait(futures);
     await localConfigService.write(configKey: ConfigEnum.migrateStorageConfig, value: 'true');
   }
 }
