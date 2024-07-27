@@ -49,7 +49,7 @@ class BlockingRulePage extends StatelessWidget {
         Widget child = FutureBuilder(
           future: state.showGroupCompleter.future,
           builder: (_, __) => !state.showGroupCompleter.isCompleted
-              ? const SizedBox()
+              ? Center(child: UIConfig.loadingAnimation(context))
               : state.showGroup
                   ? GroupedList<String, List<LocalBlockRule>>(
                       maxGalleryNum4Animation: 50,

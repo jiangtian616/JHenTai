@@ -45,18 +45,18 @@ class _DownloadPageState extends State<DownloadPage> {
   @override
   Widget build(BuildContext context) {
     return Material(
-      child: FutureBuilder(
-        future: bodyTypeCompleter.future,
-        builder: (_, __) => NotificationListener<DownloadPageBodyTypeChangeNotification>(
-          onNotification: (DownloadPageBodyTypeChangeNotification notification) {
-            setState(() {
-              galleryType = notification.galleryType ?? galleryType;
-              bodyType = notification.bodyType ?? bodyType;
-            });
-            localConfigService.write(configKey: ConfigEnum.downloadPageBodyType, value: (notification.bodyType ?? bodyType).index.toString());
-            return true;
-          },
-          child: !bodyTypeCompleter.isCompleted
+      child: NotificationListener<DownloadPageBodyTypeChangeNotification>(
+        onNotification: (DownloadPageBodyTypeChangeNotification notification) {
+          setState(() {
+            galleryType = notification.galleryType ?? galleryType;
+            bodyType = notification.bodyType ?? bodyType;
+          });
+          localConfigService.write(configKey: ConfigEnum.downloadPageBodyType, value: (notification.bodyType ?? bodyType).index.toString());
+          return true;
+        },
+        child: FutureBuilder(
+          future: bodyTypeCompleter.future,
+          builder: (_, __) => !bodyTypeCompleter.isCompleted
               ? UIConfig.loadingAnimation(context).center()
               : galleryType == DownloadPageGalleryType.download
                   ? bodyType == DownloadPageBodyType.list

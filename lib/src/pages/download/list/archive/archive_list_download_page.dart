@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_page_mixin.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/pages/download/mixin/archive/archive_download_page_logic_mixin.dart';
@@ -129,13 +130,13 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       id: archiveDownloadService.galleryCountChangedId,
       builder: (_) => GetBuilder<ArchiveListDownloadPageLogic>(
         id: logic.bodyId,
-        builder: (_) => FutureBuilder(
-          future: state.displayGroupsCompleter.future,
-          builder: (_, __) => !state.displayGroupsCompleter.isCompleted
-              ? UIConfig.loadingAnimation(context)
-              : NotificationListener<UserScrollNotification>(
-                  onNotification: logic.onUserScroll,
-                  child: GroupedList<String, ArchiveDownloadedData>(
+        builder: (_) => NotificationListener<UserScrollNotification>(
+          onNotification: logic.onUserScroll,
+          child: FutureBuilder(
+            future: state.displayGroupsCompleter.future,
+            builder: (_, __) => !state.displayGroupsCompleter.isCompleted
+                ? UIConfig.loadingAnimation(context).center()
+                : GroupedList<String, ArchiveDownloadedData>(
                     maxGalleryNum4Animation: performanceSetting.maxGalleryNum4Animation.value,
                     scrollController: state.scrollController,
                     controller: state.groupedListController,
@@ -147,7 +148,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                     groupUniqueKey: (String group) => group,
                     elementUniqueKey: (ArchiveDownloadedData archive) => archive.gid.toString(),
                   ),
-                ),
+          ),
         ),
       ),
     );

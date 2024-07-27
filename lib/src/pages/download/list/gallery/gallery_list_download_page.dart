@@ -3,6 +3,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/pages/download/mixin/gallery/gallery_download_page_mixin.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart' as srs;
@@ -53,7 +54,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(context),
-      body: buildBody(),
+      body: buildBody(context),
       floatingActionButton: buildFloatingActionButton(),
       bottomNavigationBar: buildBottomAppBar(),
     );
@@ -130,24 +131,29 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
     );
   }
 
-  Widget buildBody() {
+  Widget buildBody(BuildContext context) {
     return GetBuilder<GalleryDownloadService>(
       id: logic.downloadService.galleryCountChangedId,
       builder: (_) => GetBuilder<GalleryListDownloadPageLogic>(
         id: logic.bodyId,
         builder: (_) => NotificationListener<UserScrollNotification>(
           onNotification: logic.onUserScroll,
-          child: GroupedList<String, GalleryDownloadedData>(
-            maxGalleryNum4Animation: performanceSetting.maxGalleryNum4Animation.value,
-            scrollController: state.scrollController,
-            controller: state.groupedListController,
-            groups: Map.fromEntries(logic.downloadService.allGroups.map((e) => MapEntry(e, state.displayGroups.contains(e)))),
-            elements: logic.downloadService.gallerys,
-            elementGroup: (GalleryDownloadedData gallery) => logic.downloadService.galleryDownloadInfos[gallery.gid]!.group,
-            groupBuilder: (context, groupName, isOpen) => _groupBuilder(context, groupName, isOpen).marginAll(5),
-            elementBuilder: (BuildContext context, String group, GalleryDownloadedData gallery, isOpen) => _itemBuilder(context, gallery),
-            groupUniqueKey: (String group) => group,
-            elementUniqueKey: (GalleryDownloadedData gallery) => gallery.gid.toString(),
+          child: FutureBuilder(
+            future: state.displayGroupsCompleter.future,
+            builder: (_, __) => !state.displayGroupsCompleter.isCompleted
+                ? UIConfig.loadingAnimation(context).center()
+                : GroupedList<String, GalleryDownloadedData>(
+                    maxGalleryNum4Animation: performanceSetting.maxGalleryNum4Animation.value,
+                    scrollController: state.scrollController,
+                    controller: state.groupedListController,
+                    groups: Map.fromEntries(logic.downloadService.allGroups.map((e) => MapEntry(e, state.displayGroups.contains(e)))),
+                    elements: logic.downloadService.gallerys,
+                    elementGroup: (GalleryDownloadedData gallery) => logic.downloadService.galleryDownloadInfos[gallery.gid]!.group,
+                    groupBuilder: (context, groupName, isOpen) => _groupBuilder(context, groupName, isOpen).marginAll(5),
+                    elementBuilder: (BuildContext context, String group, GalleryDownloadedData gallery, isOpen) => _itemBuilder(context, gallery),
+                    groupUniqueKey: (String group) => group,
+                    elementUniqueKey: (GalleryDownloadedData gallery) => gallery.gid.toString(),
+                  ),
           ),
         ),
       ),

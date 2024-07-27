@@ -177,17 +177,12 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        FutureBuilder(
-          future: state.searchConfigInitCompleter.future,
-          builder: (_, __) => !state.searchConfigInitCompleter.isCompleted
-              ? const SizedBox()
-              : Expanded(
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 7,
-                    children: searchHistoryService.histories.map(buildHistoryChip).toList(),
-                  ),
-                ),
+        Expanded(
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 7,
+            children: searchHistoryService.histories.map(buildHistoryChip).toList(),
+          ),
         ),
       ],
     );
@@ -207,8 +202,10 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
         onLongPress: state.inDeleteSearchHistoryMode
             ? null
             : () {
-                state.searchConfig.keyword = (state.searchConfig.keyword ?? '').trimLeft() + ' ' + history.rawKeyword;
-                logic.update([logic.searchFieldId]);
+                if (state.searchConfigInitCompleter.isCompleted) {
+                  state.searchConfig.keyword = (state.searchConfig.keyword ?? '').trimLeft() + ' ' + history.rawKeyword;
+                  logic.update([logic.searchFieldId]);
+                }
               },
         child: EHTag(
           tag: GalleryTag(
@@ -263,34 +260,33 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
       sliver: SliverList.builder(
         itemBuilder: (context, index) => FadeIn(
           duration: const Duration(milliseconds: 400),
-          child: FutureBuilder(
-            future: state.searchConfigInitCompleter.future,
-            builder: (_, __) => ListTile(
-              title: highlightRawTag(
-                context,
-                state.suggestions[index],
-                TextStyle(fontSize: UIConfig.searchPageSuggestionTitleTextSize, color: UIConfig.searchPageSuggestionTitleColor(context)),
-                const TextStyle(fontSize: UIConfig.searchPageSuggestionTitleTextSize, color: UIConfig.searchPageSuggestionHighlightColor),
-              ),
-              subtitle: state.suggestions[index].tagData.tagName == null
-                  ? null
-                  : highlightTranslatedTag(
-                      context,
-                      state.suggestions[index],
-                      TextStyle(fontSize: UIConfig.searchPageSuggestionSubTitleTextSize, color: UIConfig.searchPageSuggestionSubTitleColor(context)),
-                      const TextStyle(fontSize: UIConfig.searchPageSuggestionSubTitleTextSize, color: UIConfig.searchPageSuggestionHighlightColor),
-                    ),
-              leading: Icon(Icons.search, color: UIConfig.searchPageSuggestionTitleColor(context)),
-              dense: true,
-              minLeadingWidth: 20,
-              visualDensity: const VisualDensity(vertical: -1),
-              onTap: () {
+          child: ListTile(
+            title: highlightRawTag(
+              context,
+              state.suggestions[index],
+              TextStyle(fontSize: UIConfig.searchPageSuggestionTitleTextSize, color: UIConfig.searchPageSuggestionTitleColor(context)),
+              const TextStyle(fontSize: UIConfig.searchPageSuggestionTitleTextSize, color: UIConfig.searchPageSuggestionHighlightColor),
+            ),
+            subtitle: state.suggestions[index].tagData.tagName == null
+                ? null
+                : highlightTranslatedTag(
+                    context,
+                    state.suggestions[index],
+                    TextStyle(fontSize: UIConfig.searchPageSuggestionSubTitleTextSize, color: UIConfig.searchPageSuggestionSubTitleColor(context)),
+                    const TextStyle(fontSize: UIConfig.searchPageSuggestionSubTitleTextSize, color: UIConfig.searchPageSuggestionHighlightColor),
+                  ),
+            leading: Icon(Icons.search, color: UIConfig.searchPageSuggestionTitleColor(context)),
+            dense: true,
+            minLeadingWidth: 20,
+            visualDensity: const VisualDensity(vertical: -1),
+            onTap: () {
+              if (state.searchConfigInitCompleter.isCompleted) {
                 state.searchConfig.keyword = (state.searchConfig.keyword?.substring(0, state.suggestions[index].matchStart) ?? '') +
                     '${state.suggestions[index].tagData.namespace}:"${state.suggestions[index].tagData.key}\$"';
                 state.searchFieldFocusNode.requestFocus();
                 logic.update([logic.searchFieldId]);
-              },
-            ),
+              }
+            },
           ),
         ),
         itemCount: state.suggestions.length,
