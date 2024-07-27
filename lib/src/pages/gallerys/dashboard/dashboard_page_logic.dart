@@ -36,8 +36,9 @@ class DashboardPageLogic extends BasePageLogic {
   Scroll2TopStateMixin get scroll2TopState => state;
 
   @override
-  void onReady() {
-    super.onReady();
+  Future<void> onReady() async {
+    await super.onReady();
+
     loadMore();
     loadRanklist();
     loadPopular();

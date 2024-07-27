@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
@@ -11,6 +13,7 @@ import '../../enum/config_enum.dart';
 import '../../exception/eh_site_exception.dart';
 import '../../model/gallery.dart';
 import '../../model/search_config.dart';
+import '../../service/local_config_service.dart';
 import '../../utils/eh_spider_parser.dart';
 import '../../service/log.dart';
 import '../../utils/snack_util.dart';
@@ -101,7 +104,11 @@ class FavoritePageLogic extends BasePageLogic {
   }
 
   @override
-  void saveSearchConfig(SearchConfig searchConfig) {
-    storageService.write('${ConfigEnum.searchConfig.key}: $searchConfigKey', searchConfig.copyWith(keyword: '', tags: []).toJson());
+  Future<void> saveSearchConfig(SearchConfig searchConfig) async {
+    await localConfigService.write(
+      configKey: ConfigEnum.searchConfig,
+      subConfigKey: searchConfigKey,
+      value: jsonEncode(searchConfig.copyWith(keyword: '', tags: [])),
+    );
   }
 }

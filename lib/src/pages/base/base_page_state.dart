@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_state_mixin.dart';
 import 'package:jhentai/src/model/gallery_count.dart';
@@ -12,6 +14,7 @@ abstract class BasePageState with Scroll2TopStateMixin {
   String get route;
 
   SearchConfig searchConfig = SearchConfig();
+  Completer<void> searchConfigInitCompleter = Completer<void>();
 
   List<Gallery> gallerys = List.empty(growable: true);
 

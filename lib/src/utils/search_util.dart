@@ -13,7 +13,7 @@ import '../setting/preference_setting.dart';
 import '../setting/style_setting.dart';
 import '../widget/eh_search_config_dialog.dart';
 
-void newSearch({String? keyword, SearchConfig? rewriteSearchConfig, bool forceNewRoute = false}) {
+Future<void> newSearch({String? keyword, SearchConfig? rewriteSearchConfig, bool forceNewRoute = false}) async {
   assert(keyword != null || rewriteSearchConfig != null);
 
   switch (styleSetting.actualLayout) {
@@ -26,6 +26,7 @@ void newSearch({String? keyword, SearchConfig? rewriteSearchConfig, bool forceNe
       if (forceNewRoute) {
         desktopSearchPageLogic.addNewTab(keyword: keyword, rewriteSearchConfig: rewriteSearchConfig);
       } else {
+        await desktopSearchPageLogic.currentTabLogic.state.searchConfigInitCompleter.future;
         if (rewriteSearchConfig != null) {
           desktopSearchPageLogic.currentTabLogic.state.searchConfig = rewriteSearchConfig;
         } else if (preferenceSetting.searchBehaviour.value == SearchBehaviour.inheritAll) {
@@ -60,6 +61,7 @@ void newSearch({String? keyword, SearchConfig? rewriteSearchConfig, bool forceNe
       }
 
       if (isRouteAtTop(Routes.mobileV2Search) && !forceNewRoute) {
+        await SearchPageMobileV2Logic.current!.state.searchConfigInitCompleter.future;
         if (rewriteSearchConfig != null) {
           SearchPageMobileV2Logic.current!.state.searchConfig = rewriteSearchConfig;
         } else if (preferenceSetting.searchBehaviour.value == SearchBehaviour.inheritAll) {

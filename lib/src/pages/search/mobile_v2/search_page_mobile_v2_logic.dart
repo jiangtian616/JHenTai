@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/search/mixin/new_search_argument.dart';
 import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2_state.dart';
 
 import '../../../enum/config_enum.dart';
 import '../../../model/search_config.dart';
+import '../../../service/local_config_service.dart';
 import '../../../setting/preference_setting.dart';
 import '../../base/base_page_logic.dart';
 import '../mixin/search_page_logic_mixin.dart';
@@ -23,7 +26,9 @@ class SearchPageMobileV2Logic extends BasePageLogic with SearchPageLogicMixin {
   }
 
   @override
-  void onReady() {
+  Future<void> onReady() async {
+    await super.onReady();
+
     String? keyword;
     SearchBehaviour searchBehaviour = preferenceSetting.searchBehaviour.value;
     SearchConfig? rewriteSearchConfig;
@@ -51,8 +56,6 @@ class SearchPageMobileV2Logic extends BasePageLogic with SearchPageLogicMixin {
     if (Get.arguments is NewSearchArgument) {
       handleClearAndRefresh();
     }
-
-    super.onReady();
   }
 
   @override
@@ -62,7 +65,11 @@ class SearchPageMobileV2Logic extends BasePageLogic with SearchPageLogicMixin {
   }
 
   @override
-  void saveSearchConfig(SearchConfig searchConfig) {
-    storageService.write('${ConfigEnum.searchConfig.key}: $searchConfigKey', searchConfig.copyWith(keyword: '', tags: []).toJson());
+  Future<void> saveSearchConfig(SearchConfig searchConfig) async {
+    await localConfigService.write(
+      configKey: ConfigEnum.searchConfig,
+      subConfigKey: searchConfigKey,
+      value: jsonEncode(searchConfig.copyWith(keyword: '', tags: [])),
+    );
   }
 }

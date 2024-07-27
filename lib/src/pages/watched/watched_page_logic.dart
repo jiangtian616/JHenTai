@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:jhentai/src/pages/watched/watched_page_state.dart';
 
 import '../../enum/config_enum.dart';
 import '../../model/search_config.dart';
+import '../../service/local_config_service.dart';
 import '../base/base_page_logic.dart';
 
 class WatchedPageLogic extends BasePageLogic {
@@ -15,7 +18,11 @@ class WatchedPageLogic extends BasePageLogic {
   final WatchedPageState state = WatchedPageState();
 
   @override
-  void saveSearchConfig(SearchConfig searchConfig) {
-    storageService.write('${ConfigEnum.searchConfig.key}: $searchConfigKey', searchConfig.copyWith(keyword: '', tags: []).toJson());
+  Future<void> saveSearchConfig(SearchConfig searchConfig) async {
+    await localConfigService.write(
+      configKey: ConfigEnum.searchConfig,
+      subConfigKey: searchConfigKey,
+      value: jsonEncode(searchConfig.copyWith(keyword: '', tags: [])),
+    );
   }
 }

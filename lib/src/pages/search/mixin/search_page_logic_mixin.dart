@@ -26,6 +26,7 @@ import '../../../model/gallery.dart';
 import '../../../model/gallery_page.dart';
 import '../../../network/eh_request.dart';
 import '../../../service/quick_search_service.dart';
+import '../../../service/storage_service.dart';
 import '../../../utils/eh_spider_parser.dart';
 import '../../../service/log.dart';
 import '../../../utils/snack_util.dart';
@@ -57,8 +58,8 @@ mixin SearchPageLogicMixin on BasePageLogic {
   final Debouncing recordDebouncing = Debouncing(duration: const Duration(milliseconds: 1000));
 
   @override
-  void onInit() {
-    super.onInit();
+  Future<void> onInit() async {
+    await super.onInit();
     state.enableSearchHistoryTranslation = storageService.read(ConfigEnum.enableSearchHistoryTranslation.key) ?? state.enableSearchHistoryTranslation;
   }
 
@@ -120,6 +121,7 @@ mixin SearchPageLogicMixin on BasePageLogic {
     state.favoriteSortOrder = null;
 
     state.loadingState = LoadingState.loading;
+    await state.searchConfigInitCompleter.future;
     state.searchConfig.keyword = null;
     updateSafely();
 
@@ -154,7 +156,8 @@ mixin SearchPageLogicMixin on BasePageLogic {
     loadMore(checkLoadingState: false);
   }
 
-  void onInputChanged(String text) {
+  Future<void> onInputChanged(String text) async {
+    await state.searchConfigInitCompleter.future;
     state.searchConfig.keyword = text;
 
     GalleryUrl? galleryUrl = GalleryUrl.tryParse(text);
@@ -264,7 +267,9 @@ mixin SearchPageLogicMixin on BasePageLogic {
     super.handleTapGalleryCard(gallery);
   }
 
-  void handleTapClearButton() {
+  Future<void> handleTapClearButton() async {
+    await state.searchConfigInitCompleter.future;
+
     if (isEmptyOrNull(state.searchConfig.keyword)) {
       state.searchConfig.tags?.clear();
     } else {

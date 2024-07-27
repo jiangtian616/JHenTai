@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +10,7 @@ import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/gallery_page.dart';
 import 'package:jhentai/src/model/search_config.dart';
-import 'package:jhentai/src/service/storage_service.dart';
+import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/widget/eh_search_config_dialog.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -51,19 +54,21 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
   bool get autoLoadNeedLogin => false;
 
   final TagTranslationService tagTranslationService = Get.find();
-  final StorageService storageService = Get.find();
   final LocalBlockRuleService localBlockRuleService = Get.find();
 
   @override
-  void onInit() {
+  Future<void> onInit() async {
     super.onInit();
 
     if (useSearchConfig) {
-      Map<String, dynamic>? map = storageService.read('${ConfigEnum.searchConfig.key}: $searchConfigKey');
-      if (map != null) {
+      String? searchConfigString = await localConfigService.read(configKey: ConfigEnum.searchConfig, subConfigKey: searchConfigKey);
+      if (searchConfigString != null) {
+        Map<String, dynamic> map = jsonDecode(searchConfigString);
         state.searchConfig = SearchConfig.fromJson(map);
       }
     }
+
+    state.searchConfigInitCompleter.complete();
 
     if (autoLoadForFirstTime) {
       if (autoLoadNeedLogin && !userSetting.hasLoggedIn()) {
@@ -75,6 +80,13 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
       loadMore();
     }
+  }
+
+  @override
+  Future<void> onReady() async {
+    super.onReady();
+
+    await state.searchConfigInitCompleter.future;
   }
 
   /// pull-down
@@ -345,7 +357,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     /// No need to save at search page
     if (useSearchConfig) {
-      saveSearchConfig(searchConfig);
+      await saveSearchConfig(searchConfig);
     }
 
     handleClearAndRefresh();
@@ -374,17 +386,21 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     );
   }
 
-  void saveSearchConfig(SearchConfig searchConfig) {
-    storageService.write('${ConfigEnum.searchConfig.key}: $searchConfigKey', searchConfig.toJson());
+  Future<void> saveSearchConfig(SearchConfig searchConfig) async {
+    await localConfigService.write(
+      configKey: ConfigEnum.searchConfig,
+      subConfigKey: searchConfigKey,
+      value: jsonEncode(searchConfig),
+    );
   }
 
   Future<List<Gallery>> postHandleNewGallerys(List<Gallery> gallerys, {bool cleanDuplicate = true}) async {
     if (cleanDuplicate) {
       _cleanDuplicateGallery(gallerys);
     }
-    
+
     await _translateGalleryTagsIfNeeded(gallerys);
-    
+
     List<Gallery> filteredGallerys = await _filterByBlockingRules(gallerys);
 
     if (preferenceSetting.preloadGalleryCover.isTrue) {

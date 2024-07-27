@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:jhentai/src/database/dao/gallery_history_dao.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
+import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
@@ -468,6 +469,27 @@ class MigrateStorageConfigHandler implements UpdateHandler {
     List<String>? cookies = storageService.read<List?>(ConfigEnum.ehCookie.key)?.cast<String>().toList();
     if (cookies != null) {
       await localConfigService.write(configKey: ConfigEnum.ehCookie, value: jsonEncode(cookies));
+    }
+
+    Map<String, dynamic>? dashboardPageSearchConfigMap = storageService.read('${ConfigEnum.searchConfig.key}: DashboardPageLogic');
+    if (dashboardPageSearchConfigMap != null) {
+      SearchConfig searchConfig = SearchConfig.fromJson(dashboardPageSearchConfigMap);
+      await localConfigService.write(configKey: ConfigEnum.searchConfig, subConfigKey: 'DashboardPageLogic', value: jsonEncode(searchConfig));
+    }
+    Map<String, dynamic>? searchPageSearchConfigMap = storageService.read('${ConfigEnum.searchConfig.key}: ${SearchPageLogicMixin.searchPageConfigKey}');
+    if (searchPageSearchConfigMap != null) {
+      SearchConfig searchConfig = SearchConfig.fromJson(searchPageSearchConfigMap);
+      await localConfigService.write(configKey: ConfigEnum.searchConfig, subConfigKey: SearchPageLogicMixin.searchPageConfigKey, value: jsonEncode(searchConfig));
+    }
+    Map<String, dynamic>? gallerysPageSearchConfigMap = storageService.read('${ConfigEnum.searchConfig.key}: GallerysPageLogic');
+    if (gallerysPageSearchConfigMap != null) {
+      SearchConfig searchConfig = SearchConfig.fromJson(gallerysPageSearchConfigMap);
+      await localConfigService.write(configKey: ConfigEnum.searchConfig, subConfigKey: 'GallerysPageLogic', value: jsonEncode(searchConfig));
+    }
+    Map<String, dynamic>? favoritePageSearchConfigMap = storageService.read('${ConfigEnum.searchConfig.key}: FavoritePageLogic');
+    if (favoritePageSearchConfigMap != null) {
+      SearchConfig searchConfig = SearchConfig.fromJson(favoritePageSearchConfigMap);
+      await localConfigService.write(configKey: ConfigEnum.searchConfig, subConfigKey: 'FavoritePageLogic', value: jsonEncode(searchConfig));
     }
   }
 

@@ -94,19 +94,22 @@ class DesktopSearchPage extends StatelessWidget with Scroll2TopPageMixin {
             child: GetBuilder<DesktopSearchPageTabLogic>(
               global: false,
               init: tabLogic,
-              builder: (_) => _SearchTab(
-                name: index == state.currentTabIndex
-                    ? (tabLogic.state.totalCount != null
-                        ? tabLogic.state.totalCount!.toPrintString()
-                        : tabLogic.state.searchConfig.computeFullKeywords().defaultIfEmpty('${'tab'.tr} ${index + 1}'))
-                    : tabLogic.state.searchConfig.computeFullKeywords().defaultIfEmpty('${'tab'.tr} ${index + 1}'),
-                selected: index == state.currentTabIndex,
-                selectedColor: UIConfig.desktopSearchTabSelectedBackGroundColor(context),
-                unSelectedColor: UIConfig.desktopSearchTabUnSelectedBackGroundColor(context),
-                selectedTextColor: UIConfig.desktopSearchTabSelectedTextColor(context),
-                unSelectedTextColor: UIConfig.desktopSearchTabUnSelectedTextColor(context),
-                onTap: () => logic.handleTapTab(index),
-                onDelete: () => logic.deleteTab(index),
+              builder: (_) => FutureBuilder(
+                future: tabLogic.state.searchConfigInitCompleter.future,
+                builder: (_, __) => _SearchTab(
+                  name: index == state.currentTabIndex
+                      ? (tabLogic.state.totalCount != null
+                          ? tabLogic.state.totalCount!.toPrintString()
+                          : tabLogic.state.searchConfig.computeFullKeywords().defaultIfEmpty('${'tab'.tr} ${index + 1}'))
+                      : tabLogic.state.searchConfig.computeFullKeywords().defaultIfEmpty('${'tab'.tr} ${index + 1}'),
+                  selected: index == state.currentTabIndex,
+                  selectedColor: UIConfig.desktopSearchTabSelectedBackGroundColor(context),
+                  unSelectedColor: UIConfig.desktopSearchTabUnSelectedBackGroundColor(context),
+                  selectedTextColor: UIConfig.desktopSearchTabSelectedTextColor(context),
+                  unSelectedTextColor: UIConfig.desktopSearchTabUnSelectedTextColor(context),
+                  onTap: () => logic.handleTapTab(index),
+                  onDelete: () => logic.deleteTab(index),
+                ),
               ),
             ),
           ),

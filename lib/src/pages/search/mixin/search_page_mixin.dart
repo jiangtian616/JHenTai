@@ -64,51 +64,54 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
       id: logic.searchFieldId,
       builder: (_) => SizedBox(
         height: styleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
-        child: TextField(
-          focusNode: state.searchFieldFocusNode,
-          textInputAction: TextInputAction.search,
-          controller: TextEditingController.fromValue(
-            TextEditingValue(
-              text: state.searchConfig.keyword ?? '',
+        child: FutureBuilder(
+          future: state.searchConfigInitCompleter.future,
+          builder: (_, __) => TextField(
+            focusNode: state.searchFieldFocusNode,
+            textInputAction: TextInputAction.search,
+            controller: TextEditingController.fromValue(
+              TextEditingValue(
+                text: state.searchConfig.keyword ?? '',
 
-              /// make cursor stay at last letter
-              selection: TextSelection.fromPosition(TextPosition(offset: state.searchConfig.keyword?.length ?? 0)),
+                /// make cursor stay at last letter
+                selection: TextSelection.fromPosition(TextPosition(offset: state.searchConfig.keyword?.length ?? 0)),
+              ),
             ),
+            style: const TextStyle(fontSize: 15),
+            textAlignVertical: TextAlignVertical.center,
+            decoration: InputDecoration(
+              isDense: true,
+              hintText: 'search'.tr,
+              contentPadding: EdgeInsets.zero,
+              labelStyle: const TextStyle(fontSize: 15),
+              floatingLabelStyle: const TextStyle(fontSize: 10),
+              labelText: state.searchConfig.tags?.isEmpty ?? true ? null : state.searchConfig.computeTagKeywords(withTranslation: false, separator: ' / '),
+              prefixIcon: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(child: const Icon(Icons.search), onTap: logic.handleClearAndRefresh),
+              ),
+              prefixIconConstraints: BoxConstraints(
+                minHeight: styleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
+                minWidth: styleSetting.isInDesktopLayout ? 32 : 52,
+              ),
+              suffixIcon: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(child: const Icon(Icons.cancel), onTap: logic.handleTapClearButton),
+              ),
+              suffixIconConstraints: BoxConstraints(
+                minHeight: styleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
+                minWidth: styleSetting.isInDesktopLayout ? 24 : 40,
+              ),
+            ),
+            onTap: () {
+              if (state.bodyType == SearchPageBodyType.gallerys) {
+                state.hideSearchHistory = false;
+                logic.toggleBodyType();
+              }
+            },
+            onChanged: logic.onInputChanged,
+            onSubmitted: (_) => logic.handleClearAndRefresh(),
           ),
-          style: const TextStyle(fontSize: 15),
-          textAlignVertical: TextAlignVertical.center,
-          decoration: InputDecoration(
-            isDense: true,
-            hintText: 'search'.tr,
-            contentPadding: EdgeInsets.zero,
-            labelStyle: const TextStyle(fontSize: 15),
-            floatingLabelStyle: const TextStyle(fontSize: 10),
-            labelText: state.searchConfig.tags?.isEmpty ?? true ? null : state.searchConfig.computeTagKeywords(withTranslation: false, separator: ' / '),
-            prefixIcon: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(child: const Icon(Icons.search), onTap: logic.handleClearAndRefresh),
-            ),
-            prefixIconConstraints: BoxConstraints(
-              minHeight: styleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
-              minWidth: styleSetting.isInDesktopLayout ? 32 : 52,
-            ),
-            suffixIcon: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(child: const Icon(Icons.cancel), onTap: logic.handleTapClearButton),
-            ),
-            suffixIconConstraints: BoxConstraints(
-              minHeight: styleSetting.isInDesktopLayout ? UIConfig.desktopSearchBarHeight : UIConfig.mobileV2SearchBarHeight,
-              minWidth: styleSetting.isInDesktopLayout ? 24 : 40,
-            ),
-          ),
-          onTap: () {
-            if (state.bodyType == SearchPageBodyType.gallerys) {
-              state.hideSearchHistory = false;
-              logic.toggleBodyType();
-            }
-          },
-          onChanged: logic.onInputChanged,
-          onSubmitted: (_) => logic.handleClearAndRefresh(),
         ),
       ),
     );
@@ -254,31 +257,34 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
       sliver: SliverList.builder(
         itemBuilder: (context, index) => FadeIn(
           duration: const Duration(milliseconds: 400),
-          child: ListTile(
-            title: highlightRawTag(
-              context,
-              state.suggestions[index],
-              TextStyle(fontSize: UIConfig.searchPageSuggestionTitleTextSize, color: UIConfig.searchPageSuggestionTitleColor(context)),
-              const TextStyle(fontSize: UIConfig.searchPageSuggestionTitleTextSize, color: UIConfig.searchPageSuggestionHighlightColor),
+          child: FutureBuilder(
+            future: state.searchConfigInitCompleter.future,
+            builder: (_, __) => ListTile(
+              title: highlightRawTag(
+                context,
+                state.suggestions[index],
+                TextStyle(fontSize: UIConfig.searchPageSuggestionTitleTextSize, color: UIConfig.searchPageSuggestionTitleColor(context)),
+                const TextStyle(fontSize: UIConfig.searchPageSuggestionTitleTextSize, color: UIConfig.searchPageSuggestionHighlightColor),
+              ),
+              subtitle: state.suggestions[index].tagData.tagName == null
+                  ? null
+                  : highlightTranslatedTag(
+                      context,
+                      state.suggestions[index],
+                      TextStyle(fontSize: UIConfig.searchPageSuggestionSubTitleTextSize, color: UIConfig.searchPageSuggestionSubTitleColor(context)),
+                      const TextStyle(fontSize: UIConfig.searchPageSuggestionSubTitleTextSize, color: UIConfig.searchPageSuggestionHighlightColor),
+                    ),
+              leading: Icon(Icons.search, color: UIConfig.searchPageSuggestionTitleColor(context)),
+              dense: true,
+              minLeadingWidth: 20,
+              visualDensity: const VisualDensity(vertical: -1),
+              onTap: () {
+                state.searchConfig.keyword = (state.searchConfig.keyword?.substring(0, state.suggestions[index].matchStart) ?? '') +
+                    '${state.suggestions[index].tagData.namespace}:"${state.suggestions[index].tagData.key}\$"';
+                state.searchFieldFocusNode.requestFocus();
+                logic.update([logic.searchFieldId]);
+              },
             ),
-            subtitle: state.suggestions[index].tagData.tagName == null
-                ? null
-                : highlightTranslatedTag(
-                    context,
-                    state.suggestions[index],
-                    TextStyle(fontSize: UIConfig.searchPageSuggestionSubTitleTextSize, color: UIConfig.searchPageSuggestionSubTitleColor(context)),
-                    const TextStyle(fontSize: UIConfig.searchPageSuggestionSubTitleTextSize, color: UIConfig.searchPageSuggestionHighlightColor),
-                  ),
-            leading: Icon(Icons.search, color: UIConfig.searchPageSuggestionTitleColor(context)),
-            dense: true,
-            minLeadingWidth: 20,
-            visualDensity: const VisualDensity(vertical: -1),
-            onTap: () {
-              state.searchConfig.keyword = (state.searchConfig.keyword?.substring(0, state.suggestions[index].matchStart) ?? '') +
-                  '${state.suggestions[index].tagData.namespace}:"${state.suggestions[index].tagData.key}\$"';
-              state.searchFieldFocusNode.requestFocus();
-              logic.update([logic.searchFieldId]);
-            },
           ),
         ),
         itemCount: state.suggestions.length,
