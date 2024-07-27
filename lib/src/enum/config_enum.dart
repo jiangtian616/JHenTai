@@ -38,7 +38,7 @@ enum ConfigEnum {
   myTagsSetting('MyTagsSetting'),
 
   /// page config
-  downloadPageGalleryType('downloadPageGalleryType'),
+  downloadPageBodyType('downloadPageGalleryType'),
   displayArchiveGroups('displayArchiveGroups'),
   displayGalleryGroups('displayGalleryGroups'),
   enableSearchHistoryTranslation('enableSearchHistoryTranslation'),

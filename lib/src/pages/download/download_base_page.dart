@@ -30,14 +30,16 @@ class _DownloadPageState extends State<DownloadPage> {
   Completer<void> bodyTypeCompleter = Completer<void>();
 
   @override
-  Future<void> initState() async {
+  void initState() {
     super.initState();
 
-    String? bodyTypeString = await localConfigService.read(configKey: ConfigEnum.downloadPageGalleryType);
-    if (bodyTypeString != null) {
-      bodyType = DownloadPageBodyType.values[int.tryParse(bodyTypeString) ?? 0];
-    }
-    bodyTypeCompleter.complete();
+    localConfigService.read(configKey: ConfigEnum.downloadPageBodyType).then((bodyTypeString) {
+      if (bodyTypeString != null) {
+        bodyType = DownloadPageBodyType.values[int.tryParse(bodyTypeString) ?? 0];
+      }
+    }).whenComplete(() {
+      bodyTypeCompleter.complete();
+    });
   }
 
   @override
@@ -51,7 +53,7 @@ class _DownloadPageState extends State<DownloadPage> {
               galleryType = notification.galleryType ?? galleryType;
               bodyType = notification.bodyType ?? bodyType;
             });
-            localConfigService.write(configKey: ConfigEnum.downloadPageGalleryType, value: (notification.bodyType ?? bodyType).index.toString());
+            localConfigService.write(configKey: ConfigEnum.downloadPageBodyType, value: (notification.bodyType ?? bodyType).index.toString());
             return true;
           },
           child: !bodyTypeCompleter.isCompleted

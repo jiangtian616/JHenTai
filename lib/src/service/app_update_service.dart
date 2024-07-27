@@ -658,9 +658,9 @@ class MigrateStorageConfigHandler implements UpdateHandler {
       futures.add(localConfigService.write(configKey: ConfigEnum.dismissVersion, value: dismissVersion));
     }
 
-    int? downloadPageBodyType = storageService.read(ConfigEnum.downloadPageGalleryType.key);
+    int? downloadPageBodyType = storageService.read(ConfigEnum.downloadPageBodyType.key);
     if (downloadPageBodyType != null) {
-      futures.add(localConfigService.write(configKey: ConfigEnum.downloadPageGalleryType, value: downloadPageBodyType.toString()));
+      futures.add(localConfigService.write(configKey: ConfigEnum.downloadPageBodyType, value: downloadPageBodyType.toString()));
     }
 
     List? archiveDisplayGroups = storageService.read<List?>(ConfigEnum.displayArchiveGroups.key);

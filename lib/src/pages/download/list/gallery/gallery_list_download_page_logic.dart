@@ -60,7 +60,7 @@ class GalleryListDownloadPageLogic extends GetxController
       state.displayGroups.add(groupName);
     }
 
-    await localConfigService.write(configKey: ConfigEnum.displayGalleryGroups, value: jsonEncode(state.displayGroups));
+    await localConfigService.write(configKey: ConfigEnum.displayGalleryGroups, value: jsonEncode(state.displayGroups.toList()));
     state.groupedListController.toggleGroup(groupName);
   }
 
