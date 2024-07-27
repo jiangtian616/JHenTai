@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
+import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/utils/screen_size_util.dart';
 
@@ -17,15 +19,17 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
   final StorageService storageService = Get.find<StorageService>();
 
   @override
-  void onInit() {
+  Future<void> onInit() async {
     super.onInit();
 
-    List<bool>? cachedIsSpreadPage = storageService.read('${ConfigEnum.isSpreadPage.key}::${readPageState.readPageInfo.gid}')?.cast<bool>();
-    if (cachedIsSpreadPage != null && cachedIsSpreadPage.length == readPageState.readPageInfo.pageCount) {
-      state.isSpreadPage = cachedIsSpreadPage;
-    } else {
+    String? cacheString = await localConfigService.read(configKey: ConfigEnum.isSpreadPage, subConfigKey: readPageState.readPageInfo.gid.toString());
+    if (cacheString == null) {
       state.isSpreadPage = List.generate(readPageState.readPageInfo.pageCount, (_) => false);
+    } else {
+      List<int> list = jsonDecode(cacheString);
+      state.isSpreadPage = list.map((e) => e == 1).toList();
     }
+    state.isSpreadPageCompleter.complete();
 
     state.pageCount = computePageCount();
 
@@ -76,13 +80,17 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
   }
 
   @override
-  void jump2ImageIndex(int imageIndex) {
+  Future<void> jump2ImageIndex(int imageIndex) async {
+    await state.isSpreadPageCompleter.future;
+
     state.pageController.jumpToPage(computePageIndexOfImage(imageIndex));
     super.jump2ImageIndex(imageIndex);
   }
 
   @override
-  void scroll2ImageIndex(int imageIndex, [Duration? duration]) {
+  Future<void> scroll2ImageIndex(int imageIndex, [Duration? duration]) async {
+    await state.isSpreadPageCompleter.future;
+
     state.pageController.animateToPage(
       computePageIndexOfImage(imageIndex),
       duration: duration ?? const Duration(milliseconds: 200),
@@ -92,7 +100,9 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
   }
 
   @override
-  void toggleDisplayFirstPageAlone() {
+  Future<void> toggleDisplayFirstPageAlone() async {
+    await state.isSpreadPageCompleter.future;
+
     state.pageCount = computePageCount();
     updateSafely([BaseLayoutLogic.pageId]);
   }
@@ -157,7 +167,9 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
     );
   }
 
-  void updateSpreadPage(int imageIndex) {
+  Future<void> updateSpreadPage(int imageIndex) async {
+    await state.isSpreadPageCompleter.future;
+
     /// has recognized from cache
     if (state.isSpreadPage[imageIndex]) {
       galleryDownloadService.updateSafely(['${galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$imageIndex']);
@@ -171,7 +183,12 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
     if (computePageIndexOfImage(imageIndex) <= state.pageController.page!.toInt()) {
       jump2ImageIndex(readPageState.readPageInfo.currentImageIndex);
     }
-    storageService.write('${ConfigEnum.isSpreadPage.key}::${readPageState.readPageInfo.gid}', state.isSpreadPage);
+
+    await localConfigService.write(
+      configKey: ConfigEnum.isSpreadPage,
+      subConfigKey: readPageState.readPageInfo.gid.toString(),
+      value: jsonEncode(state.isSpreadPage.map((e) => e ? 1 : 0).toList()),
+    );
   }
 
   int computePageCount() {

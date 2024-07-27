@@ -104,7 +104,7 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
       return null;
     }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (state.extendedImageInfo == null || logic.readPageState.imageContainerSizes[index] != null) {
         return;
       }
@@ -120,6 +120,7 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
       );
       logic.readPageState.imageContainerSizes[index] = fittedSizes.destination;
 
+      await this.state.isSpreadPageCompleter.future;
       if (isSpreadPage && !this.state.isSpreadPage[index]) {
         logic.updateSpreadPage(index);
       } else {
@@ -136,7 +137,7 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
       return null;
     }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (state.extendedImageInfo == null || logic.readPageState.imageContainerSizes[index] != null) {
         return;
       }
@@ -152,6 +153,7 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
       );
       logic.readPageState.imageContainerSizes[index] = fittedSizes.destination;
 
+      await this.state.isSpreadPageCompleter.future;
       if (isSpreadPage && !this.state.isSpreadPage[index]) {
         logic.updateSpreadPage(index);
       } else {
