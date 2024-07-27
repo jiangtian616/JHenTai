@@ -1,13 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_socks_proxy/socks_proxy.dart';
-import 'package:get/get_core/get_core.dart';
-import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:jhentai/src/consts/jh_consts.dart';
+import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/network/jh_cookie_manager.dart';
+import 'package:jhentai/src/service/local_config_service.dart';
 
 import '../service/isolate_service.dart';
 import '../service/jh_service.dart';
-import '../service/storage_service.dart';
 import '../setting/network_setting.dart';
 import '../utils/eh_spider_parser.dart';
 import '../utils/proxy_util.dart';
@@ -16,8 +15,11 @@ JHRequest jhRequest = JHRequest();
 
 class JHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late final Dio _dio;
-  late final JHCookieManager _cookieManager;
   late final String systemProxyAddress;
+  late final JHCookieManager _cookieManager;
+
+  @override
+  List<JHLifeCircleBean> get initDependencies => super.initDependencies..add(ehRequest);
 
   @override
   Future<void> doOnInit() async {
@@ -30,7 +32,7 @@ class JHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
 
     await _initProxy();
 
-    _initCookieManager();
+    await _initCookieManager();
   }
 
   @override
@@ -45,8 +47,8 @@ class JHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     );
   }
 
-  void _initCookieManager() {
-    _cookieManager = JHCookieManager(Get.find<StorageService>());
+  Future<void> _initCookieManager() async {
+    _cookieManager = JHCookieManager();
     _dio.interceptors.add(_cookieManager);
   }
 

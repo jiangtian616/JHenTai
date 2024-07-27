@@ -143,7 +143,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
       await pauseDownloadArchive(gid);
 
-      await Get.find<SuperResolutionService>().deleteSuperResolve(gid, SuperResolutionType.archive);
+      await superResolutionService.deleteSuperResolve(gid, SuperResolutionType.archive);
 
       await _deleteArchiveInfoInDatabase(gid);
 
@@ -283,7 +283,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       return;
     }
 
-    return Get.find<GalleryDownloadService>().importGallery(galleryDownloadedData, images);
+    return galleryDownloadService.importGallery(galleryDownloadedData, images);
   }
 
   Future<bool> updateArchiveGroup(int gid, String group) async {

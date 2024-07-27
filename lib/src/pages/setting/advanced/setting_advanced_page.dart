@@ -44,8 +44,6 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   LoadingState _exportDataLoadingState = LoadingState.idle;
   LoadingState _importDataLoadingState = LoadingState.idle;
 
-  final CloudConfigService cloudConfigService = Get.find();
-
   @override
   void initState() {
     super.initState();

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
-import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/utils/screen_size_util.dart';
 import 'package:resizable_widget/resizable_widget.dart';
 import 'package:throttling/throttling.dart';

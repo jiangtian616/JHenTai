@@ -94,7 +94,7 @@ class ThumbnailsPage extends StatelessWidget with Scroll2TopPageMixin {
                   SchedulerBinding.instance.addPostFrameCallback((_) => logic.loadMoreThumbnails());
                 }
 
-                GalleryImage? downloadedImage = logic.detailsPageLogic.galleryDownloadService
+                GalleryImage? downloadedImage = galleryDownloadService
                     .galleryDownloadInfos[logic.detailsPageState.galleryDetails!.galleryUrl.gid]?.images[state.absoluteIndexOfThumbnails[index]];
 
                 return KeepAliveWrapper(

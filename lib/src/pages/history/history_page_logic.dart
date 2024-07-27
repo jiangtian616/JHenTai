@@ -17,8 +17,6 @@ class HistoryPageLogic extends OldBasePageLogic {
   @override
   final HistoryPageState state = HistoryPageState();
 
-  final HistoryService historyService = Get.find();
-
   @override
   bool get useSearchConfig => false;
 

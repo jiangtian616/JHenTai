@@ -23,8 +23,6 @@ class ConfigureBlockingRulePageLogic extends GetxController {
 
   final ConfigureBlockingRulePageState state = ConfigureBlockingRulePageState();
 
-  final LocalBlockRuleService localBlockRuleService = Get.find();
-
   @override
   void onInit() {
     ConfigureBlockingRulePageArgument argument = Get.arguments;

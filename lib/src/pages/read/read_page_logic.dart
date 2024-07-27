@@ -65,11 +65,6 @@ class ReadPageLogic extends GetxController {
               ? Get.find<HorizontalDoubleColumnLayoutLogic>()
               : Get.find<HorizontalPageLayoutLogic>();
 
-  final StorageService storageService = Get.find();
-  final VolumeService volumeService = Get.find();
-
-  final SuperResolutionService superResolutionService = Get.find();
-
   late Timer refreshCurrentTimeAndBatteryLevelTimer;
   late Timer flushReadProgressTimer;
 

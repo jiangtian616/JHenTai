@@ -15,6 +15,8 @@ import 'package:jhentai/src/service/super_resolution_service.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/archive_download_service.dart';
+import '../../../../service/archive_download_service.dart';
+import '../../../../service/archive_download_service.dart';
 import '../../../../utils/byte_util.dart';
 import '../../../../utils/route_util.dart';
 import '../../mixin/basic/multi_select/multi_select_download_page_mixin.dart';
@@ -136,7 +138,7 @@ class ArchiveGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
               builder: (_) {
                 Widget cover = buildGroupInnerImage(GalleryImage(url: archive.coverUrl));
 
-                if (logic.archiveDownloadService.archiveDownloadInfos[archive.gid]?.archiveStatus == ArchiveStatus.completed) {
+                if (archiveDownloadService.archiveDownloadInfos[archive.gid]?.archiveStatus == ArchiveStatus.completed) {
                   return cover;
                 }
 
@@ -167,14 +169,14 @@ class ArchiveGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       widget: GetBuilder<ArchiveGridDownloadPageLogic>(
         id: '${logic.itemCardId}::${archive.gid}',
         builder: (_) {
-          ArchiveDownloadInfo archiveDownloadInfo = logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!;
+          ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadService.archiveDownloadInfos[archive.gid]!;
 
           return GetBuilder<ArchiveDownloadService>(
             id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
             builder: (_) {
               Widget cover = buildGalleryImage(GalleryImage(url: archive.coverUrl));
 
-              if (logic.archiveDownloadService.archiveDownloadInfos[archive.gid]?.archiveStatus == ArchiveStatus.completed) {
+              if (archiveDownloadService.archiveDownloadInfos[archive.gid]?.archiveStatus == ArchiveStatus.completed) {
                 if (state.selectedGids.contains(archive.gid)) {
                   return Stack(
                     children: [cover, _buildSelectedIcon()],
@@ -265,8 +267,8 @@ class ArchiveGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       onTap: () => archiveDownloadInfo.archiveStatus == ArchiveStatus.needReUnlock
           ? logic.handleReUnlockArchive(archive)
           : archiveDownloadInfo.archiveStatus == ArchiveStatus.paused
-              ? logic.archiveDownloadService.resumeDownloadArchive(archive.gid)
-              : logic.archiveDownloadService.pauseDownloadArchive(archive.gid),
+              ? archiveDownloadService.resumeDownloadArchive(archive.gid)
+              : archiveDownloadService.pauseDownloadArchive(archive.gid),
       child: Center(
         child: GetBuilder<ArchiveDownloadService>(
           id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',

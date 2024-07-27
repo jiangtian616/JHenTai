@@ -34,9 +34,6 @@ class ArchiveGridDownloadPageLogic extends GetxController
   ArchiveDownloadPageStateMixin get archiveDownloadPageState => state;
 
   @override
-  final ArchiveDownloadService archiveDownloadService = Get.find<ArchiveDownloadService>();
-
-  @override
   GridBasePageServiceMixin get galleryService => archiveDownloadService;
 
   void handleTapTitle(ArchiveDownloadedData archive) {

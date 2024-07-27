@@ -27,9 +27,6 @@ mixin LocalGalleryDownloadPageLogicMixin on GetxController {
 
   set currentPath(String value);
 
-  final LocalGalleryService localGalleryService = Get.find<LocalGalleryService>();
-  final StorageService storageService = Get.find<StorageService>();
-
   bool get isAtRootPath => currentPath == LocalGalleryService.rootPath;
 
   int computeItemCount() {

@@ -33,8 +33,8 @@ class EHAddTagDialog extends StatelessWidget {
         children: [
           Text('addTag'.tr),
           const Expanded(child: SizedBox()),
-          if (logic.tagTranslationService.isReady) Text('useTranslation'.tr, style: const TextStyle(fontSize: 14)),
-          if (logic.tagTranslationService.isReady)
+          if (tagTranslationService.isReady) Text('useTranslation'.tr, style: const TextStyle(fontSize: 14)),
+          if (tagTranslationService.isReady)
             GetBuilder<EHAddTagDialogLogic>(
               id: EHAddTagDialogLogic.checkBoxId,
               builder: (_) => Checkbox(
@@ -212,8 +212,6 @@ class EHAddTagDialogLogic extends GetxController {
   static const String tagsId = 'tagsId';
 
   EHAddTagDialogState state = EHAddTagDialogState();
-
-  final TagTranslationService tagTranslationService = Get.find();
 
   String get lastKeyWord => state.keyword.split(',').last.trim();
 

@@ -16,9 +16,6 @@ class BlockingRulePageLogic extends GetxController {
 
   final BlockingRulePageState state = BlockingRulePageState();
 
-  final StorageService storageService = Get.find();
-  final LocalBlockRuleService localBlockRuleService = Get.find();
-
   @override
   Future<void> onInit() async {
     super.onInit();

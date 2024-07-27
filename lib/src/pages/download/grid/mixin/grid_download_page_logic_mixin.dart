@@ -15,8 +15,6 @@ mixin GridBasePageLogic on GetxController implements Scroll2TopLogicMixin {
 
   GridBasePageServiceMixin get galleryService;
 
-  final StorageService storageService = Get.find<StorageService>();
-
   void enterGroup(String group) {
     gridBasePageState.currentGroup = group;
     update([bodyId]);

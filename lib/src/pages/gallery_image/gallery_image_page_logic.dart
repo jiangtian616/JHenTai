@@ -39,11 +39,6 @@ class GalleryImagePageArgument {
 class GalleryImagePageLogic extends GetxController {
   GalleryImagePageState state = GalleryImagePageState();
 
-  final StorageService storageService = Get.find();
-  final GalleryDownloadService galleryDownloadService = Get.find();
-  final SuperResolutionService superResolutionService = Get.find();
-  final TagTranslationService tagTranslationService = Get.find();
-
   @override
   void onInit() {
     super.onInit();

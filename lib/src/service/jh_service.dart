@@ -6,10 +6,6 @@ import '../main.dart';
 import 'log.dart';
 
 abstract interface class JHLifeCircleBean {
-  JHLifeCircleBean() {
-    lifeCircleBeans.add(this);
-  }
-
   List<JHLifeCircleBean> get initDependencies;
 
   Future<void> onInit();

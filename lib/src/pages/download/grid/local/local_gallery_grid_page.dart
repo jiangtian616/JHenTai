@@ -67,10 +67,10 @@ class LocalGalleryGridPage extends StatelessWidget with Scroll2TopPageMixin, Gri
   @override
   List<DraggableGridItem> getChildren(BuildContext context) {
     return logic.isAtRootPath
-        ? logic.localGalleryService.rootDirectories.map((dir) => DraggableGridItem(child: groupBuilder(context, dir, false))).toList()
+        ? localGalleryService.rootDirectories.map((dir) => DraggableGridItem(child: groupBuilder(context, dir, false))).toList()
         : [
             DraggableGridItem(child: ReturnWidget(onTap: logic.backRoute)),
-            ...?logic.localGalleryService.path2SubDir[logic.currentPath]?.map((subDir) => DraggableGridItem(child: groupBuilder(context, subDir, false))),
+            ...?localGalleryService.path2SubDir[logic.currentPath]?.map((subDir) => DraggableGridItem(child: groupBuilder(context, subDir, false))),
             ...state.currentGalleryObjects.map((gallery) => DraggableGridItem(child: galleryBuilder(context, gallery, false))),
           ];
   }

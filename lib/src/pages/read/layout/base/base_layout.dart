@@ -24,8 +24,6 @@ abstract class BaseLayout extends StatelessWidget {
   final ReadPageLogic readPageLogic = Get.find<ReadPageLogic>();
   final ReadPageState readPageState = Get.find<ReadPageLogic>().state;
 
-  final GalleryDownloadService downloadService = Get.find();
-
   BaseLayoutLogic get logic;
 
   @override
@@ -203,7 +201,7 @@ abstract class BaseLayout extends StatelessWidget {
   /// local mode: wait for download service to parse and download
   Widget buildItemInLocalMode(BuildContext context, int index) {
     return GetBuilder<GalleryDownloadService>(
-      id: '${logic.galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$index',
+      id: '${galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$index',
       builder: (_) {
         /// step 1: wait for parsing image's href for this image. But if image's url has been parsed,
         /// we don't need to wait parsing thumbnail.
@@ -233,7 +231,7 @@ abstract class BaseLayout extends StatelessWidget {
       builder: (_) {
         int gid = readPageState.readPageInfo.gid!;
         SuperResolutionType type = readPageState.readPageInfo.mode == ReadMode.downloaded ? SuperResolutionType.gallery : SuperResolutionType.archive;
-        if (logic.readPageLogic.superResolutionService.get(gid, type)?.imageStatuses[index] != SuperResolutionStatus.success) {
+        if (superResolutionService.get(gid, type)?.imageStatuses[index] != SuperResolutionStatus.success) {
           return _buildLocalImage(context, index);
         }
 
@@ -242,7 +240,7 @@ abstract class BaseLayout extends StatelessWidget {
           onSecondaryTap: () => logic.showBottomMenuInLocalMode(index, context),
           child: EHImage(
             galleryImage: readPageState.images[index]!.copyWith(
-              path: logic.readPageLogic.superResolutionService.computeImageOutputRelativePath(readPageState.images[index]!.path!),
+              path: superResolutionService.computeImageOutputRelativePath(readPageState.images[index]!.path!),
             ),
             containerWidth: logic.readPageState.imageContainerSizes[index]?.width ?? logic.getPlaceHolderSize(index).width,
             containerHeight: logic.readPageState.imageContainerSizes[index]?.height ?? logic.getPlaceHolderSize(index).height,
@@ -259,7 +257,7 @@ abstract class BaseLayout extends StatelessWidget {
 
   /// wait for [GalleryDownloadService] to parse image href in local mode
   Widget _buildWaitParsingHrefsIndicator(BuildContext context, int index) {
-    DownloadStatus downloadStatus = downloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]!.downloadProgress.downloadStatus;
+    DownloadStatus downloadStatus = galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]!.downloadProgress.downloadStatus;
     Size placeHolderSize = logic.getPlaceHolderSize(index);
 
     return SizedBox(
@@ -279,7 +277,7 @@ abstract class BaseLayout extends StatelessWidget {
 
   /// wait for [GalleryDownloadService] to parse image url in local mode
   Widget _buildWaitParsingUrlIndicator(BuildContext context, int index) {
-    DownloadStatus downloadStatus = downloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]!.downloadProgress.downloadStatus;
+    DownloadStatus downloadStatus = galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]!.downloadProgress.downloadStatus;
     Size placeHolderSize = logic.getPlaceHolderSize(index);
     return SizedBox(
       height: placeHolderSize.height,
@@ -318,9 +316,9 @@ abstract class BaseLayout extends StatelessWidget {
   /// downloading for local mode
   Widget _downloadingWidgetBuilder(int index) {
     return GetBuilder<GalleryDownloadService>(
-      id: '${logic.galleryDownloadService.galleryDownloadSpeedComputerId}::${readPageState.readPageInfo.gid}',
+      id: '${galleryDownloadService.galleryDownloadSpeedComputerId}::${readPageState.readPageInfo.gid}',
       builder: (_) {
-        GalleryDownloadSpeedComputer speedComputer = downloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]!.speedComputer;
+        GalleryDownloadSpeedComputer speedComputer = galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]!.speedComputer;
         int downloadedBytes = speedComputer.imageDownloadedBytes[index];
         int totalBytes = speedComputer.imageTotalBytes[index];
 
@@ -390,7 +388,7 @@ abstract class BaseLayout extends StatelessWidget {
         Size(state.extendedImageInfo!.image.width.toDouble(), state.extendedImageInfo!.image.height.toDouble()),
       );
       logic.readPageState.imageContainerSizes[index] = fittedSizes.destination;
-      logic.galleryDownloadService.updateSafely(['${logic.galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$index']);
+      galleryDownloadService.updateSafely(['${galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$index']);
     });
 
     return null;

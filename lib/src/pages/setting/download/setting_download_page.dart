@@ -32,10 +32,6 @@ class SettingDownloadPage extends StatefulWidget {
 }
 
 class _SettingDownloadPageState extends State<SettingDownloadPage> {
-  final GalleryDownloadService galleryDownloadService = Get.find();
-  final ArchiveDownloadService archiveDownloadService = Get.find();
-  final LocalGalleryService localGalleryService = Get.find();
-
   LoadingState changeDownloadPathState = LoadingState.idle;
 
   final ScrollController scrollController = ScrollController();
@@ -427,8 +423,8 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
   Future<void> _restore() async {
     log.info('Restore download task.');
 
-    int restoredGalleryCount = await Get.find<GalleryDownloadService>().restoreTasks();
-    int restoredArchiveCount = await Get.find<ArchiveDownloadService>().restoreTasks();
+    int restoredGalleryCount = await galleryDownloadService.restoreTasks();
+    int restoredArchiveCount = await archiveDownloadService.restoreTasks();
 
     toast(
       '${'restoredGalleryCount'.tr}: $restoredGalleryCount\n${'restoredArchiveCount'.tr}: $restoredArchiveCount',

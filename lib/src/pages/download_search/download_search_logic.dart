@@ -38,12 +38,6 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
   final String searchFieldId = 'searchFieldId';
   final String bodyId = 'bodyId';
 
-  final GalleryDownloadService galleryDownloadService = Get.find();
-  final ArchiveDownloadService archiveDownloadService = Get.find();
-  final SuperResolutionService superResolutionService = Get.find();
-  final StorageService storageService = Get.find();
-  final TagTranslationService tagTranslationService = Get.find();
-
   late final TextEditingController textEditingController;
   late final FocusNode searchFocusNode;
   late final Debouncing searchDebouncing;

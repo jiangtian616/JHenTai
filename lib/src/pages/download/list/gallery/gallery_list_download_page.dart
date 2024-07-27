@@ -14,6 +14,7 @@ import '../../../../mixin/scroll_to_top_page_mixin.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/gallery_download_service.dart';
+import '../../../../service/super_resolution_service.dart';
 import '../../../../setting/performance_setting.dart';
 import '../../../../utils/date_util.dart';
 import '../../../../utils/route_util.dart';
@@ -367,7 +368,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
     return GetBuilder<srs.SuperResolutionService>(
       id: '${srs.SuperResolutionService.superResolutionId}::${gallery.gid}',
       builder: (_) {
-        srs.SuperResolutionInfo? superResolutionInfo = Get.find<srs.SuperResolutionService>().get(gallery.gid, srs.SuperResolutionType.gallery);
+        srs.SuperResolutionInfo? superResolutionInfo = superResolutionService.get(gallery.gid, srs.SuperResolutionType.gallery);
 
         if (superResolutionInfo == null) {
           return const SizedBox();

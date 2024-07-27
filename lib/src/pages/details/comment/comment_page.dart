@@ -30,8 +30,6 @@ class _CommentPageState extends State<CommentPage> with LoginRequiredMixin {
 
   final ScrollController _scrollController = ScrollController();
 
-  final LocalBlockRuleService localBlockRuleService = Get.find();
-
   @override
   void dispose() {
     _scrollController.dispose();

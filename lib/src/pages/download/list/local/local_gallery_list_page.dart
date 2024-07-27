@@ -82,11 +82,11 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
 
   Widget buildBody() {
     return GetBuilder<LocalGalleryService>(
-      id: logic.localGalleryService.galleryCountChangedId,
+      id: localGalleryService.galleryCountChangedId,
       builder: (_) => GetBuilder<LocalGalleryListPageLogic>(
         id: logic.bodyId,
         builder: (_) => LoadingStateIndicator(
-          loadingState: logic.localGalleryService.loadingState,
+          loadingState: localGalleryService.loadingState,
           successWidgetBuilder: () => NotificationListener<UserScrollNotification>(
             onNotification: logic.onUserScroll,
             child: EHWheelSpeedController(
@@ -178,7 +178,7 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
   }
 
   Widget galleryItemBuilder(BuildContext context, int index) {
-    LocalGallery gallery = logic.localGalleryService.path2GalleryDir[state.currentPath]![index];
+    LocalGallery gallery = localGalleryService.path2GalleryDir[state.currentPath]![index];
 
     return Slidable(
       key: Key(gallery.title),
@@ -192,7 +192,7 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
           afterAnimation: (bool show, bool isInit) {
             if (!show && !isInit) {
               Get.engine.addPostFrameCallback(
-                (_) => logic.localGalleryService.deleteGallery(gallery, state.currentPath),
+                (_) => localGalleryService.deleteGallery(gallery, state.currentPath),
               );
               state.removedGalleryTitles.remove(gallery.title);
             }

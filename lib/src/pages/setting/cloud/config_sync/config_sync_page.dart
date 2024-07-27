@@ -34,8 +34,6 @@ class ConfigSyncPage extends StatefulWidget {
 }
 
 class _ConfigSyncPageState extends State<ConfigSyncPage> {
-  final CloudConfigService cloudConfigService = Get.find();
-
   LoadingState _loadingState = LoadingState.idle;
   List<CloudConfig> configs = [];
 

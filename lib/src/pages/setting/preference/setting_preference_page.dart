@@ -16,10 +16,7 @@ import '../../../utils/route_util.dart';
 import '../../../widget/loading_state_indicator.dart';
 
 class SettingPreferencePage extends StatelessWidget {
-  final TagTranslationService tagTranslationService = Get.find();
-  final TagSearchOrderOptimizationService tagSearchOrderOptimizationService = Get.find();
-
-  SettingPreferencePage({Key? key}) : super(key: key);
+  const SettingPreferencePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

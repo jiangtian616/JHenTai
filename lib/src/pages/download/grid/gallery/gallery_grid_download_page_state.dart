@@ -9,11 +9,9 @@ import '../mixin/grid_download_page_state_mixin.dart';
 
 class GalleryGridDownloadPageState with Scroll2TopStateMixin, MultiSelectDownloadPageStateMixin, GalleryDownloadPageStateMixin, GridBasePageState {
   @override
-  List<String> get allRootGroups => Get.find<GalleryDownloadService>().allGroups;
+  List<String> get allRootGroups => galleryDownloadService.allGroups;
 
   @override
-  List<GalleryDownloadedData> galleryObjectsWithGroup(String groupName) => Get.find<GalleryDownloadService>()
-      .gallerys
-      .where((gallery) => Get.find<GalleryDownloadService>().galleryDownloadInfos[gallery.gid]?.group == groupName)
-      .toList();
+  List<GalleryDownloadedData> galleryObjectsWithGroup(String groupName) =>
+      galleryDownloadService.gallerys.where((gallery) => galleryDownloadService.galleryDownloadInfos[gallery.gid]?.group == groupName).toList();
 }

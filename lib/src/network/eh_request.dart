@@ -49,7 +49,7 @@ class EHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   static const String domainFrontingExtraKey = 'JHDF';
 
   @override
-  List<JHLifeCircleBean> get initDependencies => super.initDependencies..addAll([localConfigService, networkSetting]);
+  List<JHLifeCircleBean> get initDependencies => super.initDependencies..addAll([networkSetting]);
 
   @override
   Future<void> doOnInit() async {
@@ -194,10 +194,6 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 
   void _initTimeOutTranslator() {
     _dio.interceptors.add(EHTimeoutTranslator());
-  }
-
-  Future<void> storeEHCookiesString(String cookiesString) {
-    return _cookieManager.storeEHCookiesString(cookiesString);
   }
 
   Future<void> storeEHCookies(List<Cookie> cookies) {

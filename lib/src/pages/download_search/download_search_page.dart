@@ -100,11 +100,11 @@ class DownloadSearchPage extends StatelessWidget {
     return SizedBox(
       height: 160,
       child: GetBuilder<GalleryDownloadService>(
-        id: '${logic.galleryDownloadService.galleryDownloadProgressId}::${gallery.gid}',
+        id: '${galleryDownloadService.galleryDownloadProgressId}::${gallery.gid}',
         builder: (_) {
-          GalleryImage? cover = logic.galleryDownloadService.galleryDownloadInfos[gallery.gid]?.images[0];
-          GalleryDownloadProgress? downloadProgress = logic.galleryDownloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress;
-          String? groupName = logic.galleryDownloadService.galleryDownloadInfos[gallery.gid]?.group;
+          GalleryImage? cover = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.images[0];
+          GalleryDownloadProgress? downloadProgress = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress;
+          String? groupName = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.group;
 
           return Row(
             children: [
@@ -181,9 +181,9 @@ class DownloadSearchPage extends StatelessWidget {
         arguments: DetailsPageArgument(galleryUrl: GalleryUrl.parse(gallery.galleryUrl)),
       ),
       child: GetBuilder<GalleryDownloadService>(
-        id: '${logic.galleryDownloadService.downloadImageUrlId}::${gallery.gid}::0',
+        id: '${galleryDownloadService.downloadImageUrlId}::${gallery.gid}::0',
         builder: (_) {
-          GalleryImage? image = logic.galleryDownloadService.galleryDownloadInfos[gallery.gid]?.images[0];
+          GalleryImage? image = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.images[0];
 
           /// cover is the first image, if we haven't downloaded first image, then return a [UIConfig.loadingAnimation]
           if (image?.downloadStatus != DownloadStatus.downloaded) {
@@ -282,7 +282,7 @@ class DownloadSearchPage extends StatelessWidget {
     return GetBuilder<SuperResolutionService>(
       id: '${SuperResolutionService.superResolutionId}::${gallery.gid}',
       builder: (_) {
-        SuperResolutionInfo? superResolutionInfo = Get.find<SuperResolutionService>().get(gallery.gid, SuperResolutionType.gallery);
+        SuperResolutionInfo? superResolutionInfo = superResolutionService.get(gallery.gid, SuperResolutionType.gallery);
 
         if (superResolutionInfo == null) {
           return const SizedBox();
@@ -350,7 +350,7 @@ class DownloadSearchPage extends StatelessWidget {
       child: GetBuilder<ArchiveDownloadService>(
         id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
         builder: (_) {
-          ArchiveDownloadInfo? archiveDownloadInfo = logic.archiveDownloadService.archiveDownloadInfos[archive.gid];
+          ArchiveDownloadInfo? archiveDownloadInfo = archiveDownloadService.archiveDownloadInfos[archive.gid];
           String? groupName = archiveDownloadInfo?.group;
 
           return Row(
@@ -465,7 +465,7 @@ class DownloadSearchPage extends StatelessWidget {
     return GetBuilder<SuperResolutionService>(
       id: '${SuperResolutionService.superResolutionId}::${archive.gid}',
       builder: (_) {
-        SuperResolutionInfo? superResolutionInfo = Get.find<SuperResolutionService>().get(archive.gid, SuperResolutionType.archive);
+        SuperResolutionInfo? superResolutionInfo = superResolutionService.get(archive.gid, SuperResolutionType.archive);
 
         if (superResolutionInfo == null) {
           return const SizedBox();

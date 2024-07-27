@@ -110,10 +110,10 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
               logic.enterSelectMode();
             }
             if (value == 2) {
-              logic.archiveDownloadService.resumeAllDownloadArchive();
+              archiveDownloadService.resumeAllDownloadArchive();
             }
             if (value == 3) {
-              logic.archiveDownloadService.pauseAllDownloadArchive();
+              archiveDownloadService.pauseAllDownloadArchive();
             }
             if (value == 4) {
               toRoute(Routes.downloadSearch);
@@ -126,7 +126,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
 
   Widget buildBody(BuildContext context) {
     return GetBuilder<ArchiveDownloadService>(
-      id: logic.archiveDownloadService.galleryCountChangedId,
+      id: archiveDownloadService.galleryCountChangedId,
       builder: (_) => GetBuilder<ArchiveListDownloadPageLogic>(
         id: logic.bodyId,
         builder: (_) => FutureBuilder(
@@ -139,9 +139,9 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                     maxGalleryNum4Animation: performanceSetting.maxGalleryNum4Animation.value,
                     scrollController: state.scrollController,
                     controller: state.groupedListController,
-                    groups: Map.fromEntries(logic.archiveDownloadService.allGroups.map((e) => MapEntry(e, state.displayGroups.contains(e)))),
-                    elements: logic.archiveDownloadService.archives,
-                    elementGroup: (ArchiveDownloadedData archive) => logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!.group,
+                    groups: Map.fromEntries(archiveDownloadService.allGroups.map((e) => MapEntry(e, state.displayGroups.contains(e)))),
+                    elements: archiveDownloadService.archives,
+                    elementGroup: (ArchiveDownloadedData archive) => archiveDownloadService.archiveDownloadInfos[archive.gid]!.group,
                     groupBuilder: (context, groupName, isOpen) => _groupBuilder(context, groupName, isOpen).marginAll(5),
                     elementBuilder: (BuildContext context, String group, ArchiveDownloadedData archive, isOpen) => _itemBuilder(context, archive),
                     groupUniqueKey: (String group) => group,
@@ -169,7 +169,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
           children: [
             const SizedBox(width: UIConfig.downloadPageGroupHeaderWidth, child: Center(child: Icon(Icons.folder_open))),
             Text(
-              '$groupName${'(' + logic.archiveDownloadService.archivesWithGroup(groupName).length.toString() + ')'}',
+              '$groupName${'(' + archiveDownloadService.archivesWithGroup(groupName).length.toString() + ')'}',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -324,7 +324,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
   }
 
   Widget _buildReUnlockButton(BuildContext context, ArchiveDownloadedData archive) {
-    ArchiveDownloadInfo archiveDownloadInfo = logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!;
+    ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadService.archiveDownloadInfos[archive.gid]!;
 
     return GetBuilder<ArchiveDownloadService>(
       id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
@@ -365,7 +365,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
     return GetBuilder<srs.SuperResolutionService>(
       id: '${srs.SuperResolutionService.superResolutionId}::${archive.gid}',
       builder: (_) {
-        srs.SuperResolutionInfo? superResolutionInfo = Get.find<SuperResolutionService>().get(archive.gid, srs.SuperResolutionType.archive);
+        srs.SuperResolutionInfo? superResolutionInfo = superResolutionService.get(archive.gid, srs.SuperResolutionType.archive);
 
         if (superResolutionInfo == null) {
           return const SizedBox();
@@ -397,15 +397,15 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
   }
 
   Widget _buildButton(BuildContext context, ArchiveDownloadedData archive) {
-    ArchiveDownloadInfo archiveDownloadInfo = logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!;
+    ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadService.archiveDownloadInfos[archive.gid]!;
 
     return GetBuilder<ArchiveDownloadService>(
       id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
       builder: (_) {
         return GestureDetector(
           onTap: () => archiveDownloadInfo.archiveStatus == ArchiveStatus.paused
-              ? logic.archiveDownloadService.resumeDownloadArchive(archive.gid)
-              : logic.archiveDownloadService.pauseDownloadArchive(archive.gid),
+              ? archiveDownloadService.resumeDownloadArchive(archive.gid)
+              : archiveDownloadService.pauseDownloadArchive(archive.gid),
           child: Icon(
             archiveDownloadInfo.archiveStatus.code <= ArchiveStatus.paused.code
                 ? Icons.play_arrow
@@ -421,7 +421,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
   }
 
   Widget _buildInfoFooter(BuildContext context, ArchiveDownloadedData archive) {
-    ArchiveDownloadInfo archiveDownloadInfo = logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!;
+    ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadService.archiveDownloadInfos[archive.gid]!;
 
     return GetBuilder<ArchiveDownloadService>(
       id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',

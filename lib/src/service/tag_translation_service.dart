@@ -2,7 +2,6 @@ import 'dart:io' as io;
 import 'dart:collection';
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/dao/tag_count_dao.dart';
 import 'package:jhentai/src/database/dao/tag_dao.dart';

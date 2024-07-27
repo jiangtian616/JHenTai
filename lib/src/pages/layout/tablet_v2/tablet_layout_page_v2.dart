@@ -12,9 +12,7 @@ import '../../blank_page.dart';
 import '../../home_page.dart';
 
 class TabletLayoutPageV2 extends StatelessWidget {
-  final WindowService windowService = Get.find<WindowService>();
-
-  TabletLayoutPageV2({Key? key}) : super(key: key);
+  const TabletLayoutPageV2({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

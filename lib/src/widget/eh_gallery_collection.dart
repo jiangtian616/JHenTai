@@ -25,9 +25,6 @@ Widget EHGalleryCollection({
   CardCallback? handleSecondaryTapCard,
   VoidCallback? handleLoadMore,
 }) {
-  GalleryDownloadService galleryDownloadService = Get.find();
-  ArchiveDownloadService archiveDownloadService = Get.find();
-  
   Widget _buildGalleryList() {
     /// use FlutterSliverList to [keepPosition] when insert items at top
     return FlutterSliverList(

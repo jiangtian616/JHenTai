@@ -9,8 +9,6 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '../service/storage_service.dart';
 
 class UpdateDialog extends StatelessWidget {
-  final StorageService storageService = Get.find();
-
   final String currentVersion;
   final String latestVersion;
 

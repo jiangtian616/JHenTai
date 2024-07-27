@@ -2,26 +2,17 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:jhentai/src/consts/jh_consts.dart';
-import 'package:jhentai/src/service/storage_service.dart';
+import 'package:jhentai/src/network/eh_request.dart';
 
-import '../enum/config_enum.dart';
-import '../setting/network_setting.dart';
 import '../utils/cookie_util.dart';
 
 class JHCookieManager extends Interceptor {
-  final StorageService storageService;
-
-  JHCookieManager(this.storageService);
-
-  List<Cookie> get ehCookies {
-    return [...(storageService.read<List?>(ConfigEnum.ehCookie.key) ?? []).cast<String>().map(Cookie.fromSetCookieValue).toList(), Cookie('nw', '1')];
-  }
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     try {
       if (Uri.parse(JHConsts.serverAddress).host == options.uri.host) {
-        options.headers[HttpHeaders.cookieHeader] = CookieUtil.parse2String(ehCookies);
+        options.headers[HttpHeaders.cookieHeader] = CookieUtil.parse2String(ehRequest.cookies);
       }
       handler.next(options);
     } on Exception catch (e, stackTrace) {

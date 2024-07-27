@@ -27,8 +27,6 @@ class HistoryPage extends BasePage {
   @override
   HistoryPageState get state => Get.find<HistoryPageLogic>().state;
 
-  final HistoryService historyService = Get.find<HistoryService>();
-
   @override
   List<Widget> buildAppBarActions() {
     return [

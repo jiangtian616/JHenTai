@@ -34,7 +34,24 @@ class LogService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   List<JHLifeCircleBean> get initDependencies => [pathService];
 
   @override
-  Future<void> doOnInit() async {}
+  Future<void> doOnInit() async {
+    PlatformDispatcher.instance.onError = (error, stack) {
+      if (error is NotUploadException) {
+        return true;
+      }
+
+      log.error('Global Error', error, stack);
+      return false;
+    };
+
+    FlutterError.onError = (FlutterErrorDetails details) {
+      if (details.exception is NotUploadException) {
+        return;
+      }
+
+      log.error('Global Error', details.exception, details.stack);
+    };
+  }
 
   @override
   void doOnReady() {}

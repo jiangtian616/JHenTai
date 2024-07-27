@@ -55,8 +55,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowListener, WindowWidgetMixin {
-  final StorageService storageService = Get.find();
-
   StreamSubscription? _intentDataStreamSubscription;
   String? _lastDetectedText;
 

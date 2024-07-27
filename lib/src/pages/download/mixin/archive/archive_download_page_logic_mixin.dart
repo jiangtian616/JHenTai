@@ -11,7 +11,6 @@ import '../../../../model/read_page_info.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/archive_download_service.dart';
 import '../../../../service/local_config_service.dart';
-import '../../../../service/storage_service.dart';
 import '../../../../service/super_resolution_service.dart';
 import '../../../../setting/read_setting.dart';
 import '../../../../setting/super_resolution_setting.dart';
@@ -32,9 +31,6 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
 
   @override
   MultiSelectDownloadPageStateMixin get multiSelectDownloadPageState => archiveDownloadPageState;
-
-  final ArchiveDownloadService archiveDownloadService = Get.find();
-  final StorageService storageService = Get.find();
 
   Future<void> handleChangeArchiveGroup(ArchiveDownloadedData archive) async {
     String oldGroup = archiveDownloadService.archiveDownloadInfos[archive.gid]!.group;
@@ -159,15 +155,13 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
           isOriginal: archive.isOriginal,
           readProgressRecordStorageKey: archive.gid.toString(),
           images: images,
-          useSuperResolution: Get.find<SuperResolutionService>().get(archive.gid, SuperResolutionType.archive) != null,
+          useSuperResolution: superResolutionService.get(archive.gid, SuperResolutionType.archive) != null,
         ),
       );
     }
   }
 
   void showBottomSheet(ArchiveDownloadedData archive, BuildContext context) {
-    SuperResolutionService superResolutionService = Get.find<SuperResolutionService>();
-
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(

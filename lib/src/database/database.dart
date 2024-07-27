@@ -189,8 +189,8 @@ class AppDb extends _$AppDb {
       await m.createTable(galleryHistory);
 
       if (Get.isRegistered<StorageService>()) {
-        List<Gallery>? gallerys = Get.find<StorageService>().read<List>(ConfigEnum.oldGalleryHistory.key)?.map((e) => Gallery.fromJson(e)).toList();
-        
+        List<Gallery>? gallerys = storageService.read<List>(ConfigEnum.oldGalleryHistory.key)?.map((e) => Gallery.fromJson(e)).toList();
+
         List<GalleryHistoryModel>? historyModels = gallerys
             ?.map(
               (g) => GalleryHistoryModel(
@@ -208,7 +208,7 @@ class AppDb extends _$AppDb {
               ),
             )
             .toList();
-        
+
         List<GalleryHistoryV2Data>? historyV2Datas = historyModels
             ?.map(
               (h) => GalleryHistoryV2Data(
@@ -223,7 +223,7 @@ class AppDb extends _$AppDb {
           await GalleryHistoryDao.batchReplaceHistory(historyV2Datas);
         }
 
-        Get.find<StorageService>().remove(ConfigEnum.oldGalleryHistory.key);
+        storageService.remove(ConfigEnum.oldGalleryHistory.key);
       }
     } on Exception catch (e) {
       log.error('Update history failed!', e);

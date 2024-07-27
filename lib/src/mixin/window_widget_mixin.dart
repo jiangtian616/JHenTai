@@ -7,8 +7,6 @@ import '../config/ui_config.dart';
 import '../service/windows_service.dart';
 
 mixin WindowWidgetMixin<T extends StatefulWidget> on State<T>, WindowListener {
-  final WindowService windowService = Get.find<WindowService>();
-
   final FocusNode focusNode = FocusNode();
 
   Brightness? get titleBarBrightness => null;

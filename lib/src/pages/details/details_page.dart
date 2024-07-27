@@ -102,10 +102,10 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         return GetBuilder<ArchiveDownloadService>(
           id: '${ArchiveDownloadService.archiveStatusId}::${state.galleryUrl.gid}',
           builder: (_) => GetBuilder<GalleryDownloadService>(
-            id: '${Get.find<GalleryDownloadService>().galleryDownloadProgressId}::${state.galleryUrl.gid}',
+            id: '${galleryDownloadService.galleryDownloadProgressId}::${state.galleryUrl.gid}',
             builder: (_) {
-              bool containGallery = logic.galleryDownloadService.containGallery(state.galleryUrl.gid);
-              bool containArchive = logic.archiveDownloadService.containArchive(state.galleryUrl.gid);
+              bool containGallery = galleryDownloadService.containGallery(state.galleryUrl.gid);
+              bool containArchive = archiveDownloadService.containArchive(state.galleryUrl.gid);
 
               return PopupMenuButton(
                 itemBuilder: (context) {
@@ -910,9 +910,9 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         bool disabled = state.galleryDetails?.pageCount == null && state.gallery?.pageCount == null;
 
         return GetBuilder<GalleryDownloadService>(
-          id: '${Get.find<GalleryDownloadService>().galleryDownloadProgressId}::${state.galleryUrl.gid}',
+          id: '${galleryDownloadService.galleryDownloadProgressId}::${state.galleryUrl.gid}',
           builder: (_) {
-            GalleryDownloadProgress? downloadProgress = logic.galleryDownloadService.galleryDownloadInfos[state.galleryUrl.gid]?.downloadProgress;
+            GalleryDownloadProgress? downloadProgress = galleryDownloadService.galleryDownloadInfos[state.galleryUrl.gid]?.downloadProgress;
 
             String text = downloadProgress == null
                 ? 'download'.tr
@@ -1044,7 +1044,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         return GetBuilder<ArchiveDownloadService>(
           id: '${ArchiveDownloadService.archiveStatusId}::${state.galleryUrl.gid}',
           builder: (_) {
-            ArchiveStatus? archiveStatus = Get.find<ArchiveDownloadService>().archiveDownloadInfos[state.galleryUrl.gid]?.archiveStatus;
+            ArchiveStatus? archiveStatus = archiveDownloadService.archiveDownloadInfos[state.galleryUrl.gid]?.archiveStatus;
 
             String text = archiveStatus == null ? 'archive'.tr : archiveStatus.name.tr;
 
@@ -1355,7 +1355,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                         });
                       }
 
-                      GalleryImage? downloadedImage = logic.galleryDownloadService.galleryDownloadInfos[state.galleryUrl.gid]?.images[index];
+                      GalleryImage? downloadedImage = galleryDownloadService.galleryDownloadInfos[state.galleryUrl.gid]?.images[index];
 
                       return KeepAliveWrapper(
                         child: Column(

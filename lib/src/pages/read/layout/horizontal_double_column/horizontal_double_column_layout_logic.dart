@@ -6,17 +6,15 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
-import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/utils/screen_size_util.dart';
 
+import '../../../../service/gallery_download_service.dart';
 import '../../../../setting/read_setting.dart';
 import '../base/base_layout_logic.dart';
 import 'horizontal_double_column_layout_state.dart';
 
 class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
   HorizontalDoubleColumnLayoutState state = HorizontalDoubleColumnLayoutState();
-
-  final StorageService storageService = Get.find<StorageService>();
 
   @override
   Future<void> onInit() async {

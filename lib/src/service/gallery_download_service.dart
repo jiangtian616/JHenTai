@@ -255,7 +255,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     log.info('Delete download gallery: ${gallery.title}, deleteImages:$deleteImages');
 
-    await Get.find<SuperResolutionService>().deleteSuperResolve(gallery.gid, SuperResolutionType.gallery);
+    await superResolutionService.deleteSuperResolve(gallery.gid, SuperResolutionType.gallery);
 
     await _clearGalleryDownloadInfoInDatabase(gallery.gid);
     if (deleteImages) {
@@ -1213,7 +1213,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     GalleryImage oldImage = galleryDownloadInfos[oldGallery.gid]!.images[oldImageSerialNo]!;
 
     await _copyImageInfo(oldImage, newGallery, newImageSerialNo);
-    await Get.find<SuperResolutionService>().copyImageInfo(oldGallery, newGallery, oldImageSerialNo, newImageSerialNo);
+    await superResolutionService.copyImageInfo(oldGallery, newGallery, oldImageSerialNo, newImageSerialNo);
   }
 
   Future<void> _copyImageInfo(GalleryImage oldImage, GalleryDownloadedData newGallery, int newImageSerialNo) async {

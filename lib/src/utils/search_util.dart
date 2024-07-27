@@ -112,5 +112,5 @@ Future<void> handleAddQuickSearch() async {
 
   String quickSearchName = result['quickSearchName'];
   SearchConfig searchConfig = result['searchConfig'];
-  Get.find<QuickSearchService>().addQuickSearch(quickSearchName, searchConfig);
+  quickSearchService.addQuickSearch(quickSearchName, searchConfig);
 }

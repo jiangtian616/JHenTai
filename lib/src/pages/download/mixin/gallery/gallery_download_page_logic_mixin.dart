@@ -24,8 +24,7 @@ import '../basic/multi_select/multi_select_download_page_logic_mixin.dart';
 mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogicMixin, MultiSelectDownloadPageLogicMixin<GalleryDownloadedData> {
   final String bodyId = 'bodyId';
 
-  final GalleryDownloadService downloadService = Get.find<GalleryDownloadService>();
-  final StorageService storageService = Get.find<StorageService>();
+  final GalleryDownloadService downloadService = galleryDownloadService;
 
   Future<void> handleChangeGroup(GalleryDownloadedData gallery) async {
     String oldGroup = downloadService.galleryDownloadInfos[gallery.gid]!.group;
@@ -160,8 +159,6 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
   }
 
   void showBottomSheet(GalleryDownloadedData gallery, BuildContext context) {
-    SuperResolutionService superResolutionService = Get.find<SuperResolutionService>();
-
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(

@@ -23,7 +23,7 @@ class ReadPageState with ScrollStatusListerState {
   late List<GalleryImage?> images;
 
   bool readyToShow = false;
-  
+
   late List<LoadingState> parseImageHrefsStates;
   late List<LoadingState> parseImageUrlStates;
   late List<Size?> imageContainerSizes;
@@ -51,7 +51,7 @@ class ReadPageState with ScrollStatusListerState {
     }
 
     if (readPageInfo.mode == ReadMode.downloaded) {
-      images = Get.find<GalleryDownloadService>().galleryDownloadInfos[readPageInfo.gid]!.images;
+      images = galleryDownloadService.galleryDownloadInfos[readPageInfo.gid]!.images;
     }
 
     if (readPageInfo.mode == ReadMode.archive || readPageInfo.mode == ReadMode.local) {

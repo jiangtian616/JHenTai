@@ -119,13 +119,6 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   @override
   Scroll2TopStateMixin get scroll2TopState => state;
 
-  final GalleryDownloadService galleryDownloadService = Get.find();
-  final ArchiveDownloadService archiveDownloadService = Get.find();
-  final SuperResolutionService superResolutionService = Get.find();
-  final HistoryService historyService = Get.find();
-  final TagTranslationService tagTranslationService = Get.find();
-  final LocalBlockRuleService localBlockRuleService = Get.find();
-
   DetailsPageLogic() {
     _stack.add(this);
   }
@@ -353,9 +346,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   Future<void> handleTapDownload() async {
-    GalleryDownloadService downloadService = Get.find<GalleryDownloadService>();
-    GalleryDownloadedData? galleryDownloadedData = downloadService.gallerys.singleWhereOrNull((g) => g.gid == state.galleryUrl.gid);
-    GalleryDownloadProgress? downloadProgress = downloadService.galleryDownloadInfos[state.galleryUrl.gid]?.downloadProgress;
+    GalleryDownloadedData? galleryDownloadedData = galleryDownloadService.gallerys.singleWhereOrNull((g) => g.gid == state.galleryUrl.gid);
+    GalleryDownloadProgress? downloadProgress = galleryDownloadService.galleryDownloadInfos[state.galleryUrl.gid]?.downloadProgress;
 
     /// new download
     if (galleryDownloadedData == null || downloadProgress == null) {
@@ -363,7 +355,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         EHDownloadDialog(
           title: 'chooseGroup'.tr,
           currentGroup: downloadSetting.defaultGalleryGroup.value,
-          candidates: downloadService.allGroups,
+          candidates: galleryDownloadService.allGroups,
           showDownloadOriginalImageCheckBox: userSetting.hasLoggedIn(),
           downloadOriginalImage: downloadSetting.downloadOriginalImageByDefault.value,
         ),
@@ -395,7 +387,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         tags: state.galleryDetails != null ? tagMap2TagString(state.galleryDetails!.tags) : tagMap2TagString(state.gallery!.tags),
         tagRefreshTime: DateTime.now().toString(),
       );
-      downloadService.downloadGallery(galleryDownloadedData);
+      galleryDownloadService.downloadGallery(galleryDownloadedData);
 
       updateGlobalGalleryStatus();
 
@@ -404,16 +396,16 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
 
     if (downloadProgress.downloadStatus == DownloadStatus.paused) {
-      downloadService.resumeDownloadGallery(galleryDownloadedData);
+      galleryDownloadService.resumeDownloadGallery(galleryDownloadedData);
       toast('${'resume'.tr}： ${state.galleryUrl.gid}', isCenter: false);
       return;
     } else if (downloadProgress.downloadStatus == DownloadStatus.downloading) {
-      downloadService.pauseDownloadGallery(galleryDownloadedData);
+      galleryDownloadService.pauseDownloadGallery(galleryDownloadedData);
       toast('${'pause'.tr}： ${state.galleryUrl.gid}', isCenter: false);
     } else if (downloadProgress.downloadStatus == DownloadStatus.downloaded && state.galleryDetails?.newVersionGalleryUrl == null) {
       goToReadPage();
     } else if (downloadProgress.downloadStatus == DownloadStatus.downloaded && state.galleryDetails?.newVersionGalleryUrl != null) {
-      downloadService.updateGallery(galleryDownloadedData, state.galleryDetails!.newVersionGalleryUrl!);
+      galleryDownloadService.updateGallery(galleryDownloadedData, state.galleryDetails!.newVersionGalleryUrl!);
       toast('${'update'.tr}： ${state.galleryUrl.gid}', isCenter: false);
     }
   }

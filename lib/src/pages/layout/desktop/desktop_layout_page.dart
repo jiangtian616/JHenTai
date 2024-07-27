@@ -18,8 +18,6 @@ class DesktopLayoutPage extends StatelessWidget {
   final DesktopLayoutPageLogic logic = Get.put(DesktopLayoutPageLogic(), permanent: true);
   final DesktopLayoutPageState state = Get.find<DesktopLayoutPageLogic>().state;
 
-  final WindowService windowService = Get.find<WindowService>();
-
   DesktopLayoutPage({Key? key}) : super(key: key);
 
   @override

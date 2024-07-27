@@ -14,6 +14,7 @@ import '../../../database/database.dart';
 import '../../../model/gallery_tag.dart';
 import '../../../model/search_history.dart';
 import '../../../routes/routes.dart';
+import '../../../service/search_history_service.dart';
 import '../../../service/tag_translation_service.dart';
 import '../../../utils/route_util.dart';
 import '../../../widget/eh_search_config_dialog.dart';
@@ -149,8 +150,8 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
         controller: state.scrollController,
         scrollBehavior: UIConfig.scrollBehaviourWithScrollBarWithMouse,
         slivers: [
-          if (logic.searchHistoryService.histories.isNotEmpty) buildSearchHistory(),
-          if (logic.searchHistoryService.histories.isNotEmpty) buildButtons(context),
+          if (searchHistoryService.histories.isNotEmpty) buildSearchHistory(),
+          if (searchHistoryService.histories.isNotEmpty) buildButtons(context),
           buildSuggestions(context),
         ],
       ),
@@ -184,7 +185,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
                   child: Wrap(
                     spacing: 8,
                     runSpacing: 7,
-                    children: logic.searchHistoryService.histories.map(buildHistoryChip).toList(),
+                    children: searchHistoryService.histories.map(buildHistoryChip).toList(),
                   ),
                 ),
         ),
@@ -229,7 +230,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
         children: [
           AnimatedSwitcher(
             duration: const Duration(milliseconds: UIConfig.searchPageAnimationDuration),
-            child: state.hideSearchHistory || !logic.tagTranslationService.isReady
+            child: state.hideSearchHistory || !tagTranslationService.isReady
                 ? null
                 : IconButton(
                     onPressed: logic.toggleEnableSearchHistoryTranslation,

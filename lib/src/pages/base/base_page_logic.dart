@@ -53,9 +53,6 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
   bool get autoLoadNeedLogin => false;
 
-  final TagTranslationService tagTranslationService = Get.find();
-  final LocalBlockRuleService localBlockRuleService = Get.find();
-
   @override
   Future<void> onInit() async {
     super.onInit();

@@ -40,9 +40,6 @@ class EHSearchConfigDialog extends StatefulWidget {
 }
 
 class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
-  final QuickSearchService quickSearchService = Get.find<QuickSearchService>();
-  final TagTranslationService tagTranslationService = Get.find<TagTranslationService>();
-
   String? quickSearchName;
   late SearchConfig searchConfig;
 

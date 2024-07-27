@@ -27,6 +27,7 @@ import '../../../model/gallery_page.dart';
 import '../../../network/eh_request.dart';
 import '../../../service/local_config_service.dart';
 import '../../../service/quick_search_service.dart';
+import '../../../service/tag_translation_service.dart';
 import '../../../utils/eh_spider_parser.dart';
 import '../../../service/log.dart';
 import '../../../utils/snack_util.dart';
@@ -50,9 +51,6 @@ mixin SearchPageLogicMixin on BasePageLogic {
   final String suggestionBodyId = 'suggestionBodyId';
   final String galleryBodyId = 'galleryBodyId';
   final String searchFieldId = 'searchFieldId';
-
-  final QuickSearchService quickSearchService = Get.find();
-  final SearchHistoryService searchHistoryService = Get.find();
 
   final Debouncing suggestDebouncing = Debouncing(duration: const Duration(milliseconds: 300));
   final Debouncing recordDebouncing = Debouncing(duration: const Duration(milliseconds: 1000));

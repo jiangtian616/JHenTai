@@ -37,8 +37,6 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
   @override
   Scroll2TopStateMixin get scroll2TopState => state;
 
-  final TagTranslationService tagTranslationService = Get.find<TagTranslationService>();
-
   @override
   void onInit() {
     super.onInit();

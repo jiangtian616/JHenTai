@@ -39,7 +39,6 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
 
   final ReadPageLogic readPageLogic = Get.find<ReadPageLogic>();
   final ReadPageState readPageState = Get.find<ReadPageLogic>().state;
-  final GalleryDownloadService galleryDownloadService = Get.find<GalleryDownloadService>();
 
   Timer? autoModeTimer;
   Worker? doubleTapGestureSwitcherListener;

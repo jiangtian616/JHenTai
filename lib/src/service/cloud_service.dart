@@ -20,10 +20,6 @@ class CloudConfigService with JHLifeCircleBeanErrorCatch implements JHLifeCircle
   static const String localConfigCode = 'local';
   static const String configFileName = 'JHenTaiConfig';
 
-  final StorageService storageService = Get.find();
-  final LocalBlockRuleService localBlockRuleService = Get.find();
-  final HistoryService historyService = Get.find();
-
   @override
   Future<void> doOnInit() async {}
 

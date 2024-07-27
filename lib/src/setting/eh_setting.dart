@@ -6,7 +6,6 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
-import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';

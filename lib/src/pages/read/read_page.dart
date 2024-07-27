@@ -492,7 +492,7 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
 
   Widget _buildThumbnailInLocalMode(BuildContext context, int index) {
     return GetBuilder<GalleryDownloadService>(
-      id: '${Get.find<GalleryDownloadService>().downloadImageId}::${state.readPageInfo.gid}::$index',
+      id: '${galleryDownloadService.downloadImageId}::${state.readPageInfo.gid}::$index',
       builder: (_) {
         if (state.images[index]?.downloadStatus != DownloadStatus.downloaded) {
           return Center(child: UIConfig.loadingAnimation(context));
