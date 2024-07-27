@@ -34,7 +34,7 @@ enum ConfigEnum {
   windowHeight('windowHeight'),
   leftColumnWidthRatio('leftColumnWidthRatio'),
   dismissVersion('dismissVersion'),
-  galleryHistory('history'),
+  oldGalleryHistory('history'),
   readIndexRecord('readIndexRecord'),
   quickSearch('quickSearch'),
   firstOpenInited('firstOpenInited'),
