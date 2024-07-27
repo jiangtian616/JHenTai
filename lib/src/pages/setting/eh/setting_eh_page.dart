@@ -35,9 +35,10 @@ class _SettingEHPageState extends State<SettingEHPage> {
 
   @override
   void initState() {
+    super.initState();
+
     ehSetting.fetchDataFromEH();
     getAssets();
-    super.initState();
   }
 
   @override

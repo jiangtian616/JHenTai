@@ -85,7 +85,8 @@ class SiteSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
       return;
     }
 
-    log.info('Fetch site setting from EH');
+    String site = ehSetting.site.value;
+    log.info('Fetch site setting from $site');
 
     ({
       bool preferJapaneseTitle,
@@ -101,14 +102,14 @@ class SiteSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
         maxAttempts: 3,
       );
     } on DioException catch (e) {
-      log.error('Fetch site setting from EH fail', e.errorMsg);
+      log.error('Fetch site setting from $site fail', e.errorMsg);
       return;
     } on EHSiteException catch (e) {
-      log.error('Fetch site setting from EH fail', e.message);
+      log.error('Fetch site setting from $site fail', e.message);
       return;
     }
 
-    log.info('Fetch site setting from EH success');
+    log.info('Fetch site setting from $site success');
 
     preferJapaneseTitle.value = settings.preferJapaneseTitle;
     frontPageDisplayType.value = settings.frontPageDisplayType;
