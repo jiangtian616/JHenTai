@@ -1,17 +1,10 @@
 enum ConfigEnum {
-  ehCookie('eh_cookies'),
-  searchConfig('searchConfig'),
-  downloadPageGalleryType('downloadPageGalleryType'),
-  displayArchiveGroups('displayArchiveGroups'),
-  displayGalleryGroups('displayGalleryGroups'),
-  isSpreadPage('isSpreadPage'),
-  enableSearchHistoryTranslation('enableSearchHistoryTranslation'),
-  tagTranslationServiceLoadingState('TagTranslationServiceLoadingState'),
-  tagTranslationServiceTimestamp('TagTranslationServiceTimestamp'),
-  tagSearchOrderOptimizationServiceVersion('TagTranslationServiceVersion'),
-  tagSearchOrderOptimizationServiceLoadingState('TagSearchOrderOptimizationServiceLoadingState'),
-  displayBlockingRulesGroup('displayBlockingRulesGroup'),
-  searchHistory('searchHistory'),
+  /// app update
+  firstOpenInited('firstOpenInited'),
+  renameDownloadMetadata('renameDownloadMetadata'),
+  migrateGalleryHistory('migrateGalleryHistory'),
+
+  /// settings
   favoriteSetting('favoriteSetting'),
   advancedSetting('advancedSetting'),
   downloadSetting('downloadSetting'),
@@ -33,13 +26,29 @@ enum ConfigEnum {
   windowWidth('windowWidth'),
   windowHeight('windowHeight'),
   leftColumnWidthRatio('leftColumnWidthRatio'),
+
+  /// config
+  ehCookie('eh_cookies'),
+  searchConfig('searchConfig'),
   dismissVersion('dismissVersion'),
-  oldGalleryHistory('history'),
   readIndexRecord('readIndexRecord'),
   quickSearch('quickSearch'),
-  firstOpenInited('firstOpenInited'),
-  renameDownloadMetadata('renameDownloadMetadata'),
-  migrateGalleryHistory('migrateGalleryHistory'),
+  oldGalleryHistory('history'),
+  searchHistory('searchHistory'),
+
+  /// page config
+  downloadPageGalleryType('downloadPageGalleryType'),
+  displayArchiveGroups('displayArchiveGroups'),
+  displayGalleryGroups('displayGalleryGroups'),
+  enableSearchHistoryTranslation('enableSearchHistoryTranslation'),
+  tagTranslationServiceLoadingState('TagTranslationServiceLoadingState'),
+  tagTranslationServiceTimestamp('TagTranslationServiceTimestamp'),
+  tagSearchOrderOptimizationServiceVersion('TagTranslationServiceVersion'),
+  tagSearchOrderOptimizationServiceLoadingState('TagSearchOrderOptimizationServiceLoadingState'),
+  displayBlockingRulesGroup('displayBlockingRulesGroup'),
+
+  /// cache
+  isSpreadPage('isSpreadPage'),
   ;
 
   final String key;
