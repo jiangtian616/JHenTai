@@ -502,6 +502,11 @@ class MigrateStorageConfigHandler implements UpdateHandler {
     if (archiveDisplayGroups != null) {
       await localConfigService.write(configKey: ConfigEnum.displayArchiveGroups, value: jsonEncode(archiveDisplayGroups));
     }
+
+    List<String>? galleryDisplayGroups = storageService.read(ConfigEnum.displayGalleryGroups.key);
+    if (galleryDisplayGroups != null) {
+      await localConfigService.write(configKey: ConfigEnum.displayGalleryGroups, value: jsonEncode(galleryDisplayGroups));
+    }
   }
 
   @override
