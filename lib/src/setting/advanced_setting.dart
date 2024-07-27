@@ -42,10 +42,10 @@ class AdvancedSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   }
 
   @override
-  Future<void> doOnInit() async {}
+  Future<void> doInitBean() async {}
 
   @override
-  void doOnReady() {}
+  void doAfterBeanReady() {}
 
   Future<void> saveEnableLogging(bool enableLogging) async {
     log.debug('saveEnableLogging:$enableLogging');

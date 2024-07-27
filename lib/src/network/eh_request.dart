@@ -52,7 +52,7 @@ class EHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   List<JHLifeCircleBean> get initDependencies => super.initDependencies..addAll([networkSetting]);
 
   @override
-  Future<void> doOnInit() async {
+  Future<void> doInitBean() async {
     _dio = Dio(BaseOptions(
       connectTimeout: Duration(milliseconds: networkSetting.connectTimeout.value),
       receiveTimeout: Duration(milliseconds: networkSetting.receiveTimeout.value),
@@ -84,7 +84,7 @@ class EHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   }
 
   @override
-  void doOnReady() {}
+  Future<void> doAfterBeanReady() async {}
 
   Future<void> _initProxy() async {
     SocksProxy.initProxy(

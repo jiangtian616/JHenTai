@@ -67,10 +67,10 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
   }
 
   @override
-  Future<void> doOnInit() async {}
+  Future<void> doInitBean() async {}
 
   @override
-  void doOnReady() {}
+  void doAfterBeanReady() {}
 
   Future<void> savePageCacheMaxAge(Duration pageCacheMaxAge) async {
     log.debug('savePageCacheMaxAge:$pageCacheMaxAge');

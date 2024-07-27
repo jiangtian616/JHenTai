@@ -32,10 +32,10 @@ class QuickSearchService with JHLifeCircleBeanWithConfigStorage implements JHLif
   }
 
   @override
-  Future<void> doOnInit() async {}
+  Future<void> doInitBean() async {}
 
   @override
-  void doOnReady() {}
+  void doAfterBeanReady() {}
 
   Future<void> addQuickSearch(String name, SearchConfig searchConfig) async {
     if (quickSearchConfigs.containsKey(name)) {

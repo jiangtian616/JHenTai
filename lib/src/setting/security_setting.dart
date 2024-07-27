@@ -53,7 +53,7 @@ class SecuritySetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   }
 
   @override
-  Future<void> doOnInit() async {
+  Future<void> doInitBean() async {
     if (GetPlatform.isMobile) {
       List<BiometricType> types = await LocalAuthentication().getAvailableBiometrics();
       supportBiometricAuth = types.isNotEmpty;
@@ -92,7 +92,7 @@ class SecuritySetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   }
 
   @override
-  void doOnReady() {}
+  void doAfterBeanReady() {}
 
   Future<void> saveEnableBlur(bool enableBlur) async {
     log.debug('saveEnableBlur:$enableBlur');

@@ -1,51 +1,34 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_socks_proxy/socks_proxy.dart';
 import 'package:jhentai/src/consts/jh_consts.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/network/jh_cookie_manager.dart';
-import 'package:jhentai/src/service/local_config_service.dart';
 
 import '../service/isolate_service.dart';
 import '../service/jh_service.dart';
 import '../setting/network_setting.dart';
 import '../utils/eh_spider_parser.dart';
-import '../utils/proxy_util.dart';
 
 JHRequest jhRequest = JHRequest();
 
 class JHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late final Dio _dio;
-  late final String systemProxyAddress;
   late final JHCookieManager _cookieManager;
 
   @override
   List<JHLifeCircleBean> get initDependencies => super.initDependencies..add(ehRequest);
 
   @override
-  Future<void> doOnInit() async {
+  Future<void> doInitBean() async {
     _dio = Dio(BaseOptions(
       connectTimeout: Duration(milliseconds: networkSetting.connectTimeout.value),
       receiveTimeout: Duration(milliseconds: networkSetting.receiveTimeout.value),
     ));
 
-    systemProxyAddress = await getSystemProxyAddress();
-
-    await _initProxy();
-
     await _initCookieManager();
   }
 
   @override
-  void doOnReady() {}
-
-  Future<void> _initProxy() async {
-    SocksProxy.initProxy(
-      onCreate: (client) => client.badCertificateCallback = (_, String host, __) {
-        return networkSetting.allIPs.contains(host);
-      },
-      findProxy: await findProxySettingFunc(() => systemProxyAddress),
-    );
-  }
+  Future<void> doAfterBeanReady() async {}
 
   Future<void> _initCookieManager() async {
     _cookieManager = JHCookieManager();

@@ -7,12 +7,12 @@ FrameRateService frameRateService = FrameRateService();
 
 class FrameRateService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   @override
-  Future<void> doOnInit() async {
+  Future<void> doInitBean() async {
     if (GetPlatform.isAndroid) {
       await FlutterDisplayMode.setHighRefreshRate();
     }
   }
 
   @override
-  void doOnReady() {}
+  Future<void> doAfterBeanReady() async {}
 }

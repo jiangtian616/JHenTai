@@ -1,5 +1,4 @@
 import 'package:desktop_webview_window/desktop_webview_window.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -107,7 +106,7 @@ void main(List<String> args) async {
 
   lifeCircleBeans = topologicalSort(lifeCircleBeans);
   for (JHLifeCircleBean bean in lifeCircleBeans) {
-    await bean.onInit();
+    await bean.initBean();
   }
 
   runApp(const MyApp());
@@ -149,7 +148,7 @@ class MyApp extends StatelessWidget {
       popGesture: preferenceSetting.enableSwipeBackGesture.isTrue,
       onReady: () {
         for (JHLifeCircleBean bean in lifeCircleBeans) {
-          bean.onReady();
+          bean.afterBeanReady();
         }
       },
     );

@@ -1,12 +1,7 @@
-import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_type_enum.dart';
 import 'package:jhentai/src/model/config.dart';
-import 'package:jhentai/src/service/history_service.dart';
-import 'package:jhentai/src/service/local_block_rule_service.dart';
-import 'package:jhentai/src/service/storage_service.dart';
 
 import 'jh_service.dart';
-import 'log.dart';
 
 CloudConfigService cloudConfigService = CloudConfigService();
 
@@ -21,10 +16,10 @@ class CloudConfigService with JHLifeCircleBeanErrorCatch implements JHLifeCircle
   static const String configFileName = 'JHenTaiConfig';
 
   @override
-  Future<void> doOnInit() async {}
+  Future<void> doInitBean() async {}
 
   @override
-  void doOnReady() {}
+  Future<void> doAfterBeanReady() async {}
 
   Future<Map<CloudConfigTypeEnum, String>> getCurrentConfigMap() async {
     return {};

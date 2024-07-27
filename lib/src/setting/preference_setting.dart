@@ -97,10 +97,10 @@ class PreferenceSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
   }
 
   @override
-  Future<void> doOnInit() async {}
+  Future<void> doInitBean() async {}
 
   @override
-  void doOnReady() {}
+  void doAfterBeanReady() {}
 
   Future<void> saveLanguage(Locale locale) async {
     log.debug('saveLanguage:$locale');

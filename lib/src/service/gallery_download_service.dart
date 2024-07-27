@@ -85,7 +85,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   Worker? _downloadSettingListener;
 
   @override
-  Future<void> doOnInit() async {
+  Future<void> doInitBean() async {
     Get.put(this, permanent: true);
 
     await _instantiateFromDB();
@@ -106,12 +106,10 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         updateExecutor();
       },
     );
-
-    super.onInit();
   }
 
   @override
-  void doOnReady() {}
+  Future<void> doAfterBeanReady() async {}
 
   @override
   void onClose() {

@@ -50,7 +50,7 @@ class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCir
   List<JHLifeCircleBean> get initDependencies => super.initDependencies..add(localConfigService);
 
   @override
-  Future<void> doOnInit() async {
+  Future<void> doInitBean() async {
     savePath = join(pathService.getVisibleDir().path, 'tag_translation.json');
 
     localConfigService
@@ -61,7 +61,7 @@ class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCir
   }
 
   @override
-  void doOnReady() {
+  Future<void> doAfterBeanReady() async {
     if (isReady) {
       fetchDataFromGithub();
     }

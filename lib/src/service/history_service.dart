@@ -16,10 +16,10 @@ class HistoryService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean
   static const int pageSize = 100;
 
   @override
-  Future<void> doOnInit() async {}
+  Future<void> doInitBean() async {}
 
   @override
-  void doOnReady() {}
+  Future<void> doAfterBeanReady() async {}
 
   Future<int> getPageCount() async {
     int totalCount = await GalleryHistoryDao.selectTotalCount();

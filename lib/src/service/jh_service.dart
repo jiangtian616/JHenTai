@@ -8,35 +8,35 @@ import 'log.dart';
 abstract interface class JHLifeCircleBean {
   List<JHLifeCircleBean> get initDependencies;
 
-  Future<void> onInit();
+  Future<void> initBean();
 
-  void onReady();
+  void afterBeanReady();
 }
 
 mixin JHLifeCircleBeanErrorCatch {
   List<JHLifeCircleBean> get initDependencies => [pathService, log];
 
-  Future<void> onInit() async {
+  Future<void> initBean() async {
     try {
-      await doOnInit();
+      await doInitBean();
       log.debug('Init $runtimeType success');
     } catch (e, stack) {
       log.error('Init $runtimeType failed', e, stack);
     }
   }
 
-  void onReady() {
+  Future<void> afterBeanReady() async {
     try {
-      doOnReady();
-      log.trace('OnReady $runtimeType success');
+      await doAfterBeanReady();
+      log.trace('$runtimeType afterBeanReady success');
     } catch (e, stack) {
-      log.error('OnReady $runtimeType failed', e, stack);
+      log.error('$runtimeType afterBeanReady failed', e, stack);
     }
   }
 
-  Future<void> doOnInit();
+  Future<void> doInitBean();
 
-  void doOnReady();
+  Future<void> doAfterBeanReady();
 }
 
 mixin JHLifeCircleBeanWithConfigStorage {
@@ -44,25 +44,27 @@ mixin JHLifeCircleBeanWithConfigStorage {
 
   ConfigEnum get configEnum;
 
-  Future<void> onInit() async {
+  Future<void> initBean() async {
     try {
+      await doInitBean();
+
       String? configString = await localConfigService.read(configKey: configEnum);
       if (configString != null) {
         applyConfig(configString);
       }
-      await doOnInit();
+
       log.debug(configString == null ? 'Init $runtimeType config success with default' : 'Init $runtimeType config success');
     } catch (e, stack) {
       log.error('Init $runtimeType config failed', e, stack);
     }
   }
 
-  void onReady() {
+  void afterBeanReady() {
     try {
-      doOnReady();
-      log.debug('OnReady $runtimeType success');
+      doAfterBeanReady();
+      log.debug('$runtimeType afterBeanReady success');
     } catch (e, stack) {
-      log.error('OnReady $runtimeType failed', e, stack);
+      log.error('$runtimeType afterBeanReady failed', e, stack);
     }
   }
 
@@ -80,7 +82,7 @@ mixin JHLifeCircleBeanWithConfigStorage {
     }
   }
 
-  Future<bool> save() {
+  Future<int> save() {
     return localConfigService.write(configKey: configEnum, value: toConfigString());
   }
 
@@ -91,9 +93,9 @@ mixin JHLifeCircleBeanWithConfigStorage {
 
   void applyConfig(String configString);
 
-  Future<void> doOnInit();
+  Future<void> doInitBean();
 
-  void doOnReady();
+  void doAfterBeanReady();
 
   String toConfigString();
 }

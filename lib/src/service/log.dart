@@ -34,7 +34,7 @@ class LogService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   List<JHLifeCircleBean> get initDependencies => [pathService];
 
   @override
-  Future<void> doOnInit() async {
+  Future<void> doInitBean() async {
     PlatformDispatcher.instance.onError = (error, stack) {
       if (error is NotUploadException) {
         return true;
@@ -54,28 +54,28 @@ class LogService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   }
 
   @override
-  void doOnReady() {}
+  Future<void> doAfterBeanReady() async {}
 
   /// For actions that print params
   void trace(Object msg, [bool withStack = false]) {
-    _initConsoleLogger().then((_) => _verboseFileLogger?.t(msg, stackTrace: withStack ? null : StackTrace.empty));
+    _initConsoleLogger().then((_) => _consoleLogger?.t(msg, stackTrace: withStack ? null : StackTrace.empty));
     _initVerboseFileLogger().then((_) => _verboseFileLogger?.t(msg, stackTrace: withStack ? null : StackTrace.empty));
   }
 
   /// For actions that is invisible to user
   void debug(Object msg, [bool withStack = false]) {
-    _initConsoleLogger().then((_) => _verboseFileLogger?.d(msg, stackTrace: withStack ? null : StackTrace.empty));
+    _initConsoleLogger().then((_) => _consoleLogger?.d(msg, stackTrace: withStack ? null : StackTrace.empty));
     _initVerboseFileLogger().then((_) => _verboseFileLogger?.d(msg, stackTrace: withStack ? null : StackTrace.empty));
   }
 
   /// For actions that is visible to user
   void info(Object msg, [bool withStack = false]) {
-    _initConsoleLogger().then((_) => _verboseFileLogger?.i(msg, stackTrace: withStack ? null : StackTrace.empty));
+    _initConsoleLogger().then((_) => _consoleLogger?.i(msg, stackTrace: withStack ? null : StackTrace.empty));
     _initVerboseFileLogger().then((_) => _verboseFileLogger?.i(msg, stackTrace: withStack ? null : StackTrace.empty));
   }
 
   void warning(Object msg, [Object? error, bool withStack = false]) {
-    _initConsoleLogger().then((_) => _verboseFileLogger?.w(msg, stackTrace: withStack ? null : StackTrace.empty));
+    _initConsoleLogger().then((_) => _consoleLogger?.w(msg, stackTrace: withStack ? null : StackTrace.empty));
     _initVerboseFileLogger().then((_) => _verboseFileLogger?.w(msg, stackTrace: withStack ? null : StackTrace.empty));
 
     if (advancedSetting.enableVerboseLogging.isTrue) {

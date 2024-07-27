@@ -29,10 +29,10 @@ class MouseSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
   }
 
   @override
-  Future<void> doOnInit() async {}
+  Future<void> doInitBean() async {}
 
   @override
-  void doOnReady() {}
+  void doAfterBeanReady() {}
 
   Future<void> saveWheelScrollSpeed(double wheelScrollSpeed) async {
     log.debug('saveWheelScrollSpeed:$wheelScrollSpeed');

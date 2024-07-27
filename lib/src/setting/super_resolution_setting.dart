@@ -35,10 +35,10 @@ class SuperResolutionSetting with JHLifeCircleBeanWithConfigStorage implements J
   }
 
   @override
-  Future<void> doOnInit() async {}
+  Future<void> doInitBean() async {}
 
   @override
-  void doOnReady() {}
+  void doAfterBeanReady() {}
 
   Future<void> saveModelDirectoryPath(String? modelDirectoryPath) async {
     log.debug('saveModelDirectoryPath:$modelDirectoryPath');

@@ -159,10 +159,10 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   }
 
   @override
-  Future<void> doOnInit() async {}
+  Future<void> doInitBean() async {}
 
   @override
-  void doOnReady() {}
+  void doAfterBeanReady() {}
 
   Future<void> saveEnableImmersiveMode(bool value) async {
     log.debug('saveEnableImmersiveMode:$value');

@@ -16,7 +16,7 @@ class LocalBlockRuleService with JHLifeCircleBeanErrorCatch implements JHLifeCir
   final List<LocalBlockRuleHandler> handlers = [];
 
   @override
-  Future<void> doOnInit() async {
+  Future<void> doInitBean() async {
     handlers.addAll([
       GalleryTagEqualLocalBlockRuleHandler(),
       GalleryUploaderEqualLocalBlockRuleHandler(),
@@ -43,7 +43,7 @@ class LocalBlockRuleService with JHLifeCircleBeanErrorCatch implements JHLifeCir
   }
 
   @override
-  void doOnReady() {}
+  Future<void> doAfterBeanReady() async {}
 
   LocalBlockRuleHandler getHandlerByRule(LocalBlockRule rule) => handlers.where((h) => h.matchRule(rule)).sorted((a, b) => a.order - b.order).first;
 

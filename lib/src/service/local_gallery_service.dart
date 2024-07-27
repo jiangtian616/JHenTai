@@ -34,14 +34,14 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin, 
   List<String> get rootDirectories => path2SubDir[rootPath] ?? [];
 
   @override
-  Future<void> doOnInit() async {
+  Future<void> doInitBean() async {
     Get.put(this, permanent: true);
 
     await refreshLocalGallerys();
   }
 
   @override
-  void doOnReady() {}
+  Future<void> doAfterBeanReady() async {}
 
   Future<void> refreshLocalGallerys() {
     if (loadingState == LoadingState.loading) {

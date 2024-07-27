@@ -50,7 +50,7 @@ class EHSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBe
   }
 
   @override
-  Future<void> doOnInit() async {
+  Future<void> doInitBean() async {
     /// listen to logout
     ever(userSetting.ipbMemberId, (v) {
       if (userSetting.hasLoggedIn()) {
@@ -64,7 +64,7 @@ class EHSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBe
   }
 
   @override
-  void doOnReady() {
+  void doAfterBeanReady() {
     fetchDataFromEH();
   }
 

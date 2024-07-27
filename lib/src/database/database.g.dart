@@ -6335,8 +6335,13 @@ class $LocalConfigTable extends LocalConfig
   late final GeneratedColumn<String> value = GeneratedColumn<String>(
       'value', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _utimeMeta = const VerificationMeta('utime');
   @override
-  List<GeneratedColumn> get $columns => [configKey, subConfigKey, value];
+  late final GeneratedColumn<String> utime = GeneratedColumn<String>(
+      'utime', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [configKey, subConfigKey, value, utime];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -6367,6 +6372,12 @@ class $LocalConfigTable extends LocalConfig
     } else if (isInserting) {
       context.missing(_valueMeta);
     }
+    if (data.containsKey('utime')) {
+      context.handle(
+          _utimeMeta, utime.isAcceptableOrUnknown(data['utime']!, _utimeMeta));
+    } else if (isInserting) {
+      context.missing(_utimeMeta);
+    }
     return context;
   }
 
@@ -6382,6 +6393,8 @@ class $LocalConfigTable extends LocalConfig
           .read(DriftSqlType.string, data['${effectivePrefix}sub_config_key'])!,
       value: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}value'])!,
+      utime: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}utime'])!,
     );
   }
 
@@ -6395,16 +6408,19 @@ class LocalConfigData extends DataClass implements Insertable<LocalConfigData> {
   final String configKey;
   final String subConfigKey;
   final String value;
+  final String utime;
   const LocalConfigData(
       {required this.configKey,
       required this.subConfigKey,
-      required this.value});
+      required this.value,
+      required this.utime});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['config_key'] = Variable<String>(configKey);
     map['sub_config_key'] = Variable<String>(subConfigKey);
     map['value'] = Variable<String>(value);
+    map['utime'] = Variable<String>(utime);
     return map;
   }
 
@@ -6413,6 +6429,7 @@ class LocalConfigData extends DataClass implements Insertable<LocalConfigData> {
       configKey: Value(configKey),
       subConfigKey: Value(subConfigKey),
       value: Value(value),
+      utime: Value(utime),
     );
   }
 
@@ -6423,6 +6440,7 @@ class LocalConfigData extends DataClass implements Insertable<LocalConfigData> {
       configKey: serializer.fromJson<String>(json['configKey']),
       subConfigKey: serializer.fromJson<String>(json['subConfigKey']),
       value: serializer.fromJson<String>(json['value']),
+      utime: serializer.fromJson<String>(json['utime']),
     );
   }
   @override
@@ -6432,15 +6450,20 @@ class LocalConfigData extends DataClass implements Insertable<LocalConfigData> {
       'configKey': serializer.toJson<String>(configKey),
       'subConfigKey': serializer.toJson<String>(subConfigKey),
       'value': serializer.toJson<String>(value),
+      'utime': serializer.toJson<String>(utime),
     };
   }
 
   LocalConfigData copyWith(
-          {String? configKey, String? subConfigKey, String? value}) =>
+          {String? configKey,
+          String? subConfigKey,
+          String? value,
+          String? utime}) =>
       LocalConfigData(
         configKey: configKey ?? this.configKey,
         subConfigKey: subConfigKey ?? this.subConfigKey,
         value: value ?? this.value,
+        utime: utime ?? this.utime,
       );
   LocalConfigData copyWithCompanion(LocalConfigCompanion data) {
     return LocalConfigData(
@@ -6449,6 +6472,7 @@ class LocalConfigData extends DataClass implements Insertable<LocalConfigData> {
           ? data.subConfigKey.value
           : this.subConfigKey,
       value: data.value.present ? data.value.value : this.value,
+      utime: data.utime.present ? data.utime.value : this.utime,
     );
   }
 
@@ -6457,51 +6481,59 @@ class LocalConfigData extends DataClass implements Insertable<LocalConfigData> {
     return (StringBuffer('LocalConfigData(')
           ..write('configKey: $configKey, ')
           ..write('subConfigKey: $subConfigKey, ')
-          ..write('value: $value')
+          ..write('value: $value, ')
+          ..write('utime: $utime')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(configKey, subConfigKey, value);
+  int get hashCode => Object.hash(configKey, subConfigKey, value, utime);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is LocalConfigData &&
           other.configKey == this.configKey &&
           other.subConfigKey == this.subConfigKey &&
-          other.value == this.value);
+          other.value == this.value &&
+          other.utime == this.utime);
 }
 
 class LocalConfigCompanion extends UpdateCompanion<LocalConfigData> {
   final Value<String> configKey;
   final Value<String> subConfigKey;
   final Value<String> value;
+  final Value<String> utime;
   final Value<int> rowid;
   const LocalConfigCompanion({
     this.configKey = const Value.absent(),
     this.subConfigKey = const Value.absent(),
     this.value = const Value.absent(),
+    this.utime = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   LocalConfigCompanion.insert({
     required String configKey,
     required String subConfigKey,
     required String value,
+    required String utime,
     this.rowid = const Value.absent(),
   })  : configKey = Value(configKey),
         subConfigKey = Value(subConfigKey),
-        value = Value(value);
+        value = Value(value),
+        utime = Value(utime);
   static Insertable<LocalConfigData> custom({
     Expression<String>? configKey,
     Expression<String>? subConfigKey,
     Expression<String>? value,
+    Expression<String>? utime,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (configKey != null) 'config_key': configKey,
       if (subConfigKey != null) 'sub_config_key': subConfigKey,
       if (value != null) 'value': value,
+      if (utime != null) 'utime': utime,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -6510,11 +6542,13 @@ class LocalConfigCompanion extends UpdateCompanion<LocalConfigData> {
       {Value<String>? configKey,
       Value<String>? subConfigKey,
       Value<String>? value,
+      Value<String>? utime,
       Value<int>? rowid}) {
     return LocalConfigCompanion(
       configKey: configKey ?? this.configKey,
       subConfigKey: subConfigKey ?? this.subConfigKey,
       value: value ?? this.value,
+      utime: utime ?? this.utime,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -6531,6 +6565,9 @@ class LocalConfigCompanion extends UpdateCompanion<LocalConfigData> {
     if (value.present) {
       map['value'] = Variable<String>(value.value);
     }
+    if (utime.present) {
+      map['utime'] = Variable<String>(utime.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -6543,6 +6580,7 @@ class LocalConfigCompanion extends UpdateCompanion<LocalConfigData> {
           ..write('configKey: $configKey, ')
           ..write('subConfigKey: $subConfigKey, ')
           ..write('value: $value, ')
+          ..write('utime: $utime, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -6607,6 +6645,8 @@ abstract class _$AppDb extends GeneratedDatabase {
       'idx_group_id', 'CREATE INDEX idx_group_id ON block_rule (group_id)');
   late final Index idxTarget =
       Index('idx_target', 'CREATE INDEX idx_target ON block_rule (target)');
+  late final Index lIdxUTime = Index(
+      'l_idx_u_time', 'CREATE INDEX l_idx_u_time ON local_config (utime)');
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -6643,7 +6683,8 @@ abstract class _$AppDb extends GeneratedDatabase {
         idxExpireDate,
         idxUrl,
         idxGroupId,
-        idxTarget
+        idxTarget,
+        lIdxUTime
       ];
 }
 
@@ -9181,6 +9222,7 @@ typedef $$LocalConfigTableCreateCompanionBuilder = LocalConfigCompanion
   required String configKey,
   required String subConfigKey,
   required String value,
+  required String utime,
   Value<int> rowid,
 });
 typedef $$LocalConfigTableUpdateCompanionBuilder = LocalConfigCompanion
@@ -9188,6 +9230,7 @@ typedef $$LocalConfigTableUpdateCompanionBuilder = LocalConfigCompanion
   Value<String> configKey,
   Value<String> subConfigKey,
   Value<String> value,
+  Value<String> utime,
   Value<int> rowid,
 });
 
@@ -9211,24 +9254,28 @@ class $$LocalConfigTableTableManager extends RootTableManager<
             Value<String> configKey = const Value.absent(),
             Value<String> subConfigKey = const Value.absent(),
             Value<String> value = const Value.absent(),
+            Value<String> utime = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               LocalConfigCompanion(
             configKey: configKey,
             subConfigKey: subConfigKey,
             value: value,
+            utime: utime,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required String configKey,
             required String subConfigKey,
             required String value,
+            required String utime,
             Value<int> rowid = const Value.absent(),
           }) =>
               LocalConfigCompanion.insert(
             configKey: configKey,
             subConfigKey: subConfigKey,
             value: value,
+            utime: utime,
             rowid: rowid,
           ),
         ));
@@ -9251,6 +9298,11 @@ class $$LocalConfigTableFilterComposer
       column: $state.table.value,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get utime => $state.composableBuilder(
+      column: $state.table.utime,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
 }
 
 class $$LocalConfigTableOrderingComposer
@@ -9268,6 +9320,11 @@ class $$LocalConfigTableOrderingComposer
 
   ColumnOrderings<String> get value => $state.composableBuilder(
       column: $state.table.value,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get utime => $state.composableBuilder(
+      column: $state.table.utime,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 }

@@ -56,7 +56,7 @@ class FavoriteSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   }
 
   @override
-  Future<void> doOnInit() async {
+  Future<void> doInitBean() async {
     /// listen to login and logout
     ever(userSetting.ipbMemberId, (v) {
       if (userSetting.hasLoggedIn()) {
@@ -81,7 +81,7 @@ class FavoriteSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   }
 
   @override
-  void doOnReady() {
+  void doAfterBeanReady() {
     fetchDataFromEH();
   }
 

@@ -15,12 +15,12 @@ class VolumeService extends GetxService with JHLifeCircleBeanErrorCatch implemen
   static const int volumeDown = -1;
 
   @override
-  Future<void> doOnInit() async {
+  Future<void> doInitBean() async {
     Get.put(this, permanent: true);
   }
 
   @override
-  void doOnReady() {
+  Future<void> doAfterBeanReady() async {
     if (!GetPlatform.isAndroid) {
       return;
     }

@@ -33,7 +33,7 @@ class WindowService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean 
   List<JHLifeCircleBean> get initDependencies => super.initDependencies..addAll([localConfigService, preferenceSetting, appUpdateService]);
 
   @override
-  Future<void> doOnInit() async {
+  Future<void> doInitBean() async {
     windowWidth = await localConfigService.read(configKey: ConfigEnum.windowWidth).then((value) => value != null ? double.parse(value) : windowWidth);
     windowHeight = await localConfigService.read(configKey: ConfigEnum.windowHeight).then((value) => value != null ? double.parse(value) : windowHeight);
     isMaximized = await localConfigService.read(configKey: ConfigEnum.windowMaximize).then((value) => value != null ? value == 'true' : isMaximized);
@@ -71,7 +71,7 @@ class WindowService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean 
   }
 
   @override
-  void doOnReady() {}
+  Future<void> doAfterBeanReady() async {}
 
   void handleColumnResized(List<WidgetSizeInfo> infoList) {
     if (leftColumnWidthRatio == infoList[0].percentage) {
@@ -98,14 +98,14 @@ class WindowService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean 
     });
   }
 
-  Future<bool> saveMaximizeWindow(bool isMaximized) {
+  Future<int> saveMaximizeWindow(bool isMaximized) {
     log.info(isMaximized ? 'Maximized window' : 'Restored window');
 
     this.isMaximized = isMaximized;
     return localConfigService.write(configKey: ConfigEnum.windowMaximize, value: isMaximized.toString());
   }
 
-  Future<bool> saveFullScreen(bool isFullScreen) {
+  Future<int> saveFullScreen(bool isFullScreen) {
     log.info(isFullScreen ? 'Enter full screen' : 'Leave full screen');
 
     this.isFullScreen = isFullScreen;

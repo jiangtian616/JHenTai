@@ -21,10 +21,10 @@ ScheduleService scheduleService = ScheduleService();
 
 class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   @override
-  Future<void> doOnInit() async {}
+  Future<void> doInitBean() async {}
 
   @override
-  void doOnReady() {
+  Future<void> doAfterBeanReady() async {
     Timer(const Duration(seconds: 10), refreshGalleryTags);
     Timer(const Duration(seconds: 10), refreshArchiveTags);
     Timer(const Duration(seconds: 5), clearOutdatedImageCache);

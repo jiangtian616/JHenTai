@@ -49,10 +49,10 @@ class UserSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   }
 
   @override
-  Future<void> doOnInit() async {}
+  Future<void> doInitBean() async {}
 
   @override
-  void doOnReady() {}
+  void doAfterBeanReady() {}
 
   Future<void> saveUserInfo({
     required String userName,

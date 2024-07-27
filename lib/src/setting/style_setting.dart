@@ -103,15 +103,14 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
   }
   
   @override
-  Future<void> doOnInit() async {
+  Future<void> doInitBean() async {
     ever(themeMode, (_) {
       Get.changeThemeMode(themeMode.value);
     });
   }
 
   @override
-  void doOnReady() {}
-
+  void doAfterBeanReady() {}
 
   Future<void> saveThemeMode(ThemeMode themeMode) async {
     log.debug('saveThemeMode:${themeMode.name}');

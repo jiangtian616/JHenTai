@@ -25,7 +25,7 @@ class MyTagsSetting with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean 
   List<JHLifeCircleBean> get initDependencies => super.initDependencies..add(userSetting);
 
   @override
-  Future<void> doOnInit() async {
+  Future<void> doInitBean() async {
     /// listen to login and logout
     ever(userSetting.ipbMemberId, (v) {
       if (userSetting.hasLoggedIn()) {
@@ -37,7 +37,7 @@ class MyTagsSetting with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean 
   }
 
   @override
-  void doOnReady() {
+  Future<void> doAfterBeanReady() async {
     refreshAllOnlineTagSets();
   }
 

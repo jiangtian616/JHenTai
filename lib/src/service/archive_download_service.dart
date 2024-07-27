@@ -65,7 +65,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   late Worker proxyConfigListener;
 
   @override
-  Future<void> doOnInit() async {
+  Future<void> doInitBean() async {
     Get.put(this, permanent: true);
 
     await _instantiateFromDB();
@@ -89,7 +89,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   @override
-  void doOnReady() {}
+  Future<void> doAfterBeanReady() async {}
 
   @override
   void onClose() {

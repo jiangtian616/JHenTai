@@ -50,7 +50,7 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
     ..add(archiveDownloadService);
 
   @override
-  Future<void> doOnInit() async {
+  Future<void> doInitBean() async {
     Get.put(this, permanent: true);
 
     if (!await galleryDownloadService.completed) {
@@ -88,7 +88,7 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
   }
 
   @override
-  void doOnReady() {}
+  Future<void> doAfterBeanReady() async {}
 
   SuperResolutionInfo? get(int gid, SuperResolutionType type) => superResolutionInfoTable.get(gid, type);
 

@@ -29,10 +29,10 @@ class PerformanceSetting with JHLifeCircleBeanWithConfigStorage implements JHLif
   }
 
   @override
-  Future<void> doOnInit() async {}
+  Future<void> doInitBean() async {}
 
   @override
-  void doOnReady() {}
+  void doAfterBeanReady() {}
 
   Future<void> setMaxGalleryNum4Animation(int value) async {
     log.debug('setMaxGalleryNum4Animation:$value');

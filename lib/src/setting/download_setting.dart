@@ -85,9 +85,9 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   }
 
   @override
-  Future<void> doOnInit() async {
+  Future<void> doInitBean() async {
     defaultDownloadPath = join(pathService.getVisibleDir().path, 'download');
-    downloadPath.value = defaultDownloadPath;
+    downloadPath = defaultDownloadPath.obs;
     defaultExtraGalleryScanPath = join(pathService.getVisibleDir().path, 'local_gallery');
     extraGalleryScanPath = <String>[defaultExtraGalleryScanPath].obs;
     singleImageSavePath = join(pathService.getVisibleDir().path, 'save').obs;
@@ -98,7 +98,7 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   }
 
   @override
-  void doOnReady() {}
+  void doAfterBeanReady() {}
 
   Future<void> saveDownloadPath(String downloadPath) async {
     log.debug('saveDownloadPath:$downloadPath');

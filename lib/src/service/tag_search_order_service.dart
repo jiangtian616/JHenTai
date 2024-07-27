@@ -41,7 +41,7 @@ class TagSearchOrderOptimizationService with JHLifeCircleBeanErrorCatch implemen
   List<JHLifeCircleBean> get initDependencies => super.initDependencies..add(localConfigService);
 
   @override
-  Future<void> doOnInit() async {
+  Future<void> doInitBean() async {
     savePath = join(pathService.getVisibleDir().path, 'tid_count_tag.csv.gz');
 
     localConfigService
@@ -52,7 +52,7 @@ class TagSearchOrderOptimizationService with JHLifeCircleBeanErrorCatch implemen
   }
 
   @override
-  void doOnReady() {
+  Future<void> doAfterBeanReady() async {
     if (isReady) {
       fetchDataFromGithub();
     }

@@ -15,14 +15,14 @@ class StorageService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean
   late final GetStorage _storage;
 
   @override
-  Future<void> doOnInit() async {
+  Future<void> doInitBean() async {
     _migrateOldConfigFile();
     _storage = GetStorage(storageFileName, pathService.getVisibleDir().path);
     await _storage.initStorage;
   }
 
   @override
-  void doOnReady() {}
+  Future<void> doAfterBeanReady() async {}
 
   Future<void> write(String key, dynamic value) {
     return _storage.write(key, value);

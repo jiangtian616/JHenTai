@@ -40,10 +40,10 @@ class SearchHistoryService with JHLifeCircleBeanWithConfigStorage implements JHL
   }
 
   @override
-  Future<void> doOnInit() async {}
+  Future<void> doInitBean() async {}
 
   @override
-  void doOnReady() {}
+  void doAfterBeanReady() {}
 
   Future<void> writeHistory(String searchHistory) async {
     histories.removeWhere((history) => history.rawKeyword == searchHistory);

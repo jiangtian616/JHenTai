@@ -8,13 +8,13 @@ class IsolateService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean
   late final StatefulIsolate _isolate;
 
   @override
-  Future<void> doOnInit() async {
+  Future<void> doInitBean() async {
     _isolate = StatefulIsolate();
     await _isolate.init();
   }
 
   @override
-  void doOnReady() {}
+  Future<void> doAfterBeanReady() async {}
 
   Future<R> run<Q, R>(IsolateCallback<Q, R> callback, Q message, {String? debugLabel}) {
     return _isolate.isolate(callback, message, debugLabel: debugLabel);
