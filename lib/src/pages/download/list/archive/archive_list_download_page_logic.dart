@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
@@ -5,6 +7,7 @@ import 'package:jhentai/src/mixin/update_global_gallery_status_logic_mixin.dart'
 import '../../../../database/database.dart';
 import '../../../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../../../mixin/scroll_to_top_state_mixin.dart';
+import '../../../../service/local_config_service.dart';
 import '../../../../setting/performance_setting.dart';
 import '../../mixin/archive/archive_download_page_logic_mixin.dart';
 import '../../mixin/archive/archive_download_page_state_mixin.dart';
@@ -24,10 +27,16 @@ class ArchiveListDownloadPageLogic extends GetxController
   late Worker maxGalleryNum4AnimationListener;
 
   @override
-  void onInit() {
+  Future<void> onInit() async {
     super.onInit();
 
-    state.displayGroups = Set.from(storageService.read(ConfigEnum.displayArchiveGroups.key) ?? ['default'.tr]);
+    String? displayGroupsString = await localConfigService.read(configKey: ConfigEnum.displayArchiveGroups);
+    if (displayGroupsString == null) {
+      state.displayGroups = {'default'.tr};
+    } else {
+      state.displayGroups = Set.from(jsonDecode(displayGroupsString));
+    }
+    state.displayGroupsCompleter.complete();
 
     maxGalleryNum4AnimationListener = ever(performanceSetting.maxGalleryNum4Animation, (_) => updateSafely([bodyId]));
   }
@@ -39,19 +48,24 @@ class ArchiveListDownloadPageLogic extends GetxController
     maxGalleryNum4AnimationListener.dispose();
   }
 
-  void toggleDisplayGroups(String groupName) {
+  Future<void> toggleDisplayGroups(String groupName) async {
+    await state.displayGroupsCompleter.future;
+
     if (state.displayGroups.contains(groupName)) {
       state.displayGroups.remove(groupName);
     } else {
       state.displayGroups.add(groupName);
     }
 
-    storageService.write(ConfigEnum.displayArchiveGroups.name, state.displayGroups.toList());
+    await localConfigService.write(configKey: ConfigEnum.displayArchiveGroups, value: jsonEncode(state.displayGroups));
+
     state.groupedListController.toggleGroup(groupName);
   }
 
   @override
   Future<void> doRenameGroup(String oldGroup, String newGroup) async {
+    await state.displayGroupsCompleter.future;
+
     state.displayGroups.remove(oldGroup);
     return super.doRenameGroup(oldGroup, newGroup);
   }
@@ -71,7 +85,9 @@ class ArchiveListDownloadPageLogic extends GetxController
   }
 
   @override
-  void selectAllItem() {
+  Future<void> selectAllItem() async {
+    await state.displayGroupsCompleter.future;
+
     List<ArchiveDownloadedData> archives = [];
     for (String group in state.displayGroups) {
       archives.addAll(archiveDownloadService.archivesWithGroup(group));

@@ -47,7 +47,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(context),
-      body: buildBody(),
+      body: buildBody(context),
       floatingActionButton: buildFloatingActionButton(),
       bottomNavigationBar: buildBottomAppBar(),
     );
@@ -124,25 +124,30 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
     );
   }
 
-  Widget buildBody() {
+  Widget buildBody(BuildContext context) {
     return GetBuilder<ArchiveDownloadService>(
       id: logic.archiveDownloadService.galleryCountChangedId,
       builder: (_) => GetBuilder<ArchiveListDownloadPageLogic>(
         id: logic.bodyId,
-        builder: (_) => NotificationListener<UserScrollNotification>(
-          onNotification: logic.onUserScroll,
-          child: GroupedList<String, ArchiveDownloadedData>(
-            maxGalleryNum4Animation: performanceSetting.maxGalleryNum4Animation.value,
-            scrollController: state.scrollController,
-            controller: state.groupedListController,
-            groups: Map.fromEntries(logic.archiveDownloadService.allGroups.map((e) => MapEntry(e, state.displayGroups.contains(e)))),
-            elements: logic.archiveDownloadService.archives,
-            elementGroup: (ArchiveDownloadedData archive) => logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!.group,
-            groupBuilder: (context, groupName, isOpen) => _groupBuilder(context, groupName, isOpen).marginAll(5),
-            elementBuilder: (BuildContext context, String group, ArchiveDownloadedData archive, isOpen) => _itemBuilder(context, archive),
-            groupUniqueKey: (String group) => group,
-            elementUniqueKey: (ArchiveDownloadedData archive) => archive.gid.toString(),
-          ),
+        builder: (_) => FutureBuilder(
+          future: state.displayGroupsCompleter.future,
+          builder: (_, __) => !state.displayGroupsCompleter.isCompleted
+              ? UIConfig.loadingAnimation(context)
+              : NotificationListener<UserScrollNotification>(
+                  onNotification: logic.onUserScroll,
+                  child: GroupedList<String, ArchiveDownloadedData>(
+                    maxGalleryNum4Animation: performanceSetting.maxGalleryNum4Animation.value,
+                    scrollController: state.scrollController,
+                    controller: state.groupedListController,
+                    groups: Map.fromEntries(logic.archiveDownloadService.allGroups.map((e) => MapEntry(e, state.displayGroups.contains(e)))),
+                    elements: logic.archiveDownloadService.archives,
+                    elementGroup: (ArchiveDownloadedData archive) => logic.archiveDownloadService.archiveDownloadInfos[archive.gid]!.group,
+                    groupBuilder: (context, groupName, isOpen) => _groupBuilder(context, groupName, isOpen).marginAll(5),
+                    elementBuilder: (BuildContext context, String group, ArchiveDownloadedData archive, isOpen) => _itemBuilder(context, archive),
+                    groupUniqueKey: (String group) => group,
+                    elementUniqueKey: (ArchiveDownloadedData archive) => archive.gid.toString(),
+                  ),
+                ),
         ),
       ),
     );
