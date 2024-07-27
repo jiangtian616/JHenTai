@@ -21,7 +21,7 @@ class DesktopSearchPageTabLogic extends BasePageLogic with SearchPageLogicMixin 
 
   @override
   Future<void> onReady() async {
-    await super.onReady();
+    await state.searchConfigInitCompleter.future;
 
     String? keyword = newSearchArgument.keyword;
     SearchBehaviour searchBehaviour = newSearchArgument.keywordSearchBehaviour ?? preferenceSetting.searchBehaviour.value;

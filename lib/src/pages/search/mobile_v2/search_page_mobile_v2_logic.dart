@@ -27,7 +27,7 @@ class SearchPageMobileV2Logic extends BasePageLogic with SearchPageLogicMixin {
 
   @override
   Future<void> onReady() async {
-    await super.onReady();
+    await state.searchConfigInitCompleter.future;
 
     String? keyword;
     SearchBehaviour searchBehaviour = preferenceSetting.searchBehaviour.value;

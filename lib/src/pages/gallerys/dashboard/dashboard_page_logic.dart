@@ -37,8 +37,6 @@ class DashboardPageLogic extends BasePageLogic {
 
   @override
   Future<void> onReady() async {
-    await super.onReady();
-
     loadMore();
     loadRanklist();
     loadPopular();

@@ -58,14 +58,17 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     super.onInit();
 
     if (useSearchConfig) {
-      String? searchConfigString = await localConfigService.read(configKey: ConfigEnum.searchConfig, subConfigKey: searchConfigKey);
-      if (searchConfigString != null) {
-        Map<String, dynamic> map = jsonDecode(searchConfigString);
-        state.searchConfig = SearchConfig.fromJson(map);
-      }
+      localConfigService.read(configKey: ConfigEnum.searchConfig, subConfigKey: searchConfigKey).then((searchConfigString) {
+        if (searchConfigString != null) {
+          Map<String, dynamic> map = jsonDecode(searchConfigString);
+          state.searchConfig = SearchConfig.fromJson(map);
+        }
+      }).whenComplete(() {
+        state.searchConfigInitCompleter.complete();
+      });
+    } else {
+      state.searchConfigInitCompleter.complete();
     }
-
-    state.searchConfigInitCompleter.complete();
 
     if (autoLoadForFirstTime) {
       if (autoLoadNeedLogin && !userSetting.hasLoggedIn()) {
@@ -77,13 +80,6 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
       loadMore();
     }
-  }
-
-  @override
-  Future<void> onReady() async {
-    super.onReady();
-
-    await state.searchConfigInitCompleter.future;
   }
 
   /// pull-down
@@ -341,6 +337,8 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
   }
 
   Future<void> handleTapFilterButton([EHSearchConfigDialogType searchConfigDialogType = EHSearchConfigDialogType.filter]) async {
+    await state.searchConfigInitCompleter.future;
+
     Map<String, dynamic>? result = await Get.dialog(
       EHSearchConfigDialog(searchConfig: state.searchConfig, type: searchConfigDialogType),
     );
@@ -371,8 +369,10 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
   void handleSecondaryTapCard(BuildContext context, Gallery gallery) async {}
 
-  Future<GalleryPageInfo> getGalleryPage({String? prevGid, String? nextGid, DateTime? seek}) {
+  Future<GalleryPageInfo> getGalleryPage({String? prevGid, String? nextGid, DateTime? seek}) async {
     log.info('$runtimeType get data, prevGid:$prevGid, nextGid:$nextGid');
+
+    await state.searchConfigInitCompleter.future;
 
     return ehRequest.requestGalleryPage(
       prevGid: prevGid,
