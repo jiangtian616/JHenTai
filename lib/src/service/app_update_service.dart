@@ -601,6 +601,27 @@ class MigrateStorageConfigHandler implements UpdateHandler {
     if (myTagsSetting != null) {
       await localConfigService.write(configKey: ConfigEnum.myTagsSetting, value: jsonEncode(myTagsSetting));
     }
+
+    double? windowWidth = storageService.read(ConfigEnum.windowWidth.key);
+    if (windowWidth != null) {
+      await localConfigService.write(configKey: ConfigEnum.windowWidth, value: windowWidth.toString());
+    }
+    double? windowHeight = storageService.read(ConfigEnum.windowHeight.key);
+    if (windowHeight != null) {
+      await localConfigService.write(configKey: ConfigEnum.windowHeight, value: windowHeight.toString());
+    }
+    bool? isMaximized = storageService.read(ConfigEnum.windowMaximize.key);
+    if (isMaximized != null) {
+      await localConfigService.write(configKey: ConfigEnum.windowMaximize, value: isMaximized.toString());
+    }
+    bool? isFullScreen = storageService.read(ConfigEnum.windowFullScreen.key);
+    if (isFullScreen != null) {
+      await localConfigService.write(configKey: ConfigEnum.windowFullScreen, value: isFullScreen.toString());
+    }
+    double? leftColumnWidthRatio = storageService.read(ConfigEnum.leftColumnWidthRatio.key);
+    if (leftColumnWidthRatio != null) {
+      await localConfigService.write(configKey: ConfigEnum.leftColumnWidthRatio, value: leftColumnWidthRatio.toString());
+    }
   }
 
   @override
