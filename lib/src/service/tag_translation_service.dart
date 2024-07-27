@@ -38,7 +38,7 @@ TagTranslationService tagTranslationService = TagTranslationService();
 
 class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   final String downloadUrl = 'https://fastly.jsdelivr.net/gh/EhTagTranslation/DatabaseReleases/db.html.json';
-  final String savePath = join(pathService.getVisibleDir().path, 'tag_translation.json');
+  late final String savePath;
 
   Rx<LoadingState> loadingState = LoadingState.idle.obs;
   RxnString timeStamp = RxnString(null);
@@ -51,6 +51,8 @@ class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCir
 
   @override
   Future<void> doOnInit() async {
+    savePath = join(pathService.getVisibleDir().path, 'tag_translation.json');
+
     localConfigService
         .read(configKey: ConfigEnum.tagTranslationServiceLoadingState)
         .then((value) => loadingState.value = LoadingState.values[value != null ? int.parse(value) : 0]);
@@ -154,10 +156,10 @@ class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCir
         );
       }
     });
-    
+
     timeStamp.value = newTimeStamp;
     loadingState.value = LoadingState.success;
-    
+
     await localConfigService.write(configKey: ConfigEnum.tagTranslationServiceLoadingState, value: loadingState.value.index.toString());
     await localConfigService.write(configKey: ConfigEnum.tagTranslationServiceTimestamp, value: newTimeStamp);
 

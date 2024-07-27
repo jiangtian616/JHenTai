@@ -22,8 +22,8 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   RxnString defaultArchiveGroup = RxnString();
   late String defaultExtraGalleryScanPath;
   late RxList<String> extraGalleryScanPath;
-  RxString singleImageSavePath = join(pathService.getVisibleDir().path, 'save').obs;
-  RxString tempDownloadPath = join(pathService.tempDir.path, EHConsts.appName).obs;
+  late RxString singleImageSavePath;
+  late RxString tempDownloadPath;
   RxInt downloadTaskConcurrency = 6.obs;
   RxInt maximum = 2.obs;
   Rx<Duration> period = const Duration(seconds: 1).obs;
@@ -90,6 +90,8 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     downloadPath.value = defaultDownloadPath;
     defaultExtraGalleryScanPath = join(pathService.getVisibleDir().path, 'local_gallery');
     extraGalleryScanPath = <String>[defaultExtraGalleryScanPath].obs;
+    singleImageSavePath = join(pathService.getVisibleDir().path, 'save').obs;
+    tempDownloadPath = join(pathService.tempDir.path, EHConsts.appName).obs;
 
     await _ensureDownloadDirExists();
     await _clearTempDownloadPath();
