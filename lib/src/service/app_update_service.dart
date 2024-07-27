@@ -517,20 +517,26 @@ class MigrateStorageConfigHandler implements UpdateHandler {
     if (tagTranslationLoadingStateIndex != null) {
       await localConfigService.write(configKey: ConfigEnum.tagTranslationServiceLoadingState, value: tagTranslationLoadingStateIndex.toString());
     }
-    
+
     String? tagTranslationTimeStamp = storageService.read(ConfigEnum.tagTranslationServiceTimestamp.key);
     if (tagTranslationTimeStamp != null) {
       await localConfigService.write(configKey: ConfigEnum.tagTranslationServiceTimestamp, value: tagTranslationTimeStamp);
     }
-    
+
     int? tagSearchOrderOptimizationServiceLoadingStateIndex = storageService.read(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key);
     if (tagSearchOrderOptimizationServiceLoadingStateIndex != null) {
-      await localConfigService.write(configKey: ConfigEnum.tagSearchOrderOptimizationServiceLoadingState, value: tagSearchOrderOptimizationServiceLoadingStateIndex.toString());
+      await localConfigService.write(
+          configKey: ConfigEnum.tagSearchOrderOptimizationServiceLoadingState, value: tagSearchOrderOptimizationServiceLoadingStateIndex.toString());
     }
-    
+
     String? tagSearchOrderOptimizationServiceVersion = storageService.read(ConfigEnum.tagSearchOrderOptimizationServiceVersion.key);
     if (tagSearchOrderOptimizationServiceVersion != null) {
       await localConfigService.write(configKey: ConfigEnum.tagSearchOrderOptimizationServiceVersion, value: tagSearchOrderOptimizationServiceVersion);
+    }
+
+    bool? showLocalBlockRulesGroup = storageService.read(ConfigEnum.displayBlockingRulesGroup.key);
+    if (showLocalBlockRulesGroup != null) {
+      await localConfigService.write(configKey: ConfigEnum.displayBlockingRulesGroup, value: showLocalBlockRulesGroup.toString());
     }
   }
 

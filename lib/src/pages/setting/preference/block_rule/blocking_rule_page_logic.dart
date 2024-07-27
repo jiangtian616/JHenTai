@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
+import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
 
@@ -19,9 +20,14 @@ class BlockingRulePageLogic extends GetxController {
   final LocalBlockRuleService localBlockRuleService = Get.find();
 
   @override
-  void onInit() {
-    state.showGroup = storageService.read(ConfigEnum.displayBlockingRulesGroup.key) ?? false;
+  Future<void> onInit() async {
     super.onInit();
+
+    String? showGroupString = await localConfigService.read(configKey: ConfigEnum.displayBlockingRulesGroup);
+    if (showGroupString != null) {
+      state.showGroup = showGroupString == 'true';
+    }
+    state.showGroupCompleter.complete();
   }
 
   @override
@@ -30,11 +36,13 @@ class BlockingRulePageLogic extends GetxController {
     super.onReady();
   }
 
-  void toggleShowGroup() {
+  Future<void> toggleShowGroup() async {
+    await state.showGroupCompleter.future;
+    
     state.showGroup = !state.showGroup;
     updateSafely([bodyId]);
 
-    storageService.write(ConfigEnum.displayBlockingRulesGroup.key, state.showGroup);
+    await localConfigService.write(configKey: ConfigEnum.displayBlockingRulesGroup, value: state.showGroup.toString());
   }
 
   void toggleDisplayGroups(String groupName) {

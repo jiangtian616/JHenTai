@@ -46,27 +46,33 @@ class BlockingRulePage extends StatelessWidget {
     return GetBuilder<BlockingRulePageLogic>(
       id: logic.bodyId,
       builder: (_) {
-        Widget child = state.showGroup
-            ? GroupedList<String, List<LocalBlockRule>>(
-                maxGalleryNum4Animation: 50,
-                scrollController: state.scrollController,
-                controller: state.groupedListController,
-                groups: state.groupedRules.map(
-                  (groupId, rules) => MapEntry('${rules.first.target.desc.tr}${rules.length > 1 ? '' : ' - ' + rules.first.attribute.desc.tr}', true),
-                ),
-                elements: state.groupedRules.values.toList(),
-                elementGroup: (List<LocalBlockRule> rules) => '${rules.first.target.desc.tr}${rules.length > 1 ? '' : ' - ' + rules.first.attribute.desc.tr}',
-                groupBuilder: (context, group, isOpen) => _groupBuilder(context, group, isOpen).marginAll(5),
-                elementBuilder: (BuildContext context, String group, List<LocalBlockRule> rules, isOpen) => _elementBuilder(context, group, rules),
-                groupUniqueKey: (String group) => group,
-                elementUniqueKey: (List<LocalBlockRule> rules) => rules.first.groupId!,
-              )
-            : ListView.builder(
-                padding: const EdgeInsets.only(bottom: 80),
-                itemCount: state.groupedRules.keys.length,
-                controller: state.scrollController,
-                itemBuilder: _itemBuilder,
-              );
+        Widget child = FutureBuilder(
+          future: state.showGroupCompleter.future,
+          builder: (_, __) => !state.showGroupCompleter.isCompleted
+              ? const SizedBox()
+              : state.showGroup
+                  ? GroupedList<String, List<LocalBlockRule>>(
+                      maxGalleryNum4Animation: 50,
+                      scrollController: state.scrollController,
+                      controller: state.groupedListController,
+                      groups: state.groupedRules.map(
+                        (groupId, rules) => MapEntry('${rules.first.target.desc.tr}${rules.length > 1 ? '' : ' - ' + rules.first.attribute.desc.tr}', true),
+                      ),
+                      elements: state.groupedRules.values.toList(),
+                      elementGroup: (List<LocalBlockRule> rules) =>
+                          '${rules.first.target.desc.tr}${rules.length > 1 ? '' : ' - ' + rules.first.attribute.desc.tr}',
+                      groupBuilder: (context, group, isOpen) => _groupBuilder(context, group, isOpen).marginAll(5),
+                      elementBuilder: (BuildContext context, String group, List<LocalBlockRule> rules, isOpen) => _elementBuilder(context, group, rules),
+                      groupUniqueKey: (String group) => group,
+                      elementUniqueKey: (List<LocalBlockRule> rules) => rules.first.groupId!,
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.only(bottom: 80),
+                      itemCount: state.groupedRules.keys.length,
+                      controller: state.scrollController,
+                      itemBuilder: _itemBuilder,
+                    ),
+        );
 
         return EHWheelSpeedController(
           controller: state.scrollController,
