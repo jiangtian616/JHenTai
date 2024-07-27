@@ -39,7 +39,7 @@ enum ConfigEnum {
   quickSearch('quickSearch'),
   firstOpenInited('firstOpenInited'),
   renameDownloadMetadata('renameDownloadMetadata'),
-  migrateSearchHistoryV2('migrateSearchHistoryV2'),
+  migrateGalleryHistory('migrateGalleryHistory'),
   ;
 
   final String key;

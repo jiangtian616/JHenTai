@@ -44,7 +44,7 @@ class AppUpdateService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBe
     ClearSuperResolutionSettingHandler(),
     MigrateCookieHandler(),
     MigrateLocalFilterTagsHandler(),
-    MigrateSearchHistoryV2Handler(),
+    MigrateGalleryHistoryHandler(),
     MigrateStorageConfigHandler(),
   ];
 
@@ -392,17 +392,17 @@ class MigrateLocalFilterTagsHandler implements UpdateHandler {
   Future<void> onReady() async {}
 }
 
-class MigrateSearchHistoryV2Handler implements UpdateHandler {
+class MigrateGalleryHistoryHandler implements UpdateHandler {
   @override
   List<JHLifeCircleBean> get initDependencies => [storageService];
 
   @override
   Future<bool> match(int? fromVersion, int toVersion) async {
     if (fromVersion == null) {
-      await localConfigService.write(configKey: ConfigEnum.migrateSearchHistoryV2, value: 'true');
+      await localConfigService.write(configKey: ConfigEnum.migrateGalleryHistory, value: 'true');
       return false;
     } else {
-      return fromVersion <= 10 || (await localConfigService.read(configKey: ConfigEnum.migrateSearchHistoryV2) == null);
+      return fromVersion <= 10 || (await localConfigService.read(configKey: ConfigEnum.migrateGalleryHistory) == null);
     }
   }
 
@@ -411,13 +411,13 @@ class MigrateSearchHistoryV2Handler implements UpdateHandler {
 
   @override
   Future<void> onReady() async {
-    log.info('MigrateSearchHistoryV2Handler onReady');
+    log.info('MigrateGalleryHistoryHandler onReady');
 
     int totalCount = await GalleryHistoryDao.selectTotalCountOld();
     int pageSize = 400;
     int pageCount = (totalCount / pageSize).ceil();
 
-    log.info('Migrate search config, total count: $totalCount');
+    log.info('Migrate gallery history, total count: $totalCount');
 
     for (int i = 0; i < pageCount; i++) {
       try {
@@ -443,13 +443,13 @@ class MigrateSearchHistoryV2Handler implements UpdateHandler {
 
         GalleryHistoryDao.deleteAllHistoryOld();
 
-        log.info('Migrate search config for page index $i success!');
+        log.info('Migrate gallery history for page index $i success!');
       } on Exception catch (e) {
-        log.error('Migrate search config for page index $i failed!', e);
+        log.error('Migrate gallery history for page index $i failed!', e);
       }
     }
 
-    await localConfigService.write(configKey: ConfigEnum.migrateSearchHistoryV2, value: 'true');
+    await localConfigService.write(configKey: ConfigEnum.migrateGalleryHistory, value: 'true');
   }
 }
 
@@ -537,6 +537,11 @@ class MigrateStorageConfigHandler implements UpdateHandler {
     bool? showLocalBlockRulesGroup = storageService.read(ConfigEnum.displayBlockingRulesGroup.key);
     if (showLocalBlockRulesGroup != null) {
       await localConfigService.write(configKey: ConfigEnum.displayBlockingRulesGroup, value: showLocalBlockRulesGroup.toString());
+    }
+
+    List<String>? searchHistories = storageService.read(ConfigEnum.searchHistory.key);
+    if (searchHistories != null) {
+      await localConfigService.write(configKey: ConfigEnum.searchHistory, value: jsonEncode(searchHistories));
     }
   }
 
