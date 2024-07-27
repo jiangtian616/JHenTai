@@ -512,6 +512,26 @@ class MigrateStorageConfigHandler implements UpdateHandler {
     if (enableSearchHistoryTranslation != null) {
       await localConfigService.write(configKey: ConfigEnum.enableSearchHistoryTranslation, value: enableSearchHistoryTranslation.toString());
     }
+
+    int? tagTranslationLoadingStateIndex = storageService.read(ConfigEnum.tagTranslationServiceLoadingState.key);
+    if (tagTranslationLoadingStateIndex != null) {
+      await localConfigService.write(configKey: ConfigEnum.tagTranslationServiceLoadingState, value: tagTranslationLoadingStateIndex.toString());
+    }
+    
+    String? tagTranslationTimeStamp = storageService.read(ConfigEnum.tagTranslationServiceTimestamp.key);
+    if (tagTranslationTimeStamp != null) {
+      await localConfigService.write(configKey: ConfigEnum.tagTranslationServiceTimestamp, value: tagTranslationTimeStamp);
+    }
+    
+    int? tagSearchOrderOptimizationServiceLoadingStateIndex = storageService.read(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key);
+    if (tagSearchOrderOptimizationServiceLoadingStateIndex != null) {
+      await localConfigService.write(configKey: ConfigEnum.tagSearchOrderOptimizationServiceLoadingState, value: tagSearchOrderOptimizationServiceLoadingStateIndex.toString());
+    }
+    
+    String? tagSearchOrderOptimizationServiceVersion = storageService.read(ConfigEnum.tagSearchOrderOptimizationServiceVersion.key);
+    if (tagSearchOrderOptimizationServiceVersion != null) {
+      await localConfigService.write(configKey: ConfigEnum.tagSearchOrderOptimizationServiceVersion, value: tagSearchOrderOptimizationServiceVersion);
+    }
   }
 
   @override

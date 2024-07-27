@@ -10,7 +10,6 @@ import 'package:jhentai/src/enum/eh_namespace.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
-import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_search_order_service.dart';
 import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
@@ -39,9 +38,6 @@ typedef TagAutoCompletionMatch = ({
 TagTranslationService tagTranslationService = TagTranslationService();
 
 class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
-  final ValueGetter<TagSearchOrderOptimizationService> tagSearchOrderOptimizationServiceGetter = () => Get.find<TagSearchOrderOptimizationService>();
-
-  final String tagStoragePrefix = 'tagTrans::';
   final String downloadUrl = 'https://fastly.jsdelivr.net/gh/EhTagTranslation/DatabaseReleases/db.html.json';
   final String savePath = join(pathService.getVisibleDir().path, 'tag_translation.json');
 
@@ -98,7 +94,7 @@ class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCir
     } on DioException catch (e) {
       log.error('Download tag translation data failed after 5 times', e.errorMsg);
       loadingState.value = LoadingState.error;
-      storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
+      await localConfigService.write(configKey: ConfigEnum.tagTranslationServiceLoadingState, value: loadingState.value.index.toString());
       return;
     }
 
@@ -159,12 +155,13 @@ class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCir
         );
       }
     });
+    
     timeStamp.value = newTimeStamp;
-
-    storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.success.index);
-    storageService.write(ConfigEnum.tagTranslationServiceTimestamp.key, timeStamp.value);
-
     loadingState.value = LoadingState.success;
+    
+    await localConfigService.write(configKey: ConfigEnum.tagTranslationServiceLoadingState, value: loadingState.value.index.toString());
+    await localConfigService.write(configKey: ConfigEnum.tagTranslationServiceTimestamp, value: newTimeStamp);
+
     io.File(savePath).delete();
     log.info('Update tag translation database success, timestamp: $timeStamp');
   }
@@ -237,7 +234,7 @@ class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCir
       }
 
       List<TagAutoCompletionMatch> matches = [];
-      if (tagSearchOrderOptimizationServiceGetter.call().isReady) {
+      if (tagSearchOrderOptimizationService.isReady) {
         List<TagData> tagDatas =
             sNameSpaceMerged != null ? await TagDao.searchFullTags(sNameSpaceMerged, '%$sKeyMerged%') : await TagDao.searchTags('%$sKeyMerged%');
         matches = await _markTagDatasByFrequency(searchText, searchList[i].matchStart, searchList[i].matchEnd, sNameSpaceMerged, sKeyMerged, tagDatas);

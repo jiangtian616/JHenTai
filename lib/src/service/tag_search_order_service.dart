@@ -10,7 +10,6 @@ import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
-import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/utils/archive_util.dart';
@@ -28,8 +27,6 @@ import '../utils/toast_util.dart';
 TagSearchOrderOptimizationService tagSearchOrderOptimizationService = TagSearchOrderOptimizationService();
 
 class TagSearchOrderOptimizationService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
-  final StorageService storageService = Get.find();
-
   final String savePath = join(pathService.getVisibleDir().path, 'tid_count_tag.csv.gz');
 
   static const String releaseUrl = 'https://github.com/mokurin000/e-hentai-tag-count/releases/latest';
@@ -49,7 +46,7 @@ class TagSearchOrderOptimizationService with JHLifeCircleBeanErrorCatch implemen
         .read(configKey: ConfigEnum.tagSearchOrderOptimizationServiceLoadingState)
         .then((value) => loadingState.value = LoadingState.values[value != null ? int.parse(value) : 0]);
 
-    localConfigService.read(configKey: ConfigEnum.tagTranslationServiceVersion).then((value) => version.value = value);
+    localConfigService.read(configKey: ConfigEnum.tagSearchOrderOptimizationServiceVersion).then((value) => version.value = value);
   }
 
   @override
@@ -87,14 +84,14 @@ class TagSearchOrderOptimizationService with JHLifeCircleBeanErrorCatch implemen
     } on DioException catch (e) {
       log.error('Fetch tag order optimization data from github failed after 5 times', e.errorMsg);
       loadingState.value = LoadingState.error;
-      storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
+      await localConfigService.write(configKey: ConfigEnum.tagSearchOrderOptimizationServiceLoadingState, value: loadingState.value.index.toString());
       return;
     }
 
     if (tag == version.value) {
       log.info('Tag order optimization data is up to date, tag: $tag');
       loadingState.value = LoadingState.success;
-      storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.success.index);
+      await localConfigService.write(configKey: ConfigEnum.tagSearchOrderOptimizationServiceLoadingState, value: loadingState.value.index.toString());
       return;
     }
 
@@ -113,7 +110,7 @@ class TagSearchOrderOptimizationService with JHLifeCircleBeanErrorCatch implemen
     } on DioException catch (e) {
       log.error('Download tag translation data failed after 5 times', e.errorMsg);
       loadingState.value = LoadingState.error;
-      storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
+      await localConfigService.write(configKey: ConfigEnum.tagSearchOrderOptimizationServiceLoadingState, value: loadingState.value.index.toString());
       return;
     }
 
@@ -124,7 +121,7 @@ class TagSearchOrderOptimizationService with JHLifeCircleBeanErrorCatch implemen
       log.error('Extract tag order optimization data failed');
       toast('internalError'.tr);
       loadingState.value = LoadingState.error;
-      storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
+      await localConfigService.write(configKey: ConfigEnum.tagSearchOrderOptimizationServiceLoadingState, value: loadingState.value.index.toString());
       return;
     }
 
@@ -141,7 +138,7 @@ class TagSearchOrderOptimizationService with JHLifeCircleBeanErrorCatch implemen
       log.error('Parse tag order optimization data failed', e);
       toast('internalError'.tr);
       loadingState.value = LoadingState.error;
-      storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
+      await localConfigService.write(configKey: ConfigEnum.tagSearchOrderOptimizationServiceLoadingState, value: loadingState.value.index.toString());
       return;
     }
 
@@ -149,7 +146,7 @@ class TagSearchOrderOptimizationService with JHLifeCircleBeanErrorCatch implemen
       log.error('Parse tag order optimization data failed, rows length: ${rows.length}');
       toast('internalError'.tr);
       loadingState.value = LoadingState.error;
-      storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.error.index);
+      await localConfigService.write(configKey: ConfigEnum.tagSearchOrderOptimizationServiceLoadingState, value: loadingState.value.index.toString());
       return;
     }
 
@@ -159,10 +156,11 @@ class TagSearchOrderOptimizationService with JHLifeCircleBeanErrorCatch implemen
     await TagCountDao.replaceTagCount(tagCountData);
     version.value = tag;
 
-    storageService.write(ConfigEnum.tagSearchOrderOptimizationServiceLoadingState.key, LoadingState.success.index);
-    storageService.write(ConfigEnum.tagTranslationServiceVersion.key, tag);
-
     loadingState.value = LoadingState.success;
+
+    await localConfigService.write(configKey: ConfigEnum.tagSearchOrderOptimizationServiceLoadingState, value: loadingState.value.index.toString());
+    await localConfigService.write(configKey: ConfigEnum.tagSearchOrderOptimizationServiceVersion, value: tag);
+
     File(savePath).delete().ignore();
     log.info('Refresh tag order optimization data success');
   }
