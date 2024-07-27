@@ -141,7 +141,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
           child: FutureBuilder(
             future: state.displayGroupsCompleter.future,
             builder: (_, __) => !state.displayGroupsCompleter.isCompleted
-                ? UIConfig.loadingAnimation(context).center()
+                ? const Center()
                 : GroupedList<String, GalleryDownloadedData>(
                     maxGalleryNum4Animation: performanceSetting.maxGalleryNum4Animation.value,
                     scrollController: state.scrollController,

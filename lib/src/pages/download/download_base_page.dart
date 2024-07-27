@@ -57,7 +57,7 @@ class _DownloadPageState extends State<DownloadPage> {
         child: FutureBuilder(
           future: bodyTypeCompleter.future,
           builder: (_, __) => !bodyTypeCompleter.isCompleted
-              ? UIConfig.loadingAnimation(context).center()
+              ? const Center()
               : galleryType == DownloadPageGalleryType.download
                   ? bodyType == DownloadPageBodyType.list
                       ? GalleryListDownloadPage(key: const PageStorageKey('GalleryListDownloadBody'))
