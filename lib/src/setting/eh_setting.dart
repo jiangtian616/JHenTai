@@ -116,9 +116,5 @@ class EHSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBe
     log.debug('saveSite:$site');
     this.site.value = site;
     await save();
-
-    ehRequest.storeEHCookies([Cookie('sp', site)]);
-
-    siteSetting.fetchDataFromEH();
   }
 }

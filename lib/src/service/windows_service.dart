@@ -11,6 +11,7 @@ import 'package:throttling/throttling.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../setting/preference_setting.dart';
+import 'app_update_service.dart';
 import 'jh_service.dart';
 import 'log.dart';
 
@@ -30,7 +31,7 @@ class WindowService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean 
   final Debouncing columnResizedDebouncing = Debouncing(duration: const Duration(milliseconds: 300));
 
   @override
-  List<JHLifeCircleBean> get initDependencies => super.initDependencies..addAll([localConfigService, preferenceSetting]);
+  List<JHLifeCircleBean> get initDependencies => super.initDependencies..addAll([localConfigService, preferenceSetting, appUpdateService]);
 
   @override
   Future<void> doOnInit() async {

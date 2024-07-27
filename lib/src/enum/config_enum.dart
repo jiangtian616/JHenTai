@@ -3,7 +3,8 @@ enum ConfigEnum {
   firstOpenInited('firstOpenInited'),
   renameDownloadMetadata('renameDownloadMetadata'),
   migrateGalleryHistory('migrateGalleryHistory'),
-
+  migrateStorageConfig('migrateStorageConfig'),
+  
   /// settings
   favoriteSetting('favoriteSetting'),
   advancedSetting('advancedSetting'),
@@ -19,7 +20,6 @@ enum ConfigEnum {
   styleSetting('styleSetting'),
   superResolutionSetting('SuperResolutionSetting'),
   userSetting('userSetting'),
-  myTagsSetting('MyTagsSetting'),
   downloadSearchPageType('downloadSearchPageType'),
   windowFullScreen('windowFullScreen'),
   windowMaximize('windowMaximize'),
@@ -35,6 +35,7 @@ enum ConfigEnum {
   quickSearch('quickSearch'),
   oldGalleryHistory('history'),
   searchHistory('searchHistory'),
+  myTagsSetting('MyTagsSetting'),
 
   /// page config
   downloadPageGalleryType('downloadPageGalleryType'),

@@ -82,6 +82,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   Future<bool> get completed => _completer.future;
 
+  Worker? _downloadSettingListener;
+
   @override
   Future<void> doOnInit() async {
     Get.put(this, permanent: true);
@@ -98,11 +100,25 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       await restoreTasks();
     }
 
+    _downloadSettingListener = everAll(
+      [downloadSetting.downloadTaskConcurrency, downloadSetting.maximum, downloadSetting.period],
+      (_) {
+        updateExecutor();
+      },
+    );
+
     super.onInit();
   }
 
   @override
   void doOnReady() {}
+
+  @override
+  void onClose() {
+    super.onClose();
+
+    _downloadSettingListener?.dispose();
+  }
 
   bool containGallery(int gid) => galleryDownloadInfos.containsKey(gid);
 

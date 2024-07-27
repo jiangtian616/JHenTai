@@ -103,16 +103,12 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
     log.debug('saveConnectTimeout:$connectTimeout');
     this.connectTimeout.value = connectTimeout;
     await save();
-
-    ehRequest.setConnectTimeout(connectTimeout);
   }
 
   Future<void> saveReceiveTimeout(int receiveTimeout) async {
     log.debug('saveReceiveTimeout:$receiveTimeout');
     this.receiveTimeout.value = receiveTimeout;
     await save();
-
-    ehRequest.setReceiveTimeout(receiveTimeout);
   }
 }
 

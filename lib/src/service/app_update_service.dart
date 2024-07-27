@@ -15,7 +15,7 @@ import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/service/path_service.dart';
-import 'package:jhentai/src/setting/favorite_setting.dart';
+import 'package:jhentai/src/setting/eh_setting.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 import 'package:jhentai/src/setting/super_resolution_setting.dart';
 import 'package:jhentai/src/utils/convert_util.dart';
@@ -24,12 +24,23 @@ import 'package:path/path.dart';
 import '../database/database.dart';
 import '../model/gallery.dart';
 import '../pages/search/mixin/search_page_logic_mixin.dart';
+import '../setting/advanced_setting.dart';
 import '../setting/download_setting.dart';
+import '../setting/favorite_setting.dart';
+import '../setting/mouse_setting.dart';
+import '../setting/network_setting.dart';
+import '../setting/performance_setting.dart';
 import '../setting/preference_setting.dart';
+import '../setting/security_setting.dart';
+import '../setting/site_setting.dart';
+import '../setting/style_setting.dart';
+import '../setting/user_setting.dart';
 import '../utils/locale_util.dart';
 import 'jh_service.dart';
 import 'log.dart';
 import '../utils/uuid_util.dart';
+
+AppUpdateService appUpdateService = AppUpdateService();
 
 class AppUpdateService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late File file;
@@ -457,20 +468,158 @@ class MigrateGalleryHistoryHandler implements UpdateHandler {
 
 class MigrateStorageConfigHandler implements UpdateHandler {
   @override
-  List<JHLifeCircleBean> get initDependencies => [localConfigService, storageService];
+  List<JHLifeCircleBean> get initDependencies => [
+        localConfigService,
+        storageService,
+        favoriteSetting,
+        advancedSetting,
+        downloadSetting,
+        ehSetting,
+        mouseSetting,
+        networkSetting,
+        performanceSetting,
+        readSetting,
+        securitySetting,
+        siteSetting,
+        styleSetting,
+        superResolutionSetting,
+        userSetting,
+        ehRequest,
+      ];
 
   @override
   Future<bool> match(int? fromVersion, int toVersion) async {
-    return fromVersion != null && fromVersion <= 11;
+    if (fromVersion == null) {
+      await localConfigService.write(configKey: ConfigEnum.migrateStorageConfig, value: 'true');
+      return false;
+    } else {
+      return fromVersion <= 11 || (await localConfigService.read(configKey: ConfigEnum.migrateStorageConfig) == null);
+    }
   }
 
   @override
   Future<void> onInit() async {
     log.info('MigrateStorageConfigHandler onInit');
 
+    List<Future> futures = [];
+
+    Map? favoriteSettingMap = storageService.read(ConfigEnum.favoriteSetting.key);
+    if (favoriteSettingMap != null) {
+      futures.add(Future(() async {
+        await localConfigService.write(configKey: ConfigEnum.favoriteSetting, value: jsonEncode(favoriteSettingMap));
+        await favoriteSetting.refresh();
+      }));
+    }
+    Map? advancedSettingMap = storageService.read(ConfigEnum.advancedSetting.key);
+    if (advancedSettingMap != null) {
+      futures.add(Future(() async {
+        await localConfigService.write(configKey: ConfigEnum.advancedSetting, value: jsonEncode(advancedSettingMap));
+        await advancedSetting.refresh();
+      }));
+    }
+    Map? downloadSettingMap = storageService.read(ConfigEnum.downloadSetting.key);
+    if (downloadSettingMap != null) {
+      futures.add(Future(() async {
+        await localConfigService.write(configKey: ConfigEnum.downloadSetting, value: jsonEncode(downloadSettingMap));
+        await downloadSetting.refresh();
+      }));
+    }
+    Map? EHSettingMap = storageService.read(ConfigEnum.EHSetting.key);
+    if (EHSettingMap != null) {
+      futures.add(Future(() async {
+        await localConfigService.write(configKey: ConfigEnum.EHSetting, value: jsonEncode(EHSettingMap));
+        await ehSetting.refresh();
+      }));
+    }
+    Map? mouseSettingMap = storageService.read(ConfigEnum.mouseSetting.key);
+    if (mouseSettingMap != null) {
+      futures.add(Future(() async {
+        await localConfigService.write(configKey: ConfigEnum.mouseSetting, value: jsonEncode(mouseSettingMap));
+        await mouseSetting.refresh();
+      }));
+    }
+    Map? networkSettingMap = storageService.read(ConfigEnum.networkSetting.key);
+    if (networkSettingMap != null) {
+      futures.add(Future(() async {
+        await localConfigService.write(configKey: ConfigEnum.networkSetting, value: jsonEncode(networkSettingMap));
+        await networkSetting.refresh();
+      }));
+    }
+    Map? performanceSettingMap = storageService.read(ConfigEnum.performanceSetting.key);
+    if (performanceSettingMap != null) {
+      futures.add(Future(() async {
+        await localConfigService.write(configKey: ConfigEnum.performanceSetting, value: jsonEncode(performanceSettingMap));
+        await performanceSetting.refresh();
+      }));
+    }
+    Map? readSettingMap = storageService.read(ConfigEnum.readSetting.key);
+    if (readSettingMap != null) {
+      futures.add(Future(() async {
+        await localConfigService.write(configKey: ConfigEnum.readSetting, value: jsonEncode(readSettingMap));
+        await readSetting.refresh();
+      }));
+    }
+    Map? securitySettingMap = storageService.read(ConfigEnum.securitySetting.key);
+    if (securitySettingMap != null) {
+      futures.add(Future(() async {
+        await localConfigService.write(configKey: ConfigEnum.securitySetting, value: jsonEncode(securitySettingMap));
+        await securitySetting.refresh();
+      }));
+    }
+    Map? siteSettingMap = storageService.read(ConfigEnum.siteSetting.key);
+    if (siteSettingMap != null) {
+      futures.add(Future(() async {
+        await localConfigService.write(configKey: ConfigEnum.siteSetting, value: jsonEncode(siteSettingMap));
+        await siteSetting.refresh();
+      }));
+    }
+    Map? styleSettingMap = storageService.read(ConfigEnum.styleSetting.key);
+    if (styleSettingMap != null) {
+      futures.add(Future(() async {
+        await localConfigService.write(configKey: ConfigEnum.styleSetting, value: jsonEncode(styleSettingMap));
+        await styleSetting.refresh();
+      }));
+    }
+    Map? superResolutionSettingMap = storageService.read(ConfigEnum.superResolutionSetting.key);
+    if (superResolutionSettingMap != null) {
+      futures.add(Future(() async {
+        await localConfigService.write(configKey: ConfigEnum.superResolutionSetting, value: jsonEncode(superResolutionSettingMap));
+        await superResolutionSetting.refresh();
+      }));
+    }
+    Map? userSettingMap = storageService.read(ConfigEnum.userSetting.key);
+    if (userSettingMap != null) {
+      futures.add(Future(() async {
+        await localConfigService.write(configKey: ConfigEnum.userSetting, value: jsonEncode(userSettingMap));
+        await userSetting.refresh();
+      }));
+    }
+
+    double? windowWidth = storageService.read(ConfigEnum.windowWidth.key);
+    if (windowWidth != null) {
+      await localConfigService.write(configKey: ConfigEnum.windowWidth, value: windowWidth.toString());
+    }
+    double? windowHeight = storageService.read(ConfigEnum.windowHeight.key);
+    if (windowHeight != null) {
+      await localConfigService.write(configKey: ConfigEnum.windowHeight, value: windowHeight.toString());
+    }
+    bool? isMaximized = storageService.read(ConfigEnum.windowMaximize.key);
+    if (isMaximized != null) {
+      await localConfigService.write(configKey: ConfigEnum.windowMaximize, value: isMaximized.toString());
+    }
+    bool? isFullScreen = storageService.read(ConfigEnum.windowFullScreen.key);
+    if (isFullScreen != null) {
+      await localConfigService.write(configKey: ConfigEnum.windowFullScreen, value: isFullScreen.toString());
+    }
+    double? leftColumnWidthRatio = storageService.read(ConfigEnum.leftColumnWidthRatio.key);
+    if (leftColumnWidthRatio != null) {
+      await localConfigService.write(configKey: ConfigEnum.leftColumnWidthRatio, value: leftColumnWidthRatio.toString());
+    }
+
     List<String>? cookies = storageService.read<List?>(ConfigEnum.ehCookie.key)?.cast<String>().toList();
     if (cookies != null) {
-      await localConfigService.write(configKey: ConfigEnum.ehCookie, value: jsonEncode(cookies));
+      List<Cookie> list = cookies.map(Cookie.fromSetCookieValue).toList();
+      await ehRequest.storeEHCookies(list);
     }
 
     Map<String, dynamic>? dashboardPageSearchConfigMap = storageService.read('${ConfigEnum.searchConfig.key}: DashboardPageLogic');
@@ -495,6 +644,11 @@ class MigrateStorageConfigHandler implements UpdateHandler {
       await localConfigService.write(configKey: ConfigEnum.searchConfig, subConfigKey: 'FavoritePageLogic', value: jsonEncode(searchConfig));
     }
 
+    String? dismissVersion = storageService.read(ConfigEnum.dismissVersion.key);
+    if (dismissVersion != null) {
+      await localConfigService.write(configKey: ConfigEnum.dismissVersion, value: dismissVersion);
+    }
+    
     int? downloadPageBodyType = storageService.read(ConfigEnum.downloadPageGalleryType.key);
     if (downloadPageBodyType != null) {
       await localConfigService.write(configKey: ConfigEnum.downloadPageGalleryType, value: downloadPageBodyType.toString());
@@ -541,98 +695,12 @@ class MigrateStorageConfigHandler implements UpdateHandler {
       await localConfigService.write(configKey: ConfigEnum.displayBlockingRulesGroup, value: showLocalBlockRulesGroup.toString());
     }
 
-    Map? favoriteSetting = storageService.read(ConfigEnum.favoriteSetting.key);
-    if (favoriteSetting != null) {
-      await localConfigService.write(configKey: ConfigEnum.favoriteSetting, value: jsonEncode(favoriteSetting));
-    }
-    Map? advancedSetting = storageService.read(ConfigEnum.advancedSetting.key);
-    if (advancedSetting != null) {
-      await localConfigService.write(configKey: ConfigEnum.advancedSetting, value: jsonEncode(advancedSetting));
-    }
-    Map? downloadSetting = storageService.read(ConfigEnum.downloadSetting.key);
-    if (downloadSetting != null) {
-      await localConfigService.write(configKey: ConfigEnum.downloadSetting, value: jsonEncode(downloadSetting));
-    }
-    Map? EHSetting = storageService.read(ConfigEnum.EHSetting.key);
-    if (EHSetting != null) {
-      await localConfigService.write(configKey: ConfigEnum.EHSetting, value: jsonEncode(EHSetting));
-    }
-    Map? mouseSetting = storageService.read(ConfigEnum.mouseSetting.key);
-    if (mouseSetting != null) {
-      await localConfigService.write(configKey: ConfigEnum.mouseSetting, value: jsonEncode(mouseSetting));
-    }
-    Map? networkSetting = storageService.read(ConfigEnum.networkSetting.key);
-    if (networkSetting != null) {
-      await localConfigService.write(configKey: ConfigEnum.networkSetting, value: jsonEncode(networkSetting));
-    }
-    Map? performanceSetting = storageService.read(ConfigEnum.performanceSetting.key);
-    if (performanceSetting != null) {
-      await localConfigService.write(configKey: ConfigEnum.performanceSetting, value: jsonEncode(performanceSetting));
-    }
-    Map? readSetting = storageService.read(ConfigEnum.readSetting.key);
-    if (readSetting != null) {
-      await localConfigService.write(configKey: ConfigEnum.readSetting, value: jsonEncode(readSetting));
-    }
-    Map? securitySetting = storageService.read(ConfigEnum.securitySetting.key);
-    if (securitySetting != null) {
-      await localConfigService.write(configKey: ConfigEnum.securitySetting, value: jsonEncode(securitySetting));
-    }
-    Map? siteSetting = storageService.read(ConfigEnum.siteSetting.key);
-    if (siteSetting != null) {
-      await localConfigService.write(configKey: ConfigEnum.siteSetting, value: jsonEncode(siteSetting));
-    }
-    Map? styleSetting = storageService.read(ConfigEnum.styleSetting.key);
-    if (styleSetting != null) {
-      await localConfigService.write(configKey: ConfigEnum.styleSetting, value: jsonEncode(styleSetting));
-    }
-    Map? superResolutionSetting = storageService.read(ConfigEnum.superResolutionSetting.key);
-    if (superResolutionSetting != null) {
-      await localConfigService.write(configKey: ConfigEnum.superResolutionSetting, value: jsonEncode(superResolutionSetting));
-    }
-    Map? userSetting = storageService.read(ConfigEnum.userSetting.key);
-    if (userSetting != null) {
-      await localConfigService.write(configKey: ConfigEnum.userSetting, value: jsonEncode(userSetting));
-    }
-    Map? myTagsSetting = storageService.read(ConfigEnum.myTagsSetting.key);
-    if (myTagsSetting != null) {
-      await localConfigService.write(configKey: ConfigEnum.myTagsSetting, value: jsonEncode(myTagsSetting));
-    }
-
-    double? windowWidth = storageService.read(ConfigEnum.windowWidth.key);
-    if (windowWidth != null) {
-      await localConfigService.write(configKey: ConfigEnum.windowWidth, value: windowWidth.toString());
-    }
-    double? windowHeight = storageService.read(ConfigEnum.windowHeight.key);
-    if (windowHeight != null) {
-      await localConfigService.write(configKey: ConfigEnum.windowHeight, value: windowHeight.toString());
-    }
-    bool? isMaximized = storageService.read(ConfigEnum.windowMaximize.key);
-    if (isMaximized != null) {
-      await localConfigService.write(configKey: ConfigEnum.windowMaximize, value: isMaximized.toString());
-    }
-    bool? isFullScreen = storageService.read(ConfigEnum.windowFullScreen.key);
-    if (isFullScreen != null) {
-      await localConfigService.write(configKey: ConfigEnum.windowFullScreen, value: isFullScreen.toString());
-    }
-    double? leftColumnWidthRatio = storageService.read(ConfigEnum.leftColumnWidthRatio.key);
-    if (leftColumnWidthRatio != null) {
-      await localConfigService.write(configKey: ConfigEnum.leftColumnWidthRatio, value: leftColumnWidthRatio.toString());
-    }
-
-    String? dismissVersion = storageService.read(ConfigEnum.dismissVersion.key);
-    if (dismissVersion != null) {
-      await localConfigService.write(configKey: ConfigEnum.dismissVersion, value: dismissVersion);
-    }
+    await Future.wait(futures);
   }
 
   @override
   Future<void> onReady() async {
     log.info('MigrateStorageConfigHandler onReady');
-
-    List<String>? searchHistories = storageService.read(ConfigEnum.searchHistory.key);
-    if (searchHistories != null) {
-      await localConfigService.write(configKey: ConfigEnum.searchHistory, value: jsonEncode(searchHistories));
-    }
 
     List<String>? keys = storageService.getKeys();
     if (keys != null) {
@@ -654,5 +722,12 @@ class MigrateStorageConfigHandler implements UpdateHandler {
       Map<String, SearchConfig> quickSearchConfigs = LinkedHashMap.from(map.map((key, value) => MapEntry(key, SearchConfig.fromJson(value))));
       await localConfigService.write(configKey: ConfigEnum.quickSearch, value: jsonEncode(quickSearchConfigs));
     }
+
+    List<String>? searchHistories = storageService.read(ConfigEnum.searchHistory.key);
+    if (searchHistories != null) {
+      await localConfigService.write(configKey: ConfigEnum.searchHistory, value: jsonEncode(searchHistories));
+    }
+    
+    await localConfigService.write(configKey: ConfigEnum.migrateStorageConfig, value: 'true');
   }
 }

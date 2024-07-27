@@ -144,24 +144,18 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     log.debug('saveDownloadTaskConcurrency:$downloadTaskConcurrency');
     this.downloadTaskConcurrency.value = downloadTaskConcurrency;
     await save();
-
-    Get.find<GalleryDownloadService>().updateExecutor();
   }
 
   Future<void> saveMaximum(int maximum) async {
     log.debug('saveMaximum:$maximum');
     this.maximum.value = maximum;
     await save();
-
-    Get.find<GalleryDownloadService>().updateExecutor();
   }
 
   Future<void> savePeriod(Duration period) async {
     log.debug('savePeriod:$period');
     this.period.value = period;
     await save();
-
-    Get.find<GalleryDownloadService>().updateExecutor();
   }
 
   Future<void> saveDownloadAllGallerysOfSamePriority(bool value) async {

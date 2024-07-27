@@ -59,6 +59,36 @@ class SecuritySetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
       supportBiometricAuth = types.isNotEmpty;
       log.debug('Init SecuritySetting.supportBiometricAuth: $supportBiometricAuth');
     }
+
+    if (GetPlatform.isAndroid) {
+      ever(enableBlur, (_) {
+        if (enableBlur.isTrue) {
+          FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
+        } else {
+          FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
+          saveEnableAuthOnResume(false);
+        }
+        SystemChrome.setSystemUIOverlayStyle(
+          const SystemUiOverlayStyle(systemStatusBarContrastEnforced: true),
+        );
+      });
+    }
+
+    ever(enableAuthOnResume, (_) {
+      if (enableAuthOnResume.isTrue) {
+        saveEnableBlur(true);
+      }
+    });
+
+    ever(hideImagesInAlbum, (_) {
+      Directory directory = Directory(downloadSetting.downloadPath.value);
+      File file = File(join(directory.path, '.nomedia'));
+      if (hideImagesInAlbum.isTrue) {
+        file.create();
+      } else {
+        file.delete().ignore();
+      }
+    });
   }
 
   @override
@@ -68,20 +98,6 @@ class SecuritySetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     log.debug('saveEnableBlur:$enableBlur');
     this.enableBlur.value = enableBlur;
     await save();
-
-    if (!GetPlatform.isAndroid) {
-      return;
-    }
-    if (enableBlur) {
-      FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
-    } else {
-      FlutterWindowManager.clearFlags(FlutterWindowManager.FLAG_SECURE);
-      saveEnableAuthOnResume(false);
-    }
-
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(systemStatusBarContrastEnforced: true),
-    );
   }
 
   Future<void> savePassword(String rawPassword) async {
@@ -107,23 +123,11 @@ class SecuritySetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     log.debug('saveEnableAuthOnResume:$enableAuthOnResume');
     this.enableAuthOnResume.value = enableAuthOnResume;
     await save();
-
-    if (enableAuthOnResume) {
-      saveEnableBlur(true);
-    }
   }
 
   Future<void> saveHideImagesInAlbum(bool hideImagesInAlbum) async {
     log.debug('saveHideImagesInAlbum:$hideImagesInAlbum');
     this.hideImagesInAlbum.value = hideImagesInAlbum;
     await save();
-
-    Directory directory = Directory(downloadSetting.downloadPath.value);
-    File file = File(join(directory.path, '.nomedia'));
-    if (hideImagesInAlbum) {
-      file.create();
-    } else {
-      file.delete().ignore();
-    }
   }
 }

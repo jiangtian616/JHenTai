@@ -3,9 +3,8 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_socks_proxy/socks_proxy.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
+import 'package:get/get_rx/src/rx_workers/rx_workers.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:get/get_utils/src/platform/platform.dart';
 import 'package:intl/intl.dart';
@@ -19,8 +18,8 @@ import 'package:jhentai/src/network/eh_ip_provider.dart';
 import 'package:jhentai/src/network/eh_timeout_translator.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
 import 'package:jhentai/src/service/isolate_service.dart';
-import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/path_service.dart';
+import 'package:jhentai/src/setting/eh_setting.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/service/log.dart';
@@ -45,12 +44,12 @@ class EHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late final EHIpProvider _ehIpProvider;
   late final String systemProxyAddress;
 
-  List<Cookie> get cookies => _cookieManager.cookies;
+  List<Cookie> get cookies => List.unmodifiable(_cookieManager.cookies);
 
   static const String domainFrontingExtraKey = 'JHDF';
 
   @override
-  List<JHLifeCircleBean> get initDependencies => super.initDependencies..add(localConfigService);
+  List<JHLifeCircleBean> get initDependencies => super.initDependencies..addAll([localConfigService, networkSetting]);
 
   @override
   Future<void> doOnInit() async {
@@ -63,15 +62,25 @@ class EHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     await _initProxy();
 
     await _initCookieManager();
-    
+
     _initCacheManager();
-    
+
     _initDomainFronting();
     _initCertificateForAndroidWithOldVersion();
 
     _ehIpProvider = RoundRobinIpProvider(NetworkSetting.host2IPs);
 
     _initTimeOutTranslator();
+
+    ever(ehSetting.site, (_) {
+      _cookieManager.removeCookies(['sp']);
+    });
+    ever(networkSetting.connectTimeout, (_) {
+      setConnectTimeout(networkSetting.connectTimeout.value);
+    });
+    ever(networkSetting.receiveTimeout, (_) {
+      setReceiveTimeout(networkSetting.receiveTimeout.value);
+    });
   }
 
   @override
@@ -143,7 +152,7 @@ class EHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
       },
     ));
   }
-  
+
   /// https://github.com/dart-lang/io/issues/83
   void _initCertificateForAndroidWithOldVersion() {
     if (GetPlatform.isAndroid) {
@@ -187,12 +196,12 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     _dio.interceptors.add(EHTimeoutTranslator());
   }
 
-  void storeEHCookiesString(String cookiesString) {
-    _cookieManager.storeEHCookiesString(cookiesString);
+  Future<void> storeEHCookiesString(String cookiesString) {
+    return _cookieManager.storeEHCookiesString(cookiesString);
   }
 
-  void storeEHCookies(List<Cookie> cookies) {
-    _cookieManager.storeEHCookies(cookies);
+  Future<void> storeEHCookies(List<Cookie> cookies) {
+    return _cookieManager.storeEHCookies(cookies);
   }
 
   void removeAllCookies() {

@@ -86,12 +86,6 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
   }
 
   @override
-  Future<void> doOnInit() async {}
-
-  @override
-  void doOnReady() {}
-
-  @override
   String toConfigString() {
     return jsonEncode({
       'themeMode': themeMode.value.index,
@@ -107,13 +101,22 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
       'layout': layout.value.index,
     });
   }
+  
+  @override
+  Future<void> doOnInit() async {
+    ever(themeMode, (_) {
+      Get.changeThemeMode(themeMode.value);
+    });
+  }
+
+  @override
+  void doOnReady() {}
+
 
   Future<void> saveThemeMode(ThemeMode themeMode) async {
     log.debug('saveThemeMode:${themeMode.name}');
     this.themeMode.value = themeMode;
     await save();
-
-    Get.changeThemeMode(themeMode);
   }
 
   Future<void> saveLightThemeColor(Color color) async {

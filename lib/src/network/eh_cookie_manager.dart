@@ -31,9 +31,16 @@ class EHCookieManager extends Interceptor {
     return cookies;
   }
 
-  Future<void> setCookies(List<Cookie> cookies) async {
-    cookies.removeWhere((cookie) => cookies.any((c) => c.name == cookie.name));
-    cookies.addAll(cookies);
+  Future<void> replaceCookies(List<Cookie> cookies) async {
+    this.cookies.removeWhere((cookie) => cookies.any((c) => c.name == cookie.name));
+    this.cookies.addAll(cookies);
+
+    List<Cookie> storeCookies = List.from(this.cookies)..remove(Cookie('nw', '1'));
+    await localConfigService.write(configKey: ConfigEnum.ehCookie, value: jsonEncode(storeCookies.map((cookie) => cookie.toString()).toList()));
+  }
+
+  Future<void> removeCookies(List<String> cookieNames) async {
+    cookies.removeWhere((cookie) => cookieNames.any((name) => cookie.name == name));
 
     List<Cookie> storeCookies = List.from(cookies)..remove(Cookie('nw', '1'));
     await localConfigService.write(configKey: ConfigEnum.ehCookie, value: jsonEncode(storeCookies.map((cookie) => cookie.toString()).toList()));
@@ -71,7 +78,7 @@ class EHCookieManager extends Interceptor {
     /// https://github.com/Ehviewer-Overhauled/Ehviewer/issues/873
     cookies.removeWhere((cookie) => cookie.name == '__utmp');
     cookies.removeWhere((cookie) => cookie.name == 'igneous' && cookie.value == 'mystery');
-    await setCookies(cookies);
+    await replaceCookies(cookies);
   }
 
   Future<void> removeAllCookies() {

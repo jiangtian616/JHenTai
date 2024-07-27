@@ -13,6 +13,7 @@ import '../exception/eh_site_exception.dart';
 import '../model/profile.dart';
 import '../service/jh_service.dart';
 import '../service/log.dart';
+import 'eh_setting.dart';
 
 SiteSetting siteSetting = SiteSetting();
 
@@ -26,7 +27,7 @@ class SiteSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   static RxInt thumbnailsCountPerPage = 40.obs;
 
   @override
-  List<JHLifeCircleBean> get initDependencies => super.initDependencies..add(userSetting);
+  List<JHLifeCircleBean> get initDependencies => super.initDependencies..addAll([userSetting, ehSetting]);
 
   @override
   ConfigEnum get configEnum => ConfigEnum.siteSetting;
@@ -67,6 +68,10 @@ class SiteSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
         thumbnailsCountPerPage.value = 40;
         super.clear();
       }
+    });
+
+    ever(ehSetting.site, (_) {
+      fetchDataFromEH();
     });
   }
 

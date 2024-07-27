@@ -70,7 +70,7 @@ mixin JHLifeCircleBeanWithConfigStorage {
     }
   }
 
-  Future<void> onRefresh() async {
+  Future<void> refresh() async {
     try {
       String? configString = await localConfigService.read(configKey: configEnum);
       if (configString == null) {
