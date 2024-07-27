@@ -12,6 +12,7 @@ import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/cookie_util.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
+import 'package:retry/retry.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../exception/eh_site_exception.dart';
@@ -28,16 +29,21 @@ class SettingEHPage extends StatefulWidget {
 }
 
 class _SettingEHPageState extends State<SettingEHPage> {
-  LoadingState assetsLoadingState = LoadingState.idle;
+  int currentConsumption = -1;
+  int totalLimit = 5000;
+  int resetCost = -1;
+  LoadingState imageLimitLoadingState = LoadingState.idle;
   LoadingState resetLimitLoadingState = LoadingState.idle;
+
   String credit = '-1';
   String gp = '-1';
+  LoadingState assetsLoadingState = LoadingState.idle;
 
   @override
   void initState() {
     super.initState();
 
-    ehSetting.fetchDataFromEH();
+    fetchDataFromHomePage();
     getAssets();
   }
 
@@ -132,19 +138,19 @@ class _SettingEHPageState extends State<SettingEHPage> {
       onLongPress: resetLimit,
       child: ListTile(
         title: Text('imageLimits'.tr),
-        subtitle: Text('${'resetCost'.tr} ${ehSetting.resetCost} GP'),
-        onTap: ehSetting.fetchDataFromEH,
+        subtitle: Text('${'resetCost'.tr} $resetCost GP'),
+        onTap: fetchDataFromHomePage,
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             LoadingStateIndicator(
               useCupertinoIndicator: true,
-              loadingState: ehSetting.refreshState.value,
+              loadingState: imageLimitLoadingState,
               indicatorRadius: 10,
               idleWidgetBuilder: () => const SizedBox(),
               errorWidgetSameWithIdle: true,
             ).marginOnly(right: 12),
-            Text('${ehSetting.currentConsumption} / ${ehSetting.totalLimit}').marginOnly(right: 4),
+            Text('$currentConsumption / $totalLimit').marginOnly(right: 4),
             const Icon(Icons.keyboard_arrow_right),
           ],
         ),
@@ -182,6 +188,55 @@ class _SettingEHPageState extends State<SettingEHPage> {
     );
   }
 
+  Future<void> fetchDataFromHomePage() async {
+    if (imageLimitLoadingState == LoadingState.loading) {
+      return;
+    }
+    if (!userSetting.hasLoggedIn()) {
+      return;
+    }
+
+    log.debug('Fetch image quota');
+
+    setStateSafely(() {
+      imageLimitLoadingState = LoadingState.loading;
+    });
+
+    Map<String, int> map = {};
+    try {
+      await retry(
+        () async {
+          map = await ehRequest.requestHomePage(parser: EHSpiderParser.homePage2ImageLimit);
+        },
+        retryIf: (e) => e is DioException,
+        maxAttempts: 3,
+      );
+    } on DioException catch (e) {
+      log.error('Fetch image quota failed', e.errorMsg);
+      snack('Fetch image quota failed'.tr, e.errorMsg ?? '', isShort: false);
+      setStateSafely(() {
+        imageLimitLoadingState = LoadingState.error;
+      });
+      return;
+    } on EHSiteException catch (e) {
+      log.error('Fetch image quota failed', e.message);
+      snack('Fetch image quota failed'.tr, e.message, isShort: false);
+      setStateSafely(() {
+        imageLimitLoadingState = LoadingState.error;
+      });
+      return;
+    }
+
+    log.debug('Fetch image quota success');
+
+    setStateSafely(() {
+      currentConsumption = map['currentConsumption']!;
+      totalLimit = map['totalLimit']!;
+      resetCost = map['resetCost']!;
+      imageLimitLoadingState = LoadingState.idle;
+    });
+  }
+
   Future<void> getAssets() async {
     if (assetsLoadingState == LoadingState.loading) {
       return;
@@ -191,19 +246,21 @@ class _SettingEHPageState extends State<SettingEHPage> {
       assetsLoadingState = LoadingState.loading;
     });
 
+    log.debug('Get eh assets from exchange page');
+
     Map<String, String> assets;
     try {
       assets = await ehRequest.requestExchangePage(parser: EHSpiderParser.exchangePage2Assets);
     } on DioException catch (e) {
-      log.error('Get assets failed', e.errorMsg);
-      snack('Get assets failed'.tr, e.errorMsg ?? '', isShort: true);
+      log.error('Get eh assets failed', e.errorMsg);
+      snack('Get eh failed'.tr, e.errorMsg ?? '', isShort: false);
       setStateSafely(() {
         assetsLoadingState = LoadingState.error;
       });
       return;
     } on EHSiteException catch (e) {
-      log.error('Get assets failed', e.message);
-      snack('Get assets failed'.tr, e.message, isShort: true);
+      log.error('Get eh assets failed', e.message);
+      snack('Get eh assets failed'.tr, e.message, isShort: false);
       setStateSafely(() {
         assetsLoadingState = LoadingState.error;
       });
@@ -229,15 +286,15 @@ class _SettingEHPageState extends State<SettingEHPage> {
     try {
       await ehRequest.requestResetImageLimit();
     } on DioException catch (e) {
-      log.error('Reset limit failed', e.errorMsg);
-      snack('Reset limit failed'.tr, e.errorMsg ?? '', isShort: true);
+      log.error('Reset image quota failed', e.errorMsg);
+      snack('Reset image quota failed'.tr, e.errorMsg ?? '', isShort: false);
       setStateSafely(() {
         resetLimitLoadingState = LoadingState.error;
       });
       return;
     } on EHSiteException catch (e) {
-      log.error('Reset limit failed', e.message);
-      snack('Reset limit failed'.tr, e.message, isShort: true);
+      log.error('Reset image quota failed', e.message);
+      snack('Reset image quota failed'.tr, e.message, isShort: false);
       setStateSafely(() {
         resetLimitLoadingState = LoadingState.error;
       });
@@ -248,7 +305,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
       resetLimitLoadingState = LoadingState.success;
     });
 
-    ehSetting.fetchDataFromEH();
+    fetchDataFromHomePage();
     getAssets();
   }
 }
