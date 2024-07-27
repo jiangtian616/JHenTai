@@ -296,7 +296,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 
   Future<void> requestLogout() async {
     removeAllCookies();
-    userSetting.clear();
+    userSetting.clearBeanConfig();
     if (GetPlatform.isDesktop) {
       Directory directory = Directory(join(pathService.getVisibleDir().path, EHConsts.desktopWebviewDirectoryName));
       if (await directory.exists()) {

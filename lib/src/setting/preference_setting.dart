@@ -39,7 +39,7 @@ class PreferenceSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
   ConfigEnum get configEnum => ConfigEnum.preferenceSetting;
 
   @override
-  void applyConfig(String configString) {
+  void applyBeanConfig(String configString) {
     Map map = jsonDecode(configString);
 
     if ((map['locale'] != null)) {
@@ -105,134 +105,134 @@ class PreferenceSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
   Future<void> saveLanguage(Locale locale) async {
     log.debug('saveLanguage:$locale');
     this.locale.value = locale;
-    await save();
+    await saveBeanConfig();
     Get.updateLocale(locale);
   }
 
   Future<void> saveDefaultTab(TabBarIconNameEnum defaultTab) async {
     log.debug('saveDefaultTab:$defaultTab');
     this.defaultTab.value = defaultTab;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveEnableTagZHTranslation(bool enableTagZHTranslation) async {
     log.debug('saveEnableTagZHTranslation:$enableTagZHTranslation');
     this.enableTagZHTranslation.value = enableTagZHTranslation;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveEnableTagZHSearchOrderOptimization(bool enableTagZHSearchOrderOptimization) async {
     log.debug('saveEnableTagZHSearchOrderOptimization:$enableTagZHSearchOrderOptimization');
     this.enableTagZHSearchOrderOptimization.value = enableTagZHSearchOrderOptimization;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveSimpleDashboardMode(bool simpleDashboardMode) async {
     log.debug('saveSimpleDashboardMode:$simpleDashboardMode');
     this.simpleDashboardMode.value = simpleDashboardMode;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveHideBottomBar(bool hideBottomBar) async {
     log.debug('saveHideBottomBar:$hideBottomBar');
     this.hideBottomBar.value = hideBottomBar;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> savePreloadGalleryCover(bool preloadGalleryCover) async {
     log.debug('savePreloadGalleryCover:$preloadGalleryCover');
     this.preloadGalleryCover.value = preloadGalleryCover;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveEnableSwipeBackGesture(bool enableSwipeBackGesture) async {
     log.debug('saveEnableSwipeBackGesture:$enableSwipeBackGesture');
     this.enableSwipeBackGesture.value = enableSwipeBackGesture;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveEnableLeftMenuDrawerGesture(bool enableLeftMenuDrawerGesture) async {
     log.debug('saveEnableLeftMenuDrawerGesture:$enableLeftMenuDrawerGesture');
     this.enableLeftMenuDrawerGesture.value = enableLeftMenuDrawerGesture;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveEnableQuickSearchDrawerGesture(bool enableQuickSearchDrawerGesture) async {
     log.debug('saveEnableQuickSearchDrawerGesture:$enableQuickSearchDrawerGesture');
     this.enableQuickSearchDrawerGesture.value = enableQuickSearchDrawerGesture;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveDrawerGestureEdgeWidth(int drawerGestureEdgeWidth) async {
     log.debug('saveDrawerGestureEdgeWidth:$drawerGestureEdgeWidth');
     this.drawerGestureEdgeWidth.value = drawerGestureEdgeWidth;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveHideScroll2TopButton(Scroll2TopButtonModeEnum hideScroll2TopButton) async {
     log.debug('saveHideScroll2TopButton:$hideScroll2TopButton');
     this.hideScroll2TopButton.value = hideScroll2TopButton;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveShowAllGalleryTitles(bool showAllGalleryTitles) async {
     log.debug('saveShowAllGalleryTitles:$showAllGalleryTitles');
     this.showAllGalleryTitles.value = showAllGalleryTitles;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveShowGalleryTagVoteStatus(bool showGalleryTagVoteStatus) async {
     log.debug('saveShowGalleryTagVoteStatus:$showGalleryTagVoteStatus');
     this.showGalleryTagVoteStatus.value = showGalleryTagVoteStatus;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveShowComments(bool showComments) async {
     log.debug('saveShowComments:$showComments');
     this.showComments.value = showComments;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveShowAllComments(bool showAllComments) async {
     log.debug('saveShowAllComments:$showAllComments');
     this.showAllComments.value = showAllComments;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveEnableDefaultFavorite(bool enableDefaultFavorite) async {
     log.debug('saveEnableDefaultFavorite:$enableDefaultFavorite');
     this.enableDefaultFavorite.value = enableDefaultFavorite;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveEnableDefaultTagSet(bool enableDefaultTagSet) async {
     log.debug('saveEnableDefaultTagSet:$enableDefaultTagSet');
     this.enableDefaultTagSet.value = enableDefaultTagSet;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveLaunchInFullScreen(bool launchInFullScreen) async {
     log.debug('saveLaunchInFullScreen:$launchInFullScreen');
     this.launchInFullScreen.value = launchInFullScreen;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveTagSearchConfig(SearchBehaviour tagSearchConfig) async {
     log.debug('saveTagSearchConfig:$tagSearchConfig');
     this.searchBehaviour.value = tagSearchConfig;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveShowR18GImageDirectly(bool showR18GImageDirectly) async {
     log.debug('saveShowR18GImageDirectly:$showR18GImageDirectly');
     this.showR18GImageDirectly.value = showR18GImageDirectly;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveShowUtcTime(bool showUtcTime) async {
     log.debug('saveShowUtcTime:$showUtcTime');
     this.showUtcTime.value = showUtcTime;
-    await save();
+    await saveBeanConfig();
   }
 }
 

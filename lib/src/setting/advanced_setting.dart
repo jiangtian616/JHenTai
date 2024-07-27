@@ -20,7 +20,7 @@ class AdvancedSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   ConfigEnum get configEnum => ConfigEnum.advancedSetting;
 
   @override
-  void applyConfig(String configString) {
+  void applyBeanConfig(String configString) {
     Map map = jsonDecode(configString);
 
     enableLogging.value = map['enableLogging'];
@@ -50,30 +50,30 @@ class AdvancedSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   Future<void> saveEnableLogging(bool enableLogging) async {
     log.debug('saveEnableLogging:$enableLogging');
     this.enableLogging.value = enableLogging;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveEnableVerboseLogging(bool enableVerboseLogging) async {
     log.debug('saveEnableVerboseLogging:$enableVerboseLogging');
     this.enableVerboseLogging.value = enableVerboseLogging;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveEnableCheckUpdate(bool enableCheckUpdate) async {
     log.debug('saveEnableCheckUpdate:$enableCheckUpdate');
     this.enableCheckUpdate.value = enableCheckUpdate;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveEnableCheckClipboard(bool enableCheckClipboard) async {
     log.debug('saveEnableCheckClipboard:$enableCheckClipboard');
     this.enableCheckClipboard.value = enableCheckClipboard;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveInNoImageMode(bool inNoImageMode) async {
     log.debug('saveInNoImageMode:$inNoImageMode');
     this.inNoImageMode.value = inNoImageMode;
-    await save();
+    await saveBeanConfig();
   }
 }

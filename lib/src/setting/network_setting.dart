@@ -37,7 +37,7 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
   ConfigEnum get configEnum => ConfigEnum.networkSetting;
 
   @override
-  void applyConfig(String configString) {
+  void applyBeanConfig(String configString) {
     Map map = jsonDecode(configString);
 
     pageCacheMaxAge.value = Duration(milliseconds: map['pageCacheMaxAge'] ?? pageCacheMaxAge.value.inMilliseconds);
@@ -75,19 +75,19 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
   Future<void> savePageCacheMaxAge(Duration pageCacheMaxAge) async {
     log.debug('savePageCacheMaxAge:$pageCacheMaxAge');
     this.pageCacheMaxAge.value = pageCacheMaxAge;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveCacheImageExpireDuration(Duration cacheImageExpireDuration) async {
     log.debug('saveCacheImageExpireDuration:$cacheImageExpireDuration');
     this.cacheImageExpireDuration.value = cacheImageExpireDuration;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveEnableDomainFronting(bool enableDomainFronting) async {
     log.debug('saveEnableDomainFronting:$enableDomainFronting');
     this.enableDomainFronting.value = enableDomainFronting;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveProxy(JProxyType proxyType, String proxyAddress, String? proxyUsername, String? proxyPassword) async {
@@ -96,19 +96,19 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
     this.proxyAddress.value = proxyAddress;
     this.proxyUsername.value = proxyUsername;
     this.proxyPassword.value = proxyPassword;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveConnectTimeout(int connectTimeout) async {
     log.debug('saveConnectTimeout:$connectTimeout');
     this.connectTimeout.value = connectTimeout;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveReceiveTimeout(int receiveTimeout) async {
     log.debug('saveReceiveTimeout:$receiveTimeout');
     this.receiveTimeout.value = receiveTimeout;
-    await save();
+    await saveBeanConfig();
   }
 }
 

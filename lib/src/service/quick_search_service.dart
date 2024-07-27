@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
+import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 
@@ -13,17 +14,17 @@ import '../widget/eh_search_config_dialog.dart';
 
 QuickSearchService quickSearchService = QuickSearchService();
 
-class QuickSearchService with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
-  RxMap<String, SearchConfig> quickSearchConfigs = RxMap.of(LinkedHashMap<String, SearchConfig>());
+class QuickSearchService extends GetxController with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
+  LinkedHashMap<String, SearchConfig> quickSearchConfigs = LinkedHashMap();
 
   @override
   ConfigEnum get configEnum => ConfigEnum.quickSearch;
 
   @override
-  void applyConfig(String configString) {
+  void applyBeanConfig(String configString) {
     Map map = jsonDecode(configString);
 
-    quickSearchConfigs.value = LinkedHashMap.from(map.map((key, value) => MapEntry(key, SearchConfig.fromJson(value))));
+    quickSearchConfigs = LinkedHashMap.from(map.map((key, value) => MapEntry(key, SearchConfig.fromJson(value))));
   }
 
   @override
@@ -32,7 +33,9 @@ class QuickSearchService with JHLifeCircleBeanWithConfigStorage implements JHLif
   }
 
   @override
-  Future<void> doInitBean() async {}
+  Future<void> doInitBean() async {
+    Get.put(this, permanent: true);
+  }
 
   @override
   void doAfterBeanReady() {}
@@ -54,8 +57,9 @@ class QuickSearchService with JHLifeCircleBeanWithConfigStorage implements JHLif
     log.info('Add quick search: $name');
 
     quickSearchConfigs[name] = searchConfig;
-    await save();
-
+    await saveBeanConfig();
+    updateSafely();
+    
     toast('saveSuccess'.tr);
   }
 
@@ -63,7 +67,8 @@ class QuickSearchService with JHLifeCircleBeanWithConfigStorage implements JHLif
     log.info('Remove quick search: $name');
 
     quickSearchConfigs.remove(name);
-    await save();
+    await saveBeanConfig();
+    update();
   }
 
   Future<void> reOrderQuickSearch(int oldIndex, int newIndex) async {
@@ -79,8 +84,9 @@ class QuickSearchService with JHLifeCircleBeanWithConfigStorage implements JHLif
       entries.removeAt(newIndex > oldIndex ? oldIndex : oldIndex + 1);
     }
 
-    quickSearchConfigs.value = LinkedHashMap.fromEntries(entries);
-    await save();
+    quickSearchConfigs = LinkedHashMap.fromEntries(entries);
+    await saveBeanConfig();
+    updateSafely();
   }
 
   Future<void> handleUpdateQuickSearch(MapEntry<String, SearchConfig> oldConfig) async {
@@ -116,9 +122,10 @@ class QuickSearchService with JHLifeCircleBeanWithConfigStorage implements JHLif
       entries.insert(index, MapEntry(quickSearchName, searchConfig));
     }
 
-    quickSearchConfigs.value = LinkedHashMap.fromEntries(entries);
-    await save();
-
+    quickSearchConfigs = LinkedHashMap.fromEntries(entries);
+    await saveBeanConfig();
+    updateSafely();
+    
     toast('updateSuccess'.tr);
   }
 }

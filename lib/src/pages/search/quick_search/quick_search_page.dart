@@ -21,32 +21,33 @@ class QuickSearchPage extends StatelessWidget {
           IconButton(icon: Icon(Icons.add_circle_outline, size: 24), onPressed: handleAddQuickSearch),
         ],
       ),
-      body: Obx(() {
-        return Builder(
-          builder: (_) {
-            List<MapEntry<String, SearchConfig>> entries = quickSearchService.quickSearchConfigs.entries.toList();
-            return ReorderableListView.builder(
-              itemCount: quickSearchService.quickSearchConfigs.length,
-              onReorder: quickSearchService.reOrderQuickSearch,
-              padding: const EdgeInsets.only(bottom: 120),
-              itemBuilder: (_, int index) => Column(
-                key: Key(entries[index].key),
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ListTile(
-                    dense: true,
-                    title: Text(entries[index].key, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    trailing: IconButton(icon: const Icon(Icons.settings), onPressed: () => quickSearchService.handleUpdateQuickSearch(entries[index]))
-                        .marginOnly(right: GetPlatform.isDesktop ? 24 : 0),
-                    onTap: () => newSearch(rewriteSearchConfig: entries[index].value, forceNewRoute: true),
-                  ),
-                  const Divider(thickness: 0.7, height: 2),
-                ],
-              ),
-            ).enableMouseDrag();
-          },
-        );
-      }),
+      body: GetBuilder<QuickSearchService>(
+        builder: (_) {
+          List<MapEntry<String, SearchConfig>> entries = quickSearchService.quickSearchConfigs.entries.toList();
+
+          return ReorderableListView.builder(
+            itemCount: quickSearchService.quickSearchConfigs.length,
+            onReorder: quickSearchService.reOrderQuickSearch,
+            padding: const EdgeInsets.only(bottom: 120),
+            itemBuilder: (_, int index) => Column(
+              key: Key(entries[index].key),
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  dense: true,
+                  title: Text(entries[index].key, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.settings),
+                    onPressed: () => quickSearchService.handleUpdateQuickSearch(entries[index]),
+                  ).marginOnly(right: GetPlatform.isDesktop ? 24 : 0),
+                  onTap: () => newSearch(rewriteSearchConfig: entries[index].value, forceNewRoute: true),
+                ),
+                const Divider(thickness: 0.7, height: 2),
+              ],
+            ),
+          ).enableMouseDrag();
+        },
+      ),
     );
   }
 }

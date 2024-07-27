@@ -83,7 +83,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   ConfigEnum get configEnum => ConfigEnum.readSetting;
 
   @override
-  void applyConfig(String configString) {
+  void applyBeanConfig(String configString) {
     Map map = jsonDecode(configString);
 
     enableImmersiveMode.value = map['enableImmersiveMode'];
@@ -167,193 +167,193 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   Future<void> saveEnableImmersiveMode(bool value) async {
     log.debug('saveEnableImmersiveMode:$value');
     enableImmersiveMode.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveKeepScreenAwakeWhenReading(bool value) async {
     log.debug('saveKeepScreenAwakeWhenReading:$value');
     keepScreenAwakeWhenReading.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveEnableCustomReadBrightness(bool value) async {
     log.debug('saveEnableCustomReadBrightness:$value');
     enableCustomReadBrightness.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveCustomBrightness(int value) async {
     log.debug('saveCustomBrightness:$value');
     customBrightness.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveImageSpace(int value) async {
     log.debug('saveImageSpace:$value');
     imageSpace.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveShowThumbnails(bool value) async {
     log.debug('saveShowThumbnails:$value');
     showThumbnails.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveShowScrollBar(bool value) async {
     log.debug('saveShowScrollBar:$value');
     showScrollBar.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveShowStatusInfo(bool value) async {
     log.debug('saveShowStatusInfo:$value');
     showStatusInfo.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveAutoModeInterval(double value) async {
     log.debug('saveAutoModeInterval:$value');
     autoModeInterval.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveAutoModeStyle(AutoModeStyle value) async {
     log.debug('saveAutoModeStyle:${value.name}');
     autoModeStyle.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveDeviceDirection(DeviceDirection value) async {
     log.debug('saveDeviceDirection:${value.name}');
     deviceDirection.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveReadDirection(ReadDirection value) async {
     log.debug('saveReadDirection:${value.name}');
     readDirection.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveNotchOptimization(bool value) async {
     log.debug('saveNotchOptimization:$value');
     notchOptimization.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveImageRegionWidthRatio(int value) async {
     log.debug('saveImageRegionWidthRatio:$value');
     imageRegionWidthRatio.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveGestureRegionWidthRatio(int value) async {
     log.debug('saveGestureRegionWidthRatio:$value');
     gestureRegionWidthRatio.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveUseThirdPartyViewer(bool value) async {
     log.debug('saveUseThirdPartyViewer:$value');
     useThirdPartyViewer.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveThirdPartyViewerPath(String? value) async {
     log.debug('saveThirdPartyViewerPath:$value');
     thirdPartyViewerPath.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveEnablePageTurnByVolumeKeys(bool value) async {
     log.debug('saveEnablePageTurnByVolumeKeys:$value');
     enablePageTurnByVolumeKeys.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveEnablePageTurnAnime(bool value) async {
     log.debug('saveEnablePageTurnAnime:$value');
     enablePageTurnAnime.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveEnableDoubleTapToScaleUp(bool value) async {
     log.debug('saveEnableDoubleTapToScaleUp:$value');
     enableDoubleTapToScaleUp.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveEnableTapDragToScaleUp(bool value) async {
     log.debug('saveEnableTapDragToScaleUp:$value');
     enableTapDragToScaleUp.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveEnableBottomMenu(bool value) async {
     log.debug('saveEnableBottomMenu:$value');
     enableBottomMenu.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveTurnPageMode(TurnPageMode value) async {
     log.debug('saveTurnPageMode:${value.name}');
     turnPageMode.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> savePreloadDistance(int value) async {
     log.debug('savePreloadDistance:$value');
     preloadDistance.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> savePreloadDistanceLocal(int value) async {
     log.debug('savePreloadDistanceLocal:$value');
     preloadDistanceLocal.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> savePreloadPageCount(int value) async {
     log.debug('savePreloadPageCount:$value');
     preloadPageCount.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> savePreloadPageCountLocal(int value) async {
     log.debug('savePreloadPageCountLocal:$value');
     preloadPageCountLocal.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveDisplayFirstPageAlone(bool value) async {
     log.debug('saveDisplayFirstPageAlone:$value');
     displayFirstPageAlone.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveReverseTurnPageDirection(bool value) async {
     log.debug('saveReverseTurnPageDirection:$value');
     reverseTurnPageDirection.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveDisablePageTurningOnTap(bool value) async {
     log.debug('saveDisablePageTurningOnTap:$value');
     disablePageTurningOnTap.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveEnableMaxImageKilobyte(bool value) async {
     log.debug('saveEnableMaxImageKilobyte:$value');
     enableMaxImageKilobyte.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveMaxImageKilobyte(int value) async {
     log.debug('saveMaxImageKilobyte:$value');
     maxImageKilobyte.value = value;
-    await save();
+    await saveBeanConfig();
   }
 }
 

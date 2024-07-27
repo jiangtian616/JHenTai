@@ -17,7 +17,7 @@ class SuperResolutionSetting with JHLifeCircleBeanWithConfigStorage implements J
   ConfigEnum get configEnum => ConfigEnum.superResolutionSetting;
 
   @override
-  void applyConfig(String configString) {
+  void applyBeanConfig(String configString) {
     Map map = jsonDecode(configString);
 
     modelDirectoryPath.value = map['modelDirectoryPath'];
@@ -43,19 +43,19 @@ class SuperResolutionSetting with JHLifeCircleBeanWithConfigStorage implements J
   Future<void> saveModelDirectoryPath(String? modelDirectoryPath) async {
     log.debug('saveModelDirectoryPath:$modelDirectoryPath');
     this.modelDirectoryPath.value = modelDirectoryPath;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveModel(ModelType model) async {
     log.debug('saveModel:$model');
     this.model.value = model;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveGpuId(int gpuId) async {
     log.debug('saveGpuId:$gpuId');
     this.gpuId.value = gpuId;
-    await save();
+    await saveBeanConfig();
   }
 }
 

@@ -15,7 +15,7 @@ class MouseSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
   ConfigEnum get configEnum => ConfigEnum.mouseSetting;
 
   @override
-  void applyConfig(String configString) {
+  void applyBeanConfig(String configString) {
     Map map = jsonDecode(configString);
 
     wheelScrollSpeed.value = map['wheelScrollSpeed'] ?? wheelScrollSpeed.value;
@@ -37,6 +37,6 @@ class MouseSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
   Future<void> saveWheelScrollSpeed(double wheelScrollSpeed) async {
     log.debug('saveWheelScrollSpeed:$wheelScrollSpeed');
     this.wheelScrollSpeed.value = wheelScrollSpeed;
-    await save();
+    await saveBeanConfig();
   }
 }

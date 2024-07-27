@@ -32,7 +32,7 @@ class EHSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBe
   ConfigEnum get configEnum => ConfigEnum.EHSetting;
 
   @override
-  void applyConfig(String configString) {
+  void applyBeanConfig(String configString) {
     Map map = jsonDecode(configString);
 
     site.value = map['site'];
@@ -58,7 +58,7 @@ class EHSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBe
       } else {
         site.value = 'EH';
         currentConsumption.value = -1;
-        clear();
+        clearBeanConfig();
       }
     });
   }
@@ -102,18 +102,18 @@ class EHSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBe
     totalLimit.value = map['totalLimit']!;
     resetCost.value = map['resetCost']!;
     refreshState.value = LoadingState.idle;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveRedirect2Eh(bool redirect2Eh) async {
     log.debug('saveRedirect2Eh:$redirect2Eh');
     this.redirect2Eh.value = redirect2Eh;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveSite(String site) async {
     log.debug('saveSite:$site');
     this.site.value = site;
-    await save();
+    await saveBeanConfig();
   }
 }

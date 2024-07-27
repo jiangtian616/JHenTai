@@ -15,7 +15,7 @@ class PerformanceSetting with JHLifeCircleBeanWithConfigStorage implements JHLif
   ConfigEnum get configEnum => ConfigEnum.performanceSetting;
 
   @override
-  void applyConfig(String configString) {
+  void applyBeanConfig(String configString) {
     Map map = jsonDecode(configString);
 
     maxGalleryNum4Animation.value = map['maxGalleryNum4Animation'] ?? maxGalleryNum4Animation.value;
@@ -37,6 +37,6 @@ class PerformanceSetting with JHLifeCircleBeanWithConfigStorage implements JHLif
   Future<void> setMaxGalleryNum4Animation(int value) async {
     log.debug('setMaxGalleryNum4Animation:$value');
     maxGalleryNum4Animation.value = value;
-    await save();
+    await saveBeanConfig();
   }
 }

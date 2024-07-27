@@ -37,7 +37,7 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   ConfigEnum get configEnum => ConfigEnum.downloadSetting;
 
   @override
-  void applyConfig(String configString) {
+  void applyBeanConfig(String configString) {
     Map map = jsonDecode(configString);
 
     if (!GetPlatform.isIOS) {
@@ -103,91 +103,91 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   Future<void> saveDownloadPath(String downloadPath) async {
     log.debug('saveDownloadPath:$downloadPath');
     this.downloadPath.value = downloadPath;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> addExtraGalleryScanPath(String newPath) async {
     log.debug('addExtraGalleryScanPath:$newPath');
     extraGalleryScanPath.add(newPath);
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> removeExtraGalleryScanPath(String path) async {
     log.debug('removeExtraGalleryScanPath:$path');
     extraGalleryScanPath.remove(path);
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveSingleImageSavePath(String singleImageSavePath) async {
     log.debug('saveSingleImageSavePath:$singleImageSavePath');
     this.singleImageSavePath.value = singleImageSavePath;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveDownloadOriginalImageByDefault(bool value) async {
     log.debug('saveDownloadOriginalImageByDefault:$value');
     this.downloadOriginalImageByDefault.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveDefaultGalleryGroup(String? group) async {
     log.debug('saveDefaultGalleryGroup:$group');
     this.defaultGalleryGroup.value = group;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveDefaultArchiveGroup(String? group) async {
     log.debug('saveDefaultArchiveGroup:$group');
     this.defaultArchiveGroup.value = group;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveDownloadTaskConcurrency(int downloadTaskConcurrency) async {
     log.debug('saveDownloadTaskConcurrency:$downloadTaskConcurrency');
     this.downloadTaskConcurrency.value = downloadTaskConcurrency;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveMaximum(int maximum) async {
     log.debug('saveMaximum:$maximum');
     this.maximum.value = maximum;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> savePeriod(Duration period) async {
     log.debug('savePeriod:$period');
     this.period.value = period;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveDownloadAllGallerysOfSamePriority(bool value) async {
     log.debug('saveDownloadAllGallerysOfSamePriority:$value');
     downloadAllGallerysOfSamePriority.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveArchiveDownloadIsolateCount(int count) async {
     log.debug('saveArchiveDownloadIsolateCount:$count');
     archiveDownloadIsolateCount.value = count;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveManageArchiveDownloadConcurrency(bool value) async {
     log.debug('saveManageArchiveDownloadConcurrency:$value');
     manageArchiveDownloadConcurrency.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveDeleteArchiveFileAfterDownload(bool value) async {
     log.debug('saveDeleteArchiveFileAfterDownload:$value');
     deleteArchiveFileAfterDownload.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveRestoreTasksAutomatically(bool value) async {
     log.debug('saveRestoreTasksAutomatically:$value');
     restoreTasksAutomatically.value = value;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> _ensureDownloadDirExists() async {

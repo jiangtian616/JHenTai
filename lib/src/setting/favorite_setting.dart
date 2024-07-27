@@ -40,7 +40,7 @@ class FavoriteSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   ConfigEnum get configEnum => ConfigEnum.favoriteSetting;
 
   @override
-  void applyConfig(String configString) {
+  void applyBeanConfig(String configString) {
     Map map = jsonDecode(configString);
 
     favoriteTagNames.value = (jsonDecode(map['favoriteTagNames']) as List).cast<String>();
@@ -75,7 +75,7 @@ class FavoriteSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
           'Favorite 9',
         ];
         favoriteCounts = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1];
-        super.clear();
+        super.clearBeanConfig();
       }
     });
   }
@@ -111,7 +111,7 @@ class FavoriteSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     }
 
     log.info('Fetch favorite setting from EH success');
-    await save();
+    await saveBeanConfig();
   }
 
   void incrementFavByIndex(int? index) async {
@@ -119,7 +119,7 @@ class FavoriteSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
       return;
     }
     favoriteCounts[index]++;
-    await save();
+    await saveBeanConfig();
   }
 
   void decrementFavByIndex(int? index) async {
@@ -127,6 +127,6 @@ class FavoriteSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
       return;
     }
     favoriteCounts[index]--;
-    await save();
+    await saveBeanConfig();
   }
 }

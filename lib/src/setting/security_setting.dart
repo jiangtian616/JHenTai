@@ -29,7 +29,7 @@ class SecuritySetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   ConfigEnum get configEnum => ConfigEnum.securitySetting;
 
   @override
-  void applyConfig(String configString) {
+  void applyBeanConfig(String configString) {
     Map map = jsonDecode(configString);
 
     enableBlur.value = map['enableBlur'] ?? enableBlur.value;
@@ -97,37 +97,37 @@ class SecuritySetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   Future<void> saveEnableBlur(bool enableBlur) async {
     log.debug('saveEnableBlur:$enableBlur');
     this.enableBlur.value = enableBlur;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> savePassword(String rawPassword) async {
     String md5 = keyToMd5(rawPassword);
     log.debug('saveEncryptedPassword:$md5');
     this.encryptedPassword.value = md5;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveEnablePasswordAuth(bool enablePasswordAuth) async {
     log.debug('saveEnablePasswordAuth:$enablePasswordAuth');
     this.enablePasswordAuth.value = enablePasswordAuth;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveEnableBiometricAuth(bool enableBiometricAuth) async {
     log.debug('saveEnableBiometricAuth:$enableBiometricAuth');
     this.enableBiometricAuth.value = enableBiometricAuth;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveEnableAuthOnResume(bool enableAuthOnResume) async {
     log.debug('saveEnableAuthOnResume:$enableAuthOnResume');
     this.enableAuthOnResume.value = enableAuthOnResume;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveHideImagesInAlbum(bool hideImagesInAlbum) async {
     log.debug('saveHideImagesInAlbum:$hideImagesInAlbum');
     this.hideImagesInAlbum.value = hideImagesInAlbum;
-    await save();
+    await saveBeanConfig();
   }
 }

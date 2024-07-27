@@ -508,98 +508,98 @@ class MigrateStorageConfigHandler implements UpdateHandler {
     if (favoriteSettingMap != null) {
       futures.add(Future(() async {
         await localConfigService.write(configKey: ConfigEnum.favoriteSetting, value: jsonEncode(favoriteSettingMap));
-        await favoriteSetting.refresh();
+        await favoriteSetting.refreshBean();
       }));
     }
     Map? advancedSettingMap = storageService.read(ConfigEnum.advancedSetting.key);
     if (advancedSettingMap != null) {
       futures.add(Future(() async {
         await localConfigService.write(configKey: ConfigEnum.advancedSetting, value: jsonEncode(advancedSettingMap));
-        await advancedSetting.refresh();
+        await advancedSetting.refreshBean();
       }));
     }
     Map? downloadSettingMap = storageService.read(ConfigEnum.downloadSetting.key);
     if (downloadSettingMap != null) {
       futures.add(Future(() async {
         await localConfigService.write(configKey: ConfigEnum.downloadSetting, value: jsonEncode(downloadSettingMap));
-        await downloadSetting.refresh();
+        await downloadSetting.refreshBean();
       }));
     }
     Map? EHSettingMap = storageService.read(ConfigEnum.EHSetting.key);
     if (EHSettingMap != null) {
       futures.add(Future(() async {
         await localConfigService.write(configKey: ConfigEnum.EHSetting, value: jsonEncode(EHSettingMap));
-        await ehSetting.refresh();
+        await ehSetting.refreshBean();
       }));
     }
     Map? mouseSettingMap = storageService.read(ConfigEnum.mouseSetting.key);
     if (mouseSettingMap != null) {
       futures.add(Future(() async {
         await localConfigService.write(configKey: ConfigEnum.mouseSetting, value: jsonEncode(mouseSettingMap));
-        await mouseSetting.refresh();
+        await mouseSetting.refreshBean();
       }));
     }
     Map? networkSettingMap = storageService.read(ConfigEnum.networkSetting.key);
     if (networkSettingMap != null) {
       futures.add(Future(() async {
         await localConfigService.write(configKey: ConfigEnum.networkSetting, value: jsonEncode(networkSettingMap));
-        await networkSetting.refresh();
+        await networkSetting.refreshBean();
       }));
     }
     Map? performanceSettingMap = storageService.read(ConfigEnum.performanceSetting.key);
     if (performanceSettingMap != null) {
       futures.add(Future(() async {
         await localConfigService.write(configKey: ConfigEnum.performanceSetting, value: jsonEncode(performanceSettingMap));
-        await performanceSetting.refresh();
+        await performanceSetting.refreshBean();
       }));
     }
     Map? preferenceSettingMap = storageService.read(ConfigEnum.preferenceSetting.key);
     if (preferenceSettingMap != null) {
       futures.add(Future(() async {
         await localConfigService.write(configKey: ConfigEnum.preferenceSetting, value: jsonEncode(preferenceSettingMap));
-        await preferenceSetting.refresh();
+        await preferenceSetting.refreshBean();
       }));
     }
     Map? readSettingMap = storageService.read(ConfigEnum.readSetting.key);
     if (readSettingMap != null) {
       futures.add(Future(() async {
         await localConfigService.write(configKey: ConfigEnum.readSetting, value: jsonEncode(readSettingMap));
-        await readSetting.refresh();
+        await readSetting.refreshBean();
       }));
     }
     Map? securitySettingMap = storageService.read(ConfigEnum.securitySetting.key);
     if (securitySettingMap != null) {
       futures.add(Future(() async {
         await localConfigService.write(configKey: ConfigEnum.securitySetting, value: jsonEncode(securitySettingMap));
-        await securitySetting.refresh();
+        await securitySetting.refreshBean();
       }));
     }
     Map? siteSettingMap = storageService.read(ConfigEnum.siteSetting.key);
     if (siteSettingMap != null) {
       futures.add(Future(() async {
         await localConfigService.write(configKey: ConfigEnum.siteSetting, value: jsonEncode(siteSettingMap));
-        await siteSetting.refresh();
+        await siteSetting.refreshBean();
       }));
     }
     Map? styleSettingMap = storageService.read(ConfigEnum.styleSetting.key);
     if (styleSettingMap != null) {
       futures.add(Future(() async {
         await localConfigService.write(configKey: ConfigEnum.styleSetting, value: jsonEncode(styleSettingMap));
-        await styleSetting.refresh();
+        await styleSetting.refreshBean();
       }));
     }
     Map? superResolutionSettingMap = storageService.read(ConfigEnum.superResolutionSetting.key);
     if (superResolutionSettingMap != null) {
       futures.add(Future(() async {
         await localConfigService.write(configKey: ConfigEnum.superResolutionSetting, value: jsonEncode(superResolutionSettingMap));
-        await superResolutionSetting.refresh();
+        await superResolutionSetting.refreshBean();
       }));
     }
     Map? userSettingMap = storageService.read(ConfigEnum.userSetting.key);
     if (userSettingMap != null) {
       futures.add(Future(() async {
         await localConfigService.write(configKey: ConfigEnum.userSetting, value: jsonEncode(userSettingMap));
-        await userSetting.refresh();
+        await userSetting.refreshBean();
       }));
     }
 

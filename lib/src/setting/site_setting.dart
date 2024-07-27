@@ -33,7 +33,7 @@ class SiteSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   ConfigEnum get configEnum => ConfigEnum.siteSetting;
 
   @override
-  void applyConfig(String configString) {
+  void applyBeanConfig(String configString) {
     Map map = jsonDecode(configString);
 
     preferJapaneseTitle.value = map['preferJapaneseTitle'] ?? true;
@@ -66,7 +66,7 @@ class SiteSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
         isLargeThumbnail.value = false;
         thumbnailRows.value = 4;
         thumbnailsCountPerPage.value = 40;
-        super.clear();
+        super.clearBeanConfig();
       }
     });
 
@@ -115,7 +115,7 @@ class SiteSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     isLargeThumbnail.value = settings.isLargeThumbnail;
     thumbnailRows.value = settings.thumbnailRows;
     thumbnailsCountPerPage.value = thumbnailRows.value * (isLargeThumbnail.value ? 5 : 10);
-    await save();
+    await saveBeanConfig();
   }
 }
 

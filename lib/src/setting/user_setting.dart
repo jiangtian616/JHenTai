@@ -23,7 +23,7 @@ class UserSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   ConfigEnum get configEnum => ConfigEnum.userSetting;
 
   @override
-  void applyConfig(String configString) {
+  void applyBeanConfig(String configString) {
     Map map = jsonDecode(configString);
 
     userName = RxnString(map['userName']);
@@ -67,7 +67,7 @@ class UserSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     this.ipbMemberId.value = ipbMemberId;
     this.avatarImgUrl.value = avatarImgUrl;
     this.nickName.value = nickName;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveUserNameAndAvatarAndNickName({
@@ -79,24 +79,24 @@ class UserSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     this.userName.value = userName;
     this.avatarImgUrl.value = avatarImgUrl;
     this.nickName.value = nickName;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveDefaultFavoriteIndex(int? index) async {
     log.debug('saveDefaultFavoriteIndex: $index');
     this.defaultFavoriteIndex.value = index;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveDefaultTagSetNo(int? number) async {
     log.debug('saveDefaultTagSet: $number');
     this.defaultTagSetNo.value = number;
-    await save();
+    await saveBeanConfig();
   }
 
   @override
-  Future<bool> clear() async {
-    bool success = await super.clear();
+  Future<bool> clearBeanConfig() async {
+    bool success = await super.clearBeanConfig();
     userName.value = null;
     ipbMemberId.value = null;
     ipbPassHash.value = null;

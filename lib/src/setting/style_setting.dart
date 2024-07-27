@@ -59,7 +59,7 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
   ConfigEnum get configEnum => ConfigEnum.styleSetting;
 
   @override
-  void applyConfig(String configString) {
+  void applyBeanConfig(String configString) {
     Map map = jsonDecode(configString);
 
     themeMode.value = ThemeMode.values[map['themeMode']];
@@ -115,49 +115,49 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
   Future<void> saveThemeMode(ThemeMode themeMode) async {
     log.debug('saveThemeMode:${themeMode.name}');
     this.themeMode.value = themeMode;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveLightThemeColor(Color color) async {
     log.debug('saveLightThemeColor:$color');
     this.lightThemeColor.value = color;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveDarkThemeColor(Color color) async {
     log.debug('saveDarkThemeColor:$color');
     this.darkThemeColor.value = color;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveListMode(ListMode listMode) async {
     log.debug('saveListMode:${listMode.name}');
     this.listMode.value = listMode;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveCrossAxisCountInWaterFallFlow(int? crossAxisCountInWaterFallFlow) async {
     log.debug('saveCrossAxisCountInWaterFallFlow:$crossAxisCountInWaterFallFlow');
     this.crossAxisCountInWaterFallFlow.value = crossAxisCountInWaterFallFlow;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveCrossAxisCountInGridDownloadPageForGroup(int? crossAxisCountInGridDownloadPageForGroup) async {
     log.debug('saveCrossAxisCountInGridDownloadPageForGroup:$crossAxisCountInGridDownloadPageForGroup');
     this.crossAxisCountInGridDownloadPageForGroup.value = crossAxisCountInGridDownloadPageForGroup;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveCrossAxisCountInGridDownloadPageForGallery(int? crossAxisCountInGridDownloadPageForGallery) async {
     log.debug('saveCrossAxisCountInGridDownloadPageForGallery:$crossAxisCountInGridDownloadPageForGallery');
     this.crossAxisCountInGridDownloadPageForGallery.value = crossAxisCountInGridDownloadPageForGallery;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveCrossAxisCountInDetailPage(int? crossAxisCountInDetailPage) async {
     log.debug('saveCrossAxisCountInDetailPage:$crossAxisCountInDetailPage');
     this.crossAxisCountInDetailPage.value = crossAxisCountInDetailPage;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> savePageListMode(String routeName, ListMode? listMode) async {
@@ -167,19 +167,19 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
     } else {
       this.pageListMode[routeName] = listMode;
     }
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveMoveCover2RightSide(bool moveCover2RightSide) async {
     log.debug('saveMoveCover2RightSide:$moveCover2RightSide');
     this.moveCover2RightSide.value = moveCover2RightSide;
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> saveLayoutMode(LayoutMode layoutMode) async {
     log.debug('saveLayoutMode:${layoutMode.name}');
     this.layout.value = layoutMode;
-    await save();
+    await saveBeanConfig();
   }
 }
 

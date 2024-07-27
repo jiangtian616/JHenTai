@@ -21,7 +21,7 @@ class SearchHistoryService with JHLifeCircleBeanWithConfigStorage implements JHL
   ConfigEnum get configEnum => ConfigEnum.searchHistory;
 
   @override
-  Future<void> applyConfig(String configString) async {
+  Future<void> applyBeanConfig(String configString) async {
     List searchHistories = jsonDecode(configString);
 
     for (String searchHistory in searchHistories) {
@@ -59,18 +59,18 @@ class SearchHistoryService with JHLifeCircleBeanWithConfigStorage implements JHL
       histories = histories.sublist(0, _maxLength);
     }
 
-    await save();
+    await saveBeanConfig();
   }
 
   Future<void> deleteHistory(SearchHistory searchHistory) async {
     if (histories.remove(searchHistory)) {
-      await save();
+      await saveBeanConfig();
     }
   }
 
   Future<void> clearHistory() async {
     histories.clear();
-    await clear();
+    await clearBeanConfig();
   }
 
   /// find each pair and then translate, remains the parts which can't be translated
