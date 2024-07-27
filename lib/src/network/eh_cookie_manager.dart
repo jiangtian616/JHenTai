@@ -11,38 +11,30 @@ import '../utils/cookie_util.dart';
 class EHCookieManager extends Interceptor {
   final LocalConfigService localConfigService;
 
-  List<Cookie> cookies = [];
+  List<Cookie> cookies = [Cookie('nw', '1')];
 
   EHCookieManager(this.localConfigService);
 
   Future<void> initCookies() async {
-    cookies = await loadCookies();
-  }
-
-  Future<List<Cookie>> loadCookies() async {
-    List<Cookie> cookies = [Cookie('nw', '1')];
-
     String? string = await localConfigService.read(configKey: ConfigEnum.ehCookie);
     if (string != null) {
       List list = jsonDecode(string);
       cookies.addAll(list.cast<String>().map(Cookie.fromSetCookieValue).toList());
     }
-
-    return cookies;
   }
 
   Future<void> replaceCookies(List<Cookie> cookies) async {
     this.cookies.removeWhere((cookie) => cookies.any((c) => c.name == cookie.name));
     this.cookies.addAll(cookies);
 
-    List<Cookie> storeCookies = List.from(this.cookies)..remove(Cookie('nw', '1'));
+    List<Cookie> storeCookies = List.from(this.cookies)..removeWhere((cookie) => cookie.name == 'nw');
     await localConfigService.write(configKey: ConfigEnum.ehCookie, value: jsonEncode(storeCookies.map((cookie) => cookie.toString()).toList()));
   }
 
   Future<void> removeCookies(List<String> cookieNames) async {
     cookies.removeWhere((cookie) => cookieNames.any((name) => cookie.name == name));
 
-    List<Cookie> storeCookies = List.from(cookies)..remove(Cookie('nw', '1'));
+    List<Cookie> storeCookies = List.from(cookies)..removeWhere((cookie) => cookie.name == 'nw');
     await localConfigService.write(configKey: ConfigEnum.ehCookie, value: jsonEncode(storeCookies.map((cookie) => cookie.toString()).toList()));
   }
 
