@@ -27,7 +27,7 @@ import '../utils/toast_util.dart';
 TagSearchOrderOptimizationService tagSearchOrderOptimizationService = TagSearchOrderOptimizationService();
 
 class TagSearchOrderOptimizationService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
-  final String savePath = join(pathService.getVisibleDir().path, 'tid_count_tag.csv.gz');
+  late final String savePath;
 
   static const String releaseUrl = 'https://github.com/mokurin000/e-hentai-tag-count/releases/latest';
 
@@ -42,6 +42,8 @@ class TagSearchOrderOptimizationService with JHLifeCircleBeanErrorCatch implemen
 
   @override
   Future<void> doOnInit() async {
+    savePath = join(pathService.getVisibleDir().path, 'tid_count_tag.csv.gz');
+
     localConfigService
         .read(configKey: ConfigEnum.tagSearchOrderOptimizationServiceLoadingState)
         .then((value) => loadingState.value = LoadingState.values[value != null ? int.parse(value) : 0]);
