@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 
@@ -540,11 +541,6 @@ class MigrateStorageConfigHandler implements UpdateHandler {
       await localConfigService.write(configKey: ConfigEnum.displayBlockingRulesGroup, value: showLocalBlockRulesGroup.toString());
     }
 
-    List<String>? searchHistories = storageService.read(ConfigEnum.searchHistory.key);
-    if (searchHistories != null) {
-      await localConfigService.write(configKey: ConfigEnum.searchHistory, value: jsonEncode(searchHistories));
-    }
-
     Map? favoriteSetting = storageService.read(ConfigEnum.favoriteSetting.key);
     if (favoriteSetting != null) {
       await localConfigService.write(configKey: ConfigEnum.favoriteSetting, value: jsonEncode(favoriteSetting));
@@ -633,6 +629,11 @@ class MigrateStorageConfigHandler implements UpdateHandler {
   Future<void> onReady() async {
     log.info('MigrateStorageConfigHandler onReady');
 
+    List<String>? searchHistories = storageService.read(ConfigEnum.searchHistory.key);
+    if (searchHistories != null) {
+      await localConfigService.write(configKey: ConfigEnum.searchHistory, value: jsonEncode(searchHistories));
+    }
+
     List<String>? keys = storageService.getKeys();
     if (keys != null) {
       for (String key in keys) {
@@ -646,6 +647,12 @@ class MigrateStorageConfigHandler implements UpdateHandler {
           }
         }
       }
+    }
+
+    Map? map = storageService.read(ConfigEnum.quickSearch.key);
+    if (map != null) {
+      Map<String, SearchConfig> quickSearchConfigs = LinkedHashMap.from(map.map((key, value) => MapEntry(key, SearchConfig.fromJson(value))));
+      await localConfigService.write(configKey: ConfigEnum.quickSearch, value: jsonEncode(quickSearchConfigs));
     }
   }
 }
