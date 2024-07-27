@@ -57,7 +57,7 @@ class _DownloadPageState extends State<DownloadPage> {
             return true;
           },
           child: !bodyTypeCompleter.isCompleted
-              ? UIConfig.loadingAnimation(context)
+              ? UIConfig.loadingAnimation(context).center()
               : galleryType == DownloadPageGalleryType.download
                   ? bodyType == DownloadPageBodyType.list
                       ? GalleryListDownloadPage(key: const PageStorageKey('GalleryListDownloadBody'))
