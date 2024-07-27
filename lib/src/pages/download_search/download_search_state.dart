@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:jhentai/src/database/database.dart';
 
 class DownloadSearchState {
   DownloadSearchConfigTypeEnum searchType = DownloadSearchConfigTypeEnum.simple;
+  Completer<void> searchTypeCompleter = Completer();
 
   List<GallerySearchVO> gallerys = [];
   List<ArchiveSearchVO> archives = [];

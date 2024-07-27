@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
+import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/utils/convert_util.dart';
@@ -51,16 +52,19 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
   LoadingState loadingState = LoadingState.idle;
 
   @override
-  void onInit() {
+  Future<void> onInit() async {
+    super.onInit();
+
     textEditingController = TextEditingController();
     searchFocusNode = FocusNode();
     searchDebouncing = Debouncing(duration: const Duration(milliseconds: 300));
     scrollController = ScrollController();
-    int? code = storageService.read(ConfigEnum.downloadSearchPageType.key);
+
+    String? code = await localConfigService.read(configKey: ConfigEnum.downloadSearchPageType);
     if (code != null) {
-      state.searchType = DownloadSearchConfigTypeEnum.fromCode(code);
+      state.searchType = DownloadSearchConfigTypeEnum.fromCode(int.tryParse(code) ?? 1);
     }
-    super.onInit();
+    state.searchTypeCompleter.complete();
   }
 
   @override
@@ -149,7 +153,8 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
         tagRefreshTime: a.tagRefreshTime,
       );
     }).toList();
-
+    
+    await state.searchTypeCompleter.future;
     if (state.searchType == DownloadSearchConfigTypeEnum.regex) {
       RegExp? regExp;
       try {
@@ -235,11 +240,13 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
     updateSafely([loadingStateId, bodyId]);
   }
 
-  void toggleSearchType() {
+  Future<void> toggleSearchType() async {
+    await state.searchTypeCompleter.future;
+    
     state.searchType = state.searchType == DownloadSearchConfigTypeEnum.simple ? DownloadSearchConfigTypeEnum.regex : DownloadSearchConfigTypeEnum.simple;
     updateSafely([searchFieldId]);
     handleSearchFieldChanged(textEditingController.text);
-    storageService.write(ConfigEnum.downloadSearchPageType.key, state.searchType.code);
+    await localConfigService.write(configKey: ConfigEnum.downloadSearchPageType, value: state.searchType.code.toString());
   }
 
   void goToGalleryReadPage(GallerySearchVO gallery) {

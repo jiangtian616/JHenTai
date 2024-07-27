@@ -52,9 +52,11 @@ class DownloadSearchPage extends StatelessWidget {
         decoration: InputDecoration(
           isDense: true,
           contentPadding: EdgeInsets.zero,
-          prefixIcon: TextButton(
-            child: Text(state.searchType.desc.tr),
-            onPressed: logic.toggleSearchType,
+          prefixIcon: FutureBuilder(
+            future: state.searchTypeCompleter.future,
+            builder: (_, __) => !state.searchTypeCompleter.isCompleted
+                ? const SizedBox()
+                : TextButton(child: Text(state.searchType.desc.tr), onPressed: logic.toggleSearchType),
           ),
           prefixIconConstraints: const BoxConstraints(minWidth: 52),
           suffixIcon: MouseRegion(
