@@ -33,7 +33,7 @@ void snack(
       ),
       showCloseIcon: onPressed == null,
       action: onPressed == null ? null : SnackBarAction(label: '->', onPressed: onPressed),
-      duration: Duration(milliseconds: isShort ? 1000 : 3000),
+      duration: Duration(milliseconds: isShort ? 1500 : 4000),
       behavior: styleSetting.isInMobileLayout ? null : SnackBarBehavior.floating,
       width: styleSetting.isInMobileLayout ? null : max(fullScreenWidth / 2, UIConfig.snackWidth),
     ),
