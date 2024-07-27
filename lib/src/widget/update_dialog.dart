@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
+import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -34,7 +35,7 @@ class UpdateDialog extends StatelessWidget {
           child: Text('${'dismiss'.tr} $latestVersion'),
           textStyle: TextStyle(color: UIConfig.alertColor(context), fontSize: 16),
           onPressed: () {
-            storageService.write(ConfigEnum.dismissVersion.key, latestVersion);
+            localConfigService.write(configKey: ConfigEnum.dismissVersion, value: latestVersion);
             backRoute();
           },
         ),

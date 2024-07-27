@@ -622,6 +622,11 @@ class MigrateStorageConfigHandler implements UpdateHandler {
     if (leftColumnWidthRatio != null) {
       await localConfigService.write(configKey: ConfigEnum.leftColumnWidthRatio, value: leftColumnWidthRatio.toString());
     }
+
+    String? dismissVersion = storageService.read(ConfigEnum.dismissVersion.key);
+    if (dismissVersion != null) {
+      await localConfigService.write(configKey: ConfigEnum.dismissVersion, value: dismissVersion);
+    }
   }
 
   @override

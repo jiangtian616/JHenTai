@@ -11,6 +11,7 @@ import 'package:jhentai/src/pages/gallery_image/gallery_image_page_logic.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2.dart';
 import 'package:jhentai/src/pages/layout/tablet_v2/tablet_layout_page_v2.dart';
+import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/service/log.dart';
@@ -133,7 +134,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
       return;
     }
 
-    String? dismissVersion = storageService.read(ConfigEnum.dismissVersion.key);
+    String? dismissVersion = await localConfigService.read(configKey: ConfigEnum.dismissVersion);
     if (dismissVersion == latestVersion) {
       return;
     }
