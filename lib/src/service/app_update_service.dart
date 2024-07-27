@@ -31,7 +31,7 @@ import '../utils/uuid_util.dart';
 class AppUpdateService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late File file;
   int? fromVersion;
-  static const int toVersion = 11;
+  static const int toVersion = 12;
 
   List<UpdateHandler> updateHandlers = [
     FirstOpenHandler(),
@@ -44,6 +44,7 @@ class AppUpdateService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBe
     MigrateCookieHandler(),
     MigrateLocalFilterTagsHandler(),
     MigrateSearchHistoryV2Handler(),
+    MigrateStorageConfigHandler(),
   ];
 
   @override
@@ -410,7 +411,7 @@ class MigrateSearchHistoryV2Handler implements UpdateHandler {
   @override
   Future<void> onReady() async {
     log.info('MigrateSearchHistoryV2Handler onReady');
-    
+
     int totalCount = await GalleryHistoryDao.selectTotalCountOld();
     int pageSize = 400;
     int pageCount = (totalCount / pageSize).ceil();
@@ -449,4 +450,27 @@ class MigrateSearchHistoryV2Handler implements UpdateHandler {
 
     await localConfigService.write(configKey: ConfigEnum.migrateSearchHistoryV2, value: 'true');
   }
+}
+
+class MigrateStorageConfigHandler implements UpdateHandler {
+  @override
+  List<JHLifeCircleBean> get initDependencies => [localConfigService, storageService];
+
+  @override
+  Future<bool> match(int? fromVersion, int toVersion) async {
+    return fromVersion != null && fromVersion <= 11;
+  }
+
+  @override
+  Future<void> onInit() async {
+    log.info('MigrateStorageConfigHandler onInit');
+
+    List<String>? cookies = storageService.read<List?>(ConfigEnum.ehCookie.key)?.cast<String>().toList();
+    if (cookies != null) {
+      await localConfigService.write(configKey: ConfigEnum.ehCookie, value: jsonEncode(cookies));
+    }
+  }
+
+  @override
+  Future<void> onReady() async {}
 }

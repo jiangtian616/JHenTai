@@ -31,6 +31,7 @@ import 'package:http_parser/http_parser.dart' show MediaType;
 import 'package:path/path.dart';
 import 'package:webview_flutter/webview_flutter.dart' show WebViewCookieManager;
 import '../service/jh_service.dart';
+import '../service/local_config_service.dart';
 import '../setting/network_setting.dart';
 import 'eh_cache_manager.dart';
 import 'eh_cookie_manager.dart';
@@ -49,6 +50,9 @@ class EHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   static const String domainFrontingExtraKey = 'JHDF';
 
   @override
+  List<JHLifeCircleBean> get initDependencies => super.initDependencies..add(localConfigService);
+
+  @override
   Future<void> doOnInit() async {
     _dio = Dio(BaseOptions(
       connectTimeout: Duration(milliseconds: networkSetting.connectTimeout.value),
@@ -58,12 +62,12 @@ class EHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     systemProxyAddress = await getSystemProxyAddress();
     await _initProxy();
 
+    await _initCookieManager();
+    
     _initCacheManager();
-
+    
     _initDomainFronting();
     _initCertificateForAndroidWithOldVersion();
-
-    _initCookieManager();
 
     _ehIpProvider = RoundRobinIpProvider(NetworkSetting.host2IPs);
 
@@ -72,6 +76,32 @@ class EHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
 
   @override
   void doOnReady() {}
+
+  Future<void> _initProxy() async {
+    SocksProxy.initProxy(
+      onCreate: (client) => client.badCertificateCallback = (_, String host, __) {
+        return networkSetting.allIPs.contains(host);
+      },
+      findProxy: await findProxySettingFunc(() => systemProxyAddress),
+    );
+  }
+
+  Future<void> _initCookieManager() async {
+    _cookieManager = EHCookieManager(localConfigService);
+    await _cookieManager.initCookies();
+    _dio.interceptors.add(_cookieManager);
+  }
+
+  void _initCacheManager() {
+    _cacheManager = EHCacheManager(
+      options: CacheOptions(
+        policy: CachePolicy.disable,
+        expire: networkSetting.pageCacheMaxAge.value,
+        store: SqliteCacheStore(appDb: appDb),
+      ),
+    );
+    _dio.interceptors.add(_cacheManager);
+  }
 
   void _initDomainFronting() {
     /// domain fronting interceptor
@@ -113,21 +143,7 @@ class EHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
       },
     ));
   }
-
-  Future<void> _initProxy() async {
-    SocksProxy.initProxy(
-      onCreate: (client) => client.badCertificateCallback = (_, String host, __) {
-        return networkSetting.allIPs.contains(host);
-      },
-      findProxy: await findProxySettingFunc(() => systemProxyAddress),
-    );
-  }
-
-  void _initCookieManager() {
-    _cookieManager = EHCookieManager(Get.find<StorageService>());
-    _dio.interceptors.add(_cookieManager);
-  }
-
+  
   /// https://github.com/dart-lang/io/issues/83
   void _initCertificateForAndroidWithOldVersion() {
     if (GetPlatform.isAndroid) {
@@ -165,17 +181,6 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 ''';
       SecurityContext.defaultContext.setTrustedCertificatesBytes(Uint8List.fromList(isrgRootX1.codeUnits));
     }
-  }
-
-  void _initCacheManager() {
-    _cacheManager = EHCacheManager(
-      options: CacheOptions(
-        policy: CachePolicy.disable,
-        expire: networkSetting.pageCacheMaxAge.value,
-        store: SqliteCacheStore(appDb: appDb),
-      ),
-    );
-    _dio.interceptors.add(_cacheManager);
   }
 
   void _initTimeOutTranslator() {

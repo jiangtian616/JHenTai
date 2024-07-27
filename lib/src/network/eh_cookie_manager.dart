@@ -1,26 +1,42 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:jhentai/src/service/storage_service.dart';
 
 import '../enum/config_enum.dart';
+import '../service/local_config_service.dart';
 import '../setting/network_setting.dart';
 import '../utils/cookie_util.dart';
 
 class EHCookieManager extends Interceptor {
-  final StorageService storageService;
+  final LocalConfigService localConfigService;
 
-  EHCookieManager(this.storageService);
+  List<Cookie> cookies = [];
 
-  List<Cookie> get cookies {
-    return [...(storageService.read<List?>(ConfigEnum.ehCookie.key) ?? []).cast<String>().map(Cookie.fromSetCookieValue).toList(), Cookie('nw', '1')];
+  EHCookieManager(this.localConfigService);
+
+  Future<void> initCookies() async {
+    cookies = await loadCookies();
   }
 
-  set cookies(List<Cookie> cookies) {
-    List<Cookie> oldCookies = (storageService.read<List?>(ConfigEnum.ehCookie.key) ?? []).cast<String>().map(Cookie.fromSetCookieValue).toList();
-    oldCookies.removeWhere((cookie) => cookies.any((c) => c.name == cookie.name));
-    oldCookies.addAll(cookies);
-    storageService.write(ConfigEnum.ehCookie.key, oldCookies.map((cookie) => cookie.toString()).toList());
+  Future<List<Cookie>> loadCookies() async {
+    List<Cookie> cookies = [Cookie('nw', '1')];
+
+    String? string = await localConfigService.read(configKey: ConfigEnum.ehCookie);
+    if (string != null) {
+      List list = jsonDecode(string);
+      cookies.addAll(list.cast<String>().map(Cookie.fromSetCookieValue).toList());
+    }
+
+    return cookies;
+  }
+
+  Future<void> setCookies(List<Cookie> cookies) async {
+    cookies.removeWhere((cookie) => cookies.any((c) => c.name == cookie.name));
+    cookies.addAll(cookies);
+
+    List<Cookie> storeCookies = List.from(cookies)..remove(Cookie('nw', '1'));
+    await localConfigService.write(configKey: ConfigEnum.ehCookie, value: jsonEncode(storeCookies.map((cookie) => cookie.toString()).toList()));
   }
 
   @override
@@ -47,22 +63,22 @@ class EHCookieManager extends Interceptor {
     }
   }
 
-  void storeEHCookiesString(String cookiesString) {
-    storeEHCookies(CookieUtil.parse2Cookies(cookiesString));
+  Future<void> storeEHCookiesString(String cookiesString) {
+    return storeEHCookies(CookieUtil.parse2Cookies(cookiesString));
   }
 
-  void storeEHCookies(List<Cookie> cookies) {
+  Future<void> storeEHCookies(List<Cookie> cookies) async {
     /// https://github.com/Ehviewer-Overhauled/Ehviewer/issues/873
     cookies.removeWhere((cookie) => cookie.name == '__utmp');
     cookies.removeWhere((cookie) => cookie.name == 'igneous' && cookie.value == 'mystery');
-    this.cookies = cookies;
+    await setCookies(cookies);
   }
 
-  void removeAllCookies() {
-    storageService.write(ConfigEnum.ehCookie.key, []);
+  Future<void> removeAllCookies() {
+    return localConfigService.delete(configKey: ConfigEnum.ehCookie);
   }
 
-  void _saveEHCookies(Response response) {
+  Future<void> _saveEHCookies(Response response) async {
     List<String>? cookieStrs = response.headers[HttpHeaders.setCookieHeader];
     if (cookieStrs == null) {
       return;
@@ -70,7 +86,7 @@ class EHCookieManager extends Interceptor {
 
     if (networkSetting.allHostAndIPs.contains(response.requestOptions.uri.host)) {
       List<Cookie> cookies = cookieStrs.map(Cookie.fromSetCookieValue).map((cookie) => Cookie(cookie.name, cookie.value)).toList();
-      storeEHCookies(cookies);
+      await storeEHCookies(cookies);
     }
   }
 }
