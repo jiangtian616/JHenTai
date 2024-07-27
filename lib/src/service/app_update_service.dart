@@ -507,6 +507,11 @@ class MigrateStorageConfigHandler implements UpdateHandler {
     if (galleryDisplayGroups != null) {
       await localConfigService.write(configKey: ConfigEnum.displayGalleryGroups, value: jsonEncode(galleryDisplayGroups));
     }
+
+    bool? enableSearchHistoryTranslation = storageService.read(ConfigEnum.enableSearchHistoryTranslation.key);
+    if (enableSearchHistoryTranslation != null) {
+      await localConfigService.write(configKey: ConfigEnum.enableSearchHistoryTranslation, value: enableSearchHistoryTranslation.toString());
+    }
   }
 
   @override

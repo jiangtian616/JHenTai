@@ -25,8 +25,8 @@ import '../../../model/eh_raw_tag.dart';
 import '../../../model/gallery.dart';
 import '../../../model/gallery_page.dart';
 import '../../../network/eh_request.dart';
+import '../../../service/local_config_service.dart';
 import '../../../service/quick_search_service.dart';
-import '../../../service/storage_service.dart';
 import '../../../utils/eh_spider_parser.dart';
 import '../../../service/log.dart';
 import '../../../utils/snack_util.dart';
@@ -60,7 +60,12 @@ mixin SearchPageLogicMixin on BasePageLogic {
   @override
   Future<void> onInit() async {
     await super.onInit();
-    state.enableSearchHistoryTranslation = storageService.read(ConfigEnum.enableSearchHistoryTranslation.key) ?? state.enableSearchHistoryTranslation;
+
+    String? configString = await localConfigService.read(configKey: ConfigEnum.enableSearchHistoryTranslation);
+    if (configString != null) {
+      state.enableSearchHistoryTranslation = configString == 'true';
+    }
+    state.enableSearchHistoryTranslationCompleter.complete();
   }
 
   @override
@@ -330,9 +335,11 @@ mixin SearchPageLogicMixin on BasePageLogic {
     update([suggestionBodyId]);
   }
 
-  void toggleEnableSearchHistoryTranslation() {
+  Future<void> toggleEnableSearchHistoryTranslation() async {
+    await state.enableSearchHistoryTranslationCompleter.future;
+    
     state.enableSearchHistoryTranslation = !state.enableSearchHistoryTranslation;
-    storageService.write(ConfigEnum.enableSearchHistoryTranslation.key, state.enableSearchHistoryTranslation);
+    await localConfigService.write(configKey: ConfigEnum.enableSearchHistoryTranslation, value: state.enableSearchHistoryTranslation.toString());
     update([suggestionBodyId]);
   }
 }

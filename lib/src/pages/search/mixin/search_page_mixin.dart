@@ -176,12 +176,17 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Wrap(
-            spacing: 8,
-            runSpacing: 7,
-            children: logic.searchHistoryService.histories.map(buildHistoryChip).toList(),
-          ),
+        FutureBuilder(
+          future: state.searchConfigInitCompleter.future,
+          builder: (_, __) => !state.searchConfigInitCompleter.isCompleted
+              ? const SizedBox()
+              : Expanded(
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 7,
+                    children: logic.searchHistoryService.histories.map(buildHistoryChip).toList(),
+                  ),
+                ),
         ),
       ],
     );
