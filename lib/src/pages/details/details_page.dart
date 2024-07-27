@@ -871,27 +871,31 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
           id: DetailsPageLogic.readButtonId,
           global: false,
           init: logic,
-          builder: (_) {
-            int readIndexRecord = logic.getReadIndexRecord();
-            String text = (readIndexRecord == 0 ? 'read'.tr : 'P${readIndexRecord + 1}');
+          builder: (_) => FutureBuilder(
+            future: logic.getReadIndexRecord(),
+            initialData: 0,
+            builder: (_, AsyncSnapshot<int> snapshot) {
+              int readIndexRecord = snapshot.data ?? 0;
+              String text = (readIndexRecord == 0 ? 'read'.tr : 'P${readIndexRecord + 1}');
 
-            return IconTextButton(
-              width: UIConfig.detailsPageActionExtent,
-              icon: Icon(
-                Icons.visibility,
-                color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context),
-              ),
-              text: Text(
-                text,
-                style: TextStyle(
-                  fontSize: UIConfig.detailsPageActionTextSize,
-                  color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
-                  height: 1,
+              return IconTextButton(
+                width: UIConfig.detailsPageActionExtent,
+                icon: Icon(
+                  Icons.visibility,
+                  color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context),
                 ),
-              ),
-              onPressed: disabled ? null : logic.goToReadPage,
-            );
-          },
+                text: Text(
+                  text,
+                  style: TextStyle(
+                    fontSize: UIConfig.detailsPageActionTextSize,
+                    color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionTextColor(context),
+                    height: 1,
+                  ),
+                ),
+                onPressed: disabled ? null : logic.goToReadPage,
+              );
+            },
+          ),
         );
       },
     );

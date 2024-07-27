@@ -11,6 +11,7 @@ import '../../../../enum/config_enum.dart';
 import '../../../../model/read_page_info.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/gallery_download_service.dart';
+import '../../../../service/local_config_service.dart';
 import '../../../../service/storage_service.dart';
 import '../../../../setting/read_setting.dart';
 import '../../../../utils/process_util.dart';
@@ -134,13 +135,12 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
     downloadService.reDownloadGallery(gallery);
   }
 
-  void goToReadPage(GalleryDownloadedData gallery) {
+  Future<void> goToReadPage(GalleryDownloadedData gallery) async {
     if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
       openThirdPartyViewer(downloadService.computeGalleryDownloadAbsolutePath(gallery.title, gallery.gid));
     } else {
-      SuperResolutionService superResolutionService = Get.find<SuperResolutionService>();
-      String storageKey = '${ConfigEnum.readIndexRecord.key}::${gallery.gid}';
-      int readIndexRecord = storageService.read(storageKey) ?? 0;
+      String? string = await localConfigService.read(configKey: ConfigEnum.readIndexRecord, subConfigKey: gallery.gid.toString());
+      int readIndexRecord = (string == null ? 0 : (int.tryParse(string) ?? 0));
 
       toRoute(
         Routes.read,
@@ -151,7 +151,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
           galleryTitle: gallery.title,
           galleryUrl: gallery.galleryUrl,
           initialIndex: readIndexRecord,
-          readProgressRecordStorageKey: storageKey,
+          readProgressRecordStorageKey: gallery.gid.toString(),
           pageCount: gallery.pageCount,
           useSuperResolution: superResolutionService.get(gallery.gid, SuperResolutionType.gallery) != null,
         ),

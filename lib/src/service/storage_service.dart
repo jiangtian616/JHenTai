@@ -32,6 +32,10 @@ class StorageService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean
     return _storage.read(key);
   }
 
+  T getKeys<T>() {
+    return _storage.getKeys();
+  }
+  
   Future<void> remove(String key) async {
     _storage.remove(key);
   }

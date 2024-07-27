@@ -153,7 +153,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
         tagRefreshTime: a.tagRefreshTime,
       );
     }).toList();
-    
+
     await state.searchTypeCompleter.future;
     if (state.searchType == DownloadSearchConfigTypeEnum.regex) {
       RegExp? regExp;
@@ -242,14 +242,14 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
 
   Future<void> toggleSearchType() async {
     await state.searchTypeCompleter.future;
-    
+
     state.searchType = state.searchType == DownloadSearchConfigTypeEnum.simple ? DownloadSearchConfigTypeEnum.regex : DownloadSearchConfigTypeEnum.simple;
     updateSafely([searchFieldId]);
     handleSearchFieldChanged(textEditingController.text);
     await localConfigService.write(configKey: ConfigEnum.downloadSearchPageType, value: state.searchType.code.toString());
   }
 
-  void goToGalleryReadPage(GallerySearchVO gallery) {
+  Future<void> goToGalleryReadPage(GallerySearchVO gallery) async {
     if (!galleryDownloadService.containGallery(gallery.gid)) {
       return;
     }
@@ -257,9 +257,8 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
     if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
       openThirdPartyViewer(galleryDownloadService.computeGalleryDownloadAbsolutePath(gallery.title, gallery.gid));
     } else {
-      SuperResolutionService superResolutionService = Get.find<SuperResolutionService>();
-      String storageKey = '${ConfigEnum.readIndexRecord.key}::${gallery.gid}';
-      int readIndexRecord = storageService.read(storageKey) ?? 0;
+      String? string = await localConfigService.read(configKey: ConfigEnum.readIndexRecord, subConfigKey: gallery.gid.toString());
+      int readIndexRecord = (string == null ? 0 : (int.tryParse(string) ?? 0));
 
       toRoute(
         Routes.read,
@@ -270,7 +269,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
           galleryTitle: gallery.title,
           galleryUrl: gallery.galleryUrl,
           initialIndex: readIndexRecord,
-          readProgressRecordStorageKey: storageKey,
+          readProgressRecordStorageKey: gallery.gid.toString(),
           pageCount: gallery.pageCount,
           useSuperResolution: superResolutionService.get(gallery.gid, SuperResolutionType.gallery) != null,
         ),
@@ -286,8 +285,9 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
     if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
       openThirdPartyViewer(archiveDownloadService.computeArchiveUnpackingPath(archive.title, archive.gid));
     } else {
-      String storageKey = '${ConfigEnum.readIndexRecord.key}::${archive.gid}';
-      int readIndexRecord = storageService.read(storageKey) ?? 0;
+      String? string = await localConfigService.read(configKey: ConfigEnum.readIndexRecord, subConfigKey: archive.gid.toString());
+      int readIndexRecord = (string == null ? 0 : (int.tryParse(string) ?? 0));
+
       List<GalleryImage> images = await archiveDownloadService.getUnpackedImages(archive.gid);
 
       toRoute(
@@ -300,7 +300,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
           initialIndex: readIndexRecord,
           pageCount: images.length,
           isOriginal: archive.isOriginal,
-          readProgressRecordStorageKey: storageKey,
+          readProgressRecordStorageKey: archive.gid.toString(),
           images: images,
           useSuperResolution: superResolutionService.get(archive.gid, SuperResolutionType.archive) != null,
         ),

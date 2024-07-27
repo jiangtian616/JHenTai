@@ -23,6 +23,7 @@ import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
+import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
@@ -62,7 +63,6 @@ import '../../service/gallery_download_service.dart';
 import '../../service/local_block_rule_service.dart';
 import '../../service/storage_service.dart';
 import '../../setting/eh_setting.dart';
-import '../../setting/preference_setting.dart';
 import '../../setting/read_setting.dart';
 import '../../setting/site_setting.dart';
 import '../../utils/process_util.dart';
@@ -122,7 +122,6 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   final GalleryDownloadService galleryDownloadService = Get.find();
   final ArchiveDownloadService archiveDownloadService = Get.find();
   final SuperResolutionService superResolutionService = Get.find();
-  final StorageService storageService = Get.find();
   final HistoryService historyService = Get.find();
   final TagTranslationService tagTranslationService = Get.find();
   final LocalBlockRuleService localBlockRuleService = Get.find();
@@ -710,8 +709,6 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
 
     if (archiveStatus == ArchiveStatus.completed) {
-      String storageKey = '${ConfigEnum.readIndexRecord.key}::${archive.gid}';
-      int readIndexRecord = storageService.read(storageKey) ?? 0;
       List<GalleryImage> images = await archiveDownloadService.getUnpackedImages(archive.gid);
 
       toRoute(
@@ -722,10 +719,10 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           token: archive.token,
           galleryTitle: archive.title,
           galleryUrl: archive.galleryUrl,
-          initialIndex: readIndexRecord,
+          initialIndex: await getReadIndexRecord(),
           pageCount: images.length,
           isOriginal: archive.isOriginal,
-          readProgressRecordStorageKey: storageKey,
+          readProgressRecordStorageKey: archive.gid.toString(),
           images: images,
           useSuperResolution: superResolutionService.get(archive.gid, SuperResolutionType.archive) != null,
         ),
@@ -993,10 +990,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     toast('success'.tr);
   }
 
-  void goToReadPage([int? forceIndex]) {
-    String storageKey = '${ConfigEnum.readIndexRecord.key}::${state.galleryUrl.gid}';
-    int readIndexRecord = storageService.read(storageKey) ?? 0;
-
+  Future<void> goToReadPage([int? forceIndex]) async {
     /// online
     if (galleryDownloadService.galleryDownloadInfos[state.galleryUrl.gid]?.downloadProgress == null) {
       toRoute(
@@ -1007,8 +1001,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           token: state.galleryUrl.token,
           galleryTitle: mainTitleText,
           galleryUrl: state.galleryUrl.url,
-          initialIndex: forceIndex ?? readIndexRecord,
-          readProgressRecordStorageKey: storageKey,
+          initialIndex: forceIndex ?? await getReadIndexRecord(),
+          readProgressRecordStorageKey: state.galleryUrl.gid.toString(),
           pageCount: state.galleryDetails?.pageCount ?? state.gallery?.pageCount ?? state.galleryMetadata!.pageCount,
           useSuperResolution: false,
         ),
@@ -1032,16 +1026,21 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         token: gallery.token,
         galleryTitle: gallery.title,
         galleryUrl: gallery.galleryUrl,
-        initialIndex: forceIndex ?? readIndexRecord,
-        readProgressRecordStorageKey: storageKey,
+        initialIndex: forceIndex ?? await getReadIndexRecord(),
+        readProgressRecordStorageKey: state.galleryUrl.gid.toString(),
         pageCount: gallery.pageCount,
         useSuperResolution: superResolutionService.get(state.galleryUrl.gid, SuperResolutionType.gallery) != null,
       ),
     )?.then((_) => updateSafely([readButtonId]));
   }
 
-  int getReadIndexRecord() {
-    return storageService.read('${ConfigEnum.readIndexRecord.key}::${state.galleryUrl.gid}') ?? 0;
+  Future<int> getReadIndexRecord() async {
+    String? string = await localConfigService.read(configKey: ConfigEnum.readIndexRecord, subConfigKey: state.galleryUrl.gid.toString());
+    if (string == null) {
+      return 0;
+    } else {
+      return int.tryParse(string) ?? 0;
+    }
   }
 
   Future<({GalleryDetail galleryDetails, String apikey})> _getDetailsWithRedirectAndFallback({bool useCache = true}) async {

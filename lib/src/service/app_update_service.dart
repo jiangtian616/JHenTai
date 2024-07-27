@@ -630,5 +630,22 @@ class MigrateStorageConfigHandler implements UpdateHandler {
   }
 
   @override
-  Future<void> onReady() async {}
+  Future<void> onReady() async {
+    log.info('MigrateStorageConfigHandler onReady');
+
+    List<String>? keys = storageService.getKeys();
+    if (keys != null) {
+      for (String key in keys) {
+        if (key.startsWith(ConfigEnum.readIndexRecord.key)) {
+          List<String> parts = key.split('::');
+          if (parts.length == 2) {
+            int? readIndexRecord = storageService.read(key);
+            if (readIndexRecord != null) {
+              await localConfigService.write(configKey: ConfigEnum.readIndexRecord, subConfigKey: parts[1], value: readIndexRecord.toString());
+            }
+          }
+        }
+      }
+    }
+  }
 }

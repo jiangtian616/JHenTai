@@ -10,6 +10,7 @@ import '../../../../enum/config_enum.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../model/read_page_info.dart';
 import '../../../../routes/routes.dart';
+import '../../../../service/local_config_service.dart';
 import '../../../../service/local_gallery_service.dart';
 import '../../../../service/storage_service.dart';
 import '../../../../setting/read_setting.dart';
@@ -83,12 +84,12 @@ mixin LocalGalleryDownloadPageLogicMixin on GetxController {
     update([bodyId]);
   }
 
-  void goToReadPage(LocalGallery gallery) {
+  Future<void> goToReadPage(LocalGallery gallery) async {
     if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
       openThirdPartyViewer(gallery.path);
     } else {
-      String storageKey = '${ConfigEnum.readIndexRecord.key}::${gallery.title}';
-      int readIndexRecord = storageService.read(storageKey) ?? 0;
+      String? string = await localConfigService.read(configKey: ConfigEnum.readIndexRecord, subConfigKey: gallery.title);
+      int readIndexRecord = (string == null ? 0 : (int.tryParse(string) ?? 0));
 
       List<GalleryImage> images = localGalleryService.getGalleryImages(gallery);
 
@@ -99,7 +100,7 @@ mixin LocalGalleryDownloadPageLogicMixin on GetxController {
           galleryTitle: gallery.title,
           initialIndex: readIndexRecord,
           pageCount: images.length,
-          readProgressRecordStorageKey: storageKey,
+          readProgressRecordStorageKey: gallery.title,
           images: localGalleryService.getGalleryImages(gallery),
           useSuperResolution: false,
         ),

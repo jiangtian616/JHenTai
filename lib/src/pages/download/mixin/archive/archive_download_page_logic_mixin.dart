@@ -10,6 +10,7 @@ import '../../../../model/gallery_image.dart';
 import '../../../../model/read_page_info.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/archive_download_service.dart';
+import '../../../../service/local_config_service.dart';
 import '../../../../service/storage_service.dart';
 import '../../../../service/super_resolution_service.dart';
 import '../../../../setting/read_setting.dart';
@@ -141,8 +142,9 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
     if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
       openThirdPartyViewer(archiveDownloadService.computeArchiveUnpackingPath(archive.title, archive.gid));
     } else {
-      String storageKey = '${ConfigEnum.readIndexRecord.key}::${archive.gid}';
-      int readIndexRecord = storageService.read(storageKey) ?? 0;
+      String? string = await localConfigService.read(configKey: ConfigEnum.readIndexRecord, subConfigKey: archive.gid.toString());
+      int readIndexRecord = (string == null ? 0 : (int.tryParse(string) ?? 0));
+
       List<GalleryImage> images = await archiveDownloadService.getUnpackedImages(archive.gid);
 
       toRoute(
@@ -155,7 +157,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
           initialIndex: readIndexRecord,
           pageCount: images.length,
           isOriginal: archive.isOriginal,
-          readProgressRecordStorageKey: storageKey,
+          readProgressRecordStorageKey: archive.gid.toString(),
           images: images,
           useSuperResolution: Get.find<SuperResolutionService>().get(archive.gid, SuperResolutionType.archive) != null,
         ),

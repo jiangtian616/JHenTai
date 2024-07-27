@@ -7,6 +7,7 @@ import 'package:executor/executor.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/exception/eh_parse_exception.dart';
 import 'package:jhentai/src/exception/eh_site_exception.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
@@ -17,6 +18,7 @@ import 'package:jhentai/src/pages/read/layout/horizontal_list/horizontal_list_la
 import 'package:jhentai/src/pages/read/layout/horizontal_page/horizontal_page_layout_logic.dart';
 import 'package:jhentai/src/pages/read/layout/vertical_list/vertical_list_layout_logic.dart';
 import 'package:jhentai/src/pages/read/read_page_state.dart';
+import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/service/volume_service.dart';
 import 'package:jhentai/src/utils/eh_executor.dart';
@@ -610,8 +612,12 @@ class ReadPageLogic extends GetxController {
     update([sliderId, pageNoId, thumbnailNoId]);
   }
 
-  void _flushReadProgress() {
-    storageService.write(state.readPageInfo.readProgressRecordStorageKey, state.readPageInfo.currentImageIndex);
+  Future<void> _flushReadProgress() async {
+    await localConfigService.write(
+      configKey: ConfigEnum.readIndexRecord,
+      subConfigKey: state.readPageInfo.readProgressRecordStorageKey,
+      value: state.readPageInfo.currentImageIndex.toString(),
+    );
   }
 
   void clearImageContainerSized() {
