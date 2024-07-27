@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/pages/download/grid/local/local_gallery_grid_page.dart';
+import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:simple_animations/animation_controller_extension/animation_controller_extension.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
@@ -26,36 +29,47 @@ class _DownloadPageState extends State<DownloadPage> {
 
   DownloadPageGalleryType galleryType = DownloadPageGalleryType.download;
   DownloadPageBodyType bodyType = GetPlatform.isMobile ? DownloadPageBodyType.list : DownloadPageBodyType.grid;
+  Completer<void> bodyTypeCompleter = Completer<void>();
 
   @override
-  void initState() {
+  Future<void> initState() async {
     super.initState();
-    bodyType = DownloadPageBodyType.values[storageService.read(ConfigEnum.downloadPageGalleryType.key) ?? 0];
+
+    String? bodyTypeString = await localConfigService.read(configKey: ConfigEnum.downloadPageGalleryType);
+    if (bodyTypeString != null) {
+      bodyType = DownloadPageBodyType.values[int.tryParse(bodyTypeString) ?? 0];
+    }
+    bodyTypeCompleter.complete();
   }
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      child: NotificationListener<DownloadPageBodyTypeChangeNotification>(
-        onNotification: (DownloadPageBodyTypeChangeNotification notification) {
-          setState(() {
-            galleryType = notification.galleryType ?? galleryType;
-            bodyType = notification.bodyType ?? bodyType;
-          });
-          storageService.write(ConfigEnum.downloadPageGalleryType.key, (notification.bodyType ?? bodyType).index);
-          return true;
-        },
-        child: galleryType == DownloadPageGalleryType.download
-            ? bodyType == DownloadPageBodyType.list
-                ? GalleryListDownloadPage(key: const PageStorageKey('GalleryListDownloadBody'))
-                : GalleryGridDownloadPage(key: const PageStorageKey('GalleryGridDownloadBody'))
-            : galleryType == DownloadPageGalleryType.archive
-                ? bodyType == DownloadPageBodyType.list
-                    ? ArchiveListDownloadPage(key: const PageStorageKey('ArchiveListDownloadBody'))
-                    : ArchiveGridDownloadPage(key: const PageStorageKey('ArchiveGridDownloadBody'))
-                : bodyType == DownloadPageBodyType.list
-                    ? LocalGalleryListPage(key: const PageStorageKey('LocalGalleryListBody'))
-                    : LocalGalleryGridPage(key: const PageStorageKey('LocalGalleryGridBody')),
+      child: FutureBuilder(
+        future: bodyTypeCompleter.future,
+        builder: (_, __) => NotificationListener<DownloadPageBodyTypeChangeNotification>(
+          onNotification: (DownloadPageBodyTypeChangeNotification notification) {
+            setState(() {
+              galleryType = notification.galleryType ?? galleryType;
+              bodyType = notification.bodyType ?? bodyType;
+            });
+            localConfigService.write(configKey: ConfigEnum.downloadPageGalleryType, value: (notification.bodyType ?? bodyType).index.toString());
+            return true;
+          },
+          child: !bodyTypeCompleter.isCompleted
+              ? UIConfig.loadingAnimation(context)
+              : galleryType == DownloadPageGalleryType.download
+                  ? bodyType == DownloadPageBodyType.list
+                      ? GalleryListDownloadPage(key: const PageStorageKey('GalleryListDownloadBody'))
+                      : GalleryGridDownloadPage(key: const PageStorageKey('GalleryGridDownloadBody'))
+                  : galleryType == DownloadPageGalleryType.archive
+                      ? bodyType == DownloadPageBodyType.list
+                          ? ArchiveListDownloadPage(key: const PageStorageKey('ArchiveListDownloadBody'))
+                          : ArchiveGridDownloadPage(key: const PageStorageKey('ArchiveGridDownloadBody'))
+                      : bodyType == DownloadPageBodyType.list
+                          ? LocalGalleryListPage(key: const PageStorageKey('LocalGalleryListBody'))
+                          : LocalGalleryGridPage(key: const PageStorageKey('LocalGalleryGridBody')),
+        ),
       ),
     ).enableMouseDrag();
   }

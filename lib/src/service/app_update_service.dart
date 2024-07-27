@@ -479,7 +479,8 @@ class MigrateStorageConfigHandler implements UpdateHandler {
     Map<String, dynamic>? searchPageSearchConfigMap = storageService.read('${ConfigEnum.searchConfig.key}: ${SearchPageLogicMixin.searchPageConfigKey}');
     if (searchPageSearchConfigMap != null) {
       SearchConfig searchConfig = SearchConfig.fromJson(searchPageSearchConfigMap);
-      await localConfigService.write(configKey: ConfigEnum.searchConfig, subConfigKey: SearchPageLogicMixin.searchPageConfigKey, value: jsonEncode(searchConfig));
+      await localConfigService.write(
+          configKey: ConfigEnum.searchConfig, subConfigKey: SearchPageLogicMixin.searchPageConfigKey, value: jsonEncode(searchConfig));
     }
     Map<String, dynamic>? gallerysPageSearchConfigMap = storageService.read('${ConfigEnum.searchConfig.key}: GallerysPageLogic');
     if (gallerysPageSearchConfigMap != null) {
@@ -490,6 +491,11 @@ class MigrateStorageConfigHandler implements UpdateHandler {
     if (favoritePageSearchConfigMap != null) {
       SearchConfig searchConfig = SearchConfig.fromJson(favoritePageSearchConfigMap);
       await localConfigService.write(configKey: ConfigEnum.searchConfig, subConfigKey: 'FavoritePageLogic', value: jsonEncode(searchConfig));
+    }
+
+    int? downloadPageBodyType = storageService.read(ConfigEnum.downloadPageGalleryType.key);
+    if (downloadPageBodyType != null) {
+      await localConfigService.write(configKey: ConfigEnum.downloadPageGalleryType, value: downloadPageBodyType.toString());
     }
   }
 
