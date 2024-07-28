@@ -24,7 +24,7 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
     if (cacheString == null) {
       state.isSpreadPage = List.generate(readPageState.readPageInfo.pageCount, (_) => false);
     } else {
-      List<int> list = jsonDecode(cacheString);
+      List list = jsonDecode(cacheString);
       state.isSpreadPage = list.map((e) => e == 1).toList();
     }
     state.isSpreadPageCompleter.complete();
