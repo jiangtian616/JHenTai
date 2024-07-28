@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io' as io;
+import 'dart:io';
 
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:extended_image/extended_image.dart';
@@ -22,6 +22,7 @@ import 'package:path/path.dart';
 import '../../../config/ui_config.dart';
 import '../../../enum/config_type_enum.dart';
 import '../../../routes/routes.dart';
+import '../../../service/isolate_service.dart';
 import '../../../utils/byte_util.dart';
 import '../../../utils/permission_util.dart';
 import '../../../utils/route_util.dart';
@@ -289,13 +290,13 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     try {
       _imageCacheSize = await compute(
         (dirPath) {
-          io.Directory cacheImagesDirectory = io.Directory(dirPath);
+          Directory cacheImagesDirectory = Directory(dirPath);
 
           int totalBytes;
           if (!cacheImagesDirectory.existsSync()) {
             totalBytes = 0;
           } else {
-            totalBytes = cacheImagesDirectory.listSync().fold<int>(0, (previousValue, element) => previousValue += (element as io.File).lengthSync());
+            totalBytes = cacheImagesDirectory.listSync().fold<int>(0, (previousValue, element) => previousValue += (element as File).lengthSync());
           }
 
           return byte2String(totalBytes.toDouble());
@@ -326,7 +327,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   Future<void> _exportData(BuildContext context) async {
     List<CloudConfigTypeEnum>? result = await showDialog(
       context: context,
-      builder: (_) => EHConfigTypeSelectDialog(title: 'SelectExportItems'.tr),
+      builder: (_) => EHConfigTypeSelectDialog(title: 'selectExportItems'.tr),
     );
 
     if (result?.isEmpty ?? true) {
@@ -352,28 +353,25 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     if (_exportDataLoadingState == LoadingState.loading) {
       return;
     }
+
+    log.info('Export data to $path');
     setStateSafely(() => _exportDataLoadingState = LoadingState.loading);
 
-    Map<CloudConfigTypeEnum, String> currentConfigMap = await cloudConfigService.getCurrentConfigMap();
-    List<CloudConfig> uploadConfigs = currentConfigMap.entries.where((entry) => result!.contains(entry.key)).map((entry) {
-      return CloudConfig(
-        id: -1,
-        shareCode: CloudConfigService.localConfigCode,
-        identificationCode: CloudConfigService.localConfigCode,
-        type: entry.key,
-        version: CloudConfigService.configTypeVersionMap[entry.key] ?? '1.0.0',
-        config: entry.value,
-        ctime: DateTime.now(),
-      );
-    }).toList();
+    List<CloudConfig> uploadConfigs = [];
+    for (CloudConfigTypeEnum type in result!) {
+      CloudConfig? config = await cloudConfigService.getLocalConfig(type);
+      if (config != null) {
+        uploadConfigs.add(config);
+      }
+    }
 
-    io.File file = io.File(join(path, '${CloudConfigService.configFileName}-${DateFormat('yyyyMMddHHmmss').format(DateTime.now())}.json'));
+    File file = File(join(path, '${CloudConfigService.configFileName}-${DateFormat('yyyyMMddHHmmss').format(DateTime.now())}.json'));
     if (await file.exists()) {
       await file.create(recursive: true);
     }
 
     try {
-      await file.writeAsString(jsonEncode(uploadConfigs));
+      await file.writeAsString(await isolateService.jsonEncodeAsync(uploadConfigs));
     } on Exception catch (e) {
       log.error('Export data failed', e);
       toast('internalError'.tr);
@@ -403,20 +401,19 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     if (result == null) {
       return;
     }
-
+    
     if (_importDataLoadingState == LoadingState.loading) {
       return;
     }
+    
+    log.info('Import data from ${result.files.first.path}');
     setStateSafely(() => _importDataLoadingState = LoadingState.loading);
 
-    io.File file = io.File(result.files.first.path!);
+    File file = File(result.files.first.path!);
     String string = await file.readAsString();
 
     try {
-      List<CloudConfig> configs = await compute<String, List<CloudConfig>>(
-        (string) => (json.decode(string) as List).map((m) => CloudConfig.fromJson(m)).toList(),
-        string,
-      );
+      List<CloudConfig> configs = await isolateService.jsonDecodeAsync(string);
 
       for (CloudConfig config in configs) {
         await cloudConfigService.importConfig(config);
@@ -424,7 +421,6 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
 
       toast('success'.tr);
       setStateSafely(() => _importDataLoadingState = LoadingState.success);
-      io.exit(0);
     } on Exception catch (e) {
       log.error('Import data failed', e);
       toast('internalError'.tr);

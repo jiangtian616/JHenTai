@@ -17,6 +17,7 @@ void snack(
   ScaffoldMessenger.of(Get.context!).showSnackBar(
     SnackBar(
       content: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () {
           if (onPressed != null) {
             onPressed();

@@ -4,6 +4,38 @@ import 'package:jhentai/src/service/jh_service.dart';
 
 import '../database/database.dart';
 
+class LocalConfig {
+  ConfigEnum configKey;
+  String subConfigKey;
+  String value;
+  String utime;
+
+  LocalConfig({
+    required this.configKey,
+    required this.subConfigKey,
+    required this.value,
+    required this.utime,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      "configKey": this.configKey.key,
+      "subConfigKey": this.subConfigKey,
+      "value": this.value,
+      "utime": this.utime,
+    };
+  }
+
+  factory LocalConfig.fromJson(Map<String, dynamic> json) {
+    return LocalConfig(
+      configKey: ConfigEnum.from(json["configKey"]),
+      subConfigKey: json["subConfigKey"],
+      value: json["value"],
+      utime: json["utime"],
+    );
+  }
+}
+
 LocalConfigService localConfigService = LocalConfigService();
 
 class LocalConfigService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
@@ -41,6 +73,19 @@ class LocalConfigService with JHLifeCircleBeanErrorCatch implements JHLifeCircle
         .filter((config) => config.configKey.equals(configKey.key) & config.subConfigKey.equals(subConfigKey))
         .getSingleOrNull()
         .then((value) => value?.value);
+  }
+
+  Future<List<LocalConfig>> readWithAllSubKeys({required ConfigEnum configKey}) {
+    return appDb.managers.localConfig.filter((config) => config.configKey.equals(configKey.key)).get().then((value) {
+      return value
+          .map((e) => LocalConfig(
+                configKey: ConfigEnum.from(e.configKey),
+                subConfigKey: e.subConfigKey,
+                value: e.value,
+                utime: e.utime,
+              ))
+          .toList();
+    });
   }
 
   Future<bool> delete({required ConfigEnum configKey, String subConfigKey = defaultSubConfigKey}) {

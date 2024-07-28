@@ -421,6 +421,7 @@ class zh_CN {
       'noImageMode': '无图模式',
       'exportData': '导出数据',
       'exportDataHint': '导出配置、屏蔽规则与历史记录',
+      'selectExportItems': '选择导出项',
       'importData': '导入数据',
       'importDataHint': '在导入成功后应用会自动关闭以应用最新配置',
 
@@ -730,10 +731,11 @@ favnote：匹配收藏备注
       'copyShareCode': '复制分享码',
       'import': '导入',
       'save2Local': '保存至本地',
-      'settings': '设置信息(部分)',
-      'blockRules': '屏蔽规则',
-      'histories': '画廊历史',
-      'needRestartApp': '需要重启应用',
+      'readIndexRecord': '阅读进度',
+      'quickSearch': '快速搜索配置',
+      'blockRules': '本地屏蔽规则',
+      'searchHistory': '搜索历史',
+      'galleryHistory': '画廊浏览历史',
 
       /// block rule page
       'configureBlockRuleFailed': '设置屏蔽规则失败',

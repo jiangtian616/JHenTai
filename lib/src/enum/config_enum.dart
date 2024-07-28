@@ -55,4 +55,8 @@ enum ConfigEnum {
   final String key;
 
   const ConfigEnum(this.key);
+  
+  static ConfigEnum from(String key) {
+    return ConfigEnum.values.firstWhere((element) => element.key == key);
+  }
 }

@@ -4,7 +4,6 @@ import 'package:jhentai/src/database/dao/gallery_history_dao.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/model/gallery_history_model.dart';
-import 'package:jhentai/src/service/isolate_service.dart';
 import 'jh_service.dart';
 import 'log.dart';
 
@@ -31,12 +30,8 @@ class HistoryService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean
     return historys.map<GalleryHistoryModel>((h) => GalleryHistoryModel.fromJson(jsonDecode(h.jsonBody))).toList();
   }
 
-  Future<List<GalleryHistoryModel>> getAllHistory() async {
-    List<GalleryHistoryV2Data> historys = await GalleryHistoryDao.selectAll();
-    return isolateService.run<List<GalleryHistoryV2Data>, List<GalleryHistoryModel>>(
-      (historys) => historys.map<GalleryHistoryModel>((h) => GalleryHistoryModel.fromJson(jsonDecode(h.jsonBody))).toList(),
-      historys,
-    );
+  Future<List<GalleryHistoryV2Data>> getLatest10000RawHistory() async {
+    return appDb.managers.galleryHistoryV2.orderBy((o) => o.lastReadTime.desc() & o.gid.desc()).limit(10000).get();
   }
 
   Future<void> record(GalleryHistoryModel gallery) async {
@@ -55,22 +50,12 @@ class HistoryService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean
     }
   }
 
-  Future<void> batchRecord(List<GalleryHistoryModel> gallerys) async {
-    log.trace('Batch record history: $gallerys');
+  Future<void> batchRecord(List<GalleryHistoryV2Data> gallerys) async {
+    log.trace('Batch record history, size: ${gallerys.length}');
 
     try {
-      for (List<GalleryHistoryModel> partition in gallerys.partition(500)) {
-        await GalleryHistoryDao.batchReplaceHistory(
-          partition
-              .map(
-                (gallery) => GalleryHistoryV2Data(
-                  gid: gallery.galleryUrl.gid,
-                  jsonBody: jsonEncode(gallery),
-                  lastReadTime: DateTime.now().toString(),
-                ),
-              )
-              .toList(),
-        );
+      for (List<GalleryHistoryV2Data> partition in gallerys.partition(2000)) {
+        await GalleryHistoryDao.batchReplaceHistory(partition);
         await Future.delayed(const Duration(milliseconds: 200));
       }
     } on Exception catch (e) {

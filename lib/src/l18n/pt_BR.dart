@@ -422,6 +422,7 @@ class pt_BR {
       'noImageMode': 'No Image Mode',
       'exportData': 'Export Data',
       'exportDataHint': 'Export configs, block rules and history',
+      'selectExportItems': 'Select Export Items',
       'importData': 'Import Data',
       'importDataHint': 'App will shutdown automatically after importing to apply the latest configuration',
 
@@ -727,10 +728,11 @@ class pt_BR {
       'copyShareCode': 'Copy Share Code',
       'import': 'Import',
       'save2Local': 'Save to Local',
-      'settings': 'Settings (Partial)',
+      'readIndexRecord': 'Read Progress',
+      'quickSearch': 'Quick Search Config',
       'blockRules': 'Block Rules',
-      'histories': 'Gallery Histories',
-      'needRestartApp': 'Need Restart App',
+      'searchHistory': 'Search History',
+      'galleryHistory': 'Gallery History',
 
       /// block rule page
       'configureBlockRuleFailed': 'Configure block rule failed',

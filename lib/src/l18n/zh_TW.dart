@@ -420,6 +420,7 @@ class zh_TW {
       'noImageMode': '無圖模式',
       'exportData': '導出數據',
       'exportDataHint': '導出配置、屏蔽規則與曆史記錄',
+      'selectExportItems': '選擇導出項',
       'importData': '導入數據',
       'importDataHint': '在導入成功後應用會自動關閉以應用最新配置',
 
@@ -723,10 +724,11 @@ favnote：匹配收藏備注
       'copyShareCode': '複制分享碼',
       'import': '導入',
       'save2Local': '保存至本地',
-      'settings': '設置信息(部分)',
-      'blockRules': '屏蔽規則',
-      'histories': '畫廊曆史',
-      'needRestartApp': '需要重啓應用',
+      'readIndexRecord': '閱讀進度',
+      'quickSearch': '快速搜索配置',
+      'blockRules': '本地屏蔽規則',
+      'searchHistory': '搜索曆史',
+      'galleryHistory': '畫廊浏覽曆史',
 
       /// password setting dialog
       'setPasswordHint': '請輸入您的密碼',

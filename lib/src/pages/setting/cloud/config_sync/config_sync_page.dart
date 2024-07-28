@@ -145,7 +145,7 @@ class _ConfigSyncPageState extends State<ConfigSyncPage> {
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('import'.tr + (config.type == CloudConfigTypeEnum.settings ? '(${'needRestartApp'.tr})' : '')),
+            child: Text('import'.tr),
             onPressed: () {
               backRoute();
               _importConfig(config);
@@ -243,7 +243,7 @@ class _ConfigSyncPageState extends State<ConfigSyncPage> {
       _loadingState = LoadingState.loading;
     });
 
-    Map<CloudConfigTypeEnum, String> currentConfigMap = await cloudConfigService.getCurrentConfigMap();
+    Map<CloudConfigTypeEnum, String> currentConfigMap = {};
     List<({int type, String version, String config})> uploadConfigs = currentConfigMap.entries.where((entry) => types.contains(entry.key)).map((entry) {
       return (
         type: entry.key.code,
