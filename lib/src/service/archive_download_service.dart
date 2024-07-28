@@ -113,11 +113,12 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       if (!await _initArchiveInfo(archive)) {
         return;
       }
+
+      _generateComicInfoInDisk(archive);
     }
 
     log.info('Begin to handle archive: ${archive.title}, original: ${archive.isOriginal}');
 
-    _generateComicInfoInDisk(archive);
 
     /// step 1: request to unlock archive: if we have unlocked before or unlock has completed,
     /// we can get [downloadPageUrl] immediately, otherwise we must wait for a second
