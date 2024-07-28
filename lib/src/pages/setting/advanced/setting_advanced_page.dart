@@ -72,8 +72,8 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
             _buildCheckClipboard(),
             if (GetPlatform.isAndroid) _buildVerifyAppLinks(),
             _buildInNoImageMode(),
-            _buildExportData(context),
             _buildImportData(context),
+            _buildExportData(context),
           ],
         ).withListTileTheme(context),
       ),
@@ -212,41 +212,41 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     );
   }
 
-  Widget _buildExportData(BuildContext context) {
-    return ListTile(
-      title: Text('exportData'.tr),
-      subtitle: Text('exportDataHint'.tr),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          LoadingStateIndicator(
-            loadingState: _exportDataLoadingState,
-            idleWidgetBuilder: () => const SizedBox(),
-            useCupertinoIndicator: true,
-            errorWidgetSameWithIdle: true,
-          ).marginOnly(right: 8)
-        ],
-      ),
-      onTap: () => _exportData(context),
-    );
-  }
-
   Widget _buildImportData(BuildContext context) {
     return ListTile(
       title: Text('importData'.tr),
-      subtitle: Text('importDataHint'.tr),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           LoadingStateIndicator(
             loadingState: _importDataLoadingState,
-            idleWidgetBuilder: () => const SizedBox(),
+            idleWidgetBuilder: () => const Icon(Icons.keyboard_arrow_right),
+            successWidgetSameWithIdle: true,
             useCupertinoIndicator: true,
             errorWidgetSameWithIdle: true,
           ).marginOnly(right: 8)
         ],
       ),
       onTap: () => _importData(context),
+    );
+  }
+
+  Widget _buildExportData(BuildContext context) {
+    return ListTile(
+      title: Text('exportData'.tr),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          LoadingStateIndicator(
+            loadingState: _exportDataLoadingState,
+            idleWidgetBuilder: () => const Icon(Icons.keyboard_arrow_right),
+            successWidgetSameWithIdle: true,
+            useCupertinoIndicator: true,
+            errorWidgetSameWithIdle: true,
+          ).marginOnly(right: 8)
+        ],
+      ),
+      onTap: () => _exportData(context),
     );
   }
 
@@ -324,6 +324,51 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     toast('clearSuccess'.tr, isCenter: false);
   }
 
+  Future<void> _importData(BuildContext context) async {
+    FilePickerResult? result;
+    try {
+      result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+        allowCompression: false,
+        compressionQuality: 0,
+      );
+    } on Exception catch (e) {
+      log.error('Pick import data file failed', e);
+      return;
+    }
+
+    if (result == null) {
+      return;
+    }
+
+    if (_importDataLoadingState == LoadingState.loading) {
+      return;
+    }
+
+    log.info('Import data from ${result.files.first.path}');
+    setStateSafely(() => _importDataLoadingState = LoadingState.loading);
+
+    File file = File(result.files.first.path!);
+    String string = await file.readAsString();
+
+    try {
+      List list = await isolateService.jsonDecodeAsync(string);
+      List<CloudConfig> configs = list.map((e) => CloudConfig.fromJson(e)).toList();
+      for (CloudConfig config in configs) {
+        await cloudConfigService.importConfig(config);
+      }
+
+      toast('success'.tr);
+      setStateSafely(() => _importDataLoadingState = LoadingState.success);
+    } catch (e, s) {
+      log.error('Import data failed', e, s);
+      toast('internalError'.tr);
+      setStateSafely(() => _importDataLoadingState = LoadingState.error);
+      return;
+    }
+  }
+
   Future<void> _exportData(BuildContext context) async {
     List<CloudConfigTypeEnum>? result = await showDialog(
       context: context,
@@ -382,50 +427,5 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
 
     toast('success'.tr);
     setStateSafely(() => _exportDataLoadingState = LoadingState.success);
-  }
-
-  Future<void> _importData(BuildContext context) async {
-    FilePickerResult? result;
-    try {
-      result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-        allowCompression: false,
-        compressionQuality: 0,
-      );
-    } on Exception catch (e) {
-      log.error('Pick import data file failed', e);
-      return;
-    }
-
-    if (result == null) {
-      return;
-    }
-
-    if (_importDataLoadingState == LoadingState.loading) {
-      return;
-    }
-
-    log.info('Import data from ${result.files.first.path}');
-    setStateSafely(() => _importDataLoadingState = LoadingState.loading);
-
-    File file = File(result.files.first.path!);
-    String string = await file.readAsString();
-
-    try {
-      List list = await isolateService.jsonDecodeAsync(string);
-      List<CloudConfig> configs = list.map((e) => CloudConfig.fromJson(e)).toList();
-      for (CloudConfig config in configs) {
-        await cloudConfigService.importConfig(config);
-      }
-
-      toast('success'.tr);
-      setStateSafely(() => _importDataLoadingState = LoadingState.success);
-    } catch (e, s) {
-      log.error('Import data failed', e, s);
-      toast('internalError'.tr);
-      setStateSafely(() => _importDataLoadingState = LoadingState.error);
-      return;
-    }
   }
 }
