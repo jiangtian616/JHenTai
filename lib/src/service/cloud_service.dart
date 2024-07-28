@@ -4,6 +4,7 @@ import 'package:jhentai/src/enum/config_type_enum.dart';
 import 'package:jhentai/src/model/config.dart';
 import 'package:jhentai/src/service/isolate_service.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
+import 'package:jhentai/src/service/quick_search_service.dart';
 import 'package:jhentai/src/service/search_history_service.dart';
 
 import '../database/database.dart';
@@ -38,7 +39,8 @@ class CloudConfigService with JHLifeCircleBeanErrorCatch implements JHLifeCircle
 
     switch (config.type) {
       case CloudConfigTypeEnum.readIndexRecord:
-        List<LocalConfig> readIndexRecords = await isolateService.jsonDecodeAsync(config.config);
+        List list = await isolateService.jsonDecodeAsync(config.config);
+        List<LocalConfig> readIndexRecords = list.map((e) => LocalConfig.fromJson(e)).toList();
         await localConfigService.batchWrite(readIndexRecords
             .map((e) => LocalConfigCompanion(
                   configKey: Value(e.configKey.key),
@@ -50,9 +52,11 @@ class CloudConfigService with JHLifeCircleBeanErrorCatch implements JHLifeCircle
         break;
       case CloudConfigTypeEnum.quickSearch:
         await localConfigService.write(configKey: ConfigEnum.quickSearch, value: config.config);
+        await quickSearchService.refreshBean();
         break;
       case CloudConfigTypeEnum.searchHistory:
-        List<String> searchHistories = await isolateService.jsonDecodeAsync(config.config);
+        List list = await isolateService.jsonDecodeAsync(config.config);
+        List<String> searchHistories = list.map((e) => e as String).toList();
         for (String searchHistory in searchHistories) {
           searchHistoryService.writeHistory(searchHistory);
         }

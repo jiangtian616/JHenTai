@@ -401,11 +401,11 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     if (result == null) {
       return;
     }
-    
+
     if (_importDataLoadingState == LoadingState.loading) {
       return;
     }
-    
+
     log.info('Import data from ${result.files.first.path}');
     setStateSafely(() => _importDataLoadingState = LoadingState.loading);
 
@@ -413,16 +413,16 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     String string = await file.readAsString();
 
     try {
-      List<CloudConfig> configs = await isolateService.jsonDecodeAsync(string);
-
+      List list = await isolateService.jsonDecodeAsync(string);
+      List<CloudConfig> configs = list.map((e) => CloudConfig.fromJson(e)).toList();
       for (CloudConfig config in configs) {
         await cloudConfigService.importConfig(config);
       }
 
       toast('success'.tr);
       setStateSafely(() => _importDataLoadingState = LoadingState.success);
-    } on Exception catch (e) {
-      log.error('Import data failed', e);
+    } catch (e, s) {
+      log.error('Import data failed', e, s);
       toast('internalError'.tr);
       setStateSafely(() => _importDataLoadingState = LoadingState.error);
       return;
