@@ -55,11 +55,8 @@ class CloudConfigService with JHLifeCircleBeanErrorCatch implements JHLifeCircle
         await quickSearchService.refreshBean();
         break;
       case CloudConfigTypeEnum.searchHistory:
-        List list = await isolateService.jsonDecodeAsync(config.config);
-        List<String> searchHistories = list.map((e) => e as String).toList();
-        for (String searchHistory in searchHistories) {
-          searchHistoryService.writeHistory(searchHistory);
-        }
+        await localConfigService.write(configKey: ConfigEnum.searchHistory, value: config.config);
+        await searchHistoryService.refreshBean();
         break;
       case CloudConfigTypeEnum.blockRules:
         List list = await isolateService.jsonDecodeAsync(config.config);
