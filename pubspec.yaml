@@ -50,7 +50,7 @@ dependencies:
     git:
       url: https://github.com/MixinNetwork/flutter-plugins
       path: packages/desktop_webview_window
-      ref: 22bf4e6
+      ref: d0c91d9c3ea12883d38215adc48586753fb41dde
   # rewrite double tap & tap drag gesture
   photo_view:
     git:
