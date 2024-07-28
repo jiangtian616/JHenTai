@@ -51,10 +51,9 @@ class GalleryHistoryDao {
     return appDb.galleryHistory.count().getSingle();
   }
 
-  static Future<List<GalleryHistoryData>> selectLargerThanLastReadTimeAndGidOld(String lastReadTime, int gid, int limit) {
+  static Future<List<GalleryHistoryData>> selectLargerThanLastReadTimeAndGidOld(String lastReadTime, int limit) {
     return (appDb.select(appDb.galleryHistory)
           ..where((tbl) => tbl.lastReadTime.isBiggerOrEqualValue(lastReadTime))
-          ..where((tbl) => tbl.gid.isBiggerThanValue(gid))
           ..orderBy([
             (tbl) => OrderingTerm(expression: tbl.lastReadTime, mode: OrderingMode.asc),
             (tbl) => OrderingTerm(expression: tbl.gid, mode: OrderingMode.asc),

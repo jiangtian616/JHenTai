@@ -433,13 +433,12 @@ class MigrateGalleryHistoryHandler implements UpdateHandler {
     log.info('Migrate gallery history, total count: $totalCount');
 
     String lastReadTime = DateTime.fromMicrosecondsSinceEpoch(0).toString();
-    int gid = 0;
 
     for (int i = 0; i < pageCount; i++) {
       try {
         await Future.delayed(const Duration(milliseconds: 2000));
 
-        List<GalleryHistoryData> oldHistories = await GalleryHistoryDao.selectLargerThanLastReadTimeAndGidOld(lastReadTime, gid, pageSize);
+        List<GalleryHistoryData> oldHistories = await GalleryHistoryDao.selectLargerThanLastReadTimeAndGidOld(lastReadTime, pageSize);
         if (oldHistories.isEmpty) {
           break;
         }
@@ -474,7 +473,6 @@ class MigrateGalleryHistoryHandler implements UpdateHandler {
         GalleryHistoryDao.batchDeleteHistoryByGidOld(oldHistories.map((h) => h.gid).toList());
 
         lastReadTime = oldHistories.last.lastReadTime;
-        gid = oldHistories.last.gid;
 
         log.info('Migrate gallery history for page index $i success!');
       } on Exception catch (e) {
