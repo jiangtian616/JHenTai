@@ -427,40 +427,51 @@ class MigrateGalleryHistoryHandler implements UpdateHandler {
     log.info('MigrateGalleryHistoryHandler onReady');
 
     int totalCount = await GalleryHistoryDao.selectTotalCountOld();
-    int pageSize = 400;
+    int pageSize = 300;
     int pageCount = (totalCount / pageSize).ceil();
 
     log.info('Migrate gallery history, total count: $totalCount');
 
     for (int i = 0; i < pageCount; i++) {
       try {
-        await Future.delayed(const Duration(milliseconds: 500));
+        await Future.delayed(const Duration(milliseconds: 400));
 
-        List<GalleryHistoryData> historys = await GalleryHistoryDao.selectByPageIndexOld(i, pageSize);
-        Map<int, Gallery> gid2GalleryMap = await isolateService.run<List<GalleryHistoryData>, Map<int, Gallery>>(
-          (historys) => historys.map((h) => Gallery.fromJson(json.decode(h.jsonBody))).groupFoldBy((g) => g.gid, (g1, e) => e),
-          historys,
-        );
+        List<GalleryHistoryData> oldHistories = await GalleryHistoryDao.selectByPageIndexOld(i, pageSize);
+
+        List<Future> futures = [];
+        Map<int, String> gid2NewJsonBodyMap = {};
+        for (GalleryHistoryData history in oldHistories) {
+          Future future = isolateService.jsonDecodeAsync(history.jsonBody).then((map) {
+            return Gallery.fromJson(map);
+          }).then((gallery) {
+            return isolateService.jsonEncodeAsync(gallery2GalleryHistoryModel(gallery));
+          }).then((galleryString) {
+            gid2NewJsonBodyMap[history.gid] = galleryString;
+          });
+
+          futures.add(future);
+        }
+        await Future.wait(futures);
 
         await GalleryHistoryDao.batchReplaceHistory(
-          historys.map(
+          oldHistories.map(
             (h) {
               return GalleryHistoryV2Data(
                 gid: h.gid,
-                jsonBody: jsonEncode(gallery2GalleryHistoryModel(gid2GalleryMap[h.gid]!)),
+                jsonBody: gid2NewJsonBodyMap[h.gid]!,
                 lastReadTime: h.lastReadTime,
               );
             },
           ).toList(),
         );
 
-        GalleryHistoryDao.deleteAllHistoryOld();
-
         log.info('Migrate gallery history for page index $i success!');
       } on Exception catch (e) {
         log.error('Migrate gallery history for page index $i failed!', e);
       }
     }
+
+    GalleryHistoryDao.deleteAllHistoryOld();
 
     await localConfigService.write(configKey: ConfigEnum.migrateGalleryHistory, value: 'true');
   }
