@@ -34,8 +34,8 @@ class PreferenceSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
   Rx<SearchBehaviour> searchBehaviour = SearchBehaviour.inheritAll.obs;
   RxBool showR18GImageDirectly = false.obs;
   RxBool showUtcTime = false.obs;
-  RxBool showDawnInfo = true.obs;
-  RxBool showHVInfo = true.obs;
+  RxBool showDawnInfo = false.obs;
+  RxBool showHVInfo = false.obs;
 
   @override
   ConfigEnum get configEnum => ConfigEnum.preferenceSetting;
