@@ -1,16 +1,14 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_resizable_container/flutter_resizable_container.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/home_page.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_home_page.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_state.dart';
-import 'package:resizable_widget/resizable_widget.dart';
 
 import '../../../config/ui_config.dart';
 import '../../../routes/routes.dart';
 import '../../../service/windows_service.dart';
 import '../../../setting/preference_setting.dart';
-import '../../../widget/eh_separator.dart';
 import '../../blank_page.dart';
 import 'desktop_layout_page_logic.dart';
 
@@ -100,15 +98,26 @@ class DesktopLayoutPage extends StatelessWidget {
   Widget _buildDoubleColumn(BuildContext context) {
     return Scaffold(
       backgroundColor: UIConfig.backGroundColor(context),
-      body: ResizableWidget(
-        key: Key(UIConfig.backGroundColor(context).hashCode.toString()),
-        separatorSize: 7.5,
-        separatorColor: UIConfig.layoutDividerColor(context),
-        separatorBuilder: (SeparatorArgsInfo info, SeparatorController controller) => EHSeparator(info: info, controller: controller),
-        percentages: [windowService.leftColumnWidthRatio, 1 - windowService.leftColumnWidthRatio],
-        onResized: windowService.handleColumnResized,
-        isDisabledSmartHide: true,
-        children: [_leftColumn(), _rightColumn()],
+      body: ResizableContainer(
+        direction: Axis.horizontal,
+        controller: logic.resizableController,
+        children: [
+          ResizableChild(
+            child: _leftColumn(),
+            size: ResizableSize.ratio(windowService.leftColumnWidthRatio),
+            minSize: 100,
+          ),
+          ResizableChild(
+            child: _rightColumn(),
+            size: ResizableSize.ratio(1 - windowService.leftColumnWidthRatio),
+            minSize: 100,
+          ),
+        ],
+        divider: ResizableDivider(
+          thickness: 1.5,
+          size: 7.5,
+          color: UIConfig.layoutDividerColor(context),
+        ),
       ),
     );
   }

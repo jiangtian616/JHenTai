@@ -1,32 +1,65 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_resizable_container/flutter_resizable_container.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2.dart';
-import 'package:resizable_widget/resizable_widget.dart';
 
 import '../../../config/ui_config.dart';
 import '../../../routes/routes.dart';
 import '../../../service/windows_service.dart';
 import '../../../setting/preference_setting.dart';
-import '../../../widget/eh_separator.dart';
 import '../../blank_page.dart';
 import '../../home_page.dart';
 
-class TabletLayoutPageV2 extends StatelessWidget {
-  const TabletLayoutPageV2({Key? key}) : super(key: key);
+class TabletLayoutPageV2 extends StatefulWidget {
+  const TabletLayoutPageV2({super.key});
+
+  @override
+  State<TabletLayoutPageV2> createState() => _TabletLayoutPageV2State();
+}
+
+class _TabletLayoutPageV2State extends State<TabletLayoutPageV2> {
+  final ResizableController resizableController = ResizableController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    resizableController.addListener(() {
+      windowService.handleDoubleColumnResized(resizableController.ratios);
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    resizableController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: UIConfig.backGroundColor(context),
-      body: ResizableWidget(
-        key: Key(UIConfig.backGroundColor(context).hashCode.toString()),
-        separatorSize: 7.5,
-        separatorColor: UIConfig.layoutDividerColor(context),
-        separatorBuilder: (SeparatorArgsInfo info, SeparatorController controller) => EHSeparator(info: info, controller: controller),
-        percentages: [windowService.leftColumnWidthRatio, 1 - windowService.leftColumnWidthRatio],
-        onResized: windowService.handleColumnResized,
-        isDisabledSmartHide: true,
-        children: [_leftColumn(), _rightColumn()],
+      body: ResizableContainer(
+        direction: Axis.horizontal,
+        controller: resizableController,
+        children: [
+          ResizableChild(
+            child: _leftColumn(),
+            size: ResizableSize.ratio(windowService.leftColumnWidthRatio),
+            minSize: 100,
+          ),
+          ResizableChild(
+            child: _rightColumn(),
+            size: ResizableSize.ratio(1 - windowService.leftColumnWidthRatio),
+            minSize: 100,
+          ),
+        ],
+        divider: ResizableDivider(
+          thickness: 1.5,
+          size: 7.5,
+          color: UIConfig.layoutDividerColor(context),
+        ),
       ),
     );
   }

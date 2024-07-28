@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -5,7 +6,6 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/utils/screen_size_util.dart';
-import 'package:resizable_widget/resizable_widget.dart';
 import 'package:throttling/throttling.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -73,13 +73,13 @@ class WindowService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean 
   @override
   Future<void> doAfterBeanReady() async {}
 
-  void handleColumnResized(List<WidgetSizeInfo> infoList) {
-    if (leftColumnWidthRatio == infoList[0].percentage) {
+  void handleDoubleColumnResized(UnmodifiableListView<double> ratios) {
+    if (leftColumnWidthRatio == ratios[0]) {
       return;
     }
 
     columnResizedDebouncing.debounce(() {
-      leftColumnWidthRatio = max(0.01, infoList[0].percentage);
+      leftColumnWidthRatio = max(0.01, ratios[0]);
 
       log.info('Resize left column ratio to: $leftColumnWidthRatio');
       localConfigService.write(configKey: ConfigEnum.leftColumnWidthRatio, value: leftColumnWidthRatio.toString());

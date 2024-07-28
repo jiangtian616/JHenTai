@@ -71,9 +71,7 @@ dependencies:
   window_manager: 0.3.9
   permission_handler: 11.3.1
   grouped_list: 5.1.2
-  resizable_widget:
-    git:
-      url: https://github.com/eurisit/resizable_widget
+  flutter_resizable_container: 2.0.0
   loading_animation_widget: 1.2.0+4
   simple_animations: 5.0.2
   animated_flip_counter: 0.2.6
