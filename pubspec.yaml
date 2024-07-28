@@ -46,7 +46,11 @@ dependencies:
   like_button:
     git: https://github.com/jiangtian616/like_button
   webview_flutter: 4.2.2
-  desktop_webview_window: 0.2.3
+  desktop_webview_window:
+    git:
+      url: https://github.com/MixinNetwork/flutter-plugins
+      path: packages/desktop_webview_window
+      ref: ecce70622db743dde336ce28ebb5925247480aaf
   # rewrite double tap & tap drag gesture
   photo_view:
     git:
