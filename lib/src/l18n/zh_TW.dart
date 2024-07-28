@@ -37,6 +37,11 @@ class zh_TW {
       'gallery': "畫廊",
       'setting': '設定',
 
+      /// schedule
+      'dawnOfaNewDay': '黎明之時',
+      'encounterMonster': '你遭遇了壹只怪獸！',
+      'encounterMonsterHint': '點擊跳轉至HentaiVerse戰鬥。',
+
       /// unlock page
       'localizedReason': '請驗證以繼續',
       'tap2Auth': '點擊以驗證',
@@ -508,6 +513,8 @@ class zh_TW {
       'logList': '日誌列表',
       'defaultTab': '啓動時默認菜單',
       'showUtcTime': '畫廊時間使用UTC展示',
+      'showDawnInfo': '展示黎明之时事件',
+      'showEncounterMonster': '展示HV遭遇戰事件',
 
       /// super resolution setting page
       'downloadSuperResolutionModelHint': '從Github下載模型',

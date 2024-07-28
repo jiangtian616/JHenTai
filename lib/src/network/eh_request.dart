@@ -312,6 +312,11 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _parseResponse(response, parser);
   }
 
+  Future<T> requestNews<T>(HtmlParser<T> parser) async {
+    Response response = await _getWithErrorHandler(EHConsts.ENews);
+    return _parseResponse(response, parser);
+  }
+
   Future<T> requestForum<T>(int ipbMemberId, HtmlParser<T> parser) async {
     Response response = await _getWithErrorHandler(
       EHConsts.EForums,

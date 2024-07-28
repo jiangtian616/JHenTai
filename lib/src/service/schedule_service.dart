@@ -1,16 +1,24 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
 import 'package:extended_image/extended_image.dart';
+import 'package:get/get_rx/get_rx.dart';
+import 'package:get/get_utils/get_utils.dart';
 import 'package:jhentai/src/database/dao/archive_dao.dart';
 import 'package:jhentai/src/database/dao/gallery_dao.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
+import 'package:jhentai/src/setting/preference_setting.dart';
+import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/convert_util.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
+import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:retry/retry.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../database/database.dart';
 import '../model/gallery_metadata.dart';
@@ -28,6 +36,9 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
     Timer(const Duration(seconds: 10), refreshGalleryTags);
     Timer(const Duration(seconds: 10), refreshArchiveTags);
     Timer(const Duration(seconds: 5), clearOutdatedImageCache);
+
+    Timer(const Duration(seconds: 5), checkEHEvent);
+    Timer.periodic(const Duration(minutes: 5), (_) => checkEHEvent());
   }
 
   Future<void> refreshGalleryTags() async {
@@ -102,5 +113,46 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
         count++;
       }
     }).then((_) => log.info('Clear outdated image cache success, count: $count'));
+  }
+
+  Future<void> checkEHEvent() async {
+    if (!userSetting.hasLoggedIn()) {
+      return;
+    }
+
+    if (preferenceSetting.showHVInfo.isFalse && preferenceSetting.showDawnInfo.isFalse) {
+      return;
+    }
+
+    ({String? dawnInfo, String? hvUrl}) eventInfo;
+    try {
+      eventInfo = await retry(
+        () => ehRequest.requestNews(EHSpiderParser.newsPage2Event),
+        retryIf: (e) => e is DioException,
+        maxAttempts: 3,
+      );
+    } catch (e) {
+      log.warning('ScheduleService checkDawn failed', e);
+      return;
+    }
+
+    if (preferenceSetting.showDawnInfo.isTrue && eventInfo.dawnInfo != null) {
+      log.info('Check dawn success: ${eventInfo.dawnInfo}');
+      snack(
+        'dawnOfaNewDay'.tr,
+        eventInfo.dawnInfo!,
+        isShort: false,
+      );
+    }
+
+    if (preferenceSetting.showHVInfo.isTrue && eventInfo.hvUrl != null) {
+      log.info('Encounter a monster: ${eventInfo.hvUrl}');
+      snack(
+        'encounterMonster'.tr,
+        'encounterMonsterHint'.tr,
+        onPressed: () => launchUrlString(eventInfo.hvUrl!, mode: LaunchMode.externalApplication),
+        isShort: false,
+      );
+    }
   }
 }

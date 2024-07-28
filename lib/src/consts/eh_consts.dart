@@ -31,6 +31,8 @@ class EHConsts {
 
   static const String EXWatched = 'https://exhentai.org/watched';
 
+  static const String ENews = 'https://e-hentai.org/news.php';
+
   static const String EForums = 'https://forums.e-hentai.org/index.php';
 
   static String get EPopup => ehSetting.site.value == 'EH' ? 'https://e-hentai.org/gallerypopups.php' : 'https://exhentai.org/gallerypopups.php';

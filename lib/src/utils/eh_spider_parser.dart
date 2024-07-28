@@ -809,6 +809,22 @@ class EHSpiderParser {
     );
   }
 
+  static ({String? dawnInfo, String? hvUrl}) newsPage2Event(Headers headers, dynamic data) {
+    Document document = parse(data as String);
+
+    Element? eventPane = document.querySelector('#eventpane');
+    if (eventPane == null) {
+      return (dawnInfo: null, hvUrl: null);
+    }
+
+    String? hvUrl = eventPane.querySelector('div > a')?.attributes['href'];
+
+    /// You gain 30 EXP, 2,100 Credits , 2,000 GP and 76 Hath!
+    String? dawnInfo = eventPane.querySelector('div > p:nth-child(2)')?.text;
+
+    return (dawnInfo: dawnInfo, hvUrl: hvUrl);
+  }
+
   static String imageLookup2RedirectUrl(Headers headers, dynamic data) {
     return headers['Location']!.first;
   }

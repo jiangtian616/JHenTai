@@ -37,6 +37,11 @@ class ko_KR {
       'gallery': "갤러리",
       'setting': '설정',
 
+      /// schedule
+      'dawnOfaNewDay': 'It is the dawn of a new day!',
+      'encounterMonster': 'You have encountered a monster!',
+      'encounterMonsterHint': 'Click to fight in the HentaiVerse.',
+
       /// unlock page
       'localizedReason': '입장하려면 인증을 진행하세요.',
       'tap2Auth': '인증하려면 터치하세요.',
@@ -507,6 +512,8 @@ class ko_KR {
       'showR18GImageDirectly': 'R18G 이미지 표시',
       'defaultTab': 'Default Tab',
       'showUtcTime': 'Show UTC Time for Gallery',
+      'showDawnInfo': 'Show new dawn event',
+      'showEncounterMonster': 'Show hentaiVerse monster encounter event',
 
       /// log page
       'logList': '로그 리스트',

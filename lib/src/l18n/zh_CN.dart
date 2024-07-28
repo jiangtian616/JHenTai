@@ -42,6 +42,11 @@ class zh_CN {
       'tap2Auth': '点击以验证',
       'passwordErrorHint': '密码错误，请重试',
 
+      /// schedule
+      'dawnOfaNewDay': '黎明之时',
+      'encounterMonster': '你遭遇了一只怪兽！',
+      'encounterMonsterHint': '点击跳转至HentaiVerse战斗。',
+
       /// start page
       'TapAgainToExit': '再按一次退出',
 
@@ -507,6 +512,8 @@ class zh_CN {
       'showR18GImageDirectly': '标签数据中直接显示R18G图片',
       'defaultTab': '启动时默认菜单',
       'showUtcTime': '画廊时间使用UTC展示',
+      'showDawnInfo': '展示黎明之时事件',
+      'showEncounterMonster': '展示HV遭遇战事件',
 
       /// log page
       'logList': '日志列表',

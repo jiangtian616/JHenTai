@@ -37,6 +37,11 @@ class pt_BR {
       'gallery': "Galeria",
       'setting': 'Configuração',
 
+      /// schedule
+      'dawnOfaNewDay': 'It is the dawn of a new day!',
+      'encounterMonster': 'You have encountered a monster!',
+      'encounterMonsterHint': 'Click to fight in the HentaiVerse.',
+
       /// unlock page
       'localizedReason': 'Por favor, autentique-se para continuar',
       'tap2Auth': 'Toque para autentique-se',
@@ -508,6 +513,8 @@ class pt_BR {
       'showR18GImageDirectly': 'Show R18G Image Directly',
       'defaultTab': 'Default Tab',
       'showUtcTime': 'Show UTC Time for Gallery',
+      'showDawnInfo': 'Show new dawn event',
+      'showEncounterMonster': 'Show hentaiVerse monster encounter event',
 
       /// log page
       'logList': 'Lista de resgistro(log)',

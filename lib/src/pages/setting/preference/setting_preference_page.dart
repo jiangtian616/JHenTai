@@ -49,6 +49,8 @@ class SettingPreferencePage extends StatelessWidget {
               _buildTagSearchConfig(),
               if (preferenceSetting.enableTagZHTranslation.isTrue) _buildShowR18GImageDirectly().fadeIn(const Key('showR18GImageDirectly')),
               _buildShowUtcTime(),
+              _buildShowDawnInfo(),
+              _buildShowEncounterMonster(),
               _buildBlockRules(),
             ],
           ).withListTileTheme(context),
@@ -415,6 +417,22 @@ class SettingPreferencePage extends StatelessWidget {
       subtitle: Text('blockingRulesHint'.tr),
       trailing: const Icon(Icons.keyboard_arrow_right),
       onTap: () => toRoute(Routes.blockingRules),
+    );
+  }
+
+  Widget _buildShowDawnInfo() {
+    return SwitchListTile(
+      title: Text('showDawnInfo'.tr),
+      value: preferenceSetting.showDawnInfo.value,
+      onChanged: preferenceSetting.saveShowDawnInfo,
+    );
+  }
+  
+  Widget _buildShowEncounterMonster() {
+    return SwitchListTile(
+      title: Text('showEncounterMonster'.tr),
+      value: preferenceSetting.showHVInfo.value,
+      onChanged: preferenceSetting.saveShowHVInfo,
     );
   }
 }

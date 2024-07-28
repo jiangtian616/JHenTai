@@ -34,6 +34,8 @@ class PreferenceSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
   Rx<SearchBehaviour> searchBehaviour = SearchBehaviour.inheritAll.obs;
   RxBool showR18GImageDirectly = false.obs;
   RxBool showUtcTime = false.obs;
+  RxBool showDawnInfo = true.obs;
+  RxBool showHVInfo = true.obs;
 
   @override
   ConfigEnum get configEnum => ConfigEnum.preferenceSetting;
@@ -66,6 +68,8 @@ class PreferenceSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
     enableDefaultTagSet.value = map['enableDefaultTagSet'] ?? enableDefaultTagSet.value;
     launchInFullScreen.value = map['launchInFullScreen'] ?? launchInFullScreen.value;
     showUtcTime.value = map['showUtcTime'] ?? showUtcTime.value;
+    showDawnInfo.value = map['showDawnInfo'] ?? showDawnInfo.value;
+    showHVInfo.value = map['showHVInfo'] ?? showHVInfo.value;
   }
 
   @override
@@ -93,6 +97,8 @@ class PreferenceSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
       'enableDefaultTagSet': enableDefaultTagSet.value,
       'launchInFullScreen': launchInFullScreen.value,
       'showUtcTime': showUtcTime.value,
+      'showDawnInfo': showDawnInfo.value,
+      'showHVInfo': showHVInfo.value,
     });
   }
 
@@ -232,6 +238,18 @@ class PreferenceSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
   Future<void> saveShowUtcTime(bool showUtcTime) async {
     log.debug('saveShowUtcTime:$showUtcTime');
     this.showUtcTime.value = showUtcTime;
+    await saveBeanConfig();
+  }
+  
+  Future<void> saveShowDawnInfo(bool showDawnInfo) async {
+    log.debug('saveShowDawnInfo:$showDawnInfo');
+    this.showDawnInfo.value = showDawnInfo;
+    await saveBeanConfig();
+  }
+  
+  Future<void> saveShowHVInfo(bool showHVInfo) async {
+    log.debug('saveShowHVInfo:$showHVInfo');
+    this.showHVInfo.value = showHVInfo;
     await saveBeanConfig();
   }
 }
