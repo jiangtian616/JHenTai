@@ -470,7 +470,7 @@ class MigrateGalleryHistoryHandler implements UpdateHandler {
           ).toList(),
         );
 
-        GalleryHistoryDao.batchDeleteHistoryByGidOld(oldHistories.map((h) => h.gid).toList());
+        await  GalleryHistoryDao.batchDeleteHistoryByGidOld(oldHistories.map((h) => h.gid).toList());
 
         lastReadTime = oldHistories.last.lastReadTime;
 
