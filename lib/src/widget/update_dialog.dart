@@ -15,11 +15,22 @@ class UpdateDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text('availableUpdate'.tr),
-      content: Column(
+      content: Row(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Ver: $currentVersion -> $latestVersion'),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [Text('${'CurrentVersion'.tr}:'), const SizedBox(height: 6), Text('${'LatestVersion'.tr}:')],
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [Text(currentVersion), const SizedBox(height: 6), Text(latestVersion)],
+            ),
+          ),
         ],
       ),
       actions: [
@@ -38,7 +49,7 @@ class UpdateDialog extends StatelessWidget {
           },
         )
       ],
-      actionsPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      actionsPadding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 12),
     );
   }
 }
