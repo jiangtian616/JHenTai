@@ -52,8 +52,8 @@ class en_US {
 
       /// update dialog
       'availableUpdate': 'Available Update!',
-      'LatestVersion': 'Latest version',
-      'CurrentVersion': 'Current version',
+      'LatestVersion': 'Latest Ver',
+      'CurrentVersion': 'Current Ver',
       'check': 'Check',
       'dismiss': 'Dismiss',
 

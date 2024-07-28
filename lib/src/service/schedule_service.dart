@@ -4,6 +4,9 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
 import 'package:extended_image/extended_image.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/get_navigation.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:jhentai/src/database/dao/archive_dao.dart';
@@ -15,14 +18,20 @@ import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/convert_util.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:retry/retry.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../database/database.dart';
+import '../enum/config_enum.dart';
 import '../model/gallery_metadata.dart';
+import '../setting/advanced_setting.dart';
+import '../utils/version_util.dart';
+import '../widget/update_dialog.dart';
 import 'jh_service.dart';
+import 'local_config_service.dart';
 import 'log.dart';
 
 ScheduleService scheduleService = ScheduleService();
@@ -33,6 +42,7 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
 
   @override
   Future<void> doAfterBeanReady() async {
+    Timer(const Duration(seconds: 3), _checkUpdate);
     Timer(const Duration(seconds: 10), refreshGalleryTags);
     Timer(const Duration(seconds: 10), refreshArchiveTags);
     Timer(const Duration(seconds: 5), clearOutdatedImageCache);
@@ -41,6 +51,44 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
     Timer.periodic(const Duration(minutes: 5), (_) => checkEHEvent());
   }
 
+  Future<void> _checkUpdate() async {
+    if (advancedSetting.enableCheckUpdate.isFalse) {
+      return;
+    }
+
+    String url = 'https://api.github.com/repos/jiangtian616/JHenTai/releases';
+    String latestVersion;
+
+    try {
+      latestVersion = (await retry(
+            () => ehRequest.get(url: url, parser: EHSpiderParser.githubReleasePage2LatestVersion),
+        maxAttempts: 3,
+      ))
+          .trim()
+          .split('+')[0];
+    } on Exception catch (_) {
+      log.info('check update failed');
+      return;
+    }
+
+    String? dismissVersion = await localConfigService.read(configKey: ConfigEnum.dismissVersion);
+    if (dismissVersion == latestVersion) {
+      return;
+    }
+
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    String currentVersion = 'v${packageInfo.version}'.trim();
+    log.info('Latest version:[$latestVersion], current version: [$currentVersion]');
+
+    if (compareVersion(currentVersion, latestVersion) >= 0) {
+      return;
+    }
+
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      Get.dialog(UpdateDialog(currentVersion: currentVersion, latestVersion: latestVersion));
+    });
+  }
+  
   Future<void> refreshGalleryTags() async {
     int pageNo = 1;
     List<GalleryDownloadedData> gallerys = await GalleryDao.selectGallerysForTagRefresh(pageNo, 25);

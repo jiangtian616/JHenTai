@@ -53,8 +53,8 @@ class pt_BR {
 
       /// update dialog
       'availableUpdate': 'Atualização disponível!',
-      'LatestVersion': 'Versão mais recente',
-      'CurrentVersion': 'Versão atual',
+      'LatestVersion': 'Latest Ver',
+      'CurrentVersion': 'Current Ver',
       'check': 'Checar',
       'dismiss': 'Dispensar',
 

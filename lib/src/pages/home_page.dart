@@ -65,7 +65,6 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
     super.initState();
     initToast(context);
     _initSharingIntent();
-    _checkUpdate();
     _handleUrlInClipBoard();
 
     _listener = AppLifecycleListener(onResume: _handleUrlInClipBoard);
@@ -110,44 +109,6 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
         ),
       ),
     );
-  }
-
-  Future<void> _checkUpdate() async {
-    if (advancedSetting.enableCheckUpdate.isFalse) {
-      return;
-    }
-
-    String url = 'https://api.github.com/repos/jiangtian616/JHenTai/releases';
-    String latestVersion;
-
-    try {
-      latestVersion = (await retry(
-        () => ehRequest.get(url: url, parser: EHSpiderParser.githubReleasePage2LatestVersion),
-        maxAttempts: 3,
-      ))
-          .trim()
-          .split('+')[0];
-    } on Exception catch (_) {
-      log.info('check update failed');
-      return;
-    }
-
-    String? dismissVersion = await localConfigService.read(configKey: ConfigEnum.dismissVersion);
-    if (dismissVersion == latestVersion) {
-      return;
-    }
-
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    String currentVersion = 'v${packageInfo.version}'.trim();
-    log.info('Latest version:[$latestVersion], current version: [$currentVersion]');
-
-    if (compareVersion(currentVersion, latestVersion) >= 0) {
-      return;
-    }
-
-    Get.engine.addPostFrameCallback((_) {
-      Get.dialog(UpdateDialog(currentVersion: currentVersion, latestVersion: latestVersion));
-    });
   }
 
   /// Listen to share or open urls/text coming from outside the app while the app is in the memory or is closed

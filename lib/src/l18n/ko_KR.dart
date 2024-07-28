@@ -52,8 +52,8 @@ class ko_KR {
 
       /// update dialog
       'availableUpdate': '사용 가능한 업데이트가 있습니다!',
-      'LatestVersion': '최신 버전',
-      'CurrentVersion': '현재 버전',
+      'LatestVersion': 'Latest Ver',
+      'CurrentVersion': 'Current Ver',
       'check': '확인: ',
       'dismiss': '무시',
 
