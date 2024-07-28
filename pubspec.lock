@@ -357,8 +357,8 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/desktop_webview_window"
-      ref: HEAD
-      resolved-ref: d1c9369331518fec50ca02ddc05ec403eace0c1f
+      ref: "22bf4e6"
+      resolved-ref: "22bf4e6db3ebe332423009c1ca89556144cd1296"
       url: "https://github.com/MixinNetwork/flutter-plugins"
     source: git
     version: "0.2.4"
