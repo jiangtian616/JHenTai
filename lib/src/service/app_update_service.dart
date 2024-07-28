@@ -427,7 +427,7 @@ class MigrateGalleryHistoryHandler implements UpdateHandler {
     log.info('MigrateGalleryHistoryHandler onReady');
 
     int totalCount = await GalleryHistoryDao.selectTotalCountOld();
-    int pageSize = 300;
+    int pageSize = 200;
     int pageCount = (totalCount / pageSize).ceil();
 
     log.info('Migrate gallery history, total count: $totalCount');
