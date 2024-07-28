@@ -208,7 +208,7 @@ class _RankListDesc extends StatelessWidget {
         ),
         const Expanded(child: SizedBox()),
         TextButton(
-          style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4)),
+          style: TextButton.styleFrom(padding: const EdgeInsets.only(left: 12), visualDensity: const VisualDensity(vertical: -4)),
           onPressed: () => const TapTabBarButtonNotification(Routes.ranklist).dispatch(context),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -242,7 +242,7 @@ class _PopularListDesc extends StatelessWidget {
         ),
         const Expanded(child: SizedBox()),
         TextButton(
-          style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4)),
+          style: TextButton.styleFrom(padding: const EdgeInsets.only(left: 12), visualDensity: const VisualDensity(vertical: -4)),
           onPressed: () => const TapTabBarButtonNotification(Routes.popular).dispatch(context),
           child: Row(
             mainAxisSize: MainAxisSize.min,
