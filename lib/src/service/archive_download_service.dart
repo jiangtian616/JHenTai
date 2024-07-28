@@ -488,7 +488,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     );
 
     try {
-      File file = File(join(computeArchiveUnpackingPath(galleryDetail.rawTitle, archive.gid), 'ComicInfo.xml'));
+      File file = File(join(computeArchiveUnpackingPath(archive.title, archive.gid), 'ComicInfo.xml'));
       if (!await file.exists()) {
         await file.create(recursive: true);
       }
