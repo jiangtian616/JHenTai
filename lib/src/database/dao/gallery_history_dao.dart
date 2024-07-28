@@ -51,14 +51,22 @@ class GalleryHistoryDao {
     return appDb.galleryHistory.count().getSingle();
   }
 
-  static Future<List<GalleryHistoryData>> selectByPageIndexOld(int pageIndex, int pageSize) {
+  static Future<List<GalleryHistoryData>> selectLargerThanLastReadTimeAndGidOld(String lastReadTime, int gid, int limit) {
     return (appDb.select(appDb.galleryHistory)
+          ..where((tbl) => tbl.lastReadTime.isBiggerOrEqualValue(lastReadTime))
+          ..where((tbl) => tbl.gid.isBiggerThanValue(gid))
           ..orderBy([
-            (tbl) => OrderingTerm(expression: tbl.lastReadTime, mode: OrderingMode.desc),
-            (tbl) => OrderingTerm(expression: tbl.gid, mode: OrderingMode.desc),
+            (tbl) => OrderingTerm(expression: tbl.lastReadTime, mode: OrderingMode.asc),
+            (tbl) => OrderingTerm(expression: tbl.gid, mode: OrderingMode.asc),
           ])
-          ..limit(pageSize, offset: pageIndex * pageSize))
+          ..limit(limit))
         .get();
+  }
+
+  static Future<void> batchDeleteHistoryByGidOld(List<int> gids) {
+    return appDb.batch((batch) {
+      batch.deleteWhere(appDb.galleryHistory, (tbl) => tbl.gid.isIn(gids));
+    });
   }
 
   static Future<int> deleteAllHistoryOld() {

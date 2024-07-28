@@ -427,16 +427,22 @@ class MigrateGalleryHistoryHandler implements UpdateHandler {
     log.info('MigrateGalleryHistoryHandler onReady');
 
     int totalCount = await GalleryHistoryDao.selectTotalCountOld();
-    int pageSize = 200;
+    int pageSize = 60;
     int pageCount = (totalCount / pageSize).ceil();
 
     log.info('Migrate gallery history, total count: $totalCount');
 
+    String lastReadTime = DateTime.fromMicrosecondsSinceEpoch(0).toString();
+    int gid = 0;
+
     for (int i = 0; i < pageCount; i++) {
       try {
-        await Future.delayed(const Duration(milliseconds: 400));
+        await Future.delayed(const Duration(milliseconds: 2000));
 
-        List<GalleryHistoryData> oldHistories = await GalleryHistoryDao.selectByPageIndexOld(i, pageSize);
+        List<GalleryHistoryData> oldHistories = await GalleryHistoryDao.selectLargerThanLastReadTimeAndGidOld(lastReadTime, gid, pageSize);
+        if (oldHistories.isEmpty) {
+          break;
+        }
 
         List<Future> futures = [];
         Map<int, String> gid2NewJsonBodyMap = {};
@@ -465,14 +471,18 @@ class MigrateGalleryHistoryHandler implements UpdateHandler {
           ).toList(),
         );
 
+        GalleryHistoryDao.batchDeleteHistoryByGidOld(oldHistories.map((h) => h.gid).toList());
+
+        lastReadTime = oldHistories.last.lastReadTime;
+        gid = oldHistories.last.gid;
+
         log.info('Migrate gallery history for page index $i success!');
       } on Exception catch (e) {
         log.error('Migrate gallery history for page index $i failed!', e);
       }
     }
 
-    GalleryHistoryDao.deleteAllHistoryOld();
-
+    log.info('Migrate gallery history success!');
     await localConfigService.write(configKey: ConfigEnum.migrateGalleryHistory, value: 'true');
   }
 }
