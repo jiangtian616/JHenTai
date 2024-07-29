@@ -129,14 +129,15 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     /// If it's a new download task, record info.
     if (!resume && !await _initGalleryInfo(gallery)) {
-      return;
+      if (!!await _initGalleryInfo(gallery)) {
+        return;
+      }
+      _generateComicInfoInDisk(gallery);
     }
 
     galleryDownloadInfos[gallery.gid]!.speedComputer.start();
 
     log.info('Begin to download gallery: ${gallery.title}, original: ${gallery.downloadOriginalImage}');
-
-    _generateComicInfoInDisk(gallery);
 
     _submitTask(
       gid: gallery.gid,
@@ -683,7 +684,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     );
 
     try {
-      io.File file = io.File(path.join(computeGalleryDownloadAbsolutePath(galleryDetail.rawTitle, gallery.gid), 'ComicInfo.xml'));
+      io.File file = io.File(path.join(computeGalleryDownloadAbsolutePath(gallery.title, gallery.gid), 'ComicInfo.xml'));
       if (!await file.exists()) {
         await file.create(recursive: true);
       }
