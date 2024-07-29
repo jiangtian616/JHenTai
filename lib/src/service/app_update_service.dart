@@ -14,6 +14,8 @@ import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/service/isolate_service.dart';
 import 'package:jhentai/src/service/local_block_rule_service.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
+import 'package:jhentai/src/service/quick_search_service.dart';
+import 'package:jhentai/src/service/search_history_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/service/path_service.dart';
@@ -769,11 +771,13 @@ class MigrateStorageConfigHandler implements UpdateHandler {
     if (map != null) {
       Map<String, SearchConfig> quickSearchConfigs = LinkedHashMap.from(map.map((key, value) => MapEntry(key, SearchConfig.fromJson(value))));
       await localConfigService.write(configKey: ConfigEnum.quickSearch, value: jsonEncode(quickSearchConfigs));
+      await quickSearchService.refreshBean();
     }
 
     List? searchHistories = storageService.read(ConfigEnum.searchHistory.key);
     if (searchHistories != null) {
       await localConfigService.write(configKey: ConfigEnum.searchHistory, value: jsonEncode(searchHistories));
+      await searchHistoryService.refreshBean();
     }
 
     await localConfigService.write(configKey: ConfigEnum.migrateStorageConfig, value: 'true');
