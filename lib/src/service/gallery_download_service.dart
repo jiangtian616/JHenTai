@@ -128,7 +128,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     _ensureDownloadDirExists();
 
     /// If it's a new download task, record info.
-    if (!resume && !await _initGalleryInfo(gallery)) {
+    if (!resume) {
       if (!await _initGalleryInfo(gallery)) {
         return;
       }
