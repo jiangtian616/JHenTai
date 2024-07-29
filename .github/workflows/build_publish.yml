@@ -181,7 +181,7 @@ jobs:
           cp ../../../assets/icon_512.png usr/share/icons/hicolor/512x512/apps/top.jtmonster.jhentai.png
 
           cd ..
-          dpkg-deb --build JHenTai-${{ steps.get_version.outputs.version }}-Linux-amd64
+          dpkg-deb --build --root-owner-group JHenTai-${{ steps.get_version.outputs.version }}-Linux-amd64
 
           # Build AppImage
           wget -O appimage-builder https://github.com/AppImageCrafters/appimage-builder/releases/download/v1.1.0/appimage-builder-1.1.0-x86_64.AppImage
