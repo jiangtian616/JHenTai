@@ -49,7 +49,7 @@ class EHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   static const String domainFrontingExtraKey = 'JHDF';
 
   @override
-  List<JHLifeCircleBean> get initDependencies => super.initDependencies..addAll([networkSetting]);
+  List<JHLifeCircleBean> get initDependencies => super.initDependencies..addAll([networkSetting, ehSetting]);
 
   @override
   Future<void> doInitBean() async {
