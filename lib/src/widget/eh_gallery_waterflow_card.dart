@@ -143,7 +143,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
       builder: (context, constraints) {
         FittedSizes fittedSizes = applyBoxFit(
           BoxFit.fitWidth,
-          Size(gallery.cover.width!, gallery.cover.height!),
+          Size(gallery.cover.width ?? 150.0, gallery.cover.height ?? 200.0),
           Size(
             constraints.maxWidth,
             min(

@@ -44,11 +44,19 @@ GalleryHistoryModel gallery2GalleryHistoryModel(Gallery gallery) {
 }
 
 Gallery galleryHistoryModel2Gallery(GalleryHistoryModel model) {
+  /// https://ehgt.org/87/e2/87e24175b6984d84b2d68a5beff3610b614cc712-1760553-1280-1798-png_250.jpg
+  /// https://s.exhentai.org/t/db/3b/db3ba9e175fde7230d5e54b26fda010b18db3a7d-6604356-2096-3002-png_250.jpg
+
+  RegExpMatch? match = RegExp(r'(\d+)-(\d+)-(jpg|png)_250.jpg$').firstMatch(model.coverUrl);
   return Gallery(
     galleryUrl: model.galleryUrl,
     title: model.title,
     category: model.category,
-    cover: GalleryImage(url: model.coverUrl),
+    cover: GalleryImage(
+      url: model.coverUrl,
+      width: double.tryParse(match?.group(1) ?? ''),
+      height: double.tryParse(match?.group(2) ?? ''),
+    ),
     pageCount: model.pageCount,
     rating: model.rating,
     hasRated: false,

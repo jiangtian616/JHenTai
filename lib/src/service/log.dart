@@ -58,44 +58,49 @@ class LogService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
 
   /// For actions that print params
   void trace(Object msg, [bool withStack = false]) {
-    _initConsoleLogger().then((_) => _consoleLogger?.t(msg, stackTrace: withStack ? null : StackTrace.empty));
-    _initVerboseFileLogger().then((_) => _verboseFileLogger?.t(msg, stackTrace: withStack ? null : StackTrace.empty));
+    _initLogger().then((_) {
+      _consoleLogger?.t(msg, stackTrace: withStack ? null : StackTrace.empty);
+      _verboseFileLogger?.t(msg, stackTrace: withStack ? null : StackTrace.empty);
+    });
   }
 
   /// For actions that is invisible to user
   void debug(Object msg, [bool withStack = false]) {
-    _initConsoleLogger().then((_) => _consoleLogger?.d(msg, stackTrace: withStack ? null : StackTrace.empty));
-    _initVerboseFileLogger().then((_) => _verboseFileLogger?.d(msg, stackTrace: withStack ? null : StackTrace.empty));
+    _initLogger().then((_) {
+      _consoleLogger?.d(msg, stackTrace: withStack ? null : StackTrace.empty);
+      _verboseFileLogger?.d(msg, stackTrace: withStack ? null : StackTrace.empty);
+    });
   }
 
   /// For actions that is visible to user
   void info(Object msg, [bool withStack = false]) {
-    _initConsoleLogger().then((_) => _consoleLogger?.i(msg, stackTrace: withStack ? null : StackTrace.empty));
-    _initVerboseFileLogger().then((_) => _verboseFileLogger?.i(msg, stackTrace: withStack ? null : StackTrace.empty));
+    _initLogger().then((_) {
+      _consoleLogger?.i(msg, stackTrace: withStack ? null : StackTrace.empty);
+      _verboseFileLogger?.i(msg, stackTrace: withStack ? null : StackTrace.empty);
+    });
   }
 
   void warning(Object msg, [Object? error, bool withStack = false]) {
-    _initConsoleLogger().then((_) => _consoleLogger?.w(msg, stackTrace: withStack ? null : StackTrace.empty));
-    _initVerboseFileLogger().then((_) => _verboseFileLogger?.w(msg, stackTrace: withStack ? null : StackTrace.empty));
-
-    if (advancedSetting.enableVerboseLogging.isTrue) {
-      _initWarningFileLogger().then((_) => _warningFileLogger?.w(msg, stackTrace: withStack ? null : StackTrace.empty));
-    }
+    _initLogger().then((_) {
+      _consoleLogger?.w(msg, stackTrace: withStack ? null : StackTrace.empty);
+      _verboseFileLogger?.w(msg, stackTrace: withStack ? null : StackTrace.empty);
+      _warningFileLogger?.w(msg, stackTrace: withStack ? null : StackTrace.empty);
+    });
   }
 
   void error(Object msg, [Object? error, StackTrace? stackTrace]) {
-    _initConsoleLogger().then((_) => _consoleLogger?.e(msg, error: error, stackTrace: stackTrace));
-    _initVerboseFileLogger().then((_) => _verboseFileLogger?.e(msg, error: error, stackTrace: stackTrace));
-    if (advancedSetting.enableVerboseLogging.isTrue) {
-      _initWarningFileLogger().then((_) => _verboseFileLogger?.e(msg, error: error, stackTrace: stackTrace));
-    }
+    _initLogger().then((_) {
+      _consoleLogger?.e(msg, error: error, stackTrace: stackTrace);
+      _verboseFileLogger?.e(msg, error: error, stackTrace: stackTrace);
+      _warningFileLogger?.e(msg, error: error, stackTrace: stackTrace);
+    });
   }
 
   void download(Object msg) {
-    _initConsoleLogger().then((_) => _consoleLogger?.t(msg, stackTrace: StackTrace.empty));
-    if (advancedSetting.enableVerboseLogging.isTrue) {
-      _initDownloadFileLogger().then((_) => _verboseFileLogger?.t(msg, stackTrace: StackTrace.empty));
-    }
+    _initLogger().then((_) {
+      _consoleLogger?.t(msg, stackTrace: StackTrace.empty);
+      _downloadFileLogger?.t(msg, stackTrace: StackTrace.empty);
+    });
   }
 
   Future<void> uploadError(dynamic throwable, {dynamic stackTrace, Map<String, dynamic>? extraInfos}) async {
@@ -141,40 +146,37 @@ class LogService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     }
   }
 
-  Future<void> _initConsoleLogger() async {
+  Future<void> _initLogger() async {
     _consoleLogger ??= Logger(printer: devPrinter);
-    return _consoleLogger!.init;
-  }
 
-  Future<void> _initVerboseFileLogger() async {
     await _initLogDir();
+    String fileName = DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now());
+
     _verboseFileLogger ??= Logger(
       printer: HybridPrinter(prodPrinterWithBox, trace: prodPrinterWithoutBox, debug: prodPrinterWithoutBox, info: prodPrinterWithoutBox),
       filter: EHLogFilter(),
-      output: FileOutput(file: File(path.join(logDirPath!, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}.log'))),
+      output: FileOutput(file: File(path.join(logDirPath!, '$fileName.log'))),
     );
-    return _verboseFileLogger!.init;
-  }
+    if (advancedSetting.enableVerboseLogging.isTrue) {
+      _warningFileLogger ??= Logger(
+        level: Level.warning,
+        printer: prodPrinterWithBox,
+        filter: ProductionFilter(),
+        output: FileOutput(file: File(path.join(logDirPath!, '${fileName}_error.log'))),
+      );
+      _downloadFileLogger ??= Logger(
+        printer: prodPrinterWithoutBox,
+        filter: ProductionFilter(),
+        output: FileOutput(file: File(path.join(logDirPath!, '${fileName}_download.log'))),
+      );
+    }
 
-  Future<void> _initWarningFileLogger() async {
-    await _initLogDir();
-    _warningFileLogger ??= Logger(
-      level: Level.warning,
-      printer: prodPrinterWithBox,
-      filter: ProductionFilter(),
-      output: FileOutput(file: File(path.join(logDirPath!, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}_error.log'))),
-    );
-    return _warningFileLogger!.init;
-  }
-
-  Future<void> _initDownloadFileLogger() async {
-    await _initLogDir();
-    _downloadFileLogger ??= Logger(
-      printer: prodPrinterWithoutBox,
-      filter: ProductionFilter(),
-      output: FileOutput(file: File(path.join(logDirPath!, '${DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now())}_download.log'))),
-    );
-    return _downloadFileLogger!.init;
+    await Future.wait([
+      _consoleLogger!.init,
+      _verboseFileLogger!.init,
+      if (_warningFileLogger != null) _warningFileLogger!.init,
+      if (_downloadFileLogger != null) _downloadFileLogger!.init,
+    ]);
   }
 }
 
