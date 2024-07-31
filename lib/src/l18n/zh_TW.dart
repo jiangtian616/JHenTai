@@ -800,7 +800,7 @@ favnote：配對收藏備註
       'cosplayer': 'Coser',
       'reclass': '重新分類',
       'temp': '暫時',
-      'other': '其他',
+      'other': '其它',
     };
   }
 }
