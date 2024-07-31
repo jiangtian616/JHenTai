@@ -182,7 +182,6 @@ class AppDb extends _$AppDb {
       });
     } on Exception catch (e) {
       log.error('Update archive failed!', e);
-      log.uploadError(e);
       rethrow;
     }
   }
