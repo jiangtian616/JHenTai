@@ -300,7 +300,7 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       child: Center(
         child: GetBuilder<GalleryDownloadService>(
           id: '${logic.downloadService.galleryDownloadProgressId}::${gallery.gid}',
-          builder: (_) => downloadProgress.downloadStatus == DownloadStatus.downloading
+          builder: (_) => Container(child: downloadProgress.downloadStatus == DownloadStatus.downloading
               ? GetBuilder<GalleryDownloadService>(
                   id: '${logic.downloadService.galleryDownloadSpeedComputerId}::${gallery.gid}',
                   builder: (_) => Text(
@@ -315,6 +315,7 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                   downloadProgress.downloadStatus == DownloadStatus.paused ? Icons.play_arrow : Icons.done,
                   color: UIConfig.downloadPageGridTextColor,
                 ),
+          ).paddingAll(30),
         ),
       ),
     );
