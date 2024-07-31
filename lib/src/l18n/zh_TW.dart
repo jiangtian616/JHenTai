@@ -228,7 +228,7 @@ class zh_TW {
       'network': '網路',
       'performance': '性能',
       'mouseWheel': '滑鼠滾輪',
-      'advanced': '高級',
+      'advanced': '進階',
       'cloud': '雲端',
       'about': '關於',
       'security': '安全',
