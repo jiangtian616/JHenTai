@@ -83,28 +83,28 @@ class AppDb extends _$AppDb {
             await m.alterTable(TableMigration(image));
           }
           if (from < 3) {
-            await m.addColumn(galleryDownloaded, galleryDownloaded.downloadOriginalImage);
+            await m.addColumn(galleryDownloadedOld, galleryDownloadedOld.downloadOriginalImage);
           }
           if (from < 4) {
-            await m.addColumn(galleryDownloaded, galleryDownloaded.priority);
+            await m.addColumn(galleryDownloadedOld, galleryDownloadedOld.priority);
           }
           if (from < 11) {
-            await m.addColumn(galleryDownloaded, galleryDownloaded.sortOrder);
+            await m.addColumn(galleryDownloadedOld, galleryDownloadedOld.sortOrder);
             await m.addColumn(galleryGroup, galleryGroup.sortOrder);
-            await m.addColumn(archiveDownloaded, archiveDownloaded.sortOrder);
+            await m.addColumn(archiveDownloadedOld, archiveDownloadedOld.sortOrder);
             await m.addColumn(archiveGroup, archiveGroup.sortOrder);
           }
           if (from < 5) {
-            await m.addColumn(galleryDownloaded, galleryDownloaded.groupName);
-            await m.addColumn(archiveDownloaded, archiveDownloaded.groupName);
+            await m.addColumn(galleryDownloadedOld, galleryDownloadedOld.groupName);
+            await m.addColumn(archiveDownloadedOld, archiveDownloadedOld.groupName);
             await _updateArchive(m);
           }
           if (from < 6) {
             await _updateHistory(m);
           }
           if (5 <= from && from < 7) {
-            await m.addColumn(galleryDownloaded, galleryDownloaded.groupName);
-            await m.addColumn(archiveDownloaded, archiveDownloaded.groupName);
+            await m.addColumn(galleryDownloadedOld, galleryDownloadedOld.groupName);
+            await m.addColumn(archiveDownloadedOld, archiveDownloadedOld.groupName);
           }
           if (from < 8) {
             await _createGroupTable(m);
