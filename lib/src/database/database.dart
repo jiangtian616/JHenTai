@@ -121,7 +121,6 @@ class AppDb extends _$AppDb {
           if (from < 14) {
             await m.createTable(tagCount);
             await m.createTable(dioCache);
-            await m.createIndex(idxUrl);
           }
           if (from < 15) {
             await _migrateSuperResolutionInfo(m);
