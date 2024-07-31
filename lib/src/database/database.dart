@@ -121,6 +121,8 @@ class AppDb extends _$AppDb {
           if (from < 14) {
             await m.createTable(tagCount);
             await m.createTable(dioCache);
+            await m.createIndex(idxExpireDate);
+            await m.createIndex(idxUrl);
           }
           if (from < 15) {
             await _migrateSuperResolutionInfo(m);
@@ -141,12 +143,14 @@ class AppDb extends _$AppDb {
           if (from < 20) {
             await m.createTable(blockRule);
           }
-          if (from < 21) {
+          if (17 <= from && from < 21) {
             await m.addColumn(galleryDownloaded, galleryDownloaded.tags);
             await m.addColumn(galleryDownloaded, galleryDownloaded.tagRefreshTime);
-            await m.createIndex(gIdxTagRefreshTime);
             await m.addColumn(archiveDownloaded, archiveDownloaded.tags);
             await m.addColumn(archiveDownloaded, archiveDownloaded.tagRefreshTime);
+          }
+          if (from < 21) {
+            await m.createIndex(gIdxTagRefreshTime);
             await m.createIndex(aIdxTagRefreshTime);
             await m.createTable(galleryHistoryV2);
           }
@@ -179,6 +183,7 @@ class AppDb extends _$AppDb {
     } on Exception catch (e) {
       log.error('Update archive failed!', e);
       log.uploadError(e);
+      rethrow;
     }
   }
 
@@ -226,6 +231,7 @@ class AppDb extends _$AppDb {
     } on Exception catch (e) {
       log.error('Update history failed!', e);
       log.uploadError(e);
+      rethrow;
     }
   }
 
@@ -251,6 +257,7 @@ class AppDb extends _$AppDb {
     } on Exception catch (e) {
       log.error('Create Group Table failed!', e);
       log.uploadError(e);
+      rethrow;
     }
   }
 
@@ -285,6 +292,7 @@ class AppDb extends _$AppDb {
     } on Exception catch (e) {
       log.error('Migrate super resolution info failed!', e);
       log.uploadError(e);
+      rethrow;
     }
   }
 
@@ -350,6 +358,7 @@ class AppDb extends _$AppDb {
     } catch (e) {
       log.error('Migrate downloaded info failed!', e);
       log.uploadError(e);
+      rethrow;
     }
   }
 
