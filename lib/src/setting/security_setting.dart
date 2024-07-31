@@ -73,7 +73,10 @@ class SecuritySetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
         );
       });
     }
+  }
 
+  @override
+  void doAfterBeanReady() {
     ever(enableAuthOnResume, (_) {
       if (enableAuthOnResume.isTrue) {
         saveEnableBlur(true);
@@ -90,9 +93,6 @@ class SecuritySetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
       }
     });
   }
-
-  @override
-  void doAfterBeanReady() {}
 
   Future<void> saveEnableBlur(bool enableBlur) async {
     log.debug('saveEnableBlur:$enableBlur');

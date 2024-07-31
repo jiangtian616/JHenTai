@@ -101,16 +101,16 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
       'layout': layout.value.index,
     });
   }
-  
+
   @override
-  Future<void> doInitBean() async {
+  Future<void> doInitBean() async {}
+
+  @override
+  void doAfterBeanReady() {
     ever(themeMode, (_) {
       Get.changeThemeMode(themeMode.value);
     });
   }
-
-  @override
-  void doAfterBeanReady() {}
 
   Future<void> saveThemeMode(ThemeMode themeMode) async {
     log.debug('saveThemeMode:${themeMode.name}');
