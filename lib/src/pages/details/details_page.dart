@@ -853,7 +853,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
               _buildTorrentButton(context),
               _buildStatisticButton(context),
             ],
-          ),
+          ).enableMouseDrag(withScrollBar: false),
         ),
       ),
     );
