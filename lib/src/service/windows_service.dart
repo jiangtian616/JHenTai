@@ -66,8 +66,6 @@ class WindowService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean 
         windowManagerInited = true;
       });
     }
-
-    log.info('Init WindowService success');
   }
 
   @override
