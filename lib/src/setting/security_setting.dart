@@ -59,7 +59,10 @@ class SecuritySetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
       supportBiometricAuth = types.isNotEmpty;
       log.debug('Init SecuritySetting.supportBiometricAuth: $supportBiometricAuth');
     }
+  }
 
+  @override
+  void doAfterBeanReady() {
     if (GetPlatform.isAndroid) {
       ever(enableBlur, (_) {
         if (enableBlur.isTrue) {
@@ -73,10 +76,7 @@ class SecuritySetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
         );
       });
     }
-  }
-
-  @override
-  void doAfterBeanReady() {
+    
     ever(enableAuthOnResume, (_) {
       if (enableAuthOnResume.isTrue) {
         saveEnableBlur(true);
