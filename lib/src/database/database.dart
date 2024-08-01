@@ -72,6 +72,9 @@ class AppDb extends _$AppDb {
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
+      beforeOpen: (OpeningDetails details) async {
+        log.info('Database version before: ${details.versionBefore}, now: ${details.versionNow}');
+      },
       onUpgrade: (Migrator m, int from, int to) async {
         log.warning('Database version: $from -> $to');
         if (from > to) {
@@ -79,84 +82,86 @@ class AppDb extends _$AppDb {
         }
 
         try {
-          if (from < 2) {
-            await m.alterTable(TableMigration(image));
-          }
-          if (from < 3) {
-            await m.addColumn(galleryDownloadedOld, galleryDownloadedOld.downloadOriginalImage);
-          }
-          if (from < 4) {
-            await m.addColumn(galleryDownloadedOld, galleryDownloadedOld.priority);
-          }
-          if (from < 11) {
-            await m.addColumn(galleryDownloadedOld, galleryDownloadedOld.sortOrder);
-            await m.addColumn(galleryGroup, galleryGroup.sortOrder);
-            await m.addColumn(archiveDownloadedOld, archiveDownloadedOld.sortOrder);
-            await m.addColumn(archiveGroup, archiveGroup.sortOrder);
-          }
-          if (from < 5) {
-            await m.addColumn(galleryDownloadedOld, galleryDownloadedOld.groupName);
-            await m.addColumn(archiveDownloadedOld, archiveDownloadedOld.groupName);
-            await _updateArchive(m);
-          }
-          if (from < 6) {
-            await _updateHistory(m);
-          }
-          if (5 <= from && from < 7) {
-            await m.addColumn(galleryDownloadedOld, galleryDownloadedOld.groupName);
-            await m.addColumn(archiveDownloadedOld, archiveDownloadedOld.groupName);
-          }
-          if (from < 8) {
-            await _createGroupTable(m);
-          }
-          if (from < 9) {
-            await _updateConfigFileLocation();
-          }
-          if (from < 10) {
-            await _deleteImageSizeColumn(m);
-          }
-          if (from < 13) {
-            await m.createTable(superResolutionInfo);
-          }
-          if (from < 14) {
-            await m.createTable(tagCount);
-            await m.createTable(dioCache);
-            await m.createIndex(idxExpireDate);
-            await m.createIndex(idxUrl);
-          }
-          if (from < 15) {
-            await _migrateSuperResolutionInfo(m);
-          }
-          if (from < 16) {
-            await m.createIndex(idxKey);
-            await m.createIndex(idxTagName);
-          }
-          if (from < 17) {
-            await _migrateDownloadedInfo(m);
-          }
-          if (from < 18) {
-            await m.createIndex(idxLastReadTime);
-          }
-          if (from < 19) {
-            await _migrateArchiveStatus(m);
-          }
-          if (from < 20) {
-            await m.createTable(blockRule);
-          }
-          if (17 <= from && from < 21) {
-            await m.addColumn(galleryDownloaded, galleryDownloaded.tags);
-            await m.addColumn(galleryDownloaded, galleryDownloaded.tagRefreshTime);
-            await m.addColumn(archiveDownloaded, archiveDownloaded.tags);
-            await m.addColumn(archiveDownloaded, archiveDownloaded.tagRefreshTime);
-          }
-          if (from < 21) {
-            await m.createIndex(gIdxTagRefreshTime);
-            await m.createIndex(aIdxTagRefreshTime);
-            await m.createTable(galleryHistoryV2);
-          }
-          if (from < 22) {
-            await m.createTable(localConfig);
-          }
+          await transaction(() async {
+            if (from < 2) {
+              await m.alterTable(TableMigration(image));
+            }
+            if (from < 3) {
+              await m.addColumn(galleryDownloadedOld, galleryDownloadedOld.downloadOriginalImage);
+            }
+            if (from < 4) {
+              await m.addColumn(galleryDownloadedOld, galleryDownloadedOld.priority);
+            }
+            if (from < 11) {
+              await m.addColumn(galleryDownloadedOld, galleryDownloadedOld.sortOrder);
+              await m.addColumn(galleryGroup, galleryGroup.sortOrder);
+              await m.addColumn(archiveDownloadedOld, archiveDownloadedOld.sortOrder);
+              await m.addColumn(archiveGroup, archiveGroup.sortOrder);
+            }
+            if (from < 5) {
+              await m.addColumn(galleryDownloadedOld, galleryDownloadedOld.groupName);
+              await m.addColumn(archiveDownloadedOld, archiveDownloadedOld.groupName);
+              await _updateArchive(m);
+            }
+            if (from < 6) {
+              await _updateHistory(m);
+            }
+            if (5 <= from && from < 7) {
+              await m.addColumn(galleryDownloadedOld, galleryDownloadedOld.groupName);
+              await m.addColumn(archiveDownloadedOld, archiveDownloadedOld.groupName);
+            }
+            if (from < 8) {
+              await _createGroupTable(m);
+            }
+            if (from < 9) {
+              await _updateConfigFileLocation();
+            }
+            if (from < 10) {
+              await _deleteImageSizeColumn(m);
+            }
+            if (from < 13) {
+              await m.createTable(superResolutionInfo);
+            }
+            if (from < 14) {
+              await m.createTable(tagCount);
+              await m.createTable(dioCache);
+              await m.createIndex(idxExpireDate);
+              await m.createIndex(idxUrl);
+            }
+            if (from < 15) {
+              await _migrateSuperResolutionInfo(m);
+            }
+            if (from < 16) {
+              await m.createIndex(idxKey);
+              await m.createIndex(idxTagName);
+            }
+            if (from < 17) {
+              await _migrateDownloadedInfo(m);
+            }
+            if (from < 18) {
+              await m.createIndex(idxLastReadTime);
+            }
+            if (from < 19) {
+              await _migrateArchiveStatus(m);
+            }
+            if (from < 20) {
+              await m.createTable(blockRule);
+            }
+            if (17 <= from && from < 21) {
+              await m.addColumn(galleryDownloaded, galleryDownloaded.tags);
+              await m.addColumn(galleryDownloaded, galleryDownloaded.tagRefreshTime);
+              await m.addColumn(archiveDownloaded, archiveDownloaded.tags);
+              await m.addColumn(archiveDownloaded, archiveDownloaded.tagRefreshTime);
+            }
+            if (from < 21) {
+              await m.createIndex(gIdxTagRefreshTime);
+              await m.createIndex(aIdxTagRefreshTime);
+              await m.createTable(galleryHistoryV2);
+            }
+            if (from < 22) {
+              await m.createTable(localConfig);
+            }
+          });
         } on Exception catch (e) {
           log.error(e);
           log.uploadError(e, extraInfos: {'from': from, 'to': to});
