@@ -374,32 +374,22 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
       context: context,
       builder: (_) => EHConfigTypeSelectDialog(title: 'selectExportItems'.tr),
     );
-
     if (result?.isEmpty ?? true) {
       return;
     }
 
-    String? path;
-    try {
-      path = await FilePicker.platform.getDirectoryPath();
-    } on Exception catch (e) {
-      log.error('Pick export path failed', e);
-      return;
+    String fileName = '${CloudConfigService.configFileName}-${DateFormat('yyyyMMddHHmmss').format(DateTime.now())}.json';
+    if (GetPlatform.isMobile) {
+      return _exportDataMobile(fileName, result);
+    } else {
+      return _exportDataDesktop(fileName, result);
     }
+  }
 
-    if (path == null) {
-      return;
-    }
-    if (!checkPermissionForPath(path)) {
-      toast('invalidPath'.tr, isShort: false);
-      return;
-    }
-
+  Future<void> _exportDataMobile(String fileName, List<CloudConfigTypeEnum>? result) async {
     if (_exportDataLoadingState == LoadingState.loading) {
       return;
     }
-
-    log.info('Export data to $path');
     setStateSafely(() => _exportDataLoadingState = LoadingState.loading);
 
     List<CloudConfig> uploadConfigs = [];
@@ -410,22 +400,73 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
       }
     }
 
-    File file = File(join(path, '${CloudConfigService.configFileName}-${DateFormat('yyyyMMddHHmmss').format(DateTime.now())}.json'));
-    if (await file.exists()) {
-      await file.create(recursive: true);
-    }
-
     try {
-      await file.writeAsString(await isolateService.jsonEncodeAsync(uploadConfigs));
+      String? savedPath = await FilePicker.platform.saveFile(
+        fileName: fileName,
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+        bytes: utf8.encode(await isolateService.jsonEncodeAsync(uploadConfigs)),
+        lockParentWindow: true,
+      );
+      if (savedPath != null) {
+        log.info('Export data to $savedPath success');
+        toast('success'.tr);
+        setStateSafely(() => _exportDataLoadingState = LoadingState.success);
+      }
     } on Exception catch (e) {
       log.error('Export data failed', e);
       toast('internalError'.tr);
       setStateSafely(() => _exportDataLoadingState = LoadingState.error);
-      file.delete();
+    }
+  }
+
+  Future<void> _exportDataDesktop(String fileName, List<CloudConfigTypeEnum>? result) async {
+    if (_exportDataLoadingState == LoadingState.loading) {
+      return;
+    }
+    setStateSafely(() => _exportDataLoadingState = LoadingState.loading);
+
+    String? savedPath;
+    try {
+      savedPath = await FilePicker.platform.saveFile(
+        fileName: fileName,
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+        lockParentWindow: true,
+      );
+    } on Exception catch (e) {
+      log.error('Select save path for exporting data failed', e);
+      toast('internalError'.tr);
+      setStateSafely(() => _exportDataLoadingState = LoadingState.error);
       return;
     }
 
-    toast('success'.tr);
-    setStateSafely(() => _exportDataLoadingState = LoadingState.success);
+    if (savedPath == null) {
+      return;
+    }
+
+    List<CloudConfig> uploadConfigs = [];
+    for (CloudConfigTypeEnum type in result!) {
+      CloudConfig? config = await cloudConfigService.getLocalConfig(type);
+      if (config != null) {
+        uploadConfigs.add(config);
+      }
+    }
+
+    File file = File(savedPath);
+    try {
+      if (await file.exists()) {
+        await file.create(recursive: true);
+      }
+      await file.writeAsString(await isolateService.jsonEncodeAsync(uploadConfigs));
+      log.info('Export data to $savedPath success');
+      toast('success'.tr);
+      setStateSafely(() => _exportDataLoadingState = LoadingState.success);
+    } on Exception catch (e) {
+      log.error('Export data failed', e);
+      toast('internalError'.tr);
+      setStateSafely(() => _exportDataLoadingState = LoadingState.error);
+      file.delete().ignore();
+    }
   }
 }
