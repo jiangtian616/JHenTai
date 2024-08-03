@@ -152,8 +152,8 @@ class AppDb extends _$AppDb {
               await m.alterTable(TableMigration(archiveDownloaded, newColumns: [archiveDownloaded.tags, archiveDownloaded.tagRefreshTime]));
             }
             if (from < 21) {
-              await m.createIndex(gIdxTagRefreshTime);
-              await m.createIndex(aIdxTagRefreshTime);
+              await m.createIndex(gIdxTagRefreshTime).ignoreDuplicateIndex();
+              await m.createIndex(aIdxTagRefreshTime).ignoreDuplicateIndex();
               await m.createTable(galleryHistoryV2);
             }
             if (from < 22) {
@@ -393,3 +393,17 @@ LazyDatabase _openConnection() {
 }
 
 AppDb appDb = AppDb();
+
+extension _MigragateDuplicateIndexErrorCache on Future<void> {
+  Future<void> ignoreDuplicateIndex() async {
+    try {
+      await this;
+    } on SqliteException catch (e) {
+      if (e.resultCode == SqlError.SQLITE_ERROR && RegExp(r'index \S+ already exists').hasMatch(e.message)) {
+        log.warning('Ignore duplicate index error: ${e.message}');
+      } else {
+        rethrow;
+      }
+    }
+  }
+}
