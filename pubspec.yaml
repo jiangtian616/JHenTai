@@ -56,7 +56,7 @@ dependencies:
     git:
       url: https://github.com/jiangtian616/photo_view
       ref: separate
-  package_info_plus: 7.0.0
+  package_info_plus: 8.0.1
   file_picker: 8.0.6
   local_auth: 2.2.0
   blur: 3.1.0
@@ -88,7 +88,7 @@ dependencies:
       url: https://github.com/jiangtian616/flutter_draggable_gridview
   flutter_displaymode: 0.5.0
   pinput: 2.2.31
-  wakelock_plus: 1.2.4
+  wakelock_plus: 1.2.7
   flex_color_picker: 3.1.0
   zoom_widget: 2.0.1
   android_intent_plus: 5.0.2
