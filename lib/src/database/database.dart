@@ -92,12 +92,6 @@ class AppDb extends _$AppDb {
             if (from < 4) {
               await m.addColumn(galleryDownloadedOld, galleryDownloadedOld.priority);
             }
-            if (from < 11) {
-              await m.addColumn(galleryDownloadedOld, galleryDownloadedOld.sortOrder);
-              await m.addColumn(galleryGroup, galleryGroup.sortOrder);
-              await m.addColumn(archiveDownloadedOld, archiveDownloadedOld.sortOrder);
-              await m.addColumn(archiveGroup, archiveGroup.sortOrder);
-            }
             if (from < 5) {
               await m.addColumn(galleryDownloadedOld, galleryDownloadedOld.groupName);
               await m.addColumn(archiveDownloadedOld, archiveDownloadedOld.groupName);
@@ -119,27 +113,33 @@ class AppDb extends _$AppDb {
             if (from < 10) {
               await _deleteImageSizeColumn(m);
             }
+            if (from < 11) {
+              await m.addColumn(galleryDownloadedOld, galleryDownloadedOld.sortOrder);
+              await m.addColumn(galleryGroup, galleryGroup.sortOrder);
+              await m.addColumn(archiveDownloadedOld, archiveDownloadedOld.sortOrder);
+              await m.addColumn(archiveGroup, archiveGroup.sortOrder);
+            }
             if (from < 13) {
               await m.createTable(superResolutionInfo);
             }
             if (from < 14) {
               await m.createTable(tagCount);
               await m.createTable(dioCache);
-              await m.createIndex(idxExpireDate);
-              await m.createIndex(idxUrl);
+              await m.createIndex(idxExpireDate).ignoreDuplicateIndex();
+              await m.createIndex(idxUrl).ignoreDuplicateIndex();
             }
             if (from < 15) {
               await _migrateSuperResolutionInfo(m);
             }
             if (from < 16) {
-              await m.createIndex(idxKey);
-              await m.createIndex(idxTagName);
+              await m.createIndex(idxKey).ignoreDuplicateIndex();
+              await m.createIndex(idxTagName).ignoreDuplicateIndex();
             }
             if (from < 17) {
               await _migrateDownloadedInfo(m);
             }
             if (from < 18) {
-              await m.createIndex(idxLastReadTime);
+              await m.createIndex(idxLastReadTime).ignoreDuplicateIndex();
             }
             if (from < 19) {
               await _migrateArchiveStatus(m);
