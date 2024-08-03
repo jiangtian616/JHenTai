@@ -998,7 +998,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           pageCount: state.galleryDetails?.pageCount ?? state.gallery?.pageCount ?? state.galleryMetadata!.pageCount,
           useSuperResolution: false,
         ),
-      )?.whenComplete(() => Future.delayed(const Duration(milliseconds: 300))).whenComplete(() => updateSafely([readButtonId]));
+      )?.whenComplete(() => Future.delayed(const Duration(milliseconds: 800))).whenComplete(() => updateSafely([readButtonId]));
       return;
     }
 
@@ -1023,7 +1023,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         pageCount: gallery.pageCount,
         useSuperResolution: superResolutionService.get(state.galleryUrl.gid, SuperResolutionType.gallery) != null,
       ),
-    )?.whenComplete(() => Future.delayed(const Duration(milliseconds: 300))).whenComplete(() => updateSafely([readButtonId]));
+    )?.whenComplete(() => Future.delayed(const Duration(milliseconds: 800))).whenComplete(() => updateSafely([readButtonId]));
   }
 
   Future<int> getReadIndexRecord() async {
