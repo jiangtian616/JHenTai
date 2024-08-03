@@ -148,10 +148,8 @@ class AppDb extends _$AppDb {
               await m.createTable(blockRule);
             }
             if (17 <= from && from < 21) {
-              await m.addColumn(galleryDownloaded, galleryDownloaded.tags);
-              await m.addColumn(galleryDownloaded, galleryDownloaded.tagRefreshTime);
-              await m.addColumn(archiveDownloaded, archiveDownloaded.tags);
-              await m.addColumn(archiveDownloaded, archiveDownloaded.tagRefreshTime);
+              await m.alterTable(TableMigration(galleryDownloaded, newColumns: [galleryDownloaded.tags, galleryDownloaded.tagRefreshTime]));
+              await m.alterTable(TableMigration(archiveDownloaded, newColumns: [archiveDownloaded.tags, archiveDownloaded.tagRefreshTime]));
             }
             if (from < 21) {
               await m.createIndex(gIdxTagRefreshTime);
