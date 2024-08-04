@@ -282,7 +282,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
             onTap: () {
               if (state.searchConfigInitCompleter.isCompleted) {
                 state.searchConfig.keyword = (state.searchConfig.keyword?.substring(0, state.suggestions[index].matchStart) ?? '') +
-                    '${state.suggestions[index].tagData.namespace}:"${state.suggestions[index].tagData.key}\$"';
+                    '${state.suggestions[index].tagData.namespace}:"${state.suggestions[index].tagData.key}\$" ';
                 state.searchFieldFocusNode.requestFocus();
                 logic.update([logic.searchFieldId]);
               }
