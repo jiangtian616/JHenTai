@@ -306,7 +306,14 @@ class _EHCommentTextBody extends StatelessWidget {
     /// link
     if (node.localName == 'a') {
       Widget child = Wrap(
-        children: node.nodes.map((childTag) => Text.rich(buildTag(context, childTag))).toList(),
+        children: node.nodes
+            .map(
+              (childTag) => Text.rich(
+                buildTag(context, childTag),
+                style: const TextStyle(color: UIConfig.commentLinkColor, fontSize: UIConfig.commentLinkFontSize),
+              ),
+            )
+            .toList(),
       );
 
       if (!inDetailPage) {
