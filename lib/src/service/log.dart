@@ -57,50 +57,44 @@ class LogService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   Future<void> doAfterBeanReady() async {}
 
   /// For actions that print params
-  void trace(Object msg, [bool withStack = false]) {
-    _initLogger().then((_) {
-      _consoleLogger?.t(msg, stackTrace: withStack ? null : StackTrace.empty);
-      _verboseFileLogger?.t(msg, stackTrace: withStack ? null : StackTrace.empty);
-    });
+  void trace(Object msg, [bool withStack = false]) async {
+    await _initLogger();
+    _consoleLogger?.t(msg, stackTrace: withStack ? null : StackTrace.empty);
+    _verboseFileLogger?.t(msg, stackTrace: withStack ? null : StackTrace.empty);
   }
 
   /// For actions that is invisible to user
-  void debug(Object msg, [bool withStack = false]) {
-    _initLogger().then((_) {
-      _consoleLogger?.d(msg, stackTrace: withStack ? null : StackTrace.empty);
-      _verboseFileLogger?.d(msg, stackTrace: withStack ? null : StackTrace.empty);
-    });
+  void debug(Object msg, [bool withStack = false]) async {
+    await _initLogger();
+    _consoleLogger?.d(msg, stackTrace: withStack ? null : StackTrace.empty);
+    _verboseFileLogger?.d(msg, stackTrace: withStack ? null : StackTrace.empty);
   }
 
   /// For actions that is visible to user
-  void info(Object msg, [bool withStack = false]) {
-    _initLogger().then((_) {
-      _consoleLogger?.i(msg, stackTrace: withStack ? null : StackTrace.empty);
-      _verboseFileLogger?.i(msg, stackTrace: withStack ? null : StackTrace.empty);
-    });
+  void info(Object msg, [bool withStack = false]) async {
+    await _initLogger();
+    _consoleLogger?.i(msg, stackTrace: withStack ? null : StackTrace.empty);
+    _verboseFileLogger?.i(msg, stackTrace: withStack ? null : StackTrace.empty);
   }
 
-  void warning(Object msg, [Object? error, bool withStack = false]) {
-    _initLogger().then((_) {
-      _consoleLogger?.w(msg, stackTrace: withStack ? null : StackTrace.empty);
-      _verboseFileLogger?.w(msg, stackTrace: withStack ? null : StackTrace.empty);
-      _warningFileLogger?.w(msg, stackTrace: withStack ? null : StackTrace.empty);
-    });
+  void warning(Object msg, [Object? error, bool withStack = false]) async {
+    await _initLogger();
+    _consoleLogger?.w(msg, stackTrace: withStack ? null : StackTrace.empty);
+    _verboseFileLogger?.w(msg, stackTrace: withStack ? null : StackTrace.empty);
+    _warningFileLogger?.w(msg, stackTrace: withStack ? null : StackTrace.empty);
   }
 
-  void error(Object msg, [Object? error, StackTrace? stackTrace]) {
-    _initLogger().then((_) {
-      _consoleLogger?.e(msg, error: error, stackTrace: stackTrace);
-      _verboseFileLogger?.e(msg, error: error, stackTrace: stackTrace);
-      _warningFileLogger?.e(msg, error: error, stackTrace: stackTrace);
-    });
+  void error(Object msg, [Object? error, StackTrace? stackTrace]) async {
+    await _initLogger();
+    _consoleLogger?.e(msg, error: error, stackTrace: stackTrace);
+    _verboseFileLogger?.e(msg, error: error, stackTrace: stackTrace);
+    _warningFileLogger?.e(msg, error: error, stackTrace: stackTrace);
   }
 
-  void download(Object msg) {
-    _initLogger().then((_) {
-      _consoleLogger?.t(msg, stackTrace: StackTrace.empty);
-      _downloadFileLogger?.t(msg, stackTrace: StackTrace.empty);
-    });
+  void download(Object msg) async {
+    await _initLogger();
+    _consoleLogger?.t(msg, stackTrace: StackTrace.empty);
+    _downloadFileLogger?.t(msg, stackTrace: StackTrace.empty);
   }
 
   Future<void> uploadError(dynamic throwable, {dynamic stackTrace, Map<String, dynamic>? extraInfos}) async {
