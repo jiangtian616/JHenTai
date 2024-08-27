@@ -39,6 +39,7 @@ class LocalBlockRuleService with JHLifeCircleBeanErrorCatch implements JHLifeCir
       GalleryTagRegexLocalBlockRuleHandler(),
       GalleryUploaderRegexLocalBlockRuleHandler(),
       CommentUserNameRegexLocalBlockRuleHandler(),
+      CommentContentRegexLocalBlockRuleHandler(),
     ]);
   }
 
