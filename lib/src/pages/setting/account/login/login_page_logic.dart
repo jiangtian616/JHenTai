@@ -130,10 +130,12 @@ class LoginPageLogic extends GetxController {
       ipbPassHash: userInfoOrErrorMsg['ipbPassHash'],
     );
 
-    ehRequest.requestForum(
+    ehRequest
+        .requestForum(
       userInfoOrErrorMsg['ipbMemberId'],
       EHSpiderParser.forumPage2UserInfo,
-    ).then((userInfo) {
+    )
+        .then((userInfo) {
       userSetting.saveUserNameAndAvatarAndNickName(
         userName: userInfo!['userName']!,
         avatarImgUrl: userInfo['avatarImgUrl'],
@@ -187,7 +189,7 @@ class LoginPageLogic extends GetxController {
       state.loginState = LoadingState.error;
       update([loadingStateId]);
       return;
-    } on Exception catch (e) {
+    } catch (e) {
       log.error('loginFail'.tr, e.toString());
       snack('loginFail'.tr, e.toString(), isShort: true);
 
