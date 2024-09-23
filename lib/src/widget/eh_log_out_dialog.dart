@@ -16,8 +16,8 @@ class LogoutDialog extends StatelessWidget {
         CupertinoDialogAction(child: Text('cancel'.tr), onPressed: backRoute),
         CupertinoDialogAction(
           child: Text('OK'.tr, style: TextStyle(color: UIConfig.alertColor(context))),
-          onPressed: () {
-            ehRequest.requestLogout();
+          onPressed: () async {
+            await ehRequest.requestLogout();
             backRoute();
           },
         ),

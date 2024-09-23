@@ -132,6 +132,6 @@ class MyTagsSetting with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean 
 
   Future<void> _clearOnlineTagSets() async {
     onlineTags.clear();
-    log.info('clear MyTagsSetting success');
+    log.debug('clear MyTagsSetting success');
   }
 }

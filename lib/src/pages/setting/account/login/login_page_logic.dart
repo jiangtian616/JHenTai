@@ -162,7 +162,7 @@ class LoginPageLogic extends GetxController {
     ]);
 
     bool useEXSite = false;
-    if (state.igneous != null && state.igneous != 'null' && state.igneous != 'mystery' && state.igneous != 'deleted') {
+    if (state.igneous != null && state.igneous != '' && state.igneous != 'null' && state.igneous != 'mystery' && state.igneous != 'deleted') {
       ehRequest.storeEHCookies([
         Cookie('igneous', state.igneous!),
       ]);
@@ -184,7 +184,7 @@ class LoginPageLogic extends GetxController {
       log.error('loginFail'.tr, e.errorMsg);
       snack('loginFail'.tr, e.errorMsg ?? '', isShort: true);
 
-      ehRequest.removeAllCookies();
+      await ehRequest.removeAllCookies();
 
       state.loginState = LoadingState.error;
       update([loadingStateId]);
@@ -193,7 +193,7 @@ class LoginPageLogic extends GetxController {
       log.error('loginFail'.tr, e.toString());
       snack('loginFail'.tr, e.toString(), isShort: true);
 
-      ehRequest.removeAllCookies();
+      await ehRequest.removeAllCookies();
 
       state.loginState = LoadingState.error;
       update([loadingStateId]);
@@ -203,7 +203,7 @@ class LoginPageLogic extends GetxController {
     if (userInfo == null) {
       log.info('Login failed by cookie.');
 
-      ehRequest.removeAllCookies();
+      await ehRequest.removeAllCookies();
 
       state.loginState = LoadingState.error;
       update([loadingStateId]);

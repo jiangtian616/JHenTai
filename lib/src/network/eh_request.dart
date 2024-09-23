@@ -200,8 +200,8 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _cookieManager.storeEHCookies(cookies);
   }
 
-  void removeAllCookies() {
-    _cookieManager.removeAllCookies();
+  Future<bool> removeAllCookies() {
+    return _cookieManager.removeAllCookies();
   }
 
   Future<void> removeCacheByUrl(String url) {
@@ -295,8 +295,8 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }
 
   Future<void> requestLogout() async {
-    removeAllCookies();
-    userSetting.clearBeanConfig();
+    await removeAllCookies();
+    await userSetting.clearBeanConfig();
     if (GetPlatform.isDesktop) {
       Directory directory = Directory(join(pathService.getVisibleDir().path, EHConsts.desktopWebviewDirectoryName));
       if (await directory.exists()) {

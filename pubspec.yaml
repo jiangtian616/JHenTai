@@ -63,8 +63,8 @@ dependencies:
   flutter_windowmanager: 0.2.0
   animate_do: 3.3.4
   share_plus: 8.0.3
-  syncfusion_flutter_charts: 25.2.4
-  archive: 3.4.10
+  syncfusion_flutter_charts: 27.1.48
+  archive: 3.6.1
   fluttertoast: 8.1.2
   battery_plus: 6.0.1
   throttling: 1.0.0

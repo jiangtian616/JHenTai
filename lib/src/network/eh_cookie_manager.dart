@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:jhentai/src/setting/user_setting.dart';
 
 import '../enum/config_enum.dart';
 import '../service/local_config_service.dart';
@@ -54,16 +55,14 @@ class EHCookieManager extends Interceptor {
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     try {
-      _saveEHCookies(response);
+      if (userSetting.hasLoggedIn()) {
+        _saveEHCookies(response);
+      }
       handler.next(response);
     } on Exception catch (e, s) {
       final err = DioException(requestOptions: response.requestOptions, error: e, stackTrace: s);
       return handler.reject(err, true);
     }
-  }
-
-  Future<void> storeEHCookiesString(String cookiesString) {
-    return storeEHCookies(CookieUtil.parse2Cookies(cookiesString));
   }
 
   Future<void> storeEHCookies(List<Cookie> cookies) async {
@@ -73,8 +72,10 @@ class EHCookieManager extends Interceptor {
     await replaceCookies(cookies);
   }
 
-  Future<void> removeAllCookies() {
-    return localConfigService.delete(configKey: ConfigEnum.ehCookie);
+  Future<bool> removeAllCookies() async {
+    bool success = await localConfigService.delete(configKey: ConfigEnum.ehCookie);
+    cookies = [Cookie('nw', '1')];
+    return success;
   }
 
   Future<void> _saveEHCookies(Response response) async {
