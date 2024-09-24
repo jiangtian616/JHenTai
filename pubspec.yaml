@@ -60,7 +60,8 @@ dependencies:
   file_picker: 8.0.6
   local_auth: 2.2.0
   blur: 3.1.0
-  flutter_windowmanager: 0.2.0
+  flutter_windowmanager: 
+    git: https://github.com/AQuadic/flutter_windowmanager
   animate_do: 3.3.4
   share_plus: 8.0.3
   syncfusion_flutter_charts: 27.1.48

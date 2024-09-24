@@ -532,10 +532,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_displaymode
-      sha256: "136b0314fdc78fe995b0b75061fe9ff8210dffca84f8f8110f8f71029479db3b"
+      sha256: "42c5e9abd13d28ed74f701b60529d7f8416947e58256e6659c5550db719c57ef"
       url: "https://pub.dev"
     source: hosted
-    version: "0.5.0"
+    version: "0.6.0"
   flutter_draggable_gridview:
     dependency: "direct main"
     description:
@@ -652,10 +652,11 @@ packages:
   flutter_windowmanager:
     dependency: "direct main"
     description:
-      name: flutter_windowmanager
-      sha256: b4d0bc06f6777952b729c0cdb7ce9ad1ecabd8b8b1cb0acb57a36621457dab1b
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "3f5e7dae93e3c83368d2db0da7ee0dbcfd14d895"
+      url: "https://github.com/AQuadic/flutter_windowmanager"
+    source: git
     version: "0.2.0"
   fluttertoast:
     dependency: "direct main"
