@@ -29,14 +29,16 @@ class SettingEHPage extends StatefulWidget {
 }
 
 class _SettingEHPageState extends State<SettingEHPage> {
-  int currentConsumption = -1;
-  int totalLimit = 5000;
-  int resetCost = -1;
+  bool isDonator = false;
+  int? currentConsumption;
+  int? totalLimit;
+  int? resetCost;
+
   LoadingState imageLimitLoadingState = LoadingState.idle;
   LoadingState resetLimitLoadingState = LoadingState.idle;
 
-  String credit = '-1';
-  String gp = '-1';
+  String credit = '';
+  String gp = '';
   LoadingState assetsLoadingState = LoadingState.idle;
 
   @override
@@ -138,7 +140,13 @@ class _SettingEHPageState extends State<SettingEHPage> {
       onLongPress: resetLimit,
       child: ListTile(
         title: Text('imageLimits'.tr),
-        subtitle: Text('${'resetCost'.tr} $resetCost GP'),
+        subtitle: LoadingStateIndicator(
+          loadingState: imageLimitLoadingState,
+          loadingWidgetBuilder: () => const Text(''),
+          idleWidgetBuilder: () => const Text(''),
+          errorWidgetSameWithIdle: true,
+          successWidgetBuilder: () => isDonator ? Text('${'resetCost'.tr} $resetCost GP').fadeIn() : Text('isNotDonator'.tr),
+        ),
         onTap: fetchDataFromHomePage,
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
@@ -149,8 +157,8 @@ class _SettingEHPageState extends State<SettingEHPage> {
               indicatorRadius: 10,
               idleWidgetBuilder: () => const SizedBox(),
               errorWidgetSameWithIdle: true,
-            ).marginOnly(right: 12),
-            Text('$currentConsumption / $totalLimit').marginOnly(right: 4),
+              successWidgetBuilder: () => isDonator ? Text('$currentConsumption / $totalLimit').fadeIn() : const Text(''),
+            ).marginOnly(right: 4),
             const Icon(Icons.keyboard_arrow_right),
           ],
         ),
@@ -161,7 +169,13 @@ class _SettingEHPageState extends State<SettingEHPage> {
   Widget _buildAssets() {
     return ListTile(
       title: Text('assets'.tr),
-      subtitle: Text('GP: $gp    Credits: $credit'),
+      subtitle: LoadingStateIndicator(
+        loadingState: assetsLoadingState,
+        loadingWidgetBuilder: () => const Text(''),
+        idleWidgetBuilder: () => const Text(''),
+        errorWidgetSameWithIdle: true,
+        successWidgetBuilder: () => Text('GP: $gp    Credits: $credit').fadeIn(),
+      ),
       onTap: getAssets,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
@@ -172,7 +186,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
             indicatorRadius: 10,
             idleWidgetBuilder: () => const SizedBox(),
             errorWidgetSameWithIdle: true,
-          ),
+          ).marginOnly(right: 4),
           const Icon(Icons.keyboard_arrow_right),
         ],
       ),
@@ -202,11 +216,11 @@ class _SettingEHPageState extends State<SettingEHPage> {
       imageLimitLoadingState = LoadingState.loading;
     });
 
-    Map<String, int> map = {};
+    ({bool isDonator, int? currentConsumption, int? totalLimit, int? resetCost}) result;
     try {
-      await retry(
+      result = await retry(
         () async {
-          map = await ehRequest.requestHomePage(parser: EHSpiderParser.homePage2ImageLimit);
+          return ehRequest.requestHomePage(parser: EHSpiderParser.homePage2ImageLimit);
         },
         retryIf: (e) => e is DioException,
         maxAttempts: 3,
@@ -225,15 +239,23 @@ class _SettingEHPageState extends State<SettingEHPage> {
         imageLimitLoadingState = LoadingState.error;
       });
       return;
+    } catch (e) {
+      log.error('Fetch image quota failed', e);
+      snack('Fetch image quota failed'.tr, e.toString(), isShort: false);
+      setStateSafely(() {
+        imageLimitLoadingState = LoadingState.error;
+      });
+      return;
     }
 
     log.debug('Fetch image quota success');
 
     setStateSafely(() {
-      currentConsumption = map['currentConsumption']!;
-      totalLimit = map['totalLimit']!;
-      resetCost = map['resetCost']!;
-      imageLimitLoadingState = LoadingState.idle;
+      isDonator = result.isDonator;
+      currentConsumption = result.currentConsumption;
+      totalLimit = result.totalLimit;
+      resetCost = result.resetCost;
+      imageLimitLoadingState = LoadingState.success;
     });
   }
 
@@ -261,6 +283,13 @@ class _SettingEHPageState extends State<SettingEHPage> {
     } on EHSiteException catch (e) {
       log.error('Get eh assets failed', e.message);
       snack('Get eh assets failed'.tr, e.message, isShort: false);
+      setStateSafely(() {
+        assetsLoadingState = LoadingState.error;
+      });
+      return;
+    } catch (e) {
+      log.error('Get eh assets failed', e);
+      snack('Get eh assets failed'.tr, e.toString(), isShort: false);
       setStateSafely(() {
         assetsLoadingState = LoadingState.error;
       });

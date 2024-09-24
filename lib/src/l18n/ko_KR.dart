@@ -259,9 +259,10 @@ class ko_KR {
       'redirect2EH': '사용 가능하면 EH 사이트로 재요청',
       'redirect2Hints': 'EH 사이트 분석을 먼저 합니다.',
       'pleaseLogInToOperate': '실행하려면 로그인하세요',
-      'imageLimits': '이미지 한도',
+      'imageLimits': 'Image Quota',
       'resetCost': 'Long press to reset, cost',
       'assets': 'Assets',
+      'isNotDonator': 'Non-donators can\'t view the quota',
 
       /// tag setting page
       'myTags': '나의 태그',

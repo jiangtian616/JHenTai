@@ -33,7 +33,7 @@ class LoadingStateIndicator extends StatelessWidget {
   final double indicatorRadius;
   final Color? indicatorColor;
   final WidgetBuilder? idleWidgetBuilder;
-  final Widget? loadingWidget;
+  final WidgetBuilder? loadingWidgetBuilder;
   final Widget? noMoreWidget;
   final Widget? noDataWidget;
   final WidgetBuilder? successWidgetBuilder;
@@ -52,7 +52,7 @@ class LoadingStateIndicator extends StatelessWidget {
     this.indicatorRadius = 12,
     this.indicatorColor,
     this.idleWidgetBuilder,
-    this.loadingWidget,
+    this.loadingWidgetBuilder,
     this.noMoreWidget,
     this.noDataWidget,
     this.successWidgetBuilder,
@@ -67,7 +67,7 @@ class LoadingStateIndicator extends StatelessWidget {
 
     switch (loadingState) {
       case LoadingState.loading:
-        child = loadingWidget ??
+        child = loadingWidgetBuilder?.call() ??
             (useCupertinoIndicator
                 ? CupertinoActivityIndicator(radius: indicatorRadius, color: indicatorColor)
                 : Center(child: UIConfig.loadingAnimation(context)));

@@ -729,16 +729,25 @@ class EHSpiderParser {
     );
   }
 
-  static Map<String, int> homePage2ImageLimit(Headers headers, dynamic data) {
+  static ({bool isDonator, int? currentConsumption, int? totalLimit, int? resetCost}) homePage2ImageLimit(Headers headers, dynamic data) {
     Document document = parse(data as String);
 
-    Map<String, int> map = {
-      'currentConsumption': int.parse(document.querySelector('.stuffbox > .homebox > p > strong:nth-child(1)')!.text),
-      'totalLimit': int.parse(document.querySelector('.stuffbox > .homebox > p > strong:nth-child(3)')!.text),
-      'resetCost': int.parse(document.querySelector('.stuffbox > .homebox > p:nth-child(3) > strong')!.text),
-    };
+    bool isDonator = document.querySelector('.stuffbox > .homebox > form > p > input[value="Reset Quota"]') != null;
+    if (!isDonator) {
+      return (
+        isDonator: isDonator,
+        currentConsumption: null,
+        totalLimit: null,
+        resetCost: null,
+      );
+    }
 
-    return map;
+    return (
+      isDonator: isDonator,
+      currentConsumption: int.parse(document.querySelector('.stuffbox > .homebox > p > strong:nth-child(1)')!.text),
+      totalLimit: int.parse(document.querySelector('.stuffbox > .homebox > p > strong:nth-child(3)')!.text.replaceAll(',', '')),
+      resetCost: int.parse(document.querySelector('.stuffbox > .homebox > p:nth-child(3) > strong')!.text),
+    );
   }
 
   static ({List<({int number, String name})> tagSets, bool tagSetEnable, Color? tagSetBackgroundColor, List<WatchedTag> tags, String apikey})

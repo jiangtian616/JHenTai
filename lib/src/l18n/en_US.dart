@@ -259,9 +259,10 @@ class en_US {
       'redirect2EH': 'Redirect to EH site if Available',
       'redirect2Hints': 'Will try to parse EH site first',
       'pleaseLogInToOperate': 'Please Log In To Operate',
-      'imageLimits': 'Image Limits',
+      'imageLimits': 'Image Quota',
       'resetCost': 'Long press to reset, cost',
       'assets': 'Assets',
+      'isNotDonator': 'Non-donators can\'t view the quota',
 
       /// tag setting page
       'myTags': 'My Tags',

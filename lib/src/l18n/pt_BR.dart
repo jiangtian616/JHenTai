@@ -260,9 +260,10 @@ class pt_BR {
       'redirect2EH': 'Redirecionar para o site EH, se disponível',
       'redirect2Hints': 'Tentar analisar o site EH primeiro',
       'pleaseLogInToOperate': 'Faça login para operar',
-      'imageLimits': 'Limite de imagens',
+      'imageLimits': 'Image Quota',
       'resetCost': 'Long press to reset, cost',
       'assets': 'Assets',
+      'isNotDonator': 'Non-donators can\'t view the quota',
 
       /// tag setting page
       'myTags': 'Minhas Tags',

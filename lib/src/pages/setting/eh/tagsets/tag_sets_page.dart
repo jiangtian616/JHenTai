@@ -48,7 +48,7 @@ class TagSetsPage extends StatelessWidget {
       builder: (_) => LoadingStateIndicator(
         loadingState: state.loadingState,
         idleWidgetBuilder: () => const SizedBox(),
-        loadingWidget: const SizedBox(),
+        loadingWidgetBuilder: () => const SizedBox(),
         errorWidgetSameWithIdle: true,
         successWidgetBuilder: () => IconButton(
           icon: Icon(

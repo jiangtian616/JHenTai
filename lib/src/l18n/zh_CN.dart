@@ -261,6 +261,7 @@ class zh_CN {
       'imageLimits': '图片配额',
       'resetCost': '长按重置，花费',
       'assets': '资产',
+      'isNotDonator': '非捐赠者无法查看配额',
 
       /// tag setting page
       'myTags': '我的标签',

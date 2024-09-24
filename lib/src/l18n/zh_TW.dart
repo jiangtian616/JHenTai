@@ -261,6 +261,7 @@ class zh_TW {
       'imageLimits': '圖片配額',
       'resetCost': '長按重設，花費',
       'assets': '資產',
+      'isNotDonator': '非捐贈者無法查看配額',
 
       /// tag setting page
       'myTags': '我的標籤',
