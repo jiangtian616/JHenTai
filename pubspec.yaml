@@ -86,7 +86,7 @@ dependencies:
     # remove assert
     git:
       url: https://github.com/jiangtian616/flutter_draggable_gridview
-  flutter_displaymode: 0.5.0
+  flutter_displaymode: 0.6.0
   pinput: 2.2.31
   wakelock_plus: 1.2.7
   flex_color_picker: 3.1.0
