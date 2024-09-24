@@ -28,7 +28,7 @@ jobs:
             artifact_name: release-Windows
             artifact_path: build/windows/*.zip
           - target: Linux
-            os: ubuntu-latest
+            os: ubuntu-24.04
             artifact_name: release-Linux
             artifact_path: |
               build/linux/*.AppImage
@@ -147,7 +147,7 @@ jobs:
         run: |
           # Prepare build depends
           sudo apt-get update -y
-          sudo apt-get install -y ninja-build libgtk-3-dev libfuse2 webkit2gtk-4.0 webkit2gtk-4.1 libfuse2
+          sudo apt-get install -y ninja-build libgtk-3-dev libfuse2 webkit2gtk-4.0 webkit2gtk-4.1
           
           # Compile
           flutter config --enable-linux-desktop
