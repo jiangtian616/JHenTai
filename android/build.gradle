@@ -29,14 +29,9 @@ subprojects {
             }
         }
     }
-}
-subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
+    project.evaluationDependsOn(":app")
 }
-subprojects {
-    project.evaluationDependsOn(':app')
-}
-
 
 rootProject.buildDir = '../build'
 subprojects {
