@@ -18,6 +18,8 @@ allprojects {
     }
 }
 
+rootProject.buildDir = '../build'
+
 // https://github.com/flutter/flutter/issues/153668
 subprojects {
     afterEvaluate { project ->
@@ -43,14 +45,6 @@ subprojects {
 
     project.buildDir = "${rootProject.buildDir}/${project.name}"
     project.evaluationDependsOn(":app")
-}
-
-rootProject.buildDir = '../build'
-subprojects {
-    project.buildDir = "${rootProject.buildDir}/${project.name}"
-}
-subprojects {
-    project.evaluationDependsOn(':app')
 }
 
 tasks.register("clean", Delete) {
