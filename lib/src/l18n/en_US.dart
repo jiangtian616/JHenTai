@@ -81,6 +81,7 @@ class en_US {
       'tap2Login': 'Log In',
       'parse': 'parse',
       'igneousHint': 'igneous(EX required)',
+      'refreshIgneousFailed': 'Refresh Igneous Failed',
 
       /// request
       'sadPanda': 'Sad Panda(no data). Refer: https://github.com/jiangtian616/JHenTai/wiki/Common-Questions',

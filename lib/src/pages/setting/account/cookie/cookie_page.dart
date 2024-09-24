@@ -121,19 +121,43 @@ class _CookiePageState extends State<CookiePage> {
 
       log.info('Refresh igneous cookie, set-cookie: ${response.headers.value('set-cookie')}');
 
-      response.headers.value('set-cookie')?.split(';').forEach((cookie) {
-        String name = cookie.split('=')[0];
-        String value = cookie.split('=')[1];
-        if (name == EHConsts.igneousCookieName) {
-          ehRequest.storeEHCookies([Cookie(name, value)]);
+      List<String>? cookiePairs = response.headers.value('set-cookie')?.split(';');
+      if (cookiePairs == null) {
+        snack('refreshIgneousFailed'.tr, 'Sad panda');
+        setStateSafely(() {
+          _refreshIgneousState = LoadingState.error;
+        });
+        return;
+      }
+
+      for (String cookiePair in cookiePairs) {
+        String name = cookiePair.split('=')[0];
+        String value = cookiePair.split('=')[1];
+        if (name != EHConsts.igneousCookieName) {
+          continue;
         }
-      });
 
-      toast('success'.tr);
+        if (value == 'mystery') {
+          snack('refreshIgneousFailed'.tr, 'Sad panda');
+          setStateSafely(() {
+            _refreshIgneousState = LoadingState.error;
+          });
+          return;
+        }
 
+        ehRequest.storeEHCookies([Cookie(name, value)]);
+        toast('success'.tr);
+        setStateSafely(() {
+          _refreshIgneousState = LoadingState.success;
+        });
+        return;
+      }
+
+      snack('refreshIgneousFailed'.tr, 'Sad panda');
       setStateSafely(() {
-        _refreshIgneousState = LoadingState.success;
+        _refreshIgneousState = LoadingState.error;
       });
+      return;
     } on DioException catch (e) {
       log.error('Refresh igneous failed: ${e.message}');
       snack('refreshIgneousFailed'.tr, e.errorMsg ?? '');

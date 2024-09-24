@@ -81,6 +81,7 @@ class ko_KR {
       'tap2Login': '로그인',
       'parse': 'parse',
       'igneousHint': 'igneous(EX required)',
+      'refreshIgneousFailed': 'Refresh Igneous Failed',
 
       /// request
       'sadPanda': 'Sad Panda(no data). Refer: https://github.com/jiangtian616/JHenTai/wiki/%EC%9E%90%EC%A3%BC-%ED%95%98%EB%8A%94-%EC%A7%88%EB%AC%B8',

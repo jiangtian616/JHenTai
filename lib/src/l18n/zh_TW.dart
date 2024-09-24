@@ -81,6 +81,7 @@ class zh_TW {
       'tap2Login': '點擊登入',
       'parse': '解析',
       'igneousHint': 'igneous（裡站必帶）',
+      'refreshIgneousFailed': '刷新Igneous失敗',
 
       /// request
       'sadPanda': 'Sad Panda(無響應資料). 解決參考Github Wiki: https://github.com/jiangtian616/JHenTai/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98',
