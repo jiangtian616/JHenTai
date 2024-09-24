@@ -35,9 +35,6 @@ class SettingAccountPage extends StatelessWidget {
       title: Text('login'.tr),
       trailing: IconButton(onPressed: () => toRoute(Routes.login), icon: const Icon(Icons.keyboard_arrow_right)),
       onTap: () => toRoute(Routes.login),
-      // onTap: () async {
-      //   await ehRequest.requestLogout();
-      // },
     );
   }
 

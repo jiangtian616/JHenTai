@@ -76,4 +76,6 @@ class EHConsts {
   static const String EX509ImageUrl = 'https://exhentai.org/img/509.gif';
 
   static const String desktopWebviewDirectoryName = 'EBWebView';
+  
+  static const String igneousCookieName = 'igneous';
 }
