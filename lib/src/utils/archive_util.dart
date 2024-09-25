@@ -7,7 +7,7 @@ Future<bool> extractZipArchive(String archivePath, String extractPath) {
       InputFileStream? inputStream;
       try {
         inputStream = InputFileStream(path[0]);
-        extractArchiveToDisk(ZipDecoder().decodeBuffer(inputStream), path[1]);
+        await extractArchiveToDisk(ZipDecoder().decodeBuffer(inputStream), path[1]);
       } on Exception catch (_) {
         return false;
       } finally {
