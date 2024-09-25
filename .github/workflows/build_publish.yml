@@ -28,7 +28,7 @@ jobs:
             artifact_name: release-Windows
             artifact_path: build/windows/*.zip
           - target: Linux
-            os: ubuntu-24.04
+            os: ubuntu-22.04
             artifact_name: release-Linux
             artifact_path: |
               build/linux/*.AppImage
@@ -205,7 +205,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     name: Publish
     needs: Build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
