@@ -461,7 +461,7 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
             ),
             separatorBuilder: (_, __) => const SizedBox(width: 6),
           ),
-        ),
+        ).enableMouseDrag(withScrollBar: false),
       ),
     );
   }

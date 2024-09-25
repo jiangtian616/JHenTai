@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 
 import '../config/ui_config.dart';
@@ -45,6 +46,6 @@ class _AutoModeIntervalDialogState extends State<AutoModeIntervalDialog> {
           },
         ),
       ],
-    );
+    ).enableMouseDrag(withScrollBar: false);
   }
 }
