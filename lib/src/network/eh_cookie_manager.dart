@@ -55,9 +55,7 @@ class EHCookieManager extends Interceptor {
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     try {
-      if (userSetting.hasLoggedIn()) {
-        _saveEHCookies(response);
-      }
+      _saveEHCookies(response);
       handler.next(response);
     } on Exception catch (e, s) {
       final err = DioException(requestOptions: response.requestOptions, error: e, stackTrace: s);
