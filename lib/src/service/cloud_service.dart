@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/enum/config_type_enum.dart';
@@ -61,10 +62,18 @@ class CloudConfigService with JHLifeCircleBeanErrorCatch implements JHLifeCircle
       case CloudConfigTypeEnum.blockRules:
         List list = await isolateService.jsonDecodeAsync(config.config);
         List<LocalBlockRule> blockRules = list.map((e) => LocalBlockRule.fromJson(e)).toList();
+
         for (LocalBlockRule blockRule in blockRules) {
           blockRule.id = null;
-          await localBlockRuleService.upsertBlockRule(blockRule);
         }
+        
+        blockRules.groupListsBy((element) => element.groupId!).forEach((groupId, rules) async {
+          bool exists = await localBlockRuleService.existsGroup(groupId);
+          if (!exists) {
+            await localBlockRuleService.replaceBlockRulesByGroup(groupId, rules);
+          }
+        });
+
         break;
       case CloudConfigTypeEnum.history:
         List list = await isolateService.jsonDecodeAsync(config.config);

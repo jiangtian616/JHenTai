@@ -131,6 +131,10 @@ class LocalBlockRuleService with JHLifeCircleBeanErrorCatch implements JHLifeCir
     return Future.value((success: true, msg: null));
   }
 
+  Future<bool> existsGroup(String groupId) {
+    return BlockRuleDao.existsGroup(groupId);
+  }
+
   Future<List<T>> executeRules<T>(List<T> items) async {
     List<T> results = List.of(items);
 
@@ -613,8 +617,7 @@ enum LocalBlockPatternEnum {
 
   const LocalBlockPatternEnum(this.code, this.attributes, this.desc);
 
-  static List<LocalBlockPatternEnum> withAttribute(LocalBlockAttributeEnum? attribute) =>
-      LocalBlockPatternEnum.values.where((e) => e.attributes.contains(attribute)).toList();
+  static List<LocalBlockPatternEnum> withAttribute(LocalBlockAttributeEnum? attribute) => LocalBlockPatternEnum.values.where((e) => e.attributes.contains(attribute)).toList();
 
   static LocalBlockPatternEnum fromCode(int code) {
     return LocalBlockPatternEnum.values.where((e) => e.code == code).first;
