@@ -744,9 +744,9 @@ class EHSpiderParser {
 
     return (
       isDonator: isDonator,
-      currentConsumption: int.parse(document.querySelector('.stuffbox > .homebox > p > strong:nth-child(1)')!.text),
+      currentConsumption: int.parse(document.querySelector('.stuffbox > .homebox > p > strong:nth-child(1)')!.text.replaceAll(',', '')),
       totalLimit: int.parse(document.querySelector('.stuffbox > .homebox > p > strong:nth-child(3)')!.text.replaceAll(',', '')),
-      resetCost: int.parse(document.querySelector('.stuffbox > .homebox > p:nth-child(3) > strong')!.text),
+      resetCost: int.parse(document.querySelector('.stuffbox > .homebox > p:nth-child(3) > strong')!.text.replaceAll(',', '')),
     );
   }
 

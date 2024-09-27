@@ -265,6 +265,7 @@ class pt_BR {
       'resetCost': 'Long press to reset, cost',
       'assets': 'Assets',
       'isNotDonator': 'Non-donators can\'t view the quota',
+      'fetchImageQuotaFailed': 'Fetch image quota failed',
 
       /// tag setting page
       'myTags': 'Minhas Tags',

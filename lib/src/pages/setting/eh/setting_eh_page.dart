@@ -227,21 +227,21 @@ class _SettingEHPageState extends State<SettingEHPage> {
       );
     } on DioException catch (e) {
       log.error('Fetch image quota failed', e.errorMsg);
-      snack('Fetch image quota failed'.tr, e.errorMsg ?? '', isShort: false);
+      snack('fetchImageQuotaFailed'.tr, e.errorMsg ?? '', isShort: false);
       setStateSafely(() {
         imageLimitLoadingState = LoadingState.error;
       });
       return;
     } on EHSiteException catch (e) {
       log.error('Fetch image quota failed', e.message);
-      snack('Fetch image quota failed'.tr, e.message, isShort: false);
+      snack('fetchImageQuotaFailed'.tr, e.message, isShort: false);
       setStateSafely(() {
         imageLimitLoadingState = LoadingState.error;
       });
       return;
     } catch (e) {
       log.error('Fetch image quota failed', e);
-      snack('Fetch image quota failed'.tr, e.toString(), isShort: false);
+      snack('fetchImageQuotaFailed'.tr, e.toString(), isShort: false);
       setStateSafely(() {
         imageLimitLoadingState = LoadingState.error;
       });

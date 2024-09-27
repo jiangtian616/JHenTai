@@ -263,6 +263,7 @@ class zh_TW {
       'resetCost': '長按重設，花費',
       'assets': '資產',
       'isNotDonator': '非捐贈者無法查看配額',
+      'fetchImageQuotaFailed': '獲取圖片配額失敗',
 
       /// tag setting page
       'myTags': '我的標籤',

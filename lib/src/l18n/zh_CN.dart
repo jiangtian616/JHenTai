@@ -263,6 +263,7 @@ class zh_CN {
       'resetCost': '长按重置，花费',
       'assets': '资产',
       'isNotDonator': '非捐赠者无法查看配额',
+      'fetchImageQuotaFailed': '获取图片配额失败',
 
       /// tag setting page
       'myTags': '我的标签',
