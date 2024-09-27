@@ -20,4 +20,8 @@ class BlockRuleDao {
   static Future<int> deleteBlockRuleByGroupId(String groupId) {
     return (appDb.delete(appDb.blockRule)..where((r) => r.groupId.equals(groupId))).go();
   }
+
+  static Future<bool> existsGroup(String groupId) {
+    return (appDb.select(appDb.blockRule)..where((r) => r.groupId.equals(groupId))).get().then((value) => value.isNotEmpty);
+  }
 }
