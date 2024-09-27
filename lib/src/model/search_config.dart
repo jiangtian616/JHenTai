@@ -73,6 +73,32 @@ class SearchConfig {
     this.searchFavoriteCategoryIndex,
   });
 
+  SearchConfig.nonHOnly({
+    this.searchType = SearchType.gallery,
+    this.includeDoujinshi = false,
+    this.includeManga = false,
+    this.includeArtistCG = false,
+    this.includeGameCg = false,
+    this.includeWestern = false,
+    this.includeNonH = true,
+    this.includeImageSet = false,
+    this.includeCosplay = false,
+    this.includeAsianPorn = false,
+    this.includeMisc = false,
+    this.keyword,
+    this.tags,
+    this.language,
+    this.onlySearchExpungedGalleries = false,
+    this.onlyShowGalleriesWithTorrents = false,
+    this.pageAtLeast,
+    this.pageAtMost,
+    this.minimumRating = 1,
+    this.disableFilterForLanguage = false,
+    this.disableFilterForUploader = false,
+    this.disableFilterForTags = false,
+    this.searchFavoriteCategoryIndex,
+  });
+
   void enableAllCategories() {
     includeDoujinshi = true;
     includeManga = true;
