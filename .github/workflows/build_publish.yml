@@ -67,7 +67,7 @@ jobs:
         uses: subosito/flutter-action@v2.12.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'master'
+          channel: 'stable'
           cache: true
       # Cache Pod
       - name: Cache Pod
