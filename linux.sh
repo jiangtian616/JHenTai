@@ -6,3 +6,4 @@ flutter build linux --release -t lib/src/main.dart \
 && cd ~/Desktop \
 && zip -ro JHenTai_${version}.zip JHenTai_${version} \
 && rm -rf mkdir ~/Desktop/JHenTai_${version}
+
