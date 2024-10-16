@@ -16,6 +16,7 @@ import 'package:jhentai/src/model/gallery_detail.dart';
 import 'package:jhentai/src/model/gallery_hh_archive.dart';
 import 'package:jhentai/src/model/gallery_hh_info.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
+import 'package:jhentai/src/model/gallery_image_page_url.dart';
 import 'package:jhentai/src/model/gallery_note.dart';
 import 'package:jhentai/src/model/gallery_page.dart';
 import 'package:jhentai/src/model/gallery_stats.dart';
@@ -384,12 +385,18 @@ class EHSpiderParser {
   }
 
   static List<GalleryThumbnail> _detailPageDocument2Thumbnails(Document document) {
+    // 2024-10-15 update
+    Element thumbNailRoot = document.querySelector('#gdt')!;
+    if (thumbNailRoot.classes.isNotEmpty) {
+      return _parseGalleryDetailsForNewThumbnails(thumbNailRoot);
+    }
+
     List<Element> thumbNailElements = document.querySelectorAll('#gdt > .gdtm');
     if (thumbNailElements.isNotEmpty) {
-      return _parseGalleryDetailsSmallThumbnails(thumbNailElements);
+      return _parseGalleryDetailsForOldSmallThumbnails(thumbNailElements);
     }
     thumbNailElements = document.querySelectorAll('#gdt > .gdtl');
-    return _parseGalleryDetailsLargeThumbnails(thumbNailElements);
+    return _parseGalleryDetailsForOldLargeThumbnails(thumbNailElements);
   }
 
   static int _detailPageDocument2ThumbnailsPageCount(Document document) {
@@ -717,7 +724,10 @@ class EHSpiderParser {
     }
 
     bool preferJapaneseTitle = document.querySelector('#tl_1')?.attributes['checked'] != null;
-    bool isLargeThumbnail = document.querySelector('#tssel > div > label > input[checked=checked]')?.parent?.text == ' Large' ? true : false;
+    // 2024-10-15 update
+    bool isNewThumbnailSizeSetting = document.querySelectorAll('#tssel > div').length > 2;
+    String? thumbnailSize = document.querySelector('#tssel > div > label > input[checked=checked]')?.parent?.text;
+    bool isLargeThumbnail = isNewThumbnailSizeSetting ? thumbnailSize != ' Small' : thumbnailSize == ' Large';
     int thumbnailRows = int.parse(document.querySelector('#trsel > div > label > input[checked=checked]')?.parent?.text ?? '4');
 
     return (
@@ -1450,7 +1460,33 @@ class EHSpiderParser {
     return DateFormat('yyyy-MM-dd HH:mm').format(DateFormat('dd MMMM yyyy, HH:mm', 'en_US').parse(postedTimeString));
   }
 
-  static List<GalleryThumbnail> _parseGalleryDetailsSmallThumbnails(List<Element> thumbNailElements) {
+  static List<GalleryThumbnail> _parseGalleryDetailsForNewThumbnails(Element thumbNailRoot) {
+    List<Element> thumbNailElements = thumbNailRoot.querySelectorAll('a');
+
+    return thumbNailElements.map((element) {
+      String href = element.attributes['href'] ?? '';
+
+      /// small:  width:100px;height:142px;background:transparent url(/cm/c74luy6g7ald4d3jtg/2867450-0.jpg) -0px 0 no-repeat
+      /// normal: width:200px;height:284px;background:transparent url(/t/be/ae/beaed99cde9bb18ab6d941a70ac62a66b985bc26-3632552-1550-2200-png_l.jpg) 0 0 no-repeat
+      String style = element.querySelector('div')?.attributes['style'] ?? '';
+      String thumbUrl = RegExp(r'url\((.+)\)').firstMatch(style)!.group(1)!;
+      if (thumbUrl.startsWith('/')) {
+        GalleryImagePageUrl galleryImagePageUrl = GalleryImagePageUrl.parse(href);
+        thumbUrl = (galleryImagePageUrl.isEH ? EHConsts.EHIndex : EHConsts.EXIndex) + thumbUrl;
+      }
+      double? offset = double.tryParse(RegExp(r'\) -(\d+)?px ').firstMatch(style)?.group(1) ?? '');
+      return GalleryThumbnail(
+        href: href,
+        thumbUrl: thumbUrl,
+        isLarge: offset == null,
+        thumbWidth: double.parse(RegExp(r'width:(\d+)?px').firstMatch(style)?.group(1) ?? '0'),
+        thumbHeight: double.parse(RegExp(r'height:(\d+)?px').firstMatch(style)?.group(1) ?? '0') - 1,
+        offSet: offset,
+      );
+    }).toList();
+  }
+
+  static List<GalleryThumbnail> _parseGalleryDetailsForOldSmallThumbnails(List<Element> thumbNailElements) {
     return thumbNailElements.map((element) {
       String href = element.querySelector('div > a')?.attributes['href'] ?? '';
       String style = element.querySelector('div')?.attributes['style'] ?? '';
@@ -1466,7 +1502,7 @@ class EHSpiderParser {
     }).toList();
   }
 
-  static List<GalleryThumbnail> _parseGalleryDetailsLargeThumbnails(List<Element> thumbNailElements) {
+  static List<GalleryThumbnail> _parseGalleryDetailsForOldLargeThumbnails(List<Element> thumbNailElements) {
     return thumbNailElements.map((element) {
       String thumbUrl = element.querySelector('a > img')?.attributes['src'] ?? '';
       List<String> parts = thumbUrl.split('-');

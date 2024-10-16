@@ -1,5 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:extended_image/extended_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
@@ -124,7 +125,7 @@ class EHImage extends StatelessWidget {
       height: containerHeight,
       width: containerWidth,
       handleLoadingProgress: loadingProgressWidgetBuilder != null,
-      printError: false,
+      printError: kDebugMode,
       enableSlideOutPage: enableSlideOutPage,
       clearMemoryCacheWhenDispose: clearMemoryCacheWhenDispose,
       loadStateChanged: (ExtendedImageState state) {
@@ -236,7 +237,7 @@ class EHImage extends StatelessWidget {
   String _replaceEXUrl(String url) {
     Uri rawUri = Uri.parse(url);
     String host = rawUri.host;
-    if (host != 's.exhentai.org' && host != 'exhentai.org') {
+    if (host != 's.exhentai.org') {
       return url;
     }
 
