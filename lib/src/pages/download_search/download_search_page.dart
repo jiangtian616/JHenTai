@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/pages/download_search/download_search_state.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
@@ -254,7 +255,7 @@ class DownloadSearchPage extends StatelessWidget {
               style: TextStyle(fontSize: 11, height: 1, color: UIConfig.ehTagTextColor(context)),
             ),
           ),
-        ),
+        ).enableMouseDrag(withScrollBar: false),
       ),
     );
   }

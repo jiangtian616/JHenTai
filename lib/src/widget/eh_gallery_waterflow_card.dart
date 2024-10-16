@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
@@ -256,7 +257,7 @@ class WaterFallFlowCardTagWaterFlow extends StatelessWidget {
           ),
           itemCount: mergedList.length,
           itemBuilder: (_, int index) => WaterFallFlowTag(galleryTag: mergedList[index]),
-        ),
+        ).enableMouseDrag(withScrollBar: false),
       );
     });
   }

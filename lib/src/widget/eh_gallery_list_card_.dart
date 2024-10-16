@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
@@ -187,7 +188,7 @@ class EHGalleryListCard extends StatelessWidget {
         ),
         itemCount: mergedList.length,
         itemBuilder: (_, int index) => EHTag(tag: mergedList[index]),
-      ),
+      ).enableMouseDrag(withScrollBar: false),
     );
   }
 
