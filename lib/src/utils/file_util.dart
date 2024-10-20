@@ -8,7 +8,8 @@ class FileUtil {
   static final RegExp _archivePathPattern = RegExp(r'Archive - \d+ - .*');
 
   static bool isImageExtension(String path) {
-    return path.endsWith('.jpg') || path.endsWith('.JPG') || path.endsWith('.png') || path.endsWith('.gif') || path.endsWith('.jpeg');
+    String s = path.toLowerCase();
+    return s.endsWith('.jpg') || s.endsWith('.png') || s.endsWith('.gif') || s.endsWith('.jpeg') || s.endsWith('.webp');
   }
 
   static bool isJHenTaiGalleryDirectory(Directory directory) {
