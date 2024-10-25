@@ -66,7 +66,7 @@ class _EHDownloadHHDialogState extends State<EHDownloadHHDialog> {
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [_HHDownloadButtonSet(archive: hhInfo.archives[4]), _HHDownloadButtonSet(archive: hhInfo.archives[5])],
+          children: [_HHDownloadButtonSet(archive: hhInfo.archives[4]), if (hhInfo.archives.length >= 6) _HHDownloadButtonSet(archive: hhInfo.archives[5])],
         ),
       ],
     );
