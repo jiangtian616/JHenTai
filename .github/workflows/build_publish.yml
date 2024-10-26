@@ -51,7 +51,7 @@ jobs:
       version: ${{ steps.get_version.outputs.version }}
     runs-on: ${{ matrix.os }}
     env:
-      FLUTTER_VERSION: 3.24.3
+      FLUTTER_VERSION: 3.27.0-1.0.pre.12
     steps:
       # Checkout branch
       - name: Checkout
