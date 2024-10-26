@@ -215,9 +215,8 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     File file = File(path);
 
     file.create().then((file) => file.writeAsBytes(data)).then(
-          (_) => Share.shareFiles(
-            [path],
-            text: '$index${extension(readPageState.images[index]!.url)}',
+          (_) => Share.shareUri(
+            Uri.file(path),
             sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, readPageState.displayRegionSize.height * 2 / 3),
           ),
         );
@@ -229,11 +228,12 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       return;
     }
 
-    Share.shareFiles(
-      [
-        GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]!.images[index]!.path!),
-      ],
-      text: basename(galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]!.images[index]!.path!),
+    Share.shareUri(
+      Uri.file(
+        GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
+          galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]!.images[index]!.path!,
+        ),
+      ),
       sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, readPageState.displayRegionSize.height * 2 / 3),
     );
   }
@@ -287,7 +287,8 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       return saveOnlineImage(index);
     }
 
-    String fileName = '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_${index}_original${extension(readPageState.images[index]!.originalImageUrl!)}';
+    String fileName =
+        '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_${index}_original${extension(readPageState.images[index]!.originalImageUrl!)}';
     String downloadPath = join(downloadSetting.tempDownloadPath.value, fileName);
     File file = File(downloadPath);
 

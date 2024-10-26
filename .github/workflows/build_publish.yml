@@ -113,6 +113,7 @@ jobs:
       - name: Build iOS
         if: matrix.target == 'ios'
         run: |
+          flutter precache --ios
           cd ios
           pod update
           cd ..
@@ -126,6 +127,7 @@ jobs:
       - name: Build macOS
         if: matrix.target == 'macOS'
         run: |
+          flutter precache --macos
           cd macos
           pod update
           cd ..

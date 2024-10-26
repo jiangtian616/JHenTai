@@ -6703,23 +6703,103 @@ typedef $$OldSuperResolutionInfoTableUpdateCompanionBuilder
   Value<String> imageStatuses,
 });
 
+class $$OldSuperResolutionInfoTableFilterComposer
+    extends Composer<_$AppDb, $OldSuperResolutionInfoTable> {
+  $$OldSuperResolutionInfoTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get gid => $composableBuilder(
+      column: $table.gid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get imageStatuses => $composableBuilder(
+      column: $table.imageStatuses, builder: (column) => ColumnFilters(column));
+}
+
+class $$OldSuperResolutionInfoTableOrderingComposer
+    extends Composer<_$AppDb, $OldSuperResolutionInfoTable> {
+  $$OldSuperResolutionInfoTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get gid => $composableBuilder(
+      column: $table.gid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get imageStatuses => $composableBuilder(
+      column: $table.imageStatuses,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$OldSuperResolutionInfoTableAnnotationComposer
+    extends Composer<_$AppDb, $OldSuperResolutionInfoTable> {
+  $$OldSuperResolutionInfoTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get gid =>
+      $composableBuilder(column: $table.gid, builder: (column) => column);
+
+  GeneratedColumn<int> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<int> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get imageStatuses => $composableBuilder(
+      column: $table.imageStatuses, builder: (column) => column);
+}
+
 class $$OldSuperResolutionInfoTableTableManager extends RootTableManager<
     _$AppDb,
     $OldSuperResolutionInfoTable,
     OldSuperResolutionInfoData,
     $$OldSuperResolutionInfoTableFilterComposer,
     $$OldSuperResolutionInfoTableOrderingComposer,
+    $$OldSuperResolutionInfoTableAnnotationComposer,
     $$OldSuperResolutionInfoTableCreateCompanionBuilder,
-    $$OldSuperResolutionInfoTableUpdateCompanionBuilder> {
+    $$OldSuperResolutionInfoTableUpdateCompanionBuilder,
+    (
+      OldSuperResolutionInfoData,
+      BaseReferences<_$AppDb, $OldSuperResolutionInfoTable,
+          OldSuperResolutionInfoData>
+    ),
+    OldSuperResolutionInfoData,
+    PrefetchHooks Function()> {
   $$OldSuperResolutionInfoTableTableManager(
       _$AppDb db, $OldSuperResolutionInfoTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer: $$OldSuperResolutionInfoTableFilterComposer(
-              ComposerState(db, table)),
-          orderingComposer: $$OldSuperResolutionInfoTableOrderingComposer(
-              ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$OldSuperResolutionInfoTableFilterComposer(
+                  $db: db, $table: table),
+          createOrderingComposer: () =>
+              $$OldSuperResolutionInfoTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$OldSuperResolutionInfoTableAnnotationComposer(
+                  $db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> gid = const Value.absent(),
             Value<int> type = const Value.absent(),
@@ -6744,57 +6824,30 @@ class $$OldSuperResolutionInfoTableTableManager extends RootTableManager<
             status: status,
             imageStatuses: imageStatuses,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
         ));
 }
 
-class $$OldSuperResolutionInfoTableFilterComposer
-    extends FilterComposer<_$AppDb, $OldSuperResolutionInfoTable> {
-  $$OldSuperResolutionInfoTableFilterComposer(super.$state);
-  ColumnFilters<int> get gid => $state.composableBuilder(
-      column: $state.table.gid,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get type => $state.composableBuilder(
-      column: $state.table.type,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get status => $state.composableBuilder(
-      column: $state.table.status,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get imageStatuses => $state.composableBuilder(
-      column: $state.table.imageStatuses,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-}
-
-class $$OldSuperResolutionInfoTableOrderingComposer
-    extends OrderingComposer<_$AppDb, $OldSuperResolutionInfoTable> {
-  $$OldSuperResolutionInfoTableOrderingComposer(super.$state);
-  ColumnOrderings<int> get gid => $state.composableBuilder(
-      column: $state.table.gid,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get type => $state.composableBuilder(
-      column: $state.table.type,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get status => $state.composableBuilder(
-      column: $state.table.status,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get imageStatuses => $state.composableBuilder(
-      column: $state.table.imageStatuses,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
-
+typedef $$OldSuperResolutionInfoTableProcessedTableManager
+    = ProcessedTableManager<
+        _$AppDb,
+        $OldSuperResolutionInfoTable,
+        OldSuperResolutionInfoData,
+        $$OldSuperResolutionInfoTableFilterComposer,
+        $$OldSuperResolutionInfoTableOrderingComposer,
+        $$OldSuperResolutionInfoTableAnnotationComposer,
+        $$OldSuperResolutionInfoTableCreateCompanionBuilder,
+        $$OldSuperResolutionInfoTableUpdateCompanionBuilder,
+        (
+          OldSuperResolutionInfoData,
+          BaseReferences<_$AppDb, $OldSuperResolutionInfoTable,
+              OldSuperResolutionInfoData>
+        ),
+        OldSuperResolutionInfoData,
+        PrefetchHooks Function()>;
 typedef $$SuperResolutionInfoTableCreateCompanionBuilder
     = SuperResolutionInfoCompanion Function({
   required int gid,
@@ -6812,23 +6865,102 @@ typedef $$SuperResolutionInfoTableUpdateCompanionBuilder
   Value<int> rowid,
 });
 
+class $$SuperResolutionInfoTableFilterComposer
+    extends Composer<_$AppDb, $SuperResolutionInfoTable> {
+  $$SuperResolutionInfoTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get gid => $composableBuilder(
+      column: $table.gid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get imageStatuses => $composableBuilder(
+      column: $table.imageStatuses, builder: (column) => ColumnFilters(column));
+}
+
+class $$SuperResolutionInfoTableOrderingComposer
+    extends Composer<_$AppDb, $SuperResolutionInfoTable> {
+  $$SuperResolutionInfoTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get gid => $composableBuilder(
+      column: $table.gid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get imageStatuses => $composableBuilder(
+      column: $table.imageStatuses,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$SuperResolutionInfoTableAnnotationComposer
+    extends Composer<_$AppDb, $SuperResolutionInfoTable> {
+  $$SuperResolutionInfoTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get gid =>
+      $composableBuilder(column: $table.gid, builder: (column) => column);
+
+  GeneratedColumn<int> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<int> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get imageStatuses => $composableBuilder(
+      column: $table.imageStatuses, builder: (column) => column);
+}
+
 class $$SuperResolutionInfoTableTableManager extends RootTableManager<
     _$AppDb,
     $SuperResolutionInfoTable,
     SuperResolutionInfoData,
     $$SuperResolutionInfoTableFilterComposer,
     $$SuperResolutionInfoTableOrderingComposer,
+    $$SuperResolutionInfoTableAnnotationComposer,
     $$SuperResolutionInfoTableCreateCompanionBuilder,
-    $$SuperResolutionInfoTableUpdateCompanionBuilder> {
+    $$SuperResolutionInfoTableUpdateCompanionBuilder,
+    (
+      SuperResolutionInfoData,
+      BaseReferences<_$AppDb, $SuperResolutionInfoTable,
+          SuperResolutionInfoData>
+    ),
+    SuperResolutionInfoData,
+    PrefetchHooks Function()> {
   $$SuperResolutionInfoTableTableManager(
       _$AppDb db, $SuperResolutionInfoTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer: $$SuperResolutionInfoTableFilterComposer(
-              ComposerState(db, table)),
-          orderingComposer: $$SuperResolutionInfoTableOrderingComposer(
-              ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$SuperResolutionInfoTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SuperResolutionInfoTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SuperResolutionInfoTableAnnotationComposer(
+                  $db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> gid = const Value.absent(),
             Value<int> type = const Value.absent(),
@@ -6857,57 +6989,29 @@ class $$SuperResolutionInfoTableTableManager extends RootTableManager<
             imageStatuses: imageStatuses,
             rowid: rowid,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
         ));
 }
 
-class $$SuperResolutionInfoTableFilterComposer
-    extends FilterComposer<_$AppDb, $SuperResolutionInfoTable> {
-  $$SuperResolutionInfoTableFilterComposer(super.$state);
-  ColumnFilters<int> get gid => $state.composableBuilder(
-      column: $state.table.gid,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get type => $state.composableBuilder(
-      column: $state.table.type,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get status => $state.composableBuilder(
-      column: $state.table.status,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get imageStatuses => $state.composableBuilder(
-      column: $state.table.imageStatuses,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-}
-
-class $$SuperResolutionInfoTableOrderingComposer
-    extends OrderingComposer<_$AppDb, $SuperResolutionInfoTable> {
-  $$SuperResolutionInfoTableOrderingComposer(super.$state);
-  ColumnOrderings<int> get gid => $state.composableBuilder(
-      column: $state.table.gid,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get type => $state.composableBuilder(
-      column: $state.table.type,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get status => $state.composableBuilder(
-      column: $state.table.status,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get imageStatuses => $state.composableBuilder(
-      column: $state.table.imageStatuses,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
-
+typedef $$SuperResolutionInfoTableProcessedTableManager = ProcessedTableManager<
+    _$AppDb,
+    $SuperResolutionInfoTable,
+    SuperResolutionInfoData,
+    $$SuperResolutionInfoTableFilterComposer,
+    $$SuperResolutionInfoTableOrderingComposer,
+    $$SuperResolutionInfoTableAnnotationComposer,
+    $$SuperResolutionInfoTableCreateCompanionBuilder,
+    $$SuperResolutionInfoTableUpdateCompanionBuilder,
+    (
+      SuperResolutionInfoData,
+      BaseReferences<_$AppDb, $SuperResolutionInfoTable,
+          SuperResolutionInfoData>
+    ),
+    SuperResolutionInfoData,
+    PrefetchHooks Function()>;
 typedef $$TagTableCreateCompanionBuilder = TagCompanion Function({
   required String namespace,
   required String key,
@@ -6929,21 +7033,120 @@ typedef $$TagTableUpdateCompanionBuilder = TagCompanion Function({
   Value<int> rowid,
 });
 
+class $$TagTableFilterComposer extends Composer<_$AppDb, $TagTable> {
+  $$TagTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get namespace => $composableBuilder(
+      column: $table.namespace, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get key => $composableBuilder(
+      column: $table.key, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get translatedNamespace => $composableBuilder(
+      column: $table.translatedNamespace,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get tagName => $composableBuilder(
+      column: $table.tagName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get fullTagName => $composableBuilder(
+      column: $table.fullTagName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get intro => $composableBuilder(
+      column: $table.intro, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get links => $composableBuilder(
+      column: $table.links, builder: (column) => ColumnFilters(column));
+}
+
+class $$TagTableOrderingComposer extends Composer<_$AppDb, $TagTable> {
+  $$TagTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get namespace => $composableBuilder(
+      column: $table.namespace, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get key => $composableBuilder(
+      column: $table.key, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get translatedNamespace => $composableBuilder(
+      column: $table.translatedNamespace,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get tagName => $composableBuilder(
+      column: $table.tagName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get fullTagName => $composableBuilder(
+      column: $table.fullTagName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get intro => $composableBuilder(
+      column: $table.intro, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get links => $composableBuilder(
+      column: $table.links, builder: (column) => ColumnOrderings(column));
+}
+
+class $$TagTableAnnotationComposer extends Composer<_$AppDb, $TagTable> {
+  $$TagTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get namespace =>
+      $composableBuilder(column: $table.namespace, builder: (column) => column);
+
+  GeneratedColumn<String> get key =>
+      $composableBuilder(column: $table.key, builder: (column) => column);
+
+  GeneratedColumn<String> get translatedNamespace => $composableBuilder(
+      column: $table.translatedNamespace, builder: (column) => column);
+
+  GeneratedColumn<String> get tagName =>
+      $composableBuilder(column: $table.tagName, builder: (column) => column);
+
+  GeneratedColumn<String> get fullTagName => $composableBuilder(
+      column: $table.fullTagName, builder: (column) => column);
+
+  GeneratedColumn<String> get intro =>
+      $composableBuilder(column: $table.intro, builder: (column) => column);
+
+  GeneratedColumn<String> get links =>
+      $composableBuilder(column: $table.links, builder: (column) => column);
+}
+
 class $$TagTableTableManager extends RootTableManager<
     _$AppDb,
     $TagTable,
     TagData,
     $$TagTableFilterComposer,
     $$TagTableOrderingComposer,
+    $$TagTableAnnotationComposer,
     $$TagTableCreateCompanionBuilder,
-    $$TagTableUpdateCompanionBuilder> {
+    $$TagTableUpdateCompanionBuilder,
+    (TagData, BaseReferences<_$AppDb, $TagTable, TagData>),
+    TagData,
+    PrefetchHooks Function()> {
   $$TagTableTableManager(_$AppDb db, $TagTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer: $$TagTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$TagTableOrderingComposer(ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$TagTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TagTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TagTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> namespace = const Value.absent(),
             Value<String> key = const Value.absent(),
@@ -6984,85 +7187,25 @@ class $$TagTableTableManager extends RootTableManager<
             links: links,
             rowid: rowid,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
         ));
 }
 
-class $$TagTableFilterComposer extends FilterComposer<_$AppDb, $TagTable> {
-  $$TagTableFilterComposer(super.$state);
-  ColumnFilters<String> get namespace => $state.composableBuilder(
-      column: $state.table.namespace,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get key => $state.composableBuilder(
-      column: $state.table.key,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get translatedNamespace => $state.composableBuilder(
-      column: $state.table.translatedNamespace,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get tagName => $state.composableBuilder(
-      column: $state.table.tagName,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get fullTagName => $state.composableBuilder(
-      column: $state.table.fullTagName,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get intro => $state.composableBuilder(
-      column: $state.table.intro,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get links => $state.composableBuilder(
-      column: $state.table.links,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-}
-
-class $$TagTableOrderingComposer extends OrderingComposer<_$AppDb, $TagTable> {
-  $$TagTableOrderingComposer(super.$state);
-  ColumnOrderings<String> get namespace => $state.composableBuilder(
-      column: $state.table.namespace,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get key => $state.composableBuilder(
-      column: $state.table.key,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get translatedNamespace => $state.composableBuilder(
-      column: $state.table.translatedNamespace,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get tagName => $state.composableBuilder(
-      column: $state.table.tagName,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get fullTagName => $state.composableBuilder(
-      column: $state.table.fullTagName,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get intro => $state.composableBuilder(
-      column: $state.table.intro,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get links => $state.composableBuilder(
-      column: $state.table.links,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
-
+typedef $$TagTableProcessedTableManager = ProcessedTableManager<
+    _$AppDb,
+    $TagTable,
+    TagData,
+    $$TagTableFilterComposer,
+    $$TagTableOrderingComposer,
+    $$TagTableAnnotationComposer,
+    $$TagTableCreateCompanionBuilder,
+    $$TagTableUpdateCompanionBuilder,
+    (TagData, BaseReferences<_$AppDb, $TagTable, TagData>),
+    TagData,
+    PrefetchHooks Function()>;
 typedef $$ArchiveDownloadedTableCreateCompanionBuilder
     = ArchiveDownloadedCompanion Function({
   Value<int> gid,
@@ -7110,23 +7253,251 @@ typedef $$ArchiveDownloadedTableUpdateCompanionBuilder
   Value<String?> tagRefreshTime,
 });
 
+class $$ArchiveDownloadedTableFilterComposer
+    extends Composer<_$AppDb, $ArchiveDownloadedTable> {
+  $$ArchiveDownloadedTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get gid => $composableBuilder(
+      column: $table.gid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get token => $composableBuilder(
+      column: $table.token, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get category => $composableBuilder(
+      column: $table.category, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get pageCount => $composableBuilder(
+      column: $table.pageCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get galleryUrl => $composableBuilder(
+      column: $table.galleryUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coverUrl => $composableBuilder(
+      column: $table.coverUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get uploader => $composableBuilder(
+      column: $table.uploader, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get size => $composableBuilder(
+      column: $table.size, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get publishTime => $composableBuilder(
+      column: $table.publishTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get archiveStatusCode => $composableBuilder(
+      column: $table.archiveStatusCode,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get archivePageUrl => $composableBuilder(
+      column: $table.archivePageUrl,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get downloadPageUrl => $composableBuilder(
+      column: $table.downloadPageUrl,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get downloadUrl => $composableBuilder(
+      column: $table.downloadUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isOriginal => $composableBuilder(
+      column: $table.isOriginal, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get insertTime => $composableBuilder(
+      column: $table.insertTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get groupName => $composableBuilder(
+      column: $table.groupName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get tags => $composableBuilder(
+      column: $table.tags, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get tagRefreshTime => $composableBuilder(
+      column: $table.tagRefreshTime,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$ArchiveDownloadedTableOrderingComposer
+    extends Composer<_$AppDb, $ArchiveDownloadedTable> {
+  $$ArchiveDownloadedTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get gid => $composableBuilder(
+      column: $table.gid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get token => $composableBuilder(
+      column: $table.token, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get category => $composableBuilder(
+      column: $table.category, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get pageCount => $composableBuilder(
+      column: $table.pageCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get galleryUrl => $composableBuilder(
+      column: $table.galleryUrl, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coverUrl => $composableBuilder(
+      column: $table.coverUrl, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get uploader => $composableBuilder(
+      column: $table.uploader, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get size => $composableBuilder(
+      column: $table.size, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get publishTime => $composableBuilder(
+      column: $table.publishTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get archiveStatusCode => $composableBuilder(
+      column: $table.archiveStatusCode,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get archivePageUrl => $composableBuilder(
+      column: $table.archivePageUrl,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get downloadPageUrl => $composableBuilder(
+      column: $table.downloadPageUrl,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get downloadUrl => $composableBuilder(
+      column: $table.downloadUrl, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isOriginal => $composableBuilder(
+      column: $table.isOriginal, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get insertTime => $composableBuilder(
+      column: $table.insertTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get groupName => $composableBuilder(
+      column: $table.groupName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get tags => $composableBuilder(
+      column: $table.tags, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get tagRefreshTime => $composableBuilder(
+      column: $table.tagRefreshTime,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$ArchiveDownloadedTableAnnotationComposer
+    extends Composer<_$AppDb, $ArchiveDownloadedTable> {
+  $$ArchiveDownloadedTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get gid =>
+      $composableBuilder(column: $table.gid, builder: (column) => column);
+
+  GeneratedColumn<String> get token =>
+      $composableBuilder(column: $table.token, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<int> get pageCount =>
+      $composableBuilder(column: $table.pageCount, builder: (column) => column);
+
+  GeneratedColumn<String> get galleryUrl => $composableBuilder(
+      column: $table.galleryUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get coverUrl =>
+      $composableBuilder(column: $table.coverUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get uploader =>
+      $composableBuilder(column: $table.uploader, builder: (column) => column);
+
+  GeneratedColumn<int> get size =>
+      $composableBuilder(column: $table.size, builder: (column) => column);
+
+  GeneratedColumn<String> get publishTime => $composableBuilder(
+      column: $table.publishTime, builder: (column) => column);
+
+  GeneratedColumn<int> get archiveStatusCode => $composableBuilder(
+      column: $table.archiveStatusCode, builder: (column) => column);
+
+  GeneratedColumn<String> get archivePageUrl => $composableBuilder(
+      column: $table.archivePageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get downloadPageUrl => $composableBuilder(
+      column: $table.downloadPageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get downloadUrl => $composableBuilder(
+      column: $table.downloadUrl, builder: (column) => column);
+
+  GeneratedColumn<bool> get isOriginal => $composableBuilder(
+      column: $table.isOriginal, builder: (column) => column);
+
+  GeneratedColumn<String> get insertTime => $composableBuilder(
+      column: $table.insertTime, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<String> get groupName =>
+      $composableBuilder(column: $table.groupName, builder: (column) => column);
+
+  GeneratedColumn<String> get tags =>
+      $composableBuilder(column: $table.tags, builder: (column) => column);
+
+  GeneratedColumn<String> get tagRefreshTime => $composableBuilder(
+      column: $table.tagRefreshTime, builder: (column) => column);
+}
+
 class $$ArchiveDownloadedTableTableManager extends RootTableManager<
     _$AppDb,
     $ArchiveDownloadedTable,
     ArchiveDownloadedData,
     $$ArchiveDownloadedTableFilterComposer,
     $$ArchiveDownloadedTableOrderingComposer,
+    $$ArchiveDownloadedTableAnnotationComposer,
     $$ArchiveDownloadedTableCreateCompanionBuilder,
-    $$ArchiveDownloadedTableUpdateCompanionBuilder> {
+    $$ArchiveDownloadedTableUpdateCompanionBuilder,
+    (
+      ArchiveDownloadedData,
+      BaseReferences<_$AppDb, $ArchiveDownloadedTable, ArchiveDownloadedData>
+    ),
+    ArchiveDownloadedData,
+    PrefetchHooks Function()> {
   $$ArchiveDownloadedTableTableManager(
       _$AppDb db, $ArchiveDownloadedTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$ArchiveDownloadedTableFilterComposer(ComposerState(db, table)),
-          orderingComposer: $$ArchiveDownloadedTableOrderingComposer(
-              ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$ArchiveDownloadedTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ArchiveDownloadedTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ArchiveDownloadedTableAnnotationComposer(
+                  $db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> gid = const Value.absent(),
             Value<String> token = const Value.absent(),
@@ -7215,217 +7586,28 @@ class $$ArchiveDownloadedTableTableManager extends RootTableManager<
             tags: tags,
             tagRefreshTime: tagRefreshTime,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
         ));
 }
 
-class $$ArchiveDownloadedTableFilterComposer
-    extends FilterComposer<_$AppDb, $ArchiveDownloadedTable> {
-  $$ArchiveDownloadedTableFilterComposer(super.$state);
-  ColumnFilters<int> get gid => $state.composableBuilder(
-      column: $state.table.gid,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get token => $state.composableBuilder(
-      column: $state.table.token,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get title => $state.composableBuilder(
-      column: $state.table.title,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get category => $state.composableBuilder(
-      column: $state.table.category,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get pageCount => $state.composableBuilder(
-      column: $state.table.pageCount,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get galleryUrl => $state.composableBuilder(
-      column: $state.table.galleryUrl,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get coverUrl => $state.composableBuilder(
-      column: $state.table.coverUrl,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get uploader => $state.composableBuilder(
-      column: $state.table.uploader,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get size => $state.composableBuilder(
-      column: $state.table.size,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get publishTime => $state.composableBuilder(
-      column: $state.table.publishTime,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get archiveStatusCode => $state.composableBuilder(
-      column: $state.table.archiveStatusCode,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get archivePageUrl => $state.composableBuilder(
-      column: $state.table.archivePageUrl,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get downloadPageUrl => $state.composableBuilder(
-      column: $state.table.downloadPageUrl,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get downloadUrl => $state.composableBuilder(
-      column: $state.table.downloadUrl,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<bool> get isOriginal => $state.composableBuilder(
-      column: $state.table.isOriginal,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get insertTime => $state.composableBuilder(
-      column: $state.table.insertTime,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get sortOrder => $state.composableBuilder(
-      column: $state.table.sortOrder,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get groupName => $state.composableBuilder(
-      column: $state.table.groupName,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get tags => $state.composableBuilder(
-      column: $state.table.tags,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get tagRefreshTime => $state.composableBuilder(
-      column: $state.table.tagRefreshTime,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-}
-
-class $$ArchiveDownloadedTableOrderingComposer
-    extends OrderingComposer<_$AppDb, $ArchiveDownloadedTable> {
-  $$ArchiveDownloadedTableOrderingComposer(super.$state);
-  ColumnOrderings<int> get gid => $state.composableBuilder(
-      column: $state.table.gid,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get token => $state.composableBuilder(
-      column: $state.table.token,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get title => $state.composableBuilder(
-      column: $state.table.title,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get category => $state.composableBuilder(
-      column: $state.table.category,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get pageCount => $state.composableBuilder(
-      column: $state.table.pageCount,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get galleryUrl => $state.composableBuilder(
-      column: $state.table.galleryUrl,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get coverUrl => $state.composableBuilder(
-      column: $state.table.coverUrl,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get uploader => $state.composableBuilder(
-      column: $state.table.uploader,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get size => $state.composableBuilder(
-      column: $state.table.size,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get publishTime => $state.composableBuilder(
-      column: $state.table.publishTime,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get archiveStatusCode => $state.composableBuilder(
-      column: $state.table.archiveStatusCode,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get archivePageUrl => $state.composableBuilder(
-      column: $state.table.archivePageUrl,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get downloadPageUrl => $state.composableBuilder(
-      column: $state.table.downloadPageUrl,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get downloadUrl => $state.composableBuilder(
-      column: $state.table.downloadUrl,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<bool> get isOriginal => $state.composableBuilder(
-      column: $state.table.isOriginal,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get insertTime => $state.composableBuilder(
-      column: $state.table.insertTime,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get sortOrder => $state.composableBuilder(
-      column: $state.table.sortOrder,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get groupName => $state.composableBuilder(
-      column: $state.table.groupName,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get tags => $state.composableBuilder(
-      column: $state.table.tags,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get tagRefreshTime => $state.composableBuilder(
-      column: $state.table.tagRefreshTime,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
-
+typedef $$ArchiveDownloadedTableProcessedTableManager = ProcessedTableManager<
+    _$AppDb,
+    $ArchiveDownloadedTable,
+    ArchiveDownloadedData,
+    $$ArchiveDownloadedTableFilterComposer,
+    $$ArchiveDownloadedTableOrderingComposer,
+    $$ArchiveDownloadedTableAnnotationComposer,
+    $$ArchiveDownloadedTableCreateCompanionBuilder,
+    $$ArchiveDownloadedTableUpdateCompanionBuilder,
+    (
+      ArchiveDownloadedData,
+      BaseReferences<_$AppDb, $ArchiveDownloadedTable, ArchiveDownloadedData>
+    ),
+    ArchiveDownloadedData,
+    PrefetchHooks Function()>;
 typedef $$ArchiveDownloadedOldTableCreateCompanionBuilder
     = ArchiveDownloadedOldCompanion Function({
   required int gid,
@@ -7471,23 +7653,233 @@ typedef $$ArchiveDownloadedOldTableUpdateCompanionBuilder
   Value<int> rowid,
 });
 
+class $$ArchiveDownloadedOldTableFilterComposer
+    extends Composer<_$AppDb, $ArchiveDownloadedOldTable> {
+  $$ArchiveDownloadedOldTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get gid => $composableBuilder(
+      column: $table.gid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get token => $composableBuilder(
+      column: $table.token, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get category => $composableBuilder(
+      column: $table.category, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get pageCount => $composableBuilder(
+      column: $table.pageCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get galleryUrl => $composableBuilder(
+      column: $table.galleryUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get coverUrl => $composableBuilder(
+      column: $table.coverUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get uploader => $composableBuilder(
+      column: $table.uploader, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get size => $composableBuilder(
+      column: $table.size, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get publishTime => $composableBuilder(
+      column: $table.publishTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get archiveStatusIndex => $composableBuilder(
+      column: $table.archiveStatusIndex,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get archivePageUrl => $composableBuilder(
+      column: $table.archivePageUrl,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get downloadPageUrl => $composableBuilder(
+      column: $table.downloadPageUrl,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get downloadUrl => $composableBuilder(
+      column: $table.downloadUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isOriginal => $composableBuilder(
+      column: $table.isOriginal, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get insertTime => $composableBuilder(
+      column: $table.insertTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get groupName => $composableBuilder(
+      column: $table.groupName, builder: (column) => ColumnFilters(column));
+}
+
+class $$ArchiveDownloadedOldTableOrderingComposer
+    extends Composer<_$AppDb, $ArchiveDownloadedOldTable> {
+  $$ArchiveDownloadedOldTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get gid => $composableBuilder(
+      column: $table.gid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get token => $composableBuilder(
+      column: $table.token, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get category => $composableBuilder(
+      column: $table.category, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get pageCount => $composableBuilder(
+      column: $table.pageCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get galleryUrl => $composableBuilder(
+      column: $table.galleryUrl, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get coverUrl => $composableBuilder(
+      column: $table.coverUrl, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get uploader => $composableBuilder(
+      column: $table.uploader, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get size => $composableBuilder(
+      column: $table.size, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get publishTime => $composableBuilder(
+      column: $table.publishTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get archiveStatusIndex => $composableBuilder(
+      column: $table.archiveStatusIndex,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get archivePageUrl => $composableBuilder(
+      column: $table.archivePageUrl,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get downloadPageUrl => $composableBuilder(
+      column: $table.downloadPageUrl,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get downloadUrl => $composableBuilder(
+      column: $table.downloadUrl, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isOriginal => $composableBuilder(
+      column: $table.isOriginal, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get insertTime => $composableBuilder(
+      column: $table.insertTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get groupName => $composableBuilder(
+      column: $table.groupName, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ArchiveDownloadedOldTableAnnotationComposer
+    extends Composer<_$AppDb, $ArchiveDownloadedOldTable> {
+  $$ArchiveDownloadedOldTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get gid =>
+      $composableBuilder(column: $table.gid, builder: (column) => column);
+
+  GeneratedColumn<String> get token =>
+      $composableBuilder(column: $table.token, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<int> get pageCount =>
+      $composableBuilder(column: $table.pageCount, builder: (column) => column);
+
+  GeneratedColumn<String> get galleryUrl => $composableBuilder(
+      column: $table.galleryUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get coverUrl =>
+      $composableBuilder(column: $table.coverUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get uploader =>
+      $composableBuilder(column: $table.uploader, builder: (column) => column);
+
+  GeneratedColumn<int> get size =>
+      $composableBuilder(column: $table.size, builder: (column) => column);
+
+  GeneratedColumn<String> get publishTime => $composableBuilder(
+      column: $table.publishTime, builder: (column) => column);
+
+  GeneratedColumn<int> get archiveStatusIndex => $composableBuilder(
+      column: $table.archiveStatusIndex, builder: (column) => column);
+
+  GeneratedColumn<String> get archivePageUrl => $composableBuilder(
+      column: $table.archivePageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get downloadPageUrl => $composableBuilder(
+      column: $table.downloadPageUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get downloadUrl => $composableBuilder(
+      column: $table.downloadUrl, builder: (column) => column);
+
+  GeneratedColumn<bool> get isOriginal => $composableBuilder(
+      column: $table.isOriginal, builder: (column) => column);
+
+  GeneratedColumn<String> get insertTime => $composableBuilder(
+      column: $table.insertTime, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<String> get groupName =>
+      $composableBuilder(column: $table.groupName, builder: (column) => column);
+}
+
 class $$ArchiveDownloadedOldTableTableManager extends RootTableManager<
     _$AppDb,
     $ArchiveDownloadedOldTable,
     ArchiveDownloadedOldData,
     $$ArchiveDownloadedOldTableFilterComposer,
     $$ArchiveDownloadedOldTableOrderingComposer,
+    $$ArchiveDownloadedOldTableAnnotationComposer,
     $$ArchiveDownloadedOldTableCreateCompanionBuilder,
-    $$ArchiveDownloadedOldTableUpdateCompanionBuilder> {
+    $$ArchiveDownloadedOldTableUpdateCompanionBuilder,
+    (
+      ArchiveDownloadedOldData,
+      BaseReferences<_$AppDb, $ArchiveDownloadedOldTable,
+          ArchiveDownloadedOldData>
+    ),
+    ArchiveDownloadedOldData,
+    PrefetchHooks Function()> {
   $$ArchiveDownloadedOldTableTableManager(
       _$AppDb db, $ArchiveDownloadedOldTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer: $$ArchiveDownloadedOldTableFilterComposer(
-              ComposerState(db, table)),
-          orderingComposer: $$ArchiveDownloadedOldTableOrderingComposer(
-              ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$ArchiveDownloadedOldTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ArchiveDownloadedOldTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ArchiveDownloadedOldTableAnnotationComposer(
+                  $db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> gid = const Value.absent(),
             Value<String> token = const Value.absent(),
@@ -7572,197 +7964,30 @@ class $$ArchiveDownloadedOldTableTableManager extends RootTableManager<
             groupName: groupName,
             rowid: rowid,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
         ));
 }
 
-class $$ArchiveDownloadedOldTableFilterComposer
-    extends FilterComposer<_$AppDb, $ArchiveDownloadedOldTable> {
-  $$ArchiveDownloadedOldTableFilterComposer(super.$state);
-  ColumnFilters<int> get gid => $state.composableBuilder(
-      column: $state.table.gid,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get token => $state.composableBuilder(
-      column: $state.table.token,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get title => $state.composableBuilder(
-      column: $state.table.title,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get category => $state.composableBuilder(
-      column: $state.table.category,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get pageCount => $state.composableBuilder(
-      column: $state.table.pageCount,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get galleryUrl => $state.composableBuilder(
-      column: $state.table.galleryUrl,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get coverUrl => $state.composableBuilder(
-      column: $state.table.coverUrl,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get uploader => $state.composableBuilder(
-      column: $state.table.uploader,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get size => $state.composableBuilder(
-      column: $state.table.size,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get publishTime => $state.composableBuilder(
-      column: $state.table.publishTime,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get archiveStatusIndex => $state.composableBuilder(
-      column: $state.table.archiveStatusIndex,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get archivePageUrl => $state.composableBuilder(
-      column: $state.table.archivePageUrl,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get downloadPageUrl => $state.composableBuilder(
-      column: $state.table.downloadPageUrl,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get downloadUrl => $state.composableBuilder(
-      column: $state.table.downloadUrl,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<bool> get isOriginal => $state.composableBuilder(
-      column: $state.table.isOriginal,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get insertTime => $state.composableBuilder(
-      column: $state.table.insertTime,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get sortOrder => $state.composableBuilder(
-      column: $state.table.sortOrder,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get groupName => $state.composableBuilder(
-      column: $state.table.groupName,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-}
-
-class $$ArchiveDownloadedOldTableOrderingComposer
-    extends OrderingComposer<_$AppDb, $ArchiveDownloadedOldTable> {
-  $$ArchiveDownloadedOldTableOrderingComposer(super.$state);
-  ColumnOrderings<int> get gid => $state.composableBuilder(
-      column: $state.table.gid,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get token => $state.composableBuilder(
-      column: $state.table.token,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get title => $state.composableBuilder(
-      column: $state.table.title,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get category => $state.composableBuilder(
-      column: $state.table.category,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get pageCount => $state.composableBuilder(
-      column: $state.table.pageCount,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get galleryUrl => $state.composableBuilder(
-      column: $state.table.galleryUrl,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get coverUrl => $state.composableBuilder(
-      column: $state.table.coverUrl,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get uploader => $state.composableBuilder(
-      column: $state.table.uploader,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get size => $state.composableBuilder(
-      column: $state.table.size,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get publishTime => $state.composableBuilder(
-      column: $state.table.publishTime,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get archiveStatusIndex => $state.composableBuilder(
-      column: $state.table.archiveStatusIndex,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get archivePageUrl => $state.composableBuilder(
-      column: $state.table.archivePageUrl,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get downloadPageUrl => $state.composableBuilder(
-      column: $state.table.downloadPageUrl,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get downloadUrl => $state.composableBuilder(
-      column: $state.table.downloadUrl,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<bool> get isOriginal => $state.composableBuilder(
-      column: $state.table.isOriginal,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get insertTime => $state.composableBuilder(
-      column: $state.table.insertTime,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get sortOrder => $state.composableBuilder(
-      column: $state.table.sortOrder,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get groupName => $state.composableBuilder(
-      column: $state.table.groupName,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
-
+typedef $$ArchiveDownloadedOldTableProcessedTableManager
+    = ProcessedTableManager<
+        _$AppDb,
+        $ArchiveDownloadedOldTable,
+        ArchiveDownloadedOldData,
+        $$ArchiveDownloadedOldTableFilterComposer,
+        $$ArchiveDownloadedOldTableOrderingComposer,
+        $$ArchiveDownloadedOldTableAnnotationComposer,
+        $$ArchiveDownloadedOldTableCreateCompanionBuilder,
+        $$ArchiveDownloadedOldTableUpdateCompanionBuilder,
+        (
+          ArchiveDownloadedOldData,
+          BaseReferences<_$AppDb, $ArchiveDownloadedOldTable,
+              ArchiveDownloadedOldData>
+        ),
+        ArchiveDownloadedOldData,
+        PrefetchHooks Function()>;
 typedef $$ArchiveGroupTableCreateCompanionBuilder = ArchiveGroupCompanion
     Function({
   required String groupName,
@@ -7776,22 +8001,79 @@ typedef $$ArchiveGroupTableUpdateCompanionBuilder = ArchiveGroupCompanion
   Value<int> rowid,
 });
 
+class $$ArchiveGroupTableFilterComposer
+    extends Composer<_$AppDb, $ArchiveGroupTable> {
+  $$ArchiveGroupTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get groupName => $composableBuilder(
+      column: $table.groupName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+}
+
+class $$ArchiveGroupTableOrderingComposer
+    extends Composer<_$AppDb, $ArchiveGroupTable> {
+  $$ArchiveGroupTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get groupName => $composableBuilder(
+      column: $table.groupName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ArchiveGroupTableAnnotationComposer
+    extends Composer<_$AppDb, $ArchiveGroupTable> {
+  $$ArchiveGroupTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get groupName =>
+      $composableBuilder(column: $table.groupName, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+}
+
 class $$ArchiveGroupTableTableManager extends RootTableManager<
     _$AppDb,
     $ArchiveGroupTable,
     ArchiveGroupData,
     $$ArchiveGroupTableFilterComposer,
     $$ArchiveGroupTableOrderingComposer,
+    $$ArchiveGroupTableAnnotationComposer,
     $$ArchiveGroupTableCreateCompanionBuilder,
-    $$ArchiveGroupTableUpdateCompanionBuilder> {
+    $$ArchiveGroupTableUpdateCompanionBuilder,
+    (
+      ArchiveGroupData,
+      BaseReferences<_$AppDb, $ArchiveGroupTable, ArchiveGroupData>
+    ),
+    ArchiveGroupData,
+    PrefetchHooks Function()> {
   $$ArchiveGroupTableTableManager(_$AppDb db, $ArchiveGroupTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$ArchiveGroupTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$ArchiveGroupTableOrderingComposer(ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$ArchiveGroupTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ArchiveGroupTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ArchiveGroupTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> groupName = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
@@ -7812,37 +8094,28 @@ class $$ArchiveGroupTableTableManager extends RootTableManager<
             sortOrder: sortOrder,
             rowid: rowid,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
         ));
 }
 
-class $$ArchiveGroupTableFilterComposer
-    extends FilterComposer<_$AppDb, $ArchiveGroupTable> {
-  $$ArchiveGroupTableFilterComposer(super.$state);
-  ColumnFilters<String> get groupName => $state.composableBuilder(
-      column: $state.table.groupName,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get sortOrder => $state.composableBuilder(
-      column: $state.table.sortOrder,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-}
-
-class $$ArchiveGroupTableOrderingComposer
-    extends OrderingComposer<_$AppDb, $ArchiveGroupTable> {
-  $$ArchiveGroupTableOrderingComposer(super.$state);
-  ColumnOrderings<String> get groupName => $state.composableBuilder(
-      column: $state.table.groupName,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get sortOrder => $state.composableBuilder(
-      column: $state.table.sortOrder,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
-
+typedef $$ArchiveGroupTableProcessedTableManager = ProcessedTableManager<
+    _$AppDb,
+    $ArchiveGroupTable,
+    ArchiveGroupData,
+    $$ArchiveGroupTableFilterComposer,
+    $$ArchiveGroupTableOrderingComposer,
+    $$ArchiveGroupTableAnnotationComposer,
+    $$ArchiveGroupTableCreateCompanionBuilder,
+    $$ArchiveGroupTableUpdateCompanionBuilder,
+    (
+      ArchiveGroupData,
+      BaseReferences<_$AppDb, $ArchiveGroupTable, ArchiveGroupData>
+    ),
+    ArchiveGroupData,
+    PrefetchHooks Function()>;
 typedef $$GalleryDownloadedTableCreateCompanionBuilder
     = GalleryDownloadedCompanion Function({
   Value<int> gid,
@@ -7884,23 +8157,284 @@ typedef $$GalleryDownloadedTableUpdateCompanionBuilder
   Value<String?> tagRefreshTime,
 });
 
+final class $$GalleryDownloadedTableReferences extends BaseReferences<_$AppDb,
+    $GalleryDownloadedTable, GalleryDownloadedData> {
+  $$GalleryDownloadedTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$ImageTable, List<ImageData>> _imageRefsTable(
+          _$AppDb db) =>
+      MultiTypedResultKey.fromTable(db.image,
+          aliasName:
+              $_aliasNameGenerator(db.galleryDownloaded.gid, db.image.gid));
+
+  $$ImageTableProcessedTableManager get imageRefs {
+    final manager = $$ImageTableTableManager($_db, $_db.image)
+        .filter((f) => f.gid.gid($_item.gid));
+
+    final cache = $_typedResult.readTableOrNull(_imageRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$GalleryDownloadedTableFilterComposer
+    extends Composer<_$AppDb, $GalleryDownloadedTable> {
+  $$GalleryDownloadedTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get gid => $composableBuilder(
+      column: $table.gid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get token => $composableBuilder(
+      column: $table.token, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get category => $composableBuilder(
+      column: $table.category, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get pageCount => $composableBuilder(
+      column: $table.pageCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get galleryUrl => $composableBuilder(
+      column: $table.galleryUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get oldVersionGalleryUrl => $composableBuilder(
+      column: $table.oldVersionGalleryUrl,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get uploader => $composableBuilder(
+      column: $table.uploader, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get publishTime => $composableBuilder(
+      column: $table.publishTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get downloadStatusIndex => $composableBuilder(
+      column: $table.downloadStatusIndex,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get insertTime => $composableBuilder(
+      column: $table.insertTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get downloadOriginalImage => $composableBuilder(
+      column: $table.downloadOriginalImage,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get priority => $composableBuilder(
+      column: $table.priority, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get groupName => $composableBuilder(
+      column: $table.groupName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get tags => $composableBuilder(
+      column: $table.tags, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get tagRefreshTime => $composableBuilder(
+      column: $table.tagRefreshTime,
+      builder: (column) => ColumnFilters(column));
+
+  Expression<bool> imageRefs(
+      Expression<bool> Function($$ImageTableFilterComposer f) f) {
+    final $$ImageTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.gid,
+        referencedTable: $db.image,
+        getReferencedColumn: (t) => t.gid,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ImageTableFilterComposer(
+              $db: $db,
+              $table: $db.image,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$GalleryDownloadedTableOrderingComposer
+    extends Composer<_$AppDb, $GalleryDownloadedTable> {
+  $$GalleryDownloadedTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get gid => $composableBuilder(
+      column: $table.gid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get token => $composableBuilder(
+      column: $table.token, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get category => $composableBuilder(
+      column: $table.category, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get pageCount => $composableBuilder(
+      column: $table.pageCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get galleryUrl => $composableBuilder(
+      column: $table.galleryUrl, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get oldVersionGalleryUrl => $composableBuilder(
+      column: $table.oldVersionGalleryUrl,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get uploader => $composableBuilder(
+      column: $table.uploader, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get publishTime => $composableBuilder(
+      column: $table.publishTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get downloadStatusIndex => $composableBuilder(
+      column: $table.downloadStatusIndex,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get insertTime => $composableBuilder(
+      column: $table.insertTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get downloadOriginalImage => $composableBuilder(
+      column: $table.downloadOriginalImage,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get priority => $composableBuilder(
+      column: $table.priority, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get groupName => $composableBuilder(
+      column: $table.groupName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get tags => $composableBuilder(
+      column: $table.tags, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get tagRefreshTime => $composableBuilder(
+      column: $table.tagRefreshTime,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$GalleryDownloadedTableAnnotationComposer
+    extends Composer<_$AppDb, $GalleryDownloadedTable> {
+  $$GalleryDownloadedTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get gid =>
+      $composableBuilder(column: $table.gid, builder: (column) => column);
+
+  GeneratedColumn<String> get token =>
+      $composableBuilder(column: $table.token, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<int> get pageCount =>
+      $composableBuilder(column: $table.pageCount, builder: (column) => column);
+
+  GeneratedColumn<String> get galleryUrl => $composableBuilder(
+      column: $table.galleryUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get oldVersionGalleryUrl => $composableBuilder(
+      column: $table.oldVersionGalleryUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get uploader =>
+      $composableBuilder(column: $table.uploader, builder: (column) => column);
+
+  GeneratedColumn<String> get publishTime => $composableBuilder(
+      column: $table.publishTime, builder: (column) => column);
+
+  GeneratedColumn<int> get downloadStatusIndex => $composableBuilder(
+      column: $table.downloadStatusIndex, builder: (column) => column);
+
+  GeneratedColumn<String> get insertTime => $composableBuilder(
+      column: $table.insertTime, builder: (column) => column);
+
+  GeneratedColumn<bool> get downloadOriginalImage => $composableBuilder(
+      column: $table.downloadOriginalImage, builder: (column) => column);
+
+  GeneratedColumn<int> get priority =>
+      $composableBuilder(column: $table.priority, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<String> get groupName =>
+      $composableBuilder(column: $table.groupName, builder: (column) => column);
+
+  GeneratedColumn<String> get tags =>
+      $composableBuilder(column: $table.tags, builder: (column) => column);
+
+  GeneratedColumn<String> get tagRefreshTime => $composableBuilder(
+      column: $table.tagRefreshTime, builder: (column) => column);
+
+  Expression<T> imageRefs<T extends Object>(
+      Expression<T> Function($$ImageTableAnnotationComposer a) f) {
+    final $$ImageTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.gid,
+        referencedTable: $db.image,
+        getReferencedColumn: (t) => t.gid,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$ImageTableAnnotationComposer(
+              $db: $db,
+              $table: $db.image,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
 class $$GalleryDownloadedTableTableManager extends RootTableManager<
     _$AppDb,
     $GalleryDownloadedTable,
     GalleryDownloadedData,
     $$GalleryDownloadedTableFilterComposer,
     $$GalleryDownloadedTableOrderingComposer,
+    $$GalleryDownloadedTableAnnotationComposer,
     $$GalleryDownloadedTableCreateCompanionBuilder,
-    $$GalleryDownloadedTableUpdateCompanionBuilder> {
+    $$GalleryDownloadedTableUpdateCompanionBuilder,
+    (GalleryDownloadedData, $$GalleryDownloadedTableReferences),
+    GalleryDownloadedData,
+    PrefetchHooks Function({bool imageRefs})> {
   $$GalleryDownloadedTableTableManager(
       _$AppDb db, $GalleryDownloadedTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$GalleryDownloadedTableFilterComposer(ComposerState(db, table)),
-          orderingComposer: $$GalleryDownloadedTableOrderingComposer(
-              ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$GalleryDownloadedTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GalleryDownloadedTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GalleryDownloadedTableAnnotationComposer(
+                  $db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> gid = const Value.absent(),
             Value<String> token = const Value.absent(),
@@ -7977,200 +8511,50 @@ class $$GalleryDownloadedTableTableManager extends RootTableManager<
             tags: tags,
             tagRefreshTime: tagRefreshTime,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$GalleryDownloadedTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({imageRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (imageRefs) db.image],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (imageRefs)
+                    await $_getPrefetchedData(
+                        currentTable: table,
+                        referencedTable: $$GalleryDownloadedTableReferences
+                            ._imageRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$GalleryDownloadedTableReferences(db, table, p0)
+                                .imageRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) =>
+                                referencedItems.where((e) => e.gid == item.gid),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
         ));
 }
 
-class $$GalleryDownloadedTableFilterComposer
-    extends FilterComposer<_$AppDb, $GalleryDownloadedTable> {
-  $$GalleryDownloadedTableFilterComposer(super.$state);
-  ColumnFilters<int> get gid => $state.composableBuilder(
-      column: $state.table.gid,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get token => $state.composableBuilder(
-      column: $state.table.token,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get title => $state.composableBuilder(
-      column: $state.table.title,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get category => $state.composableBuilder(
-      column: $state.table.category,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get pageCount => $state.composableBuilder(
-      column: $state.table.pageCount,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get galleryUrl => $state.composableBuilder(
-      column: $state.table.galleryUrl,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get oldVersionGalleryUrl => $state.composableBuilder(
-      column: $state.table.oldVersionGalleryUrl,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get uploader => $state.composableBuilder(
-      column: $state.table.uploader,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get publishTime => $state.composableBuilder(
-      column: $state.table.publishTime,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get downloadStatusIndex => $state.composableBuilder(
-      column: $state.table.downloadStatusIndex,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get insertTime => $state.composableBuilder(
-      column: $state.table.insertTime,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<bool> get downloadOriginalImage => $state.composableBuilder(
-      column: $state.table.downloadOriginalImage,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get priority => $state.composableBuilder(
-      column: $state.table.priority,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get sortOrder => $state.composableBuilder(
-      column: $state.table.sortOrder,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get groupName => $state.composableBuilder(
-      column: $state.table.groupName,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get tags => $state.composableBuilder(
-      column: $state.table.tags,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get tagRefreshTime => $state.composableBuilder(
-      column: $state.table.tagRefreshTime,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ComposableFilter imageRefs(
-      ComposableFilter Function($$ImageTableFilterComposer f) f) {
-    final $$ImageTableFilterComposer composer = $state.composerBuilder(
-        composer: this,
-        getCurrentColumn: (t) => t.gid,
-        referencedTable: $state.db.image,
-        getReferencedColumn: (t) => t.gid,
-        builder: (joinBuilder, parentComposers) => $$ImageTableFilterComposer(
-            ComposerState(
-                $state.db, $state.db.image, joinBuilder, parentComposers)));
-    return f(composer);
-  }
-}
-
-class $$GalleryDownloadedTableOrderingComposer
-    extends OrderingComposer<_$AppDb, $GalleryDownloadedTable> {
-  $$GalleryDownloadedTableOrderingComposer(super.$state);
-  ColumnOrderings<int> get gid => $state.composableBuilder(
-      column: $state.table.gid,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get token => $state.composableBuilder(
-      column: $state.table.token,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get title => $state.composableBuilder(
-      column: $state.table.title,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get category => $state.composableBuilder(
-      column: $state.table.category,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get pageCount => $state.composableBuilder(
-      column: $state.table.pageCount,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get galleryUrl => $state.composableBuilder(
-      column: $state.table.galleryUrl,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get oldVersionGalleryUrl => $state.composableBuilder(
-      column: $state.table.oldVersionGalleryUrl,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get uploader => $state.composableBuilder(
-      column: $state.table.uploader,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get publishTime => $state.composableBuilder(
-      column: $state.table.publishTime,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get downloadStatusIndex => $state.composableBuilder(
-      column: $state.table.downloadStatusIndex,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get insertTime => $state.composableBuilder(
-      column: $state.table.insertTime,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<bool> get downloadOriginalImage => $state.composableBuilder(
-      column: $state.table.downloadOriginalImage,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get priority => $state.composableBuilder(
-      column: $state.table.priority,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get sortOrder => $state.composableBuilder(
-      column: $state.table.sortOrder,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get groupName => $state.composableBuilder(
-      column: $state.table.groupName,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get tags => $state.composableBuilder(
-      column: $state.table.tags,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get tagRefreshTime => $state.composableBuilder(
-      column: $state.table.tagRefreshTime,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
-
+typedef $$GalleryDownloadedTableProcessedTableManager = ProcessedTableManager<
+    _$AppDb,
+    $GalleryDownloadedTable,
+    GalleryDownloadedData,
+    $$GalleryDownloadedTableFilterComposer,
+    $$GalleryDownloadedTableOrderingComposer,
+    $$GalleryDownloadedTableAnnotationComposer,
+    $$GalleryDownloadedTableCreateCompanionBuilder,
+    $$GalleryDownloadedTableUpdateCompanionBuilder,
+    (GalleryDownloadedData, $$GalleryDownloadedTableReferences),
+    GalleryDownloadedData,
+    PrefetchHooks Function({bool imageRefs})>;
 typedef $$GalleryDownloadedOldTableCreateCompanionBuilder
     = GalleryDownloadedOldCompanion Function({
   Value<int> gid,
@@ -8208,23 +8592,206 @@ typedef $$GalleryDownloadedOldTableUpdateCompanionBuilder
   Value<String?> groupName,
 });
 
+class $$GalleryDownloadedOldTableFilterComposer
+    extends Composer<_$AppDb, $GalleryDownloadedOldTable> {
+  $$GalleryDownloadedOldTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get gid => $composableBuilder(
+      column: $table.gid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get token => $composableBuilder(
+      column: $table.token, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get category => $composableBuilder(
+      column: $table.category, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get pageCount => $composableBuilder(
+      column: $table.pageCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get galleryUrl => $composableBuilder(
+      column: $table.galleryUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get oldVersionGalleryUrl => $composableBuilder(
+      column: $table.oldVersionGalleryUrl,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get uploader => $composableBuilder(
+      column: $table.uploader, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get publishTime => $composableBuilder(
+      column: $table.publishTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get downloadStatusIndex => $composableBuilder(
+      column: $table.downloadStatusIndex,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get insertTime => $composableBuilder(
+      column: $table.insertTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get downloadOriginalImage => $composableBuilder(
+      column: $table.downloadOriginalImage,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get priority => $composableBuilder(
+      column: $table.priority, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get groupName => $composableBuilder(
+      column: $table.groupName, builder: (column) => ColumnFilters(column));
+}
+
+class $$GalleryDownloadedOldTableOrderingComposer
+    extends Composer<_$AppDb, $GalleryDownloadedOldTable> {
+  $$GalleryDownloadedOldTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get gid => $composableBuilder(
+      column: $table.gid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get token => $composableBuilder(
+      column: $table.token, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get category => $composableBuilder(
+      column: $table.category, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get pageCount => $composableBuilder(
+      column: $table.pageCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get galleryUrl => $composableBuilder(
+      column: $table.galleryUrl, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get oldVersionGalleryUrl => $composableBuilder(
+      column: $table.oldVersionGalleryUrl,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get uploader => $composableBuilder(
+      column: $table.uploader, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get publishTime => $composableBuilder(
+      column: $table.publishTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get downloadStatusIndex => $composableBuilder(
+      column: $table.downloadStatusIndex,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get insertTime => $composableBuilder(
+      column: $table.insertTime, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get downloadOriginalImage => $composableBuilder(
+      column: $table.downloadOriginalImage,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get priority => $composableBuilder(
+      column: $table.priority, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get groupName => $composableBuilder(
+      column: $table.groupName, builder: (column) => ColumnOrderings(column));
+}
+
+class $$GalleryDownloadedOldTableAnnotationComposer
+    extends Composer<_$AppDb, $GalleryDownloadedOldTable> {
+  $$GalleryDownloadedOldTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get gid =>
+      $composableBuilder(column: $table.gid, builder: (column) => column);
+
+  GeneratedColumn<String> get token =>
+      $composableBuilder(column: $table.token, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<int> get pageCount =>
+      $composableBuilder(column: $table.pageCount, builder: (column) => column);
+
+  GeneratedColumn<String> get galleryUrl => $composableBuilder(
+      column: $table.galleryUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get oldVersionGalleryUrl => $composableBuilder(
+      column: $table.oldVersionGalleryUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get uploader =>
+      $composableBuilder(column: $table.uploader, builder: (column) => column);
+
+  GeneratedColumn<String> get publishTime => $composableBuilder(
+      column: $table.publishTime, builder: (column) => column);
+
+  GeneratedColumn<int> get downloadStatusIndex => $composableBuilder(
+      column: $table.downloadStatusIndex, builder: (column) => column);
+
+  GeneratedColumn<String> get insertTime => $composableBuilder(
+      column: $table.insertTime, builder: (column) => column);
+
+  GeneratedColumn<bool> get downloadOriginalImage => $composableBuilder(
+      column: $table.downloadOriginalImage, builder: (column) => column);
+
+  GeneratedColumn<int> get priority =>
+      $composableBuilder(column: $table.priority, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<String> get groupName =>
+      $composableBuilder(column: $table.groupName, builder: (column) => column);
+}
+
 class $$GalleryDownloadedOldTableTableManager extends RootTableManager<
     _$AppDb,
     $GalleryDownloadedOldTable,
     GalleryDownloadedOldData,
     $$GalleryDownloadedOldTableFilterComposer,
     $$GalleryDownloadedOldTableOrderingComposer,
+    $$GalleryDownloadedOldTableAnnotationComposer,
     $$GalleryDownloadedOldTableCreateCompanionBuilder,
-    $$GalleryDownloadedOldTableUpdateCompanionBuilder> {
+    $$GalleryDownloadedOldTableUpdateCompanionBuilder,
+    (
+      GalleryDownloadedOldData,
+      BaseReferences<_$AppDb, $GalleryDownloadedOldTable,
+          GalleryDownloadedOldData>
+    ),
+    GalleryDownloadedOldData,
+    PrefetchHooks Function()> {
   $$GalleryDownloadedOldTableTableManager(
       _$AppDb db, $GalleryDownloadedOldTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer: $$GalleryDownloadedOldTableFilterComposer(
-              ComposerState(db, table)),
-          orderingComposer: $$GalleryDownloadedOldTableOrderingComposer(
-              ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$GalleryDownloadedOldTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GalleryDownloadedOldTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GalleryDownloadedOldTableAnnotationComposer(
+                  $db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> gid = const Value.absent(),
             Value<String> token = const Value.absent(),
@@ -8293,167 +8860,30 @@ class $$GalleryDownloadedOldTableTableManager extends RootTableManager<
             sortOrder: sortOrder,
             groupName: groupName,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
         ));
 }
 
-class $$GalleryDownloadedOldTableFilterComposer
-    extends FilterComposer<_$AppDb, $GalleryDownloadedOldTable> {
-  $$GalleryDownloadedOldTableFilterComposer(super.$state);
-  ColumnFilters<int> get gid => $state.composableBuilder(
-      column: $state.table.gid,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get token => $state.composableBuilder(
-      column: $state.table.token,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get title => $state.composableBuilder(
-      column: $state.table.title,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get category => $state.composableBuilder(
-      column: $state.table.category,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get pageCount => $state.composableBuilder(
-      column: $state.table.pageCount,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get galleryUrl => $state.composableBuilder(
-      column: $state.table.galleryUrl,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get oldVersionGalleryUrl => $state.composableBuilder(
-      column: $state.table.oldVersionGalleryUrl,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get uploader => $state.composableBuilder(
-      column: $state.table.uploader,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get publishTime => $state.composableBuilder(
-      column: $state.table.publishTime,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get downloadStatusIndex => $state.composableBuilder(
-      column: $state.table.downloadStatusIndex,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get insertTime => $state.composableBuilder(
-      column: $state.table.insertTime,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<bool> get downloadOriginalImage => $state.composableBuilder(
-      column: $state.table.downloadOriginalImage,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get priority => $state.composableBuilder(
-      column: $state.table.priority,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get sortOrder => $state.composableBuilder(
-      column: $state.table.sortOrder,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get groupName => $state.composableBuilder(
-      column: $state.table.groupName,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-}
-
-class $$GalleryDownloadedOldTableOrderingComposer
-    extends OrderingComposer<_$AppDb, $GalleryDownloadedOldTable> {
-  $$GalleryDownloadedOldTableOrderingComposer(super.$state);
-  ColumnOrderings<int> get gid => $state.composableBuilder(
-      column: $state.table.gid,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get token => $state.composableBuilder(
-      column: $state.table.token,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get title => $state.composableBuilder(
-      column: $state.table.title,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get category => $state.composableBuilder(
-      column: $state.table.category,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get pageCount => $state.composableBuilder(
-      column: $state.table.pageCount,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get galleryUrl => $state.composableBuilder(
-      column: $state.table.galleryUrl,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get oldVersionGalleryUrl => $state.composableBuilder(
-      column: $state.table.oldVersionGalleryUrl,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get uploader => $state.composableBuilder(
-      column: $state.table.uploader,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get publishTime => $state.composableBuilder(
-      column: $state.table.publishTime,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get downloadStatusIndex => $state.composableBuilder(
-      column: $state.table.downloadStatusIndex,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get insertTime => $state.composableBuilder(
-      column: $state.table.insertTime,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<bool> get downloadOriginalImage => $state.composableBuilder(
-      column: $state.table.downloadOriginalImage,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get priority => $state.composableBuilder(
-      column: $state.table.priority,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get sortOrder => $state.composableBuilder(
-      column: $state.table.sortOrder,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get groupName => $state.composableBuilder(
-      column: $state.table.groupName,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
-
+typedef $$GalleryDownloadedOldTableProcessedTableManager
+    = ProcessedTableManager<
+        _$AppDb,
+        $GalleryDownloadedOldTable,
+        GalleryDownloadedOldData,
+        $$GalleryDownloadedOldTableFilterComposer,
+        $$GalleryDownloadedOldTableOrderingComposer,
+        $$GalleryDownloadedOldTableAnnotationComposer,
+        $$GalleryDownloadedOldTableCreateCompanionBuilder,
+        $$GalleryDownloadedOldTableUpdateCompanionBuilder,
+        (
+          GalleryDownloadedOldData,
+          BaseReferences<_$AppDb, $GalleryDownloadedOldTable,
+              GalleryDownloadedOldData>
+        ),
+        GalleryDownloadedOldData,
+        PrefetchHooks Function()>;
 typedef $$GalleryGroupTableCreateCompanionBuilder = GalleryGroupCompanion
     Function({
   required String groupName,
@@ -8467,22 +8897,79 @@ typedef $$GalleryGroupTableUpdateCompanionBuilder = GalleryGroupCompanion
   Value<int> rowid,
 });
 
+class $$GalleryGroupTableFilterComposer
+    extends Composer<_$AppDb, $GalleryGroupTable> {
+  $$GalleryGroupTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get groupName => $composableBuilder(
+      column: $table.groupName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+}
+
+class $$GalleryGroupTableOrderingComposer
+    extends Composer<_$AppDb, $GalleryGroupTable> {
+  $$GalleryGroupTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get groupName => $composableBuilder(
+      column: $table.groupName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+      column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+}
+
+class $$GalleryGroupTableAnnotationComposer
+    extends Composer<_$AppDb, $GalleryGroupTable> {
+  $$GalleryGroupTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get groupName =>
+      $composableBuilder(column: $table.groupName, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+}
+
 class $$GalleryGroupTableTableManager extends RootTableManager<
     _$AppDb,
     $GalleryGroupTable,
     GalleryGroupData,
     $$GalleryGroupTableFilterComposer,
     $$GalleryGroupTableOrderingComposer,
+    $$GalleryGroupTableAnnotationComposer,
     $$GalleryGroupTableCreateCompanionBuilder,
-    $$GalleryGroupTableUpdateCompanionBuilder> {
+    $$GalleryGroupTableUpdateCompanionBuilder,
+    (
+      GalleryGroupData,
+      BaseReferences<_$AppDb, $GalleryGroupTable, GalleryGroupData>
+    ),
+    GalleryGroupData,
+    PrefetchHooks Function()> {
   $$GalleryGroupTableTableManager(_$AppDb db, $GalleryGroupTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$GalleryGroupTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$GalleryGroupTableOrderingComposer(ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$GalleryGroupTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GalleryGroupTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GalleryGroupTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> groupName = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
@@ -8503,37 +8990,28 @@ class $$GalleryGroupTableTableManager extends RootTableManager<
             sortOrder: sortOrder,
             rowid: rowid,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
         ));
 }
 
-class $$GalleryGroupTableFilterComposer
-    extends FilterComposer<_$AppDb, $GalleryGroupTable> {
-  $$GalleryGroupTableFilterComposer(super.$state);
-  ColumnFilters<String> get groupName => $state.composableBuilder(
-      column: $state.table.groupName,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get sortOrder => $state.composableBuilder(
-      column: $state.table.sortOrder,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-}
-
-class $$GalleryGroupTableOrderingComposer
-    extends OrderingComposer<_$AppDb, $GalleryGroupTable> {
-  $$GalleryGroupTableOrderingComposer(super.$state);
-  ColumnOrderings<String> get groupName => $state.composableBuilder(
-      column: $state.table.groupName,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get sortOrder => $state.composableBuilder(
-      column: $state.table.sortOrder,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
-
+typedef $$GalleryGroupTableProcessedTableManager = ProcessedTableManager<
+    _$AppDb,
+    $GalleryGroupTable,
+    GalleryGroupData,
+    $$GalleryGroupTableFilterComposer,
+    $$GalleryGroupTableOrderingComposer,
+    $$GalleryGroupTableAnnotationComposer,
+    $$GalleryGroupTableCreateCompanionBuilder,
+    $$GalleryGroupTableUpdateCompanionBuilder,
+    (
+      GalleryGroupData,
+      BaseReferences<_$AppDb, $GalleryGroupTable, GalleryGroupData>
+    ),
+    GalleryGroupData,
+    PrefetchHooks Function()>;
 typedef $$ImageTableCreateCompanionBuilder = ImageCompanion Function({
   required int gid,
   required String url,
@@ -8553,22 +9031,183 @@ typedef $$ImageTableUpdateCompanionBuilder = ImageCompanion Function({
   Value<int> rowid,
 });
 
+final class $$ImageTableReferences
+    extends BaseReferences<_$AppDb, $ImageTable, ImageData> {
+  $$ImageTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $GalleryDownloadedTable _gidTable(_$AppDb db) =>
+      db.galleryDownloaded.createAlias(
+          $_aliasNameGenerator(db.image.gid, db.galleryDownloaded.gid));
+
+  $$GalleryDownloadedTableProcessedTableManager? get gid {
+    if ($_item.gid == null) return null;
+    final manager =
+        $$GalleryDownloadedTableTableManager($_db, $_db.galleryDownloaded)
+            .filter((f) => f.gid($_item.gid!));
+    final item = $_typedResult.readTableOrNull(_gidTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$ImageTableFilterComposer extends Composer<_$AppDb, $ImageTable> {
+  $$ImageTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get url => $composableBuilder(
+      column: $table.url, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get serialNo => $composableBuilder(
+      column: $table.serialNo, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get path => $composableBuilder(
+      column: $table.path, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get imageHash => $composableBuilder(
+      column: $table.imageHash, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get downloadStatusIndex => $composableBuilder(
+      column: $table.downloadStatusIndex,
+      builder: (column) => ColumnFilters(column));
+
+  $$GalleryDownloadedTableFilterComposer get gid {
+    final $$GalleryDownloadedTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.gid,
+        referencedTable: $db.galleryDownloaded,
+        getReferencedColumn: (t) => t.gid,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$GalleryDownloadedTableFilterComposer(
+              $db: $db,
+              $table: $db.galleryDownloaded,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ImageTableOrderingComposer extends Composer<_$AppDb, $ImageTable> {
+  $$ImageTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get url => $composableBuilder(
+      column: $table.url, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get serialNo => $composableBuilder(
+      column: $table.serialNo, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get path => $composableBuilder(
+      column: $table.path, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get imageHash => $composableBuilder(
+      column: $table.imageHash, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get downloadStatusIndex => $composableBuilder(
+      column: $table.downloadStatusIndex,
+      builder: (column) => ColumnOrderings(column));
+
+  $$GalleryDownloadedTableOrderingComposer get gid {
+    final $$GalleryDownloadedTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.gid,
+        referencedTable: $db.galleryDownloaded,
+        getReferencedColumn: (t) => t.gid,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$GalleryDownloadedTableOrderingComposer(
+              $db: $db,
+              $table: $db.galleryDownloaded,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$ImageTableAnnotationComposer extends Composer<_$AppDb, $ImageTable> {
+  $$ImageTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get url =>
+      $composableBuilder(column: $table.url, builder: (column) => column);
+
+  GeneratedColumn<int> get serialNo =>
+      $composableBuilder(column: $table.serialNo, builder: (column) => column);
+
+  GeneratedColumn<String> get path =>
+      $composableBuilder(column: $table.path, builder: (column) => column);
+
+  GeneratedColumn<String> get imageHash =>
+      $composableBuilder(column: $table.imageHash, builder: (column) => column);
+
+  GeneratedColumn<int> get downloadStatusIndex => $composableBuilder(
+      column: $table.downloadStatusIndex, builder: (column) => column);
+
+  $$GalleryDownloadedTableAnnotationComposer get gid {
+    final $$GalleryDownloadedTableAnnotationComposer composer =
+        $composerBuilder(
+            composer: this,
+            getCurrentColumn: (t) => t.gid,
+            referencedTable: $db.galleryDownloaded,
+            getReferencedColumn: (t) => t.gid,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$GalleryDownloadedTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.galleryDownloaded,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
+    return composer;
+  }
+}
+
 class $$ImageTableTableManager extends RootTableManager<
     _$AppDb,
     $ImageTable,
     ImageData,
     $$ImageTableFilterComposer,
     $$ImageTableOrderingComposer,
+    $$ImageTableAnnotationComposer,
     $$ImageTableCreateCompanionBuilder,
-    $$ImageTableUpdateCompanionBuilder> {
+    $$ImageTableUpdateCompanionBuilder,
+    (ImageData, $$ImageTableReferences),
+    ImageData,
+    PrefetchHooks Function({bool gid})> {
   $$ImageTableTableManager(_$AppDb db, $ImageTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$ImageTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$ImageTableOrderingComposer(ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$ImageTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ImageTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ImageTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> gid = const Value.absent(),
             Value<String> url = const Value.absent(),
@@ -8605,98 +9244,58 @@ class $$ImageTableTableManager extends RootTableManager<
             downloadStatusIndex: downloadStatusIndex,
             rowid: rowid,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) =>
+                  (e.readTable(table), $$ImageTableReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: ({gid = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (gid) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.gid,
+                    referencedTable: $$ImageTableReferences._gidTable(db),
+                    referencedColumn: $$ImageTableReferences._gidTable(db).gid,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
         ));
 }
 
-class $$ImageTableFilterComposer extends FilterComposer<_$AppDb, $ImageTable> {
-  $$ImageTableFilterComposer(super.$state);
-  ColumnFilters<String> get url => $state.composableBuilder(
-      column: $state.table.url,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get serialNo => $state.composableBuilder(
-      column: $state.table.serialNo,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get path => $state.composableBuilder(
-      column: $state.table.path,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get imageHash => $state.composableBuilder(
-      column: $state.table.imageHash,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get downloadStatusIndex => $state.composableBuilder(
-      column: $state.table.downloadStatusIndex,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  $$GalleryDownloadedTableFilterComposer get gid {
-    final $$GalleryDownloadedTableFilterComposer composer =
-        $state.composerBuilder(
-            composer: this,
-            getCurrentColumn: (t) => t.gid,
-            referencedTable: $state.db.galleryDownloaded,
-            getReferencedColumn: (t) => t.gid,
-            builder: (joinBuilder, parentComposers) =>
-                $$GalleryDownloadedTableFilterComposer(ComposerState(
-                    $state.db,
-                    $state.db.galleryDownloaded,
-                    joinBuilder,
-                    parentComposers)));
-    return composer;
-  }
-}
-
-class $$ImageTableOrderingComposer
-    extends OrderingComposer<_$AppDb, $ImageTable> {
-  $$ImageTableOrderingComposer(super.$state);
-  ColumnOrderings<String> get url => $state.composableBuilder(
-      column: $state.table.url,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get serialNo => $state.composableBuilder(
-      column: $state.table.serialNo,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get path => $state.composableBuilder(
-      column: $state.table.path,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get imageHash => $state.composableBuilder(
-      column: $state.table.imageHash,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get downloadStatusIndex => $state.composableBuilder(
-      column: $state.table.downloadStatusIndex,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  $$GalleryDownloadedTableOrderingComposer get gid {
-    final $$GalleryDownloadedTableOrderingComposer composer =
-        $state.composerBuilder(
-            composer: this,
-            getCurrentColumn: (t) => t.gid,
-            referencedTable: $state.db.galleryDownloaded,
-            getReferencedColumn: (t) => t.gid,
-            builder: (joinBuilder, parentComposers) =>
-                $$GalleryDownloadedTableOrderingComposer(ComposerState(
-                    $state.db,
-                    $state.db.galleryDownloaded,
-                    joinBuilder,
-                    parentComposers)));
-    return composer;
-  }
-}
-
+typedef $$ImageTableProcessedTableManager = ProcessedTableManager<
+    _$AppDb,
+    $ImageTable,
+    ImageData,
+    $$ImageTableFilterComposer,
+    $$ImageTableOrderingComposer,
+    $$ImageTableAnnotationComposer,
+    $$ImageTableCreateCompanionBuilder,
+    $$ImageTableUpdateCompanionBuilder,
+    (ImageData, $$ImageTableReferences),
+    ImageData,
+    PrefetchHooks Function({bool gid})>;
 typedef $$GalleryHistoryTableCreateCompanionBuilder = GalleryHistoryCompanion
     Function({
   Value<int> gid,
@@ -8710,22 +9309,89 @@ typedef $$GalleryHistoryTableUpdateCompanionBuilder = GalleryHistoryCompanion
   Value<String> lastReadTime,
 });
 
+class $$GalleryHistoryTableFilterComposer
+    extends Composer<_$AppDb, $GalleryHistoryTable> {
+  $$GalleryHistoryTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get gid => $composableBuilder(
+      column: $table.gid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get jsonBody => $composableBuilder(
+      column: $table.jsonBody, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lastReadTime => $composableBuilder(
+      column: $table.lastReadTime, builder: (column) => ColumnFilters(column));
+}
+
+class $$GalleryHistoryTableOrderingComposer
+    extends Composer<_$AppDb, $GalleryHistoryTable> {
+  $$GalleryHistoryTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get gid => $composableBuilder(
+      column: $table.gid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get jsonBody => $composableBuilder(
+      column: $table.jsonBody, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lastReadTime => $composableBuilder(
+      column: $table.lastReadTime,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$GalleryHistoryTableAnnotationComposer
+    extends Composer<_$AppDb, $GalleryHistoryTable> {
+  $$GalleryHistoryTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get gid =>
+      $composableBuilder(column: $table.gid, builder: (column) => column);
+
+  GeneratedColumn<String> get jsonBody =>
+      $composableBuilder(column: $table.jsonBody, builder: (column) => column);
+
+  GeneratedColumn<String> get lastReadTime => $composableBuilder(
+      column: $table.lastReadTime, builder: (column) => column);
+}
+
 class $$GalleryHistoryTableTableManager extends RootTableManager<
     _$AppDb,
     $GalleryHistoryTable,
     GalleryHistoryData,
     $$GalleryHistoryTableFilterComposer,
     $$GalleryHistoryTableOrderingComposer,
+    $$GalleryHistoryTableAnnotationComposer,
     $$GalleryHistoryTableCreateCompanionBuilder,
-    $$GalleryHistoryTableUpdateCompanionBuilder> {
+    $$GalleryHistoryTableUpdateCompanionBuilder,
+    (
+      GalleryHistoryData,
+      BaseReferences<_$AppDb, $GalleryHistoryTable, GalleryHistoryData>
+    ),
+    GalleryHistoryData,
+    PrefetchHooks Function()> {
   $$GalleryHistoryTableTableManager(_$AppDb db, $GalleryHistoryTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$GalleryHistoryTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$GalleryHistoryTableOrderingComposer(ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$GalleryHistoryTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GalleryHistoryTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GalleryHistoryTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> gid = const Value.absent(),
             Value<String> jsonBody = const Value.absent(),
@@ -8746,47 +9412,28 @@ class $$GalleryHistoryTableTableManager extends RootTableManager<
             jsonBody: jsonBody,
             lastReadTime: lastReadTime,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
         ));
 }
 
-class $$GalleryHistoryTableFilterComposer
-    extends FilterComposer<_$AppDb, $GalleryHistoryTable> {
-  $$GalleryHistoryTableFilterComposer(super.$state);
-  ColumnFilters<int> get gid => $state.composableBuilder(
-      column: $state.table.gid,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get jsonBody => $state.composableBuilder(
-      column: $state.table.jsonBody,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get lastReadTime => $state.composableBuilder(
-      column: $state.table.lastReadTime,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-}
-
-class $$GalleryHistoryTableOrderingComposer
-    extends OrderingComposer<_$AppDb, $GalleryHistoryTable> {
-  $$GalleryHistoryTableOrderingComposer(super.$state);
-  ColumnOrderings<int> get gid => $state.composableBuilder(
-      column: $state.table.gid,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get jsonBody => $state.composableBuilder(
-      column: $state.table.jsonBody,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get lastReadTime => $state.composableBuilder(
-      column: $state.table.lastReadTime,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
-
+typedef $$GalleryHistoryTableProcessedTableManager = ProcessedTableManager<
+    _$AppDb,
+    $GalleryHistoryTable,
+    GalleryHistoryData,
+    $$GalleryHistoryTableFilterComposer,
+    $$GalleryHistoryTableOrderingComposer,
+    $$GalleryHistoryTableAnnotationComposer,
+    $$GalleryHistoryTableCreateCompanionBuilder,
+    $$GalleryHistoryTableUpdateCompanionBuilder,
+    (
+      GalleryHistoryData,
+      BaseReferences<_$AppDb, $GalleryHistoryTable, GalleryHistoryData>
+    ),
+    GalleryHistoryData,
+    PrefetchHooks Function()>;
 typedef $$GalleryHistoryV2TableCreateCompanionBuilder
     = GalleryHistoryV2Companion Function({
   Value<int> gid,
@@ -8800,22 +9447,89 @@ typedef $$GalleryHistoryV2TableUpdateCompanionBuilder
   Value<String> lastReadTime,
 });
 
+class $$GalleryHistoryV2TableFilterComposer
+    extends Composer<_$AppDb, $GalleryHistoryV2Table> {
+  $$GalleryHistoryV2TableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get gid => $composableBuilder(
+      column: $table.gid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get jsonBody => $composableBuilder(
+      column: $table.jsonBody, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lastReadTime => $composableBuilder(
+      column: $table.lastReadTime, builder: (column) => ColumnFilters(column));
+}
+
+class $$GalleryHistoryV2TableOrderingComposer
+    extends Composer<_$AppDb, $GalleryHistoryV2Table> {
+  $$GalleryHistoryV2TableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get gid => $composableBuilder(
+      column: $table.gid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get jsonBody => $composableBuilder(
+      column: $table.jsonBody, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lastReadTime => $composableBuilder(
+      column: $table.lastReadTime,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$GalleryHistoryV2TableAnnotationComposer
+    extends Composer<_$AppDb, $GalleryHistoryV2Table> {
+  $$GalleryHistoryV2TableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get gid =>
+      $composableBuilder(column: $table.gid, builder: (column) => column);
+
+  GeneratedColumn<String> get jsonBody =>
+      $composableBuilder(column: $table.jsonBody, builder: (column) => column);
+
+  GeneratedColumn<String> get lastReadTime => $composableBuilder(
+      column: $table.lastReadTime, builder: (column) => column);
+}
+
 class $$GalleryHistoryV2TableTableManager extends RootTableManager<
     _$AppDb,
     $GalleryHistoryV2Table,
     GalleryHistoryV2Data,
     $$GalleryHistoryV2TableFilterComposer,
     $$GalleryHistoryV2TableOrderingComposer,
+    $$GalleryHistoryV2TableAnnotationComposer,
     $$GalleryHistoryV2TableCreateCompanionBuilder,
-    $$GalleryHistoryV2TableUpdateCompanionBuilder> {
+    $$GalleryHistoryV2TableUpdateCompanionBuilder,
+    (
+      GalleryHistoryV2Data,
+      BaseReferences<_$AppDb, $GalleryHistoryV2Table, GalleryHistoryV2Data>
+    ),
+    GalleryHistoryV2Data,
+    PrefetchHooks Function()> {
   $$GalleryHistoryV2TableTableManager(_$AppDb db, $GalleryHistoryV2Table table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$GalleryHistoryV2TableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$GalleryHistoryV2TableOrderingComposer(ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$GalleryHistoryV2TableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GalleryHistoryV2TableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GalleryHistoryV2TableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> gid = const Value.absent(),
             Value<String> jsonBody = const Value.absent(),
@@ -8836,47 +9550,28 @@ class $$GalleryHistoryV2TableTableManager extends RootTableManager<
             jsonBody: jsonBody,
             lastReadTime: lastReadTime,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
         ));
 }
 
-class $$GalleryHistoryV2TableFilterComposer
-    extends FilterComposer<_$AppDb, $GalleryHistoryV2Table> {
-  $$GalleryHistoryV2TableFilterComposer(super.$state);
-  ColumnFilters<int> get gid => $state.composableBuilder(
-      column: $state.table.gid,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get jsonBody => $state.composableBuilder(
-      column: $state.table.jsonBody,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get lastReadTime => $state.composableBuilder(
-      column: $state.table.lastReadTime,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-}
-
-class $$GalleryHistoryV2TableOrderingComposer
-    extends OrderingComposer<_$AppDb, $GalleryHistoryV2Table> {
-  $$GalleryHistoryV2TableOrderingComposer(super.$state);
-  ColumnOrderings<int> get gid => $state.composableBuilder(
-      column: $state.table.gid,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get jsonBody => $state.composableBuilder(
-      column: $state.table.jsonBody,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get lastReadTime => $state.composableBuilder(
-      column: $state.table.lastReadTime,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
-
+typedef $$GalleryHistoryV2TableProcessedTableManager = ProcessedTableManager<
+    _$AppDb,
+    $GalleryHistoryV2Table,
+    GalleryHistoryV2Data,
+    $$GalleryHistoryV2TableFilterComposer,
+    $$GalleryHistoryV2TableOrderingComposer,
+    $$GalleryHistoryV2TableAnnotationComposer,
+    $$GalleryHistoryV2TableCreateCompanionBuilder,
+    $$GalleryHistoryV2TableUpdateCompanionBuilder,
+    (
+      GalleryHistoryV2Data,
+      BaseReferences<_$AppDb, $GalleryHistoryV2Table, GalleryHistoryV2Data>
+    ),
+    GalleryHistoryV2Data,
+    PrefetchHooks Function()>;
 typedef $$TagCountTableCreateCompanionBuilder = TagCountCompanion Function({
   required String namespaceWithKey,
   required int count,
@@ -8888,22 +9583,77 @@ typedef $$TagCountTableUpdateCompanionBuilder = TagCountCompanion Function({
   Value<int> rowid,
 });
 
+class $$TagCountTableFilterComposer extends Composer<_$AppDb, $TagCountTable> {
+  $$TagCountTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get namespaceWithKey => $composableBuilder(
+      column: $table.namespaceWithKey,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get count => $composableBuilder(
+      column: $table.count, builder: (column) => ColumnFilters(column));
+}
+
+class $$TagCountTableOrderingComposer
+    extends Composer<_$AppDb, $TagCountTable> {
+  $$TagCountTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get namespaceWithKey => $composableBuilder(
+      column: $table.namespaceWithKey,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get count => $composableBuilder(
+      column: $table.count, builder: (column) => ColumnOrderings(column));
+}
+
+class $$TagCountTableAnnotationComposer
+    extends Composer<_$AppDb, $TagCountTable> {
+  $$TagCountTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get namespaceWithKey => $composableBuilder(
+      column: $table.namespaceWithKey, builder: (column) => column);
+
+  GeneratedColumn<int> get count =>
+      $composableBuilder(column: $table.count, builder: (column) => column);
+}
+
 class $$TagCountTableTableManager extends RootTableManager<
     _$AppDb,
     $TagCountTable,
     TagCountData,
     $$TagCountTableFilterComposer,
     $$TagCountTableOrderingComposer,
+    $$TagCountTableAnnotationComposer,
     $$TagCountTableCreateCompanionBuilder,
-    $$TagCountTableUpdateCompanionBuilder> {
+    $$TagCountTableUpdateCompanionBuilder,
+    (TagCountData, BaseReferences<_$AppDb, $TagCountTable, TagCountData>),
+    TagCountData,
+    PrefetchHooks Function()> {
   $$TagCountTableTableManager(_$AppDb db, $TagCountTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$TagCountTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$TagCountTableOrderingComposer(ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$TagCountTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TagCountTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TagCountTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> namespaceWithKey = const Value.absent(),
             Value<int> count = const Value.absent(),
@@ -8924,37 +9674,25 @@ class $$TagCountTableTableManager extends RootTableManager<
             count: count,
             rowid: rowid,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
         ));
 }
 
-class $$TagCountTableFilterComposer
-    extends FilterComposer<_$AppDb, $TagCountTable> {
-  $$TagCountTableFilterComposer(super.$state);
-  ColumnFilters<String> get namespaceWithKey => $state.composableBuilder(
-      column: $state.table.namespaceWithKey,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get count => $state.composableBuilder(
-      column: $state.table.count,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-}
-
-class $$TagCountTableOrderingComposer
-    extends OrderingComposer<_$AppDb, $TagCountTable> {
-  $$TagCountTableOrderingComposer(super.$state);
-  ColumnOrderings<String> get namespaceWithKey => $state.composableBuilder(
-      column: $state.table.namespaceWithKey,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get count => $state.composableBuilder(
-      column: $state.table.count,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
-
+typedef $$TagCountTableProcessedTableManager = ProcessedTableManager<
+    _$AppDb,
+    $TagCountTable,
+    TagCountData,
+    $$TagCountTableFilterComposer,
+    $$TagCountTableOrderingComposer,
+    $$TagCountTableAnnotationComposer,
+    $$TagCountTableCreateCompanionBuilder,
+    $$TagCountTableUpdateCompanionBuilder,
+    (TagCountData, BaseReferences<_$AppDb, $TagCountTable, TagCountData>),
+    TagCountData,
+    PrefetchHooks Function()>;
 typedef $$DioCacheTableCreateCompanionBuilder = DioCacheCompanion Function({
   required String cacheKey,
   required String url,
@@ -8972,22 +9710,102 @@ typedef $$DioCacheTableUpdateCompanionBuilder = DioCacheCompanion Function({
   Value<int> rowid,
 });
 
+class $$DioCacheTableFilterComposer extends Composer<_$AppDb, $DioCacheTable> {
+  $$DioCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get cacheKey => $composableBuilder(
+      column: $table.cacheKey, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get url => $composableBuilder(
+      column: $table.url, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get expireDate => $composableBuilder(
+      column: $table.expireDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<Uint8List> get content => $composableBuilder(
+      column: $table.content, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<Uint8List> get headers => $composableBuilder(
+      column: $table.headers, builder: (column) => ColumnFilters(column));
+}
+
+class $$DioCacheTableOrderingComposer
+    extends Composer<_$AppDb, $DioCacheTable> {
+  $$DioCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get cacheKey => $composableBuilder(
+      column: $table.cacheKey, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get url => $composableBuilder(
+      column: $table.url, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get expireDate => $composableBuilder(
+      column: $table.expireDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<Uint8List> get content => $composableBuilder(
+      column: $table.content, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<Uint8List> get headers => $composableBuilder(
+      column: $table.headers, builder: (column) => ColumnOrderings(column));
+}
+
+class $$DioCacheTableAnnotationComposer
+    extends Composer<_$AppDb, $DioCacheTable> {
+  $$DioCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get cacheKey =>
+      $composableBuilder(column: $table.cacheKey, builder: (column) => column);
+
+  GeneratedColumn<String> get url =>
+      $composableBuilder(column: $table.url, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get expireDate => $composableBuilder(
+      column: $table.expireDate, builder: (column) => column);
+
+  GeneratedColumn<Uint8List> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<Uint8List> get headers =>
+      $composableBuilder(column: $table.headers, builder: (column) => column);
+}
+
 class $$DioCacheTableTableManager extends RootTableManager<
     _$AppDb,
     $DioCacheTable,
     DioCacheData,
     $$DioCacheTableFilterComposer,
     $$DioCacheTableOrderingComposer,
+    $$DioCacheTableAnnotationComposer,
     $$DioCacheTableCreateCompanionBuilder,
-    $$DioCacheTableUpdateCompanionBuilder> {
+    $$DioCacheTableUpdateCompanionBuilder,
+    (DioCacheData, BaseReferences<_$AppDb, $DioCacheTable, DioCacheData>),
+    DioCacheData,
+    PrefetchHooks Function()> {
   $$DioCacheTableTableManager(_$AppDb db, $DioCacheTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$DioCacheTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$DioCacheTableOrderingComposer(ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$DioCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DioCacheTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DioCacheTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> cacheKey = const Value.absent(),
             Value<String> url = const Value.absent(),
@@ -9020,67 +9838,25 @@ class $$DioCacheTableTableManager extends RootTableManager<
             headers: headers,
             rowid: rowid,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
         ));
 }
 
-class $$DioCacheTableFilterComposer
-    extends FilterComposer<_$AppDb, $DioCacheTable> {
-  $$DioCacheTableFilterComposer(super.$state);
-  ColumnFilters<String> get cacheKey => $state.composableBuilder(
-      column: $state.table.cacheKey,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get url => $state.composableBuilder(
-      column: $state.table.url,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<DateTime> get expireDate => $state.composableBuilder(
-      column: $state.table.expireDate,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<Uint8List> get content => $state.composableBuilder(
-      column: $state.table.content,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<Uint8List> get headers => $state.composableBuilder(
-      column: $state.table.headers,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-}
-
-class $$DioCacheTableOrderingComposer
-    extends OrderingComposer<_$AppDb, $DioCacheTable> {
-  $$DioCacheTableOrderingComposer(super.$state);
-  ColumnOrderings<String> get cacheKey => $state.composableBuilder(
-      column: $state.table.cacheKey,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get url => $state.composableBuilder(
-      column: $state.table.url,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<DateTime> get expireDate => $state.composableBuilder(
-      column: $state.table.expireDate,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<Uint8List> get content => $state.composableBuilder(
-      column: $state.table.content,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<Uint8List> get headers => $state.composableBuilder(
-      column: $state.table.headers,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
-
+typedef $$DioCacheTableProcessedTableManager = ProcessedTableManager<
+    _$AppDb,
+    $DioCacheTable,
+    DioCacheData,
+    $$DioCacheTableFilterComposer,
+    $$DioCacheTableOrderingComposer,
+    $$DioCacheTableAnnotationComposer,
+    $$DioCacheTableCreateCompanionBuilder,
+    $$DioCacheTableUpdateCompanionBuilder,
+    (DioCacheData, BaseReferences<_$AppDb, $DioCacheTable, DioCacheData>),
+    DioCacheData,
+    PrefetchHooks Function()>;
 typedef $$BlockRuleTableCreateCompanionBuilder = BlockRuleCompanion Function({
   Value<int> id,
   required String groupId,
@@ -9098,22 +9874,112 @@ typedef $$BlockRuleTableUpdateCompanionBuilder = BlockRuleCompanion Function({
   Value<String> expression,
 });
 
+class $$BlockRuleTableFilterComposer
+    extends Composer<_$AppDb, $BlockRuleTable> {
+  $$BlockRuleTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get groupId => $composableBuilder(
+      column: $table.groupId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get target => $composableBuilder(
+      column: $table.target, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get attribute => $composableBuilder(
+      column: $table.attribute, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get pattern => $composableBuilder(
+      column: $table.pattern, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get expression => $composableBuilder(
+      column: $table.expression, builder: (column) => ColumnFilters(column));
+}
+
+class $$BlockRuleTableOrderingComposer
+    extends Composer<_$AppDb, $BlockRuleTable> {
+  $$BlockRuleTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get groupId => $composableBuilder(
+      column: $table.groupId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get target => $composableBuilder(
+      column: $table.target, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get attribute => $composableBuilder(
+      column: $table.attribute, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get pattern => $composableBuilder(
+      column: $table.pattern, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get expression => $composableBuilder(
+      column: $table.expression, builder: (column) => ColumnOrderings(column));
+}
+
+class $$BlockRuleTableAnnotationComposer
+    extends Composer<_$AppDb, $BlockRuleTable> {
+  $$BlockRuleTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => column);
+
+  GeneratedColumn<int> get target =>
+      $composableBuilder(column: $table.target, builder: (column) => column);
+
+  GeneratedColumn<int> get attribute =>
+      $composableBuilder(column: $table.attribute, builder: (column) => column);
+
+  GeneratedColumn<int> get pattern =>
+      $composableBuilder(column: $table.pattern, builder: (column) => column);
+
+  GeneratedColumn<String> get expression => $composableBuilder(
+      column: $table.expression, builder: (column) => column);
+}
+
 class $$BlockRuleTableTableManager extends RootTableManager<
     _$AppDb,
     $BlockRuleTable,
     BlockRuleData,
     $$BlockRuleTableFilterComposer,
     $$BlockRuleTableOrderingComposer,
+    $$BlockRuleTableAnnotationComposer,
     $$BlockRuleTableCreateCompanionBuilder,
-    $$BlockRuleTableUpdateCompanionBuilder> {
+    $$BlockRuleTableUpdateCompanionBuilder,
+    (BlockRuleData, BaseReferences<_$AppDb, $BlockRuleTable, BlockRuleData>),
+    BlockRuleData,
+    PrefetchHooks Function()> {
   $$BlockRuleTableTableManager(_$AppDb db, $BlockRuleTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$BlockRuleTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$BlockRuleTableOrderingComposer(ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$BlockRuleTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BlockRuleTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BlockRuleTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<String> groupId = const Value.absent(),
@@ -9146,77 +10012,25 @@ class $$BlockRuleTableTableManager extends RootTableManager<
             pattern: pattern,
             expression: expression,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
         ));
 }
 
-class $$BlockRuleTableFilterComposer
-    extends FilterComposer<_$AppDb, $BlockRuleTable> {
-  $$BlockRuleTableFilterComposer(super.$state);
-  ColumnFilters<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get groupId => $state.composableBuilder(
-      column: $state.table.groupId,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get target => $state.composableBuilder(
-      column: $state.table.target,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get attribute => $state.composableBuilder(
-      column: $state.table.attribute,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<int> get pattern => $state.composableBuilder(
-      column: $state.table.pattern,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get expression => $state.composableBuilder(
-      column: $state.table.expression,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-}
-
-class $$BlockRuleTableOrderingComposer
-    extends OrderingComposer<_$AppDb, $BlockRuleTable> {
-  $$BlockRuleTableOrderingComposer(super.$state);
-  ColumnOrderings<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get groupId => $state.composableBuilder(
-      column: $state.table.groupId,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get target => $state.composableBuilder(
-      column: $state.table.target,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get attribute => $state.composableBuilder(
-      column: $state.table.attribute,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<int> get pattern => $state.composableBuilder(
-      column: $state.table.pattern,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get expression => $state.composableBuilder(
-      column: $state.table.expression,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
-
+typedef $$BlockRuleTableProcessedTableManager = ProcessedTableManager<
+    _$AppDb,
+    $BlockRuleTable,
+    BlockRuleData,
+    $$BlockRuleTableFilterComposer,
+    $$BlockRuleTableOrderingComposer,
+    $$BlockRuleTableAnnotationComposer,
+    $$BlockRuleTableCreateCompanionBuilder,
+    $$BlockRuleTableUpdateCompanionBuilder,
+    (BlockRuleData, BaseReferences<_$AppDb, $BlockRuleTable, BlockRuleData>),
+    BlockRuleData,
+    PrefetchHooks Function()>;
 typedef $$LocalConfigTableCreateCompanionBuilder = LocalConfigCompanion
     Function({
   required String configKey,
@@ -9234,22 +10048,98 @@ typedef $$LocalConfigTableUpdateCompanionBuilder = LocalConfigCompanion
   Value<int> rowid,
 });
 
+class $$LocalConfigTableFilterComposer
+    extends Composer<_$AppDb, $LocalConfigTable> {
+  $$LocalConfigTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get configKey => $composableBuilder(
+      column: $table.configKey, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get subConfigKey => $composableBuilder(
+      column: $table.subConfigKey, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get value => $composableBuilder(
+      column: $table.value, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get utime => $composableBuilder(
+      column: $table.utime, builder: (column) => ColumnFilters(column));
+}
+
+class $$LocalConfigTableOrderingComposer
+    extends Composer<_$AppDb, $LocalConfigTable> {
+  $$LocalConfigTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get configKey => $composableBuilder(
+      column: $table.configKey, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get subConfigKey => $composableBuilder(
+      column: $table.subConfigKey,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get value => $composableBuilder(
+      column: $table.value, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get utime => $composableBuilder(
+      column: $table.utime, builder: (column) => ColumnOrderings(column));
+}
+
+class $$LocalConfigTableAnnotationComposer
+    extends Composer<_$AppDb, $LocalConfigTable> {
+  $$LocalConfigTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get configKey =>
+      $composableBuilder(column: $table.configKey, builder: (column) => column);
+
+  GeneratedColumn<String> get subConfigKey => $composableBuilder(
+      column: $table.subConfigKey, builder: (column) => column);
+
+  GeneratedColumn<String> get value =>
+      $composableBuilder(column: $table.value, builder: (column) => column);
+
+  GeneratedColumn<String> get utime =>
+      $composableBuilder(column: $table.utime, builder: (column) => column);
+}
+
 class $$LocalConfigTableTableManager extends RootTableManager<
     _$AppDb,
     $LocalConfigTable,
     LocalConfigData,
     $$LocalConfigTableFilterComposer,
     $$LocalConfigTableOrderingComposer,
+    $$LocalConfigTableAnnotationComposer,
     $$LocalConfigTableCreateCompanionBuilder,
-    $$LocalConfigTableUpdateCompanionBuilder> {
+    $$LocalConfigTableUpdateCompanionBuilder,
+    (
+      LocalConfigData,
+      BaseReferences<_$AppDb, $LocalConfigTable, LocalConfigData>
+    ),
+    LocalConfigData,
+    PrefetchHooks Function()> {
   $$LocalConfigTableTableManager(_$AppDb db, $LocalConfigTable table)
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$LocalConfigTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$LocalConfigTableOrderingComposer(ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$LocalConfigTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocalConfigTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocalConfigTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> configKey = const Value.absent(),
             Value<String> subConfigKey = const Value.absent(),
@@ -9278,56 +10168,28 @@ class $$LocalConfigTableTableManager extends RootTableManager<
             utime: utime,
             rowid: rowid,
           ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
         ));
 }
 
-class $$LocalConfigTableFilterComposer
-    extends FilterComposer<_$AppDb, $LocalConfigTable> {
-  $$LocalConfigTableFilterComposer(super.$state);
-  ColumnFilters<String> get configKey => $state.composableBuilder(
-      column: $state.table.configKey,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get subConfigKey => $state.composableBuilder(
-      column: $state.table.subConfigKey,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get value => $state.composableBuilder(
-      column: $state.table.value,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<String> get utime => $state.composableBuilder(
-      column: $state.table.utime,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-}
-
-class $$LocalConfigTableOrderingComposer
-    extends OrderingComposer<_$AppDb, $LocalConfigTable> {
-  $$LocalConfigTableOrderingComposer(super.$state);
-  ColumnOrderings<String> get configKey => $state.composableBuilder(
-      column: $state.table.configKey,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get subConfigKey => $state.composableBuilder(
-      column: $state.table.subConfigKey,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get value => $state.composableBuilder(
-      column: $state.table.value,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<String> get utime => $state.composableBuilder(
-      column: $state.table.utime,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-}
+typedef $$LocalConfigTableProcessedTableManager = ProcessedTableManager<
+    _$AppDb,
+    $LocalConfigTable,
+    LocalConfigData,
+    $$LocalConfigTableFilterComposer,
+    $$LocalConfigTableOrderingComposer,
+    $$LocalConfigTableAnnotationComposer,
+    $$LocalConfigTableCreateCompanionBuilder,
+    $$LocalConfigTableUpdateCompanionBuilder,
+    (
+      LocalConfigData,
+      BaseReferences<_$AppDb, $LocalConfigTable, LocalConfigData>
+    ),
+    LocalConfigData,
+    PrefetchHooks Function()>;
 
 class $AppDbManager {
   final _$AppDb _db;

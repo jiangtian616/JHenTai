@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_windowmanager/flutter_windowmanager.dart';
+import 'package:flutter_windowmanager_plus/flutter_windowmanager_plus.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 
@@ -197,7 +197,7 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
   /// so i choose to set FLAG_SECURE to do the same effect.
   void _addSecureFlagForAndroid(BuildContext context) {
     if (GetPlatform.isAndroid && (securitySetting.enableAuthOnResume.isTrue || securitySetting.enableBlur.isTrue)) {
-      FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
+      FlutterWindowManagerPlus.addFlags(FlutterWindowManagerPlus.FLAG_SECURE);
     }
   }
 }
