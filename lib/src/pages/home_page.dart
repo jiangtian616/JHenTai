@@ -117,13 +117,18 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
       return;
     }
 
-    ReceiveSharingIntent.getInitialText().then(
-      (String? rawText) {
-        if (isEmptyOrNull(rawText)) {
+    ReceiveSharingIntent.instance.getInitialMedia().then(
+      (List<SharedMediaFile> files) {
+        if (files.isEmpty) {
           return;
         }
 
-        GalleryUrl? galleryUrl = GalleryUrl.tryParse(rawText!);
+        SharedMediaFile file = files.first;
+        if (file.type != SharedMediaType.url) {
+          return;
+        }
+
+        GalleryUrl? galleryUrl = GalleryUrl.tryParse(file.path);
         if (galleryUrl != null) {
           toRoute(
             Routes.details,
@@ -134,7 +139,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
           return;
         }
 
-        GalleryImagePageUrl? galleryImagePageUrl = GalleryImagePageUrl.tryParse(rawText);
+        GalleryImagePageUrl? galleryImagePageUrl = GalleryImagePageUrl.tryParse(file.path);
         if (galleryImagePageUrl != null) {
           toRoute(
             Routes.imagePage,
@@ -146,11 +151,22 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
 
         toast('Invalid jump link', isShort: false);
       },
-    );
+    ).whenComplete(() {
+      ReceiveSharingIntent.instance.reset();
+    });
 
-    _intentDataStreamSubscription = ReceiveSharingIntent.getTextStream().listen(
-      (String url) {
-        GalleryUrl? galleryUrl = GalleryUrl.tryParse(url);
+    _intentDataStreamSubscription = ReceiveSharingIntent.instance.getMediaStream().listen(
+      (List<SharedMediaFile> files) {
+        if (files.isEmpty) {
+          return;
+        }
+        
+        SharedMediaFile file = files.first;
+        if (file.type != SharedMediaType.url) {
+          return;
+        }
+        
+        GalleryUrl? galleryUrl = GalleryUrl.tryParse(file.path);
         if (galleryUrl != null) {
           toRoute(
             Routes.details,
@@ -161,7 +177,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
           return;
         }
 
-        GalleryImagePageUrl? galleryImagePageUrl = GalleryImagePageUrl.tryParse(url);
+        GalleryImagePageUrl? galleryImagePageUrl = GalleryImagePageUrl.tryParse(file.path);
         if (galleryImagePageUrl != null) {
           toRoute(
             Routes.imagePage,
