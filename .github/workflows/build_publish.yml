@@ -20,7 +20,7 @@ jobs:
       matrix:
         include:
           - target: Android
-            os: windows-latest
+            os: ubuntu-latest
             artifact_name: release-Android
             artifact_path: build/app/outputs/apk/release/*.apk
           - target: Windows
