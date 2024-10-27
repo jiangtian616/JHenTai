@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get_utils/src/platform/platform.dart';
-import 'package:http_proxy/http_proxy.dart';
 import 'package:http_proxy_override/http_proxy_override.dart';
 import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
