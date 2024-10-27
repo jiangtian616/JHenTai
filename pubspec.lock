@@ -814,10 +814,11 @@ packages:
   http_proxy:
     dependency: "direct main"
     description:
-      name: http_proxy
-      sha256: "08d9f1652acdc11d977e1593de112b093f1fbc7c81153b9abfaf34b2ca011b51"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "02ec76afab6bf24fd1f8c1d90a2f4c8f9d82d11f"
+      url: "https://github.com/jiangtian616/http_proxy"
+    source: git
     version: "1.2.2"
   image:
     dependency: transitive
