@@ -814,10 +814,10 @@ packages:
     dependency: "direct main"
     description:
       name: http_proxy
-      sha256: "7d5bc7ad1b0c6d0cfb5da97c5bfe302082f93d32cf5c67d484d1a4085b3ffa58"
+      sha256: "08d9f1652acdc11d977e1593de112b093f1fbc7c81153b9abfaf34b2ca011b51"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.1"
+    version: "1.2.2"
   image:
     dependency: transitive
     description:
