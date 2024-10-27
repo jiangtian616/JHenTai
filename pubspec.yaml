@@ -71,7 +71,7 @@ dependencies:
   archive: 3.6.1
   # https://github.com/ponnamkarthik/FlutterToast/pull/542
   fluttertoast: 
-    git: https://github.com/ponnamkarthik/FlutterToast
+    git: https://github.com/MarlonJD/FlutterToast
   battery_plus: 6.2.0
   throttling: 1.0.0
   receive_sharing_intent: 1.4.5
