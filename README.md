@@ -42,7 +42,8 @@ Install for MacOS(No maintenance): download .dmg.
 - If you use a proxy server, set proxy address at network setting page.
 
 Install for Linux(No maintenance): download Linux-amd64.deb or Linux-x86_64.AppImage due to your platform, then install
-or execute it.
+or execute it (You may need to install webkit2gtk-4.1).
+
 
 - If you use a proxy server, set proxy address at network setting page.
 
