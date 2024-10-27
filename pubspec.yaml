@@ -69,7 +69,9 @@ dependencies:
   share_plus: 10.1.1
   syncfusion_flutter_charts: 27.1.48
   archive: 3.6.1
-  fluttertoast: 8.2.8
+  # https://github.com/ponnamkarthik/FlutterToast/pull/542
+  fluttertoast: 
+    git: https://github.com/ponnamkarthik/FlutterToast
   battery_plus: 6.2.0
   throttling: 1.0.0
   receive_sharing_intent: 1.4.5

@@ -23,6 +23,7 @@ class VerticalListLayout extends BaseLayout {
     return GetBuilder<VerticalListLayoutLogic>(
       id: logic.verticalLayoutId,
       builder: (_) => PhotoViewGallery.builder(
+        scrollDirection: Axis.vertical,
         itemCount: 1,
         builder: (_, __) => PhotoViewGalleryPageOptions.customChild(
           controller: state.photoViewController,

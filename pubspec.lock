@@ -661,10 +661,11 @@ packages:
   fluttertoast:
     dependency: "direct main"
     description:
-      name: fluttertoast
-      sha256: "95f349437aeebe524ef7d6c9bde3e6b4772717cf46a0eb6a3ceaddc740b297cc"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "71bbdd10fb4dd4b63fea813ce4ee06f1d6dbb625"
+      url: "https://github.com/ponnamkarthik/FlutterToast"
+    source: git
     version: "8.2.8"
   font_awesome_flutter:
     dependency: "direct main"
