@@ -76,7 +76,7 @@ dependencies:
       ref: patch-1
   battery_plus: 6.2.0
   throttling: 1.0.0
-  receive_sharing_intent: 1.4.5
+  receive_sharing_intent: 1.8.1
   window_manager: 0.3.9
   permission_handler: 11.3.1
   grouped_list: 5.1.2
