@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get_utils/src/platform/platform.dart';
-import 'package:http_proxy_override/http_proxy_override.dart';
+import 'package:http_proxy/http_proxy.dart';
 import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:system_network_proxy/system_network_proxy.dart';
@@ -15,7 +15,7 @@ Future<String> getSystemProxyAddress() async {
     systemProxyAddress = await SystemNetworkProxy.getProxyServer();
   }
   if (GetPlatform.isMobile) {
-    HttpProxyOverride httpProxy = await HttpProxyOverride.createHttpProxy();
+    HttpProxy httpProxy = await HttpProxy.createHttpProxy();
     if (!isEmptyOrNull(httpProxy.host) && !isEmptyOrNull(httpProxy.port)) {
       systemProxyAddress = '${httpProxy.host}:${httpProxy.port}';
     }
