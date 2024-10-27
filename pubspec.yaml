@@ -86,7 +86,7 @@ dependencies:
   animated_flip_counter: 0.2.6
   saver_gallery: 3.0.5
   system_network_proxy: 1.0.2
-  http_proxy: 1.2.2
+  http_proxy_override: 1.0.1
   flutter_socks_proxy:
     # https://github.com/tayoji-io/socks_proxy/issues/7
     git: https://github.com/jiangtian616/socks_proxy

@@ -662,9 +662,9 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: HEAD
-      resolved-ref: "71bbdd10fb4dd4b63fea813ce4ee06f1d6dbb625"
-      url: "https://github.com/ponnamkarthik/FlutterToast"
+      ref: patch-1
+      resolved-ref: ac29e14f4e7aa32adfa222b6354759e36488a1a2
+      url: "https://github.com/MarlonJD/FlutterToast"
     source: git
     version: "8.2.8"
   font_awesome_flutter:
@@ -811,14 +811,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.2"
-  http_proxy:
+  http_proxy_override:
     dependency: "direct main"
     description:
-      name: http_proxy
-      sha256: "08d9f1652acdc11d977e1593de112b093f1fbc7c81153b9abfaf34b2ca011b51"
+      name: http_proxy_override
+      sha256: "703fc68d3e893f91fde09e7897db14a1fa5a01ad85d73894b8a06ef00a87f130"
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.2"
+    version: "1.0.1"
   image:
     dependency: transitive
     description:
