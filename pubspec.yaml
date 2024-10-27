@@ -86,7 +86,9 @@ dependencies:
   animated_flip_counter: 0.2.6
   saver_gallery: 3.0.5
   system_network_proxy: 
-    git: https://github.com/jiangtian616/system_network_proxy
+    git: 
+      url: https://github.com/jiangtian616/system_network_proxy
+      path: system_network_proxy
   http_proxy: 
     git: https://github.com/jiangtian616/http_proxy
   flutter_socks_proxy:
