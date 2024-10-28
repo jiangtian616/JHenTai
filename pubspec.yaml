@@ -127,7 +127,8 @@ dependency_overrides:
       url: https://github.com/jiangtian616/dio
       path: dio
       ref: append-mode
-
+  collection: 1.19.0
+    
 dev_dependencies:
   flutter_test:
     sdk: flutter
