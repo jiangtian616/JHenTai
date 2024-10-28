@@ -2,6 +2,7 @@ import 'dart:io' as io;
 import 'dart:collection';
 import 'dart:convert';
 import 'package:dio/dio.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/dao/tag_count_dao.dart';
 import 'package:jhentai/src/database/dao/tag_dao.dart';
@@ -27,6 +28,7 @@ typedef TagAutoCompletionMatch = ({
   int matchStart,
   int matchEnd,
   TagData tagData,
+  String? operator,
   ({int start, int end})? namespaceMatch,
   ({int start, int end})? translatedNamespaceMatch,
   ({int start, int end})? keyMatch,
@@ -202,11 +204,11 @@ class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCir
   }
 
   Future<List<TagAutoCompletionMatch>> searchTags(String searchText, {int? limit}) async {
-    // xy:"ab cd ef"    xy:"ab cd ef...       (\S+?):"[-~]?([^"\s]+)"?
-    // "ab cd ef"       "ab cd ef...          "[-~]?([^"\s]+)"?
-    // xy:ab                                  (\S+?):[-~]?(\S+)
+    // xy:"ab cd ef"    xy:"ab cd ef...       [-~]?(\S+?):"([^"]+)"?
+    // "ab cd ef"       "ab cd ef...          [-~]?"([^"]+)"?
+    // xy:ab                                  [-~]?(\S+?):(\S+)
     // abcd                                   [-~]?(\S+)
-    List<RegExpMatch> matches = RegExp(r'(\S+?):"[-~]?([^"]+)"?|"[-~]?([^"]+)"?|(\S+?):[-~]?(\S+)|[-~]?(\S+)').allMatches(searchText.toLowerCase()).toList();
+    List<RegExpMatch> matches = RegExp(r'[-~]?(\S+?):"([^"]+)"?|[-~]?"([^"]+)"?|[-~]?(\S+?):(\S+)|[-~]?(\S+)').allMatches(searchText.toLowerCase()).toList();
     if (matches.isEmpty) {
       return [];
     }
@@ -266,6 +268,9 @@ class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCir
       return map;
     });
 
+    String firstChar = searchText.characters.skip(matchStart).first;
+    String? operator = firstChar == '-' || firstChar == '~' ? firstChar : null;
+
     return tagDatas.map((tagData) {
       int keyIndex = tagData.key.indexOf(sKey.toLowerCase());
       int tagNameIndex = tagData.tagName?.indexOf(sKey.toLowerCase()) ?? -1;
@@ -274,6 +279,7 @@ class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCir
         matchStart: matchStart,
         matchEnd: matchEnd,
         tagData: tagData,
+        operator: operator,
         score: tagCountMap[tagData]!.toDouble(),
         namespaceMatch: sNamespace != null ? (start: 0, end: tagData.namespace.length) : null,
         translatedNamespaceMatch: sNamespace != null ? (start: 0, end: tagData.translatedNamespace!.length) : null,
@@ -302,6 +308,9 @@ class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCir
       EHNamespace.rows: 0,
     };
 
+    String firstChar = searchText.characters.skip(matchStart).first;
+    String? operator = firstChar == '-' || firstChar == '~' ? firstChar : null;
+
     return tagDatas.map((tagData) {
       double score = 0;
 
@@ -329,6 +338,7 @@ class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCir
         matchStart: matchStart,
         matchEnd: matchEnd,
         tagData: tagData,
+        operator: operator,
         score: score,
         namespaceMatch: sNamespace != null ? (start: 0, end: tagData.namespace.length) : null,
         translatedNamespaceMatch: sNamespace != null ? (start: 0, end: tagData.translatedNamespace!.length) : null,

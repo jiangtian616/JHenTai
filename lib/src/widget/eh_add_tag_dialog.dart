@@ -252,6 +252,7 @@ class EHAddTagDialogLogic extends GetxController {
                   matchStart: 0,
                   matchEnd: lastKeyWord.length,
                   tagData: TagData(namespace: t.namespace, key: t.key),
+                  operator: null,
                   score: 0.0,
                   namespaceMatch: t.namespace.contains(lastKeyWord)
                       ? (start: t.namespace.indexOf(lastKeyWord), end: t.namespace.indexOf(lastKeyWord) + lastKeyWord.length)

@@ -763,6 +763,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
                   matchStart: 0,
                   matchEnd: keyword.length,
                   tagData: TagData(namespace: t.namespace, key: t.key),
+                  operator: null,
                   score: 0.0,
                   namespaceMatch:
                       t.namespace.contains(keyword) ? (start: t.namespace.indexOf(keyword), end: t.namespace.indexOf(keyword) + keyword.length) : null,

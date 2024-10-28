@@ -215,6 +215,7 @@ mixin SearchPageLogicMixin on BasePageLogic {
                   matchStart: keyword.length - lastPart.length,
                   matchEnd: keyword.length,
                   tagData: TagData(namespace: t.namespace, key: t.key),
+                  operator: null,
                   score: 0.0,
                   namespaceMatch:
                       t.namespace.contains(lastPart) ? (start: t.namespace.indexOf(lastPart), end: t.namespace.indexOf(lastPart) + lastPart.length) : null,
