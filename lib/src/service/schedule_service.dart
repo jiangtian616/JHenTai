@@ -112,7 +112,7 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
         );
         log.trace('refreshGalleryTags success, pageNo: $pageNo, archives: ${gallerys.map((a) => a.gid).toList()}');
       } catch (e) {
-        log.warning('refreshGalleryTags error, gallerys: $gallerys', e);
+        log.warning('refreshGalleryTags error, gallerys: ${gallerys.map((a) => (gid: a.gid, token: a.token)).toList()}', e);
       }
 
       pageNo++;
