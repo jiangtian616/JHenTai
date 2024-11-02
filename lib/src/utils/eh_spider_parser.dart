@@ -806,7 +806,8 @@ class EHSpiderParser {
   static GalleryStats statPage2GalleryStats(Headers headers, dynamic data) {
     Document document = parse(data as String);
 
-    Element rankScoreTbody = document.querySelector('.stuffbox > table > tbody')!;
+    /// Ranking is only available for owner
+    Element? rankScoreTbody = document.querySelector('.stuffbox > table > tbody');
     List<Element> graphs = document.querySelectorAll('#graphs > div');
     Element yearlyStatTbody = graphs[2].querySelector('table > tbody')!;
     Element monthlyStatTbody = graphs[1].querySelector('table > tbody')!;
@@ -814,14 +815,14 @@ class EHSpiderParser {
 
     return GalleryStats(
       totalVisits: int.parse(document.querySelector('.stuffbox > p > strong')!.text.replaceAll(',', '')),
-      allTimeRanking: int.tryParse(rankScoreTbody.querySelector('tr:nth-child(2) > td:nth-child(4)')?.text.replaceAll(',', '') ?? ''),
-      allTimeScore: int.tryParse(rankScoreTbody.querySelector('tr:nth-child(2) > td:nth-child(5)')?.text.replaceAll(',', '') ?? ''),
-      yearRanking: int.tryParse(rankScoreTbody.querySelector('tr:nth-child(4) > td:nth-child(4)')?.text.replaceAll(',', '') ?? ''),
-      yearScore: int.tryParse(rankScoreTbody.querySelector('tr:nth-child(4) > td:nth-child(5)')?.text.replaceAll(',', '') ?? ''),
-      monthRanking: int.tryParse(rankScoreTbody.querySelector('tr:nth-child(6) > td:nth-child(4)')?.text.replaceAll(',', '') ?? ''),
-      monthScore: int.tryParse(rankScoreTbody.querySelector('tr:nth-child(6) > td:nth-child(5)')?.text.replaceAll(',', '') ?? ''),
-      dayRanking: int.tryParse(rankScoreTbody.querySelector('tr:nth-child(8) > td:nth-child(4)')?.text.replaceAll(',', '') ?? ''),
-      dayScore: int.tryParse(rankScoreTbody.querySelector('tr:nth-child(8) > td:nth-child(5)')?.text.replaceAll(',', '') ?? ''),
+      allTimeRanking: int.tryParse(rankScoreTbody?.querySelector('tr:nth-child(2) > td:nth-child(4)')?.text.replaceAll(',', '') ?? ''),
+      allTimeScore: int.tryParse(rankScoreTbody?.querySelector('tr:nth-child(2) > td:nth-child(5)')?.text.replaceAll(',', '') ?? ''),
+      yearRanking: int.tryParse(rankScoreTbody?.querySelector('tr:nth-child(4) > td:nth-child(4)')?.text.replaceAll(',', '') ?? ''),
+      yearScore: int.tryParse(rankScoreTbody?.querySelector('tr:nth-child(4) > td:nth-child(5)')?.text.replaceAll(',', '') ?? ''),
+      monthRanking: int.tryParse(rankScoreTbody?.querySelector('tr:nth-child(6) > td:nth-child(4)')?.text.replaceAll(',', '') ?? ''),
+      monthScore: int.tryParse(rankScoreTbody?.querySelector('tr:nth-child(6) > td:nth-child(5)')?.text.replaceAll(',', '') ?? ''),
+      dayRanking: int.tryParse(rankScoreTbody?.querySelector('tr:nth-child(8) > td:nth-child(4)')?.text.replaceAll(',', '') ?? ''),
+      dayScore: int.tryParse(rankScoreTbody?.querySelector('tr:nth-child(8) > td:nth-child(5)')?.text.replaceAll(',', '') ?? ''),
       yearlyStats: _parseStats(yearlyStatTbody),
       monthlyStats: _parseStats(monthlyStatTbody),
       dailyStats: _parseStats(dailyStatTbody),

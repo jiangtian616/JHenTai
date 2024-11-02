@@ -104,6 +104,11 @@ class _EHGalleryStatDialogState extends State<EHGalleryStatDialog> {
       snack('getGalleryStatisticsFailed'.tr, e.message);
       setStateSafely(() => loadingState = LoadingState.error);
       return;
+    } catch (e) {
+      log.error('getGalleryStatisticsFailed'.tr, e.toString());
+      snack('getGalleryStatisticsFailed'.tr, e.toString());
+      setStateSafely(() => loadingState = LoadingState.error);
+      return;
     }
 
     if (mounted) {
