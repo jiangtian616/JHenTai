@@ -80,32 +80,29 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
   @override
   Widget build(BuildContext context) {
     return buildWindow(
-      child: WillPopInterceptor(
-        /// Use LayoutBuilder to listen to resize of window.
-        child: LayoutBuilder(
-          builder: (_, __) => Obx(
-            () {
-              if (styleSetting.layout.value == LayoutMode.mobileV2 || styleSetting.layout.value == LayoutMode.mobile) {
-                styleSetting.actualLayout = LayoutMode.mobileV2;
-                return MobileLayoutPageV2();
-              }
+      child: LayoutBuilder(
+        builder: (_, __) => Obx(
+          () {
+            if (styleSetting.layout.value == LayoutMode.mobileV2 || styleSetting.layout.value == LayoutMode.mobile) {
+              styleSetting.actualLayout = LayoutMode.mobileV2;
+              return MobileLayoutPageV2();
+            }
 
-              /// Device width is under 600, degrade to mobileV2 layout.
-              if (fullScreenWidth < 600) {
-                styleSetting.actualLayout = LayoutMode.mobileV2;
-                untilRoute2BlankPage();
-                return MobileLayoutPageV2();
-              }
+            /// Device width is under 600, degrade to mobileV2 layout.
+            if (fullScreenWidth < 600) {
+              styleSetting.actualLayout = LayoutMode.mobileV2;
+              untilRoute2BlankPage();
+              return MobileLayoutPageV2();
+            }
 
-              if (styleSetting.layout.value == LayoutMode.tabletV2 || styleSetting.layout.value == LayoutMode.tablet) {
-                styleSetting.actualLayout = LayoutMode.tabletV2;
-                return TabletLayoutPageV2();
-              }
+            if (styleSetting.layout.value == LayoutMode.tabletV2 || styleSetting.layout.value == LayoutMode.tablet) {
+              styleSetting.actualLayout = LayoutMode.tabletV2;
+              return TabletLayoutPageV2();
+            }
 
-              styleSetting.actualLayout = LayoutMode.desktop;
-              return DesktopLayoutPage();
-            },
-          ),
+            styleSetting.actualLayout = LayoutMode.desktop;
+            return DesktopLayoutPage();
+          },
         ),
       ),
     );

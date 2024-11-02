@@ -20,7 +20,20 @@ class _WillPopInterceptorState extends State<WillPopInterceptor> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(child: widget.child, onWillPop: _handlePopApp);
+    return PopScope(
+      child: widget.child,
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, FormData? result) async {
+        if (didPop) {
+          return;
+        }
+
+        final bool shouldPop = await _handlePopApp();
+        if (context.mounted && shouldPop) {
+          Navigator.pop(context, result);
+        }
+      },
+    );
   }
 
   /// system back

@@ -12,6 +12,7 @@ import 'package:jhentai/src/pages/setting/setting_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
+import 'package:jhentai/src/widget/will_pop_interceptor.dart';
 import '../../../setting/preference_setting.dart';
 import '../../../widget/eh_log_out_dialog.dart';
 import 'notification/tap_tab_bat_button_notification.dart';
@@ -25,15 +26,17 @@ class MobileLayoutPageV2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(
-      () => Scaffold(
-        key: MobileLayoutPageV2State.scaffoldKey,
-        drawerEdgeDragWidth: preferenceSetting.drawerGestureEdgeWidth.value.toDouble(),
-        drawer: buildLeftDrawer(context),
-        drawerEnableOpenDragGesture: preferenceSetting.enableLeftMenuDrawerGesture.isTrue,
-        endDrawer: buildRightDrawer(),
-        endDrawerEnableOpenDragGesture: preferenceSetting.enableQuickSearchDrawerGesture.isTrue,
-        body: buildBody(),
-        bottomNavigationBar: preferenceSetting.hideBottomBar.isTrue ? null : buildBottomNavigationBar(context),
+      () => WillPopInterceptor(
+        child: Scaffold(
+          key: MobileLayoutPageV2State.scaffoldKey,
+          drawerEdgeDragWidth: preferenceSetting.drawerGestureEdgeWidth.value.toDouble(),
+          drawer: buildLeftDrawer(context),
+          drawerEnableOpenDragGesture: preferenceSetting.enableLeftMenuDrawerGesture.isTrue,
+          endDrawer: buildRightDrawer(),
+          endDrawerEnableOpenDragGesture: preferenceSetting.enableQuickSearchDrawerGesture.isTrue,
+          body: buildBody(),
+          bottomNavigationBar: preferenceSetting.hideBottomBar.isTrue ? null : buildBottomNavigationBar(context),
+        ),
       ),
     );
   }
