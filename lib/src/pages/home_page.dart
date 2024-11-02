@@ -124,7 +124,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
         }
 
         SharedMediaFile file = files.first;
-        if (file.type != SharedMediaType.url) {
+        if (file.type != SharedMediaType.url && file.type != SharedMediaType.text) {
           return;
         }
 
@@ -160,14 +160,15 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
         if (files.isEmpty) {
           return;
         }
-        
+
         SharedMediaFile file = files.first;
-        if (file.type != SharedMediaType.url) {
+        if (file.type != SharedMediaType.url && file.type != SharedMediaType.text) {
           return;
         }
-        
+
         GalleryUrl? galleryUrl = GalleryUrl.tryParse(file.path);
         if (galleryUrl != null) {
+          untilRoute(currentRoute: Routes.details, predicate: (route) => route.settings.name != Routes.read);
           toRoute(
             Routes.details,
             arguments: DetailsPageArgument(galleryUrl: galleryUrl),
@@ -179,6 +180,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
 
         GalleryImagePageUrl? galleryImagePageUrl = GalleryImagePageUrl.tryParse(file.path);
         if (galleryImagePageUrl != null) {
+          untilRoute(currentRoute: Routes.details, predicate: (route) => route.settings.name != Routes.read);
           toRoute(
             Routes.imagePage,
             arguments: GalleryImagePageArgument(galleryImagePageUrl: galleryImagePageUrl),
