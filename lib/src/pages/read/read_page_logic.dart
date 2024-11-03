@@ -548,12 +548,6 @@ class ReadPageLogic extends GetxController {
     });
   }
 
-  void jumpThumbnailsToIndex(int index) {
-    state.thumbnailsScrollController.jumpTo(
-      index: max(0, index - 2),
-    );
-  }
-
   void scrollThumbnailsToIndex(int index) {
     if (!isClosed) {
       state.thumbnailsScrollController.scrollTo(

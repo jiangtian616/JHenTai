@@ -1434,11 +1434,12 @@ packages:
   scrollable_positioned_list:
     dependency: "direct main"
     description:
-      name: scrollable_positioned_list
-      sha256: ca7fcaa743db712d4f7b1580526f494d0093c77a721a65705ee51fbeac7a2bd3
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.5"
+      path: "packages/scrollable_positioned_list"
+      ref: HEAD
+      resolved-ref: "21e8469b2d06a410a0acd24d735a8b1b3a820a20"
+      url: "https://github.com/jiangtian616/flutter.widgets"
+    source: git
+    version: "0.3.8+1"
   share_plus:
     dependency: "direct main"
     description:

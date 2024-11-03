@@ -3,11 +3,11 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/pages/read/layout/vertical_list/vertical_list_layout_state.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../../../setting/read_setting.dart';
 import '../../../../utils/screen_size_util.dart';
 import '../../../../widget/eh_wheel_speed_controller_for_read_page.dart';
-import '../../widget/eh_scrollable_positioned_list.dart';
 import '../base/base_layout.dart';
 import 'vertical_list_layout_logic.dart';
 
@@ -33,8 +33,8 @@ class VerticalListLayout extends BaseLayout {
           scaleStateCycle: readSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
           enableTapDragZoom: readSetting.enableTapDragToScaleUp.isTrue,
           child: EHWheelSpeedControllerForReadPage(
-            scrollController: state.itemScrollController,
-            child: EHScrollablePositionedList.separated(
+            scrollOffsetController: state.scrollOffsetController,
+            child: ScrollablePositionedList.separated(
               physics: const ClampingScrollPhysics(),
               minCacheExtent: readPageState.readPageInfo.mode == ReadMode.online
                   ? readSetting.preloadDistance * screenHeight * 1
@@ -43,6 +43,7 @@ class VerticalListLayout extends BaseLayout {
               itemCount: readPageState.readPageInfo.pageCount,
               itemScrollController: state.itemScrollController,
               itemPositionsListener: state.itemPositionsListener,
+              scrollOffsetController: state.scrollOffsetController,
               itemBuilder: _imageBuilder,
               separatorBuilder: (_, __) => Obx(() => SizedBox(height: readSetting.imageSpace.value.toDouble())),
             ),

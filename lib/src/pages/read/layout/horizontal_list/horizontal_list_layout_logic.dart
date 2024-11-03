@@ -116,12 +116,12 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
 
   void _toPrevScreen() {
     if (readSetting.enablePageTurnAnime.isFalse) {
-      state.itemScrollController.scrollOffset(
+      state.scrollOffsetController.animateScroll(
         offset: -fullScreenWidth,
         duration: const Duration(milliseconds: 1),
       );
     } else {
-      state.itemScrollController.scrollOffset(
+      state.scrollOffsetController.animateScroll(
         offset: -fullScreenWidth,
         duration: const Duration(milliseconds: 200),
       );
@@ -130,12 +130,12 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
 
   void _toNextScreen() {
     if (readSetting.enablePageTurnAnime.isFalse) {
-      state.itemScrollController.scrollOffset(
+      state.scrollOffsetController.animateScroll(
         offset: fullScreenWidth,
         duration: const Duration(milliseconds: 1),
       );
     } else {
-      state.itemScrollController.scrollOffset(
+      state.scrollOffsetController.animateScroll(
         offset: fullScreenWidth,
         duration: const Duration(milliseconds: 200),
       );
@@ -157,7 +157,7 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
 
     readPageLogic.toggleMenu();
 
-    state.itemScrollController
+    state.scrollOffsetController
         .scrollToEnd(
           duration: Duration(milliseconds: (totalTime * 1000).toInt()),
         )

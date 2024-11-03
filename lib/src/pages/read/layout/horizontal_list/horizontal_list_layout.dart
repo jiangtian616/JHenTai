@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_list/horizontal_list_layout_state.dart';
 import 'package:photo_view/photo_view_gallery.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../../../model/read_page_info.dart';
 import '../../../../setting/read_setting.dart';
 import '../../../../utils/screen_size_util.dart';
 import '../../../../widget/eh_wheel_speed_controller_for_read_page.dart';
-import '../../widget/eh_scrollable_positioned_list.dart';
 import '../base/base_layout.dart';
 import 'horizontal_list_layout_logic.dart';
 
@@ -32,8 +32,8 @@ class HorizontalListLayout extends BaseLayout {
         scaleStateCycle: readSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
         enableTapDragZoom: readSetting.enableTapDragToScaleUp.isTrue,
         child: EHWheelSpeedControllerForReadPage(
-          scrollController: state.itemScrollController,
-          child: EHScrollablePositionedList.separated(
+          scrollOffsetController: state.scrollOffsetController,
+          child: ScrollablePositionedList.separated(
             scrollDirection: Axis.horizontal,
             reverse: readSetting.isInRight2LeftDirection,
             physics: const ClampingScrollPhysics(),
@@ -44,6 +44,7 @@ class HorizontalListLayout extends BaseLayout {
             itemCount: readPageState.readPageInfo.pageCount,
             itemScrollController: state.itemScrollController,
             itemPositionsListener: state.itemPositionsListener,
+            scrollOffsetController: state.scrollOffsetController,
             itemBuilder: (context, index) =>
                 readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index),
             separatorBuilder: (_, __) => Obx(() => SizedBox(width: readSetting.imageSpace.value.toDouble())),

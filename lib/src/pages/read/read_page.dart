@@ -13,9 +13,9 @@ import 'package:jhentai/src/pages/read/layout/horizontal_list/horizontal_list_la
 import 'package:jhentai/src/pages/read/layout/horizontal_page/horizontal_page_layout.dart';
 import 'package:jhentai/src/pages/read/read_page_logic.dart';
 import 'package:jhentai/src/pages/read/read_page_state.dart';
-import 'package:jhentai/src/pages/read/widget/eh_scrollable_positioned_list.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/widget/eh_mouse_button_listener.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../../config/ui_config.dart';
@@ -407,8 +407,8 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
       height: UIConfig.readPageBottomThumbnailsRegionHeight,
       child: Obx(
         () => EHWheelSpeedControllerForReadPage(
-          scrollController: state.thumbnailsScrollController,
-          child: EHScrollablePositionedList.separated(
+          scrollOffsetController: state.thumbnailsScrollOffsetController,
+          child: ScrollablePositionedList.separated(
             scrollDirection: Axis.horizontal,
             reverse: readSetting.isInRight2LeftDirection,
             physics: const ClampingScrollPhysics(),
@@ -417,6 +417,7 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
             itemCount: state.readPageInfo.pageCount,
             itemScrollController: state.thumbnailsScrollController,
             itemPositionsListener: state.thumbnailPositionsListener,
+            scrollOffsetController: state.thumbnailsScrollOffsetController,
             itemBuilder: (_, index) => GetBuilder<ReadPageLogic>(
               id: logic.thumbnailNoId,
               builder: (_) => Column(

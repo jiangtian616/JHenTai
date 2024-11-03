@@ -1,17 +1,17 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:jhentai/src/pages/read/widget/eh_scrollable_positioned_list.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../setting/mouse_setting.dart';
 
 class EHWheelSpeedControllerForReadPage extends StatelessWidget {
   final Widget child;
-  final EHItemScrollController scrollController;
+  final ScrollOffsetController scrollOffsetController;
 
   const EHWheelSpeedControllerForReadPage({
     Key? key,
     required this.child,
-    required this.scrollController,
+    required this.scrollOffsetController,
   }) : super(key: key);
 
   @override
@@ -29,7 +29,7 @@ class EHWheelSpeedControllerForReadPage extends StatelessWidget {
             GestureBinding.instance.pointerSignalResolver.register(
               event,
               (_) {
-                scrollController.scrollOffset(
+                scrollOffsetController.animateScroll(
                   offset: delta,
                   duration: const Duration(milliseconds: 200),
                 );
