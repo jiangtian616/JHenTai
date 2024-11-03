@@ -38,9 +38,9 @@ class EHCacheManager extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     CacheOptions cacheOptions = _getCacheOptions(options);
-    
+
     options.extra[realUriExtraKey] = options.uri.toString();
-    
+
     if (_shouldSkipRequest(options, cacheOptions)) {
       handler.next(options);
       return;
@@ -286,7 +286,11 @@ class SqliteCacheStore {
   final AppDb appDb;
 
   SqliteCacheStore({required this.appDb}) {
-    cleanExpired();
+    try {
+      cleanExpired();
+    } catch (e) {
+      log.error('cleanExpired failed', e);
+    }
   }
 
   Future<void> cleanExpired() {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_resizable_container/flutter_resizable_container.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2.dart';
+import 'package:jhentai/src/widget/will_pop_interceptor.dart';
 
 import '../../../config/ui_config.dart';
 import '../../../routes/routes.dart';
@@ -38,27 +39,29 @@ class _TabletLayoutPageV2State extends State<TabletLayoutPageV2> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: UIConfig.backGroundColor(context),
-      body: ResizableContainer(
-        direction: Axis.horizontal,
-        controller: resizableController,
-        children: [
-          ResizableChild(
-            child: _leftColumn(),
-            size: ResizableSize.ratio(windowService.leftColumnWidthRatio),
-            minSize: 100,
+    return WillPopInterceptor(
+      child: Scaffold(
+        backgroundColor: UIConfig.backGroundColor(context),
+        body: ResizableContainer(
+          direction: Axis.horizontal,
+          controller: resizableController,
+          children: [
+            ResizableChild(
+              child: _leftColumn(),
+              size: ResizableSize.ratio(windowService.leftColumnWidthRatio),
+              minSize: 100,
+            ),
+            ResizableChild(
+              child: _rightColumn(),
+              size: ResizableSize.ratio(1 - windowService.leftColumnWidthRatio),
+              minSize: 100,
+            ),
+          ],
+          divider: ResizableDivider(
+            thickness: 1.5,
+            size: 7.5,
+            color: UIConfig.layoutDividerColor(context),
           ),
-          ResizableChild(
-            child: _rightColumn(),
-            size: ResizableSize.ratio(1 - windowService.leftColumnWidthRatio),
-            minSize: 100,
-          ),
-        ],
-        divider: ResizableDivider(
-          thickness: 1.5,
-          size: 7.5,
-          color: UIConfig.layoutDividerColor(context),
         ),
       ),
     );
