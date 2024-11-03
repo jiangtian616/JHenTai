@@ -25,26 +25,34 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
   Widget buildBody(BuildContext context) {
     return EHWheelListener(
       onPointerScroll: logic.onPointerScroll,
-      child: PhotoViewGallery.builder(
-        scrollPhysics: const ClampingScrollPhysics(),
-        pageController: state.pageController,
-        cacheExtent: readPageState.readPageInfo.mode == ReadMode.online
-            ? (readSetting.preloadPageCount.value.toDouble() + 1) / 2
-            : (readSetting.preloadPageCountLocal.value.toDouble() + 1) / 2,
-        reverse: readSetting.isInRight2LeftDirection,
-        itemCount: state.pageCount,
-        builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
-          initialScale: 1.0,
-          minScale: 1.0,
-          maxScale: 2.5,
-          scaleStateCycle: readSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
-          enableTapDragZoom: readSetting.enableTapDragToScaleUp.isTrue,
-          child: index < 0 || index >= state.pageCount
-              ? null
-              : readPageState.readPageInfo.mode == ReadMode.online
-                  ? _buildDoubleColumnItemInOnlineMode(context, index)
-                  : _buildDoubleColumnItemInLocalMode(context, index),
-        ),
+      child: FutureBuilder(
+        future: logic.initCompleter.future,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return PhotoViewGallery.builder(
+              scrollPhysics: const ClampingScrollPhysics(),
+              pageController: state.pageController,
+              cacheExtent: readPageState.readPageInfo.mode == ReadMode.online
+                  ? (readSetting.preloadPageCount.value.toDouble() + 1) / 2
+                  : (readSetting.preloadPageCountLocal.value.toDouble() + 1) / 2,
+              reverse: readSetting.isInRight2LeftDirection,
+              itemCount: state.pageCount,
+              builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
+                initialScale: 1.0,
+                minScale: 1.0,
+                maxScale: 2.5,
+                scaleStateCycle: readSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
+                enableTapDragZoom: readSetting.enableTapDragToScaleUp.isTrue,
+                child: index < 0 || index >= state.pageCount
+                    ? null
+                    : readPageState.readPageInfo.mode == ReadMode.online
+                        ? _buildDoubleColumnItemInOnlineMode(context, index)
+                        : _buildDoubleColumnItemInLocalMode(context, index),
+              ),
+            );
+          }
+          return Container();
+        },
       ),
     );
   }

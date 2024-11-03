@@ -36,7 +36,7 @@ class SettingReadPage extends StatelessWidget {
               if (GetPlatform.isAndroid) _buildEnablePageTurnByVolumeKeys().center(),
               _buildEnablePageTurnAnime().center(),
               _buildEnableDoubleTapToScaleUp().center(),
-              _buildEnableTapDragToScaleUp().center(),
+              // _buildEnableTapDragToScaleUp().center(),
               _buildEnableBottomMenu().center(),
               _buildReverseTurnPageDirection().center(),
               _buildDisableTurnPageOnTap().center(),

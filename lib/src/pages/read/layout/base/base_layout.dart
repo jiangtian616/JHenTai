@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../../../config/ui_config.dart';
 import '../../../../service/gallery_download_service.dart';
@@ -17,6 +18,25 @@ import '../../../../widget/loading_state_indicator.dart';
 import '../../read_page_logic.dart';
 import '../../read_page_state.dart';
 import 'base_layout_logic.dart';
+
+class ScrollOffsetToScrollController extends ScrollController {
+  ScrollOffsetToScrollController({required this.scrollOffsetController});
+
+  final ScrollOffsetController scrollOffsetController;
+
+  @override
+  ScrollPosition get position => scrollOffsetController.position;
+
+  @override
+  Future<void> animateTo(double offset, {required Duration duration, required Curve curve}) async {
+    await position.animateTo(offset, duration: duration, curve: curve);
+  }
+
+  @override
+  void jumpTo(double value) {
+    scrollOffsetController.jumpTo(value: value);
+  }
+}
 
 abstract class BaseLayout extends StatelessWidget {
   BaseLayout({Key? key}) : super(key: key);

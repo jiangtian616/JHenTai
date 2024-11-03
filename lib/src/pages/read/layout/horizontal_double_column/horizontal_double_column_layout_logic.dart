@@ -16,6 +16,8 @@ import 'horizontal_double_column_layout_state.dart';
 class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
   HorizontalDoubleColumnLayoutState state = HorizontalDoubleColumnLayoutState();
 
+  Completer<void> initCompleter = Completer<void>();
+  
   @override
   Future<void> onInit() async {
     super.onInit();
@@ -35,6 +37,8 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
 
     /// record reading progress and sync thumbnails list index
     state.pageController.addListener(_readProgressListener);
+
+    initCompleter.complete();
   }
 
   @override

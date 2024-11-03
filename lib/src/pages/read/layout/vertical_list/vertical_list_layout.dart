@@ -11,20 +11,6 @@ import '../../../../widget/eh_wheel_speed_controller_for_read_page.dart';
 import '../base/base_layout.dart';
 import 'vertical_list_layout_logic.dart';
 
-class ScrollOffsetToScrollController extends ScrollController {
-  ScrollOffsetToScrollController({required this.scrollOffsetController});
-
-  final ScrollOffsetController scrollOffsetController;
-
-  @override
-  ScrollPosition get position => scrollOffsetController.position;
-
-  @override
-  void jumpTo(double value) {
-    scrollOffsetController.jumpTo(value: value);
-  }
-}
-
 class VerticalListLayout extends BaseLayout {
   VerticalListLayout({Key? key}) : super(key: key);
 
@@ -37,6 +23,7 @@ class VerticalListLayout extends BaseLayout {
     return GetBuilder<VerticalListLayoutLogic>(
       id: logic.verticalLayoutId,
       builder: (_) => ZoomView(
+        doubleTapScaleCircle: readSetting.enableDoubleTapToScaleUp.isTrue ? [1, 2] : [],
         controller: ScrollOffsetToScrollController(scrollOffsetController: state.scrollOffsetController),
         child: EHWheelSpeedControllerForReadPage(
           scrollOffsetController: state.scrollOffsetController,
