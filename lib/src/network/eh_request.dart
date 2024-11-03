@@ -527,7 +527,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         if (reloadKey != null) 'nl': reloadKey,
       },
       cancelToken: cancelToken,
-      options: useCacheIfAvailable ? CacheOptions.cacheOptions.toOptions() : CacheOptions.noCacheOptions.toOptions(),
+      options: useCacheIfAvailable ? CacheOptions.cacheOptionsIgnoreParams.toOptions() : CacheOptions.noCacheOptionsIgnoreParams.toOptions(),
     );
     return _parseResponse(response, parser);
   }

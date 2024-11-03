@@ -39,7 +39,7 @@ class EHCacheManager extends Interceptor {
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     CacheOptions cacheOptions = _getCacheOptions(options);
 
-    options.extra[realUriExtraKey] = options.uri.toString();
+    options.extra[realUriExtraKey] = _computeCachedUrl(options, cacheOptions);
 
     if (_shouldSkipRequest(options, cacheOptions)) {
       handler.next(options);
@@ -98,6 +98,25 @@ class EHCacheManager extends Interceptor {
     return options.store ?? _store;
   }
 
+  String _computeCachedUrl(RequestOptions options, CacheOptions cacheOptions) {
+    String cachedUrl = options.uri.toString();
+    if (cacheOptions.ignoreParams) {
+      Uri raw = Uri.parse(cachedUrl);
+      Uri replaced = Uri(
+        scheme: raw.scheme,
+        userInfo: raw.userInfo,
+        host: raw.host,
+        port: raw.port,
+        path: raw.path,
+        query: null,
+        fragment: raw.fragment.isEmpty ? null : raw.fragment,
+      );
+      cachedUrl = replaced.toString();
+    }
+
+    return cachedUrl;
+  }
+  
   bool _shouldSkipRequest(RequestOptions requestOptions, CacheOptions cacheOptions) {
     if (requestOptions.method.toUpperCase() == 'POST') {
       return true;
@@ -167,13 +186,19 @@ class CacheOptions {
 
   final SqliteCacheStore? store;
 
+  final bool ignoreParams;
+
   static const _extraKey = '@cache_options@';
 
   static get noCacheOptions => CacheOptions(policy: CachePolicy.noCache, expire: networkSetting.pageCacheMaxAge.value);
 
+  static get noCacheOptionsIgnoreParams => CacheOptions(policy: CachePolicy.noCache, expire: networkSetting.pageCacheMaxAge.value, ignoreParams: true);
+
   static get cacheOptions => CacheOptions(policy: CachePolicy.cache, expire: networkSetting.pageCacheMaxAge.value);
 
-  const CacheOptions({this.policy = CachePolicy.cache, required this.expire, this.store});
+  static get cacheOptionsIgnoreParams => CacheOptions(policy: CachePolicy.cache, expire: networkSetting.pageCacheMaxAge.value, ignoreParams: true);
+
+  const CacheOptions({this.policy = CachePolicy.cache, required this.expire, this.store, this.ignoreParams = false});
 
   static CacheOptions? fromExtra(RequestOptions request) {
     return request.extra[_extraKey];

@@ -1436,7 +1436,7 @@ packages:
     description:
       path: "packages/scrollable_positioned_list"
       ref: HEAD
-      resolved-ref: "21e8469b2d06a410a0acd24d735a8b1b3a820a20"
+      resolved-ref: "5dc660081452cfb76f574e1252eb34ba69c40257"
       url: "https://github.com/jiangtian616/flutter.widgets"
     source: git
     version: "0.3.8+1"
@@ -2078,6 +2078,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.4+10"
+  zoom_view:
+    dependency: "direct main"
+    description:
+      name: zoom_view
+      sha256: fe1c6a0f5112836a7ac81d61396fef742151e419aa84bde57d47e72fd8669bee
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.15"
   zoom_widget:
     dependency: "direct main"
     description:
