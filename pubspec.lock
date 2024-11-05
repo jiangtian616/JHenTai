@@ -2083,7 +2083,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: ecb504e695dd848b8154a662870a2a43e8593d51
+      resolved-ref: "6b94d4a943fcc96812c7dac3ecc9fa5c9b58dba9"
       url: "https://github.com/jiangtian616/zoom_view"
     source: git
     version: "0.0.15"

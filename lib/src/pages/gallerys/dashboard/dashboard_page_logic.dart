@@ -87,7 +87,7 @@ class DashboardPageLogic extends BasePageLogic {
       return;
     }
 
-    LoadingState prevState = state.ranklistLoadingState;
+    LoadingState prevState = state.popularLoadingState;
     state.popularLoadingState = LoadingState.loading;
     if (prevState == LoadingState.error || prevState == LoadingState.noData) {
       update([popularListId]);
