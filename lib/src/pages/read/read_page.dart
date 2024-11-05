@@ -92,18 +92,21 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
                   fontSize: 12,
                   decoration: TextDecoration.none,
                 ),
-            child: Stack(
-              children: [
-                EHReadPageStack(
-                  children: [
-                    buildGestureRegion(),
-                    buildLayout(),
-                  ],
-                ),
-                buildRightBottomInfo(context),
-                buildTopMenu(context),
-                buildBottomMenu(context),
-              ],
+            child: Container(
+              color: Colors.black,
+              child: Stack(
+                children: [
+                  EHReadPageStack(
+                    children: [
+                      buildGestureRegion(),
+                      buildLayout(),
+                    ],
+                  ),
+                  buildRightBottomInfo(context),
+                  buildTopMenu(context),
+                  buildBottomMenu(context),
+                ],
+              ),
             ),
           ),
         ),
@@ -137,7 +140,7 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
     Widget child = GetBuilder<ReadPageLogic>(
       id: logic.layoutId,
       builder: (_) {
-        return LayoutBuilder(
+        return  LayoutBuilder(
           builder: (context, constraints) {
             logic.clearImageContainerSized();
             state.displayRegionSize = Size(constraints.maxWidth, constraints.maxHeight);
