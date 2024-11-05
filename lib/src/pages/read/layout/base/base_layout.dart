@@ -48,19 +48,21 @@ abstract class BaseLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!readPageState.readyToShow) {
-      return Center(child: Container(color: UIConfig.readPageBackGroundColor));
-    }
+    return FutureBuilder(future: logic.readPageLogic.delayInitCompleter.future, builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.done) {
+        return GetBuilder<BaseLayoutLogic>(
+          id: BaseLayoutLogic.pageId,
+          global: false,
+          init: logic,
+          builder: (_) => ScrollConfiguration(
+            behavior: readSetting.showScrollBar.isTrue ? UIConfig.scrollBehaviourWithScrollBarWithMouse : UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
+            child: buildBody(context),
+          ),
+        );
+      }
 
-    return GetBuilder<BaseLayoutLogic>(
-      id: BaseLayoutLogic.pageId,
-      global: false,
-      init: logic,
-      builder: (_) => ScrollConfiguration(
-        behavior: readSetting.showScrollBar.isTrue ? UIConfig.scrollBehaviourWithScrollBarWithMouse : UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
-        child: buildBody(context),
-      ),
-    );
+      return Center(child: Container(color: UIConfig.readPageBackGroundColor));
+    });
   }
 
   Widget buildBody(BuildContext context);

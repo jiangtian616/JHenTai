@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -20,8 +22,6 @@ class ReadPageState with ScrollStatusListerState {
   int thumbnailsCountPerPage = SiteSetting.thumbnailsCountPerPage.value;
   late List<GalleryThumbnail?> thumbnails;
   late List<GalleryImage?> images;
-
-  bool readyToShow = false;
 
   late List<LoadingState> parseImageHrefsStates;
   late List<LoadingState> parseImageUrlStates;

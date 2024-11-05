@@ -87,9 +87,18 @@ class ReadPageLogic extends GetxController {
 
   final int normalPriority = 10000;
 
+  bool inited = false;
+  Completer<void> delayInitCompleter = Completer<void>();
+  
   @override
   void onReady() {
     super.onReady();
+
+    Timer(const Duration(milliseconds: 120), () {
+      if (inited && !delayInitCompleter.isCompleted) {
+        delayInitCompleter.complete();
+      }
+    });
 
     /// Turn page by volume keys. The reason for not use [KeyboardListener]: https://github.com/flutter/flutter/issues/71144
     listen2VolumeKeys();
@@ -169,10 +178,10 @@ class ReadPageLogic extends GetxController {
       (_) => updateSafely([layoutId]),
     );
 
-    Timer(const Duration(milliseconds: 120), () {
-      state.readyToShow = true;
-      updateSafely([layoutId]);
-    });
+    inited = true;
+    if (!delayInitCompleter.isCompleted) {
+      delayInitCompleter.complete();
+    }
   }
 
   @override
@@ -441,7 +450,7 @@ class ReadPageLogic extends GetxController {
   }
 
   void tapLeftRegion() {
-    if (!state.readyToShow) {
+    if (!inited) {
       return;
     }
 
@@ -461,7 +470,7 @@ class ReadPageLogic extends GetxController {
   }
 
   void tapRightRegion() {
-    if (!state.readyToShow) {
+    if (!inited) {
       return;
     }
     if (readSetting.disablePageTurningOnTap.isTrue) {
