@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:jhentai/src/setting/user_setting.dart';
 
 import '../enum/config_enum.dart';
 import '../service/local_config_service.dart';
@@ -12,7 +11,7 @@ import '../utils/cookie_util.dart';
 class EHCookieManager extends Interceptor {
   final LocalConfigService localConfigService;
 
-  List<Cookie> cookies = [Cookie('nw', '1')];
+  List<Cookie> cookies = [Cookie('nw', '1'), Cookie('datatags', '1')];
 
   EHCookieManager(this.localConfigService);
 
@@ -28,14 +27,14 @@ class EHCookieManager extends Interceptor {
     this.cookies.removeWhere((cookie) => cookies.any((c) => c.name == cookie.name));
     this.cookies.addAll(cookies);
 
-    List<Cookie> storeCookies = List.from(this.cookies)..removeWhere((cookie) => cookie.name == 'nw');
+    List<Cookie> storeCookies = List.from(this.cookies)..removeWhere((cookie) => cookie.name == 'nw' || cookie.name == 'datatags');
     await localConfigService.write(configKey: ConfigEnum.ehCookie, value: jsonEncode(storeCookies.map((cookie) => cookie.toString()).toList()));
   }
 
   Future<void> removeCookies(List<String> cookieNames) async {
     cookies.removeWhere((cookie) => cookieNames.any((name) => cookie.name == name));
 
-    List<Cookie> storeCookies = List.from(cookies)..removeWhere((cookie) => cookie.name == 'nw');
+    List<Cookie> storeCookies = List.from(cookies)..removeWhere((cookie) => cookie.name == 'nw' || cookie.name == 'datatags');
     await localConfigService.write(configKey: ConfigEnum.ehCookie, value: jsonEncode(storeCookies.map((cookie) => cookie.toString()).toList()));
   }
 
@@ -72,7 +71,7 @@ class EHCookieManager extends Interceptor {
 
   Future<bool> removeAllCookies() async {
     bool success = await localConfigService.delete(configKey: ConfigEnum.ehCookie);
-    cookies = [Cookie('nw', '1')];
+    cookies = [Cookie('nw', '1'), Cookie('datatags', '1')];
     return success;
   }
 

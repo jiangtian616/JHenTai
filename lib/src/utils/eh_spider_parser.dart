@@ -1466,10 +1466,13 @@ class EHSpiderParser {
 
     return thumbNailElements.map((element) {
       String href = element.attributes['href'] ?? '';
+      Element? div = element.querySelector('div[style]');
+
+      String? originImageHash = div?.attributes['data-orghash'];
 
       /// EX small : width: 100px; height: 150px; background: url("https://zoycbewnml.hath.network/cm/t30qzjudaml2zw3khn/3101655-0.jpg") 0px 0px no-repeat transparent;
       /// EX normal: width: 200px; height: 300px; background: url("https://s.exhentai.org/t/7d/d6/7dd69bdafbbee70c842e83ba22ef13b51dd9e0b4-707631-960-1440-jpg_l.jpg") 0px 0px no-repeat transparent
-      String style = element.querySelector('div[style]')?.attributes['style'] ?? '';
+      String style = div?.attributes['style'] ?? '';
       String thumbUrl = RegExp(r'url\((.+)\)').firstMatch(style)!.group(1)!;
       if (thumbUrl.startsWith('/')) {
         GalleryImagePageUrl galleryImagePageUrl = GalleryImagePageUrl.parse(href);
@@ -1483,6 +1486,7 @@ class EHSpiderParser {
         thumbWidth: double.parse(RegExp(r'width:(\d+)?px').firstMatch(style)?.group(1) ?? '0'),
         thumbHeight: double.parse(RegExp(r'height:(\d+)?px').firstMatch(style)?.group(1) ?? '0') - 1,
         offSet: offset,
+        originImageHash: originImageHash,
       );
     }).toList();
   }

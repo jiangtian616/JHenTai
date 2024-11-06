@@ -1002,7 +1002,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       try {
         image = await retry(
           () => ehRequest.requestImagePage(
-            galleryDownloadInfo.imageHrefs[serialNo]!.href,
+            galleryDownloadInfo.imageHrefs[serialNo]!.replacedMPVHref(serialNo + 1),
             reloadKey: reloadKey,
             cancelToken: galleryDownloadInfo.cancelToken,
             useCacheIfAvailable: !reParse,
@@ -1033,7 +1033,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
           pauseDownloadGallery(gallery);
         }
 
-        ehRequest.removeCacheByUrl(galleryDownloadInfo.imageHrefs[serialNo]!.href);
+        ehRequest.removeCacheByUrl(galleryDownloadInfo.imageHrefs[serialNo]!.replacedMPVHref(serialNo + 1));
 
         return;
       } on EHSiteException catch (e) {

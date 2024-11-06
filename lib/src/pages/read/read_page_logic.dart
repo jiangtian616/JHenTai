@@ -89,7 +89,7 @@ class ReadPageLogic extends GetxController {
 
   bool inited = false;
   Completer<void> delayInitCompleter = Completer<void>();
-  
+
   @override
   void onReady() {
     super.onReady();
@@ -329,7 +329,7 @@ class ReadPageLogic extends GetxController {
 
   Future<GalleryImage> requestImage(int index, bool reParse, String? reloadKey) {
     return ehRequest.requestImagePage(
-      state.thumbnails[index]!.href,
+      state.thumbnails[index]!.replacedMPVHref(index + 1),
       reloadKey: reloadKey,
       parser: EHSpiderParser.imagePage2GalleryImage,
       useCacheIfAvailable: !reParse,
