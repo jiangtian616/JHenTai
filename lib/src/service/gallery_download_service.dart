@@ -998,6 +998,15 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
       GalleryDownloadInfo galleryDownloadInfo = galleryDownloadInfos[gallery.gid]!;
 
+      /// If this is a update from old gallery, try to copy from existing old image first
+      if (gallery.oldVersionGalleryUrl != null) {
+        await _tryCopyImageInfoFromHref(gallery.oldVersionGalleryUrl!, gallery, serialNo);
+
+        if (galleryDownloadInfo.images[serialNo] != null) {
+          return;
+        }
+      }
+
       GalleryImage image;
       try {
         image = await retry(
@@ -1080,7 +1089,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
       /// If this is a update from old gallery, try to copy from existing old image first
       if (gallery.oldVersionGalleryUrl != null) {
-        await _tryCopyImageInfo(gallery.oldVersionGalleryUrl!, gallery, serialNo);
+        await _tryCopyImageInfoFromImage(gallery.oldVersionGalleryUrl!, gallery, serialNo);
 
         if (image.downloadStatus == DownloadStatus.downloaded) {
           return;
@@ -1196,8 +1205,37 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     );
   }
 
+  Future<void> _tryCopyImageInfoFromHref(String oldVersionGalleryUrl, GalleryDownloadedData newGallery, int newImageSerialNo) async {
+    GalleryDownloadedData? oldGallery = gallerys.firstWhereOrNull((e) => e.galleryUrl == oldVersionGalleryUrl);
+    if (oldGallery == null) {
+      return;
+    }
+
+    String? newImageHash = galleryDownloadInfos[newGallery.gid]!.imageHrefs[newImageSerialNo]!.originImageHash;
+    if (newImageHash == null) {
+      return;
+    }
+
+    int? oldImageSerialNo = galleryDownloadInfos[oldGallery.gid]?.images.firstIndexWhereOrNull((e) => e?.imageHash == newImageHash);
+    if (oldImageSerialNo == null) {
+      return;
+    }
+
+    GalleryImage oldImage = galleryDownloadInfos[oldGallery.gid]!.images[oldImageSerialNo]!;
+    GalleryImage newImage = oldImage.copyWith(
+      path: _computeImageDownloadRelativePath(newGallery.title, newGallery.gid, oldImage.url, newImageSerialNo),
+      downloadStatus: DownloadStatus.downloading,
+    );
+
+    await _saveNewImageInfoInDatabase(newImage, newImageSerialNo, newGallery.gid);
+    galleryDownloadInfos[newGallery.gid]!.images[newImageSerialNo] = newImage;
+
+    await _copyImageInfo(oldImage, newGallery, newImageSerialNo);
+    await superResolutionService.copyImageInfo(oldGallery, newGallery, oldImageSerialNo, newImageSerialNo);
+  }
+
   /// If two images' [imageHash] is equal, they are the same image.
-  Future<void> _tryCopyImageInfo(String oldVersionGalleryUrl, GalleryDownloadedData newGallery, int newImageSerialNo) async {
+  Future<void> _tryCopyImageInfoFromImage(String oldVersionGalleryUrl, GalleryDownloadedData newGallery, int newImageSerialNo) async {
     GalleryDownloadedData? oldGallery = gallerys.firstWhereOrNull((e) => e.galleryUrl == oldVersionGalleryUrl);
     if (oldGallery == null) {
       return;

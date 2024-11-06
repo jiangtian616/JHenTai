@@ -61,7 +61,7 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
 
     try {
       latestVersion = (await retry(
-            () => ehRequest.get(url: url, parser: EHSpiderParser.githubReleasePage2LatestVersion),
+        () => ehRequest.get(url: url, parser: EHSpiderParser.githubReleasePage2LatestVersion),
         maxAttempts: 3,
       ))
           .trim()
@@ -88,7 +88,7 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
       Get.dialog(UpdateDialog(currentVersion: currentVersion, latestVersion: latestVersion));
     });
   }
-  
+
   Future<void> refreshGalleryTags() async {
     int pageNo = 1;
     List<GalleryDownloadedData> gallerys = await GalleryDao.selectGallerysForTagRefresh(pageNo, 25);
@@ -143,7 +143,7 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
         );
         log.trace('refreshArchiveTags success, pageNo: $pageNo, archives: ${archives.map((a) => a.gid).toList()}');
       } catch (e) {
-        log.warning('refreshArchiveTags error, archives: $archives', e);
+        log.warning('refreshArchiveTags error, archives: ${archives.map((a) => a.gid).toList()}', e);
       }
 
       pageNo++;
