@@ -433,7 +433,6 @@ class EHSpiderParser {
 
     return GalleryMetadata(
       galleryUrl: GalleryUrl(isEH: true, gid: map['gid'], token: map['token']),
-      archiveKey: map['archiver_key'],
       title: map['title'],
       japaneseTitle: map['title_jpn'],
       category: map['category'],
@@ -470,7 +469,6 @@ class EHSpiderParser {
 
       return GalleryMetadata(
         galleryUrl: GalleryUrl(isEH: true, gid: item['gid'], token: item['token']),
-        archiveKey: item['archiver_key'],
         title: item['title'],
         japaneseTitle: item['title_jpn'],
         category: item['category'],

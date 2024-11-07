@@ -6,7 +6,6 @@ import 'package:jhentai/src/model/gallery_url.dart';
 
 class GalleryMetadata {
   GalleryUrl galleryUrl;
-  String archiveKey;
   String title;
   String japaneseTitle;
   String category;
@@ -26,7 +25,6 @@ class GalleryMetadata {
 
   GalleryMetadata({
     required this.galleryUrl,
-    required this.archiveKey,
     required this.title,
     required this.japaneseTitle,
     required this.category,

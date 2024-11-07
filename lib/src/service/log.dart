@@ -79,9 +79,9 @@ class LogService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
 
   void warning(Object msg, [Object? error, bool withStack = false]) async {
     await _initLogger();
-    _consoleLogger?.w(msg, stackTrace: withStack ? null : StackTrace.empty);
-    _verboseFileLogger?.w(msg, stackTrace: withStack ? null : StackTrace.empty);
-    _warningFileLogger?.w(msg, stackTrace: withStack ? null : StackTrace.empty);
+    _consoleLogger?.w(msg, error: error, stackTrace: withStack ? null : StackTrace.empty);
+    _verboseFileLogger?.w(msg, error: error, stackTrace: withStack ? null : StackTrace.empty);
+    _warningFileLogger?.w(msg, error: error, stackTrace: withStack ? null : StackTrace.empty);
   }
 
   void error(Object msg, [Object? error, StackTrace? stackTrace]) async {

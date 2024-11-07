@@ -112,7 +112,7 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
         );
         log.trace('refreshGalleryTags success, pageNo: $pageNo, archives: ${gallerys.map((a) => a.gid).toList()}');
       } catch (e) {
-        log.warning('refreshGalleryTags error, gallerys: ${gallerys.map((a) => (gid: a.gid, token: a.token)).toList()}', e);
+        log.warning('refreshGalleryTags error, gallerys: ${gallerys.map((a) => (gid: a.gid, token: a.token)).toList()}', e, true);
       }
 
       pageNo++;
@@ -143,7 +143,7 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
         );
         log.trace('refreshArchiveTags success, pageNo: $pageNo, archives: ${archives.map((a) => a.gid).toList()}');
       } catch (e) {
-        log.warning('refreshArchiveTags error, archives: ${archives.map((a) => a.gid).toList()}', e);
+        log.warning('refreshArchiveTags error, archives: ${archives.map((a) => a.gid).toList()}', e, true);
       }
 
       pageNo++;
