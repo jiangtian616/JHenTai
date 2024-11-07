@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/get_instance.dart';
 import 'package:get/get_navigation/get_navigation.dart';
@@ -211,15 +212,13 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       return;
     }
 
-    String path = join(pathService.tempDir.path, '${DateTime.now().hashCode}${extension(readPageState.images[index]!.url)}');
-    File file = File(path);
+    String fileName = '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index${extension(readPageState.images[index]!.url)}';
 
-    file.create().then((file) => file.writeAsBytes(data)).then(
-          (_) => Share.shareUri(
-            Uri.file(path),
-            sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, readPageState.displayRegionSize.height * 2 / 3),
-          ),
-        );
+    Share.shareXFiles(
+      [XFile.fromData(data)],
+      sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, readPageState.displayRegionSize.height * 2 / 3),
+      fileNameOverrides: [fileName],
+    );
   }
 
   void shareLocalImage(int index) {
@@ -228,12 +227,14 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       return;
     }
 
-    Share.shareUri(
-      Uri.file(
-        GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
-          galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]!.images[index]!.path!,
-        ),
-      ),
+    Share.shareXFiles(
+      [
+        XFile(
+          GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
+            galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid!]!.images[index]!.path!,
+          ),
+        )
+      ],
       sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, readPageState.displayRegionSize.height * 2 / 3),
     );
   }
