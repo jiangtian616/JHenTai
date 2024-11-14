@@ -1,0 +1,29 @@
+# flutter pub run flutter_launcher_icons
+flutter_launcher_icons:
+  image_path: "assets/icon/JHenTai.png"
+  
+  android: "launcher_icon"
+  image_path_android: "assets/icon/JHenTai.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  adaptive_icon_background: "#e6e623"
+  adaptive_icon_foreground: "assets/icon/JHenTai-foreground.png"
+#   adaptive_icon_monochrome: "assets/icon/monochrome.png"
+
+  ios: true
+  image_path_ios: "assets/icon/JHenTai-square.png"
+  remove_alpha_ios: true
+  # image_path_ios_dark_transparent: "assets/icon/icon_dark.png"
+  # image_path_ios_tinted_grayscale: "assets/icon/icon_tinted.png"
+  # desaturate_tinted_to_grayscale_ios: true
+
+  web:
+    generate: false
+
+  windows:
+    generate: true
+    image_path: "assets/icon/JHenTai.png"
+    icon_size: 256
+
+  macos:
+    generate: true
+    image_path: "assets/icon/JHenTai.png"

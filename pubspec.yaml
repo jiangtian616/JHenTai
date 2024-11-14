@@ -142,21 +142,7 @@ dev_dependencies:
   drift_dev: 2.21.1
   build_runner: 2.4.11
   frontend_server_client: 4.0.0
-  flutter_launcher_icons: 0.11.0
+  flutter_launcher_icons: 0.14.1
 
 flutter:
   uses-material-design: true
-
-flutter_icons:
-  android: "launcher_icon"
-  ios: false
-  image_path: "assets/icon.png"
-  adaptive_icon_background: "#fce219"
-  adaptive_icon_foreground: "assets/ic_launcher_foreground.png"
-  windows:
-    generate: true
-    image_path: "assets/icon-ios.png"
-    icon_size: 256
-  macos:
-    generate: true
-    image_path: "assets/icon-ios.png"
