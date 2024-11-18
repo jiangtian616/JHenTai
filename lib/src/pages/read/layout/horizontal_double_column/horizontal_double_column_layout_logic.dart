@@ -17,12 +17,15 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
   HorizontalDoubleColumnLayoutState state = HorizontalDoubleColumnLayoutState();
 
   Completer<void> initCompleter = Completer<void>();
-  
+
   @override
   Future<void> onInit() async {
     super.onInit();
 
-    String? cacheString = await localConfigService.read(configKey: ConfigEnum.isSpreadPage, subConfigKey: readPageState.readPageInfo.gid.toString());
+    String? cacheString = await localConfigService.read(
+      configKey: ConfigEnum.isSpreadPage,
+      subConfigKey: readPageState.readPageInfo.readProgressRecordStorageKey,
+    );
     if (cacheString == null) {
       state.isSpreadPage = List.generate(readPageState.readPageInfo.pageCount, (_) => false);
     } else {
