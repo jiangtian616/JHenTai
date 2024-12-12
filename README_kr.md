@@ -68,7 +68,7 @@ Tag order optimization:
 
 앱 번역:
 
-- [andyching168](https://github.com/andyching168) [kenny03211](https://github.com/kenny03211) 繁體中文(台灣)
+- [andyching168](https://github.com/andyching168) [kenny03211](https://github.com/kenny03211) [NeKoOuO](https://github.com/NeKoOuO) 繁體中文(台灣)
 - [lucas-04](https://github.com/lucas-04) Português brasileiro
 - [qlife1146](https://github.com/qlife1146) 한국어
 
