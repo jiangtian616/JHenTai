@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/home_page.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
@@ -22,7 +25,7 @@ class _WillPopInterceptorState extends State<WillPopInterceptor> {
   Widget build(BuildContext context) {
     return PopScope(
       child: widget.child,
-      canPop: false,
+      canPop: Platform.isAndroid ? false : true,
       onPopInvokedWithResult: (bool didPop, FormData? result) async {
         if (didPop) {
           return;
@@ -30,7 +33,7 @@ class _WillPopInterceptorState extends State<WillPopInterceptor> {
 
         final bool shouldPop = await _handlePopApp();
         if (context.mounted && shouldPop) {
-          Navigator.pop(context, result);
+          SystemNavigator.pop(animated: true);
         }
       },
     );
