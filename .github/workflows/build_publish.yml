@@ -72,7 +72,7 @@ jobs:
       # Cache Pod
       - name: Cache Pod
         if: matrix.cache_pod_key != null
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           key: ${{ matrix.cache_pod_key }}
           path: ${{ matrix.cache_pod_path }}
