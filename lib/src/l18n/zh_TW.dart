@@ -81,7 +81,7 @@ class zh_TW {
       'tap2Login': '點擊登入',
       'parse': '解析',
       'igneousHint': 'igneous（裡站必帶）',
-      'refreshIgneousFailed': '刷新Igneous失敗',
+      'refreshIgneousFailed': '重新整理Igneous失敗',
 
       /// request
       'sadPanda': 'Sad Panda(無響應資料). 解決參考Github Wiki: https://github.com/jiangtian616/JHenTai/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98',
@@ -170,7 +170,7 @@ class zh_TW {
       'hasDownloaded': '已下載',
       '410Hints': '下載此歸檔次數過多，你需要重新購買、解鎖後才能繼續下載',
       '429Hints': '下載請求過多！請減小歸檔下載並發度或稍後再試。',
-      'getUnpackedImagesFailedMsg': 'JHenTai無法讀取此歸檔圖片，請檢查本地文件是否正常',
+      'getUnpackedImagesFailedMsg': 'JHenTai無法讀取此歸檔圖片，請檢查本機文件是否正常',
       'getGalleryTorrentsFailed': '獲取種子失敗',
       'chooseArchive': '選擇歸檔',
       'tagSetExceedLimit': '標籤數量已達到上限',
@@ -178,7 +178,7 @@ class zh_TW {
       'addTagSuccess': '新增標籤成功',
       'addTagFailed': '新增標籤失敗',
       'parentGallery': '父畫廊',
-      'blockUploaderLocally': '於本地端隱藏的上傳者',
+      'blockUploaderLocally': '於本機端隱藏的上傳者',
 
       /// detail dialog
       'galleryUrl': '畫廊連結',
@@ -213,7 +213,7 @@ class zh_TW {
       'paused': '已暫停',
       'exceedImageLimits': "超出圖片配額限制",
       'ehServerError': 'E站伺服器發生錯誤，請稍後重試',
-      'unsupportedImagePageStyle': "JHenTai目前不支持Multi-Page Viewer(MPV)多頁查看，請在e-hentai.org更換為預設風格",
+      'unsupportedImagePageStyle': "JHenTai目前不支援Multi-Page Viewer(MPV)多頁查看，請在e-hentai.org更換為預設風格",
       'toNext': '下一頁',
       'toPrev': '上一頁',
       'back': '返回',
@@ -268,7 +268,7 @@ class zh_TW {
       /// tag setting page
       'myTags': '我的標籤',
       'myTagsHint': '管理關注和隱藏的標籤',
-      'localTags': '本地標籤隱藏',
+      'localTags': '本機標籤隱藏',
       'localTagsHint': '額外的隱藏標籤',
       'localTagsHint2': '含有隱藏標籤的畫廊會被隱藏',
       'addLocalTags': '新增標籤',
@@ -298,7 +298,7 @@ class zh_TW {
       'tabletLayoutName': '平板模式(舊)',
       'tabletLayoutDesc': '已停止維護',
       'desktopLayoutName': '桌面模式',
-      'desktopLayoutDesc': '雙列帶側欄，支持鍵盤操作',
+      'desktopLayoutDesc': '雙列帶側欄，支援鍵盤操作',
 
       /// style setting page
       'layoutMode': '佈局模式',
@@ -340,9 +340,9 @@ class zh_TW {
       'whenScrollDown': '向下滾動時',
       'preloadGalleryCover': '預先載入畫廊封面',
       'preloadGalleryCoverHint': '預先載入還未顯示在頁面上的畫廊的封面',
-      'enableSwipeBackGesture': '允許通過左滑手勢返回',
+      'enableSwipeBackGesture': '允許透過左滑手勢返回',
       'enableLeftMenuDrawerGesture': '允許透過手勢喚起左側選單',
-      'enableQuickSearchDrawerGesture': '允許通過手勢喚起快速搜尋',
+      'enableQuickSearchDrawerGesture': '允許透過手勢喚起快速搜尋',
       'drawerGestureEdgeWidth': '抽屜選單手勢區域寬度',
       'alwaysShowScroll2TopButton': '總是顯示快速回頂按鈕',
       'enableDefaultFavorite': '使用預設收藏夾',
@@ -377,7 +377,7 @@ class zh_TW {
       'custom': '自訂',
 
       /// performance setting page
-      'maxGalleryNum4Animation': '下載頁支持列表動畫的最大畫廊個數',
+      'maxGalleryNum4Animation': '下載頁支援列表動畫的最大畫廊個數',
       'maxGalleryNum4AnimationHint': '列表模式下，擁有超過此設定個數畫廊的分組在展開/收起時取消動畫效果',
 
       /// mouse wheel setting page
@@ -422,11 +422,11 @@ class zh_TW {
       'verityAppLinks4Android12': '驗證應用程式連結（安卓12+）',
       'verityAppLinks4Android12Hint': '對於Android 12+，您需要手動新增連結到已驗證連結才能在其他程式中喚起JHenTai',
       'noImageMode': '無圖模式',
-      'exportData': '導出資料',
-      'exportDataHint': '導出設定、隱藏規則與歷史記錄',
-      'selectExportItems': '選擇導出項',
-      'importData': '導入資料',
-      'importDataHint': '在導入成功後程式會自動關閉以套用最新設定',
+      'exportData': '匯出資料',
+      'exportDataHint': '匯出設定、隱藏規則與歷史記錄',
+      'selectExportItems': '選擇匯出項',
+      'importData': '匯入資料',
+      'importDataHint': '在匯入成功後程式會自動關閉以套用最新設定',
 
       /// host mapping page
       'hostDataSource': '預設情況下不用改動。\n資料來源: https://dns.google/',
@@ -446,9 +446,9 @@ class zh_TW {
       'enableBiometricAuth': '開啟生物認證',
       'enableAuthOnResume': '切換至後台後重新認證',
       'enableAuthOnResumeHints': '需要切換至後台超過3s',
-      'enableBlurBackgroundApp': '在任務欄中模糊程式頁面',
+      'enableBlurBackgroundApp': '在工具列中模糊程式頁面',
       'hideImagesInAlbum': '在相簿中隱藏圖片',
-      'hideImagesInAlbumHints': '如果你更改過預設下載路徑，你需要手動創建.nomedia文件',
+      'hideImagesInAlbumHints': '如果你更改過預設下載路徑，你需要手動建立.nomedia文件',
 
       /// read setting page
       'enableImmersiveMode': '開啟沉浸模式',
@@ -486,11 +486,11 @@ class zh_TW {
       'enablePageTurnByVolumeKeys': '使用音量鍵翻頁',
       'enablePageTurnAnime': '開啟翻頁動畫',
       'enableDoubleTapToScaleUp': '允許雙擊放大圖片',
-      'enableTapDragToScaleUp': '允許單擊後拖拽放大圖片',
+      'enableTapDragToScaleUp': '允許單擊後拖曳放大圖片',
       'enableBottomMenu': '開啟底部選單',
       'reverseTurnPageDirection': '反轉翻頁方向',
-      'disableGestureWhenScrolling': '滾動時禁用手勢',
-      'disablePageTurningOnTap': '禁用點擊翻頁手勢',
+      'disableGestureWhenScrolling': '滾動時停用手勢',
+      'disablePageTurningOnTap': '停用點擊翻頁手勢',
       'turnPageMode': '翻頁模式',
       'turnPageModeHint': '移動至下一螢幕還是下一圖片',
       'enableImageMaxKilobytes': '開啟圖片壓縮',
@@ -499,10 +499,10 @@ class zh_TW {
       'image': '圖片',
       'screen': '螢幕',
       'preloadDistanceInOnlineMode': '預先載入距離(線上模式)',
-      'preloadDistanceInLocalMode': '預先載入距離(本地模式)',
+      'preloadDistanceInLocalMode': '預先載入距離(本機模式)',
       'ScreenHeight': '螢幕',
       'preloadPageCount': '預先載入圖片數量(線上模式)',
-      'preloadPageCountInLocalMode': '預先載入圖片數量(本地模式)',
+      'preloadPageCountInLocalMode': '預先載入圖片數量(本機模式)',
       'continuousScroll': '連續滾動',
       'continuousScrollHint': '拼接多個圖片',
       'doubleColumn': '雙列模式',
@@ -524,7 +524,7 @@ class zh_TW {
 
       /// super resolution setting page
       'downloadSuperResolutionModelHint': '從Github下載模型',
-      'modelDirectoryPath': '模型文件夾路徑',
+      'modelDirectoryPath': '模型資料夾路徑',
       'upSamplingScale': '圖片放大倍數',
       'modelType': '選擇模型',
       'x4plusHint': '占據更多空間但大多數情況下更快',
@@ -532,7 +532,7 @@ class zh_TW {
       'enable4OnlineReading': '線上閱讀時自動處理圖片',
 
       /// download page
-      'local': '本地',
+      'local': '本機',
       'delete': '刪除',
       'deleteTask': '僅刪除任務',
       'deleteTaskAndImages': '刪除任務和圖片',
@@ -552,9 +552,9 @@ class zh_TW {
       'reUnlock': '重新解鎖',
       'reUnlockHint': '注意！重新解鎖需要重新購買此歸檔！',
       'downloadHelpInfo': '如果發現無法下載，在日誌中發現了資料庫表不存在等問題，移除目前app重裝即可。',
-      'localGalleryHelpInfo': '載入那些不是由JHenTai下載的畫廊(當做本地閱覽器)。在下載設定-額外的畫廊掃描路徑中設定，之後重新整理即可',
-      'localGalleryHelpInfo4iOSAndMacOS': '載入那些不是由JHenTai下載的畫廊(當做本地閱覽器)。將你的畫廊放在預設下載路徑下，之後重新整理即可',
-      'deleteLocalGalleryHint': '刪除您的本地文件',
+      'localGalleryHelpInfo': '載入那些不是由JHenTai下載的畫廊(當做本機閱覽器)。在下載設定-額外的畫廊掃描路徑中設定，之後重新整理即可',
+      'localGalleryHelpInfo4iOSAndMacOS': '載入那些不是由JHenTai下載的畫廊(當做本機閱覽器)。將你的畫廊放在預設下載路徑下，之後重新整理即可',
+      'deleteLocalGalleryHint': '刪除您的本機文件',
       'priority': '優先度',
       'highest': '最高',
       'default': '預設',
@@ -562,16 +562,16 @@ class zh_TW {
       'changePriority': '改變優先度',
       'changeGroup': '改變分組',
       'chooseGroup': '選擇分組',
-      'renameGroup': '重命名分組',
+      'renameGroup': '重新命名分組',
       'deleteGroup': '刪除分組',
       'existingGroup': '現有分組',
       'groupName': '分組名稱',
-      'drag2sort': '拖拽以排序',
+      'drag2sort': '拖曳以排序',
       'switch2GridMode': '切換至網格模式',
       'switch2ListMode': '切換至列表模式',
       'multiSelect': '多選模式',
       'multiSelectHint': '點擊以選中',
-      'resumeAllTasks': '恢復所有任務',
+      'resumeAllTasks': '復原所有任務',
       'pauseAllTasks': '暫停所有任務',
       'requireDownloadComplete': '需要等待下載完成',
       'operationHasCompleted': '操作已經結束',
@@ -627,9 +627,9 @@ class zh_TW {
       'pageRangeSelectHint': 'min <= 1000, max >= 10\nmin/max <= 0.8, max-min >= 20',
       'to': '到',
       'minimumRating': '最低評分',
-      'disableFilterForLanguage': '禁用語言過濾',
-      'disableFilterForUploader': '禁用上傳者過濾',
-      'disableFilterForTags': '禁用標籤過濾',
+      'disableFilterForLanguage': '停用語言過濾',
+      'disableFilterForUploader': '停用上傳者過濾',
+      'disableFilterForTags': '停用標籤過濾',
       'searchName': '搜尋畫廊名稱',
       'searchTags': '搜尋畫廊標籤',
       'searchNote': '搜尋畫廊註解',
@@ -659,7 +659,7 @@ favnote：配對收藏備註
       'search': '搜尋',
       'searchFailed': '搜尋失敗',
       'fileSearchFailed': '以圖搜圖失敗',
-      'tab': '標籤頁',
+      'tab': '分頁',
       'openGallery': '打開畫廊',
       'tapChip2Delete': '點擊標籤刪除單條\n長按按鈕刪除全部',
       'accurateCountTemplate': '%s個結果',
@@ -677,7 +677,7 @@ favnote：配對收藏備註
       'resetDownloadPath': '重設下載路徑',
       'singleImageSavePath': '單張圖片儲存路徑',
       'extraGalleryScanPath': '額外的畫廊掃描路徑',
-      'extraGalleryScanPathHint': '掃描並載入本地畫廊的路徑。請不要使用SD卡或系統路徑',
+      'extraGalleryScanPathHint': '掃描並載入本機畫廊的路徑。請不要使用SD卡或系統路徑',
       'longPress2Reset': '長按以重設',
       'downloadOriginalImage': '下載原圖',
       'downloadOriginalImageByDefault': '預設選中下載原圖',
@@ -700,23 +700,23 @@ favnote：配對收藏備註
       'downloadAllGallerysOfSamePriority': '同一優先度時同時下載所有畫廊',
       'downloadAllGallerysOfSamePriorityHint': '預設情況下依優先度下載畫廊，且每個優先度下只會同時下載一個畫廊',
       'alwaysUseDefaultGroup': '總是使用預設分組',
-      'restoreDownloadTasks': '恢復下載任務',
-      'enableStoreMetadataForRestore': '允許儲存下載的中繼資料用來恢復下載記錄',
-      'enableStoreMetadataForRestoreHint': '關閉此項後無法再恢復下載記錄',
+      'restoreDownloadTasks': '復原下載任務',
+      'enableStoreMetadataForRestore': '允許儲存下載的中繼資料用來復原下載記錄',
+      'enableStoreMetadataForRestoreHint': '關閉此項後無法再復原下載記錄',
       'archiveDownloadIsolateCount': '歸檔下載同時下載數',
       'archiveDownloadIsolateCountHint': '所有任務同時下載數總和若超過10將導致下載失敗',
       'manageArchiveDownloadConcurrency': '控制歸檔下載並發數',
       'manageArchiveDownloadConcurrencyHint': '在有足夠的同時下載數之前，歸檔任務會保持等待狀態',
-      'deleteArchiveFileAfterDownload': '歸檔下載完成後刪除原壓縮包',
-      'restoreDownloadTasksHint': '透過下載中繼資料來恢復下載記錄',
-      'restoreDownloadTasksSuccess': '恢復下載任務成功',
-      'restoredCount': '恢復任務數',
-      'restoredGalleryCount': '恢復畫廊數目',
-      'restoredArchiveCount': '恢復歸檔數目',
-      'restoreTasksAutomatically': '自動恢復下載任務',
-      'restoreTasksAutomaticallyHint': '程式每次啟動時嘗試恢復下載任務',
+      'deleteArchiveFileAfterDownload': '歸檔下載完成後刪除原壓縮檔',
+      'restoreDownloadTasksHint': '透過下載中繼資料來復原下載記錄',
+      'restoreDownloadTasksSuccess': '復原下載任務成功',
+      'restoredCount': '復原任務數',
+      'restoredGalleryCount': '復原畫廊數目',
+      'restoredArchiveCount': '復原歸檔數目',
+      'restoreTasksAutomatically': '自動復原下載任務',
+      'restoreTasksAutomaticallyHint': '程式每次啟動時嘗試復原下載任務',
       'brokenDownloadPathHint': '你的下載路徑似乎已經損壞，下載功能可能失效',
-      'brokenExtraScanPathHint': '你的預設本地畫廊路徑似乎已經損壞，本地畫廊可能無法被識別',
+      'brokenExtraScanPathHint': '你的預設本機畫廊路徑似乎已經損壞，本機畫廊可能無法被識別',
 
       /// password setting dialog
       'setPasswordHint': '請輸入您的密碼',
@@ -728,15 +728,15 @@ favnote：配對收藏備註
       'configSync': '設定同步',
       'configSyncHint': '將您的設定資料儲存至雲端(最多50條)',
       'upload2cloud': '上傳至雲端',
-      'upload2cloudHint': '上傳您目前的本地設定',
+      'upload2cloudHint': '上傳您目前的本機設定',
       'tap2upload': '點擊上傳',
       'copyIdentificationCodeSuccess': '上傳設定成功，已自動複製您的設定識別碼',
       'copyShareCode': '複製分享碼',
-      'import': '導入',
-      'save2Local': '儲存至本地',
+      'import': '匯入',
+      'save2Local': '儲存至本機',
       'readIndexRecord': '閱讀進度',
       'quickSearch': '快速搜尋設定',
-      'blockRules': '本地隱藏規則',
+      'blockRules': '本機隱藏規則',
       'searchHistory': '搜尋紀錄',
       'galleryHistory': '畫廊瀏覽紀錄',
 
@@ -744,7 +744,7 @@ favnote：配對收藏備註
       'configureBlockRuleFailed': '設定隱藏規則失敗',
       'removeBlockRuleFailed': '刪除隱藏規則失敗',
       'inputNumberHint': '請輸入正確的數字',
-      'inputRegexHint': '請輸入合法的正則表達式',
+      'inputRegexHint': '請輸入合法的正規表示式',
       'blockingRules': '隱藏規則',
       'blockingRulesHint': '針對畫廊和評論設定額外的隱藏規則',
       'blockingTarget': '隱藏目標',
@@ -764,12 +764,12 @@ favnote：配對收藏備註
       'blockingRuleHelp': '''
     隱藏目標：在列表頁過濾畫廊或者在詳情頁過濾評論，同一規則下所有子規則的隱藏目標必須相同。
     隱藏屬性：根據目標的哪個屬性來編寫規則進行隱藏。
-    隱藏規則：複雜場景可使用正則表達式配對。
-    隱藏表達式：簡單字串或者正則表達式。
+    隱藏規則：複雜場景可使用正規表示式配對。
+    隱藏表達式：簡單字串或者正規表示式。
     
     注意1：不同規則之間是||的關係，同一規則下所有子規則之間是&&的關係。
     注意2：隱藏屬性為標籤時，規則會對畫廊的每一個標籤均進行校驗，表達式針對單個標籤進行編寫即可。
-    注意3：隱藏屬性為標籤時，如果你使用'='規則，你必須准確填寫帶命名空間的完整標簽。    
+    注意3：隱藏屬性為標籤時，如果你使用'='規則，你必須準確填寫帶命名空間的完整標籤。    
     
     範例1：隱藏有男同標籤且無偽娘標籤的畫廊————畫廊標籤包含yaoi && 畫廊標籤不包含tomgirl
     範例2：隱藏評分不超過10分的評論————評論評分<=10
