@@ -764,8 +764,9 @@ Blocking Expression: Simple strings or regular expressions.
 Note1: Different rules have an OR (||) relationship, while all sub-rules under the same rule have an AND (&&) relationship.
 Note2: When blocking tag, the rule will check each tag in the gallery, the expression should be written for a single tag.
 Note3: When blocking tag, you need specify full tag with namespace if you use '=' rule.
+Note4: You need to use a gallery layout that can display all tags in E-Hentai, such as "Extended," otherwise some galleries may not be filtered correctly.
 
-Example 1: Block galleries that have the "yaoi" tag and do not have the "tomgirl" tag————Gallery Tag Contain yaoi && Gallery Tag NotContain tomgirl
+Example 1: Block galleries that have the "yaoi" tag and do not have the "tomgirl" tag————Gallery Tag Contain male:yaoi && Gallery Tag NotContain male:tomgirl
 Example 2: Block comments with a score not exceeding 10————Comment Score <= 10
     ''',
 
