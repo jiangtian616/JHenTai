@@ -10,18 +10,18 @@ body:
   - type: markdown
     attributes:
       value: |
-        如果你对JSON和Git比较熟悉，你可以参照下述流程后自行提交PR修改[配置文件](https://github.com/jiangtian616/JHenTai/blob/master/built_in_blocked_user.json)，否则请按照下述模板填写信息后提交Issue。
-        If you are familiar with JSON and Git, you can follow the steps below to submit a PR to modify the [configuration file](https://github.com/jiangtian616/JHenTai/blob/master/built_in_blocked_user.json). Otherwise, please fill out the information according to the template below and submit an issue.
+        如果你对JSON和Git比较熟悉，你可以自行提交PR修改[配置文件](https://github.com/jiangtian616/JHenTai/blob/master/built_in_blocked_user.json)，否则请按照下述模板填写信息后提交Issue。
+        If you are familiar with JSON and Git, you can submit a PR to modify the [configuration file](https://github.com/jiangtian616/JHenTai/blob/master/built_in_blocked_user.json). Otherwise, please fill out the information according to the template below and submit an issue.
 
   - type: markdown
     attributes:
       value: |
         请注意，需要满足以下条件的用户才能被添加到内置屏蔽名单中 / Please note that users must meet the following criteria to be added to the built-in blocklist
-        - 符合[EHWiki](https://ehwiki.org/wiki/Gallery_Commenting#Examples_of_Bad_Comments)中封禁用户评论的条件：由于任何原因反复辱骂或骚扰其他用户。 / Meet the criteria for banned user comments on [EHWiki]((https://ehwiki.org/wiki/Gallery_Commenting#Examples_of_Bad_Comments)): Repeatedly abusing or harassing other users for any reason.
+        - 符合[EHWiki](https://ehwiki.org/wiki/Gallery_Commenting#Examples_of_Bad_Comments)中封禁用户评论的条件：由于任何原因反复辱骂或骚扰其他用户。 / Meet the criteria for banned user comments on [EHWiki](https://ehwiki.org/wiki/Gallery_Commenting#Examples_of_Bad_Comments): Repeatedly abusing or harassing other users for any reason.
         - 评论包含明显的引战内容。 / Comment contains obvious inflammatory content.
         - 开发者认为该用户适合被屏蔽。（这意味着开发者拥有最终决定权） / The developer deems the user appropriate to be blocked. (This means the developer has the final decision-making authority.)
         
-  - type: textarea
+  - type: input
     id: galleryUrl
     attributes:
       label: 画廊链接 / Gallery link
@@ -33,7 +33,7 @@ body:
     validations:
       required: true
 
-  - type: textarea
+  - type: input
     id: user
     attributes:
       label: 用户 / user
