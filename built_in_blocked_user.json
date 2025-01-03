@@ -2,16 +2,24 @@
   "version": 1,
   "formatVersion": 1,
   "updateTime": "2025-01-03 14:00:00",
+  "desc": "This list contains users who have violated the comment rules of E-Hentai and are deemed by the developers to be suitable for default blocking for all users. If you wish to maintain this list, refer to: https://github.com/jiangtian616/JHenTai/issues/new?assignees=&labels=&projects=&template=add_build_in_blocked_user.yml",
+  "descCN": "这个名单存储着违反E站评论规则的用户，并且被开发者认为适合被所有用户默认屏蔽。如果你想维护这个名单，参考：https://github.com/jiangtian616/JHenTai/issues/new?assignees=&labels=&projects=&template=add_build_in_blocked_user.yml",
   "blockedUsers": [
     {
       "userId": 6249738,
       "name": "峡谷轮椅人",
-      "galleryUrl": "https://e-hentai.org/g/3140626/3ad670da98/?p=1&hc=1#comments",
-      "commentId": 1,
-      "archivePages": [
+      "comments": [
         {
-          "url": "",
-          "ScreenshotUrl": ""
+          "galleryUrl": "https://e-hentai.org/g/3180250/e59f6410db/?hc=1#c7058275",
+          "commentId": 7058275,
+          "archivePageUrl": "https://web.archive.org/web/20250103150136/https://e-hentai.org/g/3180250/e59f6410db/",
+          "archivePageScreenshotUrl": "https://web.archive.org/web/20250103150136/http://web.archive.org/screenshot/https://e-hentai.org/g/3180250/e59f6410db/"
+        },
+        {
+          "galleryUrl": "https://e-hentai.org/g/3180372/4042671ff0/?hc=1#c7058581",
+          "commentId": 7058581,
+          "archivePageUrl": "https://e-hentai.org/g/3180372/4042671ff0/?hc=1#c7058581",
+          "archivePageScreenshotUrl": ""
         }
       ],
       "createTime": "2025-01-03 14:00:00",
