@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/tab_bar_icon.dart';
 import 'package:jhentai/src/service/tag_search_order_service.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../consts/locale_consts.dart';
 import '../../../l18n/locale_text.dart';
@@ -51,6 +52,7 @@ class SettingPreferencePage extends StatelessWidget {
               _buildShowUtcTime(),
               _buildShowDawnInfo(),
               _buildShowEncounterMonster(),
+              _buildUseBuiltInBlockedUsers(),
               _buildBlockRules(),
             ],
           ).withListTileTheme(context),
@@ -427,12 +429,35 @@ class SettingPreferencePage extends StatelessWidget {
       onChanged: preferenceSetting.saveShowDawnInfo,
     );
   }
-  
+
   Widget _buildShowEncounterMonster() {
     return SwitchListTile(
       title: Text('showEncounterMonster'.tr),
       value: preferenceSetting.showHVInfo.value,
       onChanged: preferenceSetting.saveShowHVInfo,
+    );
+  }
+
+  Widget _buildUseBuiltInBlockedUsers() {
+    return ListTile(
+      title: Text('useBuiltInBlockedUsers'.tr),
+      subtitle: Text('useBuiltInBlockedUsersHint'.tr),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.help),
+            onPressed: () => launchUrlString(
+              'https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/built_in_blocked_user.json',
+              mode: LaunchMode.externalApplication,
+            ),
+          ),
+          Switch(
+            value: preferenceSetting.useBuiltInBlockedUsers.value,
+            onChanged: preferenceSetting.saveUseBuiltInBlockedUsers,
+          )
+        ],
+      ),
     );
   }
 }

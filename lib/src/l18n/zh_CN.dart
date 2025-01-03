@@ -745,6 +745,8 @@ favnote：匹配收藏备注
       'removeBlockRuleFailed': '删除屏蔽规则失败',
       'inputNumberHint': '请输入正确的数字',
       'inputRegexHint': '请输入合法的正则表达式',
+      'useBuiltInBlockedUsers': '使用内置用户屏蔽名单',
+      'useBuiltInBlockedUsersHint': '过滤掉在名单中的用户评论',
       'blockingRules': '屏蔽规则',
       'blockingRulesHint': '针对画廊和评论设置额外的屏蔽规则',
       'blockingTarget': '屏蔽目标',

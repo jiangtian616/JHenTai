@@ -742,6 +742,8 @@ class pt_BR {
       'removeBlockRuleFailed': 'Remove block rule failed',
       'inputNumberHint': 'Please input a correct number',
       'inputRegexHint': 'Please input a correct regex',
+      'useBuiltInBlockedUsers': 'Enable Built-in User Blocklist',
+      'useBuiltInBlockedUsersHint': 'Filter out gallery comments from users on the blocklist',
       'blockingRules': 'Block Rules',
       'blockingRulesHint': 'Additional blocking rules for gallerys and comments',
       'blockingTarget': 'Blocking Target',

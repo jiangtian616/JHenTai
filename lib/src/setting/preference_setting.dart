@@ -36,7 +36,8 @@ class PreferenceSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
   RxBool showUtcTime = false.obs;
   RxBool showDawnInfo = false.obs;
   RxBool showHVInfo = false.obs;
-
+  RxBool useBuiltInBlockedUsers = true.obs;
+  
   @override
   ConfigEnum get configEnum => ConfigEnum.preferenceSetting;
 
@@ -70,6 +71,7 @@ class PreferenceSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
     showUtcTime.value = map['showUtcTime'] ?? showUtcTime.value;
     showDawnInfo.value = map['showDawnInfo'] ?? showDawnInfo.value;
     showHVInfo.value = map['showHVInfo'] ?? showHVInfo.value;
+    useBuiltInBlockedUsers.value = map['useBuiltInBlockedUsers'] ?? useBuiltInBlockedUsers.value;
   }
 
   @override
@@ -99,6 +101,7 @@ class PreferenceSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
       'showUtcTime': showUtcTime.value,
       'showDawnInfo': showDawnInfo.value,
       'showHVInfo': showHVInfo.value,
+      'useBuiltInBlockedUsers': useBuiltInBlockedUsers.value,
     });
   }
 
@@ -250,6 +253,12 @@ class PreferenceSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
   Future<void> saveShowHVInfo(bool showHVInfo) async {
     log.debug('saveShowHVInfo:$showHVInfo');
     this.showHVInfo.value = showHVInfo;
+    await saveBeanConfig();
+  }
+  
+  Future<void> saveUseBuiltInBlockedUsers(bool useBuiltInBlockedUsers) async {
+    log.debug('saveUseBuiltInBlockedUsers:$useBuiltInBlockedUsers');
+    this.useBuiltInBlockedUsers.value = useBuiltInBlockedUsers;
     await saveBeanConfig();
   }
 }

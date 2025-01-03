@@ -12,8 +12,15 @@ import 'log.dart';
 
 LocalBlockRuleService localBlockRuleService = LocalBlockRuleService();
 
+abstract interface class ExtraBlockRuleProvider {
+  LocalBlockTargetEnum get target;
+
+  Map<String, List<LocalBlockRule>> get extraGroupedRules;
+}
+
 class LocalBlockRuleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   final List<LocalBlockRuleHandler> handlers = [];
+  final List<ExtraBlockRuleProvider> extraBlockRuleProviders = [];
 
   @override
   Future<void> doInitBean() async {
@@ -47,6 +54,14 @@ class LocalBlockRuleService with JHLifeCircleBeanErrorCatch implements JHLifeCir
   Future<void> doAfterBeanReady() async {}
 
   LocalBlockRuleHandler getHandlerByRule(LocalBlockRule rule) => handlers.where((h) => h.matchRule(rule)).sorted((a, b) => a.order - b.order).first;
+
+  void registerExtraBlockRuleProvider(ExtraBlockRuleProvider provider) {
+    extraBlockRuleProviders.add(provider);
+  }
+
+  void unregisterExtraBlockRuleProvider(ExtraBlockRuleProvider provider) {
+    extraBlockRuleProviders.remove(provider);
+  }
 
   Future<List<LocalBlockRule>> getBlockRules() async {
     List<BlockRuleData> datas = await BlockRuleDao.selectBlockRules();
@@ -167,6 +182,22 @@ class LocalBlockRuleService with JHLifeCircleBeanErrorCatch implements JHLifeCir
           return hit;
         });
       });
+
+      for (ExtraBlockRuleProvider provider in extraBlockRuleProviders) {
+        if (provider.target == targetEnum) {
+          Map<String, List<LocalBlockRule>> extraGroupedRules = provider.extraGroupedRules;
+          extraGroupedRules.forEach((groupId, rules) {
+            results.removeWhere((item) {
+              bool hit = true;
+              for (LocalBlockRule rule in rules) {
+                LocalBlockRuleHandler handler = getHandlerByRule(rule);
+                hit = hit && handler.executeRule(item, rule);
+              }
+              return hit;
+            });
+          });
+        }
+      }
     } catch (e) {
       log.error('executeRules failed, items:$items', e);
     }
@@ -617,7 +648,8 @@ enum LocalBlockPatternEnum {
 
   const LocalBlockPatternEnum(this.code, this.attributes, this.desc);
 
-  static List<LocalBlockPatternEnum> withAttribute(LocalBlockAttributeEnum? attribute) => LocalBlockPatternEnum.values.where((e) => e.attributes.contains(attribute)).toList();
+  static List<LocalBlockPatternEnum> withAttribute(LocalBlockAttributeEnum? attribute) =>
+      LocalBlockPatternEnum.values.where((e) => e.attributes.contains(attribute)).toList();
 
   static LocalBlockPatternEnum fromCode(int code) {
     return LocalBlockPatternEnum.values.where((e) => e.code == code).first;

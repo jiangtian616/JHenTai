@@ -7,6 +7,7 @@ import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/network/jh_request.dart';
 import 'package:jhentai/src/service/app_update_service.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
+import 'package:jhentai/src/service/built_in_blocked_user_service.dart';
 import 'package:jhentai/src/service/cloud_service.dart';
 import 'package:jhentai/src/service/frame_rate_service.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
@@ -89,6 +90,7 @@ List<JHLifeCircleBean> lifeCircleBeans = [
   styleSetting,
   superResolutionSetting,
   userSetting,
+  builtInBlockedUserService,
 ];
 
 void main(List<String> args) async {
