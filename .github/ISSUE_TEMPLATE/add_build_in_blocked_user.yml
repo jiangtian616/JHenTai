@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        - 你将要为JHenTai添加一名内置的屏蔽用户，添加成功后，所有在偏好设置中开启了`使用内置用户屏蔽名单`功能的用户将无法看到屏蔽用户的画廊评论。/ You are going to add a built-in blocked user to JHenTai. Once successfully added, all users who have enabled the `Enable Built-in User Blocklist` feature in preference setting will no longer see the gallery comments of the blocked user.
+        - 你将要为JHenTai添加一名内置的屏蔽用户，添加成功后，所有在偏好设置中开启了「使用内置用户屏蔽名单」功能的用户将无法看到屏蔽用户的画廊评论。/ You are going to add a built-in blocked user to JHenTai. Once successfully added, all users who have enabled the 「Enable Built-in User Blocklist」 feature in preference setting will no longer see the gallery comments of the blocked user.
         - 如果你对JSON和Git比较熟悉，你可以自行提交PR修改[配置文件](https://github.com/jiangtian616/JHenTai/blob/master/built_in_blocked_user.json)，否则请按照下述模板填写信息后提交Issue。 / If you are familiar with JSON and Git, you can submit a PR to modify the [configuration file](https://github.com/jiangtian616/JHenTai/blob/master/built_in_blocked_user.json). Otherwise, please fill out the information according to the template below and submit an issue.
         - 请注意，需要满足以下条件的用户才能被添加到内置屏蔽名单中 / Please note that users must meet the following criteria to be added to the built-in blocklist
           - 符合[EHWiki](https://ehwiki.org/wiki/Gallery_Commenting#Examples_of_Bad_Comments)中封禁用户评论的条件：由于任何原因反复辱骂或骚扰其他用户。 / Meet the criteria for banned user comments on [EHWiki](https://ehwiki.org/wiki/Gallery_Commenting#Examples_of_Bad_Comments): Repeatedly abusing or harassing other users for any reason.
