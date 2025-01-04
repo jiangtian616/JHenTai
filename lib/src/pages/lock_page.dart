@@ -108,7 +108,10 @@ class _LockPageState extends State<LockPage> with WindowListener, WindowWidgetMi
 
   Future<void> biometricAuth() async {
     bool success = await LocalAuthentication().authenticate(
-      localizedReason: ' ',
+      /**
+       * @see [local_auth_windows example](https://github.com/flutter/packages/blob/main/packages/local_auth/local_auth_windows/example/lib/main.dart)
+       */
+      localizedReason: GetPlatform.isWindows ? 'localizedReason'.tr : ' ',
       authMessages: [
         AndroidAuthMessages(
           signInTitle: 'localizedReason'.tr,
@@ -121,9 +124,12 @@ class _LockPageState extends State<LockPage> with WindowListener, WindowWidgetMi
         ),
         const WindowsAuthMessages(),
       ],
-      options: const AuthenticationOptions(
+      options: AuthenticationOptions(
         stickyAuth: true,
-        biometricOnly: true,
+        /**
+         * @see [local_auth_windows](https://github.com/flutter/packages/blob/733869c981a3d0c649d904febc486b47ddb5f672/packages/local_auth/local_auth_windows/lib/local_auth_windows.dart#L54)
+         */
+        biometricOnly: !GetPlatform.isWindows,
       ),
     );
 
