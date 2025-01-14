@@ -58,6 +58,13 @@ class SecuritySetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
       List<BiometricType> types = await LocalAuthentication().getAvailableBiometrics();
       supportBiometricAuth = types.isNotEmpty;
       log.debug('Init SecuritySetting.supportBiometricAuth: $supportBiometricAuth');
+    } else if (GetPlatform.isWindows) {
+      List<BiometricType> types = await LocalAuthentication().getAvailableBiometrics();
+      /**
+       * @see [local_auth_windows](https://github.com/flutter/packages/blob/733869c981a3d0c649d904febc486b47ddb5f672/packages/local_auth/local_auth_windows/lib/local_auth_windows.dart#L54)
+       */
+      supportBiometricAuth = types.any((t) => t == BiometricType.strong);
+      log.debug('Init SecuritySetting.supportBiometricAuth: $supportBiometricAuth');
     }
   }
 
