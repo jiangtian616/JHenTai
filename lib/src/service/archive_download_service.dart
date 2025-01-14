@@ -597,6 +597,10 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         log.download('${'410Hints'.tr} Archive: ${archive.title}');
         snack('archiveError'.tr, '${'410Hints'.tr} : ${archive.title}', isShort: true);
         return pauseDownloadArchive(archive.gid, needReUnlock: true);
+      } else if (e.response!.data is String && e.response!.data.contains('This archive session has been used from too many different locations')) {
+        log.download('Archive session has been used from too many different locations! Archive: ${archive.title}');
+        snack('archiveError'.tr, 'This archive session has been used from too many different locations.', isShort: true);
+        return pauseDownloadArchive(archive.gid, needReUnlock: true);
       } else if (e.response!.data is String && e.response!.data.contains('IP quota exhausted')) {
         log.download('IP quota exhausted! Archive: ${archive.title}');
         snack('archiveError'.tr, 'IP quota exhausted!', isShort: true);
@@ -606,7 +610,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         snack('archiveError'.tr, 'Expired or invalid session!', isShort: true);
         return pauseDownloadArchive(archive.gid);
       } else {
-        log.download('Download archive 410, try re-parse. Archive: ${archive.title}');
+        log.download('Download archive 410, try re-parse. Archive: ${archive.title} Response: ${e.response!.data}');
 
         archiveDownloadInfos[archive.gid]!.downloadUrl = null;
         await _updateArchiveStatus(archive.gid, ArchiveStatus.parsedDownloadPageUrl);
