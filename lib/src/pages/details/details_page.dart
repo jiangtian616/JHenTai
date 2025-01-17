@@ -840,7 +840,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
           builder: (_, BoxConstraints constraints) => ListView(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            itemExtent: max(UIConfig.detailsPageActionExtent, (constraints.maxWidth - UIConfig.detailPagePadding * 2) / 9),
+            itemExtent: max(UIConfig.detailsPageActionExtent, (constraints.maxWidth - UIConfig.detailPagePadding * 2) / 8),
             padding: EdgeInsets.zero,
             children: [
               _buildReadButton(context),
@@ -851,7 +851,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
               _buildHHButton(context),
               _buildSimilarButton(context),
               _buildTorrentButton(context),
-              _buildStatisticButton(context),
+              // _buildStatisticButton(context),
             ],
           ).enableMouseDrag(withScrollBar: false),
         ),
