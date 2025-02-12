@@ -63,6 +63,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
   late Worker isolateCountListener;
   late Worker proxyConfigListener;
+  late Worker timeoutListener;
 
   @override
   Future<void> doInitBean() async {
@@ -82,6 +83,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     isolateCountListener = ever(downloadSetting.archiveDownloadIsolateCount, (_) => _onIsolateCountChange());
     proxyConfigListener = everAll([networkSetting.proxyAddress, networkSetting.proxyUsername, networkSetting.proxyPassword], (_) => _onProxyConfigChange());
+    timeoutListener = everAll([networkSetting.connectTimeout, networkSetting.receiveTimeout], (_) => _onTimeoutChange());
 
     if (downloadSetting.restoreTasksAutomatically.isTrue) {
       await restoreTasks();
@@ -97,6 +99,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     isolateCountListener.dispose();
     proxyConfigListener.dispose();
+    timeoutListener.dispose();
   }
 
   bool containArchive(int gid) {
@@ -118,7 +121,6 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     log.info('Begin to handle archive: ${archive.title}, original: ${archive.isOriginal}');
-
 
     /// step 1: request to unlock archive: if we have unlocked before or unlock has completed,
     /// we can get [downloadPageUrl] immediately, otherwise we must wait for a second
@@ -559,6 +561,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       isolateCount: downloadSetting.archiveDownloadIsolateCount.value,
       deleteWhenUrlMismatch: false,
       proxyConfig: ehRequest.currentProxyConfig(),
+      headConnectionTimeout: Duration(milliseconds: networkSetting.connectTimeout.value),
+      headReceiveTimeout: Duration(milliseconds: networkSetting.receiveTimeout.value),
       onLog: (OutputEvent event) {},
       onProgress: (current, total) {
         ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadInfos[archive.gid]!;
@@ -597,6 +601,10 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         log.download('${'410Hints'.tr} Archive: ${archive.title}');
         snack('archiveError'.tr, '${'410Hints'.tr} : ${archive.title}', isShort: true);
         return pauseDownloadArchive(archive.gid, needReUnlock: true);
+      } else if (e.response!.data is String && e.response!.data.contains('This archive session has been used from too many different locations')) {
+        log.download('Archive session has been used from too many different locations! Archive: ${archive.title}');
+        snack('archiveError'.tr, 'This archive session has been used from too many different locations.', isShort: true);
+        return pauseDownloadArchive(archive.gid, needReUnlock: true);
       } else if (e.response!.data is String && e.response!.data.contains('IP quota exhausted')) {
         log.download('IP quota exhausted! Archive: ${archive.title}');
         snack('archiveError'.tr, 'IP quota exhausted!', isShort: true);
@@ -606,7 +614,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         snack('archiveError'.tr, 'Expired or invalid session!', isShort: true);
         return pauseDownloadArchive(archive.gid);
       } else {
-        log.download('Download archive 410, try re-parse. Archive: ${archive.title}');
+        log.download('Download archive 410, try re-parse. Archive: ${archive.title} Response: ${e.response!.data}');
 
         archiveDownloadInfos[archive.gid]!.downloadUrl = null;
         await _updateArchiveStatus(archive.gid, ArchiveStatus.parsedDownloadPageUrl);
@@ -654,6 +662,15 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     for (ArchiveDownloadInfo archiveDownloadInfo in archiveDownloadInfos.values) {
       if (archiveDownloadInfo.archiveStatus.code <= ArchiveStatus.downloading.code && archiveDownloadInfo.downloadTask != null) {
         archiveDownloadInfo.downloadTask!.setProxy(ehRequest.currentProxyConfig());
+      }
+    }
+  }
+
+  void _onTimeoutChange() {
+    for (ArchiveDownloadInfo archiveDownloadInfo in archiveDownloadInfos.values) {
+      if (archiveDownloadInfo.archiveStatus.code <= ArchiveStatus.unpacking.code && archiveDownloadInfo.downloadTask != null) {
+        archiveDownloadInfo.downloadTask!.changeConnectionTimeout(Duration(milliseconds: networkSetting.connectTimeout.value));
+        archiveDownloadInfo.downloadTask!.changeReceiveTimeout(Duration(milliseconds: networkSetting.receiveTimeout.value));
       }
     }
   }

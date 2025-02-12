@@ -745,6 +745,8 @@ favnote：配對收藏備註
       'removeBlockRuleFailed': '刪除隱藏規則失敗',
       'inputNumberHint': '請輸入正確的數字',
       'inputRegexHint': '請輸入合法的正規表示式',
+      'useBuiltInBlockedUsers': '使用內置用戶屏蔽名單',
+      'useBuiltInBlockedUsersHint': '過濾掉在名單中的用戶評論',
       'blockingRules': '隱藏規則',
       'blockingRulesHint': '針對畫廊和評論設定額外的隱藏規則',
       'blockingTarget': '隱藏目標',

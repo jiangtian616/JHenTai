@@ -50,7 +50,6 @@ class FavoritePageLogic extends BasePageLogic {
     state.gallerys.clear();
     state.prevGid = null;
     state.nextGid = null;
-    state.favoriteSortOrder = null;
     state.seek = DateTime.now();
     state.totalCount = null;
     state.favoriteSortOrder = null;
@@ -59,17 +58,12 @@ class FavoritePageLogic extends BasePageLogic {
 
     updateSafely();
 
-    GalleryPageInfo galleryPage;
     try {
-      galleryPage = await ehRequest.requestChangeFavoriteSortOrder(
-        result,
-        parser: EHSpiderParser.galleryPage2GalleryPageInfo,
-      );
+      await ehRequest.requestChangeFavoriteSortOrder(result, parser: EHSpiderParser.galleryPage2GalleryPageInfo);
     } on DioException catch (e) {
       /// handle with domain fronting, manually load more
       if (e.response?.statusCode == 403 && e.response!.redirects.isNotEmpty) {
-        loadMore(checkLoadingState: false);
-        return;
+        return loadMore(checkLoadingState: false);
       }
 
       log.error('change favorite sort order fail', e.message);
@@ -85,22 +79,7 @@ class FavoritePageLogic extends BasePageLogic {
       return;
     }
 
-    List<Gallery> gallerys = await super.postHandleNewGallerys(galleryPage.gallerys);
-
-    state.gallerys.addAll(gallerys);
-    state.totalCount = galleryPage.totalCount;
-    state.nextGid = galleryPage.nextGid;
-    state.favoriteSortOrder = galleryPage.favoriteSortOrder;
-
-    if (state.nextGid == null && state.prevGid == null && state.gallerys.isEmpty) {
-      state.loadingState = LoadingState.noData;
-    } else if (state.nextGid == null) {
-      state.loadingState = LoadingState.noMore;
-    } else {
-      state.loadingState = LoadingState.idle;
-    }
-
-    updateSafely();
+    return loadMore(checkLoadingState: false);
   }
 
   @override

@@ -72,7 +72,7 @@ class _EHCommentState extends State<EHComment> {
           Flexible(
             child: _EHCommentTextBody(
               inDetailPage: widget.inDetailPage,
-              onBlockUser: widget.comment.username == null || widget.comment.userId == null ? null : widget.onBlockUser,
+              onBlockUser: widget.onBlockUser,
               element: widget.comment.content,
             ).paddingOnly(top: 4, bottom: 8),
           ),

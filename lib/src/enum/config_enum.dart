@@ -36,6 +36,7 @@ enum ConfigEnum {
   oldGalleryHistory('history'),
   searchHistory('searchHistory'),
   myTagsSetting('MyTagsSetting'),
+  builtInBlockedUser('builtInBlockedUser'),
 
   /// page config
   downloadPageBodyType('downloadPageGalleryType'),

@@ -157,7 +157,6 @@ mush thanks to these projects and people🙇‍
 -   [x] vote for Tag, watch and hidden tags
 -   [x] comment, vote for comment
 -   [x] Fingerprint unlock
--   [x] Support shortcut keys like 'Tab' and 'Arrow keys' in desktop layout
 
 ## Translation
 

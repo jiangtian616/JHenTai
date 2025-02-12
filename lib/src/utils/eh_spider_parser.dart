@@ -43,6 +43,8 @@ import '../service/log.dart';
 
 typedef HtmlParser<T> = T Function(Headers headers, dynamic data);
 
+HtmlParser<String> simpleParser = (headers, data) => data as String;
+
 class EHSpiderParser {
   static Map<String, dynamic> loginPage2UserInfoOrErrorMsg(Headers headers, dynamic data) {
     Map<String, dynamic> map = {};
