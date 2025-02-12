@@ -199,10 +199,11 @@ jobs:
           mv JHenTai-latest-x86_64.AppImage JHenTai-${{ steps.get_version.outputs.version }}-Linux-x86_64.AppImage
       # Upload Artifacts
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
           path: ${{ matrix.artifact_path }}
+          if-no-files-found: error
   Publish:
     if: startsWith(github.ref, 'refs/tags/')
     name: Publish
