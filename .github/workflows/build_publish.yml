@@ -197,15 +197,20 @@ jobs:
           
           # Compile
           flutter build linux --release -t lib/src/main.dart
-
+          
           cd build/linux
+          
           mkdir AppDir
           cp -r x64/release/bundle/* AppDir
           mkdir -p AppDir/usr/share/icons/hicolor/512x512/apps/
           mkdir -p AppDir/usr/share/applications
           cp ../../linux/assets/top.jtmonster.jhentai.desktop AppDir/usr/share/applications
           cp ../../assets/icon/JHenTai_512.png AppDir/usr/share/icons/hicolor/512x512/apps/top.jtmonster.jhentai.png
+          
+          wget -O appimage-builder https://github.com/AppImageCrafters/appimage-builder/releases/download/v1.1.0/appimage-builder-1.1.0-x86_64.AppImage
+          chmod +x appimage-builder
           ./appimage-builder --skip-tests --recipe ../../linux/assets/AppImageBuilder.yml
+          
           mv JHenTai-latest-x86_64.AppImage JHenTai-${{ steps.get_version.outputs.version }}-Linux-x86_64.AppImage
       # Upload Artifacts
       - name: Upload Artifacts
