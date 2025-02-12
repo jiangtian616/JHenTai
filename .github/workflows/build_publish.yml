@@ -148,7 +148,7 @@ jobs:
           Copy-Item -Filter *.dll -Path windows\* -Destination $DestDir -Force
           Compress-Archive $DestDir build\windows\JHenTai_${{ steps.get_version.outputs.version }}_Windows.zip
       # Build Linux .deb
-      - name: Build Linux
+      - name: Build Linux deb
         if: matrix.target == 'Linux-deb'
         run: |
           # Prepare build depends
@@ -188,7 +188,7 @@ jobs:
           cd ..
           dpkg-deb --build --root-owner-group JHenTai-${{ steps.get_version.outputs.version }}-Linux-amd64
       # Build Linux .AppImage
-      - name: Build Linux
+      - name: Build Linux AppImage
         if: matrix.target == 'Linux-AppImage'
         run: |
           # Prepare build depends
