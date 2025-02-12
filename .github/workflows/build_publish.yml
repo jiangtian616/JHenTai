@@ -29,12 +29,12 @@ jobs:
             artifact_path: build/windows/*.zip
           - target: Linux-deb
             os: ubuntu-22.04
-            artifact_name: release-Linux
+            artifact_name: release-Linux-deb
             artifact_path: |
               build/linux/*.deb
           - target: Linux-AppImage
             os: ubuntu-22.04
-            artifact_name: release-Linux
+            artifact_name: release-Linux-AppImage
             artifact_path: |
               build/linux/*.AppImage
           - target: iOS
