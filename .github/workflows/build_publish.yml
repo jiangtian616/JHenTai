@@ -27,12 +27,16 @@ jobs:
             os: windows-latest
             artifact_name: release-Windows
             artifact_path: build/windows/*.zip
-          - target: Linux
+          - target: Linux-deb
+            os: ubuntu-22.04
+            artifact_name: release-Linux
+            artifact_path: |
+              build/linux/*.deb
+          - target: Linux-AppImage
             os: ubuntu-22.04
             artifact_name: release-Linux
             artifact_path: |
               build/linux/*.AppImage
-              build/linux/*.deb
           - target: iOS
             os: macos-latest
             cache_pod_key: ios-pods
@@ -143,7 +147,7 @@ jobs:
           Copy-Item $SrcDir\* -Recurse $DestDir
           Copy-Item -Filter *.dll -Path windows\* -Destination $DestDir -Force
           Compress-Archive $DestDir build\windows\JHenTai_${{ steps.get_version.outputs.version }}_Windows.zip
-      # Build Linux .deb and .AppImage
+      # Build Linux .deb
       - name: Build Linux
         if: matrix.target == 'Linux'
         run: |
@@ -152,7 +156,6 @@ jobs:
           sudo apt-get install -y ninja-build libfuse2 webkit2gtk-4.1
           
           # Compile
-          flutter config --enable-linux-desktop
           flutter build linux --release -t lib/src/main.dart
 
           # Build debian package
@@ -184,11 +187,18 @@ jobs:
 
           cd ..
           dpkg-deb --build --root-owner-group JHenTai-${{ steps.get_version.outputs.version }}-Linux-amd64
+      # Build Linux .AppImage
+      - name: Build Linux
+        if: matrix.target == 'Linux'
+        run: |
+          # Prepare build depends
+          sudo apt-get update -y
+          sudo apt-get install -y ninja-build libfuse2 webkit2gtk-4.1
+          
+          # Compile
+          flutter build linux --release -t lib/src/main.dart
 
-          # Build AppImage
-          wget -O appimage-builder https://github.com/AppImageCrafters/appimage-builder/releases/download/v1.1.0/appimage-builder-1.1.0-x86_64.AppImage
-          chmod +x appimage-builder
-
+          cd build/linux
           mkdir AppDir
           cp -r x64/release/bundle/* AppDir
           mkdir -p AppDir/usr/share/icons/hicolor/512x512/apps/
