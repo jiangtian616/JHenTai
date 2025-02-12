@@ -149,7 +149,7 @@ jobs:
           Compress-Archive $DestDir build\windows\JHenTai_${{ steps.get_version.outputs.version }}_Windows.zip
       # Build Linux .deb
       - name: Build Linux
-        if: matrix.target == 'Linux'
+        if: matrix.target == 'Linux-deb'
         run: |
           # Prepare build depends
           sudo apt-get update -y
@@ -189,7 +189,7 @@ jobs:
           dpkg-deb --build --root-owner-group JHenTai-${{ steps.get_version.outputs.version }}-Linux-amd64
       # Build Linux .AppImage
       - name: Build Linux
-        if: matrix.target == 'Linux'
+        if: matrix.target == 'Linux-AppImage'
         run: |
           # Prepare build depends
           sudo apt-get update -y
