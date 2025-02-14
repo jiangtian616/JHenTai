@@ -244,6 +244,6 @@ jobs:
           tag: ${{ github.ref_name }}
           allowUpdates: true
           bodyFile: changelog/${{ github.ref_name }}.md
-          artifacts: /tmp/artifacts/release-Android/*.apk,/tmp/artifacts/release-iOS/*.ipa,/tmp/artifacts/release-macOS/*.dmg,/tmp/artifacts/release-Windows/*.zip,/tmp/artifacts/release-Linux/*.AppImage,/tmp/artifacts/release-Linux/*.deb
+          artifacts: /tmp/artifacts/release-Android/*.apk,/tmp/artifacts/release-iOS/*.ipa,/tmp/artifacts/release-macOS/*.dmg,/tmp/artifacts/release-Windows/*.zip,/tmp/artifacts/release-Linux-AppImage/*.AppImage,/tmp/artifacts/release-Linux-deb/*.deb
           artifactErrorsFailBuild: true
           replacesArtifacts: true
