@@ -112,7 +112,7 @@ jobs:
         id: get_version
         shell: bash
         run: |
-          echo "::set-output name=version::$(head -n 5 pubspec.yaml | tail -n 1 | cut -d ' ' -f 2)"
+          echo "version=$(head -n 5 pubspec.yaml | tail -n 1 | cut -d ' ' -f 2)" >> $GITHUB_OUTPUT
           echo "arch=${RUNNER_ARCH,,}" >> $GITHUB_OUTPUT
       # Build Android .apk
       - name: Build Android
