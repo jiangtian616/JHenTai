@@ -68,11 +68,14 @@ jobs:
           echo "${{ secrets.KEY_PROPERTIES }}" > android/key.properties
       # Setup Flutter
       - name: Setup Flutter
-        uses: subosito/flutter-action@v2.12.0
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'stable'
+          channel: 'master'
           cache: true
+      # Output Flutter Version
+      - name: Output Flutter Version
+        run: flutter --version
       # Cache Pod
       - name: Cache Pod
         if: matrix.cache_pod_key != null
