@@ -27,16 +27,21 @@ jobs:
             os: windows-latest
             artifact_name: release-Windows
             artifact_path: build/windows/*.zip
-          - target: Linux-deb
+          - target: Linux-x64-deb
             os: ubuntu-22.04
-            artifact_name: release-Linux-deb
+            artifact_name: release-Linux-x64-deb
             artifact_path: |
               build/linux/*.deb
-          - target: Linux-AppImage
+          - target: Linux-x64-AppImage
             os: ubuntu-22.04
-            artifact_name: release-Linux-AppImage
+            artifact_name: release-Linux-x64-AppImage
             artifact_path: |
               build/linux/*.AppImage
+          - target: Linux-arm64-deb
+            os: ubuntu-22.04-arm
+            artifact_name: release-Linux-arm64-deb
+            artifact_path: |
+              build/linux/*.deb
           - target: iOS
             os: macos-latest
             cache_pod_key: ios-pods
@@ -152,7 +157,7 @@ jobs:
           Compress-Archive $DestDir build\windows\JHenTai_${{ steps.get_version.outputs.version }}_Windows.zip
       # Build Linux .deb
       - name: Build Linux deb
-        if: matrix.target == 'Linux-deb'
+        if: matrix.target == 'Linux-x64-deb' || matrix.target == 'Linux-arm64-deb'
         run: |
           # Prepare build depends
           sudo apt-get update -y
@@ -162,8 +167,8 @@ jobs:
           flutter build linux --release -t lib/src/main.dart
 
           # Build debian package
-          mkdir -p build/linux/JHenTai-${{ steps.get_version.outputs.version }}-Linux-amd64
-          cd build/linux/JHenTai-${{ steps.get_version.outputs.version }}-Linux-amd64
+          mkdir -p build/linux/JHenTai-${{ steps.get_version.outputs.version }}-Linux-${{ runner.arch }}
+          cd build/linux/JHenTai-${{ steps.get_version.outputs.version }}-Linux-${{ runner.arch }}
           mkdir -p opt/jhentai
           mkdir -p usr/share/applications
           mkdir -p usr/share/icons/hicolor/512x512/apps
@@ -189,10 +194,10 @@ jobs:
           cp ../../../assets/icon/JHenTai_512.png usr/share/icons/hicolor/512x512/apps/top.jtmonster.jhentai.png
 
           cd ..
-          dpkg-deb --build --root-owner-group JHenTai-${{ steps.get_version.outputs.version }}-Linux-amd64
+          dpkg-deb --build --root-owner-group JHenTai-${{ steps.get_version.outputs.version }}-Linux-${{ runner.arch }}
       # Build Linux .AppImage
       - name: Build Linux AppImage
-        if: matrix.target == 'Linux-AppImage'
+        if: matrix.target == 'Linux-x64-AppImage'
         run: |
           # Prepare build depends
           sudo apt-get update -y
