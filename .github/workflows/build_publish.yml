@@ -58,6 +58,7 @@ jobs:
             artifact_path: /Users/runner/work/JHenTai/JHenTai/*.dmg
     outputs:
       version: ${{ steps.get_version.outputs.version }}
+      arch: ${{ steps.get_version.outputs.arch}}
     runs-on: ${{ matrix.os }}
     env:
       FLUTTER_VERSION: 3.24.4
@@ -112,6 +113,7 @@ jobs:
         shell: bash
         run: |
           echo "::set-output name=version::$(head -n 5 pubspec.yaml | tail -n 1 | cut -d ' ' -f 2)"
+          echo "arch=${RUNNER_ARCH,,}" >> $GITHUB_OUTPUT
       # Build Android .apk
       - name: Build Android
         if: matrix.target == 'Android'
@@ -167,34 +169,26 @@ jobs:
           flutter build linux --release -t lib/src/main.dart
 
           # Build debian package
-          mkdir -p build/linux/JHenTai-${{ steps.get_version.outputs.version }}-Linux-${{ runner.arch }}
-          cd build/linux/JHenTai-${{ steps.get_version.outputs.version }}-Linux-${{ runner.arch }}
+          mkdir -p build/linux/JHenTai-${{ steps.get_version.outputs.version }}-Linux-${{ steps.get_version.outputs.arch }}
+          cd build/linux/JHenTai-${{ steps.get_version.outputs.version }}-Linux-${{ steps.get_version.outputs.arch }}
           mkdir -p opt/jhentai
           mkdir -p usr/share/applications
           mkdir -p usr/share/icons/hicolor/512x512/apps
-          cp -r ../${{ runner.arch }}/release/bundle/* opt/jhentai
+          cp -r ../${{ steps.get_version.outputs.arch }}/release/bundle/* opt/jhentai
           cp -r ../../../linux/assets/DEBIAN .
           chmod 0755 DEBIAN/postinst
           chmod 0755 DEBIAN/postrm
 
-          cat>DEBIAN/control<<EOF
-          Maintainer: madoka773 <valigarmanda55@gmail.com>
-          Package: jhentai
-          Version: ${{ steps.get_version.outputs.version }}
-          Section: x11
-          Priority: optional
-          Architecture: amd64
-          Essential: no
-          Installed-Size: 34648
-          Description: A cross-platform app made for e-hentai & exhentai by Flutter.
-          Homepage: https://github.com/jiangtian616/JHenTai
-          EOF
-
           cp ../../../linux/assets/top.jtmonster.jhentai.desktop usr/share/applications
           cp ../../../assets/icon/JHenTai_512.png usr/share/icons/hicolor/512x512/apps/top.jtmonster.jhentai.png
 
+          sed -i "/^Version: /s/Version: .*/Version: ${{ steps.get_version.outputs.version }}/" DEBIAN/control
+          if [ "${{ steps.get_version.outputs.arch }}" = "arm64" ]; then
+              sed -i "/^Architecture: /s/Architecture: .*/Architecture: arm64/" DEBIAN/control
+          fi
+
           cd ..
-          dpkg-deb --build --root-owner-group JHenTai-${{ steps.get_version.outputs.version }}-Linux-${{ runner.arch }}
+          dpkg-deb --build --root-owner-group JHenTai-${{ steps.get_version.outputs.version }}-Linux-${{ steps.get_version.outputs.arch }}
       # Build Linux .AppImage
       - name: Build Linux AppImage
         if: matrix.target == 'Linux-x64-AppImage'
