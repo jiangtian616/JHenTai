@@ -172,7 +172,7 @@ jobs:
           mkdir -p opt/jhentai
           mkdir -p usr/share/applications
           mkdir -p usr/share/icons/hicolor/512x512/apps
-          cp -r ../x64/release/bundle/* opt/jhentai
+          cp -r ../${{ runner.arch }}/release/bundle/* opt/jhentai
           cp -r ../../../linux/assets/DEBIAN .
           chmod 0755 DEBIAN/postinst
           chmod 0755 DEBIAN/postrm
