@@ -122,7 +122,7 @@ jobs:
           cd build/app/outputs/apk/release
           mv app-arm64-v8a-release.apk JHenTai-${{ steps.get_version.outputs.version }}-arm64-v8a.apk
           mv app-armeabi-v7a-release.apk JHenTai-${{ steps.get_version.outputs.version }}-armeabi-v7a.apk
-          mv app-x86_64-release.apk JHenTai-${{ steps.get_version.outputs.version }}-x86_64.apk
+          mv app-x86_64-release.apk JHenTai-${{ steps.get_version.outputs.version }}-x64.apk
       # Build iOS .ipa
       - name: Build iOS
         if: matrix.target == 'ios'
