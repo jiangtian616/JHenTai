@@ -113,7 +113,7 @@ jobs:
         shell: bash
         run: |
           echo "version=$(head -n 5 pubspec.yaml | tail -n 1 | cut -d ' ' -f 2)" >> $GITHUB_OUTPUT
-          echo "arch=${RUNNER_ARCH,,}" >> $GITHUB_OUTPUT
+          echo "arch=$(echo $RUNNER_ARCH | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
       # Build Android .apk
       - name: Build Android
         if: matrix.target == 'Android'
