@@ -71,7 +71,7 @@ class zh_CN {
       'userName': '用户名',
       'EHUser': 'E站用户',
       'password': '密码',
-      'needCaptcha': '需要勾选验证码。请另外选择cookie登陆或网页登陆。',
+      'needCaptcha': '触发人机验证。请另外选择cookie登陆或Web登陆。',
       'userNameOrPasswordMismatch': '用户名或密码错误',
       'copyCookies': '复制Cookies',
       'tap2Copy': '点击复制',
