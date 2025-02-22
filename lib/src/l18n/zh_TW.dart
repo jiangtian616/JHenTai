@@ -71,7 +71,7 @@ class zh_TW {
       'userName': '使用者名稱',
       'EHUser': 'E站使用者',
       'password': '密碼',
-      'needCaptcha': '需要勾選驗證碼。請另外選擇cookie登入或網頁登入。',
+      'needCaptcha': '觸發人機驗證。請另外選擇cookie登入或網頁登入。',
       'userNameOrPasswordMismatch': '使用者名稱或密碼錯誤',
       'copyCookies': '複製Cookies',
       'tap2Copy': '點擊複製',
