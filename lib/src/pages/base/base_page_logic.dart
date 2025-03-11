@@ -121,6 +121,12 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       state.refreshState = LoadingState.error;
       updateSafely([refreshStateId]);
       return;
+    } catch (e) {
+      log.error('refreshGalleryFailed'.tr, e.toString());
+      snack('refreshGalleryFailed'.tr, e.toString(), isShort: true);
+      state.refreshState = LoadingState.error;
+      updateSafely([refreshStateId]);
+      return;
     }
 
     List<Gallery> gallerys = await postHandleNewGallerys(galleryPage.gallerys, cleanDuplicate: false);
@@ -201,6 +207,12 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       state.loadingState = prevState;
       updateSafely([loadingStateId]);
       return;
+    } catch (e) {
+      log.error('getGallerysFailed'.tr, e.toString());
+      snack('getGallerysFailed'.tr, e.toString(), isShort: true);
+      state.loadingState = prevState;
+      updateSafely([loadingStateId]);
+      return;
     }
 
     List<Gallery> gallerys = await postHandleNewGallerys(galleryPage.gallerys);
@@ -241,6 +253,12 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
         isShort: true,
         onPressed: e.referLink == null ? null : () => launchUrlString(e.referLink!, mode: LaunchMode.externalApplication),
       );
+      state.loadingState = LoadingState.error;
+      updateSafely([loadingStateId]);
+      return;
+    } catch (e) {
+      log.error('getGallerysFailed'.tr, e.toString());
+      snack('getGallerysFailed'.tr, e.toString(), isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([loadingStateId]);
       return;
@@ -295,6 +313,11 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
         onPressed: e.referLink == null ? null : () => launchUrlString(e.referLink!, mode: LaunchMode.externalApplication),
       );
       state.loadingState = LoadingState.error;
+      updateSafely([loadingStateId]);
+      return;
+    } catch (e) {
+      log.error('getGallerysFailed'.tr, e.toString());
+      snack('getGallerysFailed'.tr, e.toString(), isShort: true);
       updateSafely([loadingStateId]);
       return;
     }

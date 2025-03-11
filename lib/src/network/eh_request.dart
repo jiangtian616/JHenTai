@@ -1039,6 +1039,9 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       if (data.startsWith('Your IP address')) {
         throw EHSiteException(type: EHSiteExceptionType.banned, message: response.data);
       }
+      if (data.startsWith('This IP address')) {
+        throw EHSiteException(type: EHSiteExceptionType.banned, message: response.data);
+      }
 
       if (data.startsWith('You have exceeded your image')) {
         throw EHSiteException(type: EHSiteExceptionType.exceedLimit, message: 'exceedImageLimits'.tr);
