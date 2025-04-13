@@ -14,6 +14,6 @@ class LocaleText extends Translations {
         'zh_TW': zh_TW.keys(),
         'pt_BR': pt_BR.keys(),
         'ko_KR': ko_KR.keys(),
-        'ru_RU': ko_KR.keys(),
+        'ru_RU': ru_RU.keys(),
       };
 }
