@@ -4,6 +4,7 @@ import 'package:jhentai/src/l18n/zh_CN.dart';
 import 'package:jhentai/src/l18n/zh_TW.dart';
 import 'package:jhentai/src/l18n/pt_BR.dart';
 import 'package:jhentai/src/l18n/ko_KR.dart';
+import 'package:jhentai/src/l18n/ru_RU.dart';
 
 class LocaleText extends Translations {
   @override
@@ -13,5 +14,6 @@ class LocaleText extends Translations {
         'zh_TW': zh_TW.keys(),
         'pt_BR': pt_BR.keys(),
         'ko_KR': ko_KR.keys(),
+        'ru_RU': ko_KR.keys(),
       };
 }
