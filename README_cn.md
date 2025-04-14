@@ -92,6 +92,7 @@ App翻译：
 - [andyching168](https://github.com/andyching168) [kenny03211](https://github.com/kenny03211) [NeKoOuO](https://github.com/NeKoOuO) 繁體中文(台灣)
 - [lucas-04](https://github.com/lucas-04) 葡萄牙语 Português brasileiro
 - [qlife1146](https://github.com/qlife1146) 韩语
+- [bropines](https://github.com/bropines) Russian
 
 十分感谢以上项目与人员🙇‍
 
