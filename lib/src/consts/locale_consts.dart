@@ -15,15 +15,14 @@ class LocaleConsts {
     'thai': 'TH',
     'dutch': 'NL',
     'vietnamese': 'VI',
-    'russian': 'RU',
   };
 
   static Map<String, String> localeCode2Description = {
     'zh_CN': '简体中文',
     'zh_TW': '繁體中文(台灣)',
     'en_US': 'English',
-    'pt_BR': 'Português brasileiro', 
-    'ko_KR': '한국어'
+    'pt_BR': 'Português brasileiro',
+    'ko_KR': '한국어',
     'ru_RU': 'Русский',
   };
 }
