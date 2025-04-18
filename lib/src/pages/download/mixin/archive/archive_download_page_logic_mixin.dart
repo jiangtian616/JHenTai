@@ -4,6 +4,7 @@ import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_logic_mixin.dart';
+import 'package:jhentai/src/setting/archive_bot_setting.dart';
 
 import '../../../../database/database.dart';
 import '../../../../model/gallery_image.dart';
@@ -201,6 +202,23 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
                 backRoute();
 
                 superResolutionService.deleteSuperResolve(archive.gid, SuperResolutionType.archive).then((_) => toast("success".tr));
+              },
+            ),
+          if (archiveDownloadService.archiveDownloadInfos[archive.gid]?.parseSource == ArchiveParseSource.bot.code)
+            CupertinoActionSheetAction(
+              child: Text('changeParseSource2Official'.tr),
+              onPressed: () {
+                backRoute();
+                archiveDownloadService.changeParseSource(archive.gid, ArchiveParseSource.official);
+              },
+            ),
+          if (archiveBotSetting.apiKey.value != null &&
+              archiveDownloadService.archiveDownloadInfos[archive.gid]?.parseSource == ArchiveParseSource.official.code)
+            CupertinoActionSheetAction(
+              child: Text('changeParseSource2Bot'.tr),
+              onPressed: () {
+                backRoute();
+                archiveDownloadService.changeParseSource(archive.gid, ArchiveParseSource.bot);
               },
             ),
           CupertinoActionSheetAction(

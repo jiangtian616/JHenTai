@@ -1,3 +1,6 @@
+import 'package:get/get.dart';
+import 'package:jhentai/src/utils/archive_bot_response_parser.dart';
+
 class ArchiveBotResponse<T> {
   final int code;
   final String message;
@@ -12,6 +15,10 @@ class ArchiveBotResponse<T> {
       data: json["data"],
     );
   }
+
+  bool get isSuccess => code == 0;
+
+  String get errorMessage => ArchiveBotResponseCodeEnum.fromCode(code)?.name.tr ?? 'internalError'.tr;
 
   @override
   String toString() {

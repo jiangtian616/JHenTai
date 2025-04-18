@@ -67,13 +67,20 @@ class ArchiveBotRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleB
     return _parseResponse(response, parser);
   }
 
-  Future<T> requestResolve<T>({required String apiKey, required int gid, required String token, HtmlParser<T>? parser}) async {
+  Future<T> requestResolve<T>({
+    required String apiKey,
+    required int gid,
+    required String token,
+    CancelToken? cancelToken,
+    HtmlParser<T>? parser,
+  }) async {
     Response response = await _dio.post(
       options: Options(contentType: Headers.jsonContentType),
       '${ArchiveBotConsts.serverAddress}/resolve',
       data: {
         'apikey': apiKey,
       },
+      cancelToken: cancelToken,
     );
 
     return _parseResponse(response, parser);

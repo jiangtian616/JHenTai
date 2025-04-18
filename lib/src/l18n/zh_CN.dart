@@ -725,7 +725,10 @@ favnote：匹配收藏备注
       'apiKeyHint': '填写您从 Telegram 机器人获取的密钥',
       'dailyCheckin': '日常签到',
       'currentBalance': '当前GP余额',
-      
+      'pauseDownloadByInvalidArchiveBotKey': '归档Bot密钥无效，下载已暂停',
+      'changeParseSource2Official': '修改解析来源为官方',
+      'changeParseSource2Bot': '修改解析来源为归档机器人',
+
       /// password setting dialog
       'setPasswordHint': '请输入您的密码',
       'confirmPasswordHint': '请再次输入您的密码',
