@@ -1219,3 +1219,18 @@ enum OldArchiveStatus {
   unpacking,
   completed,
 }
+
+
+enum ArchiveParseSource {
+  official(0),
+  bot(1),
+  ;
+
+  final int code;
+
+  const ArchiveParseSource(this.code);
+
+  factory ArchiveParseSource.fromCode(int code) {
+    return ArchiveParseSource.values.firstWhere((s) => s.code == code);
+  }
+}

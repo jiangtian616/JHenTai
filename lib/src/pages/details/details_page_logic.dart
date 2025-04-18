@@ -671,6 +671,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         groupName: result.group,
         tags: state.galleryDetails != null ? tagMap2TagString(state.galleryDetails!.tags) : tagMap2TagString(state.gallery!.tags),
         tagRefreshTime: DateTime.now().toString(),
+        parseSource: ArchiveParseSource.official.code,
       );
       archiveDownloadService.downloadArchive(archive);
 

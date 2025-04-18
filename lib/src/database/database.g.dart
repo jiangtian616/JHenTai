@@ -1064,6 +1064,14 @@ class $ArchiveDownloadedTable extends ArchiveDownloaded
   late final GeneratedColumn<String> tagRefreshTime = GeneratedColumn<String>(
       'tag_refresh_time', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _parseSourceMeta =
+      const VerificationMeta('parseSource');
+  @override
+  late final GeneratedColumn<int> parseSource = GeneratedColumn<int>(
+      'parse_source', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
   @override
   List<GeneratedColumn> get $columns => [
         gid,
@@ -1085,7 +1093,8 @@ class $ArchiveDownloadedTable extends ArchiveDownloaded
         sortOrder,
         groupName,
         tags,
-        tagRefreshTime
+        tagRefreshTime,
+        parseSource
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1222,6 +1231,12 @@ class $ArchiveDownloadedTable extends ArchiveDownloaded
           tagRefreshTime.isAcceptableOrUnknown(
               data['tag_refresh_time']!, _tagRefreshTimeMeta));
     }
+    if (data.containsKey('parse_source')) {
+      context.handle(
+          _parseSourceMeta,
+          parseSource.isAcceptableOrUnknown(
+              data['parse_source']!, _parseSourceMeta));
+    }
     return context;
   }
 
@@ -1271,6 +1286,8 @@ class $ArchiveDownloadedTable extends ArchiveDownloaded
           .read(DriftSqlType.string, data['${effectivePrefix}tags'])!,
       tagRefreshTime: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}tag_refresh_time']),
+      parseSource: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}parse_source'])!,
     );
   }
 
@@ -1302,6 +1319,7 @@ class ArchiveDownloadedData extends DataClass
   final String groupName;
   final String tags;
   final String? tagRefreshTime;
+  final int parseSource;
   const ArchiveDownloadedData(
       {required this.gid,
       required this.token,
@@ -1322,7 +1340,8 @@ class ArchiveDownloadedData extends DataClass
       required this.sortOrder,
       required this.groupName,
       required this.tags,
-      this.tagRefreshTime});
+      this.tagRefreshTime,
+      required this.parseSource});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1354,6 +1373,7 @@ class ArchiveDownloadedData extends DataClass
     if (!nullToAbsent || tagRefreshTime != null) {
       map['tag_refresh_time'] = Variable<String>(tagRefreshTime);
     }
+    map['parse_source'] = Variable<int>(parseSource);
     return map;
   }
 
@@ -1387,6 +1407,7 @@ class ArchiveDownloadedData extends DataClass
       tagRefreshTime: tagRefreshTime == null && nullToAbsent
           ? const Value.absent()
           : Value(tagRefreshTime),
+      parseSource: Value(parseSource),
     );
   }
 
@@ -1414,6 +1435,7 @@ class ArchiveDownloadedData extends DataClass
       groupName: serializer.fromJson<String>(json['groupName']),
       tags: serializer.fromJson<String>(json['tags']),
       tagRefreshTime: serializer.fromJson<String?>(json['tagRefreshTime']),
+      parseSource: serializer.fromJson<int>(json['parseSource']),
     );
   }
   @override
@@ -1440,6 +1462,7 @@ class ArchiveDownloadedData extends DataClass
       'groupName': serializer.toJson<String>(groupName),
       'tags': serializer.toJson<String>(tags),
       'tagRefreshTime': serializer.toJson<String?>(tagRefreshTime),
+      'parseSource': serializer.toJson<int>(parseSource),
     };
   }
 
@@ -1463,7 +1486,8 @@ class ArchiveDownloadedData extends DataClass
           int? sortOrder,
           String? groupName,
           String? tags,
-          Value<String?> tagRefreshTime = const Value.absent()}) =>
+          Value<String?> tagRefreshTime = const Value.absent(),
+          int? parseSource}) =>
       ArchiveDownloadedData(
         gid: gid ?? this.gid,
         token: token ?? this.token,
@@ -1488,6 +1512,7 @@ class ArchiveDownloadedData extends DataClass
         tags: tags ?? this.tags,
         tagRefreshTime:
             tagRefreshTime.present ? tagRefreshTime.value : this.tagRefreshTime,
+        parseSource: parseSource ?? this.parseSource,
       );
   ArchiveDownloadedData copyWithCompanion(ArchiveDownloadedCompanion data) {
     return ArchiveDownloadedData(
@@ -1524,6 +1549,8 @@ class ArchiveDownloadedData extends DataClass
       tagRefreshTime: data.tagRefreshTime.present
           ? data.tagRefreshTime.value
           : this.tagRefreshTime,
+      parseSource:
+          data.parseSource.present ? data.parseSource.value : this.parseSource,
     );
   }
 
@@ -1549,33 +1576,36 @@ class ArchiveDownloadedData extends DataClass
           ..write('sortOrder: $sortOrder, ')
           ..write('groupName: $groupName, ')
           ..write('tags: $tags, ')
-          ..write('tagRefreshTime: $tagRefreshTime')
+          ..write('tagRefreshTime: $tagRefreshTime, ')
+          ..write('parseSource: $parseSource')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      gid,
-      token,
-      title,
-      category,
-      pageCount,
-      galleryUrl,
-      coverUrl,
-      uploader,
-      size,
-      publishTime,
-      archiveStatusCode,
-      archivePageUrl,
-      downloadPageUrl,
-      downloadUrl,
-      isOriginal,
-      insertTime,
-      sortOrder,
-      groupName,
-      tags,
-      tagRefreshTime);
+  int get hashCode => Object.hashAll([
+        gid,
+        token,
+        title,
+        category,
+        pageCount,
+        galleryUrl,
+        coverUrl,
+        uploader,
+        size,
+        publishTime,
+        archiveStatusCode,
+        archivePageUrl,
+        downloadPageUrl,
+        downloadUrl,
+        isOriginal,
+        insertTime,
+        sortOrder,
+        groupName,
+        tags,
+        tagRefreshTime,
+        parseSource
+      ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1599,7 +1629,8 @@ class ArchiveDownloadedData extends DataClass
           other.sortOrder == this.sortOrder &&
           other.groupName == this.groupName &&
           other.tags == this.tags &&
-          other.tagRefreshTime == this.tagRefreshTime);
+          other.tagRefreshTime == this.tagRefreshTime &&
+          other.parseSource == this.parseSource);
 }
 
 class ArchiveDownloadedCompanion
@@ -1624,6 +1655,7 @@ class ArchiveDownloadedCompanion
   final Value<String> groupName;
   final Value<String> tags;
   final Value<String?> tagRefreshTime;
+  final Value<int> parseSource;
   const ArchiveDownloadedCompanion({
     this.gid = const Value.absent(),
     this.token = const Value.absent(),
@@ -1645,6 +1677,7 @@ class ArchiveDownloadedCompanion
     this.groupName = const Value.absent(),
     this.tags = const Value.absent(),
     this.tagRefreshTime = const Value.absent(),
+    this.parseSource = const Value.absent(),
   });
   ArchiveDownloadedCompanion.insert({
     this.gid = const Value.absent(),
@@ -1667,6 +1700,7 @@ class ArchiveDownloadedCompanion
     required String groupName,
     this.tags = const Value.absent(),
     this.tagRefreshTime = const Value.absent(),
+    this.parseSource = const Value.absent(),
   })  : token = Value(token),
         title = Value(title),
         category = Value(category),
@@ -1701,6 +1735,7 @@ class ArchiveDownloadedCompanion
     Expression<String>? groupName,
     Expression<String>? tags,
     Expression<String>? tagRefreshTime,
+    Expression<int>? parseSource,
   }) {
     return RawValuesInsertable({
       if (gid != null) 'gid': gid,
@@ -1723,6 +1758,7 @@ class ArchiveDownloadedCompanion
       if (groupName != null) 'group_name': groupName,
       if (tags != null) 'tags': tags,
       if (tagRefreshTime != null) 'tag_refresh_time': tagRefreshTime,
+      if (parseSource != null) 'parse_source': parseSource,
     });
   }
 
@@ -1746,7 +1782,8 @@ class ArchiveDownloadedCompanion
       Value<int>? sortOrder,
       Value<String>? groupName,
       Value<String>? tags,
-      Value<String?>? tagRefreshTime}) {
+      Value<String?>? tagRefreshTime,
+      Value<int>? parseSource}) {
     return ArchiveDownloadedCompanion(
       gid: gid ?? this.gid,
       token: token ?? this.token,
@@ -1768,6 +1805,7 @@ class ArchiveDownloadedCompanion
       groupName: groupName ?? this.groupName,
       tags: tags ?? this.tags,
       tagRefreshTime: tagRefreshTime ?? this.tagRefreshTime,
+      parseSource: parseSource ?? this.parseSource,
     );
   }
 
@@ -1834,6 +1872,9 @@ class ArchiveDownloadedCompanion
     if (tagRefreshTime.present) {
       map['tag_refresh_time'] = Variable<String>(tagRefreshTime.value);
     }
+    if (parseSource.present) {
+      map['parse_source'] = Variable<int>(parseSource.value);
+    }
     return map;
   }
 
@@ -1859,7 +1900,8 @@ class ArchiveDownloadedCompanion
           ..write('sortOrder: $sortOrder, ')
           ..write('groupName: $groupName, ')
           ..write('tags: $tags, ')
-          ..write('tagRefreshTime: $tagRefreshTime')
+          ..write('tagRefreshTime: $tagRefreshTime, ')
+          ..write('parseSource: $parseSource')
           ..write(')'))
         .toString();
   }
@@ -7228,6 +7270,7 @@ typedef $$ArchiveDownloadedTableCreateCompanionBuilder
   required String groupName,
   Value<String> tags,
   Value<String?> tagRefreshTime,
+  Value<int> parseSource,
 });
 typedef $$ArchiveDownloadedTableUpdateCompanionBuilder
     = ArchiveDownloadedCompanion Function({
@@ -7251,6 +7294,7 @@ typedef $$ArchiveDownloadedTableUpdateCompanionBuilder
   Value<String> groupName,
   Value<String> tags,
   Value<String?> tagRefreshTime,
+  Value<int> parseSource,
 });
 
 class $$ArchiveDownloadedTableFilterComposer
@@ -7325,6 +7369,9 @@ class $$ArchiveDownloadedTableFilterComposer
   ColumnFilters<String> get tagRefreshTime => $composableBuilder(
       column: $table.tagRefreshTime,
       builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get parseSource => $composableBuilder(
+      column: $table.parseSource, builder: (column) => ColumnFilters(column));
 }
 
 class $$ArchiveDownloadedTableOrderingComposer
@@ -7399,6 +7446,9 @@ class $$ArchiveDownloadedTableOrderingComposer
   ColumnOrderings<String> get tagRefreshTime => $composableBuilder(
       column: $table.tagRefreshTime,
       builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get parseSource => $composableBuilder(
+      column: $table.parseSource, builder: (column) => ColumnOrderings(column));
 }
 
 class $$ArchiveDownloadedTableAnnotationComposer
@@ -7469,6 +7519,9 @@ class $$ArchiveDownloadedTableAnnotationComposer
 
   GeneratedColumn<String> get tagRefreshTime => $composableBuilder(
       column: $table.tagRefreshTime, builder: (column) => column);
+
+  GeneratedColumn<int> get parseSource => $composableBuilder(
+      column: $table.parseSource, builder: (column) => column);
 }
 
 class $$ArchiveDownloadedTableTableManager extends RootTableManager<
@@ -7519,6 +7572,7 @@ class $$ArchiveDownloadedTableTableManager extends RootTableManager<
             Value<String> groupName = const Value.absent(),
             Value<String> tags = const Value.absent(),
             Value<String?> tagRefreshTime = const Value.absent(),
+            Value<int> parseSource = const Value.absent(),
           }) =>
               ArchiveDownloadedCompanion(
             gid: gid,
@@ -7541,6 +7595,7 @@ class $$ArchiveDownloadedTableTableManager extends RootTableManager<
             groupName: groupName,
             tags: tags,
             tagRefreshTime: tagRefreshTime,
+            parseSource: parseSource,
           ),
           createCompanionCallback: ({
             Value<int> gid = const Value.absent(),
@@ -7563,6 +7618,7 @@ class $$ArchiveDownloadedTableTableManager extends RootTableManager<
             required String groupName,
             Value<String> tags = const Value.absent(),
             Value<String?> tagRefreshTime = const Value.absent(),
+            Value<int> parseSource = const Value.absent(),
           }) =>
               ArchiveDownloadedCompanion.insert(
             gid: gid,
@@ -7585,6 +7641,7 @@ class $$ArchiveDownloadedTableTableManager extends RootTableManager<
             groupName: groupName,
             tags: tags,
             tagRefreshTime: tagRefreshTime,
+            parseSource: parseSource,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

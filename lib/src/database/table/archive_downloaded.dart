@@ -48,6 +48,8 @@ class ArchiveDownloaded extends Table {
 
   TextColumn get tagRefreshTime => text().nullable()();
 
+  IntColumn get parseSource => integer().withDefault(const Constant(0))();
+  
   @override
   Set<Column<Object>>? get primaryKey => {gid};
 }

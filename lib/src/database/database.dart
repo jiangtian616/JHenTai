@@ -67,7 +67,7 @@ class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 22;
+  int get schemaVersion => 23;
 
   @override
   MigrationStrategy get migration {
@@ -158,6 +158,9 @@ class AppDb extends _$AppDb {
             }
             if (from < 22) {
               await m.createTable(localConfig);
+            }
+            if (17 <= from && from < 23) {
+              await m.alterTable(TableMigration(archiveDownloaded, newColumns: [archiveDownloaded.parseSource]));
             }
           });
         } on Exception catch (e) {
@@ -353,6 +356,7 @@ class AppDb extends _$AppDb {
               sortOrder: Value(a.sortOrder),
               groupName: a.groupName!,
               tagRefreshTime: Value(DateTime.now().toString()),
+              parseSource: Value(ArchiveParseSource.official.code),
             ),
           );
         }
