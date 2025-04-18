@@ -329,6 +329,8 @@ class UIConfig {
 
   static Duration downloadPageAnimationDuration = const Duration(milliseconds: 300);
 
+  static const double downloadPageBotIconSize = 13;
+  
   /// download page with gridview
   static Color downloadPageGridViewGroupBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.6);
 

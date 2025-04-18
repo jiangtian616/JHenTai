@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_logic_mixin.dart';
+import 'package:jhentai/src/mixin/update_global_gallery_status_logic_mixin.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/download/mixin/archive/archive_download_page_state_mixin.dart';
@@ -21,7 +22,12 @@ import '../mixin/grid_download_page_state_mixin.dart';
 import 'archive_grid_download_page_state.dart';
 
 class ArchiveGridDownloadPageLogic extends GetxController
-    with Scroll2TopLogicMixin, MultiSelectDownloadPageLogicMixin<ArchiveDownloadedData>, ArchiveDownloadPageLogicMixin, GridBasePageLogic {
+    with
+        Scroll2TopLogicMixin,
+        MultiSelectDownloadPageLogicMixin<ArchiveDownloadedData>,
+        ArchiveDownloadPageLogicMixin,
+        GridBasePageLogic,
+        UpdateGlobalGalleryStatusLogicMixin {
   final ArchiveGridDownloadPageState state = ArchiveGridDownloadPageState();
 
   @override
@@ -47,6 +53,7 @@ class ArchiveGridDownloadPageLogic extends GetxController
   @override
   void handleRemoveItem(ArchiveDownloadedData archive) {
     archiveDownloadService.deleteArchive(archive.gid).then((_) => super.handleRemoveItem(archive));
+    updateGlobalGalleryStatus();
   }
 
   void goToDetailPage(ArchiveDownloadedData archive) {
@@ -105,5 +112,11 @@ class ArchiveGridDownloadPageLogic extends GetxController
   @override
   Future<void> saveGroupOrderAfterDrag(int beforeIndex, int afterIndex) {
     return archiveDownloadService.updateGroupOrder(beforeIndex, afterIndex);
+  }
+
+  @override
+  Future<void> handleChangeParseSource(int gid, ArchiveParseSource parseSource) async {
+    await super.handleChangeParseSource(gid, parseSource);
+    updateSafely(['${super.galleryId}::$gid']);
   }
 }

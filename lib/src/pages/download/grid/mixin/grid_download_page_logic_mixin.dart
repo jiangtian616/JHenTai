@@ -3,12 +3,12 @@ import 'package:jhentai/src/utils/toast_util.dart';
 
 import '../../../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../../../service/local_gallery_service.dart';
-import '../../../../service/storage_service.dart';
 import 'grid_download_page_service_mixin.dart';
 import 'grid_download_page_state_mixin.dart';
 
 mixin GridBasePageLogic on GetxController implements Scroll2TopLogicMixin {
   final String bodyId = 'bodyId';
+  final String galleryId = 'galleryId';
   final String editButtonId = 'editButtonId';
 
   GridBasePageState get gridBasePageState;

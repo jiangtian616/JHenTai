@@ -725,9 +725,21 @@ favnote：匹配收藏备注
       'apiKeyHint': '填写您从 Telegram 机器人获取的密钥',
       'dailyCheckin': '日常签到',
       'currentBalance': '当前GP余额',
+      'checkBalanceFailed': '获取GP余额失败',
+      'checkInFailed': '签到失败',
+      'checkInSuccess': '签到成功',
+      'checkInSuccessHint': '获得GP：%s，当前总GP：%s。',
       'pauseDownloadByInvalidArchiveBotKey': '归档Bot密钥无效，下载已暂停',
       'changeParseSource2Official': '修改解析来源为官方',
       'changeParseSource2Bot': '修改解析来源为归档机器人',
+      'invalidParam': '无效参数',
+      'invalidApiKey': '无效的 API Key',
+      'banned': '您已被封禁',
+      'fetchGalleryInfoFailed': '获取画廊信息失败',
+      'insufficientGP': 'GP不足',
+      'parseFailed': '解析失败',
+      'checkedIn': '今日已签到',
+      'serverError': '归档机器人内部错误',
 
       /// password setting dialog
       'setPasswordHint': '请输入您的密码',
@@ -783,7 +795,7 @@ favnote：匹配收藏备注
     注意1：不同规则之间是||的关系，同一规则下所有子规则之间是&&的关系。
     注意2：屏蔽属性为标签时，规则会对画廊的每一个标签均进行校验，表达式针对单个标签进行编写即可。
     注意3：屏蔽属性为标签时，如果你使用'='规则，你必须准确填写带命名空间的完整标签。   
-    注意4：在E站官方设置中，你需要使用能够展示所有标签的画廊布局如Extended，否则部分画廊可能不会被正确过滤
+    注意4：在E站官方设置中，你需要使用能够展示所有标签的画廊布局如Extended，否则部分画廊可能不会被正确过滤。
     
     示例1：屏蔽有男同标签且无伪娘标签的画廊————画廊标签包含male:yaoi && 画廊标签不包含male:tomgirl
     示例2：屏蔽评分不超过10分的评论————评论评分<=10

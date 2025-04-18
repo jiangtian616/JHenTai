@@ -4,7 +4,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/database/database.dart';
-import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_page_mixin.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/pages/download/mixin/archive/archive_download_page_logic_mixin.dart';
@@ -317,6 +316,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
         EHGalleryCategoryTag(category: archive.category),
         const Expanded(child: SizedBox()),
         _buildReUnlockButton(context, archive),
+        _buildParseFromBot(context, archive),
         _buildIsOriginal(context, archive),
         _buildSuperResolutionLabel(context, archive),
         _buildButton(context, archive),
@@ -338,6 +338,34 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
           onTap: () => logic.handleReUnlockArchive(archive),
           child: Icon(Icons.lock_open, size: 18, color: UIConfig.alertColor(context)),
         ).marginOnly(right: 8);
+      },
+    );
+  }
+
+  Widget _buildParseFromBot(BuildContext context, ArchiveDownloadedData archive) {
+    ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadService.archiveDownloadInfos[archive.gid]!;
+    return GetBuilder<ArchiveListDownloadPageLogic>(
+      global: false,
+      init: logic,
+      id: '${logic.galleryId}::${archive.gid}',
+      builder: (_) {
+        if (archiveDownloadInfo.parseSource != ArchiveParseSource.bot.code) {
+          return const SizedBox();
+        }
+
+        return Container(
+          margin: const EdgeInsets.only(right: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: UIConfig.resumePauseButtonColor(context)),
+          ),
+          child: Icon(
+            Icons.smart_toy_outlined,
+            size: UIConfig.downloadPageBotIconSize,
+            color: UIConfig.resumePauseButtonColor(context),
+          ),
+        );
       },
     );
   }

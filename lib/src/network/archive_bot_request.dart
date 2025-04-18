@@ -79,6 +79,8 @@ class ArchiveBotRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleB
       '${ArchiveBotConsts.serverAddress}/resolve',
       data: {
         'apikey': apiKey,
+        'gid': gid,
+        'token': token,
       },
       cancelToken: cancelToken,
     );

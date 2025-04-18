@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_logic_mixin.dart';
+import 'package:jhentai/src/mixin/update_global_gallery_status_logic_mixin.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/super_resolution_setting.dart';
 
@@ -12,7 +13,6 @@ import '../../../../model/read_page_info.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/gallery_download_service.dart';
 import '../../../../service/local_config_service.dart';
-import '../../../../service/storage_service.dart';
 import '../../../../setting/read_setting.dart';
 import '../../../../utils/process_util.dart';
 import '../../../../utils/route_util.dart';
@@ -21,7 +21,8 @@ import '../../../../widget/eh_alert_dialog.dart';
 import '../../../../widget/eh_download_dialog.dart';
 import '../basic/multi_select/multi_select_download_page_logic_mixin.dart';
 
-mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogicMixin, MultiSelectDownloadPageLogicMixin<GalleryDownloadedData> {
+mixin GalleryDownloadPageLogicMixin on GetxController
+    implements Scroll2TopLogicMixin, MultiSelectDownloadPageLogicMixin<GalleryDownloadedData>, UpdateGlobalGalleryStatusLogicMixin {
   final String bodyId = 'bodyId';
 
   final GalleryDownloadService downloadService = galleryDownloadService;
@@ -360,6 +361,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
       }
 
       exitSelectMode();
+      updateGlobalGalleryStatus();
     }
   }
 }

@@ -17,7 +17,7 @@ class ArchiveBotSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
   @override
   void applyBeanConfig(String configString) {
     Map map = jsonDecode(configString);
-    apiKey.value = map['apiKey'] ?? '';
+    apiKey.value = map['apiKey'];
   }
 
   @override

@@ -160,10 +160,17 @@ mixin GridBasePage on StatelessWidget implements Scroll2TopPageMixin {
     );
 
     List<DraggableGridItem> galleryWidgets = state.currentGalleryObjects
-        .map((gallery) => DraggableGridItem(
-              child: galleryBuilder(context, gallery, state.inEditMode),
-              isDraggable: state.inEditMode,
-            ))
+        .map(
+          (gallery) => DraggableGridItem(
+            child: GetBuilder<GridBasePageLogic>(
+              global: false,
+              init: logic,
+              id: '${logic.galleryId}::${gallery.gid}',
+              builder: (_) => galleryBuilder(context, gallery, state.inEditMode),
+            ),
+            isDraggable: state.inEditMode,
+          ),
+        )
         .toList();
 
     return [returnWidget, ...galleryWidgets];
@@ -211,6 +218,7 @@ class ReturnWidget extends StatelessWidget {
 class GridGallery extends StatelessWidget {
   final String title;
   final Widget widget;
+  final bool parseFromBot;
   final bool isOriginal;
   final int? gid;
   final SuperResolutionType? superResolutionType;
@@ -224,6 +232,7 @@ class GridGallery extends StatelessWidget {
     Key? key,
     required this.title,
     required this.widget,
+    required this.parseFromBot,
     required this.isOriginal,
     this.gid,
     this.superResolutionType,
@@ -266,6 +275,17 @@ class GridGallery extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          if (parseFromBot)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              margin: const EdgeInsets.only(right: 4),
+              decoration: BoxDecoration(
+                color: UIConfig.backGroundColor(context),
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: UIConfig.onBackGroundColor(context)),
+              ),
+              child: const Icon(Icons.smart_toy_outlined, size: UIConfig.downloadPageBotIconSize),
+            ),
           if (gid != null && superResolutionType != null)
             GetBuilder<SuperResolutionService>(
               id: '${SuperResolutionService.superResolutionId}::$gid',

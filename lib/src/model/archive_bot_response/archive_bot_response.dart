@@ -1,16 +1,16 @@
 import 'package:get/get.dart';
 import 'package:jhentai/src/utils/archive_bot_response_parser.dart';
 
-class ArchiveBotResponse<T> {
+class ArchiveBotResponse {
   final int code;
   final String message;
-  final T data;
+  final Map<String, dynamic> data;
 
   const ArchiveBotResponse({required this.code, required this.message, required this.data});
 
   factory ArchiveBotResponse.fromJson(Map<String, dynamic> json) {
     return ArchiveBotResponse(
-      code: json["retcode"],
+      code: json["code"],
       message: json["msg"],
       data: json["data"],
     );

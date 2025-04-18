@@ -1,9 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
-import 'package:jhentai/src/model/response/archive_bot_response.dart';
+
+import '../model/archive_bot_response/archive_bot_response.dart';
 
 class ArchiveBotResponseParser {
-  static ArchiveBotResponse<T> commonParse<T>(Headers headers, dynamic data) {
+  static ArchiveBotResponse commonParse(Headers headers, dynamic data) {
     return ArchiveBotResponse.fromJson(data);
   }
 }
@@ -15,6 +16,7 @@ enum ArchiveBotResponseCodeEnum {
   fetchGalleryInfoFailed(4),
   insufficientGP(5),
   parseFailed(6),
+  checkedIn(7),
   serverError(99),
   ;
 

@@ -4,6 +4,7 @@ import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_logic_mixin.dart';
+import 'package:jhentai/src/mixin/update_global_gallery_status_logic_mixin.dart';
 import 'package:jhentai/src/setting/archive_bot_setting.dart';
 
 import '../../../../database/database.dart';
@@ -25,7 +26,8 @@ import '../basic/multi_select/multi_select_download_page_logic_mixin.dart';
 import '../basic/multi_select/multi_select_download_page_state_mixin.dart';
 import 'archive_download_page_state_mixin.dart';
 
-mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogicMixin, MultiSelectDownloadPageLogicMixin<ArchiveDownloadedData> {
+mixin ArchiveDownloadPageLogicMixin on GetxController
+    implements Scroll2TopLogicMixin, MultiSelectDownloadPageLogicMixin<ArchiveDownloadedData>, UpdateGlobalGalleryStatusLogicMixin {
   final String bodyId = 'bodyId';
 
   ArchiveDownloadPageStateMixin get archiveDownloadPageState;
@@ -163,6 +165,8 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
   }
 
   void showBottomSheet(ArchiveDownloadedData archive, BuildContext context) {
+    ArchiveDownloadInfo? archiveDownloadInfo = archiveDownloadService.archiveDownloadInfos[archive.gid];
+
     showCupertinoModalPopup(
       context: context,
       builder: (BuildContext context) => CupertinoActionSheet(
@@ -204,21 +208,25 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
                 superResolutionService.deleteSuperResolve(archive.gid, SuperResolutionType.archive).then((_) => toast("success".tr));
               },
             ),
-          if (archiveDownloadService.archiveDownloadInfos[archive.gid]?.parseSource == ArchiveParseSource.bot.code)
+          if (archiveDownloadInfo != null &&
+              archiveDownloadInfo.archiveStatus.code < ArchiveStatus.downloaded.code &&
+              archiveDownloadInfo.parseSource == ArchiveParseSource.bot.code)
             CupertinoActionSheetAction(
               child: Text('changeParseSource2Official'.tr),
               onPressed: () {
                 backRoute();
-                archiveDownloadService.changeParseSource(archive.gid, ArchiveParseSource.official);
+                handleChangeParseSource(archive.gid, ArchiveParseSource.official);
               },
             ),
-          if (archiveBotSetting.apiKey.value != null &&
-              archiveDownloadService.archiveDownloadInfos[archive.gid]?.parseSource == ArchiveParseSource.official.code)
+          if (archiveDownloadInfo != null &&
+              archiveDownloadInfo.archiveStatus.code < ArchiveStatus.downloaded.code &&
+              archiveBotSetting.apiKey.value != null &&
+              archiveDownloadInfo.parseSource == ArchiveParseSource.official.code)
             CupertinoActionSheetAction(
               child: Text('changeParseSource2Bot'.tr),
               onPressed: () {
                 backRoute();
-                archiveDownloadService.changeParseSource(archive.gid, ArchiveParseSource.bot);
+                handleChangeParseSource(archive.gid, ArchiveParseSource.bot);
               },
             ),
           CupertinoActionSheetAction(
@@ -302,6 +310,11 @@ mixin ArchiveDownloadPageLogicMixin on GetxController implements Scroll2TopLogic
       }
 
       exitSelectMode();
+      updateGlobalGalleryStatus();
     }
+  }
+
+  Future<void> handleChangeParseSource(int gid, ArchiveParseSource parseSource) async {
+    return archiveDownloadService.changeParseSource(gid, parseSource);
   }
 }

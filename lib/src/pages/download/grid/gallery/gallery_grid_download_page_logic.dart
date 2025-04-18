@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_logic_mixin.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_state_mixin.dart';
+import 'package:jhentai/src/mixin/update_global_gallery_status_logic_mixin.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/download/mixin/basic/multi_select/multi_select_download_page_logic_mixin.dart';
@@ -23,7 +24,12 @@ import '../mixin/grid_download_page_state_mixin.dart';
 import 'gallery_grid_download_page_state.dart';
 
 class GalleryGridDownloadPageLogic extends GetxController
-    with Scroll2TopLogicMixin, MultiSelectDownloadPageLogicMixin<GalleryDownloadedData>, GalleryDownloadPageLogicMixin, GridBasePageLogic {
+    with
+        Scroll2TopLogicMixin,
+        MultiSelectDownloadPageLogicMixin<GalleryDownloadedData>,
+        GalleryDownloadPageLogicMixin,
+        GridBasePageLogic,
+        UpdateGlobalGalleryStatusLogicMixin {
   GalleryGridDownloadPageState state = GalleryGridDownloadPageState();
 
   @override

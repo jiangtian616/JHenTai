@@ -17,6 +17,8 @@ import 'archive_list_download_page_state.dart';
 
 class ArchiveListDownloadPageLogic extends GetxController
     with Scroll2TopLogicMixin, MultiSelectDownloadPageLogicMixin<ArchiveDownloadedData>, ArchiveDownloadPageLogicMixin, UpdateGlobalGalleryStatusLogicMixin {
+  final String galleryId = 'galleryId';
+  
   ArchiveListDownloadPageState state = ArchiveListDownloadPageState();
 
   @override
@@ -96,5 +98,11 @@ class ArchiveListDownloadPageLogic extends GetxController
 
     multiSelectDownloadPageState.selectedGids.addAll(archives.map((archive) => archive.gid));
     updateSafely(multiSelectDownloadPageState.selectedGids.map((gid) => '$itemCardId::$gid').toList());
+  }
+
+  @override
+  Future<void> handleChangeParseSource(int gid, ArchiveParseSource parseSource) async {
+    await super.handleChangeParseSource(gid, parseSource);
+    updateSafely(['$galleryId::$gid']);
   }
 }

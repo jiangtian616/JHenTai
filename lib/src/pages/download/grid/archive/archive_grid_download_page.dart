@@ -15,8 +15,6 @@ import 'package:jhentai/src/service/super_resolution_service.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/archive_download_service.dart';
-import '../../../../service/archive_download_service.dart';
-import '../../../../service/archive_download_service.dart';
 import '../../../../utils/byte_util.dart';
 import '../../../../utils/route_util.dart';
 import '../../mixin/basic/multi_select/multi_select_download_page_mixin.dart';
@@ -207,6 +205,7 @@ class ArchiveGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
           );
         },
       ),
+      parseFromBot: archiveDownloadService.archiveDownloadInfos[archive.gid]?.parseSource == ArchiveParseSource.bot.code,
       isOriginal: archive.isOriginal,
       gid: archive.gid,
       superResolutionType: SuperResolutionType.archive,
