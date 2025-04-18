@@ -718,6 +718,14 @@ favnote：匹配收藏备注
       'brokenDownloadPathHint': '似乎你的下载路径已经损坏，下载功能可能失效',
       'brokenExtraScanPathHint': '似乎你的默认本地画廊路径已经损坏，本地画廊可能无法被识别',
 
+      /// archive bot settings
+      'archiveBotSettings': '归档机器人设置',
+      'archiveBotSettingsHint': '使用归档机器人免费获取归档链接',
+      'apiKey': 'API Key',
+      'apiKeyHint': '填写您从 Telegram 机器人获取的密钥',
+      'dailyCheckin': '日常签到',
+      'currentBalance': '当前GP余额',
+      
       /// password setting dialog
       'setPasswordHint': '请输入您的密码',
       'confirmPasswordHint': '请再次输入您的密码',

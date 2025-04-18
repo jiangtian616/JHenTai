@@ -28,6 +28,7 @@ import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/service/volume_service.dart';
 import 'package:jhentai/src/service/windows_service.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
+import 'package:jhentai/src/setting/archive_bot_setting.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/eh_setting.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
@@ -50,10 +51,12 @@ import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/service/log.dart';
 
 import 'config/theme_config.dart';
+import 'network/archive_bot_request.dart';
 
 List<JHLifeCircleBean> lifeCircleBeans = [
   ehRequest,
   jhRequest,
+  archiveBotRequest,
   appUpdateService,
   galleryDownloadService,
   archiveDownloadService,
@@ -77,6 +80,7 @@ List<JHLifeCircleBean> lifeCircleBeans = [
   windowService,
   advancedSetting,
   downloadSetting,
+  archiveBotSetting,
   ehSetting,
   favoriteSetting,
   mouseSetting,

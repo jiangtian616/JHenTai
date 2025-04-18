@@ -4,7 +4,7 @@ enum ConfigEnum {
   renameDownloadMetadata('renameDownloadMetadata'),
   migrateGalleryHistory('migrateGalleryHistory'),
   migrateStorageConfig('migrateStorageConfig'),
-  
+
   /// settings
   favoriteSetting('favoriteSetting'),
   advancedSetting('advancedSetting'),
@@ -20,6 +20,7 @@ enum ConfigEnum {
   styleSetting('styleSetting'),
   superResolutionSetting('SuperResolutionSetting'),
   userSetting('userSetting'),
+  archiveBotSetting('archiveBotSetting'),
   downloadSearchPageType('downloadSearchPageType'),
   windowFullScreen('windowFullScreen'),
   windowMaximize('windowMaximize'),
@@ -56,7 +57,7 @@ enum ConfigEnum {
   final String key;
 
   const ConfigEnum(this.key);
-  
+
   static ConfigEnum from(String key) {
     return ConfigEnum.values.firstWhere((element) => element.key == key);
   }

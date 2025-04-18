@@ -60,6 +60,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
               _buildDownloadOriginalImage(),
               _buildDefaultGalleryGroup(context),
               _buildDefaultArchiveGroup(context),
+              _buildArchiveBotSettings(),
               _buildDownloadConcurrency(),
               _buildSpeedLimit(context),
               _buildDownloadAllGallerysOfSamePriority(),
@@ -193,6 +194,15 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
           DropdownMenuItem(child: Text('10'), value: 10),
         ],
       ),
+    );
+  }
+
+  Widget _buildArchiveBotSettings() {
+    return ListTile(
+      title: Text('archiveBotSettings'.tr),
+      subtitle: Text('archiveBotSettingsHint'.tr),
+      trailing: const Icon(Icons.keyboard_arrow_right),
+      onTap: () => toRoute(Routes.archiveBotSettings),
     );
   }
 
