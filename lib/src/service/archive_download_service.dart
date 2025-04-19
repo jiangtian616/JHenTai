@@ -1122,6 +1122,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
               insertTime: archive.insertTime,
               tags: Value(archive.tags),
               tagRefreshTime: Value(archive.tagRefreshTime),
+              parseSource: Value(archive.parseSource),
             ),
           ) >
           0;
