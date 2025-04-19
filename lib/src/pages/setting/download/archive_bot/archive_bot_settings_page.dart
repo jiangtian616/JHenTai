@@ -180,7 +180,7 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
             onPressed: () {
               backRoute();
 
-              setState(() {
+              setStateSafely(() {
                 archiveBotSetting.saveApiKey(_apiKeyController.text.isBlank! ? null : _apiKeyController.text);
                 if (!_apiKeyController.text.isBlank!) {
                   _checkBalance();
@@ -202,7 +202,7 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
       return;
     }
 
-    setState(() => _balanceState = LoadingState.loading);
+    setStateSafely(() => _balanceState = LoadingState.loading);
 
     try {
       ArchiveBotResponse response =
@@ -210,22 +210,22 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
       log.info('Check balance response: $response');
 
       if (response.isSuccess) {
-        setState(() {
+        setStateSafely(() {
           _balanceState = LoadingState.success;
           _balance.value = BalanceVO.fromResponse(response.data).gp;
         });
       } else {
         snack('checkBalanceFailed'.tr, response.errorMessage);
-        setState(() => _balanceState = LoadingState.error);
+        setStateSafely(() => _balanceState = LoadingState.error);
       }
     } on DioException catch (e) {
       log.error('Failed to check balance', e.errorMsg, e.stackTrace);
       snack('checkBalanceFailed'.tr, e.errorMsg ?? '');
-      setState(() => _balanceState = LoadingState.error);
+      setStateSafely(() => _balanceState = LoadingState.error);
     } catch (e) {
       log.error('Failed to check balance', e.toString(), StackTrace.current);
       snack('checkBalanceFailed'.tr, e.toString());
-      setState(() => _balanceState = LoadingState.error);
+      setStateSafely(() => _balanceState = LoadingState.error);
     }
   }
 
@@ -234,7 +234,7 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
       return;
     }
 
-    setState(() => _checkinState = LoadingState.loading);
+    setStateSafely(() => _checkinState = LoadingState.loading);
 
     try {
       ArchiveBotResponse response =
@@ -242,23 +242,23 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
       log.info('Checkin response: $response');
       if (response.isSuccess) {
         CheckInVO checkInVO = CheckInVO.fromResponse(response.data);
-        setState(() {
+        setStateSafely(() {
           _checkinState = LoadingState.success;
           _balance.value = checkInVO.currentGP;
         });
         snack('checkInSuccess'.tr, 'checkInSuccessHint'.trArgs([checkInVO.getGP.toString(), checkInVO.currentGP.toString()]));
       } else {
         snack('checkInFailed'.tr, response.errorMessage);
-        setState(() => _checkinState = LoadingState.error);
+        setStateSafely(() => _checkinState = LoadingState.error);
       }
     } on DioException catch (e) {
       log.error('Failed to checkin', e.errorMsg, e.stackTrace);
       snack('checkInFailed'.tr, e.errorMsg ?? '');
-      setState(() => _checkinState = LoadingState.error);
+      setStateSafely(() => _checkinState = LoadingState.error);
     } catch (e) {
       log.error('Failed to checkin', e.toString(), StackTrace.current);
       snack('checkInFailed'.tr, e.toString());
-      setState(() => _checkinState = LoadingState.error);
+      setStateSafely(() => _checkinState = LoadingState.error);
     }
   }
 }
