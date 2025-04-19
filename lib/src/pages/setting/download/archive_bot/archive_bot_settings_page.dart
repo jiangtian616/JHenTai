@@ -74,6 +74,7 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
           _buildApiKeySetting(),
           if (archiveBotSetting.apiKey.value != null) _buildBalance(),
           if (archiveBotSetting.apiKey.value != null) _buildCheckin(),
+          _buildUseProxyServer(),
         ],
       ).withListTileTheme(context),
     );
@@ -122,6 +123,18 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
         ],
       ),
       onTap: _checkin,
+    );
+  }
+
+  Widget _buildUseProxyServer() {
+    return SwitchListTile(
+      title: Text('useProxyServer'.tr),
+      subtitle: Text('useProxyServerHint'.tr),
+      value: archiveBotSetting.useProxyServer.value,
+      onChanged: (bool value) async {
+        await archiveBotSetting.saveUseProxyServer(value);
+        setStateSafely(() {});
+      },
     );
   }
 

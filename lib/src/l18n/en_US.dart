@@ -738,6 +738,8 @@ class en_US {
       'parseFailed': 'Parse failed',
       'checkedIn': 'Already checked in today',
       'serverError': 'Archive bot internal error',
+      'useProxyServer': 'Use JHenTai Proxy Server',
+      'useProxyServerHint': 'Route requests through JHenTai server, may improve connection stability',
       
       /// password setting dialog
       'setPasswordHint': 'Please input your password',
