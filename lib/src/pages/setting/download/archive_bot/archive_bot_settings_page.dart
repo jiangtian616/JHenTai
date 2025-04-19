@@ -152,25 +152,6 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
                 Telegram.joinChannel(inviteLink: 'https://t.me/EH_ArBot');
               },
             ),
-          ],
-        ),
-        content: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _apiKeyController,
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  constraints: const BoxConstraints(minWidth: 400),
-                  suffixIcon: MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(child: const Icon(Icons.cancel), onTap: _apiKeyController.clear),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
             IconButton(
               icon: const Icon(Icons.paste),
               onPressed: () async {
@@ -181,6 +162,17 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
               },
             ),
           ],
+        ),
+        content: TextField(
+          controller: _apiKeyController,
+          decoration: InputDecoration(
+            border: const OutlineInputBorder(),
+            constraints: const BoxConstraints(minWidth: 400),
+            suffixIcon: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(child: const Icon(Icons.cancel), onTap: _apiKeyController.clear),
+            ),
+          ),
         ),
         actions: [
           TextButton(onPressed: backRoute, child: Text('cancel'.tr)),
