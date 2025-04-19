@@ -739,7 +739,7 @@ class en_US {
       'checkedIn': 'Already checked in today',
       'serverError': 'Archive bot internal error',
       'useProxyServer': 'Use JHenTai Proxy Server',
-      'useProxyServerHint': 'Route requests through JHenTai server, may improve connection stability',
+      'useProxyServerHint': 'Route requests through JHenTai server',
       
       /// password setting dialog
       'setPasswordHint': 'Please input your password',

@@ -738,6 +738,8 @@ class ru_RU {
       'parseFailed': 'Parse failed',
       'checkedIn': 'Already checked in today',
       'serverError': 'Archive bot internal error',
+      'useProxyServer': 'Use JHenTai Proxy Server',
+      'useProxyServerHint': 'Route requests through JHenTai server',
       
       /// password setting dialog
       'setPasswordHint': 'Пожалуйста, введите ваш пароль',

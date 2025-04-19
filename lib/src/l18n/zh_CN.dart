@@ -744,7 +744,7 @@ favnote：匹配收藏备注
       'checkedIn': '今日已签到',
       'serverError': '归档机器人内部错误',
       'useProxyServer': '使用JHenTai代理服务器',
-      'useProxyServerHint': '通过JHenTai服务器中转请求，可能提高连接稳定性',
+      'useProxyServerHint': '通过JHenTai服务器中转请求',
 
       /// password setting dialog
       'setPasswordHint': '请输入您的密码',

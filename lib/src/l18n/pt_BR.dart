@@ -740,6 +740,8 @@ class pt_BR {
       'parseFailed': 'Parse failed',
       'checkedIn': 'Already checked in today',
       'serverError': 'Archive bot internal error',
+      'useProxyServer': 'Use JHenTai Proxy Server',
+      'useProxyServerHint': 'Route requests through JHenTai server',
       
       /// password setting dialog
       'setPasswordHint': 'Please input your password',

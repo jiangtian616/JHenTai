@@ -10,7 +10,7 @@ ArchiveBotSetting archiveBotSetting = ArchiveBotSetting();
 
 class ArchiveBotSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
   final RxnString apiKey = RxnString(null);
-  final RxBool useProxyServer = true.obs;
+  final RxBool useProxyServer = false.obs;
 
   @override
   ConfigEnum get configEnum => ConfigEnum.archiveBotSetting;

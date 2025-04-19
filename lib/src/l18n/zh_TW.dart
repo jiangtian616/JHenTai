@@ -745,7 +745,7 @@ favnote：配對收藏備註
       'checkedIn': '今日已簽到',
       'serverError': '歸檔機器人內部錯誤',
       'useProxyServer': '使用JHenTai代理伺服器',
-      'useProxyServerHint': '通過JHenTai伺服器中轉請求，可能提高連接穩定性',
+      'useProxyServerHint': '通過JHenTai伺服器中轉請求',
       
       /// password setting dialog
       'setPasswordHint': '請輸入您的密碼',

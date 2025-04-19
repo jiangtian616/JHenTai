@@ -737,7 +737,9 @@ class ko_KR {
       'parseFailed': 'Parse failed',
       'checkedIn': 'Already checked in today',
       'serverError': 'Archive bot internal error',
-      
+      'useProxyServer': 'Use JHenTai Proxy Server',
+      'useProxyServerHint': 'Route requests through JHenTai server',
+
       /// password setting dialog
       'setPasswordHint': '비밀번호를 넣어주세요.',
       'confirmPasswordHint': '비밀번호를 다시 넣어주세요.',
