@@ -718,6 +718,33 @@ favnote：配對收藏備註
       'brokenDownloadPathHint': '你的下載路徑似乎已經損壞，下載功能可能失效',
       'brokenExtraScanPathHint': '你的預設本機畫廊路徑似乎已經損壞，本機畫廊可能無法被識別',
 
+
+      /// archive bot settings
+      'archiveBotSettings': '歸檔機器人設定',
+      'archiveBotSettingsHint': '使用歸檔機器人免費獲取歸檔連結',
+      'apiKey': 'API Key',
+      'apiKeyHint': '填寫您從 Telegram 機器人獲取的金鑰',
+      'dailyCheckin': '日常簽到',
+      'currentBalance': '目前 GP 餘額',
+      'checkBalanceFailed': '獲取 GP 餘額失敗',
+      'checkInFailed': '簽到失敗',
+      'checkInSuccess': '簽到成功',
+      'checkInSuccessHint': '獲得 GP：%s，目前總 GP：%s。',
+      'pauseDownloadByInvalidArchiveBotKey': '歸檔機器人金鑰無效，下載已暫停',
+      'chooseArchiveParseSource': '修改解析來源',
+      'official': '官方',
+      'archiveBot': '歸檔機器人',
+      'changeParseSource2Official': '修改解析來源為官方',
+      'changeParseSource2Bot': '修改解析來源為歸檔機器人',
+      'invalidParam': '無效參數',
+      'invalidApiKey': '無效的 API 金鑰',
+      'banned': '您已被封禁',
+      'fetchGalleryInfoFailed': '獲取畫廊資訊失敗',
+      'insufficientGP': 'GP 不足',
+      'parseFailed': '解析失敗',
+      'checkedIn': '今日已簽到',
+      'serverError': '歸檔機器人內部錯誤',
+      
       /// password setting dialog
       'setPasswordHint': '請輸入您的密碼',
       'confirmPasswordHint': '請再次輸入您的密碼',
