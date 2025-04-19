@@ -102,14 +102,15 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
                   )
               : null,
         ),
-        _ArchiveButtonSet(
-          cost: 'Free!',
-          size: archive.originalSize,
-          icon: const Icon(Icons.smart_toy_outlined),
-          callback: () => backRoute(
-            result: (useBot: true, isOriginal: true, size: _computeSizeInBytes(isOriginal: true), group: group),
+        if (archiveBotSetting.apiKey.value != null)
+          _ArchiveButtonSet(
+            cost: 'Free!',
+            size: archive.originalSize,
+            icon: const Icon(Icons.smart_toy_outlined),
+            callback: () => backRoute(
+              result: (useBot: true, isOriginal: true, size: _computeSizeInBytes(isOriginal: true), group: group),
+            ),
           ),
-        ),
       ],
     );
   }
