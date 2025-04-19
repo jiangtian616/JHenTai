@@ -397,7 +397,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
     }
 
     state.gallerys.remove(gallery);
-    galleryDownloadService.deleteGalleryByGid(gallery.gid);
+    await galleryDownloadService.deleteGalleryByGid(gallery.gid);
     update([bodyId]);
     updateGlobalGalleryStatus();
   }
@@ -428,7 +428,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
 
   Future<void> handleRemoveArchive(ArchiveSearchVO archive) async {
     state.archives.remove(archive);
-    archiveDownloadService.deleteArchive(archive.gid);
+    await archiveDownloadService.deleteArchive(archive.gid);
     update([bodyId]);
     updateGlobalGalleryStatus();
   }

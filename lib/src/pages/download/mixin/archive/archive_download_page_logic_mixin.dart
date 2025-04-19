@@ -306,11 +306,15 @@ mixin ArchiveDownloadPageLogicMixin on GetxController
     );
 
     if (result == true) {
+      List<Future> futures = [];
+
       for (int gid in multiSelectDownloadPageState.selectedGids) {
-        archiveDownloadService.deleteArchive(gid);
+        futures.add(archiveDownloadService.deleteArchive(gid));
       }
 
       exitSelectMode();
+      
+      await Future.wait(futures);
       updateGlobalGalleryStatus();
     }
   }

@@ -356,11 +356,14 @@ mixin GalleryDownloadPageLogicMixin on GetxController
     );
 
     if (result == true) {
+      List<Future> futures = [];
+
       for (int gid in multiSelectDownloadPageState.selectedGids) {
-        downloadService.deleteGalleryByGid(gid);
+        futures.add(downloadService.deleteGalleryByGid(gid));
       }
 
       exitSelectMode();
+      await Future.wait(futures);
       updateGlobalGalleryStatus();
     }
   }

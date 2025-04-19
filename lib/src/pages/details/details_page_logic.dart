@@ -858,11 +858,11 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
 
     if (downloadPageGalleryType == DownloadPageGalleryType.download) {
-      galleryDownloadService.deleteGalleryByGid(gid);
+      await galleryDownloadService.deleteGalleryByGid(gid);
     }
 
     if (downloadPageGalleryType == DownloadPageGalleryType.archive) {
-      archiveDownloadService.deleteArchive(gid);
+      await archiveDownloadService.deleteArchive(gid);
     }
 
     updateGlobalGalleryStatus();
