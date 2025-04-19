@@ -551,6 +551,10 @@ class UIConfig {
   static const double archiveDialogDownloadTextSize = 14;
   static const double archiveDialogDownloadIconSize = 16;
 
+  /// Archive parse source select dialog
+  static const double archiveParseSourceSelectDialogWidth = 230;
+  static const double archiveParseSourceSelectDialogHeight = 140;
+  
   static Color archiveDialogCostTextColor(BuildContext context) => Theme.of(context).colorScheme.outline;
 
   /// tagSet dialog

@@ -48,7 +48,7 @@ dependencies:
       url: https://github.com/letsar/flutter_slidable.git
       ref: master
   flutter_widget_from_html: 0.15.2
-  url_launcher: 6.1.8
+  url_launcher: 6.3.1
   # add onLongPress
   like_button:
     git: https://github.com/jiangtian616/like_button
@@ -120,7 +120,8 @@ dependencies:
   template_expressions: 3.2.0+7
   uuid: 4.4.0
   xml: 6.5.0
-
+  telegram: 0.0.9
+  
 dependency_overrides:
   test_api: 0.6.0
   matcher: 0.12.16

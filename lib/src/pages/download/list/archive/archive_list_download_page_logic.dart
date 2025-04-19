@@ -101,8 +101,8 @@ class ArchiveListDownloadPageLogic extends GetxController
   }
 
   @override
-  Future<void> handleChangeParseSource(int gid, ArchiveParseSource parseSource) async {
-    await super.handleChangeParseSource(gid, parseSource);
+  Future<void> changeParseSource(int gid, ArchiveParseSource parseSource) async {
+    await super.changeParseSource(gid, parseSource);
     updateSafely(['$galleryId::$gid']);
   }
 }

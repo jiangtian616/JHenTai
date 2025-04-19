@@ -6,6 +6,7 @@ import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_logic_mixin.dart';
 import 'package:jhentai/src/mixin/update_global_gallery_status_logic_mixin.dart';
 import 'package:jhentai/src/setting/archive_bot_setting.dart';
+import 'package:jhentai/src/widget/eh_archive_parse_source_select_dialog.dart';
 
 import '../../../../database/database.dart';
 import '../../../../model/gallery_image.dart';
@@ -215,7 +216,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController
               child: Text('changeParseSource2Official'.tr),
               onPressed: () {
                 backRoute();
-                handleChangeParseSource(archive.gid, ArchiveParseSource.official);
+                changeParseSource(archive.gid, ArchiveParseSource.official);
               },
             ),
           if (archiveDownloadInfo != null &&
@@ -226,7 +227,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController
               child: Text('changeParseSource2Bot'.tr),
               onPressed: () {
                 backRoute();
-                handleChangeParseSource(archive.gid, ArchiveParseSource.bot);
+                changeParseSource(archive.gid, ArchiveParseSource.bot);
               },
             ),
           CupertinoActionSheetAction(
@@ -314,7 +315,23 @@ mixin ArchiveDownloadPageLogicMixin on GetxController
     }
   }
 
-  Future<void> handleChangeParseSource(int gid, ArchiveParseSource parseSource) async {
+  Future<void> handleChangeParseSource() async {
+    ArchiveParseSource? result = await Get.dialog(const EHArchiveParseSourceSelectDialog());
+
+    if (result == null) {
+      return;
+    }
+
+    for (int gid in multiSelectDownloadPageState.selectedGids) {
+      await archiveDownloadService.changeParseSource(gid, result);
+    }
+
+    multiSelectDownloadPageState.inMultiSelectMode = false;
+    multiSelectDownloadPageState.selectedGids.clear();
+    updateSafely([bottomAppbarId, bodyId]);
+  }
+
+  Future<void> changeParseSource(int gid, ArchiveParseSource parseSource) async {
     return archiveDownloadService.changeParseSource(gid, parseSource);
   }
 }

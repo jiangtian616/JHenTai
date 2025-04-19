@@ -34,6 +34,7 @@ mixin ArchiveDownloadPageMixin on StatelessWidget implements Scroll2TopPageMixin
       IconButton(icon: const Icon(Icons.pause), onPressed: archiveDownloadPageLogic.handleMultiPauseTasks),
       IconButton(icon: const Icon(Icons.bookmark), onPressed: archiveDownloadPageLogic.handleMultiChangeGroup),
       IconButton(icon: const Icon(Icons.delete), onPressed: archiveDownloadPageLogic.handleMultiDelete),
+      IconButton(icon: const Icon(Icons.smart_toy_outlined), onPressed: archiveDownloadPageLogic.handleChangeParseSource),
       const Expanded(child: SizedBox()),
       IconButton(icon: const Icon(Icons.close), onPressed: multiSelectDownloadPageLogic.exitSelectMode),
     ];

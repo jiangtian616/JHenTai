@@ -1731,6 +1731,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.2"
+  telegram:
+    dependency: "direct main"
+    description:
+      name: telegram
+      sha256: "8af9420f4c95b90e7dd15fed450d185b17dac72adff6592a5e759025ab7629d9"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.9"
   template_expressions:
     dependency: "direct main"
     description:
@@ -1815,10 +1823,10 @@ packages:
     dependency: "direct main"
     description:
       name: url_launcher
-      sha256: "698fa0b4392effdc73e9e184403b627362eb5fbf904483ac9defbb1c2191d809"
+      sha256: "9d06212b1362abc2f0f0d78e6f09f726608c74e3b9462e8368bb03314aa8d603"
       url: "https://pub.dev"
     source: hosted
-    version: "6.1.8"
+    version: "6.3.1"
   url_launcher_android:
     dependency: transitive
     description:

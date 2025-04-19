@@ -13,6 +13,7 @@ import 'package:jhentai/src/utils/archive_bot_response_parser.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
+import 'package:telegram/telegram.dart';
 
 import '../../../../model/archive_bot_response/archive_bot_response.dart';
 
@@ -111,7 +112,18 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('apiKey'.tr),
+        title: Row(
+          children: [
+            Text('apiKey'.tr),
+            const Expanded(child: SizedBox()),
+            IconButton(
+              icon: const Icon(Icons.telegram),
+              onPressed: () {
+                Telegram.joinChannel(inviteLink: 'https://t.me/EH_ArBot');
+              },
+            ),
+          ],
+        ),
         content: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
