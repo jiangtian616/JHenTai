@@ -14,8 +14,10 @@ import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:telegram/telegram.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../../model/archive_bot_response/archive_bot_response.dart';
+import '../../../../setting/preference_setting.dart';
 
 class ArchiveBotSettingsPage extends StatefulWidget {
   const ArchiveBotSettingsPage({Key? key}) : super(key: key);
@@ -50,7 +52,22 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(centerTitle: true, title: Text('archiveBotSettings'.tr)),
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text('archiveBotSettings'.tr),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.help),
+            onPressed: () {
+              launchUrlString(
+                preferenceSetting.locale.value.languageCode == 'zh'
+                    ? 'https://github.com/jiangtian616/JHenTai/wiki/%E5%BD%92%E6%A1%A3%E6%9C%BA%E5%99%A8%E4%BA%BA%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95'
+                    : 'https://github.com/jiangtian616/JHenTai/wiki/Archive-Bot-Usage',
+              );
+            },
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.only(top: 16),
         children: [
