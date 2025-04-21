@@ -890,7 +890,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         return pauseDownloadArchive(archive.gid);
       }
     } else {
-      if (archiveBotSetting.apiKey.value == null) {
+      if (archiveBotSetting.isReady) {
         snack('archiveError'.tr, 'pauseDownloadByInvalidArchiveBotKey'.tr);
         return pauseDownloadArchive(archive.gid);
       }

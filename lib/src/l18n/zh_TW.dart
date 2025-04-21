@@ -718,10 +718,11 @@ favnote：配對收藏備註
       'brokenDownloadPathHint': '你的下載路徑似乎已經損壞，下載功能可能失效',
       'brokenExtraScanPathHint': '你的預設本機畫廊路徑似乎已經損壞，本機畫廊可能無法被識別',
 
-
       /// archive bot settings
       'archiveBotSettings': '歸檔機器人設定',
       'archiveBotSettingsHint': '使用歸檔機器人免費獲取歸檔連結',
+      'apiSetting': 'API設置',
+      'apiAddress': 'API地址',
       'apiKey': 'API Key',
       'apiKeyHint': '填寫您從 Telegram 機器人獲取的金鑰',
       'dailyCheckin': '日常簽到',
@@ -730,7 +731,7 @@ favnote：配對收藏備註
       'checkInFailed': '簽到失敗',
       'checkInSuccess': '簽到成功',
       'checkInSuccessHint': '獲得 GP：%s，目前總 GP：%s。',
-      'pauseDownloadByInvalidArchiveBotKey': '歸檔機器人金鑰無效，下載已暫停',
+      'pauseDownloadByInvalidArchiveBotKey': '歸檔機器人設置無效，下載已暫停',
       'chooseArchiveParseSource': '修改解析來源',
       'official': '官方',
       'archiveBot': '歸檔機器人',
@@ -746,7 +747,7 @@ favnote：配對收藏備註
       'serverError': '歸檔機器人內部錯誤',
       'useProxyServer': '使用JHenTai代理伺服器',
       'useProxyServerHint': '通過JHenTai伺服器中轉請求',
-      
+
       /// password setting dialog
       'setPasswordHint': '請輸入您的密碼',
       'confirmPasswordHint': '請再次輸入您的密碼',

@@ -84,8 +84,10 @@ class ru_RU {
       'refreshIgneousFailed': 'Не удалось обновить Igneous',
 
       /// request
-      'sadPanda': 'Sad Panda (нет данных). См.: https://github.com/jiangtian616/JHenTai/wiki/Common-Questions', // Оставляем Sad Panda
-      'sadPandaReferLink': 'https://github.com/jiangtian616/JHenTai/wiki/Common-Questions', // URL не переводим
+      'sadPanda': 'Sad Panda (нет данных). См.: https://github.com/jiangtian616/JHenTai/wiki/Common-Questions',
+      // Оставляем Sad Panda
+      'sadPandaReferLink': 'https://github.com/jiangtian616/JHenTai/wiki/Common-Questions',
+      // URL не переводим
 
       /// gallery card
       'filtered': 'Отфильтровано',
@@ -157,7 +159,8 @@ class ru_RU {
       'score': 'Оценка',
       'NotOnTheList': 'Нет в списке',
       'getGalleryArchiveFailed': 'Не удалось получить архив галереи',
-      'parseGalleryArchiveFailed': 'Ошибка парсинга, убедитесь, что ваши [Настройки архиватора] на e-hentai установлены как [Ручной выбор, Ручной запуск (По умолчанию)]',
+      'parseGalleryArchiveFailed':
+          'Ошибка парсинга, убедитесь, что ваши [Настройки архиватора] на e-hentai установлены как [Ручной выбор, Ручной запуск (По умолчанию)]',
       'original': 'Оригинал',
       'resample': 'Уменьшенная',
       'beginToDownloadArchive': 'Начать загрузку архива',
@@ -170,7 +173,8 @@ class ru_RU {
       'hasDownloaded': 'Уже загружено',
       '410Hints': 'Вы скачали слишком много байт из этого архива, и требуется повторная разблокировка для возобновления.',
       '429Hints': 'Слишком много запросов на загрузку! Вам лучше уменьшить количество одновременных загрузок архивов.',
-      'getUnpackedImagesFailedMsg': 'JHenTai не может загрузить изображения этого архива, пожалуйста, проверьте локальный файл.', // Оставляем JHenTai
+      'getUnpackedImagesFailedMsg': 'JHenTai не может загрузить изображения этого архива, пожалуйста, проверьте локальный файл.',
+      // Оставляем JHenTai
       'getGalleryTorrentsFailed': 'Не удалось получить торренты',
       'chooseArchive': 'Выбрать архив',
       'tagSetExceedLimit': 'Нельзя добавить больше тегов, так как вы достигли лимита',
@@ -214,7 +218,8 @@ class ru_RU {
       'paused': 'На паузе',
       'exceedImageLimits': "Превышен лимит изображений",
       'ehServerError': 'Произошла ошибка на сервере EH, попробуйте позже',
-      'unsupportedImagePageStyle': "JHenTai не поддерживает Multi-Page Viewer(MPV), пожалуйста, измените стиль на стандартный на e-hentai.org", // Оставляем JHenTai, MPV, e-hentai.org
+      'unsupportedImagePageStyle': "JHenTai не поддерживает Multi-Page Viewer(MPV), пожалуйста, измените стиль на стандартный на e-hentai.org",
+      // Оставляем JHenTai, MPV, e-hentai.org
       'toNext': 'К следующей',
       'toPrev': 'К предыдущей',
       'back': 'Назад',
@@ -303,10 +308,10 @@ class ru_RU {
       'desktopLayoutDesc': 'Две колонки с левой панелью вкладок, поддержка клавиатуры',
 
       /// style setting page
-      'enableTagZHTranslation': 'Переводить названия тегов на китайский', 
+      'enableTagZHTranslation': 'Переводить названия тегов на китайский',
       'version': 'Версия',
       'downloadTagTranslationHint': 'Загрузка данных..., загружено: ',
-      'zhTagSearchOrderOptimization': 'Правило сортировки автодополнения китайских тегов', 
+      'zhTagSearchOrderOptimization': 'Правило сортировки автодополнения китайских тегов',
       'zhTagSearchOrderOptimizationHint': 'Интеллектуальная сортировка по умолчанию, по частоте, если включено',
       'themeMode': 'Тема оформления',
       'dark': 'Темная',
@@ -420,7 +425,8 @@ class ru_RU {
       'deleteSuperResolvedImage': 'Удалить обработанное изображение',
       'superResolveOriginalImageHint': 'Обработка оригинального изображения требует больше времени, места и ресурсов. Продолжить?',
       'verityAppLinks4Android12': 'Проверка ссылок приложений (Android 12+)',
-      'verityAppLinks4Android12Hint': 'Для Android 12+ нужно вручную добавить ссылки в проверенные, чтобы открывать JHenTai из сторонних приложений', // Оставляем JHenTai
+      'verityAppLinks4Android12Hint': 'Для Android 12+ нужно вручную добавить ссылки в проверенные, чтобы открывать JHenTai из сторонних приложений',
+      // Оставляем JHenTai
       'noImageMode': 'Режим без изображений',
       'exportData': 'Экспорт данных',
       'exportDataHint': 'Экспорт настроек, правил блокировки и истории',
@@ -429,7 +435,8 @@ class ru_RU {
       'importDataHint': 'Приложение автоматически закроется после импорта для применения конфигурации',
 
       /// host mapping page
-      'hostDataSource': 'По умолчанию менять не нужно.\nИсточник данных: https://dns.google/', // URL не переводим
+      'hostDataSource': 'По умолчанию менять не нужно.\nИсточник данных: https://dns.google/',
+      // URL не переводим
 
       /// proxy page
       'proxySetting': 'Настройка прокси',
@@ -580,9 +587,12 @@ class ru_RU {
       'multiReDownloadHint': 'Вы перекачаете все выбранные галереи.',
       'multiChangeGroupHint': 'Вы измените группу для всех выбранных галерей.',
       'multiDeleteHint': 'Вы удалите все выбранные галереи.',
-      'peakHoursHint': 'Загрузка оригинальных файлов в часы пик требует GP, у вас недостаточно. Загрузка приостановлена.', // GP - термин EH
-      'oldGalleryHint': 'Загрузка оригинальных файлов этой галереи требует GP, у вас недостаточно.', // GP - термин EH
-      'exceedLimitHint': 'Вы достигли лимита изображений и не имеете достаточно GP для покупки квоты.', // GP - термин EH
+      'peakHoursHint': 'Загрузка оригинальных файлов в часы пик требует GP, у вас недостаточно. Загрузка приостановлена.',
+      // GP - термин EH
+      'oldGalleryHint': 'Загрузка оригинальных файлов этой галереи требует GP, у вас недостаточно.',
+      // GP - термин EH
+      'exceedLimitHint': 'Вы достигли лимита изображений и не имеете достаточно GP для покупки квоты.',
+      // GP - термин EH
       'deleteUpdatingDependentHint': 'Обновление другой галереи зависит от текущей, лучше удалить после завершения обновления.',
       'migrateToDownload': 'Перенести в 「Загрузки」',
       'refresh': 'Обновить',
@@ -716,6 +726,8 @@ class ru_RU {
       /// archive bot settings
       'archiveBotSettings': 'Archive Bot Settings',
       'archiveBotSettingsHint': 'Use archive bot to get archive links for free',
+      'apiSetting': 'API Setting',
+      'apiAddress': 'API Address',
       'apiKey': 'API Key',
       'apiKeyHint': 'Enter the key you got from Telegram bot',
       'dailyCheckin': 'Daily Check-in',
@@ -724,7 +736,7 @@ class ru_RU {
       'checkInFailed': 'Check-in failed',
       'checkInSuccess': 'Check-in success',
       'checkInSuccessHint': 'Got GP: %s, current total GP: %s.',
-      'pauseDownloadByInvalidArchiveBotKey': 'Archive bot key is invalid, download paused',
+      'pauseDownloadByInvalidArchiveBotKey': 'Archive bot settings is invalid, download paused',
       'chooseArchiveParseSource': 'Change Parse Source',
       'official': 'Official',
       'archiveBot': 'Archive Bot',
@@ -740,7 +752,7 @@ class ru_RU {
       'serverError': 'Archive bot internal error',
       'useProxyServer': 'Use JHenTai Proxy Server',
       'useProxyServerHint': 'Route requests through JHenTai server',
-      
+
       /// password setting dialog
       'setPasswordHint': 'Пожалуйста, введите ваш пароль',
       'confirmPasswordHint': 'Пожалуйста, введите ваш пароль еще раз',
@@ -821,7 +833,7 @@ class ru_RU {
       'language': 'Язык',
       'artist': 'Художник',
       'character': 'Персонаж',
-      'female': 'Женский', 
+      'female': 'Женский',
       'male': 'Мужской',
       'parody': 'Пародия',
       'group': 'Группа',

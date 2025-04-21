@@ -43,9 +43,9 @@ class ArchiveBotRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleB
     _dio.options.receiveTimeout = Duration(milliseconds: receiveTimeout);
   }
 
-  Future<T> requestBalance<T>({required String apiKey, HtmlParser<T>? parser}) async {
+  Future<T> requestBalance<T>({required String apiAddress, required String apiKey, HtmlParser<T>? parser}) async {
     Response response = await _dio.post(
-      '${archiveBotSetting.useProxyServer.value ? ArchiveBotConsts.proxyServerAddress : ArchiveBotConsts.serverAddress}/balance',
+      '${archiveBotSetting.useProxyServer.value ? ArchiveBotConsts.proxyServerAddress : apiAddress}/balance',
       options: Options(contentType: Headers.jsonContentType),
       data: {
         'apikey': apiKey,
@@ -55,9 +55,9 @@ class ArchiveBotRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleB
     return _parseResponse(response, parser);
   }
 
-  Future<T> requestCheckIn<T>({required String apiKey, HtmlParser<T>? parser}) async {
+  Future<T> requestCheckIn<T>({required String apiAddress, required String apiKey, HtmlParser<T>? parser}) async {
     Response response = await _dio.post(
-      '${archiveBotSetting.useProxyServer.value ? ArchiveBotConsts.proxyServerAddress : ArchiveBotConsts.serverAddress}/checkin',
+      '${archiveBotSetting.useProxyServer.value ? ArchiveBotConsts.proxyServerAddress : apiAddress}/checkin',
       options: Options(contentType: Headers.jsonContentType),
       data: {
         'apikey': apiKey,

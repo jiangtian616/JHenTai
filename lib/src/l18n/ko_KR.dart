@@ -715,6 +715,8 @@ class ko_KR {
       /// archive bot settings
       'archiveBotSettings': 'Archive Bot Settings',
       'archiveBotSettingsHint': 'Use archive bot to get archive links for free',
+      'apiSetting': 'API Setting',
+      'apiAddress': 'API Address',
       'apiKey': 'API Key',
       'apiKeyHint': 'Enter the key you got from Telegram bot',
       'dailyCheckin': 'Daily Check-in',
@@ -723,7 +725,7 @@ class ko_KR {
       'checkInFailed': 'Check-in failed',
       'checkInSuccess': 'Check-in success',
       'checkInSuccessHint': 'Got GP: %s, current total GP: %s.',
-      'pauseDownloadByInvalidArchiveBotKey': 'Archive bot key is invalid, download paused',
+      'pauseDownloadByInvalidArchiveBotKey': 'Archive bot settings is invalid, download paused',
       'chooseArchiveParseSource': 'Change Parse Source',
       'official': 'Official',
       'archiveBot': 'Archive Bot',

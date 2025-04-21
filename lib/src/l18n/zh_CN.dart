@@ -721,6 +721,8 @@ favnote：匹配收藏备注
       /// archive bot settings
       'archiveBotSettings': '归档机器人设置',
       'archiveBotSettingsHint': '使用归档机器人免费获取归档链接',
+      'apiSetting': 'API设置',
+      'apiAddress': 'API地址',
       'apiKey': 'API Key',
       'apiKeyHint': '填写您从 Telegram 机器人获取的密钥',
       'dailyCheckin': '日常签到',
@@ -729,7 +731,7 @@ favnote：匹配收藏备注
       'checkInFailed': '签到失败',
       'checkInSuccess': '签到成功',
       'checkInSuccessHint': '获得GP：%s，当前总GP：%s。',
-      'pauseDownloadByInvalidArchiveBotKey': '归档Bot密钥无效，下载已暂停',
+      'pauseDownloadByInvalidArchiveBotKey': '归档Bot设置无效，下载已暂停',
       'chooseArchiveParseSource': '修改解析来源',
       'official': '官方',
       'archiveBot': '归档机器人',

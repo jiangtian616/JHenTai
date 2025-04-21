@@ -717,7 +717,9 @@ class pt_BR {
 
       /// archive bot settings
       'archiveBotSettings': 'Archive Bot Settings',
-      'archiveBotSettingsHint': 'Use archive bot to get archive links for free',
+      'archiveBotSettingsHint': 'Use archive bot to get archive links for free', 
+      'apiSetting': 'API Setting',
+      'apiAddress': 'API Address',
       'apiKey': 'API Key',
       'apiKeyHint': 'Enter the key you got from Telegram bot',
       'dailyCheckin': 'Daily Check-in',
@@ -726,7 +728,7 @@ class pt_BR {
       'checkInFailed': 'Check-in failed',
       'checkInSuccess': 'Check-in success',
       'checkInSuccessHint': 'Got GP: %s, current total GP: %s.',
-      'pauseDownloadByInvalidArchiveBotKey': 'Archive bot key is invalid, download paused',
+      'pauseDownloadByInvalidArchiveBotKey': 'Archive bot settings is invalid, download paused',
       'chooseArchiveParseSource': 'Change Parse Source',
       'official': 'Official',
       'archiveBot': 'Archive Bot',
@@ -742,7 +744,7 @@ class pt_BR {
       'serverError': 'Archive bot internal error',
       'useProxyServer': 'Use JHenTai Proxy Server',
       'useProxyServerHint': 'Route requests through JHenTai server',
-      
+
       /// password setting dialog
       'setPasswordHint': 'Please input your password',
       'confirmPasswordHint': 'Please input your password again',

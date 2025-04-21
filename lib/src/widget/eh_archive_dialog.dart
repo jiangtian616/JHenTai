@@ -102,7 +102,7 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
                   )
               : null,
         ),
-        if (archiveBotSetting.apiKey.value != null)
+        if (archiveBotSetting.isReady)
           _ArchiveButtonSet(
             cost: 'Free!',
             size: archive.originalSize,
