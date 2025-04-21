@@ -13,7 +13,7 @@ class ArchiveBotSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
   final RxnString apiKey = RxnString(null);
   final RxBool useProxyServer = false.obs;
 
-  bool get isReady => apiAddress.value != null && apiKey.value != null;
+  bool get isReady => (apiAddress.value != null || useProxyServer.isTrue) && apiKey.value != null;
 
   @override
   ConfigEnum get configEnum => ConfigEnum.archiveBotSetting;
@@ -40,6 +40,14 @@ class ArchiveBotSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
 
   @override
   void doAfterBeanReady() {}
+
+  Future<void> saveAllConfig(String? address, String? key, bool useProxy) async {
+    log.debug('saveAllConfig: $address, $key, $useProxy');
+    apiAddress.value = address;
+    apiKey.value = key;
+    useProxyServer.value = useProxy;
+    await saveBeanConfig();
+  }
 
   Future<void> saveApiAddress(String? value) async {
     log.debug('saveApiAddress: $value');

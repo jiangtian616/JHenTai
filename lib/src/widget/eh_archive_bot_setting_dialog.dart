@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:telegram/telegram.dart';
@@ -10,8 +9,9 @@ import '../utils/route_util.dart';
 class EHArchiveBotSettingDialog extends StatefulWidget {
   final TextEditingController apiAddressController;
   final TextEditingController apiKeyController;
+  final bool useProxy;
 
-  const EHArchiveBotSettingDialog({super.key, required this.apiAddressController, required this.apiKeyController});
+  const EHArchiveBotSettingDialog({super.key, required this.apiAddressController, required this.apiKeyController, required this.useProxy});
 
   @override
   State<EHArchiveBotSettingDialog> createState() => _EHArchiveBotSettingDialogState();
@@ -20,11 +20,13 @@ class EHArchiveBotSettingDialog extends StatefulWidget {
 class _EHArchiveBotSettingDialogState extends State<EHArchiveBotSettingDialog> {
   late TextEditingController _apiAddressController;
   late TextEditingController _apiKeyController;
+  late bool _useProxy;
 
   @override
   void initState() {
     _apiAddressController = widget.apiAddressController;
     _apiKeyController = widget.apiKeyController;
+    _useProxy = widget.useProxy;
 
     super.initState();
   }
@@ -44,14 +46,15 @@ class _EHArchiveBotSettingDialogState extends State<EHArchiveBotSettingDialog> {
           )
         ],
       ),
-      contentPadding: const EdgeInsets.only(left: 24.0, top: 16.0, right: 0, bottom: 24.0),
+      contentPadding: const EdgeInsets.only(left: 8.0, top: 16.0, right: 0, bottom: 24.0),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
-            minLeadingWidth: 80,
+            minLeadingWidth: 60,
             leading: Text('apiAddress'.tr, style: const TextStyle(fontSize: 14)),
             title: TextField(
+              enabled: !_useProxy,
               controller: _apiAddressController,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
@@ -74,7 +77,7 @@ class _EHArchiveBotSettingDialogState extends State<EHArchiveBotSettingDialog> {
             ),
           ),
           ListTile(
-            minLeadingWidth: 80,
+            minLeadingWidth: 60,
             leading: Text('apiKey'.tr, style: const TextStyle(fontSize: 14)),
             title: TextField(
               controller: _apiKeyController,
@@ -97,6 +100,15 @@ class _EHArchiveBotSettingDialogState extends State<EHArchiveBotSettingDialog> {
                 setStateSafely(() {});
               },
             ),
+          ),
+          SwitchListTile(
+            title: Text('useProxyServer'.tr, style: const TextStyle(fontSize: 14)),
+            value: _useProxy,
+            onChanged: (bool value) async {
+              setStateSafely(() {
+                _useProxy = value;
+              });
+            },
           )
         ],
       ),
@@ -105,8 +117,11 @@ class _EHArchiveBotSettingDialogState extends State<EHArchiveBotSettingDialog> {
         TextButton(
           onPressed: () {
             setStateSafely(() {
-              archiveBotSetting.saveApiAddress(_apiAddressController.text.isBlank! ? null : _apiAddressController.text);
-              archiveBotSetting.saveApiKey(_apiKeyController.text.isBlank! ? null : _apiKeyController.text);
+              archiveBotSetting.saveAllConfig(
+                _apiAddressController.text.isBlank! ? null : _apiAddressController.text,
+                _apiKeyController.text.isBlank! ? null : _apiKeyController.text,
+                _useProxy,
+              );
               backRoute(result: true);
             });
           },

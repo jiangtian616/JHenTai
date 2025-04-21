@@ -890,7 +890,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         return pauseDownloadArchive(archive.gid);
       }
     } else {
-      if (archiveBotSetting.isReady) {
+      if (!archiveBotSetting.isReady) {
         snack('archiveError'.tr, 'pauseDownloadByInvalidArchiveBotKey'.tr);
         return pauseDownloadArchive(archive.gid);
       }
@@ -898,6 +898,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       try {
         ArchiveBotResponse response = await retry(
           () => archiveBotRequest.requestResolve(
+            apiAddress: archiveBotSetting.apiAddress.value,
             apiKey: archiveBotSetting.apiKey.value!,
             gid: archive.gid,
             token: archive.token,
@@ -909,12 +910,12 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
           onRetry: (e) => log.download('Parse archive download url: ${archive.title} failed, retry. Reason: ${(e as DioException).message}'),
           maxAttempts: _maxRetryTimes,
         );
+        log.download('Parse archive download url via bot, response: $response');
 
         if (response.isSuccess) {
           ArchiveResolveVO archiveResolveVO = ArchiveResolveVO.fromResponse(response.data);
           downloadPath = archiveResolveVO.url;
         } else {
-          log.download('Parse archive download url failed, reason: ${response.message}');
           snack('archiveError'.tr, response.errorMessage);
           return pauseDownloadArchive(archive.gid);
         }

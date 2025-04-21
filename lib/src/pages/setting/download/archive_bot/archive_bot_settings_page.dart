@@ -81,7 +81,6 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
           _buildApiKeySetting(),
           if (archiveBotSetting.isReady) _buildBalance(),
           if (archiveBotSetting.isReady) _buildCheckin(),
-          _buildUseProxyServer(),
         ],
       ).withListTileTheme(context),
     );
@@ -148,7 +147,11 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
   Future<void> _showApiKeyDialog() async {
     bool? result = await showDialog(
       context: context,
-      builder: (_) => EHArchiveBotSettingDialog(apiAddressController: _apiAddressController, apiKeyController: _apiKeyController),
+      builder: (_) => EHArchiveBotSettingDialog(
+        apiAddressController: _apiAddressController,
+        apiKeyController: _apiKeyController,
+        useProxy: archiveBotSetting.useProxyServer.value,
+      ),
     );
 
     if (result == true) {
@@ -170,7 +173,7 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
 
     try {
       ArchiveBotResponse response = await archiveBotRequest.requestBalance(
-        apiAddress: archiveBotSetting.apiAddress.value!,
+        apiAddress: archiveBotSetting.apiAddress.value,
         apiKey: archiveBotSetting.apiKey.value!,
         parser: ArchiveBotResponseParser.commonParse,
       );
@@ -208,7 +211,7 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
 
     try {
       ArchiveBotResponse response = await archiveBotRequest.requestCheckIn(
-        apiAddress: archiveBotSetting.apiAddress.value!,
+        apiAddress: archiveBotSetting.apiAddress.value,
         apiKey: archiveBotSetting.apiKey.value!,
         parser: ArchiveBotResponseParser.commonParse,
       );
