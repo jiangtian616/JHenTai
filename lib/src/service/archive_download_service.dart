@@ -111,7 +111,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     return archiveDownloadInfos.containsKey(gid);
   }
 
-  Future<void> downloadArchive(ArchiveDownloadedData archive, {bool resume = false}) async {
+  Future<void> downloadArchive(ArchiveDownloadedData archive, {bool resume = false, bool reParse = false}) async {
     await _ensureDownloadDirExists();
 
     if (!resume) {
@@ -135,7 +135,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     await _getDownloadPageUrl(archive);
 
     /// step 3: parse download url
-    await _getDownloadUrl(archive);
+    await _getDownloadUrl(archive, reParse: reParse);
 
     /// step 4: do download
     await _doDownloadArchiveViaMultiIsolate(archive);

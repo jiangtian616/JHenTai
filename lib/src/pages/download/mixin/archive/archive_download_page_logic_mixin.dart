@@ -257,7 +257,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController
     bool? ok = await Get.dialog(const ReUnlockDialog());
     if (ok ?? false) {
       await archiveDownloadService.cancelArchive(archive.gid);
-      await archiveDownloadService.downloadArchive(archive, resume: true);
+      await archiveDownloadService.downloadArchive(archive, resume: true, reParse: true);
     }
   }
 

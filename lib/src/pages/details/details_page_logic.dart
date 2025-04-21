@@ -688,7 +688,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       bool? ok = await showDialog(context: context, builder: (_) => const ReUnlockDialog());
       if (ok ?? false) {
         await archiveDownloadService.cancelArchive(archive.gid);
-        await archiveDownloadService.downloadArchive(archive, resume: true);
+        await archiveDownloadService.downloadArchive(archive, resume: true, reParse: true);
       }
       return;
     }

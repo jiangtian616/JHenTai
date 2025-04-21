@@ -7,25 +7,29 @@ import '../setting/archive_bot_setting.dart';
 import '../utils/route_util.dart';
 
 class EHArchiveBotSettingDialog extends StatefulWidget {
-  final TextEditingController apiAddressController;
-  final TextEditingController apiKeyController;
+  final String? apiAddress;
+  final String? apiKey;
   final bool useProxy;
 
-  const EHArchiveBotSettingDialog({super.key, required this.apiAddressController, required this.apiKeyController, required this.useProxy});
+  const EHArchiveBotSettingDialog({super.key, required this.apiAddress, required this.apiKey, required this.useProxy});
 
   @override
   State<EHArchiveBotSettingDialog> createState() => _EHArchiveBotSettingDialogState();
 }
 
 class _EHArchiveBotSettingDialogState extends State<EHArchiveBotSettingDialog> {
-  late TextEditingController _apiAddressController;
-  late TextEditingController _apiKeyController;
+  TextEditingController _apiAddressController = TextEditingController();
+  TextEditingController _apiKeyController = TextEditingController();
   late bool _useProxy;
 
   @override
   void initState() {
-    _apiAddressController = widget.apiAddressController;
-    _apiKeyController = widget.apiKeyController;
+    if(widget.apiAddress != null) {
+      _apiAddressController.text = widget.apiAddress!;
+    }
+    if(widget.apiKey != null) {
+      _apiKeyController.text = widget.apiKey!;
+    }
     _useProxy = widget.useProxy;
 
     super.initState();
@@ -51,7 +55,7 @@ class _EHArchiveBotSettingDialogState extends State<EHArchiveBotSettingDialog> {
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
-            minLeadingWidth: 60,
+            minLeadingWidth: 40,
             leading: Text('apiAddress'.tr, style: const TextStyle(fontSize: 14)),
             title: TextField(
               enabled: !_useProxy,
@@ -77,7 +81,7 @@ class _EHArchiveBotSettingDialogState extends State<EHArchiveBotSettingDialog> {
             ),
           ),
           ListTile(
-            minLeadingWidth: 60,
+            minLeadingWidth: 40,
             leading: Text('apiKey'.tr, style: const TextStyle(fontSize: 14)),
             title: TextField(
               controller: _apiKeyController,

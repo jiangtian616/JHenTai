@@ -26,8 +26,6 @@ class ArchiveBotSettingsPage extends StatefulWidget {
 }
 
 class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
-  final TextEditingController _apiAddressController = TextEditingController();
-  final TextEditingController _apiKeyController = TextEditingController();
   LoadingState _balanceState = LoadingState.idle;
   LoadingState _checkinState = LoadingState.idle;
 
@@ -37,23 +35,9 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
   void initState() {
     super.initState();
 
-    if (archiveBotSetting.apiAddress.value != null) {
-      _apiAddressController.text = archiveBotSetting.apiAddress.value!;
-    }
-
-    if (archiveBotSetting.apiKey.value != null) {
-      _apiKeyController.text = archiveBotSetting.apiKey.value!;
-    }
-
     if (archiveBotSetting.isReady) {
       _checkBalance();
     }
-  }
-
-  @override
-  void dispose() {
-    _apiKeyController.dispose();
-    super.dispose();
   }
 
   @override
@@ -148,8 +132,8 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
     bool? result = await showDialog(
       context: context,
       builder: (_) => EHArchiveBotSettingDialog(
-        apiAddressController: _apiAddressController,
-        apiKeyController: _apiKeyController,
+        apiAddress: archiveBotSetting.apiAddress.value,
+        apiKey: archiveBotSetting.apiKey.value,
         useProxy: archiveBotSetting.useProxyServer.value,
       ),
     );
