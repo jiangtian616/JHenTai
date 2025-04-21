@@ -649,7 +649,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
         archiveDownloadInfos[archive.gid]!.downloadUrl = null;
 
-        await _getDownloadUrl(archive);
+        await _getDownloadUrl(archive, reParse: true);
         return _doDownloadArchiveViaMultiIsolate(archive);
       }
     }
@@ -835,7 +835,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     }
   }
 
-  Future<void> _getDownloadUrl(ArchiveDownloadedData archive) async {
+  Future<void> _getDownloadUrl(ArchiveDownloadedData archive, {bool reParse = false}) async {
     ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadInfos[archive.gid]!;
     if (!_isTaskInStatus(archive.gid, [ArchiveStatus.parsedDownloadPageUrl, ArchiveStatus.parsingDownloadUrl])) {
       return;
@@ -901,6 +901,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
             apiKey: archiveBotSetting.apiKey.value!,
             gid: archive.gid,
             token: archive.token,
+            reParse: reParse,
             cancelToken: archiveDownloadInfo.cancelToken,
             parser: ArchiveBotResponseParser.commonParse,
           ),
@@ -933,7 +934,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     /// sometimes the download url is invalid(the same as [downloadPageUrl]), retry
     if (!downloadPath.endsWith('start=1')) {
       log.warning('Failed to parse download url, retry: $downloadPath');
-      return _getDownloadUrl(archive);
+      return _getDownloadUrl(archive, reParse: true);
     }
 
     if (archiveDownloadInfo.parseSource == ArchiveParseSource.official.code) {
