@@ -4,12 +4,13 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/service/log.dart';
 
+import '../consts/archive_bot_consts.dart';
 import '../service/jh_service.dart';
 
 ArchiveBotSetting archiveBotSetting = ArchiveBotSetting();
 
 class ArchiveBotSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
-  final RxnString apiAddress = RxnString('https://eh-arc-api.mhdy.icu');
+  final RxnString apiAddress = RxnString(ArchiveBotConsts.serverAddress);
   final RxnString apiKey = RxnString(null);
   final RxBool useProxyServer = false.obs;
 
