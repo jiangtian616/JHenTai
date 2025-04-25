@@ -73,22 +73,26 @@ PODS:
   - sqflite_darwin (0.0.4):
     - Flutter
     - FlutterMacOS
-  - sqlite3 (3.39.4):
-    - sqlite3/common (= 3.39.4)
-  - sqlite3/common (3.39.4)
-  - sqlite3/fts5 (3.39.4):
+  - sqlite3 (3.49.1):
+    - sqlite3/common (= 3.49.1)
+  - sqlite3/common (3.49.1)
+  - sqlite3/dbstatvtab (3.49.1):
     - sqlite3/common
-  - sqlite3/json1 (3.39.4):
+  - sqlite3/fts5 (3.49.1):
     - sqlite3/common
-  - sqlite3/perf-threadsafe (3.39.4):
+  - sqlite3/math (3.49.1):
     - sqlite3/common
-  - sqlite3/rtree (3.39.4):
+  - sqlite3/perf-threadsafe (3.49.1):
+    - sqlite3/common
+  - sqlite3/rtree (3.49.1):
     - sqlite3/common
   - sqlite3_flutter_libs (0.0.1):
     - Flutter
-    - sqlite3 (~> 3.39.0)
+    - FlutterMacOS
+    - sqlite3 (~> 3.49.1)
+    - sqlite3/dbstatvtab
     - sqlite3/fts5
-    - sqlite3/json1
+    - sqlite3/math
     - sqlite3/perf-threadsafe
     - sqlite3/rtree
   - SwiftyGif (5.4.4)
@@ -125,7 +129,7 @@ DEPENDENCIES:
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - smart_auth (from `.symlinks/plugins/smart_auth/ios`)
   - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
-  - sqlite3_flutter_libs (from `.symlinks/plugins/sqlite3_flutter_libs/ios`)
+  - sqlite3_flutter_libs (from `.symlinks/plugins/sqlite3_flutter_libs/darwin`)
   - system_network_proxy (from `.symlinks/plugins/system_network_proxy/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/darwin`)
@@ -179,7 +183,7 @@ EXTERNAL SOURCES:
   sqflite_darwin:
     :path: ".symlinks/plugins/sqflite_darwin/darwin"
   sqlite3_flutter_libs:
-    :path: ".symlinks/plugins/sqlite3_flutter_libs/ios"
+    :path: ".symlinks/plugins/sqlite3_flutter_libs/darwin"
   system_network_proxy:
     :path: ".symlinks/plugins/system_network_proxy/ios"
   url_launcher_ios:
@@ -213,8 +217,8 @@ SPEC CHECKSUMS:
   share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f
   smart_auth: 4bedbc118723912d0e45a07e8ab34039c19e04f2
   sqflite_darwin: 5a7236e3b501866c1c9befc6771dfd73ffb8702d
-  sqlite3: 401936402fe5aa242c07f87fccfee5fc2b606f45
-  sqlite3_flutter_libs: f2619ae5df7f92e8bc330243073c815ee061e033
+  sqlite3: fc1400008a9b3525f5914ed715a5d1af0b8f4983
+  sqlite3_flutter_libs: 487032b9008b28de37c72a3aa66849ef3745f3e6
   SwiftyGif: 93a1cc87bf3a51916001cf8f3d63835fb64c819f
   system_network_proxy: 6f63fddb34a28776f091b1221a17850170c59e01
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
