@@ -991,12 +991,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         return;
       } on JDownloadException catch (e) {
         archiveDownloadInfo.downloadCompleter = null;
-        
-        if (e.type == JDownloadExceptionType.fetchContentLengthFailed) {
-          log.download('Download archive failed: ${archive.title}, original: ${archive.isOriginal}, reason: fetchContentLengthFailed');
-          snack('archiveError'.tr, 'Fetch content length failed'.tr, isShort: true);
-          return await pauseDownloadArchive(archive.gid);
-        } else if (e.type == JDownloadExceptionType.downloadFailed) {
+
+        if (e.type == JDownloadExceptionType.fetchContentLengthFailed || e.type == JDownloadExceptionType.downloadFailed) {
           DioException dioException = e.error;
           Response? response = dioException.response;
 
