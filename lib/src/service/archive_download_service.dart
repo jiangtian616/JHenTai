@@ -1008,12 +1008,12 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
             return await pauseDownloadArchive(archive.gid);
           } else {
             log.download('Download archive failed: ${archive.title}, original: ${archive.isOriginal}, reason: $e');
-            snack('archiveError'.tr, e.error.toString(), isShort: true);
+            snack('archiveError'.tr, e.error?.toString() ?? e.type.desc, isShort: true);
             return pauseDownloadArchive(archive.gid);
           }
         } else {
           log.download('Download archive failed: ${archive.title}, original: ${archive.isOriginal}, reason: $e');
-          snack('archiveError'.tr, e.error.toString(), isShort: true);
+          snack('archiveError'.tr, e.error?.toString() ?? e.type.desc, isShort: true);
           return pauseDownloadArchive(archive.gid);
         }
       } on Exception catch (e) {
