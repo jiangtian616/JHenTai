@@ -128,7 +128,7 @@ body:
         请确认您已经遵守所有必选项
         Please ensure you have obtained all needed options
       options:
-        - label: 您已仔细查看并知情 [常见问题](https://github.com/jiangtian616/JHenTai/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98) 中的内容 / You have checked [Q&A](https://github.com/jiangtian616/JHenTai/wiki/Common-Qustions) carefully
+        - label: 您已仔细查看并知情 [常见问题](https://github.com/jiangtian616/JHenTai/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98) 中的内容 / You have checked [Q&A](https://github.com/jiangtian616/JHenTai/wiki/Common-Questions) carefully
           required: true
         - label: 您已搜索过 [历史Issue](https://github.com/jiangtian616/JHenTai/issues)，没有找到类似内容 / I have searched on [History Issues](https://github.com/jiangtian616/JHenTai/issues), No duplicate or related open issue has been found
           required: true
