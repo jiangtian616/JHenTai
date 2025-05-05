@@ -64,7 +64,16 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
     return AppBar(
       centerTitle: true,
       leading: styleSetting.isInV2Layout
-          ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context))
+          ? IconButton(
+              icon: isRouteAtTop(Routes.download) ? const Icon(Icons.arrow_back) : const Icon(FontAwesomeIcons.bars, size: 20),
+              onPressed: () {
+                if (isRouteAtTop(Routes.download)) {
+                  backRoute(currentRoute: Routes.download);
+                } else {
+                  TapMenuButtonNotification().dispatch(context);
+                }
+              },
+            )
           : null,
       titleSpacing: 0,
       title: const DownloadPageSegmentControl(galleryType: DownloadPageGalleryType.download),

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
+import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
@@ -12,6 +13,7 @@ import 'package:jhentai/src/service/super_resolution_service.dart';
 import '../../../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../../../mixin/scroll_to_top_page_mixin.dart';
 import '../../../../mixin/scroll_to_top_state_mixin.dart';
+import '../../../../routes/routes.dart';
 import '../../../../setting/style_setting.dart';
 import '../../../layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import '../../download_base_page.dart';
@@ -46,7 +48,16 @@ mixin GridBasePage on StatelessWidget implements Scroll2TopPageMixin {
     return AppBar(
       centerTitle: true,
       leading: styleSetting.isInV2Layout
-          ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context))
+          ? IconButton(
+              icon: isRouteAtTop(Routes.download) ? const Icon(Icons.arrow_back) : const Icon(FontAwesomeIcons.bars, size: 20),
+              onPressed: () {
+                if (isRouteAtTop(Routes.download)) {
+                  backRoute(currentRoute: Routes.download);
+                } else {
+                  TapMenuButtonNotification().dispatch(context);
+                }
+              },
+            )
           : null,
       titleSpacing: 0,
       title: DownloadPageSegmentControl(galleryType: galleryType),
