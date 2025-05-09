@@ -11,7 +11,9 @@ import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:jhentai/src/database/dao/archive_dao.dart';
 import 'package:jhentai/src/database/dao/gallery_dao.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/setting/archive_bot_setting.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
@@ -26,8 +28,12 @@ import 'package:url_launcher/url_launcher_string.dart';
 
 import '../database/database.dart';
 import '../enum/config_enum.dart';
+import '../model/archive_bot_response/archive_bot_response.dart';
+import '../model/archive_bot_response/check_in_vo.dart';
 import '../model/gallery_metadata.dart';
+import '../network/archive_bot_request.dart';
 import '../setting/advanced_setting.dart';
+import '../utils/archive_bot_response_parser.dart';
 import '../utils/version_util.dart';
 import '../widget/update_dialog.dart';
 import 'jh_service.dart';
@@ -49,6 +55,9 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
 
     Timer(const Duration(seconds: 5), checkEHEvent);
     Timer.periodic(const Duration(minutes: 5), (_) => checkEHEvent());
+
+    Timer(const Duration(seconds: 5), checkInArchiveBot);
+    Timer.periodic(const Duration(minutes: 5), (_) => checkInArchiveBot());
   }
 
   Future<void> _checkUpdate() async {
@@ -201,6 +210,29 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
         onPressed: () => launchUrlString(eventInfo.hvUrl!, mode: LaunchMode.externalApplication),
         isShort: false,
       );
+    }
+  }
+
+  Future<void> checkInArchiveBot() async {
+    if (!archiveBotSetting.isReady) {
+      return;
+    }
+
+    try {
+      ArchiveBotResponse response = await archiveBotRequest.requestCheckIn(
+        apiAddress: archiveBotSetting.apiAddress.value,
+        apiKey: archiveBotSetting.apiKey.value!,
+        parser: ArchiveBotResponseParser.commonParse,
+      );
+      log.debug('Auto Checkin response: $response');
+      if (response.isSuccess) {
+        CheckInVO checkInVO = CheckInVO.fromResponse(response.data);
+        snack('checkInSuccess'.tr, 'checkInSuccessHint'.trArgs([checkInVO.getGP.toString(), checkInVO.currentGP.toString()]));
+      }
+    } on DioException catch (e) {
+      log.error('Failed to auto checkin', e.errorMsg, e.stackTrace);
+    } catch (e) {
+      log.error('Failed to auto checkin', e.toString(), StackTrace.current);
     }
   }
 }
