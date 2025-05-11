@@ -822,7 +822,7 @@ favnote：匹配收藏备注
       'warningImageHint': 'R18G图片，点击以显示',
 
       /// tagSet dialog
-      'chooseTagSet': '选择收藏标签集',
+      'chooseTagSet': '选择标签集',
 
       /// tag namespace
       'language': '语言',

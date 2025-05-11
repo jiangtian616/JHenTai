@@ -823,7 +823,7 @@ favnote：配對收藏備註
       'warningImageHint': 'R18G圖片，點擊以顯示',
 
       /// tagSet dialog
-      'chooseTagSet': '選擇收藏標籤集',
+      'chooseTagSet': '選擇標籤集',
 
       /// tag namespace
       'language': '語言',
