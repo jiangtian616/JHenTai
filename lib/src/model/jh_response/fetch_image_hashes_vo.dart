@@ -5,7 +5,7 @@ class FetchImageHashesVO {
 
   factory FetchImageHashesVO.fromResponse(Map<String, dynamic> json) {
     return FetchImageHashesVO(
-      hashes: json["hashes"],
+      hashes: (json["hashes"] as List).cast<String>(),
     );
   }
 }

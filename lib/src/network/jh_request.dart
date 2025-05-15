@@ -104,7 +104,12 @@ class JHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     return _parseResponse(response, parser);
   }
 
-  Future<T> requestGalleryImageHashes<T>({required int gid, required String token, HtmlParser<T>? parser}) async {
+  Future<T> requestGalleryImageHashes<T>({
+    required int gid,
+    required String token,
+    CancelToken? cancelToken,
+    HtmlParser<T>? parser,
+  }) async {
     String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
 
     Response response = await _dio.get(
@@ -119,6 +124,7 @@ class JHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
           JHConsts.SIGNATURE_HEADER: HmacUtil.hmacSha256(JHConsts.APP_ID + '-' + timestamp + '-' + timestamp, JHApiSecretConfig.secret),
         },
       ),
+      cancelToken: cancelToken,
     );
 
     return _parseResponse(response, parser);

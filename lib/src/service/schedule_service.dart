@@ -52,6 +52,7 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
     Timer(const Duration(seconds: 10), refreshGalleryTags);
     Timer(const Duration(seconds: 10), refreshArchiveTags);
     Timer(const Duration(seconds: 5), clearOutdatedImageCache);
+    Timer(const Duration(seconds: 1), _clearOutdatedGalleryImageHashCache);
 
     Timer(const Duration(seconds: 5), checkEHEvent);
     Timer.periodic(const Duration(minutes: 5), (_) => checkEHEvent());
@@ -170,6 +171,16 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
         count++;
       }
     }).then((_) => log.info('Clear outdated image cache success, count: $count'));
+  }
+
+  Future<void> _clearOutdatedGalleryImageHashCache() async {
+    DateTime thresholdTime = DateTime.now().subtract(const Duration(days: 3));
+    String thresholdTimeStr = thresholdTime.toString();
+
+    return appDb.managers.localConfig
+        .filter((config) => config.configKey.equals(ConfigEnum.galleryImageHash.key) & config.utime.column.isSmallerThanValue(thresholdTimeStr))
+        .delete()
+        .then((value) => value > 0);
   }
 
   Future<void> checkEHEvent() async {
