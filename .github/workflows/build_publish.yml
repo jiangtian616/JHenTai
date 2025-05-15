@@ -75,7 +75,7 @@ jobs:
       # Add JHenTai api serret
       - name: Setup JHenTai API Secret
         run: |
-          echo "${{ secrets.JH_API_SECRET_CONFIG }}" > lib/src/config/jg_api_secret_config.dart
+          echo "${{ secrets.JH_API_SECRET_CONFIG }}" > lib/src/config/jh_api_secret_config.dart
       # Setup Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
