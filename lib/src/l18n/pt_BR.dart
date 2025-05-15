@@ -714,10 +714,11 @@ class pt_BR {
       'restoreTasksAutomaticallyHint': 'Restore tasks automatically when app launched',
       'brokenDownloadPathHint': 'Parece que seu caminho de download está quebrado, a função de download pode ser ineficaz',
       'brokenExtraScanPathHint': 'Seems your default local gallery path is broken, local gallery may be not recognized',
+      'useJH2UpdateGallery': 'Use JH server to accelerate gallery updates',
 
       /// archive bot settings
       'archiveBotSettings': 'Archive Bot Settings',
-      'archiveBotSettingsHint': 'Use archive bot to get archive links for free', 
+      'archiveBotSettingsHint': 'Use archive bot to get archive links for free',
       'apiSetting': 'API Setting',
       'apiAddress': 'Address',
       'apiKey': 'Key',

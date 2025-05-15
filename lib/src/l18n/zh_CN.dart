@@ -717,6 +717,7 @@ favnote：匹配收藏备注
       'restoreTasksAutomaticallyHint': '应用每次启动时尝试恢复下载任务',
       'brokenDownloadPathHint': '似乎你的下载路径已经损坏，下载功能可能失效',
       'brokenExtraScanPathHint': '似乎你的默认本地画廊路径已经损坏，本地画廊可能无法被识别',
+      'useJH2UpdateGallery': '使用JH服务器加速画廊更新',
 
       /// archive bot settings
       'archiveBotSettings': '归档机器人设置',

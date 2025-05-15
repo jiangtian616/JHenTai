@@ -64,6 +64,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
               _buildDownloadConcurrency(),
               _buildSpeedLimit(context),
               _buildDownloadAllGallerysOfSamePriority(),
+              _buildUseJH2UpdateGallery(),
               _buildArchiveDownloadIsolateCount(),
               _buildManageArchiveDownloadConcurrency(),
               _buildDeleteArchiveFileAfterDownload(),
@@ -253,6 +254,14 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       subtitle: Text('${'downloadAllGallerysOfSamePriorityHint'.tr} | ${'needRestart'.tr}'),
       value: downloadSetting.downloadAllGallerysOfSamePriority.value,
       onChanged: downloadSetting.saveDownloadAllGallerysOfSamePriority,
+    );
+  }
+
+  Widget _buildUseJH2UpdateGallery() {
+    return SwitchListTile(
+      title: Text('useJH2UpdateGallery'.tr),
+      value: downloadSetting.useJH2UpdateGallery.value,
+      onChanged: downloadSetting.saveUseJH2UpdateGallery,
     );
   }
 

@@ -722,6 +722,7 @@ class ru_RU {
       'restoreTasksAutomaticallyHint': 'Восстанавливать задачи автоматически при запуске приложения',
       'brokenDownloadPathHint': 'Похоже, ваш путь загрузки поврежден, функция загрузки может не работать',
       'brokenExtraScanPathHint': 'Похоже, ваш путь к локальным галереям поврежден, локальные галереи могут не распознаваться',
+      'useJH2UpdateGallery': 'Use JH server to accelerate gallery updates',
 
       /// archive bot settings
       'archiveBotSettings': 'Archive Bot Settings',

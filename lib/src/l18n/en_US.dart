@@ -712,6 +712,7 @@ class en_US {
       'restoreTasksAutomaticallyHint': 'Restore tasks automatically when app launched',
       'brokenDownloadPathHint': 'Seems your download path is broken, download function may be ineffective',
       'brokenExtraScanPathHint': 'Seems your default local gallery path is broken, local gallery may be not recognized',
+      'useJH2UpdateGallery': 'Use JH server to accelerate gallery updates',
 
       /// archive bot settings
       'archiveBotSettings': 'Archive Bot Settings',

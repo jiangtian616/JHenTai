@@ -12,4 +12,11 @@ class JHResponse<T> {
       data: json["data"],
     );
   }
+
+  bool get isSuccess => code == 0;
+
+  @override
+  String toString() {
+    return 'JHResponse{code: $code, message: $message, data: $data}';
+  }
 }

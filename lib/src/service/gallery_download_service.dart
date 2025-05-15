@@ -24,11 +24,15 @@ import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
+import 'package:jhentai/src/model/jh_response/fetch_image_hashes_vo.dart';
+import 'package:jhentai/src/model/jh_response/jh_response.dart';
+import 'package:jhentai/src/network/jh_request.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/convert_util.dart';
+import 'package:jhentai/src/utils/jh_response_parser.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
@@ -72,6 +76,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   List<GalleryDownloadedData> gallerysWithGroup(String group) => gallerys.where((g) => galleryDownloadInfos[g.gid]!.group == group).toList();
 
   static const int _maxRetryTimes = 3;
+  static const int _maxRetryTimes4FetchImageHashes = 1;
   static const String metadataFileName = 'metadata';
   static const int _maxTitleLength = 85;
 
@@ -867,15 +872,59 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   // Task
 
   AsyncTask<void> _downloadGalleryTask(GalleryDownloadedData gallery) {
-    return () {
+    return () async {
       if (_taskHasBeenPausedOrRemoved(gallery)) {
         return;
+      }
+
+      /// If this is a update from old gallery, try to fetch image hashes from JHenTai Server
+      if (gallery.oldVersionGalleryUrl != null && downloadSetting.useJH2UpdateGallery.isTrue) {
+        List<String> imageHashes = await _fetchImageHashesFromJHenTaiServer(gallery);
+
+        if (imageHashes.isNotEmpty) {
+          await _tryCopyImageInfosFromImageHashes(gallery, imageHashes);
+        }
       }
 
       for (int serialNo = 0; serialNo < gallery.pageCount; serialNo++) {
         _processImage(gallery, serialNo);
       }
     };
+  }
+
+  Future<List<String>> _fetchImageHashesFromJHenTaiServer(GalleryDownloadedData gallery) async {
+    if (_taskHasBeenPausedOrRemoved(gallery)) {
+      return [];
+    }
+
+    try {
+      JHResponse response = await retry(
+        () => jhRequest.requestGalleryImageHashes(gid: gallery.gid, token: gallery.token, parser: JHResponseParser.commonParse),
+        retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
+        onRetry: (e) => log.download('Failed to fetch image hashes, retry. Reason: ${(e as DioException).message}'),
+        maxAttempts: _maxRetryTimes4FetchImageHashes,
+      );
+
+      log.debug('Fetch image hashes response: $response');
+      if (response.isSuccess) {
+        FetchImageHashesVO fetchImageHashesVO = FetchImageHashesVO.fromResponse(response.data);
+
+        if (fetchImageHashesVO.hashes.length == gallery.pageCount) {
+          return fetchImageHashesVO.hashes;
+        } else {
+          log.error('Image hashes count mismatch, gid: ${gallery.gid}, expected: ${gallery.pageCount}, actual: ${fetchImageHashesVO.hashes.length}');
+          return [];
+        }
+      } else {
+        return [];
+      }
+    } on DioException catch (e) {
+      log.error('Failed to fetch image hashes', e.errorMsg, e.stackTrace);
+      return [];
+    } catch (e) {
+      log.error('Failed to fetch image hashes', e.toString(), StackTrace.current);
+      return [];
+    }
   }
 
   Future<void> _processImage(GalleryDownloadedData gallery, int serialNo) async {
@@ -1251,6 +1300,39 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     await _copyImageInfo(oldImage, newGallery, newImageSerialNo);
     await superResolutionService.copyImageInfo(oldGallery, newGallery, oldImageSerialNo, newImageSerialNo);
+  }
+
+  Future<void> _tryCopyImageInfosFromImageHashes(GalleryDownloadedData newGallery, List<String> imageHashes) async {
+    GalleryDownloadedData? oldGallery = gallerys.firstWhereOrNull((e) => e.galleryUrl == newGallery.oldVersionGalleryUrl);
+    if (oldGallery == null) {
+      return;
+    }
+
+    for (int serialNo = 0; serialNo < newGallery.pageCount; serialNo++) {
+      int? oldImageSerialNo = galleryDownloadInfos[oldGallery.gid]?.images.firstIndexWhereOrNull((e) => e?.imageHash == imageHashes[serialNo]);
+      if (oldImageSerialNo == null) {
+        continue;
+      }
+
+      GalleryImage oldImage = galleryDownloadInfos[oldGallery.gid]!.images[oldImageSerialNo]!;
+
+      GalleryImage newImage = GalleryImage(url: oldImage.url);
+      newImage.path = _computeImageDownloadRelativePath(newGallery.title, newGallery.gid, newImage.url, serialNo);
+      newImage.downloadStatus = DownloadStatus.downloaded;
+
+      log.download('Copy old image, new serialNo: $serialNo');
+      io.File oldFile = io.File(path.join(pathService.getVisibleDir().path, oldImage.path!));
+      await oldFile.copy(path.join(pathService.getVisibleDir().path, newImage.path!));
+      
+      await _saveNewImageInfoInDatabase(newImage, serialNo, newGallery.gid);
+
+      GalleryDownloadInfo newGalleryDownloadInfo = galleryDownloadInfos[newGallery.gid]!;
+      newGalleryDownloadInfo.images[serialNo] = newImage;
+
+      await _updateProgressAfterImageDownloaded(newGallery, serialNo);
+      
+      await superResolutionService.copyImageInfo(oldGallery, newGallery, oldImageSerialNo, serialNo);
+    }
   }
 
   Future<void> _copyImageInfo(GalleryImage oldImage, GalleryDownloadedData newGallery, int newImageSerialNo) async {

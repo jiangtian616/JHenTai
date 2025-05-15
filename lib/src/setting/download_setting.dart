@@ -27,6 +27,7 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   RxInt maximum = 2.obs;
   Rx<Duration> period = const Duration(seconds: 1).obs;
   RxBool downloadAllGallerysOfSamePriority = false.obs;
+  RxBool useJH2UpdateGallery = true.obs;
   RxInt archiveDownloadIsolateCount = 1.obs;
   RxBool manageArchiveDownloadConcurrency = true.obs;
   RxBool deleteArchiveFileAfterDownload = true.obs;
@@ -54,6 +55,7 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     maximum.value = map['maximum'];
     period.value = Duration(milliseconds: map['period']);
     downloadAllGallerysOfSamePriority.value = map['downloadAllGallerysOfSamePriority'] ?? downloadAllGallerysOfSamePriority.value;
+    useJH2UpdateGallery.value = map['useJH2UpdateGallery'] ?? useJH2UpdateGallery.value;
     archiveDownloadIsolateCount.value = map['archiveDownloadIsolateCount'] ?? archiveDownloadIsolateCount.value;
     if (archiveDownloadIsolateCount.value > 10) {
       archiveDownloadIsolateCount.value = 10;
@@ -76,6 +78,7 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
       'maximum': maximum.value,
       'period': period.value.inMilliseconds,
       'downloadAllGallerysOfSamePriority': downloadAllGallerysOfSamePriority.value,
+      'useJH2UpdateGallery': useJH2UpdateGallery.value,
       'archiveDownloadIsolateCount': archiveDownloadIsolateCount.value,
       'manageArchiveDownloadConcurrency': manageArchiveDownloadConcurrency.value,
       'deleteArchiveFileAfterDownload': deleteArchiveFileAfterDownload.value,
@@ -162,6 +165,12 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   Future<void> saveDownloadAllGallerysOfSamePriority(bool value) async {
     log.debug('saveDownloadAllGallerysOfSamePriority:$value');
     downloadAllGallerysOfSamePriority.value = value;
+    await saveBeanConfig();
+  }
+  
+  Future<void> saveUseJH2UpdateGallery(bool value) async {
+    log.debug('saveUseJH2UpdateGallery:$value');
+    useJH2UpdateGallery.value = value;
     await saveBeanConfig();
   }
 

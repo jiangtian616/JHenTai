@@ -104,7 +104,7 @@ class JHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     return _parseResponse(response, parser);
   }
 
-  Future<T> requestGalleryImageHashes<T>({required String gid, required String token, HtmlParser<T>? parser}) async {
+  Future<T> requestGalleryImageHashes<T>({required int gid, required String token, HtmlParser<T>? parser}) async {
     String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
 
     Response response = await _dio.get(

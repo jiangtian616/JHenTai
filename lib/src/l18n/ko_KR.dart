@@ -711,6 +711,7 @@ class ko_KR {
       'restoreTasksAutomaticallyHint': 'Restore tasks automatically when app launched',
       'brokenDownloadPathHint': '다운로드 경로가 손상된 것 같습니다. 다운로드 기능이 낮아질 수 있습니다.',
       'brokenExtraScanPathHint': 'Seems your default local gallery path is broken, local gallery may be not recognized',
+      'useJH2UpdateGallery': 'Use JH server to accelerate gallery updates',
 
       /// archive bot settings
       'archiveBotSettings': 'Archive Bot Settings',
