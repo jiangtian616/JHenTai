@@ -108,7 +108,7 @@ class JHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
 
     Response response = await _dio.get(
-      '${JHConsts.serverAddress}/api/gallery/imageHashes',
+      '${JHConsts.serverAddress}/api/gallery/fetchImageHash',
       queryParameters: {'gid': gid, 'token': token},
       options: Options(
         contentType: Headers.jsonContentType,
