@@ -1345,14 +1345,19 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       io.File oldFile = io.File(path.join(pathService.getVisibleDir().path, oldImage.path!));
       await oldFile.copy(path.join(pathService.getVisibleDir().path, newImage.path!));
 
-      await _saveNewImageInfoInDatabase(newImage, serialNo, newGallery.gid);
-
-      newGalleryDownloadInfo.images[serialNo] = newImage;
+      if (newGalleryDownloadInfo.images[serialNo] == null) {
+        await _saveNewImageInfoInDatabase(newImage, serialNo, newGallery.gid);
+        newGalleryDownloadInfo.images[serialNo] = newImage;
+      } else {
+        await _updateImageStatus(newGallery, newImage, serialNo, DownloadStatus.downloaded);
+      }
 
       await _updateProgressAfterImageDownloaded(newGallery, serialNo);
 
       await superResolutionService.copyImageInfo(oldGallery, newGallery, oldImageSerialNo, serialNo);
     }
+
+    _saveGalleryMetadataInDisk(newGallery);
   }
 
   Future<void> _copyImageInfo(GalleryImage oldImage, GalleryDownloadedData newGallery, int newImageSerialNo) async {
