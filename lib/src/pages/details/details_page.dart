@@ -189,6 +189,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
           physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
           scrollBehavior: UIConfig.scrollBehaviourWithScrollBarWithMouse,
           controller: state.scrollController,
+          cacheExtent: 5000,
           slivers: [
             CupertinoSliverRefreshControl(onRefresh: logic.handleRefresh),
             if (preferenceSetting.showAllGalleryTitles.isTrue) _buildSubTitle(context),
@@ -1360,36 +1361,34 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
 
                       GalleryImage? downloadedImage = galleryDownloadService.galleryDownloadInfos[state.galleryUrl.gid]?.images[index];
 
-                      return KeepAliveWrapper(
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: Center(
-                                child: GestureDetector(
-                                  onTap: () => logic.goToReadPage(index),
-                                  child: LayoutBuilder(
-                                    builder: (_, constraints) => downloadedImage?.downloadStatus == DownloadStatus.downloaded
-                                        ? EHImage(
-                                            galleryImage: downloadedImage!,
-                                            containerHeight: constraints.maxHeight,
-                                            containerWidth: constraints.maxWidth,
-                                            borderRadius: BorderRadius.circular(8),
-                                            maxBytes: 1024 * 1024,
-                                          )
-                                        : EHThumbnail(
-                                            thumbnail: state.galleryDetails!.thumbnails[index],
-                                            containerHeight: constraints.maxHeight,
-                                            containerWidth: constraints.maxWidth,
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
+                      return Column(
+                        children: [
+                          Expanded(
+                            child: Center(
+                              child: GestureDetector(
+                                onTap: () => logic.goToReadPage(index),
+                                child: LayoutBuilder(
+                                  builder: (_, constraints) => downloadedImage?.downloadStatus == DownloadStatus.downloaded
+                                      ? EHImage(
+                                    galleryImage: downloadedImage!,
+                                    containerHeight: constraints.maxHeight,
+                                    containerWidth: constraints.maxWidth,
+                                    borderRadius: BorderRadius.circular(8),
+                                    maxBytes: 128 * 1024,
+                                  )
+                                      : EHThumbnail(
+                                    thumbnail: state.galleryDetails!.thumbnails[index],
+                                    containerHeight: constraints.maxHeight,
+                                    containerWidth: constraints.maxWidth,
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 3),
-                            Text((index + 1).toString(), style: TextStyle(color: UIConfig.detailsPageThumbnailIndexColor(context))),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(height: 3),
+                          Text((index + 1).toString(), style: TextStyle(color: UIConfig.detailsPageThumbnailIndexColor(context))),
+                        ],
                       );
                     },
                     childCount: state.galleryDetails?.thumbnails.length ?? 0,

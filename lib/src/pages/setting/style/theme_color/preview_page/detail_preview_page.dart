@@ -43,6 +43,7 @@ class DetailPreviewPage extends DetailsPage {
       child: EHWheelSpeedController(
         controller: state.scrollController,
         child: CustomScrollView(
+          cacheExtent: 5000,
           controller: state.scrollController,
           scrollBehavior: UIConfig.scrollBehaviourWithScrollBarWithMouse  ,
           slivers: [
@@ -205,27 +206,25 @@ class DetailPreviewPage extends DetailsPage {
       sliver: SliverGrid(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
-            return KeepAliveWrapper(
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Center(
-                      child: GestureDetector(
-                        child: LayoutBuilder(
-                          builder: (_, constraints) => EHThumbnail(
-                            thumbnail: state.galleryDetails!.thumbnails[index],
-                            containerHeight: constraints.maxHeight,
-                            containerWidth: constraints.maxWidth,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
+            return Column(
+              children: [
+                Expanded(
+                  child: Center(
+                    child: GestureDetector(
+                      child: LayoutBuilder(
+                        builder: (_, constraints) => EHThumbnail(
+                          thumbnail: state.galleryDetails!.thumbnails[index],
+                          containerHeight: constraints.maxHeight,
+                          containerWidth: constraints.maxWidth,
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 3),
-                  Text((index + 1).toString(), style: TextStyle(color: UIConfig.detailsPageThumbnailIndexColor(context))),
-                ],
-              ),
+                ),
+                const SizedBox(height: 3),
+                Text((index + 1).toString(), style: TextStyle(color: UIConfig.detailsPageThumbnailIndexColor(context))),
+              ],
             );
           },
           childCount: state.galleryDetails!.thumbnails.length,

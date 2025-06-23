@@ -70,6 +70,7 @@ class ThumbnailsPage extends StatelessWidget with Scroll2TopPageMixin {
       child: EHWheelSpeedController(
         controller: state.scrollController,
         child: CustomScrollView(
+          cacheExtent: 5000,
           controller: state.scrollController,
           scrollBehavior: UIConfig.scrollBehaviourWithScrollBarWithMouse,
           slivers: [
@@ -97,40 +98,38 @@ class ThumbnailsPage extends StatelessWidget with Scroll2TopPageMixin {
                 GalleryImage? downloadedImage = galleryDownloadService
                     .galleryDownloadInfos[logic.detailsPageState.galleryDetails!.galleryUrl.gid]?.images[state.absoluteIndexOfThumbnails[index]];
 
-                return KeepAliveWrapper(
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: Center(
-                          child: GestureDetector(
-                            onTap: () => logic.detailsPageLogic.goToReadPage(state.absoluteIndexOfThumbnails[index]),
-                            child: LayoutBuilder(
-                              builder: (_, constraints) {
-                                return downloadedImage?.downloadStatus == DownloadStatus.downloaded
-                                    ? EHImage(
-                                        galleryImage: downloadedImage!,
-                                        containerHeight: constraints.maxHeight,
-                                        containerWidth: constraints.maxWidth,
-                                        borderRadius: BorderRadius.circular(8),
-                                        maxBytes: 1024 * 1024,
-                                      )
-                                    : EHThumbnail(
-                                        thumbnail: state.thumbnails[index],
-                                        containerHeight: constraints.maxHeight,
-                                        containerWidth: constraints.maxWidth,
-                                        borderRadius: BorderRadius.circular(8),
-                                      );
-                              },
-                            ),
+                return Column(
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: GestureDetector(
+                          onTap: () => logic.detailsPageLogic.goToReadPage(state.absoluteIndexOfThumbnails[index]),
+                          child: LayoutBuilder(
+                            builder: (_, constraints) {
+                              return downloadedImage?.downloadStatus == DownloadStatus.downloaded
+                                  ? EHImage(
+                                galleryImage: downloadedImage!,
+                                containerHeight: constraints.maxHeight,
+                                containerWidth: constraints.maxWidth,
+                                borderRadius: BorderRadius.circular(8),
+                                maxBytes: 128 * 1024,
+                              )
+                                  : EHThumbnail(
+                                thumbnail: state.thumbnails[index],
+                                containerHeight: constraints.maxHeight,
+                                containerWidth: constraints.maxWidth,
+                                borderRadius: BorderRadius.circular(8),
+                              );
+                            },
                           ),
                         ),
                       ),
-                      Text(
-                        (state.absoluteIndexOfThumbnails[index] + 1).toString(),
-                        style: TextStyle(color: UIConfig.detailsPageThumbnailIndexColor(context)),
-                      ).paddingOnly(top: 3),
-                    ],
-                  ),
+                    ),
+                    Text(
+                      (state.absoluteIndexOfThumbnails[index] + 1).toString(),
+                      style: TextStyle(color: UIConfig.detailsPageThumbnailIndexColor(context)),
+                    ).paddingOnly(top: 3),
+                  ],
                 );
               },
               childCount: state.thumbnails.length,
