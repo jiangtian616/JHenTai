@@ -932,11 +932,13 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       }
     }
 
-    /// sometimes the download url is invalid(the same as [downloadPageUrl]), retry
-    if (!downloadPath.endsWith('start=1')) {
-      log.warning('Failed to parse download url, retry: $downloadPath');
-      return _getDownloadUrl(archive, reParse: true);
-    }
+    /// add start=1
+    Uri uri = Uri.parse(downloadPath);
+    Map<String, String> queryParameters = Map.from(uri.queryParameters);
+    queryParameters.remove('autostart');
+    queryParameters.putIfAbsent('start', () => '1');
+    Uri replacedUri = uri.replace(queryParameters: queryParameters);
+    downloadPath = replacedUri.toString();
 
     if (archiveDownloadInfo.parseSource == ArchiveParseSource.official.code) {
       archiveDownloadInfo.downloadUrl = 'https://' + Uri.parse(archiveDownloadInfo.downloadPageUrl!).host + downloadPath;
