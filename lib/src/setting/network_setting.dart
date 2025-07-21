@@ -22,7 +22,7 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
   RxInt receiveTimeout = 6000.obs;
 
   static const Map<String, List<String>> host2IPs = {
-    'e-hentai.org': ['104.20.18.168', '104.20.19.168', '172.67.2.238'],
+    'e-hentai.org': ['172.66.132.196', '172.66.140.62'],
     'exhentai.org': [
       '178.175.128.251',
       '178.175.128.252',
@@ -37,9 +37,9 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
       '178.175.132.21',
       '178.175.132.22'
     ],
-    'upld.e-hentai.org': ['94.100.18.249', '94.100.18.247'],
+    'upld.e-hentai.org': ['95.211.208.236', '89.149.221.236'],
     'api.e-hentai.org': ['37.48.92.161', '212.7.202.51', '5.79.104.110', '37.48.81.204', '212.7.200.104'],
-    'forums.e-hentai.org': ['104.20.18.168', '104.20.19.168', '172.67.2.238', '94.100.18.243'],
+    'forums.e-hentai.org': ['172.66.132.196', '172.66.140.62'],
   };
 
   Set<String> get allHostAndIPs => host2IPs.keys.toSet()..addAll(allIPs);
