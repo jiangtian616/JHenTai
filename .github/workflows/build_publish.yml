@@ -32,11 +32,11 @@ jobs:
             artifact_name: release-Linux-x64-deb
             artifact_path: |
               build/linux/*.deb
-          - target: Linux-x64-AppImage
-            os: ubuntu-22.04
-            artifact_name: release-Linux-x64-AppImage
-            artifact_path: |
-              build/linux/*.AppImage
+#          - target: Linux-x64-AppImage
+#            os: ubuntu-22.04
+#            artifact_name: release-Linux-x64-AppImage
+#            artifact_path: |
+#              build/linux/*.AppImage
           - target: Linux-arm64-deb
             os: ubuntu-22.04-arm
             artifact_name: release-Linux-arm64-deb
