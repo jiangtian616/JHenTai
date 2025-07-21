@@ -16,7 +16,6 @@ import 'log.dart';
 import '../widget/loading_state_indicator.dart';
 import 'archive_download_service.dart';
 
-
 /// Load galleries in download directory but is not downloaded by JHenTai
 LocalGalleryService localGalleryService = LocalGalleryService();
 
@@ -157,13 +156,14 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin, 
     future = future.then<bool>((success) {
       if (success) {
         List<Future> subFutures = [];
-
+        List<File> images = [];
         String parentPath = isRootDir ? rootPath : directory.parent.path;
+
         directory.list().listen(
           (entity) {
             if (entity is File && FileUtil.isImageExtension(entity.path) && result.isLegalGalleryDir == false) {
               result.isLegalGalleryDir = true;
-              _initGalleryInfoInMemory(directory, entity, parentPath);
+              images.add(entity);
             } else if (entity is Directory) {
               subFutures.add(
                 _parseDirectory(entity, false).then((subResult) {
@@ -177,6 +177,11 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin, 
             }
           },
           onDone: () {
+            if (result.isLegalGalleryDir) {
+              images.sort(FileUtil.naturalCompareFile);
+              _initGalleryInfoInMemory(directory, images[0], parentPath);
+            }
+
             Future.wait(subFutures).then((_) {
               completer.isCompleted ? null : completer.complete(result);
             });
