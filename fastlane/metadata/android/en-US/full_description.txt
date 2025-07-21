@@ -1,0 +1,23 @@
+## Description
+
+A manga app for E-Hentai, supporting Android & iOS & Windows & MacOS & Linux.
+
+Still in development stage, welcome to submit issues or feature requests.
+
+## Main Features
+
+- Mobile, tablet, desktop layout(3 kinds)
+- Vertical, horizontal, double column read page layout(4 kinds)
+- GalleryPage, Popular, Favorite, Watched, History, support multiple gallery list style
+- search, search suggestion, tap tag to search, file search, jump to a certain page
+- online reading and download, support restore download task, support synchronize updates after the uploader has uploaded a new version
+- archive download and automatic unpacking and reading
+- support loading local images and read
+- support assign priority to download task manually
+- support assign group to gallery and archive
+- favorite, rating, torrent, archive, statistics, share
+- password login, Cookie login, web login
+- support EX site(domain fronting optional)
+- vote for Tag, watch and hidden tags
+- comment, vote for comment
+- Fingerprint unlock (Removed in F-Droid builds due to non-free dependencies)
