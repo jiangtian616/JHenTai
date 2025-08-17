@@ -451,6 +451,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         await _updateGalleryInDatabase(
           GalleryDownloadedCompanion(gid: Value(g.gid), groupName: Value(newGroup)),
         );
+        _saveGalleryMetadataInDisk(g);
       }
 
       await _deleteGroup(oldGroup);
