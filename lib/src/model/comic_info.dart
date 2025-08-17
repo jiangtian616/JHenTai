@@ -364,6 +364,9 @@ class EHGalleryComicInfo extends ComicInfo {
 
   @override
   double get communityRating => rating;
+  
+  @override
+  String get locations => tagDatas.where((tagData) => tagData.namespace == 'location').map((tagData) => tagData.key).join(',');
 
   EHGalleryComicInfo({
     required this.rawTitle,
@@ -412,6 +415,9 @@ class EHGalleryComicInfo extends ComicInfo {
         builder.element('Manga', nest: manga.desc);
         if (!isEmptyOrNull(characters)) {
           builder.element('Characters', nest: characters);
+        }
+        if (!isEmptyOrNull(locations)) {
+          builder.element('Locations', nest: locations);
         }
         builder.element('AgeRating', nest: ageRating.desc);
         builder.element('CommunityRating', nest: communityRating.toStringAsFixed(1));
