@@ -1,0 +1,20 @@
+name: Validate Fastlane metadata
+
+on:
+  workflow_dispatch:
+  push:
+      branches: [ "master" ]
+      paths:
+        - 'fastlane/**'
+  pull_request:
+      branches: [ "master" ]
+      paths:
+        - 'fastlane/**'
+
+jobs:
+  go:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Fastlane Supply Metadata
+        uses: ashutoshgngwr/validate-fastlane-supply-metadata@v2
