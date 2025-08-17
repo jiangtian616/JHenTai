@@ -12,6 +12,7 @@ enum EHNamespace {
   reclass('reclass', 'r', '重新分类'),
   temp('temp', null, '临时'),
   other('other', 'o', '其他'),
+  location('location', 'loc', '地点'),
   ;
 
   const EHNamespace(this.desc, this.abbr, this.chineseDesc);

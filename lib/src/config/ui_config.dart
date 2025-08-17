@@ -75,6 +75,8 @@ class UIConfig {
     'reclass': Color(0xfff6dce9),
     'temp': Color(0xffe9dbfa),
     'other': Color(0xfffadcdb),
+    'location': Color(0xfff5dff5),
+    'default': Colors.white,
   };
 
   /// color for category tag
@@ -92,6 +94,8 @@ class UIConfig {
     '重新分类': Color(0xfff6dce9),
     '临时': Color(0xffe9dbfa),
     '其他': Color(0xfffadcdb),
+    '地点': Color(0xfff5dff5),
+    '默认': Colors.white,
   };
 
   /// raw tag color to tag index

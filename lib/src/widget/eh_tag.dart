@@ -123,7 +123,7 @@ class _EHTagState extends State<EHTag> with AnimationMixin {
       decoration: BoxDecoration(
         color: widget.tag.backgroundColor ??
             (widget.addNameSpaceColor
-                ? UIConfig.zhTagNameSpaceColor[widget.tag.tagData.key] ?? UIConfig.tagNameSpaceColor[widget.tag.tagData.key]!
+                ? UIConfig.zhTagNameSpaceColor[widget.tag.tagData.key] ?? UIConfig.tagNameSpaceColor[widget.tag.tagData.key] ?? UIConfig.tagNameSpaceColor['default']
                 : UIConfig.ehTagBackGroundColor(context)),
         borderRadius: BorderRadius.circular(8),
       ),
