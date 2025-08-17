@@ -5,6 +5,7 @@
 ![star](https://img.shields.io/github/stars/jiangtian616/JHenTai)
 [![issue](https://img.shields.io/badge/chat-issue-brightgreen)](https://github.com/jiangtian616/JHenTai/issues/new)
 [![telegram](https://img.shields.io/badge/chat-telegram(Chinese_Mainly)-brightgreen)](https://t.me/+PindoE9yvIpmOWI9)
+[![f-droid](https://img.shields.io/f-droid/v/top.jtmonster.jhentai)](https://f-droid.org/packages/top.jtmonster.jhentai/)
 
 # JHenTai
 
