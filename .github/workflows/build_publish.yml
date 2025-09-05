@@ -250,3 +250,35 @@ jobs:
           artifacts: /tmp/artifacts/release-Android/*.apk,/tmp/artifacts/release-iOS/*.ipa,/tmp/artifacts/release-macOS/*.dmg,/tmp/artifacts/release-Windows/*.zip,/tmp/artifacts/release-Linux-x64-deb/*.deb,/tmp/artifacts/release-Linux-arm64-deb/*.deb
           artifactErrorsFailBuild: true
           replacesArtifacts: true
+
+      # Get IPA size and update AltSource.json
+      - name: Update AltSource.json
+        run: |
+          # Get IPA file size
+          IPA_SIZE=$(stat -f %z /tmp/artifacts/release-iOS/*.ipa)
+          
+          # Get current date in ISO format
+          CURRENT_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          
+          # Get version number (remove 'v' prefix)
+          VERSION=${GITHUB_REF_NAME#v}
+          
+          # Read release notes content
+          RELEASE_NOTES=$(cat changelog/${GITHUB_REF_NAME}.md)
+          
+          # Update AltSource.json using jq
+          jq --arg ver "$VERSION" \
+             --arg date "$CURRENT_DATE" \
+             --arg desc "$RELEASE_NOTES" \
+             --argjson size "$IPA_SIZE" \
+             '.apps[0].version = $ver | .apps[0].versionDate = $date | .apps[0].versionDescription = $desc | .apps[0].size = $size' \
+             AltSource/AltSource.json > AltSource/AltSource.json.tmp && mv AltSource/AltSource.json.tmp AltSource/AltSource.json
+
+      # Commit and push changes
+      - name: Commit updated AltSource.json
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add AltSource/AltSource.json
+          git commit -m "chore: update AltSource.json for version ${GITHUB_REF_NAME}"
+          git push
