@@ -241,6 +241,7 @@ jobs:
           path: /tmp/artifacts
       - name: List all Artifacts
         run: ls -R /tmp/artifacts
+      # Upload release assets
       - name: Upload to release
         uses: ncipollo/release-action@v1
         with:
@@ -250,3 +251,58 @@ jobs:
           artifacts: /tmp/artifacts/release-Android/*.apk,/tmp/artifacts/release-iOS/*.ipa,/tmp/artifacts/release-macOS/*.dmg,/tmp/artifacts/release-Windows/*.zip,/tmp/artifacts/release-Linux-x64-deb/*.deb,/tmp/artifacts/release-Linux-arm64-deb/*.deb
           artifactErrorsFailBuild: true
           replacesArtifacts: true
+
+      # Get IPA file size
+      - name: Get IPA file size
+        id: get_ipa_size
+        run: |
+          IPA_SIZE=$(stat -f %z /tmp/artifacts/release-iOS/*.ipa)
+          echo "ipa_size=$IPA_SIZE" >> $GITHUB_OUTPUT
+
+      # Get changelog content
+      - name: Get changelog content
+        id: get_changelog
+        run: |
+          CHANGELOG=$(cat changelog/${{ github.ref_name }}.md)
+          # Convert newlines to \n
+          CHANGELOG="${CHANGELOG//$'\n'/\\n}"
+          echo "changelog=$CHANGELOG" >> $GITHUB_OUTPUT
+
+      # Extract build version from tag
+      - name: Get build version
+        id: get_build_version
+        run: |
+          BUILD_VERSION=$(echo "${{ github.ref_name }}" | grep -oE '\+[0-9]+' | tr -d '+')
+          echo "build_version=$BUILD_VERSION" >> $GITHUB_OUTPUT
+
+      # Update AltSource.json
+      - name: Update AltSource.json
+        run: |
+          VERSION="${{ needs.Build.outputs.version }}"
+          DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          
+          # Create new version entry
+          jq --arg version "$VERSION" \
+             --arg build "${{ steps.get_build_version.outputs.build_version }}" \
+             --arg date "$DATE" \
+             --arg desc "${{ steps.get_changelog.outputs.changelog }}" \
+             --arg url "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/JHenTai_${VERSION}.ipa" \
+             --arg size "${{ steps.get_ipa_size.outputs.ipa_size }}" \
+             '.versions[0] = {
+                "version": $version,
+                "buildVersion": $build,
+                "date": $date,
+                "localizedDescription": $desc,
+                "downloadURL": $url,
+                "size": ($size | tonumber)
+              }' AltSource/AltSource.json > AltSource/AltSource.json.tmp
+          mv AltSource/AltSource.json.tmp AltSource/AltSource.json
+
+      # Commit and push updated AltSource.json
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add AltSource/AltSource.json
+          git commit -m "Update AltSource.json for version ${{ needs.Build.outputs.version }}"
+          git push
