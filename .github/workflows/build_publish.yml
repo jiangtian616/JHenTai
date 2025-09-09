@@ -256,7 +256,7 @@ jobs:
       - name: Get IPA file size
         id: get_ipa_size
         run: |
-          IPA_SIZE=$(stat -f %z /tmp/artifacts/release-iOS/*.ipa)
+          IPA_SIZE=$(stat -c %s /tmp/artifacts/release-iOS/*.ipa)
           echo "ipa_size=$IPA_SIZE" >> $GITHUB_OUTPUT
 
       # Get changelog content
