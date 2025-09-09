@@ -17,6 +17,7 @@ import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/exception/eh_site_exception.dart';
 import 'package:jhentai/src/model/archive_bot_response/archive_bot_response.dart';
 import 'package:jhentai/src/model/archive_bot_response/archive_resolve_vo.dart';
+import 'package:jhentai/src/model/archive_unlock_result.dart';
 import 'package:jhentai/src/network/archive_bot_request.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
@@ -740,9 +741,9 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     await _updateArchiveStatus(archive.gid, ArchiveStatus.unlocking);
 
-    String? downloadPageUrl;
+    ArchiveUnlockResult result;
     try {
-      downloadPageUrl = await retry(
+      result = await retry(
         () => ehRequest.requestUnlockArchive(
           url: archive.archivePageUrl.replaceFirst('--', '-'),
           isOriginal: archive.isOriginal,
@@ -763,18 +764,21 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       snack('archiveError'.tr, e.message, isShort: true);
 
       if (e.shouldPauseAllDownloadTasks) {
-        return pauseAllDownloadArchive();
+        return await pauseAllDownloadArchive();
       } else {
-        return pauseDownloadArchive(archive.gid);
+        return await pauseDownloadArchive(archive.gid);
       }
     }
 
-    if (downloadPageUrl != null) {
+    if (result.success) {
       log.download('Get archive download page url success: ${archive.title}');
-      archiveDownloadInfo.downloadPageUrl = downloadPageUrl;
+      archiveDownloadInfo.downloadPageUrl = result.url;
+      await _updateArchiveStatus(archive.gid, ArchiveStatus.unlocked);
+    } else {
+      log.download('Unlock archive failed. Archive: ${archive.title}, reason: ${result.msg}');
+      snack('archiveError'.tr, result.msg, isShort: true);
+      await pauseDownloadArchive(archive.gid);
     }
-
-    await _updateArchiveStatus(archive.gid, ArchiveStatus.unlocked);
   }
 
   Future<void> _getDownloadPageUrl(ArchiveDownloadedData archive) async {
@@ -795,9 +799,9 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     await _updateArchiveStatus(archive.gid, ArchiveStatus.parsingDownloadPageUrl);
 
-    String? downloadPageUrl;
+    ArchiveUnlockResult result;
     try {
-      downloadPageUrl = await retry(
+      result = await retry(
         () => ehRequest.requestUnlockArchive(
           url: archive.archivePageUrl.replaceFirst('--', '-'),
           isOriginal: archive.isOriginal,
@@ -824,14 +828,19 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       }
     }
 
-    if (downloadPageUrl == null) {
+    if (result.success && result.url != null) {
+      log.download('Get archive download page url success: ${archive.title}');
+      archiveDownloadInfo.downloadPageUrl = result.url;
+      await _updateArchiveStatus(archive.gid, ArchiveStatus.parsedDownloadPageUrl);
+    } else if (result.success && result.url == null) {
       /// wait for server operation
       await Future.delayed(const Duration(milliseconds: 1000));
       return _getDownloadPageUrl(archive);
     } else {
-      log.download('Get archive download page url success: ${archive.title}');
-      archiveDownloadInfo.downloadPageUrl = downloadPageUrl;
-      await _updateArchiveStatus(archive.gid, ArchiveStatus.parsedDownloadPageUrl);
+      log.download('Get archive download page url failed. Archive: ${archive.title}, reason: ${result.msg}');
+      snack('archiveError'.tr, result.msg, isShort: true);
+      await pauseDownloadArchive(archive.gid);
+      return;
     }
   }
 

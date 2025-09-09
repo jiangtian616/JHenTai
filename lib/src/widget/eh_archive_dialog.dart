@@ -159,10 +159,9 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
       if (archive.downloadOriginalHint.contains('Insufficient Funds')) {
         return false;
       }
-      if (archive.originalCost.contains('GP')) {
-        return (archive.gpCount ?? double.maxFinite) >= int.parse(archive.originalCost.split(' ')[0]);
-      }
-      return (archive.creditCount ?? double.maxFinite) >= int.parse(archive.originalCost.split(' ')[0]);
+
+      /// we can use credits to afford GP cost
+      return true;
     } else {
       if (archive.resampleCost == null || archive.resampleCost == 'N/A') {
         return false;
@@ -175,10 +174,8 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
       if (archive.resampleCost!.contains('Free')) {
         return true;
       }
-      if (archive.resampleCost!.contains('GP')) {
-        return (archive.gpCount ?? double.maxFinite) >= int.parse(archive.resampleCost!.split(' ')[0]);
-      }
-      return (archive.creditCount ?? double.maxFinite) >= int.parse(archive.resampleCost!.split(' ')[0]);
+
+      return true;
     }
   }
 
