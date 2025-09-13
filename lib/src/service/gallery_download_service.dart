@@ -677,7 +677,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     return EHImageException(
       type: EHImageExceptionType.serverError,
       message: imageFileData,
-      operation: EHImageExceptionAfterOperation.reParse,
+      operation: EHImageExceptionAfterOperation.pauseAll,
     );
   }
 
