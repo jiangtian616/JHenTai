@@ -665,7 +665,20 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       );
     }
 
-    return null;
+    /// H@H node error
+    if (imageFileData.contains('An error has occurred')) {
+      return EHImageException(
+        type: EHImageExceptionType.serverError,
+        message: '',
+        operation: EHImageExceptionAfterOperation.reParse,
+      );
+    }
+
+    return EHImageException(
+      type: EHImageExceptionType.serverError,
+      message: imageFileData,
+      operation: EHImageExceptionAfterOperation.reParse,
+    );
   }
 
   Future<void> _generateComicInfoInDisk(GalleryDownloadedData gallery) async {
