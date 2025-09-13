@@ -615,6 +615,14 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   static EHImageException? imageData2Exception(String imageFileData) {
+    if (imageFileData.isEmpty) {
+      return EHImageException(
+        type: EHImageExceptionType.blankImage,
+        message: 'blankImageHint'.tr,
+        operation: EHImageExceptionAfterOperation.reParse,
+      );
+    }
+
     if (imageFileData.contains('Downloading original files of this gallery during peak hours requires GP, and you do not have enough.')) {
       return EHImageException(
         type: EHImageExceptionType.peakHours,

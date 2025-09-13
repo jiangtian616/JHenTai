@@ -16,6 +16,7 @@ class EHImageException implements Exception {
 }
 
 enum EHImageExceptionType {
+  blankImage,
   peakHours,
   oldGallery,
   exceedLimit,

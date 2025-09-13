@@ -587,6 +587,7 @@ class ru_RU {
       'multiReDownloadHint': 'Вы перекачаете все выбранные галереи.',
       'multiChangeGroupHint': 'Вы измените группу для всех выбранных галерей.',
       'multiDeleteHint': 'Вы удалите все выбранные галереи.',
+      'blankImageHint': 'Downloading the image returned an empty result, trying to re-parse.',
       'peakHoursHint': 'Загрузка оригинальных файлов в часы пик требует GP, у вас недостаточно. Загрузка приостановлена.',
       // GP - термин EH
       'oldGalleryHint': 'Загрузка оригинальных файлов этой галереи требует GP, у вас недостаточно.',

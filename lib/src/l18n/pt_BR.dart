@@ -582,6 +582,7 @@ class pt_BR {
       'multiReDownloadHint': 'You will re-download all selected gallerys.',
       'multiChangeGroupHint': 'You will change group of all selected gallerys.',
       'multiDeleteHint': 'You will delete all selected gallerys.',
+      'blankImageHint': 'Downloading the image returned an empty result, trying to re-parse.',
       'peakHoursHint': 'Downloading original files during peak hours requires GP, and you do not have enough, downloading is paused.',
       'oldGalleryHint': 'Downloading original files of this gallery requires GP, and you do not have enough.',
       'exceedLimitHint': 'You have reached the image limit, and do not have sufficient GP to buy a download quota.',

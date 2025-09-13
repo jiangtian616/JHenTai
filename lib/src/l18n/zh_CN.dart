@@ -580,6 +580,7 @@ class zh_CN {
       'multiReDownloadHint': '你将会重新下载所有选中的画廊。',
       'multiChangeGroupHint': '你将会改变所有选中画廊的分组。',
       'multiDeleteHint': '你将会删除所有选中的画廊。',
+      'blankImageHint': '下载图片返回空结果，尝试重新解析。',
       'peakHoursHint': '高峰段下载原图需要耗费GP，由于你的GP不足，下载已自动停止。',
       'oldGalleryHint': '部分画廊下载原图需要耗费GP，由于你的GP不足，下载已自动停止。',
       'exceedLimitHint': '图片配额已耗尽，由于你的GP不足，下载已自动停止。',
