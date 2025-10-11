@@ -303,6 +303,6 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add AltSource/AltSource.json
+          git add altsource/AltSource.json
           git commit -m "Update AltSource.json for version ${{ needs.Build.outputs.version }}"
           git push
