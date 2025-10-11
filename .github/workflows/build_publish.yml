@@ -295,8 +295,8 @@ jobs:
                 "localizedDescription": $desc,
                 "downloadURL": $url,
                 "size": ($size | tonumber)
-              }' altSource/AltSource.json > altSource/AltSource.json.tmp
-          mv altSource/AltSource.json.tmp altSource/AltSource.json
+              }' altsource/AltSource.json > altsource/AltSource.json.tmp
+          mv altsource/AltSource.json.tmp altsource/AltSource.json
 
       # Commit and push updated AltSource.json
       - name: Commit changes
