@@ -305,4 +305,5 @@ jobs:
           git config --local user.name "GitHub Action"
           git add altsource/AltSource.json
           git commit -m "Update AltSource.json for version ${{ needs.Build.outputs.version }}"
-          git push
+          git push origin HEAD:master
+
