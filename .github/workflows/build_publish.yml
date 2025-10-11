@@ -281,8 +281,6 @@ jobs:
           VERSION="${{ needs.Build.outputs.version }}"
           DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           
-          mkdir -p AltSource
-          
           # Create new version entry
           jq --arg version "$VERSION" \
              --arg build "${{ steps.get_build_version.outputs.build_version }}" \
@@ -297,8 +295,8 @@ jobs:
                 "localizedDescription": $desc,
                 "downloadURL": $url,
                 "size": ($size | tonumber)
-              }' AltSource/AltSource.json > AltSource/AltSource.json.tmp
-          mv AltSource/AltSource.json.tmp AltSource/AltSource.json
+              }' altSource/AltSource.json > altSource/AltSource.json.tmp
+          mv altSource/AltSource.json.tmp altSource/AltSource.json
 
       # Commit and push updated AltSource.json
       - name: Commit changes
