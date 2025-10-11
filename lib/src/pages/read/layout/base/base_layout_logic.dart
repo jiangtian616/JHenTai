@@ -20,6 +20,7 @@ import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/permission_util.dart';
+import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:path/path.dart';
 import 'package:photo_view/photo_view.dart';
@@ -212,7 +213,13 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       return;
     }
 
-    String fileName = '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index${extension(readPageState.images[index]!.url)}';
+    // deal with .webp/.jpg which has not basename
+    String ext = extension(readPageState.images[index]!.url);
+    if (isEmptyOrNull(ext)) {
+      ext = basename(readPageState.images[index]!.url);
+    }
+    
+    String fileName = '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index$ext';
 
     Share.shareXFiles(
       [XFile.fromData(data)],
@@ -249,7 +256,13 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       return;
     }
 
-    String fileName = '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index${extension(readPageState.images[index]!.url)}';
+    // deal with .webp/.jpg which has not basename
+    String ext = extension(readPageState.images[index]!.url);
+    if (isEmptyOrNull(ext)) {
+      ext = basename(readPageState.images[index]!.url);
+    }
+
+    String fileName = '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index$ext';
 
     if (GetPlatform.isDesktop) {
       File file = File(join(downloadSetting.singleImageSavePath.value, fileName));
@@ -288,8 +301,14 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       return saveOnlineImage(index);
     }
 
+    // deal with .webp/.jpg which has not basename
+    String ext = extension(readPageState.images[index]!.originalImageUrl!);
+    if (isEmptyOrNull(ext)) {
+      ext = basename(readPageState.images[index]!.originalImageUrl!);
+    }
+    
     String fileName =
-        '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_${index}_original${extension(readPageState.images[index]!.originalImageUrl!)}';
+        '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_${index}_original$ext';
     String downloadPath = join(downloadSetting.tempDownloadPath.value, fileName);
     File file = File(downloadPath);
 
