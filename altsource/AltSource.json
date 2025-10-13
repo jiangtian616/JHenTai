@@ -14,12 +14,12 @@
   ],
   "versions": [
     {
-      "version": "8.0.10",
-      "buildVersion": "297",
-      "date": "2025-08-14T12:57:00+08:00",
-      "localizedDescription": "- 支持Location标签展示\n- 修复重命名分组时，画廊元文件未更新分组的bug\n\n--------------------\n\n- Support location tag display.\n- Fix the bug where the gallery metadata is not updated when renaming a group.",
-      "downloadURL": "https://github.com/jiangtian616/JHenTai/releases/download/v8.0.10/JHenTai_8.0.10+297.ipa",
-      "size": 15702884
+      "version": "8.0.10+302",
+      "buildVersion": "302",
+      "date": "2025-10-11T18:35:08Z",
+      "localizedDescription": "- 修复空文件名图片会导致保存图片失败的bug\\n\\n--------------------\\n\\n- Fix the bug that saving images fails when the filename is empty.",
+      "downloadURL": "https://github.com/jiangtian616/JHenTai/releases/download/v8.0.10+302/JHenTai_8.0.10+302.ipa",
+      "size": 15698779
     }
   ],
   "identifier": "top.jtmonster.jhentai",

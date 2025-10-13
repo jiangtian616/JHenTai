@@ -295,14 +295,15 @@ jobs:
                 "localizedDescription": $desc,
                 "downloadURL": $url,
                 "size": ($size | tonumber)
-              }' AltSource/AltSource.json > AltSource/AltSource.json.tmp
-          mv AltSource/AltSource.json.tmp AltSource/AltSource.json
+              }' altsource/AltSource.json > altsource/AltSource.json.tmp
+          mv altsource/AltSource.json.tmp altsource/AltSource.json
 
       # Commit and push updated AltSource.json
       - name: Commit changes
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add AltSource/AltSource.json
+          git add altsource/AltSource.json
           git commit -m "Update AltSource.json for version ${{ needs.Build.outputs.version }}"
-          git push
+          git push origin HEAD:master
+
