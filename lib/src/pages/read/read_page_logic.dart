@@ -38,6 +38,7 @@ import '../../utils/eh_spider_parser.dart';
 import '../../service/log.dart';
 import '../../widget/auto_mode_interval_dialog.dart';
 import '../../widget/loading_state_indicator.dart';
+import '../../service/read_progress_service.dart';
 
 class ReadPageLogic extends GetxController {
   final String pageId = 'pageId';
@@ -616,6 +617,14 @@ class ReadPageLogic extends GetxController {
       subConfigKey: state.readPageInfo.readProgressRecordStorageKey,
       value: state.readPageInfo.currentImageIndex.toString(),
     );
+    
+    // Update cache and notify UI
+    if (state.readPageInfo.gid != null) {
+      readProgressService.updateReadProgress(
+        state.readPageInfo.gid!,
+        state.readPageInfo.currentImageIndex,
+      );
+    }
   }
 
   void clearImageContainerSized() {
