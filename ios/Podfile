@@ -1,5 +1,5 @@
 # Uncomment this line to define a global platform for your project
-platform :ios, '12.0'
+platform :ios, '15.5'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -30,6 +30,12 @@ flutter_ios_podfile_setup
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
+
+  # Add language package you need to use
+  pod 'GoogleMLKit/TextRecognitionChinese', '~> 7.0.0'
+  pod 'GoogleMLKit/TextRecognitionDevanagari', '~> 7.0.0'
+  pod 'GoogleMLKit/TextRecognitionJapanese', '~> 7.0.0'
+  pod 'GoogleMLKit/TextRecognitionKorean', '~> 7.0.0'
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end

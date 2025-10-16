@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 
+import '../../../../service/ml_tts_service.dart';
 import '../base/base_layout_logic.dart';
 import 'horizontal_page_layout_state.dart';
 
@@ -42,21 +43,30 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
   }
 
   @override
-  void toPrev() {
+  Future<void> toPrev() async {
     int targetIndex = (pageController.page! - 1).toInt();
-    toImageIndex(max(targetIndex, 0));
+    int index = max(targetIndex, 0);
+    toImageIndex(index);
+    if (targetIndex == index) {
+      _play(index);
+    }
   }
 
   @override
-  void toNext() {
+  void toNext() async {
     int targetIndex = (pageController.page! + 1).toInt();
-    toImageIndex(min(targetIndex, readPageState.readPageInfo.pageCount - 1));
+    int index = min(targetIndex, readPageState.readPageInfo.pageCount - 1);
+    toImageIndex(index);
+    if (targetIndex == index) {
+      _play(index);
+    }
   }
 
   @override
-  void jump2ImageIndex(int pageIndex) {
+  void jump2ImageIndex(int pageIndex) async {
     pageController.jumpToPage(pageIndex);
     super.jump2ImageIndex(pageIndex);
+    _play(pageIndex);
   }
 
   @override
@@ -67,11 +77,17 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
       curve: Curves.ease,
     );
     super.scroll2ImageIndex(pageIndex, duration);
+    _play(pageIndex);
   }
 
   @override
   void enterAutoMode() {
     _enterAutoModeByTurnPage();
+  }
+
+  void _play(int index) async {
+    String? path = await readPageState.images[index]?.getValidAbsolutePath();
+    mlTtsService.playFromPath(path);
   }
 
   void _enterAutoModeByTurnPage() {

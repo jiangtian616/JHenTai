@@ -17,6 +17,7 @@ import 'package:jhentai/src/service/jh_service.dart';
 import 'package:jhentai/src/service/local_block_rule_service.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
+import 'package:jhentai/src/service/ml_tts_service.dart';
 import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/service/read_progress_service.dart';
 import 'package:jhentai/src/service/quick_search_service.dart';
@@ -97,6 +98,7 @@ List<JHLifeCircleBean> lifeCircleBeans = [
   superResolutionSetting,
   userSetting,
   builtInBlockedUserService,
+  mlTtsService
 ];
 
 void main(List<String> args) async {
