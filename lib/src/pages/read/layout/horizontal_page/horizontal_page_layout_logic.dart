@@ -114,7 +114,9 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
           return;
         }
 
-        toNext();
+        if (!mlTtsService.isPlaying) {
+          toNext();
+        }
       },
     );
   }
