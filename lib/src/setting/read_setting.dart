@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:get/get.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/service/log.dart';
 
@@ -45,6 +46,15 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
           ? false.obs
           : true.obs;
   RxInt maxImageKilobyte = (1024 * 5).obs;
+
+  Rx<TextRecognitionScript> mlTtsScript = TextRecognitionScript.latin.obs;
+  RxnString mlTtsLanguage = RxnString('zh-CN');
+  RxnString mlTtsEngine = RxnString();
+  RxDouble mlTtsVolume = 0.5.obs;
+  RxDouble mlTtsPitch = 1.0.obs;
+  RxDouble mlTtsRate = 0.5.obs;
+  RxnString mlTtsExclusionList = RxnString();
+  RxInt mlTtsMinWordLimit = 3.obs;
 
   bool get isInListReadDirection =>
       readDirection.value == ReadDirection.top2bottomList ||
@@ -108,6 +118,14 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     gestureRegionWidthRatio.value = map['gestureRegionWidthRatio'] ?? gestureRegionWidthRatio.value;
     useThirdPartyViewer.value = map['useThirdPartyViewer'] ?? useThirdPartyViewer.value;
     thirdPartyViewerPath.value = map['thirdPartyViewerPath'];
+    mlTtsScript.value = TextRecognitionScript.values[map['mlTtsScript'] ?? TextRecognitionScript.latin.index];
+    mlTtsLanguage.value = map['mlTtsLanguage'] ?? mlTtsLanguage.value;
+    mlTtsEngine.value = map['mlTtsEngine'] ?? mlTtsEngine.value;
+    mlTtsPitch.value = map['mlTtsPitch'] ?? mlTtsPitch.value;
+    mlTtsVolume.value = map['mlTtsVolume'] ?? mlTtsVolume.value;
+    mlTtsRate.value = map['mlTtsRate'] ?? mlTtsRate.value;
+    mlTtsExclusionList.value = map['mlTtsExclusionList'] ?? mlTtsExclusionList.value;
+    mlTtsMinWordLimit.value = map['mlTtsMinWordLimit'] ?? mlTtsMinWordLimit.value;
     turnPageMode.value = TurnPageMode.values[map['turnPageMode']];
     preloadDistance.value = map['preloadDistance'];
     preloadDistanceLocal.value = map['preloadDistanceLocal'] ?? preloadDistanceLocal.value;
@@ -145,6 +163,14 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
       'gestureRegionWidthRatio': gestureRegionWidthRatio.value,
       'useThirdPartyViewer': useThirdPartyViewer.value,
       'thirdPartyViewerPath': thirdPartyViewerPath.value,
+      'mlTtsScript': mlTtsScript.value.index,
+      'mlTtsEngine': mlTtsEngine.value,
+      'mlTtsLanguage': mlTtsLanguage.value,
+      'mlTtsRate': mlTtsRate.value,
+      'mlTtsVolume': mlTtsVolume.value,
+      'mlTtsPitch': mlTtsPitch.value,
+      'mlTtsExclusionList': mlTtsExclusionList.value,
+      'mlTtsMinWordLimit': mlTtsMinWordLimit.value,
       'turnPageMode': turnPageMode.value.index,
       'preloadDistance': preloadDistance.value,
       'preloadDistanceLocal': preloadDistanceLocal.value,
@@ -263,6 +289,54 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   Future<void> saveThirdPartyViewerPath(String? value) async {
     log.debug('saveThirdPartyViewerPath:$value');
     thirdPartyViewerPath.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveMlTtsScript(TextRecognitionScript value) async {
+    log.debug('saveMlTtsScript:${value.name}');
+    mlTtsScript.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveMlTtsLanguage(String? value) async {
+    log.debug('saveMlTtsLanguage:$value');
+    mlTtsLanguage.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveMlTtsEngine(String? value) async {
+    log.debug('saveMlTtsEngine:$value');
+    mlTtsEngine.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveMlTtsPitch(double value) async {
+    log.debug('saveMlTtsPitch:$value');
+    mlTtsPitch.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveMlTtsVolume(double value) async {
+    log.debug('saveMlTtsVolume:$value');
+    mlTtsVolume.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveMlTtsRate(double value) async {
+    log.debug('saveMlTtsRate:$value');
+    mlTtsRate.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveMlTtsExclusionList(String? value) async {
+    log.debug('saveMlTtsExclusionList:$value');
+    mlTtsExclusionList.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveMlTtsMinWordLimit(int value) async {
+    log.debug('saveMlTtsMinWordLimit:$value');
+    mlTtsMinWordLimit.value = value;
     await saveBeanConfig();
   }
 

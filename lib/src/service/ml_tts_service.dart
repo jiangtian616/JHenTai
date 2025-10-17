@@ -1,6 +1,9 @@
 import 'dart:io';
 
 import 'package:extended_image/extended_image.dart';
+import 'package:get/get_rx/src/rx_workers/rx_workers.dart';
+import 'package:jhentai/src/setting/read_setting.dart';
+import 'package:jhentai/src/service/log.dart';
 
 import 'jh_service.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
@@ -59,94 +62,154 @@ ko-KR（韩语）
 其他代码：
 列表中的其他代码（如 ar-001、uk-UA、th-TH、he-IL、el-GR、ru-RU、bg-BG 等）使用阿拉伯字母、西里尔字母、泰文字母、希伯来字母、希腊字母等文字系统，不属于您提到的五种语种范围。
   */
-  final _textRecognizer = TextRecognizer(script: TextRecognitionScript.chinese);
+  late TextRecognizer _textRecognizer;
   String _extractedText = '';
 
   String? _path;
-
-  late FlutterTts flutterTts;
-  String? language = 'zh_CN';
-  String? engine;
-  double volume = 0.5;
-  double pitch = 1.0;
-  double rate = 0.7;
+  late FlutterTts _flutterTts;
   bool isCurrentLanguageInstalled = false;
-
   TtsState ttsState = TtsState.stopped;
+  List<String> languages = [];
+  List<String> engines = [];
+  List<String> exclusionList = [];
+  int blockDelay = 3;
 
   bool get isPlaying => ttsState == TtsState.playing;
   bool get isStopped => ttsState == TtsState.stopped;
   bool get isPaused => ttsState == TtsState.paused;
   bool get isContinued => ttsState == TtsState.continued;
 
-  // 获取可选的语言
-  Future<dynamic> _getLanguages() async => await flutterTts.getLanguages;
+  late Worker mlTtsScriptLister;
+  late Worker mlTtsEngineLister;
+  late Worker mlTtsLanguageLister;
+  late Worker mlTtsPitchLister;
+  late Worker mlTtsRateLister;
+  late Worker mlTtsVolumeLister;
+  late Worker mlTtsExclusionListLister;
+  late Worker mlTtsBlockDelayLister;
 
-  // 获取所有引擎，Android
-  Future<dynamic> _getEngines() async => await flutterTts.getEngines;
+  Future<void> initConfig(_) async {
+    await _flutterTts.setVolume(readSetting.mlTtsVolume.value);
+    await _flutterTts.setSpeechRate(readSetting.mlTtsRate.value);
+    await _flutterTts.setPitch(readSetting.mlTtsPitch.value);
+    await _flutterTts.setLanguage(readSetting.mlTtsLanguage.value!);
+    await _setEngine();
 
-  @override
-  Future<void> doInitBean() async {
-    flutterTts = FlutterTts();
+    exclusionList = readSetting.mlTtsExclusionList.value!.split("\n");
+    blockDelay = readSetting.mlTtsMinWordLimit.value;
 
-    await flutterTts.setVolume(volume);
-    await flutterTts.setSpeechRate(rate);
-    await flutterTts.setPitch(pitch);
-    await flutterTts.setLanguage(language!);
-
-    if (Platform.isAndroid) {
-      var engine = await flutterTts.getDefaultEngine;
-      if (engine != null) {
-        print(engine);
-      }
-      // 安卓特有的用于测试的默认声音
-      var voice = await flutterTts.getDefaultVoice;
-      if (voice != null) {
-        print(voice);
-      }
-
-      // 检测语言是否支持
-      flutterTts
-          .isLanguageInstalled(language!)
-          .then((value) => isCurrentLanguageInstalled = (value as bool));
-
-      //设置引擎
-      await flutterTts.setEngine(engine);
-    }
-
-    flutterTts.setStartHandler(() {
-      print("Playing");
+    _flutterTts.setStartHandler(() {
+      log.debug('setStartHandler:Playing');
       ttsState = TtsState.playing;
     });
 
-    flutterTts.setCompletionHandler(() {
-      print("Complete");
+    _flutterTts.setCompletionHandler(() {
+      log.debug('setCompletionHandler:Complete');
       ttsState = TtsState.stopped;
     });
 
-    flutterTts.setCancelHandler(() {
-      print("Cancel");
+    _flutterTts.setCancelHandler(() {
+      log.debug('setCancelHandler:Cancel');
       ttsState = TtsState.stopped;
     });
 
-    flutterTts.setPauseHandler(() {
-      print("Paused");
+    _flutterTts.setPauseHandler(() {
+      log.debug('setPauseHandler:Paused');
       ttsState = TtsState.paused;
     });
 
-    flutterTts.setContinueHandler(() {
-      print("Continued");
+    _flutterTts.setContinueHandler(() {
+      log.debug('setContinueHandler:Continued');
       ttsState = TtsState.continued;
     });
 
-    flutterTts.setErrorHandler((msg) {
-      print("error: $msg");
+    _flutterTts.setErrorHandler((msg) {
+      log.debug('setErrorHandler:error: $msg');
       ttsState = TtsState.stopped;
     });
   }
 
+  Future<void> _setEngine() async {
+    if (Platform.isAndroid) {
+      engines = [];
+      var engs = await _flutterTts.getEngines;
+      for (var element in engs) {
+        engines.add(element);
+      }
+
+      var engine =
+          readSetting.mlTtsEngine.value ?? await _flutterTts.getDefaultEngine;
+      if (engine != null) {
+        log.debug('_setEngine:error: $engine');
+      }
+      var voice = await _flutterTts.getDefaultVoice;
+      if (voice != null) {
+        log.debug('_setEngine:error: $voice');
+      }
+
+      _flutterTts
+          .isLanguageInstalled(readSetting.mlTtsLanguage.value!)
+          .then((value) => isCurrentLanguageInstalled = (value as bool));
+
+      await _flutterTts.setEngine(engine);
+    }
+  }
+
+  void dispose() {
+    mlTtsScriptLister.dispose();
+    mlTtsEngineLister.dispose();
+    mlTtsLanguageLister.dispose();
+    mlTtsPitchLister.dispose();
+    mlTtsRateLister.dispose();
+    mlTtsVolumeLister.dispose();
+    mlTtsExclusionListLister.dispose();
+    mlTtsBlockDelayLister.dispose();
+  }
+
+  void _addListers() {
+    mlTtsScriptLister = ever(readSetting.mlTtsScript, (_) {
+      _textRecognizer = TextRecognizer(script: readSetting.mlTtsScript.value);
+    });
+    mlTtsEngineLister = ever(readSetting.mlTtsEngine, (_) {
+      _setEngine();
+    });
+    mlTtsLanguageLister = ever(readSetting.mlTtsLanguage, (_) {
+      _flutterTts.setLanguage(readSetting.mlTtsLanguage.value!);
+    });
+    mlTtsPitchLister = ever(readSetting.mlTtsPitch, (_) {
+      _flutterTts.setPitch(readSetting.mlTtsPitch.value);
+    });
+    mlTtsRateLister = ever(readSetting.mlTtsRate, (_) {
+      _flutterTts.setSpeechRate(readSetting.mlTtsRate.value);
+    });
+    mlTtsVolumeLister = ever(readSetting.mlTtsVolume, (_) {
+      _flutterTts.setVolume(readSetting.mlTtsVolume.value);
+    });
+    mlTtsExclusionListLister = ever(readSetting.mlTtsExclusionList, (_) {
+      exclusionList = readSetting.mlTtsExclusionList.value!.split("\n");
+    });
+    mlTtsBlockDelayLister = ever(readSetting.mlTtsMinWordLimit, (_) {
+      blockDelay = readSetting.mlTtsMinWordLimit.value;
+    });
+  }
+
   @override
-  Future<void> doAfterBeanReady() async {}
+  Future<void> doInitBean() async {
+    _flutterTts = FlutterTts();
+    _textRecognizer = TextRecognizer(script: readSetting.mlTtsScript.value);
+
+    await initConfig('');
+  }
+
+  @override
+  Future<void> doAfterBeanReady() async {
+    _addListers();
+    var langs = await _flutterTts.getLanguages;
+    for (var element in langs) {
+      languages.add(element);
+    }
+    log.debug('doAfterBeanReady:error: $languages');
+  }
 
   Future<void> _recognizedText() async {
     try {
@@ -154,10 +217,18 @@ ko-KR（韩语）
       final RecognizedText text =
           await _textRecognizer.processImage(inputImage);
       _extractedText = '';
-      for (var element in text.blocks) {
-        _extractedText += element.text.replaceAll(RegExp(r'\s'), '') + "。\n";
-        print(_extractedText);
-        print('-----------------');
+      for (var block in text.blocks) {
+        var t = block.text.replaceAll(RegExp(r'\s'), '');
+        for (var val in exclusionList) {
+          if (t.contains(val)) {
+            continue;
+          }
+        }
+        if (t.length < readSetting.mlTtsMinWordLimit.value) {
+          continue;
+        }
+        _extractedText += t;
+        log.debug('_setEngine:error: $_extractedText');
       }
     } catch (e) {}
   }
@@ -165,8 +236,8 @@ ko-KR（韩语）
   Future<void> _speak() async {
     if (_extractedText.isNotEmpty) {
       await stop();
-      await flutterTts.clearVoice();
-      await flutterTts.speak(_extractedText);
+      await _flutterTts.clearVoice();
+      await _flutterTts.speak(_extractedText);
     }
   }
 
@@ -191,14 +262,14 @@ ko-KR（韩语）
   }
 
   Future<void> stop() async {
-    var result = await flutterTts.stop();
+    var result = await _flutterTts.stop();
     if (result == 1) {
       ttsState = TtsState.stopped;
     }
   }
 
   Future<void> pause() async {
-    var result = await flutterTts.pause();
+    var result = await _flutterTts.pause();
     if (result == 1) {
       ttsState = TtsState.paused;
     }

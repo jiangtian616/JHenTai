@@ -4,7 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
+import 'package:jhentai/src/service/ml_tts_service.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
 import '../../../service/log.dart';
 import '../../../utils/text_input_formatter.dart';
@@ -14,6 +16,7 @@ class SettingReadPage extends StatelessWidget {
   final TextEditingController imageRegionWidthRatioController = TextEditingController(text: readSetting.imageRegionWidthRatio.value.toString());
   final TextEditingController gestureRegionWidthRatioController = TextEditingController(text: readSetting.gestureRegionWidthRatio.value.toString());
   final TextEditingController imageMaxKilobytesController = TextEditingController(text: readSetting.maxImageKilobyte.value.toString());
+  final TextEditingController mlTtsExclusionListController = TextEditingController(text: readSetting.mlTtsExclusionList.value.toString());
 
   SettingReadPage({Key? key}) : super(key: key);
 
@@ -57,6 +60,14 @@ class SettingReadPage extends StatelessWidget {
               if (readSetting.isInListReadDirection) _buildAutoModeStyle().fadeIn(const Key('autoModeStyle')).center(),
               if (readSetting.isInListReadDirection) _buildTurnPageMode().fadeIn(const Key('turnPageMode')).center(),
               _buildImageSpace().center(),
+              _buildMlTtsScript().center(),
+              _buildMlTtsLanguage().center(),
+              if (GetPlatform.isAndroid) _buildMlTtsEngine().center(),
+              _buildMlTtsPitch().center(),
+              _buildMlTtsRate().center(),
+              _buildMlTtsVolume().center(),
+              _buildMlTtsMinWordLimit().center(),
+              // _buildMlTtsExclusionList().center(),
             ],
           ).withListTileTheme(context),
         ),
@@ -296,6 +307,170 @@ class SettingReadPage extends StatelessWidget {
     );
   }
 
+  Widget _buildMlTtsScript() {
+    return ListTile(
+      title: Text('mlTtsScript'.tr),
+      trailing: DropdownButton<TextRecognitionScript>(
+        value: readSetting.mlTtsScript.value,
+        elevation: 4,
+        onChanged: (TextRecognitionScript? newValue) =>
+            readSetting.saveMlTtsScript(newValue!),
+        items: TextRecognitionScript.values
+            .map((e) => DropdownMenuItem(child: Text(e.name.tr), value: e))
+            .toList(),
+      ).marginOnly(right: 12),
+    );
+  }
+
+  Widget _buildMlTtsLanguage() {
+    return ListTile(
+      title: Text('mlTtsLanguage'.tr),
+      trailing: DropdownButton<String>(
+        value: readSetting.mlTtsLanguage.value,
+        elevation: 4,
+        onChanged: (String? newValue) =>
+            readSetting.saveMlTtsLanguage(newValue!),
+        items: mlTtsService.languages
+            .map(((e) => DropdownMenuItem(child: Text(e), value: e)))
+            .toList(),
+      ).marginOnly(right: 12),
+    );
+  }
+
+  Widget _buildMlTtsEngine() {
+    return ListTile(
+      title: Text('mlTtsEngine'.tr),
+      trailing: DropdownButton<String>(
+        value: readSetting.mlTtsEngine.value,
+        elevation: 4,
+        onChanged: (String? newValue) => readSetting.saveMlTtsEngine(newValue!),
+        items: mlTtsService.engines
+            .map(((e) => DropdownMenuItem(child: Text(e.tr), value: e)))
+            .toList(),
+      ).marginOnly(right: 12),
+    );
+  }
+
+  Widget _buildMlTtsVolume() {
+    return ListTile(
+      title: Text('mlTtsVolume'.tr),
+      trailing: DropdownButton<double>(
+        value: readSetting.mlTtsVolume.value,
+        elevation: 4,
+        onChanged: (double? newValue) {
+          readSetting.saveMlTtsVolume(newValue!);
+        },
+        items: const [
+          DropdownMenuItem(child: Text('0.1'), value: 0.1),
+          DropdownMenuItem(child: Text('0.2'), value: 0.2),
+          DropdownMenuItem(child: Text('0.3'), value: 0.3),
+          DropdownMenuItem(child: Text('0.4'), value: 0.4),
+          DropdownMenuItem(child: Text('0.5'), value: 0.5),
+          DropdownMenuItem(child: Text('0.6'), value: 0.6),
+          DropdownMenuItem(child: Text('0.7'), value: 0.7),
+          DropdownMenuItem(child: Text('0.8'), value: 0.8),
+          DropdownMenuItem(child: Text('0.9'), value: 0.9),
+          DropdownMenuItem(child: Text('1.0'), value: 1.0),
+        ],
+      ).marginOnly(right: 12),
+    );
+  }
+
+  Widget _buildMlTtsPitch() {
+    return ListTile(
+      title: Text('mlTtsPitch'.tr),
+      trailing: DropdownButton<double>(
+        value: readSetting.mlTtsPitch.value,
+        elevation: 4,
+        onChanged: (double? newValue) {
+          readSetting.saveMlTtsPitch(newValue!);
+        },
+        items: const [
+          DropdownMenuItem(child: Text('0.1'), value: 0.1),
+          DropdownMenuItem(child: Text('0.2'), value: 0.2),
+          DropdownMenuItem(child: Text('0.3'), value: 0.3),
+          DropdownMenuItem(child: Text('0.4'), value: 0.4),
+          DropdownMenuItem(child: Text('0.5'), value: 0.5),
+          DropdownMenuItem(child: Text('0.6'), value: 0.6),
+          DropdownMenuItem(child: Text('0.7'), value: 0.7),
+          DropdownMenuItem(child: Text('0.8'), value: 0.8),
+          DropdownMenuItem(child: Text('0.9'), value: 0.9),
+          DropdownMenuItem(child: Text('1.0'), value: 1.0),
+        ],
+      ).marginOnly(right: 12),
+    );
+  }
+
+  Widget _buildMlTtsRate() {
+    return ListTile(
+      title: Text('mlTtsRate'.tr),
+      trailing: DropdownButton<double>(
+        value: readSetting.mlTtsRate.value,
+        elevation: 4,
+        onChanged: (double? newValue) {
+          readSetting.saveMlTtsRate(newValue!);
+        },
+        items: const [
+          DropdownMenuItem(child: Text('0.1'), value: 0.1),
+          DropdownMenuItem(child: Text('0.2'), value: 0.2),
+          DropdownMenuItem(child: Text('0.3'), value: 0.3),
+          DropdownMenuItem(child: Text('0.4'), value: 0.4),
+          DropdownMenuItem(child: Text('0.5'), value: 0.5),
+          DropdownMenuItem(child: Text('0.6'), value: 0.6),
+          DropdownMenuItem(child: Text('0.7'), value: 0.7),
+          DropdownMenuItem(child: Text('0.8'), value: 0.8),
+          DropdownMenuItem(child: Text('0.9'), value: 0.9),
+          DropdownMenuItem(child: Text('1.0'), value: 1.0),
+        ],
+      ).marginOnly(right: 12),
+    );
+  }
+
+  Widget _buildMlTtsExclusionList() {
+    return ListTile(
+      title: Text('mlTtsExclusionList'.tr),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            child: TextField(
+              controller: mlTtsExclusionListController,
+              decoration: const InputDecoration(
+                  isDense: true, labelStyle: TextStyle(fontSize: 12)),
+              textAlign: TextAlign.left,
+              onEditingComplete: _saveMlTtsExclusionList,
+            ),
+          ),
+        ],
+      ),
+    ).marginOnly(right: 12);
+  }
+
+  Widget _buildMlTtsMinWordLimit() {
+    return ListTile(
+      title: Text('mlTtsMinWordLimit'.tr),
+      trailing: DropdownButton<int>(
+        value: readSetting.mlTtsMinWordLimit.value,
+        elevation: 4,
+        onChanged: (int? newValue) {
+          readSetting.saveMlTtsMinWordLimit(newValue!);
+        },
+        items: const [
+          DropdownMenuItem(child: Text('0'), value: 0),
+          DropdownMenuItem(child: Text('1'), value: 1),
+          DropdownMenuItem(child: Text('2'), value: 2),
+          DropdownMenuItem(child: Text('3'), value: 3),
+          DropdownMenuItem(child: Text('4'), value: 4),
+          DropdownMenuItem(child: Text('5'), value: 5),
+          DropdownMenuItem(child: Text('6'), value: 6),
+          DropdownMenuItem(child: Text('7'), value: 7),
+          DropdownMenuItem(child: Text('8'), value: 8),
+          DropdownMenuItem(child: Text('9'), value: 9),
+        ],
+      ).marginOnly(right: 12),
+    );
+  }
+
   Widget _buildNotchOptimization() {
     return ListTile(
       title: Text('notchOptimization'.tr),
@@ -334,6 +509,14 @@ class SettingReadPage extends StatelessWidget {
         ],
       ),
     ).marginOnly(right: 12);
+  }
+
+  void _saveMlTtsExclusionList() {
+    var value = mlTtsExclusionListController.value.text;
+    if (value == null) {
+      return;
+    }
+    readSetting.saveMlTtsExclusionList(value);
   }
 
   void _saveImageRegionWidthRatio() {
