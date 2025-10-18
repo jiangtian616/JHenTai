@@ -47,6 +47,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
           : true.obs;
   RxInt maxImageKilobyte = (1024 * 5).obs;
 
+  RxBool mlTtsEnable = false.obs;
   Rx<TextRecognitionScript> mlTtsScript = TextRecognitionScript.latin.obs;
   RxnString mlTtsLanguage = RxnString('zh-CN');
   RxnString mlTtsEngine = RxnString();
@@ -118,6 +119,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     gestureRegionWidthRatio.value = map['gestureRegionWidthRatio'] ?? gestureRegionWidthRatio.value;
     useThirdPartyViewer.value = map['useThirdPartyViewer'] ?? useThirdPartyViewer.value;
     thirdPartyViewerPath.value = map['thirdPartyViewerPath'];
+    mlTtsEnable.value = map['mlTtsEnable'] ?? mlTtsEnable.value;
     mlTtsScript.value = TextRecognitionScript.values[map['mlTtsScript'] ?? TextRecognitionScript.latin.index];
     mlTtsLanguage.value = map['mlTtsLanguage'] ?? mlTtsLanguage.value;
     mlTtsEngine.value = map['mlTtsEngine'] ?? mlTtsEngine.value;
@@ -163,6 +165,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
       'gestureRegionWidthRatio': gestureRegionWidthRatio.value,
       'useThirdPartyViewer': useThirdPartyViewer.value,
       'thirdPartyViewerPath': thirdPartyViewerPath.value,
+      'mlTtsEnable': mlTtsEnable.value,
       'mlTtsScript': mlTtsScript.value.index,
       'mlTtsEngine': mlTtsEngine.value,
       'mlTtsLanguage': mlTtsLanguage.value,
@@ -289,6 +292,12 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   Future<void> saveThirdPartyViewerPath(String? value) async {
     log.debug('saveThirdPartyViewerPath:$value');
     thirdPartyViewerPath.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveMlTtsEnable(bool value) async {
+    log.debug('saveMlTtsEnable:$value');
+    mlTtsEnable.value = value;
     await saveBeanConfig();
   }
 

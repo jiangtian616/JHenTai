@@ -60,14 +60,15 @@ class SettingReadPage extends StatelessWidget {
               if (readSetting.isInListReadDirection) _buildAutoModeStyle().fadeIn(const Key('autoModeStyle')).center(),
               if (readSetting.isInListReadDirection) _buildTurnPageMode().fadeIn(const Key('turnPageMode')).center(),
               _buildImageSpace().center(),
+              _buildMlTtsEnable().center(),
               _buildMlTtsScript().center(),
               _buildMlTtsLanguage().center(),
               if (GetPlatform.isAndroid) _buildMlTtsEngine().center(),
-              _buildMlTtsPitch().center(),
-              _buildMlTtsRate().center(),
-              _buildMlTtsVolume().center(),
-              _buildMlTtsMinWordLimit().center(),
+              _buildMlTtsVolume(context).center(),
+              _buildMlTtsRate(context).center(),
+              _buildMlTtsPitch(context).center(),
               _buildMlTtsExclusionList().center(),
+              _buildMlTtsMinWordLimit(context).center(),
             ],
           ).withListTileTheme(context),
         ),
@@ -307,131 +308,139 @@ class SettingReadPage extends StatelessWidget {
     );
   }
 
+  Widget _buildMlTtsEnable() {
+    return SwitchListTile(
+      title: Text('mlTtsEnable'.tr),
+      value: readSetting.mlTtsEnable.value,
+      onChanged: readSetting.saveMlTtsEnable,
+    );
+  }
+
   Widget _buildMlTtsScript() {
     return ListTile(
+      enabled: readSetting.mlTtsEnable.value,
       title: Text('mlTtsScript'.tr),
       trailing: DropdownButton<TextRecognitionScript>(
         value: readSetting.mlTtsScript.value,
+        disabledHint: Text(readSetting.mlTtsScript.value.name),
         elevation: 4,
-        onChanged: (TextRecognitionScript? newValue) =>
-            readSetting.saveMlTtsScript(newValue!),
-        items: TextRecognitionScript.values
-            .map((e) => DropdownMenuItem(child: Text(e.name.tr), value: e))
-            .toList(),
+        onChanged: (TextRecognitionScript? newValue) => readSetting.saveMlTtsScript(newValue!),
+        items: readSetting.mlTtsEnable.value ? TextRecognitionScript.values.map((e) => DropdownMenuItem(child: Text(e.name.tr), value: e)).toList() : null,
       ).marginOnly(right: 12),
     );
   }
 
   Widget _buildMlTtsLanguage() {
     return ListTile(
+      enabled: readSetting.mlTtsEnable.value,
       title: Text('mlTtsLanguage'.tr),
       trailing: DropdownButton<String>(
         value: readSetting.mlTtsLanguage.value,
+        disabledHint: Text(readSetting.mlTtsLanguage.value ?? ''),
         elevation: 4,
-        onChanged: (String? newValue) =>
-            readSetting.saveMlTtsLanguage(newValue!),
-        items: mlTtsService.languages
-            .map(((e) => DropdownMenuItem(child: Text(e), value: e)))
-            .toList(),
+        onChanged: (String? newValue) => readSetting.saveMlTtsLanguage(newValue!),
+        items: readSetting.mlTtsEnable.value ? mlTtsService.languages.map(((e) => DropdownMenuItem(child: Text(e), value: e))).toList() : null,
       ).marginOnly(right: 12),
     );
   }
 
   Widget _buildMlTtsEngine() {
     return ListTile(
+      enabled: readSetting.mlTtsEnable.value,
       title: Text('mlTtsEngine'.tr),
       trailing: DropdownButton<String>(
         value: readSetting.mlTtsEngine.value,
+        disabledHint: Text(readSetting.mlTtsEngine.value ?? ''),
         elevation: 4,
         onChanged: (String? newValue) => readSetting.saveMlTtsEngine(newValue!),
-        items: mlTtsService.engines
-            .map(((e) => DropdownMenuItem(child: Text(e.tr), value: e)))
-            .toList(),
+        items: readSetting.mlTtsEnable.value ? mlTtsService.engines.map(((e) => DropdownMenuItem(child: Text(e.tr), value: e))).toList() : null,
       ).marginOnly(right: 12),
     );
   }
 
-  Widget _buildMlTtsVolume() {
+  Widget _buildMlTtsVolume(BuildContext context) {
     return ListTile(
+      enabled: readSetting.mlTtsEnable.value,
       title: Text('mlTtsVolume'.tr),
-      trailing: DropdownButton<double>(
-        value: readSetting.mlTtsVolume.value,
-        elevation: 4,
-        onChanged: (double? newValue) {
-          readSetting.saveMlTtsVolume(newValue!);
-        },
-        items: const [
-          DropdownMenuItem(child: Text('0.1'), value: 0.1),
-          DropdownMenuItem(child: Text('0.2'), value: 0.2),
-          DropdownMenuItem(child: Text('0.3'), value: 0.3),
-          DropdownMenuItem(child: Text('0.4'), value: 0.4),
-          DropdownMenuItem(child: Text('0.5'), value: 0.5),
-          DropdownMenuItem(child: Text('0.6'), value: 0.6),
-          DropdownMenuItem(child: Text('0.7'), value: 0.7),
-          DropdownMenuItem(child: Text('0.8'), value: 0.8),
-          DropdownMenuItem(child: Text('0.9'), value: 0.9),
-          DropdownMenuItem(child: Text('1.0'), value: 1.0),
-        ],
-      ).marginOnly(right: 12),
+      trailing: Obx(() {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(showValueIndicator: ShowValueIndicator.always),
+              child: Slider(
+                min: 0.0,
+                max: 1.0,
+                label: readSetting.mlTtsVolume.value.toString(),
+                value: readSetting.mlTtsVolume.value,
+                onChangeEnd: (value) => readSetting.saveMlTtsVolume(double.parse(value.toStringAsFixed(2))), 
+                onChanged: readSetting.mlTtsEnable.value ? (value) => readSetting.mlTtsVolume.value = double.parse(value.toStringAsFixed(2)) : null,
+              ),
+            ),
+          ],
+        );
+      }),
     );
   }
 
-  Widget _buildMlTtsPitch() {
+  Widget _buildMlTtsPitch(BuildContext context) {
     return ListTile(
+      enabled: readSetting.mlTtsEnable.value,
       title: Text('mlTtsPitch'.tr),
-      trailing: DropdownButton<double>(
-        value: readSetting.mlTtsPitch.value,
-        elevation: 4,
-        onChanged: (double? newValue) {
-          readSetting.saveMlTtsPitch(newValue!);
-        },
-        items: const [
-          DropdownMenuItem(child: Text('0.1'), value: 0.1),
-          DropdownMenuItem(child: Text('0.2'), value: 0.2),
-          DropdownMenuItem(child: Text('0.3'), value: 0.3),
-          DropdownMenuItem(child: Text('0.4'), value: 0.4),
-          DropdownMenuItem(child: Text('0.5'), value: 0.5),
-          DropdownMenuItem(child: Text('0.6'), value: 0.6),
-          DropdownMenuItem(child: Text('0.7'), value: 0.7),
-          DropdownMenuItem(child: Text('0.8'), value: 0.8),
-          DropdownMenuItem(child: Text('0.9'), value: 0.9),
-          DropdownMenuItem(child: Text('1.0'), value: 1.0),
-        ],
-      ).marginOnly(right: 12),
+      trailing: Obx(() {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(showValueIndicator: ShowValueIndicator.always),
+              child: Slider(
+                min: 0.5,
+                max: 2.0,
+                label: readSetting.mlTtsPitch.value.toString(),
+                value: readSetting.mlTtsPitch.value,
+                onChangeEnd: (value) => readSetting.saveMlTtsPitch(double.parse(value.toStringAsFixed(2))), 
+                onChanged: readSetting.mlTtsEnable.value ? (value) => readSetting.mlTtsPitch.value = double.parse(value.toStringAsFixed(2)) : null,
+              ),
+            ),
+          ],
+        );
+      }),
     );
   }
 
-  Widget _buildMlTtsRate() {
+  Widget _buildMlTtsRate(BuildContext context) {
     return ListTile(
+      enabled: readSetting.mlTtsEnable.value,
       title: Text('mlTtsRate'.tr),
-      trailing: DropdownButton<double>(
-        value: readSetting.mlTtsRate.value,
-        elevation: 4,
-        onChanged: (double? newValue) {
-          readSetting.saveMlTtsRate(newValue!);
-        },
-        items: const [
-          DropdownMenuItem(child: Text('0.1'), value: 0.1),
-          DropdownMenuItem(child: Text('0.2'), value: 0.2),
-          DropdownMenuItem(child: Text('0.3'), value: 0.3),
-          DropdownMenuItem(child: Text('0.4'), value: 0.4),
-          DropdownMenuItem(child: Text('0.5'), value: 0.5),
-          DropdownMenuItem(child: Text('0.6'), value: 0.6),
-          DropdownMenuItem(child: Text('0.7'), value: 0.7),
-          DropdownMenuItem(child: Text('0.8'), value: 0.8),
-          DropdownMenuItem(child: Text('0.9'), value: 0.9),
-          DropdownMenuItem(child: Text('1.0'), value: 1.0),
-        ],
-      ).marginOnly(right: 12),
+      trailing: Obx(() {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(showValueIndicator: ShowValueIndicator.always),
+              child: Slider(
+                min: 0.0,
+                max: 1.0,
+                label: readSetting.mlTtsRate.value.toString(),
+                value: readSetting.mlTtsRate.value,
+                onChangeEnd: (value) => readSetting.saveMlTtsRate(double.parse(value.toStringAsFixed(2))), 
+                onChanged: readSetting.mlTtsEnable.value ? (value) => readSetting.mlTtsRate.value = double.parse(value.toStringAsFixed(2)) : null,
+              ),
+            ),
+          ],
+        );
+      }),
     );
   }
 
   Widget _buildMlTtsExclusionList() {
     return ListTile(
+      enabled: readSetting.mlTtsEnable.value,
       title: Text('mlTtsExclusionList'.tr),
       trailing: SizedBox(
         width: 150,
         child: TextField(
+          enabled: readSetting.mlTtsEnable.value,
           controller: mlTtsExclusionListController,
           decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
           textAlign: TextAlign.left,
@@ -442,28 +451,28 @@ class SettingReadPage extends StatelessWidget {
     );
   }
 
-  Widget _buildMlTtsMinWordLimit() {
+  Widget _buildMlTtsMinWordLimit(BuildContext context) {
     return ListTile(
+      enabled: readSetting.mlTtsEnable.value,
       title: Text('mlTtsMinWordLimit'.tr),
-      trailing: DropdownButton<int>(
-        value: readSetting.mlTtsMinWordLimit.value,
-        elevation: 4,
-        onChanged: (int? newValue) {
-          readSetting.saveMlTtsMinWordLimit(newValue!);
-        },
-        items: const [
-          DropdownMenuItem(child: Text('0'), value: 0),
-          DropdownMenuItem(child: Text('1'), value: 1),
-          DropdownMenuItem(child: Text('2'), value: 2),
-          DropdownMenuItem(child: Text('3'), value: 3),
-          DropdownMenuItem(child: Text('4'), value: 4),
-          DropdownMenuItem(child: Text('5'), value: 5),
-          DropdownMenuItem(child: Text('6'), value: 6),
-          DropdownMenuItem(child: Text('7'), value: 7),
-          DropdownMenuItem(child: Text('8'), value: 8),
-          DropdownMenuItem(child: Text('9'), value: 9),
-        ],
-      ).marginOnly(right: 12),
+      trailing: Obx(() {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(showValueIndicator: ShowValueIndicator.always),
+              child: Slider(
+                min: 0,
+                max: 10,
+                label: readSetting.mlTtsMinWordLimit.value.toString(),
+                value: readSetting.mlTtsMinWordLimit.value.toDouble(),
+                onChangeEnd: (value) => readSetting.saveMlTtsMinWordLimit(value.toInt()), 
+                onChanged: readSetting.mlTtsEnable.value ? (value) => readSetting.mlTtsMinWordLimit.value = value.toInt() : null,
+              ),
+            ),
+          ],
+        );
+      }),
     );
   }
 

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:extended_image/extended_image.dart';
 import 'package:get/get_rx/src/rx_workers/rx_workers.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 import 'package:jhentai/src/service/log.dart';
 
@@ -71,8 +72,6 @@ ko-KR（韩语）
   TtsState ttsState = TtsState.stopped;
   List<String> languages = [];
   List<String> engines = [];
-  List<String> _exclusionList = [];
-  int _minWordLimit = 3;
 
   bool get isPlaying => ttsState == TtsState.playing;
   bool get isStopped => ttsState == TtsState.stopped;
@@ -85,8 +84,6 @@ ko-KR（韩语）
   late Worker mlTtsPitchLister;
   late Worker mlTtsRateLister;
   late Worker mlTtsVolumeLister;
-  late Worker mlTtsExclusionListLister;
-  late Worker mlTtsBlockDelayLister;
 
   Future<void> _initConfig(_) async {
     await _flutterTts.setVolume(readSetting.mlTtsVolume.value);
@@ -94,8 +91,6 @@ ko-KR（韩语）
     await _flutterTts.setPitch(readSetting.mlTtsPitch.value);
     await _flutterTts.setLanguage(readSetting.mlTtsLanguage.value!);
     await _setEngine();
-    _setExclusionList();
-    _minWordLimit = readSetting.mlTtsMinWordLimit.value;
 
     _flutterTts.setStartHandler(() {
       log.debug('setStartHandler:Playing');
@@ -123,7 +118,7 @@ ko-KR（韩语）
     });
 
     _flutterTts.setErrorHandler((msg) {
-      log.debug('setErrorHandler:error: $msg');
+      log.debug('setErrorHandler: $msg');
       ttsState = TtsState.stopped;
     });
   }
@@ -139,11 +134,11 @@ ko-KR（韩语）
       var engine =
           readSetting.mlTtsEngine.value ?? await _flutterTts.getDefaultEngine;
       if (engine != null) {
-        log.debug('_setEngine:error: $engine');
+        log.debug('_setEngine: $engine');
       }
       var voice = await _flutterTts.getDefaultVoice;
       if (voice != null) {
-        log.debug('_setEngine:error: $voice');
+        log.debug('_setEngine: $voice');
       }
 
       _flutterTts
@@ -154,10 +149,10 @@ ko-KR（韩语）
     }
   }
 
-  void _setExclusionList() {
-    _exclusionList = readSetting.mlTtsExclusionList.value?.split(',') ?? [];
-    _exclusionList = _exclusionList.map((e) => e.trim()).toList();
-    _exclusionList = _exclusionList.where((e) => e != '').toList();
+  List<String> _getExclusionList() {
+    var exclusionList = readSetting.mlTtsExclusionList.value?.split(',') ?? [];
+    exclusionList = exclusionList.map((e) => e.trim()).toList();
+    return exclusionList.where((e) => e != '').toList();
   }
 
   void dispose() {
@@ -167,8 +162,6 @@ ko-KR（韩语）
     mlTtsPitchLister.dispose();
     mlTtsRateLister.dispose();
     mlTtsVolumeLister.dispose();
-    mlTtsExclusionListLister.dispose();
-    mlTtsBlockDelayLister.dispose();
   }
 
   void _addListers() {
@@ -190,12 +183,6 @@ ko-KR（韩语）
     mlTtsVolumeLister = ever(readSetting.mlTtsVolume, (_) {
       _flutterTts.setVolume(readSetting.mlTtsVolume.value);
     });
-    mlTtsExclusionListLister = ever(readSetting.mlTtsExclusionList, (_) {
-      _setExclusionList();
-    });
-    mlTtsBlockDelayLister = ever(readSetting.mlTtsMinWordLimit, (_) {
-      _minWordLimit = readSetting.mlTtsMinWordLimit.value;
-    });
   }
 
   @override
@@ -213,19 +200,18 @@ ko-KR（韩语）
     for (var element in langs) {
       languages.add(element);
     }
-    log.debug('doAfterBeanReady:error: $languages');
+    log.debug('doAfterBeanReady: $languages');
   }
 
   Future<void> _recognizedText() async {
     try {
       final inputImage = InputImage.fromFilePath(_path!);
-      final RecognizedText text =
-          await _textRecognizer.processImage(inputImage);
+      final RecognizedText text = await _textRecognizer.processImage(inputImage);
       _extractedText = '';
       for (var block in text.blocks) {
         var t = block.text.replaceAll(RegExp(r'\s'), '');
-        for (var val in _exclusionList) {
-          if (t.contains(val)) {
+        for (var val in _getExclusionList()) {
+          if (t.toLowerCase().contains(val)) {
             continue;
           }
         }
@@ -233,9 +219,11 @@ ko-KR（韩语）
           continue;
         }
         _extractedText += t;
-        log.debug('_setEngine:error: $_extractedText');
+        log.debug('_setEngine: $_extractedText');
       }
-    } catch (e) {}
+    } catch (e) {
+      log.debug('_setEngine:error: $e');
+    }
   }
 
   Future<void> _speak() async {
@@ -247,7 +235,7 @@ ko-KR（韩语）
   }
 
   Future<void> playFromPath(path) async {
-    if (path == null || _path == path) {
+    if (path == null || _path == path || !readSetting.mlTtsEnable.value) {
       return;
     }
 
@@ -257,11 +245,16 @@ ko-KR（韩语）
   }
 
   Future<void> playFromUrl(String? url) async {
-    if (url == null) {
+    if (url == null || !readSetting.mlTtsEnable.value) {
       return;
     }
 
-    _path = await getCachedImageFilePath(url);
+    var path = await getCachedImageFilePath(url);
+    if (_path == path) {
+      return;
+    }
+
+    _path = path;
     await _recognizedText();
     _speak();
   }
