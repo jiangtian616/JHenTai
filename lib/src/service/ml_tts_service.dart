@@ -72,7 +72,7 @@ ko-KR（韩语）
   List<String> languages = [];
   List<String> engines = [];
   List<String> _exclusionList = [];
-  int _blockDelay = 3;
+  int _minWordLimit = 3;
 
   bool get isPlaying => ttsState == TtsState.playing;
   bool get isStopped => ttsState == TtsState.stopped;
@@ -95,7 +95,7 @@ ko-KR（韩语）
     await _flutterTts.setLanguage(readSetting.mlTtsLanguage.value!);
     await _setEngine();
     _setExclusionList();
-    _blockDelay = readSetting.mlTtsMinWordLimit.value;
+    _minWordLimit = readSetting.mlTtsMinWordLimit.value;
 
     _flutterTts.setStartHandler(() {
       log.debug('setStartHandler:Playing');
@@ -194,7 +194,7 @@ ko-KR（韩语）
       _setExclusionList();
     });
     mlTtsBlockDelayLister = ever(readSetting.mlTtsMinWordLimit, (_) {
-      _blockDelay = readSetting.mlTtsMinWordLimit.value;
+      _minWordLimit = readSetting.mlTtsMinWordLimit.value;
     });
   }
 
