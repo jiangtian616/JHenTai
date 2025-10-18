@@ -16,7 +16,7 @@ class SettingReadPage extends StatelessWidget {
   final TextEditingController imageRegionWidthRatioController = TextEditingController(text: readSetting.imageRegionWidthRatio.value.toString());
   final TextEditingController gestureRegionWidthRatioController = TextEditingController(text: readSetting.gestureRegionWidthRatio.value.toString());
   final TextEditingController imageMaxKilobytesController = TextEditingController(text: readSetting.maxImageKilobyte.value.toString());
-  final TextEditingController mlTtsExclusionListController = TextEditingController(text: readSetting.mlTtsExclusionList.value.toString());
+  final TextEditingController mlTtsExclusionListController = TextEditingController(text: readSetting.mlTtsExclusionList.value);
 
   SettingReadPage({Key? key}) : super(key: key);
 
@@ -67,7 +67,7 @@ class SettingReadPage extends StatelessWidget {
               _buildMlTtsRate().center(),
               _buildMlTtsVolume().center(),
               _buildMlTtsMinWordLimit().center(),
-              // _buildMlTtsExclusionList().center(),
+              _buildMlTtsExclusionList().center(),
             ],
           ).withListTileTheme(context),
         ),
@@ -429,21 +429,17 @@ class SettingReadPage extends StatelessWidget {
   Widget _buildMlTtsExclusionList() {
     return ListTile(
       title: Text('mlTtsExclusionList'.tr),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            child: TextField(
-              controller: mlTtsExclusionListController,
-              decoration: const InputDecoration(
-                  isDense: true, labelStyle: TextStyle(fontSize: 12)),
-              textAlign: TextAlign.left,
-              onEditingComplete: _saveMlTtsExclusionList,
-            ),
-          ),
-        ],
+      trailing: SizedBox(
+        width: 150,
+        child: TextField(
+          controller: mlTtsExclusionListController,
+          decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
+          textAlign: TextAlign.left,
+          textInputAction: TextInputAction.done,
+          onEditingComplete: _saveMlTtsExclusionList,
+        ),
       ),
-    ).marginOnly(right: 12);
+    );
   }
 
   Widget _buildMlTtsMinWordLimit() {
@@ -513,9 +509,6 @@ class SettingReadPage extends StatelessWidget {
 
   void _saveMlTtsExclusionList() {
     var value = mlTtsExclusionListController.value.text;
-    if (value == null) {
-      return;
-    }
     readSetting.saveMlTtsExclusionList(value);
   }
 
