@@ -71,8 +71,8 @@ ko-KR（韩语）
   TtsState ttsState = TtsState.stopped;
   List<String> languages = [];
   List<String> engines = [];
-  List<String> exclusionList = [];
-  int blockDelay = 3;
+  List<String> _exclusionList = [];
+  int _blockDelay = 3;
 
   bool get isPlaying => ttsState == TtsState.playing;
   bool get isStopped => ttsState == TtsState.stopped;
@@ -88,15 +88,14 @@ ko-KR（韩语）
   late Worker mlTtsExclusionListLister;
   late Worker mlTtsBlockDelayLister;
 
-  Future<void> initConfig(_) async {
+  Future<void> _initConfig(_) async {
     await _flutterTts.setVolume(readSetting.mlTtsVolume.value);
     await _flutterTts.setSpeechRate(readSetting.mlTtsRate.value);
     await _flutterTts.setPitch(readSetting.mlTtsPitch.value);
     await _flutterTts.setLanguage(readSetting.mlTtsLanguage.value!);
     await _setEngine();
-
-    exclusionList = readSetting.mlTtsExclusionList.value!.split("\n");
-    blockDelay = readSetting.mlTtsMinWordLimit.value;
+    _setExclusionList();
+    _blockDelay = readSetting.mlTtsMinWordLimit.value;
 
     _flutterTts.setStartHandler(() {
       log.debug('setStartHandler:Playing');
@@ -155,6 +154,12 @@ ko-KR（韩语）
     }
   }
 
+  void _setExclusionList() {
+    _exclusionList = readSetting.mlTtsExclusionList.value?.split(',') ?? [];
+    _exclusionList = _exclusionList.map((e) => e.trim()).toList();
+    _exclusionList = _exclusionList.where((e) => e != '').toList();
+  }
+
   void dispose() {
     mlTtsScriptLister.dispose();
     mlTtsEngineLister.dispose();
@@ -186,10 +191,10 @@ ko-KR（韩语）
       _flutterTts.setVolume(readSetting.mlTtsVolume.value);
     });
     mlTtsExclusionListLister = ever(readSetting.mlTtsExclusionList, (_) {
-      exclusionList = readSetting.mlTtsExclusionList.value!.split("\n");
+      _setExclusionList();
     });
     mlTtsBlockDelayLister = ever(readSetting.mlTtsMinWordLimit, (_) {
-      blockDelay = readSetting.mlTtsMinWordLimit.value;
+      _blockDelay = readSetting.mlTtsMinWordLimit.value;
     });
   }
 
@@ -198,7 +203,7 @@ ko-KR（韩语）
     _flutterTts = FlutterTts();
     _textRecognizer = TextRecognizer(script: readSetting.mlTtsScript.value);
 
-    await initConfig('');
+    await _initConfig('');
   }
 
   @override
@@ -219,7 +224,7 @@ ko-KR（韩语）
       _extractedText = '';
       for (var block in text.blocks) {
         var t = block.text.replaceAll(RegExp(r'\s'), '');
-        for (var val in exclusionList) {
+        for (var val in _exclusionList) {
           if (t.contains(val)) {
             continue;
           }
