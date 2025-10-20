@@ -174,12 +174,14 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
       _extractedText = '';
       for (var block in text.blocks) {
         var t = block.text.replaceAll(RegExp(r'\s'), '');
+        var flag = false;
         for (var val in _exclusionList) {
           if (t.toLowerCase().contains(val)) {
-            continue;
+            flag = true;
+            break;
           }
         }
-        if (t.length < readSetting.mlTtsMinWordLimit.value) {
+        if (flag || t.length < readSetting.mlTtsMinWordLimit.value) {
           continue;
         }
         _extractedText += t;
@@ -236,5 +238,4 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
       ttsState = TtsState.paused;
     }
   }
-  
 }
