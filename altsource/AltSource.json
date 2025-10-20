@@ -64,7 +64,7 @@
                     "version": "8.0.10+302",
                     "buildVersion": "302",
                     "date": "2025-10-11T18:35:08Z",
-                    "localizedDescription": "- 修复空文件名图片会导致保存图片失败的bug\\n\\n--------------------\\n\\n- Fix the bug that saving images fails when the filename is empty.",
+                    "localizedDescription": "- 修复空文件名图片会导致保存图片失败的bug\n\n--------------------\n\n- Fix the bug that saving images fails when the filename is empty.",
                     "downloadURL": "https://github.com/jiangtian616/JHenTai/releases/download/v8.0.10+302/JHenTai_8.0.10+302.ipa",
                     "size": 15698779
                 }
