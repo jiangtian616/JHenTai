@@ -1,29 +1,74 @@
+
 {
-  "apps": [
-    {
-      "beta": false,
-      "bundleIdentifier": "top.jtmonster.jhentai",
-      "developerName": "JTMonster",
-      "iconURL": "https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/assets/icon/JHenTai.png",
-      "localizedDescription": "A manga app for E-Hentai, supporting Android & iOS & Windows & MacOS & Linux.\n\nStill in development stage, welcome to submit issues or feature requests.",
-      "name": "JHenTai",
-      "subtitle": "A cross-platform manga app made for e-hentai & exhentai by Flutter.",
-      "tintColor": "E6E623",
-      "category": "entertainment"
-    }
-  ],
-  "versions": [
-    {
-      "version": "8.0.10+302",
-      "buildVersion": "302",
-      "date": "2025-10-11T18:35:08Z",
-      "localizedDescription": "- 修复空文件名图片会导致保存图片失败的bug\\n\\n--------------------\\n\\n- Fix the bug that saving images fails when the filename is empty.",
-      "downloadURL": "https://github.com/jiangtian616/JHenTai/releases/download/v8.0.10+302/JHenTai_8.0.10+302.ipa",
-      "size": 15698779
-    }
-  ],
-  "identifier": "top.jtmonster.jhentai",
-  "name": "JHenTai",
-  "news": [],
-  "userInfo": {}
+    "name": "JHenTai",
+    "subtitle": "A cross-platform manga app made for e-hentai & exhentai by Flutter.",
+    "description": "A manga app for E-Hentai, supporting Android & iOS & Windows & MacOS & Linux.\n\nStill in development stage, welcome to submit issues or feature requests.",
+    "iconURL": "https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/assets/icon/JHenTai.png",
+    "website": "https://github.com/jiangtian616/JHenTai",
+    "tintColor": "#E6E623",
+    "featuredApps": [
+        "top.jtmonster.jhentai"
+    ],
+    "apps": [
+        {
+            "name": "JHenTai",
+            "bundleIdentifier": "top.jtmonster.jhentai",
+            "developerName": "JTMonster",
+            "subtitle": "A cross-platform manga app made for e-hentai & exhentai by Flutter.",
+            "localizedDescription": "A manga app for E-Hentai, supporting Android & iOS & Windows & MacOS & Linux.\n\nStill in development stage, welcome to submit issues or feature requests.",
+            "iconURL": "https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/assets/icon/JHenTai.png",
+            "tintColor": "#E6E623",
+            "category": "entertainment",
+            "screenshots": [
+                {
+                    "imageURL": "https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/screenshot/archive.jpg",
+                    "width": 795,
+                    "height": 1633
+                },
+                {
+                    "imageURL": "https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/screenshot/detail.png",
+                    "width": 795,
+                    "height": 1633
+                },
+                {
+                    "imageURL": "https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/screenshot/download.jpg",
+                    "width": 795,
+                    "height": 1633
+                },
+                {
+                    "imageURL": "https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/screenshot/mobile_v2.jpg",
+                    "width": 795,
+                    "height": 1633
+                },
+                {
+                    "imageURL": "https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/screenshot/read.jpg",
+                    "width": 795,
+                    "height": 1633
+                },
+                {
+                    "imageURL": "https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/screenshot/search.jpg",
+                    "width": 795,
+                    "height": 1633
+                }
+            ],
+            "appPermissions": {
+                "entitlements": [],
+                "privacy": {
+                    "NSPhotoLibraryUsageDescription": "Pick up image to search",
+                    "NSPhotoLibraryAddUsageDescription": "Pick up image to search",
+                    "NSFaceIDUsageDescription": "Auth identity"
+                }
+            },
+            "versions": [
+                {
+                    "version": "8.0.10+302",
+                    "buildVersion": "302",
+                    "date": "2025-10-11T18:35:08Z",
+                    "localizedDescription": "- 修复空文件名图片会导致保存图片失败的bug\\n\\n--------------------\\n\\n- Fix the bug that saving images fails when the filename is empty.",
+                    "downloadURL": "https://github.com/jiangtian616/JHenTai/releases/download/v8.0.10+302/JHenTai_8.0.10+302.ipa",
+                    "size": 15698779
+                }
+            ]
+        }
+    ]
 }

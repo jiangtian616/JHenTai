@@ -288,7 +288,7 @@ jobs:
              --arg desc "${{ steps.get_changelog.outputs.changelog }}" \
              --arg url "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/JHenTai_${VERSION}.ipa" \
              --arg size "${{ steps.get_ipa_size.outputs.ipa_size }}" \
-             '.versions[0] = {
+             '.apps[0].versions[0] = {
                 "version": $version,
                 "buildVersion": $build,
                 "date": $date,
