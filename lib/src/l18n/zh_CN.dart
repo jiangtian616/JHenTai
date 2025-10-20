@@ -511,6 +511,16 @@ class zh_CN {
       'toggleFullScreen': '切换全屏',
       'enableAutoScaleUp': '自动放大长图片',
       'enableAutoScaleUpHints': '优先使图片宽度占满屏幕',
+      'mlTtsEnable': '开启图片转语音',
+      'mlTtsScript': 'ML 语种',
+      'mlTtsLanguage': 'TTS 语言',
+      'mlTtsEngine': 'TTS 引擎',
+      'mlTtsPitch': 'TTS 音高',
+      'mlTtsVolume': 'TTS 音量',
+      'mlTtsRate': 'TTS 音速',
+      'mlTtsExclusionList': '过滤列表(例: a,b,c)',
+      'mlTtsReplaceList': '替换列表(例: a:b,c:d)',
+      'mlTtsMinWordLimit': '最小字数限制',
 
       /// preference setting page
       'showR18GImageDirectly': '标签数据中直接显示R18G图片',

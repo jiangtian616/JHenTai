@@ -511,6 +511,16 @@ class en_US {
       'toggleFullScreen': 'Toggle Full Screen',
       'enableAutoScaleUp': 'Enable Auto Scale up Long Image',
       'enableAutoScaleUpHints': 'Make image width same as screen width',
+      'mlTtsEnable': 'Enable image to voice conversion',
+      'mlTtsScript': 'ML script',
+      'mlTtsLanguage': 'TTS language',
+      'mlTtsEngine': 'TTS engine',
+      'mlTtsPitch': 'TTS pitch',
+      'mlTtsVolume': 'TTS volume',
+      'mlTtsRate': 'TTS rate',
+      'mlTtsExclusionList': 'Exclusion list(Case: a,b,c)',
+      'mlTtsReplaceList': 'Replace list(Case: a:b,c:d)',
+      'mlTtsMinWordLimit': 'Min word limit',
 
       /// preference setting page
       'showR18GImageDirectly': 'Show R18G Image Directly',
