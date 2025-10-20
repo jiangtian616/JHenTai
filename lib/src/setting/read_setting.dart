@@ -55,6 +55,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   RxDouble mlTtsPitch = 1.0.obs;
   RxDouble mlTtsRate = 0.5.obs;
   RxnString mlTtsExclusionList = RxnString();
+  RxnString mlTtsReplaceList = RxnString();
   RxInt mlTtsMinWordLimit = 3.obs;
 
   bool get isInListReadDirection =>
@@ -127,6 +128,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     mlTtsVolume.value = map['mlTtsVolume'] ?? mlTtsVolume.value;
     mlTtsRate.value = map['mlTtsRate'] ?? mlTtsRate.value;
     mlTtsExclusionList.value = map['mlTtsExclusionList'] ?? mlTtsExclusionList.value;
+    mlTtsReplaceList.value = map['mlTtsReplaceList'] ?? mlTtsReplaceList.value;
     mlTtsMinWordLimit.value = map['mlTtsMinWordLimit'] ?? mlTtsMinWordLimit.value;
     turnPageMode.value = TurnPageMode.values[map['turnPageMode']];
     preloadDistance.value = map['preloadDistance'];
@@ -173,6 +175,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
       'mlTtsVolume': mlTtsVolume.value,
       'mlTtsPitch': mlTtsPitch.value,
       'mlTtsExclusionList': mlTtsExclusionList.value,
+      'mlTtsReplaceList': mlTtsReplaceList.value,
       'mlTtsMinWordLimit': mlTtsMinWordLimit.value,
       'turnPageMode': turnPageMode.value.index,
       'preloadDistance': preloadDistance.value,
@@ -340,6 +343,12 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   Future<void> saveMlTtsExclusionList(String? value) async {
     log.debug('saveMlTtsExclusionList:$value');
     mlTtsExclusionList.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveMlTtsReplaceList(String? value) async {
+    log.debug('saveMlTtsReplaceList:$value');
+    mlTtsReplaceList.value = value;
     await saveBeanConfig();
   }
 

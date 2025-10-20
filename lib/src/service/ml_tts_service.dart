@@ -17,6 +17,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late TextRecognizer _textRecognizer;
   String _extractedText = '';
   List<String> _exclusionList = [];
+  List<List<String>> _replaceList = [];
 
   String? _path;
   late FlutterTts _flutterTts;
@@ -37,6 +38,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late Worker mlTtsRateLister;
   late Worker mlTtsVolumeLister;
   late Worker mlTtsExclusionListLister;
+  late Worker mlTtsReplaceListLister;
 
   Future<void> _initConfig(_) async {
     await _flutterTts.setVolume(readSetting.mlTtsVolume.value);
@@ -47,6 +49,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     _addListers();
     _setLanguages();
     _setExclusionList();
+    _setReplaceList();
 
     _flutterTts.setStartHandler(() {
       log.debug('setStartHandler:Playing');
@@ -119,6 +122,19 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     _exclusionList = exclusionList.where((e) => e != '').toList();
   }
 
+  void _setReplaceList() {
+    _replaceList = [];
+    var list = readSetting.mlTtsReplaceList.value?.split(',') ?? [];
+    list = list.where((e) => e != '').toList();
+    for (var replace in list) {
+      var values = replace.split(':');
+      if (values.length != 2) {
+        continue;
+      }
+      _replaceList.add(values);
+    }
+  }
+
   void dispose() {
     mlTtsScriptLister.dispose();
     mlTtsEngineLister.dispose();
@@ -150,6 +166,9 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     });
     mlTtsExclusionListLister = ever(readSetting.mlTtsExclusionList, (_) {
       _setExclusionList();
+    });
+    mlTtsReplaceListLister = ever(readSetting.mlTtsReplaceList, (_) {
+      _setReplaceList();
     });
   }
 
@@ -183,6 +202,9 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
         }
         if (flag || t.length < readSetting.mlTtsMinWordLimit.value) {
           continue;
+        }
+        for (var val in _replaceList) {
+          t = t.replaceAll(val[0], val[1]);
         }
         _extractedText += t;
         log.debug('_setEngine: $_extractedText');

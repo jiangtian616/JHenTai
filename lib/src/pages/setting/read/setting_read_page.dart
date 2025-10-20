@@ -17,6 +17,7 @@ class SettingReadPage extends StatelessWidget {
   final TextEditingController gestureRegionWidthRatioController = TextEditingController(text: readSetting.gestureRegionWidthRatio.value.toString());
   final TextEditingController imageMaxKilobytesController = TextEditingController(text: readSetting.maxImageKilobyte.value.toString());
   final TextEditingController mlTtsExclusionListController = TextEditingController(text: readSetting.mlTtsExclusionList.value);
+  final TextEditingController mlTtsReplaceListController = TextEditingController(text: readSetting.mlTtsReplaceList.value);
 
   SettingReadPage({Key? key}) : super(key: key);
 
@@ -59,16 +60,17 @@ class SettingReadPage extends StatelessWidget {
               if (readSetting.isInDoubleColumnReadDirection) _buildDisplayFirstPageAlone().fadeIn(const Key('displayFirstPageAloneGlobally')).center(),
               if (readSetting.isInListReadDirection) _buildAutoModeStyle().fadeIn(const Key('autoModeStyle')).center(),
               if (readSetting.isInListReadDirection) _buildTurnPageMode().fadeIn(const Key('turnPageMode')).center(),
-              _buildImageSpace().center(),
-              _buildMlTtsEnable().center(),
-              _buildMlTtsScript().center(),
-              _buildMlTtsLanguage().center(),
+              if (GetPlatform.isMobile) _buildImageSpace().center(),
+              if (GetPlatform.isMobile) _buildMlTtsEnable().center(),
+              if (GetPlatform.isMobile) _buildMlTtsScript().center(),
+              if (GetPlatform.isMobile) _buildMlTtsLanguage().center(),
               if (GetPlatform.isAndroid) _buildMlTtsEngine().center(),
-              _buildMlTtsVolume(context).center(),
-              _buildMlTtsRate(context).center(),
-              _buildMlTtsPitch(context).center(),
-              _buildMlTtsExclusionList().center(),
-              _buildMlTtsMinWordLimit(context).center(),
+              if (GetPlatform.isMobile) _buildMlTtsVolume(context).center(),
+              if (GetPlatform.isMobile) _buildMlTtsRate(context).center(),
+              if (GetPlatform.isMobile) _buildMlTtsPitch(context).center(),
+              if (GetPlatform.isMobile) _buildMlTtsMinWordLimit(context).center(),
+              if (GetPlatform.isMobile) _buildMlTtsExclusionList().center(),
+              if (GetPlatform.isMobile) _buildMlTtsReplaceList().center(),
             ],
           ).withListTileTheme(context),
         ),
@@ -451,6 +453,24 @@ class SettingReadPage extends StatelessWidget {
     );
   }
 
+  Widget _buildMlTtsReplaceList() {
+    return ListTile(
+      enabled: readSetting.mlTtsEnable.value,
+      title: Text('mlTtsReplaceList'.tr),
+      trailing: SizedBox(
+        width: 150,
+        child: TextField(
+          enabled: readSetting.mlTtsEnable.value,
+          controller: mlTtsReplaceListController,
+          decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
+          textAlign: TextAlign.left,
+          textInputAction: TextInputAction.done,
+          onEditingComplete: _saveMlTtsReplaceList,
+        ),
+      ),
+    );
+  }
+
   Widget _buildMlTtsMinWordLimit(BuildContext context) {
     return ListTile(
       enabled: readSetting.mlTtsEnable.value,
@@ -519,6 +539,11 @@ class SettingReadPage extends StatelessWidget {
   void _saveMlTtsExclusionList() {
     var value = mlTtsExclusionListController.value.text;
     readSetting.saveMlTtsExclusionList(value);
+  }
+
+  void _saveMlTtsReplaceList() {
+    var value = mlTtsReplaceListController.value.text;
+    readSetting.saveMlTtsReplaceList(value);
   }
 
   void _saveImageRegionWidthRatio() {
