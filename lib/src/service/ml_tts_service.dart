@@ -184,15 +184,17 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   @override
   Future<void> doAfterBeanReady() async {}
 
-  Future<ui.Image> _compressImage(File imageFile, int targetHeight, {int targetWidth = 0}) async {
+  Future<ui.Image> _compressImage(File imageFile, int targetHeight) async {
     final data = await imageFile.readAsBytes();
     final codec = await ui.instantiateImageCodec(data);
     final frameInfo = await codec.getNextFrame();
     final originalImage = frameInfo.image;
 
-    double scaleX = targetWidth / originalImage.width;
-    double scaleY = targetHeight / originalImage.height;
-    double scale = scaleX < scaleY ? scaleY : scaleX;
+    if (originalImage.height <= targetHeight) {
+      return originalImage;
+    }
+
+    double scale = targetHeight / originalImage.height;
 
     int newWidth = (originalImage.width * scale).toInt();
     int newHeight = (originalImage.height * scale).toInt();
