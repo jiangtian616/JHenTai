@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:extended_image/extended_image.dart';
 import 'package:get/get_rx/src/rx_workers/rx_workers.dart';
@@ -181,13 +182,40 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   }
 
   @override
-  Future<void> doAfterBeanReady() {
-    throw UnimplementedError();
+  Future<void> doAfterBeanReady() async {}
+
+  Future<ui.Image> _compressImage(File imageFile, int targetHeight, {int targetWidth = 0}) async {
+    final data = await imageFile.readAsBytes();
+    final codec = await ui.instantiateImageCodec(data);
+    final frameInfo = await codec.getNextFrame();
+    final originalImage = frameInfo.image;
+
+    double scaleX = targetWidth / originalImage.width;
+    double scaleY = targetHeight / originalImage.height;
+    double scale = scaleX < scaleY ? scaleY : scaleX;
+
+    int newWidth = (originalImage.width * scale).toInt();
+    int newHeight = (originalImage.height * scale).toInt();
+
+    final recorder = ui.PictureRecorder();
+    final canvas = ui.Canvas(recorder);
+    canvas.scale(scale);
+    canvas.drawImage(originalImage, ui.Offset.zero, ui.Paint());
+    final picture = recorder.endRecording();
+
+    return await picture.toImage(newWidth, newHeight);
   }
 
   Future<void> _recognizedText() async {
     try {
-      final inputImage = InputImage.fromFilePath(_path!);
+      final imgByteData = await _compressImage(File(_path!), 720);
+      final byteData = await imgByteData.toByteData(format: ui.ImageByteFormat.rawRgba);
+      final inputImage = InputImage.fromBitmap(
+        bitmap: byteData!.buffer.asUint8List(), 
+        width: imgByteData.width,
+        height: imgByteData.height
+      );
+
       final RecognizedText text =
           await _textRecognizer.processImage(inputImage);
       _extractedText = '';
