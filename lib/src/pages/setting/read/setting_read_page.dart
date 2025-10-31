@@ -69,8 +69,8 @@ class SettingReadPage extends StatelessWidget {
               if (GetPlatform.isMobile) _buildMlTtsRate(context).center(),
               if (GetPlatform.isMobile) _buildMlTtsPitch(context).center(),
               if (GetPlatform.isMobile) _buildMlTtsMinWordLimit(context).center(),
-              if (GetPlatform.isMobile) _buildMlTtsExclusionList().center(),
-              if (GetPlatform.isMobile) _buildMlTtsReplaceList().center(),
+              if (GetPlatform.isMobile) _buildMlTtsExclusionList(context).center(),
+              if (GetPlatform.isMobile) _buildMlTtsReplaceList(context).center(),
             ],
           ).withListTileTheme(context),
         ),
@@ -435,7 +435,11 @@ class SettingReadPage extends StatelessWidget {
     );
   }
 
-  Widget _buildMlTtsExclusionList() {
+  Widget _buildMlTtsExclusionList(BuildContext context) {
+    void _onEditingComplete() {
+      FocusScope.of(context).unfocus();
+      _saveMlTtsExclusionList();
+    }
     return ListTile(
       enabled: readSetting.mlTtsEnable.value,
       title: Text('mlTtsExclusionList'.tr),
@@ -447,13 +451,17 @@ class SettingReadPage extends StatelessWidget {
           decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
           textAlign: TextAlign.left,
           textInputAction: TextInputAction.done,
-          onEditingComplete: _saveMlTtsExclusionList,
+          onEditingComplete: _onEditingComplete,
         ),
       ),
     );
   }
 
-  Widget _buildMlTtsReplaceList() {
+  Widget _buildMlTtsReplaceList(BuildContext context) {
+    void _onEditingComplete() {
+      FocusScope.of(context).unfocus();
+      _saveMlTtsReplaceList();
+    }
     return ListTile(
       enabled: readSetting.mlTtsEnable.value,
       title: Text('mlTtsReplaceList'.tr),
@@ -465,7 +473,7 @@ class SettingReadPage extends StatelessWidget {
           decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
           textAlign: TextAlign.left,
           textInputAction: TextInputAction.done,
-          onEditingComplete: _saveMlTtsReplaceList,
+          onEditingComplete: _onEditingComplete,
         ),
       ),
     );
