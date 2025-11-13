@@ -202,7 +202,7 @@ class EHGalleryListCard extends StatelessWidget {
           children: [
             EHGalleryCategoryTag(category: gallery.category),
             const Expanded(child: SizedBox()),
-            if (gallery.pageCount != null) _buildReadingProgress(context).marginOnly(right: 4),
+            if (gallery.pageCount != null) _buildReadingProgress(context).marginOnly(right: 8),
             if (downloaded) _buildDownloadIcon(context).marginOnly(right: 4),
             if (gallery.isFavorite) _buildFavoriteIcon().marginOnly(right: 4),
             if (gallery.language != null) _buildLanguage(context).marginOnly(right: 4),
@@ -237,6 +237,43 @@ class EHGalleryListCard extends StatelessWidget {
     );
   }
 
+  Widget _buildReadingProgress(BuildContext context) {
+    return GetBuilder<ReadProgressService>(
+      init: Get.find<ReadProgressService>(),
+      id: '${ReadProgressService.readProgressUpdateId}::${gallery.gid}',
+      builder: (_) {
+        return FutureBuilder<int>(
+          future: readProgressService.getReadProgress(gallery.gid),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const SizedBox.shrink();
+            }
+
+            final readIndex = snapshot.data ?? 0;
+
+            double progress = gallery.pageCount != null && gallery.pageCount! > 0 ? ((readIndex + 1) / gallery.pageCount!).clamp(0.0, 1.0) : 0.0;
+
+            // Don't show indicator if no progress
+            if (readIndex == 0.0) {
+              return const SizedBox.shrink();
+            }
+
+            return SizedBox(
+              width: UIConfig.galleryCardReadProgressIndicatorSize,
+              height: UIConfig.galleryCardReadProgressIndicatorSize,
+              child: CircularProgressIndicator(
+                value: progress,
+                strokeWidth: 2,
+                backgroundColor: UIConfig.galleryCardTextColor(context).withOpacity(0.2),
+                valueColor: AlwaysStoppedAnimation<Color>(UIConfig.galleryCardTextColor(context)),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   Widget _buildDownloadIcon(BuildContext context) => Icon(Icons.downloading, size: 11, color: UIConfig.galleryCardTextColor(context));
 
   Widget _buildFavoriteIcon() => Icon(Icons.favorite, size: 11, color: UIConfig.favoriteTagColor[gallery.favoriteTagIndex!]);
@@ -258,46 +295,6 @@ class EHGalleryListCard extends StatelessWidget {
           fontSize: UIConfig.galleryCardTextSize,
           color: UIConfig.galleryCardTextColor(context),
           decoration: gallery.isExpunged ? TextDecoration.lineThrough : null),
-    );
-  }
-
-
-  Widget _buildReadingProgress(BuildContext context) {
-    return GetBuilder<ReadProgressController>(
-      init: ReadProgressController.instance,
-      id: '${ReadProgressService.readProgressUpdateId}::${gallery.gid}',
-      builder: (_) {
-        return FutureBuilder<int>(
-          future: readProgressService.getReadProgress(gallery.gid),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState != ConnectionState.done) {
-              return const SizedBox.shrink();
-            }
-
-            final readIndex = snapshot.data ?? 0;
-
-            double progress = gallery.pageCount != null && gallery.pageCount! > 0
-                ? ((readIndex + 1) / gallery.pageCount!).clamp(0.0, 1.0)
-                : 0.0;
-
-            // Don't show indicator if no progress
-            if (readIndex == 0.0) {
-              return const SizedBox.shrink();
-            }
-
-            return SizedBox(
-              width: 11,
-              height: 11,
-              child: CircularProgressIndicator(
-                value: progress,
-                strokeWidth: 2,
-                backgroundColor: UIConfig.galleryCardTextColor(context).withOpacity(0.2),
-                valueColor: AlwaysStoppedAnimation<Color>(UIConfig.galleryCardTextColor(context)),
-              ),
-            );
-          },
-        );
-      },
     );
   }
 }

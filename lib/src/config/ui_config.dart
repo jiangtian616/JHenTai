@@ -193,6 +193,7 @@ class UIConfig {
   static const double galleryCardCoverWidthWithoutTags = 85;
   static const double galleryCardTitleSize = 15;
   static const double galleryCardTextSize = 12;
+  static const double galleryCardReadProgressIndicatorSize = 9;
 
   static Color galleryCardBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.8);
 
@@ -334,7 +335,7 @@ class UIConfig {
   static Duration downloadPageAnimationDuration = const Duration(milliseconds: 300);
 
   static const double downloadPageBotIconSize = 13;
-  
+
   /// download page with gridview
   static Color downloadPageGridViewGroupBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.6);
 
@@ -558,7 +559,7 @@ class UIConfig {
   /// Archive parse source select dialog
   static const double archiveParseSourceSelectDialogWidth = 230;
   static const double archiveParseSourceSelectDialogHeight = 140;
-  
+
   static Color archiveDialogCostTextColor(BuildContext context) => Theme.of(context).colorScheme.outline;
 
   /// tagSet dialog

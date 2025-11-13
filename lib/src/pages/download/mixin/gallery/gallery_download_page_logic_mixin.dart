@@ -8,11 +8,10 @@ import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/super_resolution_setting.dart';
 
 import '../../../../database/database.dart';
-import '../../../../enum/config_enum.dart';
 import '../../../../model/read_page_info.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/gallery_download_service.dart';
-import '../../../../service/local_config_service.dart';
+import '../../../../service/read_progress_service.dart';
 import '../../../../setting/read_setting.dart';
 import '../../../../utils/process_util.dart';
 import '../../../../utils/route_util.dart';
@@ -139,8 +138,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController
     if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
       openThirdPartyViewer(downloadService.computeGalleryDownloadAbsolutePath(gallery.title, gallery.gid));
     } else {
-      String? string = await localConfigService.read(configKey: ConfigEnum.readIndexRecord, subConfigKey: gallery.gid.toString());
-      int readIndexRecord = (string == null ? 0 : (int.tryParse(string) ?? 0));
+      int readIndexRecord = await readProgressService.getReadProgress(gallery.gid);
 
       toRoute(
         Routes.read,

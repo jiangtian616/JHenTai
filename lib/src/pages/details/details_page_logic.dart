@@ -11,7 +11,6 @@ import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/database/dao/archive_dao.dart';
 import 'package:jhentai/src/database/dao/gallery_dao.dart';
 import 'package:jhentai/src/database/database.dart';
-import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
@@ -23,7 +22,7 @@ import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
-import 'package:jhentai/src/service/local_config_service.dart';
+import 'package:jhentai/src/service/read_progress_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
@@ -1028,12 +1027,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   Future<int> getReadIndexRecord() async {
-    String? string = await localConfigService.read(configKey: ConfigEnum.readIndexRecord, subConfigKey: state.galleryUrl.gid.toString());
-    if (string == null) {
-      return 0;
-    } else {
-      return int.tryParse(string) ?? 0;
-    }
+    return readProgressService.getReadProgress(state.galleryUrl.gid);
   }
 
   Future<({GalleryDetail galleryDetails, String apikey})> _getDetailsWithRedirectAndFallback({bool useCache = true}) async {

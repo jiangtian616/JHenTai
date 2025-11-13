@@ -612,19 +612,10 @@ class ReadPageLogic extends GetxController {
   }
 
   Future<void> _flushReadProgress() async {
-    await localConfigService.write(
-      configKey: ConfigEnum.readIndexRecord,
-      subConfigKey: state.readPageInfo.readProgressRecordStorageKey,
-      value: state.readPageInfo.currentImageIndex.toString(),
+    readProgressService.updateReadProgress(
+      state.readPageInfo.readProgressRecordStorageKey,
+      state.readPageInfo.currentImageIndex,
     );
-    
-    // Update cache and notify UI
-    if (state.readPageInfo.gid != null) {
-      readProgressService.updateReadProgress(
-        state.readPageInfo.gid!,
-        state.readPageInfo.currentImageIndex,
-      );
-    }
   }
 
   void clearImageContainerSized() {

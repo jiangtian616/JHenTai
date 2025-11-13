@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
-import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_logic_mixin.dart';
 import 'package:jhentai/src/mixin/update_global_gallery_status_logic_mixin.dart';
@@ -13,7 +12,7 @@ import '../../../../model/gallery_image.dart';
 import '../../../../model/read_page_info.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/archive_download_service.dart';
-import '../../../../service/local_config_service.dart';
+import '../../../../service/read_progress_service.dart';
 import '../../../../service/super_resolution_service.dart';
 import '../../../../setting/read_setting.dart';
 import '../../../../setting/super_resolution_setting.dart';
@@ -142,8 +141,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController
     if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
       openThirdPartyViewer(archiveDownloadService.computeArchiveUnpackingPath(archive.title, archive.gid));
     } else {
-      String? string = await localConfigService.read(configKey: ConfigEnum.readIndexRecord, subConfigKey: archive.gid.toString());
-      int readIndexRecord = (string == null ? 0 : (int.tryParse(string) ?? 0));
+      int readIndexRecord = await readProgressService.getReadProgress(archive.gid);
 
       List<GalleryImage> images = await archiveDownloadService.getUnpackedImages(archive.gid);
 
