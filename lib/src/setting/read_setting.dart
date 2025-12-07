@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/service/log.dart';
+import 'package:jhentai/src/service/ml_tts_service.dart';
 
 import '../service/jh_service.dart';
 
@@ -49,6 +50,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
 
   RxBool mlTtsEnable = false.obs;
   Rx<TextRecognitionScript> mlTtsScript = TextRecognitionScript.latin.obs;
+  Rx<TtsDirection> mlTtsDirection = TtsDirection.defaultDirection.obs;
   RxnString mlTtsLanguage = RxnString('zh-CN');
   RxnString mlTtsEngine = RxnString();
   RxDouble mlTtsVolume = 0.5.obs;
@@ -122,6 +124,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     thirdPartyViewerPath.value = map['thirdPartyViewerPath'];
     mlTtsEnable.value = map['mlTtsEnable'] ?? mlTtsEnable.value;
     mlTtsScript.value = TextRecognitionScript.values[map['mlTtsScript'] ?? TextRecognitionScript.latin.index];
+    mlTtsDirection.value = TtsDirection.values[map['mlTtsDirection'] ?? TtsDirection.defaultDirection.index];
     mlTtsLanguage.value = map['mlTtsLanguage'] ?? mlTtsLanguage.value;
     mlTtsEngine.value = map['mlTtsEngine'] ?? mlTtsEngine.value;
     mlTtsPitch.value = map['mlTtsPitch'] ?? mlTtsPitch.value;
@@ -169,6 +172,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
       'thirdPartyViewerPath': thirdPartyViewerPath.value,
       'mlTtsEnable': mlTtsEnable.value,
       'mlTtsScript': mlTtsScript.value.index,
+      'mlTtsDirection': mlTtsDirection.value.index,
       'mlTtsEngine': mlTtsEngine.value,
       'mlTtsLanguage': mlTtsLanguage.value,
       'mlTtsRate': mlTtsRate.value,
@@ -307,6 +311,12 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   Future<void> saveMlTtsScript(TextRecognitionScript value) async {
     log.debug('saveMlTtsScript:${value.name}');
     mlTtsScript.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveMlTtsDirection(TtsDirection value) async {
+    log.debug('saveMlTtsDirection:${value.name}');
+    mlTtsDirection.value = value;
     await saveBeanConfig();
   }
 

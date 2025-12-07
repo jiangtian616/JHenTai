@@ -514,6 +514,7 @@ class zh_CN {
       'mlTtsEnable': '开启图片转语音',
       'mlTtsScript': 'ML 语种',
       'mlTtsLanguage': 'TTS 语言',
+      'mlTtsDirection': 'TTS 播放方向',
       'mlTtsEngine': 'TTS 引擎',
       'mlTtsPitch': 'TTS 音高',
       'mlTtsVolume': 'TTS 音量',

@@ -64,6 +64,7 @@ class SettingReadPage extends StatelessWidget {
               if (GetPlatform.isMobile) _buildMlTtsEnable().center(),
               if (GetPlatform.isMobile) _buildMlTtsScript().center(),
               if (GetPlatform.isMobile) _buildMlTtsLanguage().center(),
+              if (GetPlatform.isMobile) _buildMlTtsDirection().center(),
               if (GetPlatform.isAndroid) _buildMlTtsEngine().center(),
               if (GetPlatform.isMobile) _buildMlTtsVolume(context).center(),
               if (GetPlatform.isMobile) _buildMlTtsRate(context).center(),
@@ -328,6 +329,20 @@ class SettingReadPage extends StatelessWidget {
         elevation: 4,
         onChanged: (TextRecognitionScript? newValue) => readSetting.saveMlTtsScript(newValue!),
         items: readSetting.mlTtsEnable.value ? TextRecognitionScript.values.map((e) => DropdownMenuItem(child: Text(e.name.tr), value: e)).toList() : null,
+      ).marginOnly(right: 12),
+    );
+  }
+
+  Widget _buildMlTtsDirection() {
+    return ListTile(
+      enabled: readSetting.mlTtsEnable.value,
+      title: Text('mlTtsDirection'.tr),
+      trailing: DropdownButton<TtsDirection>(
+        value: readSetting.mlTtsDirection.value,
+        disabledHint: Text(readSetting.mlTtsDirection.value.name),
+        elevation: 4,
+        onChanged: (TtsDirection? newValue) => readSetting.saveMlTtsDirection(newValue!),
+        items: readSetting.mlTtsEnable.value ? TtsDirection.values.map((e) => DropdownMenuItem(child: Text(e.name.tr), value: e)).toList() : null,
       ).marginOnly(right: 12),
     );
   }

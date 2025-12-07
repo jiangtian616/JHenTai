@@ -514,6 +514,7 @@ class en_US {
       'mlTtsEnable': 'Enable image to voice conversion',
       'mlTtsScript': 'ML script',
       'mlTtsLanguage': 'TTS language',
+      'mlTtsDirection': 'TTS play direction',
       'mlTtsEngine': 'TTS engine',
       'mlTtsPitch': 'TTS pitch',
       'mlTtsVolume': 'TTS volume',

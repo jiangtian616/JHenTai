@@ -15,6 +15,8 @@ MlttsService mlTtsService = MlttsService();
 
 enum TtsState { playing, stopped, paused, continued }
 
+enum TtsDirection { defaultDirection, leftToRight, rightToLeft }
+
 class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late TextRecognizer _textRecognizer;
   String _extractedText = '';
@@ -211,6 +213,30 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     return await picture.toImage(newWidth, newHeight);
   }
 
+  List<TextBlock> _sortedBlocks(List<TextBlock> blocks, {TtsDirection direction = TtsDirection.defaultDirection}) {
+    if (direction == TtsDirection.defaultDirection) {
+      return blocks;
+    }
+
+    blocks.sort((a, b) {
+      final aRect = a.boundingBox;
+      final bRect = b.boundingBox;
+      final aCenterY = aRect.top + aRect.height / 2;
+      final bCenterY = bRect.top + bRect.height / 2;
+      final avgHeight = (aRect.height + bRect.height) / 2;
+      if ((aCenterY - bCenterY).abs() < avgHeight) {
+        if (direction == TtsDirection.rightToLeft) {
+          return bRect.left.compareTo(aRect.left);
+        } else {
+          return aRect.left.compareTo(bRect.left);
+        }
+      } else {
+        return aRect.top.compareTo(bRect.top);
+      }
+    });
+    return blocks;
+  }
+
   Future<void> _recognizedText() async {
     try {
       final imgByteData = await _compressImage(File(_path!), 720);
@@ -224,7 +250,8 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
       final RecognizedText text =
           await _textRecognizer.processImage(inputImage);
       _extractedText = '';
-      for (var block in text.blocks) {
+      var blocks = _sortedBlocks(text.blocks.toList(), direction: readSetting.mlTtsDirection.value);
+      for (var block in blocks) {
         var t = block.text.replaceAll(RegExp(r'\s'), '');
         var flag = false;
         for (var val in _exclusionList) {
