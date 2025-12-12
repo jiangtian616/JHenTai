@@ -46,6 +46,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
 
   Future<void> _initConfig(_) async {
     await _setTtsEngine(null);
+    _setTtsEngineConfig(null);
     _addListers();
     _setLanguages();
     _setExclusionList();
