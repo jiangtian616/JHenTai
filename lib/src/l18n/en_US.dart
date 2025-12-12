@@ -519,6 +519,7 @@ class en_US {
       'mlTtsPitch': 'TTS pitch',
       'mlTtsVolume': 'TTS volume',
       'mlTtsRate': 'TTS rate',
+      'mlTtsBreak': 'TTS break time',
       'mlTtsExclusionList': 'Exclusion list(Case: a,b,c)',
       'mlTtsReplaceList': 'Replace list(Case: a:b,c:d)',
       'mlTtsMinWordLimit': 'Min word limit',

@@ -519,6 +519,7 @@ class zh_CN {
       'mlTtsPitch': 'TTS 音高',
       'mlTtsVolume': 'TTS 音量',
       'mlTtsRate': 'TTS 音速',
+      'mlTtsBreak': 'TTS 停顿时间',
       'mlTtsExclusionList': '过滤列表(例: a,b,c)',
       'mlTtsReplaceList': '替换列表(例: a:b,c:d)',
       'mlTtsMinWordLimit': '最小字数限制',

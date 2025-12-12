@@ -69,6 +69,7 @@ class SettingReadPage extends StatelessWidget {
               if (GetPlatform.isMobile) _buildMlTtsVolume(context).center(),
               if (GetPlatform.isMobile) _buildMlTtsRate(context).center(),
               if (GetPlatform.isMobile) _buildMlTtsPitch(context).center(),
+              if (GetPlatform.isMobile) _buildMlTtsBreak(context).center(),
               if (GetPlatform.isMobile) _buildMlTtsMinWordLimit(context).center(),
               if (GetPlatform.isMobile) _buildMlTtsExclusionList(context).center(),
               if (GetPlatform.isMobile) _buildMlTtsReplaceList(context).center(),
@@ -444,6 +445,36 @@ class SettingReadPage extends StatelessWidget {
                 onChanged: readSetting.mlTtsEnable.value ? (value) => readSetting.mlTtsRate.value = double.parse(value.toStringAsFixed(2)) : null,
               ),
             ),
+          ],
+        );
+      }),
+    );
+  }
+
+  Widget _buildMlTtsBreak(BuildContext context) {
+    return ListTile(
+      enabled: readSetting.mlTtsEnable.value,
+      title: Text('mlTtsBreak'.tr),
+      trailing: Obx(() {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                showValueIndicator: ShowValueIndicator.always,
+                tickMarkShape: const RoundSliderTickMarkShape(tickMarkRadius: 0),
+              ),
+              child: Slider(
+                min: 0,
+                max: 2000,
+                divisions: 20,
+                label: readSetting.mlTtsBreak.value.toString(),
+                value: readSetting.mlTtsBreak.value.toDouble(),
+                onChangeEnd: (value) => readSetting.saveMlTtsBreak(value.toInt()),
+                onChanged: readSetting.mlTtsEnable.value ? (value) => readSetting.mlTtsBreak.value = value.toInt() : null,
+              ),
+            ),
+            Text('ms', style: UIConfig.settingPageListTileTrailingTextStyle(context)),
           ],
         );
       }),

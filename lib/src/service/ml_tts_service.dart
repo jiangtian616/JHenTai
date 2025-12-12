@@ -3,7 +3,7 @@ import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:extended_image/extended_image.dart';
-import 'package:get/get_rx/src/rx_workers/rx_workers.dart';
+import 'package:get/get.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 import 'package:jhentai/src/service/log.dart';
 
@@ -27,7 +27,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late FlutterTts _flutterTts;
   bool isCurrentLanguageInstalled = false;
   TtsState ttsState = TtsState.stopped;
-  List<String> languages = [];
+  RxList<String> languages = <String>[].obs;
   List<String> engines = [];
 
   bool get isPlaying => ttsState == TtsState.playing;
@@ -45,11 +45,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late Worker mlTtsReplaceListLister;
 
   Future<void> _initConfig(_) async {
-    await _flutterTts.setVolume(readSetting.mlTtsVolume.value);
-    await _flutterTts.setSpeechRate(readSetting.mlTtsRate.value);
-    await _flutterTts.setPitch(readSetting.mlTtsPitch.value);
-    await _flutterTts.setLanguage(readSetting.mlTtsLanguage.value!);
-    await _setEngine();
+    await _setTtsEngine(null);
     _addListers();
     _setLanguages();
     _setExclusionList();
@@ -91,10 +87,10 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     for (var element in langs) {
       languages.add(element);
     }
-    log.debug('doAfterBeanReady: $languages');
+    log.debug('_setLanguages: $languages');
   }
 
-  Future<void> _setEngine() async {
+  Future<void> _setTtsEngine(_) async {
     if (Platform.isAndroid) {
       engines = [];
       var engs = await _flutterTts.getEngines;
@@ -118,8 +114,35 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
 
       await _flutterTts.setEngine(engine);
     }
+    await _flutterTts.setLanguage(readSetting.mlTtsLanguage.value!);
+    await _flutterTts.setSpeechRate(readSetting.mlTtsRate.value);
+    await _flutterTts.setVolume(readSetting.mlTtsVolume.value);
+    await _flutterTts.setPitch(readSetting.mlTtsPitch.value);
   }
 
+  String _rateToRelativeString() {
+    double rate = readSetting.mlTtsRate.value;
+    return rate >= 0.9 ? 'x-fast' : 
+           rate >= 0.6 ? 'fast' : 
+           rate >= 0.4 ? 'medium' : 
+           rate >= 0.2 ? 'slow' : 'x-slow';
+  }
+
+  String _volumeToRelativeString() {
+    double volume = readSetting.mlTtsVolume.value;
+    return volume >= 1.0 ? 'x-loud' :
+           volume >= 0.8 ? 'loud' :
+           volume >= 0.6 ? 'medium' :
+           volume >= 0.4 ? 'soft' :
+           volume >= 0.2 ? 'x-soft' : 'silent';
+  }
+
+  String _pitchToRelativeString() {
+    double pitch = readSetting.mlTtsPitch.value;
+    return pitch >= 1.1 ? 'high' : 
+           pitch >= 0.9 ? 'medium' : 'low';
+  }
+  
   void _setExclusionList() {
     var exclusionList = readSetting.mlTtsExclusionList.value?.split(',') ?? [];
     exclusionList = exclusionList.map((e) => e.trim()).toList();
@@ -153,27 +176,18 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     mlTtsScriptLister = ever(readSetting.mlTtsScript, (_) {
       _textRecognizer = TextRecognizer(script: readSetting.mlTtsScript.value);
     });
-    mlTtsEngineLister = ever(readSetting.mlTtsEngine, (_) {
-      _setEngine();
-    });
-    mlTtsLanguageLister = ever(readSetting.mlTtsLanguage, (_) {
-      _flutterTts.setLanguage(readSetting.mlTtsLanguage.value!);
-    });
-    mlTtsPitchLister = ever(readSetting.mlTtsPitch, (_) {
-      _flutterTts.setPitch(readSetting.mlTtsPitch.value);
-    });
-    mlTtsRateLister = ever(readSetting.mlTtsRate, (_) {
-      _flutterTts.setSpeechRate(readSetting.mlTtsRate.value);
-    });
-    mlTtsVolumeLister = ever(readSetting.mlTtsVolume, (_) {
-      _flutterTts.setVolume(readSetting.mlTtsVolume.value);
-    });
     mlTtsExclusionListLister = ever(readSetting.mlTtsExclusionList, (_) {
       _setExclusionList();
     });
     mlTtsReplaceListLister = ever(readSetting.mlTtsReplaceList, (_) {
       _setReplaceList();
     });
+
+    mlTtsEngineLister = ever(readSetting.mlTtsEngine, _setTtsEngine);
+    mlTtsLanguageLister = ever(readSetting.mlTtsLanguage, _setTtsEngine);
+    mlTtsPitchLister = ever(readSetting.mlTtsPitch, _setTtsEngine);
+    mlTtsRateLister = ever(readSetting.mlTtsRate, _setTtsEngine);
+    mlTtsVolumeLister = ever(readSetting.mlTtsVolume, _setTtsEngine);
   }
 
   @override
@@ -247,11 +261,11 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
         height: imgByteData.height
       );
 
-      final RecognizedText text =
-          await _textRecognizer.processImage(inputImage);
-      _extractedText = '';
+      final RecognizedText text = await _textRecognizer.processImage(inputImage);
+      _extractedText = "<speak><prosody rate=\"${_rateToRelativeString()}\" pitch=\"${_pitchToRelativeString()}\" volume=\"${_volumeToRelativeString()}\">";
       var blocks = _sortedBlocks(text.blocks.toList(), direction: readSetting.mlTtsDirection.value);
-      for (var block in blocks) {
+      for (var i = 0; i < blocks.length; i++) {
+        var block = blocks[i];
         var t = block.text.replaceAll(RegExp(r'\s'), '');
         var flag = false;
         for (var val in _exclusionList) {
@@ -266,11 +280,17 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
         for (var val in _replaceList) {
           t = t.replaceAll(val[0], val[1]);
         }
-        _extractedText += t;
-        log.debug('_setEngine: $_extractedText');
+        log.debug('_recognizedText: $t');
+        if (i == blocks.length - 1 || readSetting.mlTtsBreak.value == 0) {
+          _extractedText += t;
+        } else {
+          _extractedText += t + "<break time=\"${readSetting.mlTtsBreak.value}ms\"/>";
+        }
       }
+      _extractedText += "</prosody></speak>";
+      log.debug('_recognizedText: $_extractedText');
     } catch (e) {
-      log.debug('_setEngine:error: $e');
+      log.debug('_recognizedText:error: $e');
     }
   }
 

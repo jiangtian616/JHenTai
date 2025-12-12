@@ -56,6 +56,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   RxDouble mlTtsVolume = 0.5.obs;
   RxDouble mlTtsPitch = 1.0.obs;
   RxDouble mlTtsRate = 0.5.obs;
+  RxInt mlTtsBreak = 750.obs;
   RxnString mlTtsExclusionList = RxnString();
   RxnString mlTtsReplaceList = RxnString();
   RxInt mlTtsMinWordLimit = 3.obs;
@@ -130,6 +131,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     mlTtsPitch.value = map['mlTtsPitch'] ?? mlTtsPitch.value;
     mlTtsVolume.value = map['mlTtsVolume'] ?? mlTtsVolume.value;
     mlTtsRate.value = map['mlTtsRate'] ?? mlTtsRate.value;
+    mlTtsBreak.value = map['mlTtsBreak'] ?? mlTtsBreak.value;
     mlTtsExclusionList.value = map['mlTtsExclusionList'] ?? mlTtsExclusionList.value;
     mlTtsReplaceList.value = map['mlTtsReplaceList'] ?? mlTtsReplaceList.value;
     mlTtsMinWordLimit.value = map['mlTtsMinWordLimit'] ?? mlTtsMinWordLimit.value;
@@ -178,6 +180,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
       'mlTtsRate': mlTtsRate.value,
       'mlTtsVolume': mlTtsVolume.value,
       'mlTtsPitch': mlTtsPitch.value,
+      'mlTtsBreak': mlTtsBreak.value,
       'mlTtsExclusionList': mlTtsExclusionList.value,
       'mlTtsReplaceList': mlTtsReplaceList.value,
       'mlTtsMinWordLimit': mlTtsMinWordLimit.value,
@@ -347,6 +350,12 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   Future<void> saveMlTtsRate(double value) async {
     log.debug('saveMlTtsRate:$value');
     mlTtsRate.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveMlTtsBreak(int value) async {
+    log.debug('saveMlTtsBreak:$value');
+    mlTtsBreak.value = value;
     await saveBeanConfig();
   }
 
