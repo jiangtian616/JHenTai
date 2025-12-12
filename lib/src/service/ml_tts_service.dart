@@ -91,15 +91,14 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   }
 
   Future<void> _setTtsEngine(_) async {
-    if (Platform.isAndroid) {
+    if (GetPlatform.isAndroid) {
       engines = [];
       var engs = await _flutterTts.getEngines;
       for (var element in engs) {
         engines.add(element);
       }
 
-      var engine =
-          readSetting.mlTtsEngine.value ?? await _flutterTts.getDefaultEngine;
+      var engine = readSetting.mlTtsEngine.value ?? await _flutterTts.getDefaultEngine;
       if (engine != null) {
         log.debug('_setEngine: $engine');
       }
@@ -114,6 +113,9 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
 
       await _flutterTts.setEngine(engine);
     }
+  }
+
+  Future<void> _setTtsEngineConfig(_) async {
     await _flutterTts.setLanguage(readSetting.mlTtsLanguage.value!);
     await _flutterTts.setSpeechRate(readSetting.mlTtsRate.value);
     await _flutterTts.setVolume(readSetting.mlTtsVolume.value);
@@ -170,6 +172,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     mlTtsRateLister.dispose();
     mlTtsVolumeLister.dispose();
     mlTtsExclusionListLister.dispose();
+    mlTtsReplaceListLister.dispose();
   }
 
   void _addListers() {
@@ -184,10 +187,10 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     });
 
     mlTtsEngineLister = ever(readSetting.mlTtsEngine, _setTtsEngine);
-    mlTtsLanguageLister = ever(readSetting.mlTtsLanguage, _setTtsEngine);
-    mlTtsPitchLister = ever(readSetting.mlTtsPitch, _setTtsEngine);
-    mlTtsRateLister = ever(readSetting.mlTtsRate, _setTtsEngine);
-    mlTtsVolumeLister = ever(readSetting.mlTtsVolume, _setTtsEngine);
+    mlTtsLanguageLister = ever(readSetting.mlTtsLanguage, _setTtsEngineConfig);
+    mlTtsPitchLister = ever(readSetting.mlTtsPitch, _setTtsEngineConfig);
+    mlTtsRateLister = ever(readSetting.mlTtsRate, _setTtsEngineConfig);
+    mlTtsVolumeLister = ever(readSetting.mlTtsVolume, _setTtsEngineConfig);
   }
 
   @override
@@ -262,7 +265,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
       );
 
       final RecognizedText text = await _textRecognizer.processImage(inputImage);
-      _extractedText = "<speak><prosody rate=\"${_rateToRelativeString()}\" pitch=\"${_pitchToRelativeString()}\" volume=\"${_volumeToRelativeString()}\">";
+      _extractedText = GetPlatform.isIOS ? "<speak><prosody rate=\"${_rateToRelativeString()}\" pitch=\"${_pitchToRelativeString()}\" volume=\"${_volumeToRelativeString()}\">" : '';
       var blocks = _sortedBlocks(text.blocks.toList(), direction: readSetting.mlTtsDirection.value);
       for (var i = 0; i < blocks.length; i++) {
         var block = blocks[i];
@@ -281,13 +284,13 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
           t = t.replaceAll(val[0], val[1]);
         }
         log.debug('_recognizedText: $t');
-        if (i == blocks.length - 1 || readSetting.mlTtsBreak.value == 0) {
+        if (i == blocks.length - 1 || readSetting.mlTtsBreak.value == 0 || !GetPlatform.isIOS) {
           _extractedText += t;
         } else {
-          _extractedText += t + "<break time=\"${readSetting.mlTtsBreak.value}ms\"/>";
+          _extractedText += t + "<break time=\"weak\"/>";
         }
       }
-      _extractedText += "</prosody></speak>";
+      _extractedText += GetPlatform.isIOS ? "</prosody></speak>" : '';
       log.debug('_recognizedText: $_extractedText');
     } catch (e) {
       log.debug('_recognizedText:error: $e');

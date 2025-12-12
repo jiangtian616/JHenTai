@@ -69,7 +69,7 @@ class SettingReadPage extends StatelessWidget {
               if (GetPlatform.isMobile) _buildMlTtsVolume(context).center(),
               if (GetPlatform.isMobile) _buildMlTtsRate(context).center(),
               if (GetPlatform.isMobile) _buildMlTtsPitch(context).center(),
-              if (GetPlatform.isMobile) _buildMlTtsBreak(context).center(),
+              if (GetPlatform.isIOS) _buildMlTtsBreak(context).center(),
               if (GetPlatform.isMobile) _buildMlTtsMinWordLimit(context).center(),
               if (GetPlatform.isMobile) _buildMlTtsExclusionList(context).center(),
               if (GetPlatform.isMobile) _buildMlTtsReplaceList(context).center(),
