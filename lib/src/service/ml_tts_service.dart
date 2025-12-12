@@ -28,7 +28,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   bool isCurrentLanguageInstalled = false;
   TtsState ttsState = TtsState.stopped;
   RxList<String> languages = <String>[].obs;
-  List<String> engines = [];
+  RxList<String> engines = <String>[].obs;
 
   bool get isPlaying => ttsState == TtsState.playing;
   bool get isStopped => ttsState == TtsState.stopped;
@@ -92,7 +92,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
 
   Future<void> _setTtsEngine(_) async {
     if (GetPlatform.isAndroid) {
-      engines = [];
+      engines.clear();
       var engs = await _flutterTts.getEngines;
       for (var element in engs) {
         engines.add(element);
