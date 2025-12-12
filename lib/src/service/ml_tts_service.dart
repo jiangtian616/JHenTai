@@ -141,8 +141,10 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
 
   String _pitchToRelativeString() {
     double pitch = readSetting.mlTtsPitch.value;
-    return pitch >= 1.1 ? 'high' : 
-           pitch >= 0.9 ? 'medium' : 'low';
+    return pitch >= 1.3 ? 'x-high' :
+           pitch >= 1.1 ? 'high' :  
+           pitch >= 0.9 ? 'medium' : 
+           pitch >= 0.7 ? 'low' : 'x-low';
   }
   
   void _setExclusionList() {
@@ -287,7 +289,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
         if (i == blocks.length - 1 || readSetting.mlTtsBreak.value == 0 || !GetPlatform.isIOS) {
           _extractedText += t;
         } else {
-          _extractedText += t + "<break time=\"weak\"/>";
+          _extractedText += t + "<break time=\"${readSetting.mlTtsBreak.value}ms\"/>";
         }
       }
       _extractedText += GetPlatform.isIOS ? "</prosody></speak>" : '';
