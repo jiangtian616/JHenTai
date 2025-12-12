@@ -60,7 +60,7 @@ class SettingReadPage extends StatelessWidget {
               if (readSetting.isInDoubleColumnReadDirection) _buildDisplayFirstPageAlone().fadeIn(const Key('displayFirstPageAloneGlobally')).center(),
               if (readSetting.isInListReadDirection) _buildAutoModeStyle().fadeIn(const Key('autoModeStyle')).center(),
               if (readSetting.isInListReadDirection) _buildTurnPageMode().fadeIn(const Key('turnPageMode')).center(),
-              if (GetPlatform.isMobile) _buildImageSpace().center(),
+              _buildImageSpace().center(),
               if (GetPlatform.isMobile) _buildMlTtsEnable().center(),
               if (GetPlatform.isMobile) _buildMlTtsScript().center(),
               if (GetPlatform.isMobile) _buildMlTtsLanguage().center(),
