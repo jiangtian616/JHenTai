@@ -113,6 +113,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
           .then((value) => isCurrentLanguageInstalled = (value as bool));
 
       await _flutterTts.setEngine(engine);
+      await _flutterTts.speak(" ");
     }
   }
 
@@ -121,6 +122,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     await _flutterTts.setSpeechRate(readSetting.mlTtsRate.value);
     await _flutterTts.setVolume(readSetting.mlTtsVolume.value);
     await _flutterTts.setPitch(readSetting.mlTtsPitch.value);
+    await _flutterTts.speak(" ");
   }
 
   String _rateToRelativeString() {
