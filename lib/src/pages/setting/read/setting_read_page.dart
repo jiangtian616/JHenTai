@@ -460,14 +460,10 @@ class SettingReadPage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                showValueIndicator: ShowValueIndicator.always,
-                tickMarkShape: const RoundSliderTickMarkShape(tickMarkRadius: 0),
-              ),
+              data: SliderTheme.of(context).copyWith(showValueIndicator: ShowValueIndicator.always),
               child: Slider(
                 min: 0,
                 max: 2000,
-                divisions: 20,
                 label: readSetting.mlTtsBreak.value.toString(),
                 value: readSetting.mlTtsBreak.value.toDouble(),
                 onChangeEnd: (value) => readSetting.saveMlTtsBreak(value.toInt()),

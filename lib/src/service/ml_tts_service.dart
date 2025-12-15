@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:extended_image/extended_image.dart';
@@ -13,13 +14,13 @@ import 'package:flutter_tts/flutter_tts.dart';
 
 MlttsService mlTtsService = MlttsService();
 
-enum TtsState { playing, stopped, paused, continued }
+enum TtsState { playing, stopped, paused, continued, completed }
 
 enum TtsDirection { defaultDirection, leftToRight, rightToLeft }
 
 class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late TextRecognizer _textRecognizer;
-  String _extractedText = '';
+  List<String> _extractedTextList = [];
   List<String> _exclusionList = [];
   List<List<String>> _replaceList = [];
 
@@ -46,7 +47,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
 
   Future<void> _initConfig(_) async {
     await _setTtsEngine(null);
-    _setTtsEngineConfig(null);
+    _setTtsConfig(null);
     _addListers();
     _setLanguages();
     _setExclusionList();
@@ -57,9 +58,14 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
       ttsState = TtsState.playing;
     });
 
-    _flutterTts.setCompletionHandler(() {
-      log.debug('setCompletionHandler:Complete');
-      ttsState = TtsState.stopped;
+    _flutterTts.setCompletionHandler(() async {
+      if (ttsState != TtsState.stopped) {
+        await Future.delayed(Duration(milliseconds: readSetting.mlTtsBreak.value), _speak);
+        ttsState = TtsState.completed;
+        log.debug('setCompletionHandler:Complete');
+      } else {
+        log.debug('setCompletionHandler:Stopped');
+      }
     });
 
     _flutterTts.setCancelHandler(() {
@@ -117,7 +123,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     }
   }
 
-  Future<void> _setTtsEngineConfig(_) async {
+  Future<void> _setTtsConfig(_) async {
     await _flutterTts.setLanguage(readSetting.mlTtsLanguage.value!);
     await _flutterTts.setSpeechRate(readSetting.mlTtsRate.value);
     await _flutterTts.setVolume(readSetting.mlTtsVolume.value);
@@ -125,31 +131,6 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     await _flutterTts.speak(" ");
   }
 
-  String _rateToRelativeString() {
-    double rate = readSetting.mlTtsRate.value;
-    return rate >= 0.9 ? 'x-fast' : 
-           rate >= 0.6 ? 'fast' : 
-           rate >= 0.4 ? 'medium' : 
-           rate >= 0.2 ? 'slow' : 'x-slow';
-  }
-
-  String _volumeToRelativeString() {
-    double volume = readSetting.mlTtsVolume.value;
-    return volume >= 1.0 ? 'x-loud' :
-           volume >= 0.8 ? 'loud' :
-           volume >= 0.6 ? 'medium' :
-           volume >= 0.4 ? 'soft' :
-           volume >= 0.2 ? 'x-soft' : 'silent';
-  }
-
-  String _pitchToRelativeString() {
-    double pitch = readSetting.mlTtsPitch.value;
-    return pitch >= 1.3 ? 'x-high' :
-           pitch >= 1.1 ? 'high' :  
-           pitch >= 0.9 ? 'medium' : 
-           pitch >= 0.7 ? 'low' : 'x-low';
-  }
-  
   void _setExclusionList() {
     var exclusionList = readSetting.mlTtsExclusionList.value?.split(',') ?? [];
     exclusionList = exclusionList.map((e) => e.trim()).toList();
@@ -192,10 +173,10 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     });
 
     mlTtsEngineLister = ever(readSetting.mlTtsEngine, _setTtsEngine);
-    mlTtsLanguageLister = ever(readSetting.mlTtsLanguage, _setTtsEngineConfig);
-    mlTtsPitchLister = ever(readSetting.mlTtsPitch, _setTtsEngineConfig);
-    mlTtsRateLister = ever(readSetting.mlTtsRate, _setTtsEngineConfig);
-    mlTtsVolumeLister = ever(readSetting.mlTtsVolume, _setTtsEngineConfig);
+    mlTtsLanguageLister = ever(readSetting.mlTtsLanguage, _setTtsConfig);
+    mlTtsPitchLister = ever(readSetting.mlTtsPitch, _setTtsConfig);
+    mlTtsRateLister = ever(readSetting.mlTtsRate, _setTtsConfig);
+    mlTtsVolumeLister = ever(readSetting.mlTtsVolume, _setTtsConfig);
   }
 
   @override
@@ -239,23 +220,26 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     if (direction == TtsDirection.defaultDirection) {
       return blocks;
     }
-
+    
+    const double sameRowThreshold = 0.5; // 垂直中心偏差小于平均高度的 50% 视为同一行
+    
     blocks.sort((a, b) {
       final aRect = a.boundingBox;
       final bRect = b.boundingBox;
+
       final aCenterY = aRect.top + aRect.height / 2;
       final bCenterY = bRect.top + bRect.height / 2;
       final avgHeight = (aRect.height + bRect.height) / 2;
-      if ((aCenterY - bCenterY).abs() < avgHeight) {
-        if (direction == TtsDirection.rightToLeft) {
-          return bRect.left.compareTo(aRect.left);
-        } else {
-          return aRect.left.compareTo(bRect.left);
-        }
-      } else {
-        return aRect.top.compareTo(bRect.top);
+
+      if ((aCenterY - bCenterY).abs() <= avgHeight * sameRowThreshold) {
+        return direction == TtsDirection.rightToLeft
+            ? bRect.left.compareTo(aRect.left)
+            : aRect.left.compareTo(bRect.left);
       }
+
+      return aCenterY.compareTo(bCenterY);
     });
+
     return blocks;
   }
 
@@ -269,44 +253,39 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
         height: imgByteData.height
       );
 
+      _extractedTextList.clear();
+      
       final RecognizedText text = await _textRecognizer.processImage(inputImage);
-      _extractedText = GetPlatform.isIOS ? "<speak><prosody rate=\"${_rateToRelativeString()}\" pitch=\"${_pitchToRelativeString()}\" volume=\"${_volumeToRelativeString()}\">" : '';
       var blocks = _sortedBlocks(text.blocks.toList(), direction: readSetting.mlTtsDirection.value);
-      for (var i = 0; i < blocks.length; i++) {
-        var block = blocks[i];
-        var t = block.text.replaceAll(RegExp(r'\s'), '');
-        var flag = false;
-        for (var val in _exclusionList) {
-          if (t.toLowerCase().contains(val)) {
-            flag = true;
-            break;
-          }
-        }
-        if (flag || t.length < readSetting.mlTtsMinWordLimit.value) {
+      final RegExp blankReg = RegExp(r'\s');
+      final int minLen = readSetting.mlTtsMinWordLimit.value;
+      final Set<String> lowerExcludes = _exclusionList.map((e) => e.toLowerCase()).toSet();
+      for (var block in blocks) {
+        String t = block.text.replaceAll(blankReg, '');
+        if (t.length < minLen || lowerExcludes.any((ex) => t.toLowerCase().contains(ex))) {
           continue;
         }
-        for (var val in _replaceList) {
-          t = t.replaceAll(val[0], val[1]);
+        for (var pair in _replaceList) {
+          t = t.replaceAll(pair[0], pair[1]);
         }
+        _extractedTextList.add(t);
         log.debug('_recognizedText: $t');
-        if (i == blocks.length - 1 || readSetting.mlTtsBreak.value == 0 || !GetPlatform.isIOS) {
-          _extractedText += t;
-        } else {
-          _extractedText += t + "<break time=\"${readSetting.mlTtsBreak.value}ms\"/>";
-        }
       }
-      _extractedText += GetPlatform.isIOS ? "</prosody></speak>" : '';
-      log.debug('_recognizedText: $_extractedText');
+
+      if (readSetting.mlTtsBreak.value == 0) {
+        _extractedTextList = [_extractedTextList.join('')];
+      }
+
+      log.debug('_recognizedText: $_extractedTextList');
     } catch (e) {
       log.debug('_recognizedText:error: $e');
     }
   }
 
   Future<void> _speak() async {
-    if (_extractedText.isNotEmpty) {
+    if (_extractedTextList.isNotEmpty) {
       await stop();
-      await _flutterTts.clearVoice();
-      await _flutterTts.speak(_extractedText);
+      await _flutterTts.speak(_extractedTextList.removeAt(0));
     }
   }
 
