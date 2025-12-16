@@ -243,6 +243,64 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     return blocks;
   }
 
+  List<TextBlock> _mergeBlocks(List<TextBlock> blocks) {
+    if (blocks.isEmpty) {
+      return blocks;
+    }
+
+    final List<TextBlock> merged = [];
+    TextBlock? firstBlock;
+
+    for (final lastBlock in blocks) {
+      if (firstBlock == null) {
+        firstBlock = lastBlock;
+        continue;
+      }
+
+      final firstBlockRect = firstBlock.boundingBox;
+      final lastBlockRect = lastBlock.boundingBox;
+      final bool isRowMode = firstBlockRect.width > firstBlockRect.height;
+
+      bool shouldMerge;
+      if (isRowMode) {
+        // 行模式：垂直重叠 & 水平相邻
+        final double spacing = firstBlock.lines.last.boundingBox.height;
+        final vertOverlap = lastBlockRect.top - spacing < firstBlockRect.bottom;
+        final horizAdj = lastBlockRect.center.dx > firstBlockRect.left &&
+                         lastBlockRect.center.dx < firstBlockRect.right;
+        shouldMerge = vertOverlap && horizAdj;
+      } else {
+        // 列模式：水平重叠 & 垂直相邻
+        final double spacing = firstBlock.lines.last.boundingBox.width;
+        final horizOverlap = lastBlockRect.right + spacing > firstBlockRect.left;
+        final vertAdj = lastBlockRect.center.dy > firstBlockRect.top &&
+                        lastBlockRect.center.dy < firstBlockRect.bottom;
+        shouldMerge = horizOverlap && vertAdj;
+      }
+
+      if (shouldMerge) {
+        final newText = firstBlock.text + lastBlock.text;
+        final newRect = firstBlockRect.expandToInclude(lastBlockRect);
+        firstBlock = TextBlock(
+          text: newText,
+          boundingBox: newRect,
+          recognizedLanguages: firstBlock.recognizedLanguages,
+          cornerPoints: firstBlock.cornerPoints,
+          lines: [...firstBlock.lines, ...lastBlock.lines],
+        );
+      } else {
+        merged.add(firstBlock);
+        firstBlock = lastBlock;
+      }
+    }
+
+    if (firstBlock != null) {
+      merged.add(firstBlock);
+    }
+
+    return merged;
+  }
+
   Future<void> _recognizedText() async {
     try {
       final imgByteData = await _compressImage(File(_path!), 720);
@@ -256,7 +314,8 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
       _extractedTextList.clear();
       
       final RecognizedText text = await _textRecognizer.processImage(inputImage);
-      var blocks = _sortedBlocks(text.blocks.toList(), direction: readSetting.mlTtsDirection.value);
+      var blocks = _mergeBlocks(text.blocks);
+      blocks = _sortedBlocks(blocks, direction: readSetting.mlTtsDirection.value);
       final RegExp blankReg = RegExp(r'\s');
       final int minLen = readSetting.mlTtsMinWordLimit.value;
       final Set<String> lowerExcludes = _exclusionList.map((e) => e.toLowerCase()).toSet();
