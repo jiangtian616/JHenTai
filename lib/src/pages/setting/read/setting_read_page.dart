@@ -463,7 +463,7 @@ class SettingReadPage extends StatelessWidget {
               data: SliderTheme.of(context).copyWith(showValueIndicator: ShowValueIndicator.always),
               child: Slider(
                 min: 0,
-                max: 2000,
+                max: 750,
                 label: readSetting.mlTtsBreak.value.toString(),
                 value: readSetting.mlTtsBreak.value.toDouble(),
                 onChangeEnd: (value) => readSetting.saveMlTtsBreak(value.toInt()),
