@@ -233,7 +233,7 @@ class LoginPageLogic extends GetxController {
   }
 
   Future<void> handleWebLogin() async {
-    if (GetPlatform.isDesktop) {
+    if (GetPlatform.isWindows || GetPlatform.isLinux) {
       if (!await WebviewWindow.isWebviewAvailable()) {
         toast('webLoginIsDisabled'.tr);
         return;
