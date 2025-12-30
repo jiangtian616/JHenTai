@@ -282,8 +282,6 @@ jobs:
           
           # Get changelog as raw string (remove quotes added by jq -Rs)
           CHANGELOG="${{ steps.get_changelog.outputs.changelog }}"
-          CHANGELOG="${CHANGELOG%\"}"
-          CHANGELOG="${CHANGELOG#\"}"
           
           # Create new version entry
           jq --arg version "$VERSION" \
