@@ -297,7 +297,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   Future<void> requestLogout() async {
     await removeAllCookies();
     await userSetting.clearBeanConfig();
-    if (GetPlatform.isDesktop) {
+    if (GetPlatform.isWindows || GetPlatform.isLinux) {
       Directory directory = Directory(join(pathService.getVisibleDir().path, EHConsts.desktopWebviewDirectoryName));
       if (await directory.exists()) {
         await directory.delete(recursive: true);
