@@ -281,7 +281,7 @@ jobs:
           DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           
           # Get changelog as raw string (remove quotes added by jq -Rs)
-          CHANGELOG="${{ steps.get_changelog.outputs.changelog }}"
+          CHANGELOG=${{ steps.get_changelog.outputs.changelog }}
           
           # Create new version entry
           jq --arg version "$VERSION" \
