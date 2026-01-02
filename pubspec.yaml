@@ -135,6 +135,9 @@ dependency_overrides:
       path: dio
       ref: append-mode
   collection: 1.19.0
+  google_mlkit_commons: ^0.11.0
+  google_mlkit_text_recognition: ^0.15.0
+  flutter_tts: ^4.2.3
     
 dev_dependencies:
   flutter_test:

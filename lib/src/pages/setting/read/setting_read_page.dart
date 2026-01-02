@@ -4,7 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
+import 'package:jhentai/src/service/ml_tts_service.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
 import '../../../service/log.dart';
 import '../../../utils/text_input_formatter.dart';
@@ -14,6 +16,8 @@ class SettingReadPage extends StatelessWidget {
   final TextEditingController imageRegionWidthRatioController = TextEditingController(text: readSetting.imageRegionWidthRatio.value.toString());
   final TextEditingController gestureRegionWidthRatioController = TextEditingController(text: readSetting.gestureRegionWidthRatio.value.toString());
   final TextEditingController imageMaxKilobytesController = TextEditingController(text: readSetting.maxImageKilobyte.value.toString());
+  final TextEditingController mlTtsExclusionListController = TextEditingController(text: readSetting.mlTtsExclusionList.value);
+  final TextEditingController mlTtsReplaceListController = TextEditingController(text: readSetting.mlTtsReplaceList.value);
 
   SettingReadPage({Key? key}) : super(key: key);
 
@@ -57,6 +61,18 @@ class SettingReadPage extends StatelessWidget {
               if (readSetting.isInListReadDirection) _buildAutoModeStyle().fadeIn(const Key('autoModeStyle')).center(),
               if (readSetting.isInListReadDirection) _buildTurnPageMode().fadeIn(const Key('turnPageMode')).center(),
               _buildImageSpace().center(),
+              if (GetPlatform.isMobile) _buildMlTtsEnable().center(),
+              if (GetPlatform.isMobile) _buildMlTtsScript().center(),
+              if (GetPlatform.isMobile) _buildMlTtsLanguage().center(),
+              if (GetPlatform.isMobile) _buildMlTtsDirection().center(),
+              if (GetPlatform.isAndroid) _buildMlTtsEngine().center(),
+              if (GetPlatform.isMobile) _buildMlTtsVolume(context).center(),
+              if (GetPlatform.isMobile) _buildMlTtsRate(context).center(),
+              if (GetPlatform.isMobile) _buildMlTtsPitch(context).center(),
+              if (GetPlatform.isIOS) _buildMlTtsBreak(context).center(),
+              if (GetPlatform.isMobile) _buildMlTtsMinWordLimit(context).center(),
+              if (GetPlatform.isMobile) _buildMlTtsExclusionList(context).center(),
+              if (GetPlatform.isMobile) _buildMlTtsReplaceList(context).center(),
             ],
           ).withListTileTheme(context),
         ),
@@ -296,6 +312,240 @@ class SettingReadPage extends StatelessWidget {
     );
   }
 
+  Widget _buildMlTtsEnable() {
+    return SwitchListTile(
+      title: Text('mlTtsEnable'.tr),
+      value: readSetting.mlTtsEnable.value,
+      onChanged: readSetting.saveMlTtsEnable,
+    );
+  }
+
+  Widget _buildMlTtsScript() {
+    return ListTile(
+      enabled: readSetting.mlTtsEnable.value,
+      title: Text('mlTtsScript'.tr),
+      trailing: DropdownButton<TextRecognitionScript>(
+        value: readSetting.mlTtsScript.value,
+        disabledHint: Text(readSetting.mlTtsScript.value.name),
+        elevation: 4,
+        onChanged: (TextRecognitionScript? newValue) => readSetting.saveMlTtsScript(newValue!),
+        items: readSetting.mlTtsEnable.value ? TextRecognitionScript.values.map((e) => DropdownMenuItem(child: Text(e.name.tr), value: e)).toList() : null,
+      ).marginOnly(right: 12),
+    );
+  }
+
+  Widget _buildMlTtsDirection() {
+    return ListTile(
+      enabled: readSetting.mlTtsEnable.value,
+      title: Text('mlTtsDirection'.tr),
+      trailing: DropdownButton<TtsDirection>(
+        value: readSetting.mlTtsDirection.value,
+        disabledHint: Text(readSetting.mlTtsDirection.value.name),
+        elevation: 4,
+        onChanged: (TtsDirection? newValue) => readSetting.saveMlTtsDirection(newValue!),
+        items: readSetting.mlTtsEnable.value ? TtsDirection.values.map((e) => DropdownMenuItem(child: Text(e.name.tr), value: e)).toList() : null,
+      ).marginOnly(right: 12),
+    );
+  }
+
+  Widget _buildMlTtsLanguage() {
+    return ListTile(
+      enabled: readSetting.mlTtsEnable.value,
+      title: Text('mlTtsLanguage'.tr),
+      trailing: DropdownButton<String>(
+        value: readSetting.mlTtsLanguage.value,
+        disabledHint: Text(readSetting.mlTtsLanguage.value ?? ''),
+        elevation: 4,
+        onChanged: (String? newValue) => readSetting.saveMlTtsLanguage(newValue!),
+        items: readSetting.mlTtsEnable.value ? mlTtsService.languages.map(((e) => DropdownMenuItem(child: Text(e), value: e))).toList() : null,
+      ).marginOnly(right: 12),
+    );
+  }
+
+  Widget _buildMlTtsEngine() {
+    return ListTile(
+      enabled: readSetting.mlTtsEnable.value,
+      title: Text('mlTtsEngine'.tr),
+      trailing: DropdownButton<String>(
+        value: readSetting.mlTtsEngine.value,
+        disabledHint: Text(readSetting.mlTtsEngine.value ?? ''),
+        elevation: 4,
+        onChanged: (String? newValue) => readSetting.saveMlTtsEngine(newValue!),
+        items: readSetting.mlTtsEnable.value ? mlTtsService.engines.map(((e) => DropdownMenuItem(child: Text(e.tr), value: e))).toList() : null,
+      ).marginOnly(right: 12),
+    );
+  }
+
+  Widget _buildMlTtsVolume(BuildContext context) {
+    return ListTile(
+      enabled: readSetting.mlTtsEnable.value,
+      title: Text('mlTtsVolume'.tr),
+      trailing: Obx(() {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(showValueIndicator: ShowValueIndicator.always),
+              child: Slider(
+                min: 0.0,
+                max: 1.0,
+                label: readSetting.mlTtsVolume.value.toString(),
+                value: readSetting.mlTtsVolume.value,
+                onChangeEnd: (value) => readSetting.saveMlTtsVolume(double.parse(value.toStringAsFixed(2))), 
+                onChanged: readSetting.mlTtsEnable.value ? (value) => readSetting.mlTtsVolume.value = double.parse(value.toStringAsFixed(2)) : null,
+              ),
+            ),
+          ],
+        );
+      }),
+    );
+  }
+
+  Widget _buildMlTtsPitch(BuildContext context) {
+    return ListTile(
+      enabled: readSetting.mlTtsEnable.value,
+      title: Text('mlTtsPitch'.tr),
+      trailing: Obx(() {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(showValueIndicator: ShowValueIndicator.always),
+              child: Slider(
+                min: 0.5,
+                max: 2.0,
+                label: readSetting.mlTtsPitch.value.toString(),
+                value: readSetting.mlTtsPitch.value,
+                onChangeEnd: (value) => readSetting.saveMlTtsPitch(double.parse(value.toStringAsFixed(2))), 
+                onChanged: readSetting.mlTtsEnable.value ? (value) => readSetting.mlTtsPitch.value = double.parse(value.toStringAsFixed(2)) : null,
+              ),
+            ),
+          ],
+        );
+      }),
+    );
+  }
+
+  Widget _buildMlTtsRate(BuildContext context) {
+    return ListTile(
+      enabled: readSetting.mlTtsEnable.value,
+      title: Text('mlTtsRate'.tr),
+      trailing: Obx(() {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(showValueIndicator: ShowValueIndicator.always),
+              child: Slider(
+                min: 0.0,
+                max: 1.0,
+                label: readSetting.mlTtsRate.value.toString(),
+                value: readSetting.mlTtsRate.value,
+                onChangeEnd: (value) => readSetting.saveMlTtsRate(double.parse(value.toStringAsFixed(2))), 
+                onChanged: readSetting.mlTtsEnable.value ? (value) => readSetting.mlTtsRate.value = double.parse(value.toStringAsFixed(2)) : null,
+              ),
+            ),
+          ],
+        );
+      }),
+    );
+  }
+
+  Widget _buildMlTtsBreak(BuildContext context) {
+    return ListTile(
+      enabled: readSetting.mlTtsEnable.value,
+      title: Text('mlTtsBreak'.tr),
+      trailing: Obx(() {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(showValueIndicator: ShowValueIndicator.always),
+              child: Slider(
+                min: 0,
+                max: 750,
+                label: readSetting.mlTtsBreak.value.toString(),
+                value: readSetting.mlTtsBreak.value.toDouble(),
+                onChangeEnd: (value) => readSetting.saveMlTtsBreak(value.toInt()),
+                onChanged: readSetting.mlTtsEnable.value ? (value) => readSetting.mlTtsBreak.value = value.toInt() : null,
+              ),
+            ),
+            Text('ms', style: UIConfig.settingPageListTileTrailingTextStyle(context)),
+          ],
+        );
+      }),
+    );
+  }
+
+  Widget _buildMlTtsExclusionList(BuildContext context) {
+    void _onEditingComplete() {
+      FocusScope.of(context).unfocus();
+      _saveMlTtsExclusionList();
+    }
+    return ListTile(
+      enabled: readSetting.mlTtsEnable.value,
+      title: Text('mlTtsExclusionList'.tr),
+      trailing: SizedBox(
+        width: 150,
+        child: TextField(
+          enabled: readSetting.mlTtsEnable.value,
+          controller: mlTtsExclusionListController,
+          decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
+          textAlign: TextAlign.left,
+          textInputAction: TextInputAction.done,
+          onEditingComplete: _onEditingComplete,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMlTtsReplaceList(BuildContext context) {
+    void _onEditingComplete() {
+      FocusScope.of(context).unfocus();
+      _saveMlTtsReplaceList();
+    }
+    return ListTile(
+      enabled: readSetting.mlTtsEnable.value,
+      title: Text('mlTtsReplaceList'.tr),
+      trailing: SizedBox(
+        width: 150,
+        child: TextField(
+          enabled: readSetting.mlTtsEnable.value,
+          controller: mlTtsReplaceListController,
+          decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
+          textAlign: TextAlign.left,
+          textInputAction: TextInputAction.done,
+          onEditingComplete: _onEditingComplete,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMlTtsMinWordLimit(BuildContext context) {
+    return ListTile(
+      enabled: readSetting.mlTtsEnable.value,
+      title: Text('mlTtsMinWordLimit'.tr),
+      trailing: Obx(() {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SliderTheme(
+              data: SliderTheme.of(context).copyWith(showValueIndicator: ShowValueIndicator.always),
+              child: Slider(
+                min: 0,
+                max: 10,
+                label: readSetting.mlTtsMinWordLimit.value.toString(),
+                value: readSetting.mlTtsMinWordLimit.value.toDouble(),
+                onChangeEnd: (value) => readSetting.saveMlTtsMinWordLimit(value.toInt()), 
+                onChanged: readSetting.mlTtsEnable.value ? (value) => readSetting.mlTtsMinWordLimit.value = value.toInt() : null,
+              ),
+            ),
+          ],
+        );
+      }),
+    );
+  }
+
   Widget _buildNotchOptimization() {
     return ListTile(
       title: Text('notchOptimization'.tr),
@@ -334,6 +584,16 @@ class SettingReadPage extends StatelessWidget {
         ],
       ),
     ).marginOnly(right: 12);
+  }
+
+  void _saveMlTtsExclusionList() {
+    var value = mlTtsExclusionListController.value.text;
+    readSetting.saveMlTtsExclusionList(value);
+  }
+
+  void _saveMlTtsReplaceList() {
+    var value = mlTtsReplaceListController.value.text;
+    readSetting.saveMlTtsReplaceList(value);
   }
 
   void _saveImageRegionWidthRatio() {

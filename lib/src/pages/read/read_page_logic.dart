@@ -19,6 +19,7 @@ import 'package:jhentai/src/pages/read/layout/horizontal_page/horizontal_page_la
 import 'package:jhentai/src/pages/read/layout/vertical_list/vertical_list_layout_logic.dart';
 import 'package:jhentai/src/pages/read/read_page_state.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
+import 'package:jhentai/src/service/ml_tts_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/service/volume_service.dart';
 import 'package:jhentai/src/utils/eh_executor.dart';
@@ -220,6 +221,8 @@ class ReadPageLogic extends GetxController {
     executor.close();
 
     WakelockPlus.disable();
+
+    mlTtsService.stop();
   }
 
   void beginToParseImageHref(int index) {
