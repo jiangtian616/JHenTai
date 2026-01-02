@@ -60,12 +60,12 @@
       },
       "versions": [
         {
-          "version": "8.0.10+303",
-          "buildVersion": "303",
-          "date": "2025-12-30T08:19:48Z",
-          "localizedDescription": "- 修复macOS下web登录无法通过cf盾的问题\\n\\n--------------------\\n\\n- Fix the issue that web login on macOS cannot pass the Cloudflare. ",
-          "downloadURL": "https://github.com/jiangtian616/JHenTai/releases/download/v8.0.10+303/JHenTai_8.0.10+303.ipa",
-          "size": 15702563
+          "version": "8.0.10",
+          "buildVersion": "304",
+          "date": "2026-01-02T12:21:34Z",
+          "localizedDescription": "- 兼容归档下载返回404的情况\\n- 优化AltStore.json文件中的版本号问题\\n\\n--------------------\\n\\n- Fix the issue of returning 404 for archive downloads\\n- Optimize the version number issue in the AltStore.json file\\n\\n",
+          "downloadURL": "https://github.com/jiangtian616/JHenTai/releases/download/v8.0.10+304/JHenTai_8.0.10.ipa",
+          "size": 15701166
         }
       ]
     }
