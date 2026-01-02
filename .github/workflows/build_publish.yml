@@ -278,6 +278,8 @@ jobs:
       - name: Update AltSource.json
         run: |
           VERSION="${{ needs.Build.outputs.version }}"
+          # Remove build number part (content after +)
+          VERSION="${VERSION%%+*}"
           DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           
           # Get changelog as raw string (remove quotes added by jq -Rs)

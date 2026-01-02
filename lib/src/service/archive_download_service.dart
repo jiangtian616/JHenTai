@@ -613,7 +613,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     );
   }
 
-  Future<void> _check410Reason(String url, ArchiveDownloadedData archive) async {
+  Future<void> _check410Or404Reason(String url, ArchiveDownloadedData archive) async {
     try {
       await ehRequest.get(
         url: url,
@@ -624,7 +624,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         return;
       }
 
-      if (e.response?.statusCode != 410) {
+      if (e.response?.statusCode != 410 && e.response?.statusCode != 404) {
         log.download('Check archive  ${archive.title} 410 reason failed, pause task.');
         return pauseDownloadArchive(archive.gid);
       }
@@ -1007,9 +1007,9 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
           DioException dioException = e.error;
           Response? response = dioException.response;
 
-          /// download too many bytes will cause 410
-          if (response?.statusCode == 410) {
-            return await _check410Reason(archiveDownloadInfos[archive.gid]!.downloadUrl!, archive);
+          /// download too many bytes will cause 410/404
+          if (response?.statusCode == 410 || response?.statusCode == 404) {
+            return await _check410Or404Reason(archiveDownloadInfos[archive.gid]!.downloadUrl!, archive);
           }
 
           /// too many download thread will cause 410
