@@ -61,11 +61,11 @@
       "versions": [
         {
           "version": "8.0.10",
-          "buildVersion": "304",
-          "date": "2026-01-02T12:21:34Z",
-          "localizedDescription": "- 兼容归档下载返回404的情况\\n- 优化AltStore.json文件中的版本号问题\\n\\n--------------------\\n\\n- Fix the issue of returning 404 for archive downloads\\n- Optimize the version number issue in the AltStore.json file\\n\\n",
-          "downloadURL": "https://github.com/jiangtian616/JHenTai/releases/download/v8.0.10+304/JHenTai_8.0.10.ipa",
-          "size": 15701166
+          "buildVersion": "305",
+          "date": "2026-01-04T03:07:43Z",
+          "localizedDescription": "- 优化AltStore.json文件中的版本号问题\\n\\n--------------------\\n\\n- Optimize the version number issue in the AltStore.json file\\n\\n",
+          "downloadURL": "https://github.com/jiangtian616/JHenTai/releases/download/v8.0.10+305/JHenTai_8.0.10+305.ipa",
+          "size": 15701183
         }
       ]
     }
