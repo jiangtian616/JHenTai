@@ -277,9 +277,9 @@ jobs:
       # Update AltSource.json
       - name: Update AltSource.json
         run: |
-          VERSION="${{ needs.Build.outputs.version }}"
+          FULL_VERSION="${{ needs.Build.outputs.version }}"
           # Remove build number part (content after +)
-          VERSION="${VERSION%%+*}"
+          VERSION="${FULL_VERSION%%+*}"
           DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           
           # Get changelog as raw string (remove quotes added by jq -Rs)
@@ -290,7 +290,7 @@ jobs:
              --arg build "${{ steps.get_build_version.outputs.build_version }}" \
              --arg date "$DATE" \
              --arg desc "$CHANGELOG" \
-             --arg url "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/JHenTai_${VERSION}.ipa" \
+             --arg url "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/JHenTai_${FULL_VERSION}.ipa" \
              --arg size "${{ steps.get_ipa_size.outputs.ipa_size }}" \
              '.apps[0].versions[0] = {
                 "version": $version,
