@@ -60,6 +60,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
 
     _flutterTts.setCompletionHandler(() async {
       if (ttsState != TtsState.stopped) {
+        ttsState = TtsState.playing;
         await Future.delayed(Duration(milliseconds: readSetting.mlTtsBreak.value), _speak);
         ttsState = TtsState.completed;
         log.debug('setCompletionHandler:Complete');
