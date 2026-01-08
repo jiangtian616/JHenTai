@@ -476,24 +476,38 @@ class SettingReadPage extends StatelessWidget {
   }
 
   Widget _buildMlTtsReplaceList(BuildContext context) {
-    void _onEditingComplete() {
-      FocusScope.of(context).unfocus();
-      _saveMlTtsReplaceList();
-    }
-    return ListTile(
-      enabled: readSetting.mlTtsEnable.value,
-      title: Text('mlTtsReplaceList'.tr),
-      trailing: SizedBox(
-        width: 150,
-        child: TextField(
+    return Column(
+      children: [
+        ListTile(
           enabled: readSetting.mlTtsEnable.value,
-          controller: mlTtsReplaceListController,
-          decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
-          textAlign: TextAlign.left,
-          textInputAction: TextInputAction.done,
-          onEditingComplete: _onEditingComplete,
+          title: Text('mlTtsReplaceList'.tr),
+          subtitle: Text('mlTtsReplaceListHint'.tr),
+          trailing: IconButton(
+            onPressed: () {
+              _saveMlTtsReplaceList();
+              toast('saveSuccess'.tr);
+            },
+            icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),
+          ),
         ),
-      ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          child: TextField(
+            enabled: readSetting.mlTtsEnable.value,
+            controller: mlTtsReplaceListController,
+            decoration: const InputDecoration(
+              isDense: true,
+              labelStyle: TextStyle(fontSize: 12),
+              contentPadding: EdgeInsets.all(12),
+              border: OutlineInputBorder(),
+            ),
+            textAlign: TextAlign.left,
+            maxLines: null,
+            minLines: 5,
+            keyboardType: TextInputType.multiline,
+          ),
+        ),
+      ],
     );
   }
 

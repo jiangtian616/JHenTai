@@ -523,7 +523,8 @@ class en_US {
       'mlTtsVolume': 'TTS volume',
       'mlTtsRate': 'TTS rate',
       'mlTtsBreak': 'TTS break time',
-      'mlTtsReplaceList': 'Replace list(Case: a:b,r/c/:d)',
+      'mlTtsReplaceList': 'Replace list',
+      'mlTtsReplaceListHint': 'One per line, for Case: a: b Regular Case: r/c/: d',
       'mlTtsMinWordLimit': 'Min word limit',
 
       /// preference setting page

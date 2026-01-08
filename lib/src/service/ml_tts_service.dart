@@ -129,11 +129,15 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     await _flutterTts.speak(" ");
   }
 
-  // readSetting.mlTtsReplaceList 格式为：old1:new1,old2:new2,r/old1/:new1,r/old2/:new2
+  // readSetting.mlTtsReplaceList 格式为每行一个替换规则，例如：
+  // old1:new1
+  // old2:new2
+  // r/old1/:new1
+  // r/old2/:new2
   // r/old1/ 表示正则表达式，old1 表示替换内容，new1 表示替换为的内容
   void _setReplaceList() {
     _replaceList = {};
-    var list = readSetting.mlTtsReplaceList.value?.split(',') ?? [];
+    var list = readSetting.mlTtsReplaceList.value?.split('\n') ?? [];
     list = list.where((e) => e != '').toList();
     for (var replace in list) {
       var values = replace.split(':');
