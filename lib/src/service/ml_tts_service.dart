@@ -21,7 +21,6 @@ enum TtsDirection { defaultDirection, leftToRight, rightToLeft }
 class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late TextRecognizer _textRecognizer;
   List<String> _extractedTextList = [];
-  List<String> _exclusionList = [];
   List<List<String>> _replaceList = [];
 
   String? _path;
@@ -42,7 +41,6 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late Worker mlTtsPitchLister;
   late Worker mlTtsRateLister;
   late Worker mlTtsVolumeLister;
-  late Worker mlTtsExclusionListLister;
   late Worker mlTtsReplaceListLister;
 
   Future<void> _initConfig(_) async {
@@ -50,7 +48,6 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     _setTtsConfig(null);
     _addListers();
     _setLanguages();
-    _setExclusionList();
     _setReplaceList();
 
     _flutterTts.setStartHandler(() {
@@ -132,12 +129,6 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     await _flutterTts.speak(" ");
   }
 
-  void _setExclusionList() {
-    var exclusionList = readSetting.mlTtsExclusionList.value?.split(',') ?? [];
-    exclusionList = exclusionList.map((e) => e.trim()).toList();
-    _exclusionList = exclusionList.where((e) => e != '').toList();
-  }
-
   void _setReplaceList() {
     _replaceList = [];
     var list = readSetting.mlTtsReplaceList.value?.split(',') ?? [];
@@ -158,16 +149,12 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     mlTtsPitchLister.dispose();
     mlTtsRateLister.dispose();
     mlTtsVolumeLister.dispose();
-    mlTtsExclusionListLister.dispose();
     mlTtsReplaceListLister.dispose();
   }
 
   void _addListers() {
     mlTtsScriptLister = ever(readSetting.mlTtsScript, (_) {
       _textRecognizer = TextRecognizer(script: readSetting.mlTtsScript.value);
-    });
-    mlTtsExclusionListLister = ever(readSetting.mlTtsExclusionList, (_) {
-      _setExclusionList();
     });
     mlTtsReplaceListLister = ever(readSetting.mlTtsReplaceList, (_) {
       _setReplaceList();
@@ -319,10 +306,9 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
       blocks = _sortedBlocks(blocks, direction: readSetting.mlTtsDirection.value);
       final RegExp blankReg = RegExp(r'\s');
       final int minLen = readSetting.mlTtsMinWordLimit.value;
-      final Set<String> lowerExcludes = _exclusionList.map((e) => e.toLowerCase()).toSet();
       for (var block in blocks) {
         String t = block.text.replaceAll(blankReg, '');
-        if (t.length < minLen || lowerExcludes.any((ex) => t.toLowerCase().contains(ex))) {
+        if (t.length < minLen) {
           continue;
         }
         for (var pair in _replaceList) {

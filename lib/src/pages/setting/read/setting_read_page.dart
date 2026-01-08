@@ -16,7 +16,6 @@ class SettingReadPage extends StatelessWidget {
   final TextEditingController imageRegionWidthRatioController = TextEditingController(text: readSetting.imageRegionWidthRatio.value.toString());
   final TextEditingController gestureRegionWidthRatioController = TextEditingController(text: readSetting.gestureRegionWidthRatio.value.toString());
   final TextEditingController imageMaxKilobytesController = TextEditingController(text: readSetting.maxImageKilobyte.value.toString());
-  final TextEditingController mlTtsExclusionListController = TextEditingController(text: readSetting.mlTtsExclusionList.value);
   final TextEditingController mlTtsReplaceListController = TextEditingController(text: readSetting.mlTtsReplaceList.value);
 
   SettingReadPage({Key? key}) : super(key: key);
@@ -71,7 +70,6 @@ class SettingReadPage extends StatelessWidget {
               if (GetPlatform.isMobile) _buildMlTtsPitch(context).center(),
               if (GetPlatform.isIOS) _buildMlTtsBreak(context).center(),
               if (GetPlatform.isMobile) _buildMlTtsMinWordLimit(context).center(),
-              if (GetPlatform.isMobile) _buildMlTtsExclusionList(context).center(),
               if (GetPlatform.isMobile) _buildMlTtsReplaceList(context).center(),
             ],
           ).withListTileTheme(context),
@@ -477,28 +475,6 @@ class SettingReadPage extends StatelessWidget {
     );
   }
 
-  Widget _buildMlTtsExclusionList(BuildContext context) {
-    void _onEditingComplete() {
-      FocusScope.of(context).unfocus();
-      _saveMlTtsExclusionList();
-    }
-    return ListTile(
-      enabled: readSetting.mlTtsEnable.value,
-      title: Text('mlTtsExclusionList'.tr),
-      trailing: SizedBox(
-        width: 150,
-        child: TextField(
-          enabled: readSetting.mlTtsEnable.value,
-          controller: mlTtsExclusionListController,
-          decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
-          textAlign: TextAlign.left,
-          textInputAction: TextInputAction.done,
-          onEditingComplete: _onEditingComplete,
-        ),
-      ),
-    );
-  }
-
   Widget _buildMlTtsReplaceList(BuildContext context) {
     void _onEditingComplete() {
       FocusScope.of(context).unfocus();
@@ -584,11 +560,6 @@ class SettingReadPage extends StatelessWidget {
         ],
       ),
     ).marginOnly(right: 12);
-  }
-
-  void _saveMlTtsExclusionList() {
-    var value = mlTtsExclusionListController.value.text;
-    readSetting.saveMlTtsExclusionList(value);
   }
 
   void _saveMlTtsReplaceList() {
