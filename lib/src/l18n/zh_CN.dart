@@ -523,7 +523,7 @@ class zh_CN {
       'mlTtsVolume': 'TTS 音量',
       'mlTtsRate': 'TTS 音速',
       'mlTtsBreak': 'TTS 停顿时间',
-      'mlTtsReplaceList': '替换列表(例: a:b,c:d)',
+      'mlTtsReplaceList': '替换列表(例: a:b,r/c/:d)',
       'mlTtsMinWordLimit': '最小字数限制',
 
       /// preference setting page

@@ -21,7 +21,7 @@ enum TtsDirection { defaultDirection, leftToRight, rightToLeft }
 class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late TextRecognizer _textRecognizer;
   List<String> _extractedTextList = [];
-  List<List<String>> _replaceList = [];
+  Map<String, String> _replaceList = {};
 
   String? _path;
   late FlutterTts _flutterTts;
@@ -129,8 +129,10 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     await _flutterTts.speak(" ");
   }
 
+  // readSetting.mlTtsReplaceList 格式为：old1:new1,old2:new2,r/old1/:new1,r/old2/:new2
+  // r/old1/ 表示正则表达式，old1 表示替换内容，new1 表示替换为的内容
   void _setReplaceList() {
-    _replaceList = [];
+    _replaceList = {};
     var list = readSetting.mlTtsReplaceList.value?.split(',') ?? [];
     list = list.where((e) => e != '').toList();
     for (var replace in list) {
@@ -138,7 +140,19 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
       if (values.length != 2) {
         continue;
       }
-      _replaceList.add(values);
+      var oldValue = values[0];
+      var newValue = values[1];
+      var isRegex = oldValue.startsWith('r/') && oldValue.endsWith('/');
+
+      String pattern;
+      if (isRegex) {
+        pattern = oldValue.substring(2, oldValue.length - 1);
+      } else {
+        // 对普通字符串进行正则转义，确保替换结果一致
+        pattern = RegExp.escape(oldValue);
+      }
+
+      _replaceList[pattern] = newValue;
     }
   }
 
@@ -300,7 +314,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
       );
 
       _extractedTextList.clear();
-      
+
       final RecognizedText text = await _textRecognizer.processImage(inputImage);
       var blocks = _mergeBlocks(text.blocks);
       blocks = _sortedBlocks(blocks, direction: readSetting.mlTtsDirection.value);
@@ -311,8 +325,8 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
         if (t.length < minLen) {
           continue;
         }
-        for (var pair in _replaceList) {
-          t = t.replaceAll(pair[0], pair[1]);
+        for (var entry in _replaceList.entries) {
+          t = t.replaceAll(RegExp(entry.key, caseSensitive: false, unicode: true), entry.value);
         }
         _extractedTextList.add(t);
         log.debug('_recognizedText: $t');
