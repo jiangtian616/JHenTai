@@ -468,7 +468,11 @@ class SettingReadPage extends StatelessWidget {
                 onChanged: readSetting.mlTtsEnable.value ? (value) => readSetting.mlTtsBreak.value = value.toInt() : null,
               ),
             ),
-            Text('ms', style: UIConfig.settingPageListTileTrailingTextStyle(context)),
+            Text('ms', 
+              style: readSetting.mlTtsEnable.value ? 
+                UIConfig.settingPageListTileTrailingTextStyle(context) : 
+                UIConfig.settingPageListTileTrailingTextDisabledStyle(context),
+            ),
           ],
         );
       }),
@@ -483,11 +487,16 @@ class SettingReadPage extends StatelessWidget {
           title: Text('mlTtsReplaceList'.tr),
           subtitle: Text('mlTtsReplaceListHint'.tr),
           trailing: IconButton(
-            onPressed: () {
+            onPressed: readSetting.mlTtsEnable.value ? () {
               _saveMlTtsReplaceList();
               toast('saveSuccess'.tr);
-            },
-            icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),
+            } : null,
+            icon: Icon(
+              Icons.check,
+              color: readSetting.mlTtsEnable.value ? 
+                UIConfig.resumePauseButtonColor(context) : 
+                UIConfig.detailsPageActionDisabledIconColor(context),
+            ),
           ),
         ),
         Padding(
