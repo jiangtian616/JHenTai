@@ -56,7 +56,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   RxDouble mlTtsVolume = 0.5.obs;
   RxDouble mlTtsPitch = 1.0.obs;
   RxDouble mlTtsRate = 0.5.obs;
-  RxInt mlTtsBreak = 0.obs;
+  RxInt mlTtsBreak = 250.obs;
   RxnString mlTtsReplaceList = RxnString();
   RxInt mlTtsMinWordLimit = 3.obs;
 

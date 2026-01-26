@@ -22,6 +22,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late TextRecognizer _textRecognizer;
   List<String> _extractedTextList = [];
   Map<String, String> _replaceList = {};
+  int _breakTime = 0;
 
   String? _path;
   late FlutterTts _flutterTts;
@@ -42,6 +43,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late Worker mlTtsRateLister;
   late Worker mlTtsVolumeLister;
   late Worker mlTtsReplaceListLister;
+  late Worker mlTtsBreakLister;
 
   Future<void> _initConfig(_) async {
     await _setTtsEngine(null);
@@ -49,6 +51,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     _addListers();
     _setLanguages();
     _setReplaceList();
+    _setBreakTime(null);
 
     _flutterTts.setStartHandler(() {
       log.debug('setStartHandler:Playing');
@@ -60,7 +63,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
         ttsState = TtsState.completed;
         log.debug('setCompletionHandler:Complete');
       } else {
-        await Future.delayed(Duration(milliseconds: readSetting.mlTtsBreak.value), _speak);
+        await Future.delayed(Duration(milliseconds: _breakTime), _speak);
         log.debug('setCompletionHandler:Continued Next');
       }
     });
@@ -130,12 +133,14 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     await _flutterTts.speak(" ");
   }
 
-  // readSetting.mlTtsReplaceList 格式为每行一个替换规则，例如：
-  // old1:new1
-  // old2:new2
-  // r/old1/:new1
-  // r/old2/:new2
-  // r/old1/ 表示正则表达式，old1 表示替换内容，new1 表示替换为的内容
+  void _setBreakTime(_) {
+    const double baseAnchor = 250.0;
+    const double baseRate = 0.5;
+    double intensity = readSetting.mlTtsBreak.value / baseAnchor;
+    double rateFactor = baseRate / readSetting.mlTtsRate.value.clamp(0.01, 2.0);
+    _breakTime = (baseAnchor * intensity * rateFactor).round().clamp(0, 2000);
+  }
+
   void _setReplaceList() {
     _replaceList = {};
     var list = readSetting.mlTtsReplaceList.value?.split('\n') ?? [];
@@ -153,7 +158,6 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
       if (isRegex) {
         pattern = oldValue.substring(2, oldValue.length - 1);
       } else {
-        // 对普通字符串进行正则转义，确保替换结果一致
         pattern = RegExp.escape(oldValue);
       }
 
@@ -169,6 +173,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     mlTtsRateLister.dispose();
     mlTtsVolumeLister.dispose();
     mlTtsReplaceListLister.dispose();
+    mlTtsBreakLister.dispose();
   }
 
   void _addListers() {
@@ -184,6 +189,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     mlTtsPitchLister = ever(readSetting.mlTtsPitch, _setTtsConfig);
     mlTtsRateLister = ever(readSetting.mlTtsRate, _setTtsConfig);
     mlTtsVolumeLister = ever(readSetting.mlTtsVolume, _setTtsConfig);
+    mlTtsBreakLister = ever(readSetting.mlTtsBreak, _setBreakTime);
   }
 
   @override
