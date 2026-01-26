@@ -421,9 +421,14 @@ class SettingReadPage extends StatelessWidget {
                 max: 1.0,
                 label: readSetting.mlTtsVolume.value.toString(),
                 value: readSetting.mlTtsVolume.value,
-                onChangeEnd: (value) => readSetting.saveMlTtsVolume(double.parse(value.toStringAsFixed(2))), 
+                onChangeEnd: (value) => readSetting.saveMlTtsVolume(double.parse(value.toStringAsFixed(2))),
                 onChanged: readSetting.mlTtsEnable.value ? (value) => readSetting.mlTtsVolume.value = double.parse(value.toStringAsFixed(2)) : null,
               ),
+            ),
+            Text(readSetting.mlTtsVolume.value.toString(),
+              style: readSetting.mlTtsEnable.value ?
+                UIConfig.settingPageListTileTrailingTextStyle(context) :
+                UIConfig.settingPageListTileTrailingTextDisabledStyle(context),
             ),
           ],
         );
@@ -446,9 +451,14 @@ class SettingReadPage extends StatelessWidget {
                 max: 2.0,
                 label: readSetting.mlTtsPitch.value.toString(),
                 value: readSetting.mlTtsPitch.value,
-                onChangeEnd: (value) => readSetting.saveMlTtsPitch(double.parse(value.toStringAsFixed(2))), 
+                onChangeEnd: (value) => readSetting.saveMlTtsPitch(double.parse(value.toStringAsFixed(2))),
                 onChanged: readSetting.mlTtsEnable.value ? (value) => readSetting.mlTtsPitch.value = double.parse(value.toStringAsFixed(2)) : null,
               ),
+            ),
+            Text(readSetting.mlTtsPitch.value.toString(),
+              style: readSetting.mlTtsEnable.value ?
+                UIConfig.settingPageListTileTrailingTextStyle(context) :
+                UIConfig.settingPageListTileTrailingTextDisabledStyle(context),
             ),
           ],
         );
@@ -471,9 +481,14 @@ class SettingReadPage extends StatelessWidget {
                 max: 1.0,
                 label: readSetting.mlTtsRate.value.toString(),
                 value: readSetting.mlTtsRate.value,
-                onChangeEnd: (value) => readSetting.saveMlTtsRate(double.parse(value.toStringAsFixed(2))), 
+                onChangeEnd: (value) => readSetting.saveMlTtsRate(double.parse(value.toStringAsFixed(2))),
                 onChanged: readSetting.mlTtsEnable.value ? (value) => readSetting.mlTtsRate.value = double.parse(value.toStringAsFixed(2)) : null,
               ),
+            ),
+            Text(readSetting.mlTtsRate.value.toString(),
+              style: readSetting.mlTtsEnable.value ?
+                UIConfig.settingPageListTileTrailingTextStyle(context) :
+                UIConfig.settingPageListTileTrailingTextDisabledStyle(context),
             ),
           ],
         );
@@ -500,7 +515,7 @@ class SettingReadPage extends StatelessWidget {
                 onChanged: readSetting.mlTtsEnable.value ? (value) => readSetting.mlTtsBreak.value = value.toInt() : null,
               ),
             ),
-            Text('ms', 
+            Text('${readSetting.mlTtsBreak.value} ms', 
               style: readSetting.mlTtsEnable.value ? 
                 UIConfig.settingPageListTileTrailingTextStyle(context) : 
                 UIConfig.settingPageListTileTrailingTextDisabledStyle(context),
@@ -567,9 +582,14 @@ class SettingReadPage extends StatelessWidget {
                 max: 10,
                 label: readSetting.mlTtsMinWordLimit.value.toString(),
                 value: readSetting.mlTtsMinWordLimit.value.toDouble(),
-                onChangeEnd: (value) => readSetting.saveMlTtsMinWordLimit(value.toInt()), 
+                onChangeEnd: (value) => readSetting.saveMlTtsMinWordLimit(value.toInt()),
                 onChanged: readSetting.mlTtsEnable.value ? (value) => readSetting.mlTtsMinWordLimit.value = value.toInt() : null,
               ),
+            ),
+            Text(readSetting.mlTtsMinWordLimit.value.toString(),
+              style: readSetting.mlTtsEnable.value ?
+                UIConfig.settingPageListTileTrailingTextStyle(context) :
+                UIConfig.settingPageListTileTrailingTextDisabledStyle(context),
             ),
           ],
         );
