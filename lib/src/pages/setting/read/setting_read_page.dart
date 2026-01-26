@@ -328,6 +328,14 @@ class SettingReadPage extends StatelessWidget {
         elevation: 4,
         onChanged: (TextRecognitionScript? newValue) => readSetting.saveMlTtsScript(newValue!),
         items: readSetting.mlTtsEnable.value ? TextRecognitionScript.values.map((e) => DropdownMenuItem(child: Text(e.name.tr), value: e)).toList() : null,
+        selectedItemBuilder: (BuildContext context) {
+          return TextRecognitionScript.values.map<Widget>((e) {
+            return Container(
+              alignment: Alignment.centerLeft,
+              child: Text(e.name.tr),
+            );
+          }).toList();
+        },
       ).marginOnly(right: 12),
     );
   }
@@ -338,10 +346,18 @@ class SettingReadPage extends StatelessWidget {
       title: Text('mlTtsDirection'.tr),
       trailing: DropdownButton<TtsDirection>(
         value: readSetting.mlTtsDirection.value,
-        disabledHint: Text(readSetting.mlTtsDirection.value.name),
+        disabledHint: Text(readSetting.mlTtsDirection.value.name.tr),
         elevation: 4,
         onChanged: (TtsDirection? newValue) => readSetting.saveMlTtsDirection(newValue!),
         items: readSetting.mlTtsEnable.value ? TtsDirection.values.map((e) => DropdownMenuItem(child: Text(e.name.tr), value: e)).toList() : null,
+        selectedItemBuilder: (BuildContext context) {
+          return TtsDirection.values.map<Widget>((e) {
+            return Container(
+              alignment: Alignment.centerLeft,
+              child: Text(e.name.tr),
+            );
+          }).toList();
+        },
       ).marginOnly(right: 12),
     );
   }
@@ -356,6 +372,14 @@ class SettingReadPage extends StatelessWidget {
         elevation: 4,
         onChanged: (String? newValue) => readSetting.saveMlTtsLanguage(newValue!),
         items: readSetting.mlTtsEnable.value ? mlTtsService.languages.map(((e) => DropdownMenuItem(child: Text(e), value: e))).toList() : null,
+        selectedItemBuilder: (BuildContext context) {
+          return mlTtsService.languages.map<Widget>((e) {
+            return Container(
+              alignment: Alignment.centerLeft,
+              child: Text(e.tr),
+            );
+          }).toList();
+        },
       ).marginOnly(right: 12),
     );
   }
@@ -370,6 +394,14 @@ class SettingReadPage extends StatelessWidget {
         elevation: 4,
         onChanged: (String? newValue) => readSetting.saveMlTtsEngine(newValue!),
         items: readSetting.mlTtsEnable.value ? mlTtsService.engines.map(((e) => DropdownMenuItem(child: Text(e.tr), value: e))).toList() : null,
+        selectedItemBuilder: (BuildContext context) {
+          return mlTtsService.engines.map<Widget>((e) {
+            return Container(
+              alignment: Alignment.centerLeft,
+              child: Text(e.tr),
+            );
+          }).toList();
+        },
       ).marginOnly(right: 12),
     );
   }
