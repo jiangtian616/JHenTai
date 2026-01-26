@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
+import 'package:jhentai/src/service/ml_tts_service.dart';
 import 'package:jhentai/src/widget/eh_wheel_scroll_listener.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
@@ -36,7 +37,10 @@ class HorizontalPageLayout extends BaseLayout {
           scaleStateCycle: readSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
           enableTapDragZoom: readSetting.enableTapDragToScaleUp.isTrue,
           child: Obx(() {
-            Widget item = readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index);
+            final speakingTextBlock = mlTtsService.currentSpeakingTextBlock.value;
+            Widget item = readPageState.readPageInfo.mode == ReadMode.online
+                ? buildItemInOnlineMode(context, index, textBlock: speakingTextBlock)
+                : buildItemInLocalMode(context, index, textBlock: speakingTextBlock);
 
             if (readSetting.isInFitWidthReadDirection) {
               item = Center(child: SingleChildScrollView(controller: ScrollController(), child: item));

@@ -20,10 +20,10 @@ enum TtsDirection { defaultDirection, leftToRight, rightToLeft }
 
 class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late TextRecognizer _textRecognizer;
-  List<String> _extractedTextList = [];
+  final List<TextBlock> _extractedTextList = [];
+  final Rxn<TextBlock> _currentSpeakingTextBlock = Rxn<TextBlock>();
   Map<String, String> _replaceList = {};
   int _breakTime = 0;
-
   String? _path;
   late FlutterTts _flutterTts;
   bool isCurrentLanguageInstalled = false;
@@ -35,6 +35,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   bool get isStopped => ttsState == TtsState.stopped;
   bool get isPaused => ttsState == TtsState.paused;
   bool get isContinued => ttsState == TtsState.continued;
+  Rxn<TextBlock> get currentSpeakingTextBlock => _currentSpeakingTextBlock;
 
   late Worker mlTtsScriptLister;
   late Worker mlTtsEngineLister;
@@ -61,6 +62,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     _flutterTts.setCompletionHandler(() async {
       if (_extractedTextList.isEmpty) {
         ttsState = TtsState.completed;
+        _currentSpeakingTextBlock.value = null;
         log.debug('setCompletionHandler:Complete');
       } else {
         await Future.delayed(Duration(milliseconds: _breakTime), _speak);
@@ -203,12 +205,13 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   @override
   Future<void> doAfterBeanReady() async {}
 
-  Future<ui.Image> _compressImage(File imageFile, int targetSize) async {
+  Future<ui.Image> _compressImage(File imageFile) async {
     final data = await imageFile.readAsBytes();
     final codec = await ui.instantiateImageCodec(data);
     final frameInfo = await codec.getNextFrame();
     final originalImage = frameInfo.image;
 
+    double targetSize = 720.0;
     double scaleHeight = targetSize / originalImage.height;
     double scaleWidth = targetSize / originalImage.width;
     double scale = max(scaleHeight, scaleWidth);
@@ -316,7 +319,7 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
 
   Future<void> _recognizedText() async {
     try {
-      final imgByteData = await _compressImage(File(_path!), 720);
+      final imgByteData = await _compressImage(File(_path!));
       final byteData = await imgByteData.toByteData(format: ui.ImageByteFormat.rawRgba);
       final inputImage = InputImage.fromBitmap(
         bitmap: byteData!.buffer.asUint8List(), 
@@ -339,15 +342,14 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
         for (var entry in _replaceList.entries) {
           t = t.replaceAll(RegExp(entry.key, caseSensitive: false, unicode: true), entry.value);
         }
-        _extractedTextList.add(t);
+        _extractedTextList.add(TextBlock(
+            text: t,
+            lines: block.lines,
+            boundingBox: block.boundingBox,
+            recognizedLanguages: block.recognizedLanguages,
+            cornerPoints: block.cornerPoints));
         log.debug('_recognizedText: $t');
       }
-
-      if (readSetting.mlTtsBreak.value == 0) {
-        _extractedTextList = [_extractedTextList.join('')];
-      }
-
-      log.debug('_recognizedText: $_extractedTextList');
     } catch (e) {
       log.debug('_recognizedText:error: $e');
     }
@@ -355,8 +357,10 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
 
   Future<void> _speak() async {
     if (_extractedTextList.isNotEmpty) {
-      await stop();
-      await _flutterTts.speak(_extractedTextList.removeAt(0));
+      final textBlock = _extractedTextList.removeAt(0);
+      _currentSpeakingTextBlock.value = textBlock;
+      await _flutterTts.speak(textBlock.text);
+      log.debug('_speak:Speaking block with text: ${textBlock.text}, rect: ${textBlock.boundingBox}');
     }
   }
 
@@ -366,8 +370,11 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     }
 
     _path = path;
+    _currentSpeakingTextBlock.value = null;
+    _extractedTextList.clear();
+    await stop();
     await _recognizedText();
-    _speak();
+    await _speak();
   }
 
   Future<void> playFromUrl(String? url) async {
@@ -381,8 +388,11 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     }
 
     _path = path;
+    _currentSpeakingTextBlock.value = null;
+    _extractedTextList.clear();
+    await stop();
     await _recognizedText();
-    _speak();
+    await _speak();
   }
 
   Future<void> stop() async {
