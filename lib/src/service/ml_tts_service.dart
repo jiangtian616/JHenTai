@@ -56,19 +56,20 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     });
 
     _flutterTts.setCompletionHandler(() async {
-      if (ttsState != TtsState.stopped) {
-        ttsState = TtsState.playing;
-        await Future.delayed(Duration(milliseconds: readSetting.mlTtsBreak.value), _speak);
+      if (_extractedTextList.isEmpty) {
         ttsState = TtsState.completed;
         log.debug('setCompletionHandler:Complete');
       } else {
-        log.debug('setCompletionHandler:Stopped');
+        await Future.delayed(Duration(milliseconds: readSetting.mlTtsBreak.value), _speak);
+        log.debug('setCompletionHandler:Continued Next');
       }
     });
 
     _flutterTts.setCancelHandler(() {
       log.debug('setCancelHandler:Cancel');
-      ttsState = TtsState.stopped;
+      if (_extractedTextList.isEmpty) {
+        ttsState = TtsState.stopped;
+      }
     });
 
     _flutterTts.setPauseHandler(() {
