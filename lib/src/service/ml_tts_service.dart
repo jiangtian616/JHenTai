@@ -342,6 +342,9 @@ class MlttsService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
         for (var entry in _replaceList.entries) {
           t = t.replaceAll(RegExp(entry.key, caseSensitive: false, unicode: true), entry.value);
         }
+        if (t.isEmpty) {
+          continue;
+        }
         _extractedTextList.add(TextBlock(
             text: t,
             lines: block.lines,
