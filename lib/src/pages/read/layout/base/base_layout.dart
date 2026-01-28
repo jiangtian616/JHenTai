@@ -7,7 +7,6 @@ import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
 import '../../../../config/ui_config.dart';
 import '../../../../service/gallery_download_service.dart';
@@ -69,7 +68,7 @@ abstract class BaseLayout extends StatelessWidget {
   Widget buildBody(BuildContext context);
 
   /// online mode: parsing and loading automatically while scrolling
-  Widget buildItemInOnlineMode(BuildContext context, int index, {TextBlock? textBlock}) {
+  Widget buildItemInOnlineMode(BuildContext context, int index) {
     return GetBuilder<ReadPageLogic>(
       id: '${readPageLogic.onlineImageId}::$index',
       builder: (_) {
@@ -90,7 +89,7 @@ abstract class BaseLayout extends StatelessWidget {
         }
 
         /// step 3: use url to load image
-        return _buildOnlineImage(context, index, textBlock: textBlock);
+        return _buildOnlineImage(context, index);
       },
     );
   }
@@ -155,12 +154,11 @@ abstract class BaseLayout extends StatelessWidget {
     );
   }
 
-  Widget _buildOnlineImage(BuildContext context, int index, {TextBlock? textBlock}) {
+  Widget _buildOnlineImage(BuildContext context, int index) {
     return GestureDetector(
       onLongPress: () => logic.showBottomMenuInOnlineMode(index, context),
       onSecondaryTap: () => logic.showBottomMenuInOnlineMode(index, context),
       child: EHImage(
-        textBlock: textBlock,
         galleryImage: readPageState.images[index]!,
         containerWidth: logic.readPageState.imageContainerSizes[index]?.width ?? logic.getPlaceHolderSize(index).width,
         containerHeight: logic.readPageState.imageContainerSizes[index]?.height ?? logic.getPlaceHolderSize(index).height,
@@ -223,7 +221,7 @@ abstract class BaseLayout extends StatelessWidget {
   }
 
   /// local mode: wait for download service to parse and download
-  Widget buildItemInLocalMode(BuildContext context, int index, {TextBlock? textBlock}) {
+  Widget buildItemInLocalMode(BuildContext context, int index) {
     return GetBuilder<GalleryDownloadService>(
       id: '${galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$index',
       builder: (_) {
@@ -244,7 +242,7 @@ abstract class BaseLayout extends StatelessWidget {
         }
 
         /// step 4: wait for downloading or display it
-        return _buildLocalImage(context, index, textBlock: textBlock);
+        return _buildLocalImage(context, index);
       },
     );
   }
@@ -318,12 +316,11 @@ abstract class BaseLayout extends StatelessWidget {
     );
   }
 
-  Widget _buildLocalImage(BuildContext context, int index, {TextBlock? textBlock}) {
+  Widget _buildLocalImage(BuildContext context, int index) {
     return GestureDetector(
       onLongPress: () => logic.showBottomMenuInLocalMode(index, context),
       onSecondaryTap: () => logic.showBottomMenuInLocalMode(index, context),
       child: EHImage(
-        textBlock: textBlock,
         galleryImage: readPageState.images[index]!,
         containerWidth: logic.readPageState.imageContainerSizes[index]?.width ?? logic.getPlaceHolderSize(index).width,
         containerHeight: logic.readPageState.imageContainerSizes[index]?.height ?? logic.getPlaceHolderSize(index).height,

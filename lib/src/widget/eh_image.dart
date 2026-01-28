@@ -9,6 +9,7 @@ import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:jhentai/src/service/ml_tts_service.dart';
 import 'dart:math';
 import 'dart:io' as io;
 
@@ -35,7 +36,6 @@ class EHImage extends StatelessWidget {
   final List<BoxShadow>? shadows;
   final bool forceFadeIn;
   final int? maxBytes;
-  final TextBlock? textBlock;
 
   final LoadingProgressWidgetBuilder? loadingProgressWidgetBuilder;
   final FailedWidgetBuilder? failedWidgetBuilder;
@@ -59,7 +59,6 @@ class EHImage extends StatelessWidget {
     this.shadows,
     this.forceFadeIn = false,
     this.maxBytes,
-    this.textBlock,
     this.loadingProgressWidgetBuilder,
     this.failedWidgetBuilder,
     this.downloadingWidgetBuilder,
@@ -83,7 +82,6 @@ class EHImage extends StatelessWidget {
     this.shadows,
     this.forceFadeIn = false,
     this.maxBytes,
-    this.textBlock,
     this.loadingProgressWidgetBuilder,
     this.failedWidgetBuilder,
     this.downloadingWidgetBuilder,
@@ -257,23 +255,26 @@ class EHImage extends StatelessWidget {
       Size(containerWidth ?? double.infinity, containerHeight ?? double.infinity),
     );
 
-    return ExtendedRawImage(
-      image: state.extendedImageInfo?.image,
-      height: fittedSizes.destination.height == 0 ? null : fittedSizes.destination.height,
-      width: fittedSizes.destination.width == 0 ? null : fittedSizes.destination.width,
-      scale: state.extendedImageInfo?.scale ?? 1.0,
-      fit: fit,
-      afterPaintImage: (Canvas canvas, Rect imageRect, _, Paint paint) {
-        // Draw textBlock overlay after the image is painted
-        if (textBlock != null) {
-          _drawTextBlockOverlay(canvas, imageRect, state, fittedSizes);
-        }
-      },
-    );
+    return Obx(() {
+      TextBlock? textBlock = mlTtsService.currentSpeakingTextBlock.value;
+      return ExtendedRawImage(
+        image: state.extendedImageInfo?.image,
+        height: fittedSizes.destination.height == 0 ? null : fittedSizes.destination.height,
+        width: fittedSizes.destination.width == 0 ? null : fittedSizes.destination.width,
+        scale: state.extendedImageInfo?.scale ?? 1.0,
+        fit: fit,
+        afterPaintImage: (Canvas canvas, Rect imageRect, _, __) {
+          // Draw textBlock overlay after the image is painted
+          if (textBlock != null) {
+            _drawTextBlockOverlay(canvas, imageRect, state, textBlock);
+          }
+        },
+      );
+    });
   }
 
-  void _drawTextBlockOverlay(Canvas canvas, Rect imageRect, ExtendedImageState state, FittedSizes fittedSizes) {
-    if (state.extendedImageInfo == null || textBlock == null) {
+  void _drawTextBlockOverlay(Canvas canvas, Rect imageRect, ExtendedImageState state, TextBlock textBlock) {
+    if (state.extendedImageInfo == null) {
       return;
     }
 

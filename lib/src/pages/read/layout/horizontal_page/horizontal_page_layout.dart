@@ -37,10 +37,9 @@ class HorizontalPageLayout extends BaseLayout {
           scaleStateCycle: readSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
           enableTapDragZoom: readSetting.enableTapDragToScaleUp.isTrue,
           child: Obx(() {
-            final speakingTextBlock = mlTtsService.currentSpeakingTextBlock.value;
             Widget item = readPageState.readPageInfo.mode == ReadMode.online
-                ? buildItemInOnlineMode(context, index, textBlock: speakingTextBlock)
-                : buildItemInLocalMode(context, index, textBlock: speakingTextBlock);
+                ? buildItemInOnlineMode(context, index)
+                : buildItemInLocalMode(context, index);
 
             if (readSetting.isInFitWidthReadDirection) {
               item = Center(child: SingleChildScrollView(controller: ScrollController(), child: item));
