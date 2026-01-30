@@ -264,7 +264,7 @@ class EHGalleryListCard extends StatelessWidget {
               child: CircularProgressIndicator(
                 value: progress,
                 strokeWidth: 2,
-                backgroundColor: UIConfig.galleryCardTextColor(context).withOpacity(0.2),
+                backgroundColor: UIConfig.galleryCardTextColor(context).withValues(alpha: 0.2),
                 valueColor: AlwaysStoppedAnimation<Color>(UIConfig.galleryCardTextColor(context)),
               ),
             );
