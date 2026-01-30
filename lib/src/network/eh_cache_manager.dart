@@ -353,6 +353,7 @@ class SqliteCacheStore {
         content: response.content,
         headers: response.headers,
         expireDate: response.expireDate,
+        size: response.content.length,
       ),
     );
   }

@@ -29,4 +29,37 @@ class DioCacheDao {
   static Future<int> deleteAllCache() {
     return appDb.delete(appDb.dioCache).go();
   }
+
+  /// Get total cache size in bytes
+  static Future<int> getTotalCacheSize() async {
+    final result = await appDb.customSelect(
+      'SELECT COALESCE(SUM(size), 0) as total FROM dio_cache',
+    ).getSingle();
+    return result.read<int>('total');
+  }
+
+  /// Delete oldest cache entries by total size
+  /// Returns the number of entries deleted
+  static Future<int> deleteOldestBySize(int bytesToDelete) async {
+    // Get entries ordered by expireDate (oldest first)
+    final entries = await (appDb.select(appDb.dioCache)
+      ..orderBy([(t) => OrderingTerm.asc(t.expireDate)]))
+      .get();
+
+    int deletedSize = 0;
+    final keysToDelete = <String>[];
+
+    for (final entry in entries) {
+      if (deletedSize >= bytesToDelete) break;
+      keysToDelete.add(entry.cacheKey);
+      deletedSize += entry.size;
+    }
+
+    if (keysToDelete.isNotEmpty) {
+      return (appDb.delete(appDb.dioCache)
+        ..where((t) => t.cacheKey.isIn(keysToDelete)))
+        .go();
+    }
+    return 0;
+  }
 }

@@ -5736,9 +5736,16 @@ class $DioCacheTable extends DioCache
   late final GeneratedColumn<Uint8List> headers = GeneratedColumn<Uint8List>(
       'headers', aliasedName, false,
       type: DriftSqlType.blob, requiredDuringInsert: true);
+  static const VerificationMeta _sizeMeta = const VerificationMeta('size');
+  @override
+  late final GeneratedColumn<int> size = GeneratedColumn<int>(
+      'size', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
   @override
   List<GeneratedColumn> get $columns =>
-      [cacheKey, url, expireDate, content, headers];
+      [cacheKey, url, expireDate, content, headers, size];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -5781,6 +5788,10 @@ class $DioCacheTable extends DioCache
     } else if (isInserting) {
       context.missing(_headersMeta);
     }
+    if (data.containsKey('size')) {
+      context.handle(
+          _sizeMeta, size.isAcceptableOrUnknown(data['size']!, _sizeMeta));
+    }
     return context;
   }
 
@@ -5800,6 +5811,8 @@ class $DioCacheTable extends DioCache
           .read(DriftSqlType.blob, data['${effectivePrefix}content'])!,
       headers: attachedDatabase.typeMapping
           .read(DriftSqlType.blob, data['${effectivePrefix}headers'])!,
+      size: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}size'])!,
     );
   }
 
@@ -5815,12 +5828,16 @@ class DioCacheData extends DataClass implements Insertable<DioCacheData> {
   final DateTime expireDate;
   final Uint8List content;
   final Uint8List headers;
+
+  /// Size of content in bytes for cache management
+  final int size;
   const DioCacheData(
       {required this.cacheKey,
       required this.url,
       required this.expireDate,
       required this.content,
-      required this.headers});
+      required this.headers,
+      required this.size});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -5829,6 +5846,7 @@ class DioCacheData extends DataClass implements Insertable<DioCacheData> {
     map['expireDate'] = Variable<DateTime>(expireDate);
     map['content'] = Variable<Uint8List>(content);
     map['headers'] = Variable<Uint8List>(headers);
+    map['size'] = Variable<int>(size);
     return map;
   }
 
@@ -5839,6 +5857,7 @@ class DioCacheData extends DataClass implements Insertable<DioCacheData> {
       expireDate: Value(expireDate),
       content: Value(content),
       headers: Value(headers),
+      size: Value(size),
     );
   }
 
@@ -5851,6 +5870,7 @@ class DioCacheData extends DataClass implements Insertable<DioCacheData> {
       expireDate: serializer.fromJson<DateTime>(json['expireDate']),
       content: serializer.fromJson<Uint8List>(json['content']),
       headers: serializer.fromJson<Uint8List>(json['headers']),
+      size: serializer.fromJson<int>(json['size']),
     );
   }
   @override
@@ -5862,6 +5882,7 @@ class DioCacheData extends DataClass implements Insertable<DioCacheData> {
       'expireDate': serializer.toJson<DateTime>(expireDate),
       'content': serializer.toJson<Uint8List>(content),
       'headers': serializer.toJson<Uint8List>(headers),
+      'size': serializer.toJson<int>(size),
     };
   }
 
@@ -5870,13 +5891,15 @@ class DioCacheData extends DataClass implements Insertable<DioCacheData> {
           String? url,
           DateTime? expireDate,
           Uint8List? content,
-          Uint8List? headers}) =>
+          Uint8List? headers,
+          int? size}) =>
       DioCacheData(
         cacheKey: cacheKey ?? this.cacheKey,
         url: url ?? this.url,
         expireDate: expireDate ?? this.expireDate,
         content: content ?? this.content,
         headers: headers ?? this.headers,
+        size: size ?? this.size,
       );
   DioCacheData copyWithCompanion(DioCacheCompanion data) {
     return DioCacheData(
@@ -5886,6 +5909,7 @@ class DioCacheData extends DataClass implements Insertable<DioCacheData> {
           data.expireDate.present ? data.expireDate.value : this.expireDate,
       content: data.content.present ? data.content.value : this.content,
       headers: data.headers.present ? data.headers.value : this.headers,
+      size: data.size.present ? data.size.value : this.size,
     );
   }
 
@@ -5896,14 +5920,15 @@ class DioCacheData extends DataClass implements Insertable<DioCacheData> {
           ..write('url: $url, ')
           ..write('expireDate: $expireDate, ')
           ..write('content: $content, ')
-          ..write('headers: $headers')
+          ..write('headers: $headers, ')
+          ..write('size: $size')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hash(cacheKey, url, expireDate,
-      $driftBlobEquality.hash(content), $driftBlobEquality.hash(headers));
+      $driftBlobEquality.hash(content), $driftBlobEquality.hash(headers), size);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5912,7 +5937,8 @@ class DioCacheData extends DataClass implements Insertable<DioCacheData> {
           other.url == this.url &&
           other.expireDate == this.expireDate &&
           $driftBlobEquality.equals(other.content, this.content) &&
-          $driftBlobEquality.equals(other.headers, this.headers));
+          $driftBlobEquality.equals(other.headers, this.headers) &&
+          other.size == this.size);
 }
 
 class DioCacheCompanion extends UpdateCompanion<DioCacheData> {
@@ -5921,6 +5947,7 @@ class DioCacheCompanion extends UpdateCompanion<DioCacheData> {
   final Value<DateTime> expireDate;
   final Value<Uint8List> content;
   final Value<Uint8List> headers;
+  final Value<int> size;
   final Value<int> rowid;
   const DioCacheCompanion({
     this.cacheKey = const Value.absent(),
@@ -5928,6 +5955,7 @@ class DioCacheCompanion extends UpdateCompanion<DioCacheData> {
     this.expireDate = const Value.absent(),
     this.content = const Value.absent(),
     this.headers = const Value.absent(),
+    this.size = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   DioCacheCompanion.insert({
@@ -5936,6 +5964,7 @@ class DioCacheCompanion extends UpdateCompanion<DioCacheData> {
     required DateTime expireDate,
     required Uint8List content,
     required Uint8List headers,
+    this.size = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : cacheKey = Value(cacheKey),
         url = Value(url),
@@ -5948,6 +5977,7 @@ class DioCacheCompanion extends UpdateCompanion<DioCacheData> {
     Expression<DateTime>? expireDate,
     Expression<Uint8List>? content,
     Expression<Uint8List>? headers,
+    Expression<int>? size,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -5956,6 +5986,7 @@ class DioCacheCompanion extends UpdateCompanion<DioCacheData> {
       if (expireDate != null) 'expireDate': expireDate,
       if (content != null) 'content': content,
       if (headers != null) 'headers': headers,
+      if (size != null) 'size': size,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -5966,6 +5997,7 @@ class DioCacheCompanion extends UpdateCompanion<DioCacheData> {
       Value<DateTime>? expireDate,
       Value<Uint8List>? content,
       Value<Uint8List>? headers,
+      Value<int>? size,
       Value<int>? rowid}) {
     return DioCacheCompanion(
       cacheKey: cacheKey ?? this.cacheKey,
@@ -5973,6 +6005,7 @@ class DioCacheCompanion extends UpdateCompanion<DioCacheData> {
       expireDate: expireDate ?? this.expireDate,
       content: content ?? this.content,
       headers: headers ?? this.headers,
+      size: size ?? this.size,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -5995,6 +6028,9 @@ class DioCacheCompanion extends UpdateCompanion<DioCacheData> {
     if (headers.present) {
       map['headers'] = Variable<Uint8List>(headers.value);
     }
+    if (size.present) {
+      map['size'] = Variable<int>(size.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -6009,6 +6045,7 @@ class DioCacheCompanion extends UpdateCompanion<DioCacheData> {
           ..write('expireDate: $expireDate, ')
           ..write('content: $content, ')
           ..write('headers: $headers, ')
+          ..write('size: $size, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -6683,6 +6720,8 @@ abstract class _$AppDb extends GeneratedDatabase {
       'CREATE INDEX idx_expire_date ON dio_cache (expireDate)');
   late final Index idxUrl =
       Index('idx_url', 'CREATE INDEX idx_url ON dio_cache (url)');
+  late final Index idxSize =
+      Index('idx_size', 'CREATE INDEX idx_size ON dio_cache (size)');
   late final Index idxGroupId = Index(
       'idx_group_id', 'CREATE INDEX idx_group_id ON block_rule (group_id)');
   late final Index idxTarget =
@@ -6724,6 +6763,7 @@ abstract class _$AppDb extends GeneratedDatabase {
         idxGh2LastReadTime,
         idxExpireDate,
         idxUrl,
+        idxSize,
         idxGroupId,
         idxTarget,
         lIdxUTime
@@ -8227,7 +8267,7 @@ final class $$GalleryDownloadedTableReferences extends BaseReferences<_$AppDb,
 
   $$ImageTableProcessedTableManager get imageRefs {
     final manager = $$ImageTableTableManager($_db, $_db.image)
-        .filter((f) => f.gid.gid($_item.gid));
+        .filter((f) => f.gid.gid.sqlEquals($_itemColumn<int>('gid')!));
 
     final cache = $_typedResult.readTableOrNull(_imageRefsTable($_db));
     return ProcessedTableManager(
@@ -8582,7 +8622,8 @@ class $$GalleryDownloadedTableTableManager extends RootTableManager<
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (imageRefs)
-                    await $_getPrefetchedData(
+                    await $_getPrefetchedData<GalleryDownloadedData,
+                            $GalleryDownloadedTable, ImageData>(
                         currentTable: table,
                         referencedTable: $$GalleryDownloadedTableReferences
                             ._imageRefsTable(db),
@@ -9096,11 +9137,12 @@ final class $$ImageTableReferences
       db.galleryDownloaded.createAlias(
           $_aliasNameGenerator(db.image.gid, db.galleryDownloaded.gid));
 
-  $$GalleryDownloadedTableProcessedTableManager? get gid {
-    if ($_item.gid == null) return null;
+  $$GalleryDownloadedTableProcessedTableManager get gid {
+    final $_column = $_itemColumn<int>('gid')!;
+
     final manager =
         $$GalleryDownloadedTableTableManager($_db, $_db.galleryDownloaded)
-            .filter((f) => f.gid($_item.gid!));
+            .filter((f) => f.gid.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_gidTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
@@ -9756,6 +9798,7 @@ typedef $$DioCacheTableCreateCompanionBuilder = DioCacheCompanion Function({
   required DateTime expireDate,
   required Uint8List content,
   required Uint8List headers,
+  Value<int> size,
   Value<int> rowid,
 });
 typedef $$DioCacheTableUpdateCompanionBuilder = DioCacheCompanion Function({
@@ -9764,6 +9807,7 @@ typedef $$DioCacheTableUpdateCompanionBuilder = DioCacheCompanion Function({
   Value<DateTime> expireDate,
   Value<Uint8List> content,
   Value<Uint8List> headers,
+  Value<int> size,
   Value<int> rowid,
 });
 
@@ -9789,6 +9833,9 @@ class $$DioCacheTableFilterComposer extends Composer<_$AppDb, $DioCacheTable> {
 
   ColumnFilters<Uint8List> get headers => $composableBuilder(
       column: $table.headers, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get size => $composableBuilder(
+      column: $table.size, builder: (column) => ColumnFilters(column));
 }
 
 class $$DioCacheTableOrderingComposer
@@ -9814,6 +9861,9 @@ class $$DioCacheTableOrderingComposer
 
   ColumnOrderings<Uint8List> get headers => $composableBuilder(
       column: $table.headers, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get size => $composableBuilder(
+      column: $table.size, builder: (column) => ColumnOrderings(column));
 }
 
 class $$DioCacheTableAnnotationComposer
@@ -9839,6 +9889,9 @@ class $$DioCacheTableAnnotationComposer
 
   GeneratedColumn<Uint8List> get headers =>
       $composableBuilder(column: $table.headers, builder: (column) => column);
+
+  GeneratedColumn<int> get size =>
+      $composableBuilder(column: $table.size, builder: (column) => column);
 }
 
 class $$DioCacheTableTableManager extends RootTableManager<
@@ -9869,6 +9922,7 @@ class $$DioCacheTableTableManager extends RootTableManager<
             Value<DateTime> expireDate = const Value.absent(),
             Value<Uint8List> content = const Value.absent(),
             Value<Uint8List> headers = const Value.absent(),
+            Value<int> size = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               DioCacheCompanion(
@@ -9877,6 +9931,7 @@ class $$DioCacheTableTableManager extends RootTableManager<
             expireDate: expireDate,
             content: content,
             headers: headers,
+            size: size,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -9885,6 +9940,7 @@ class $$DioCacheTableTableManager extends RootTableManager<
             required DateTime expireDate,
             required Uint8List content,
             required Uint8List headers,
+            Value<int> size = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               DioCacheCompanion.insert(
@@ -9893,6 +9949,7 @@ class $$DioCacheTableTableManager extends RootTableManager<
             expireDate: expireDate,
             content: content,
             headers: headers,
+            size: size,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

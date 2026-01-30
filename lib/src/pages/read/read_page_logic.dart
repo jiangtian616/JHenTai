@@ -189,12 +189,16 @@ class ReadPageLogic extends GetxController {
   void onClose() {
     super.onClose();
 
-    state.focusNode.dispose();
+    // Cancel timers first
     refreshCurrentTimeAndBatteryLevelTimer.cancel();
+    flushReadProgressTimer.cancel();
+
+    // Dispose ALL Workers
+    toggleTurnPageByVolumeKeyLister.dispose();
     toggleCurrentImmersiveModeLister.dispose();
+    toggleDeviceOrientationLister.dispose();
     readDirectionLister.dispose();
     imageSpaceLister.dispose();
-    flushReadProgressTimer.cancel();
     displayFirstPageAloneListener.dispose();
     enableCustomBrightnessListener.dispose();
     customBrightnessListener.dispose();
@@ -220,6 +224,10 @@ class ReadPageLogic extends GetxController {
     executor.close();
 
     WakelockPlus.disable();
+
+    // Dispose state last (clears lists, disposes focusNode)
+    // IMPORTANT: Only clears lists that ReadPageState owns, not shared references
+    state.dispose();
   }
 
   void beginToParseImageHref(int index) {

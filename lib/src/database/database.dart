@@ -67,7 +67,7 @@ class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 23;
+  int get schemaVersion => 24;
 
   @override
   MigrationStrategy get migration {
@@ -161,6 +161,14 @@ class AppDb extends _$AppDb {
             }
             if (17 <= from && from < 23) {
               await m.alterTable(TableMigration(archiveDownloaded, newColumns: [archiveDownloaded.parseSource]));
+            }
+            if (from < 24) {
+              // Add size column to dio_cache for cache management
+              await m.addColumn(dioCache, dioCache.size);
+              // Populate size for existing entries based on content length
+              await customStatement('UPDATE dio_cache SET size = LENGTH(content)');
+              // Create index for size-based queries
+              await customStatement('CREATE INDEX IF NOT EXISTS idx_size ON dio_cache (size)');
             }
           });
         } on Exception catch (e) {
