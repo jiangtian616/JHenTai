@@ -36,45 +36,69 @@ class EHCacheManager extends Interceptor {
         _store = options.store!;
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
-    CacheOptions cacheOptions = _getCacheOptions(options);
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    try {
+      final CacheOptions cacheOptions = _getCacheOptions(options);
+      options.extra[realUriExtraKey] = _computeCachedUrl(options, cacheOptions);
 
-    options.extra[realUriExtraKey] = _computeCachedUrl(options, cacheOptions);
-
-    if (_shouldSkipRequest(options, cacheOptions)) {
-      handler.next(options);
-      return;
-    }
-
-    CacheResponse? cacheResponse = await _getCacheStore(cacheOptions).get(CacheOptions.defaultCacheKeyBuilder(options));
-    if (cacheResponse != null && cacheResponse.url == options.uri.toString()) {
-      if (cacheResponse.expired()) {
-        await _deleteCacheResponse(cacheResponse, cacheOptions);
-        return handler.next(options);
+      if (_shouldSkipRequest(options, cacheOptions)) {
+        handler.next(options);
+        return;
       }
 
-      log.trace('cache hit: ${options.uri.toString()}');
-      cacheResponse = await _updateCacheResponse(cacheResponse, cacheOptions);
-      return handler.resolve(cacheResponse.toResponse(options), true);
+      final String cacheKey = CacheOptions.defaultCacheKeyBuilder(options);
+      _getCacheStore(cacheOptions).get(cacheKey).then((CacheResponse? cacheResponse) {
+        if (cacheResponse != null && cacheResponse.url == options.uri.toString()) {
+          if (cacheResponse.expired()) {
+            _deleteCacheResponse(cacheResponse, cacheOptions).then((_) {
+              handler.next(options);
+            }).catchError((e) {
+              log.error('delete expired cache failed', e);
+              handler.next(options);
+            });
+            return;
+          }
+
+          log.trace('cache hit: ${options.uri.toString()}');
+          _updateCacheResponse(cacheResponse, cacheOptions).then((updatedCache) {
+            handler.resolve(updatedCache.toResponse(options), true);
+          }).catchError((e) {
+            log.error('update cache failed', e);
+            handler.next(options);
+          });
+          return;
+        }
+        handler.next(options);
+      }).catchError((e) {
+        log.error('get cache failed', e);
+        handler.next(options);
+      });
+    } catch (e) {
+      log.error('cache interceptor onRequest sync error', e);
+      handler.next(options);
     }
-    handler.next(options);
   }
 
   @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) async {
-    CacheOptions cacheOptions = _getCacheOptions(response.requestOptions);
-
-    if (_shouldSkipResponse(response, cacheOptions)) {
-      return handler.next(response);
-    }
-
+  void onResponse(Response response, ResponseInterceptorHandler handler) {
     try {
-      await _saveResponse(response, cacheOptions);
-    } on Exception catch (e) {
-      log.error('save cache failed', e);
-    }
+      final CacheOptions cacheOptions = _getCacheOptions(response.requestOptions);
 
-    handler.next(response);
+      if (_shouldSkipResponse(response, cacheOptions)) {
+        handler.next(response);
+        return;
+      }
+
+      _saveResponse(response, cacheOptions).then((_) {
+        handler.next(response);
+      }).catchError((e) {
+        log.error('save cache failed', e);
+        handler.next(response);
+      });
+    } catch (e) {
+      log.error('cache interceptor onResponse sync error', e);
+      handler.next(response);
+    }
   }
 
   Future<void> removeCacheByUrl(String url) {
@@ -142,7 +166,7 @@ class EHCacheManager extends Interceptor {
       return true;
     }
 
-    if (!allowedStatusCodes.contains(response?.statusCode)) {
+    if (!allowedStatusCodes.contains(response.statusCode)) {
       return true;
     }
 
