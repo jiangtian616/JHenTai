@@ -43,19 +43,28 @@ class ReadPageState with ScrollStatusListerState {
   final ItemScrollController thumbnailsScrollController = ItemScrollController();
   final ScrollOffsetController thumbnailsScrollOffsetController = ScrollOffsetController();
 
+  /// Track whether we own the images list (true for online/archive/local, false for downloaded)
+  /// In downloaded mode, images is a REFERENCE to galleryDownloadService's data
+  late final bool _ownsImagesList;
+
   ReadPageState() {
     thumbnails = List.generate(readPageInfo.pageCount, (_) => null, growable: true);
 
     if (readPageInfo.mode == ReadMode.online) {
       images = List.generate(readPageInfo.pageCount, (_) => null);
-    }
-
-    if (readPageInfo.mode == ReadMode.downloaded) {
+      _ownsImagesList = true;
+    } else if (readPageInfo.mode == ReadMode.downloaded) {
+      // IMPORTANT: This is a REFERENCE to galleryDownloadService's data
+      // We do NOT own this list and MUST NOT clear it
       images = galleryDownloadService.galleryDownloadInfos[readPageInfo.gid]!.images;
-    }
-
-    if (readPageInfo.mode == ReadMode.archive || readPageInfo.mode == ReadMode.local) {
+      _ownsImagesList = false;
+    } else if (readPageInfo.mode == ReadMode.archive || readPageInfo.mode == ReadMode.local) {
       images = readPageInfo.images!.cast<GalleryImage?>();
+      _ownsImagesList = true;
+    } else {
+      // Defensive: handle any future ReadMode additions
+      images = [];
+      _ownsImagesList = true;
     }
 
     parseImageHrefsStates = List.generate(readPageInfo.pageCount, (_) => LoadingState.idle);
@@ -65,5 +74,24 @@ class ReadPageState with ScrollStatusListerState {
     parseImageUrlErrorMsg = List.generate(readPageInfo.pageCount, (_) => null);
 
     useSuperResolution = readPageInfo.useSuperResolution;
+  }
+
+  /// Clear all lists to release memory
+  /// IMPORTANT: Only clears lists we OWN, not shared references
+  void dispose() {
+    thumbnails.clear();
+
+    // CRITICAL: Only clear images if we own the list
+    // Downloaded mode uses a reference to galleryDownloadService's data
+    if (_ownsImagesList) {
+      images.clear();
+    }
+
+    parseImageHrefsStates.clear();
+    parseImageUrlStates.clear();
+    imageContainerSizes.clear();
+    parseImageUrlErrorMsg.clear();
+
+    focusNode.dispose();
   }
 }

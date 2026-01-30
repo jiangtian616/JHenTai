@@ -75,6 +75,12 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   List<GalleryDownloadedData> gallerys = [];
   Map<int, GalleryDownloadInfo> galleryDownloadInfos = {};
 
+  /// Track which galleries have loaded their images (lazy loading)
+  final Set<int> _loadedGalleryImages = {};
+
+  /// Synchronization: track galleries currently being loaded to prevent duplicate loads
+  final Map<int, Completer<void>> _loadingCompleters = {};
+
   List<GalleryDownloadedData> gallerysWithGroup(String group) => gallerys.where((g) => galleryDownloadInfos[g.gid]!.group == group).toList();
 
   static const int _maxRetryTimes = 3;
@@ -140,6 +146,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         return;
       }
       _generateComicInfoInDisk(gallery);
+    } else {
+      // For resume, ensure images are loaded (lazy loading support)
+      await ensureGalleryImagesLoaded(gallery.gid);
     }
 
     galleryDownloadInfos[gallery.gid]!.speedComputer.start();
@@ -1430,37 +1439,64 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     allGroups = (await GalleryGroupDao.selectGalleryGroups()).map((e) => e.groupName).toList();
     log.debug('init Gallery groups: $allGroups');
 
-    /// Get download info from database
+    /// Get download info from database (metadata only, not images - lazy loading)
     List<GalleryDownloadedData> gallerys = await GalleryDao.selectGallerys();
-    List<ImageData> images = await GalleryImageDao.selectImages();
-    Map<int, List<ImageData>> gid2Images = groupBy(images, (e) => e.gid);
+
+    /// Load summary counts for progress display without loading all images
+    Map<int, ({int downloadedCount, int totalCount})> progressSummary =
+        await GalleryImageDao.selectDownloadProgressSummary();
 
     for (GalleryDownloadedData gallery in gallerys) {
-      /// Instantiate [Gallery]
-      _initGalleryInfoInMemory(gallery, sort: false);
-
-      /// Instantiate [GalleryImage]
-      List<ImageData>? galleryImages = gid2Images[gallery.gid];
-      if (galleryImages != null) {
-        for (ImageData image in galleryImages) {
-          GalleryImage galleryImage = GalleryImage(
-            url: image.url,
-            path: image.path,
-            imageHash: image.imageHash,
-            downloadStatus: DownloadStatus.values[image.downloadStatusIndex],
-          );
-
-          galleryDownloadInfos[gallery.gid]!.images[image.serialNo] = galleryImage;
-          if (galleryImage.downloadStatus == DownloadStatus.downloaded) {
-            galleryDownloadInfos[gallery.gid]!.downloadProgress.curCount++;
-            galleryDownloadInfos[gallery.gid]!.downloadProgress.hasDownloaded[image.serialNo] = true;
-          }
-        }
-      }
+      final summary = progressSummary[gallery.gid];
+      _initGalleryInfoInMemoryLazy(
+        gallery,
+        downloadedCount: summary?.downloadedCount ?? 0,
+        sort: false,
+      );
     }
 
     // sort after instantiated
     _sortGallerys();
+  }
+
+  /// Initialize gallery info without loading all image data (lazy loading).
+  void _initGalleryInfoInMemoryLazy(
+    GalleryDownloadedData gallery, {
+    int downloadedCount = 0,
+    bool sort = true,
+  }) {
+    if (!allGroups.contains(gallery.groupName)) {
+      allGroups.add(gallery.groupName);
+    }
+    gallerys.add(gallery);
+
+    // Create with null images - will be loaded on demand
+    galleryDownloadInfos[gallery.gid] = GalleryDownloadInfo(
+      thumbnailsCountPerPage: SiteSetting.thumbnailsCountPerPage.value,
+      tasks: [],
+      cancelToken: CancelToken(),
+      downloadProgress: GalleryDownloadProgress(
+        curCount: downloadedCount,
+        totalCount: gallery.pageCount,
+        downloadStatus: DownloadStatus.values[gallery.downloadStatusIndex],
+        hasDownloaded: List.generate(gallery.pageCount, (_) => false), // Will be populated on demand
+      ),
+      imageHrefs: List.generate(gallery.pageCount, (_) => null),
+      images: List.generate(gallery.pageCount, (_) => null), // Lazy - not loaded yet
+      speedComputer: GalleryDownloadSpeedComputer(
+        gallery.pageCount,
+        () => update(['$galleryDownloadSpeedComputerId::${gallery.gid}']),
+      ),
+      priority: gallery.priority,
+      sortOrder: gallery.sortOrder,
+      group: gallery.groupName,
+    );
+
+    if (sort) {
+      _sortGallerys();
+    }
+
+    update([galleryCountChangedId, '$galleryDownloadProgressId::${gallery.gid}']);
   }
 
   Future<bool> _initGalleryInfo(GalleryDownloadedData gallery) async {
@@ -1549,6 +1585,10 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       group: gallery.groupName,
     );
 
+    // Mark as loaded if images were provided (e.g., new download or restore)
+    // New galleries start "loaded" since they have no DB images yet
+    _loadedGalleryImages.add(gallery.gid);
+
     if (sort) {
       _sortGallerys();
     }
@@ -1559,9 +1599,114 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   void _clearGalleryInfoInMemory(GalleryDownloadedData gallery) {
     gallerys.removeWhere((g) => g.gid == gallery.gid);
     GalleryDownloadInfo? galleryDownloadInfo = galleryDownloadInfos.remove(gallery.gid);
-    galleryDownloadInfo?.speedComputer.dispose();
+
+    if (galleryDownloadInfo != null) {
+      // Cancel any pending downloads
+      galleryDownloadInfo.cancelToken.cancel('Gallery removed');
+
+      // Dispose speed computer timer
+      galleryDownloadInfo.speedComputer.dispose();
+
+      // Clear all lists to release memory
+      galleryDownloadInfo.images.clear();
+      galleryDownloadInfo.imageHrefs.clear();
+      galleryDownloadInfo.tasks.clear();
+      galleryDownloadInfo.downloadProgress.hasDownloaded.clear();
+    }
+
+    // Remove from lazy load tracking
+    _loadedGalleryImages.remove(gallery.gid);
+    _loadingCompleters.remove(gallery.gid);
 
     update([galleryCountChangedId, '$galleryDownloadProgressId::${gallery.gid}']);
+  }
+
+  /// Load images for a specific gallery on demand.
+  /// Thread-safe: uses Completer to prevent duplicate concurrent loads.
+  Future<void> ensureGalleryImagesLoaded(int gid) async {
+    // Already loaded - fast path
+    if (_loadedGalleryImages.contains(gid)) {
+      return;
+    }
+
+    // Check if another call is already loading this gallery
+    final existingCompleter = _loadingCompleters[gid];
+    if (existingCompleter != null) {
+      // Wait for the existing load to complete
+      await existingCompleter.future;
+      return;
+    }
+
+    // We are the first to load - create completer to block other callers
+    final completer = Completer<void>();
+    _loadingCompleters[gid] = completer;
+
+    try {
+      final info = galleryDownloadInfos[gid];
+      if (info == null) {
+        completer.complete();
+        return;
+      }
+
+      final images = await GalleryImageDao.selectImagesByGid(gid);
+
+      for (final image in images) {
+        final galleryImage = GalleryImage(
+          url: image.url,
+          path: image.path,
+          imageHash: image.imageHash,
+          downloadStatus: DownloadStatus.values[image.downloadStatusIndex],
+        );
+
+        info.images[image.serialNo] = galleryImage;
+        if (galleryImage.downloadStatus == DownloadStatus.downloaded) {
+          info.downloadProgress.hasDownloaded[image.serialNo] = true;
+        }
+      }
+
+      _loadedGalleryImages.add(gid);
+      log.debug('Loaded images for gallery $gid (${images.length} images)');
+
+      completer.complete();
+    } catch (e, stack) {
+      log.error('Failed to load images for gallery $gid', e, stack);
+      completer.completeError(e);
+      rethrow;
+    } finally {
+      _loadingCompleters.remove(gid);
+    }
+  }
+
+  /// Unload images for a gallery to free memory.
+  /// Safe: will not unload if gallery is actively downloading or being loaded.
+  void unloadGalleryImages(int gid) {
+    // Don't unload if currently loading
+    if (_loadingCompleters.containsKey(gid)) {
+      log.debug('Cannot unload gallery $gid - currently loading');
+      return;
+    }
+
+    final info = galleryDownloadInfos[gid];
+    if (info == null) return;
+
+    // Don't unload if actively downloading
+    if (info.downloadProgress.downloadStatus == DownloadStatus.downloading) {
+      log.debug('Cannot unload gallery $gid - actively downloading');
+      return;
+    }
+
+    // Reset images to null
+    for (int i = 0; i < info.images.length; i++) {
+      info.images[i] = null;
+    }
+
+    _loadedGalleryImages.remove(gid);
+    log.debug('Unloaded images for gallery $gid');
+  }
+
+  /// Check if images are loaded for a gallery
+  bool areGalleryImagesLoaded(int gid) {
+    return _loadedGalleryImages.contains(gid);
   }
 
   // DB

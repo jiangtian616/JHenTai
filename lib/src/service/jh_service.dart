@@ -34,9 +34,24 @@ mixin JHLifeCircleBeanErrorCatch {
     }
   }
 
+  /// Dispose resources. Called during app termination.
+  /// Override doDisposeBean() to provide cleanup logic.
+  void disposeBean() {
+    try {
+      doDisposeBean();
+      log.trace('$runtimeType disposeBean success');
+    } catch (e, stack) {
+      log.error('$runtimeType disposeBean failed', e, stack);
+    }
+  }
+
   Future<void> doInitBean();
 
   Future<void> doAfterBeanReady();
+
+  /// Override to dispose Workers, Timers, and other resources.
+  /// Default implementation does nothing - override only if needed.
+  void doDisposeBean() {}
 }
 
 mixin JHLifeCircleBeanWithConfigStorage {
