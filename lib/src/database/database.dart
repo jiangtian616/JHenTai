@@ -164,9 +164,14 @@ class AppDb extends _$AppDb {
             }
             if (from < 24) {
               // Add size column to dio_cache for cache management
-              await m.addColumn(dioCache, dioCache.size);
+              // Use raw SQL with IF NOT EXISTS pattern to handle re-runs
+              try {
+                await customStatement('ALTER TABLE dio_cache ADD COLUMN size INTEGER NOT NULL DEFAULT 0');
+              } catch (_) {
+                // Column already exists, ignore
+              }
               // Populate size for existing entries based on content length
-              await customStatement('UPDATE dio_cache SET size = LENGTH(content)');
+              await customStatement('UPDATE dio_cache SET size = LENGTH(content) WHERE size = 0');
               // Create index for size-based queries
               await customStatement('CREATE INDEX IF NOT EXISTS idx_size ON dio_cache (size)');
             }
