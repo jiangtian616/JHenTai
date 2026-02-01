@@ -44,16 +44,18 @@ class EHGalleryListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () => handleTapCard(gallery),
-      onLongPress: handleLongPressCard == null ? null : () => handleLongPressCard!(gallery),
-      onSecondaryTap: handleSecondaryTapCard == null ? null : () => handleSecondaryTapCard!(gallery),
-      child: FadeIn(
-        duration: const Duration(milliseconds: 100),
-        child: SizedBox(
-          height: withTags ? UIConfig.galleryCardHeight : UIConfig.galleryCardHeightWithoutTags,
-          child: listMode == ListMode.flat || listMode == ListMode.flatWithoutTags ? buildFlatGalleryCard(context) : buildRoundGalleryCard(context),
+    return RepaintBoundary(
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => handleTapCard(gallery),
+        onLongPress: handleLongPressCard == null ? null : () => handleLongPressCard!(gallery),
+        onSecondaryTap: handleSecondaryTapCard == null ? null : () => handleSecondaryTapCard!(gallery),
+        child: FadeIn(
+          duration: const Duration(milliseconds: 100),
+          child: SizedBox(
+            height: withTags ? UIConfig.galleryCardHeight : UIConfig.galleryCardHeightWithoutTags,
+            child: listMode == ListMode.flat || listMode == ListMode.flatWithoutTags ? buildFlatGalleryCard(context) : buildRoundGalleryCard(context),
+          ),
         ),
       ),
     );
@@ -118,9 +120,12 @@ class EHGalleryListCard extends StatelessWidget {
   Widget buildGalleryCardCover(BuildContext context) {
     return EHImage(
       galleryImage: gallery.cover,
+      clearMemoryCacheWhenDispose: false,
       containerColor: UIConfig.galleryCardBackGroundColor(context),
       containerHeight: withTags ? UIConfig.galleryCardHeight : UIConfig.galleryCardHeightWithoutTags,
       containerWidth: withTags ? UIConfig.galleryCardCoverWidth : UIConfig.galleryCardCoverWidthWithoutTags,
+      cacheHeight: (withTags ? UIConfig.galleryCardHeight : UIConfig.galleryCardHeightWithoutTags).toInt(),
+      cacheWidth: (withTags ? UIConfig.galleryCardCoverWidth : UIConfig.galleryCardCoverWidthWithoutTags).toInt(),
       heroTag: gallery.blockedByLocalRules ? null : gallery.cover,
       fit: BoxFit.fitWidth,
     );
@@ -159,6 +164,24 @@ class EHGalleryListCard extends StatelessWidget {
   }
 
   Widget buildGalleryCardTagWaterFlow(BuildContext context) {
+    List<GalleryTag> mergedList = gallery.sortedTagsForDisplay ?? _computeSortedTags();
+
+    return SizedBox(
+      height: UIConfig.galleryCardTagsHeight,
+      child: WaterfallFlow.builder(
+        scrollDirection: Axis.horizontal,
+        gridDelegate: const SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          mainAxisSpacing: 4,
+          crossAxisSpacing: 4,
+        ),
+        itemCount: mergedList.length,
+        itemBuilder: (_, int index) => EHTag(tag: mergedList[index]),
+      ).enableMouseDrag(withScrollBar: false),
+    );
+  }
+
+  List<GalleryTag> _computeSortedTags() {
     List<GalleryTag> mergedList = [];
     gallery.tags.forEach((namespace, galleryTags) {
       mergedList.addAll(galleryTags);
@@ -174,23 +197,7 @@ class EHGalleryListCard extends StatelessWidget {
         return 0;
       }
     });
-
-    return SizedBox(
-      height: UIConfig.galleryCardTagsHeight,
-      child: WaterfallFlow.builder(
-        scrollDirection: Axis.horizontal,
-
-        /// disable keepScrollOffset because we used [PageStorageKey], which leads to a conflict with this WaterfallFlow
-        controller: ScrollController(keepScrollOffset: false),
-        gridDelegate: const SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          mainAxisSpacing: 4,
-          crossAxisSpacing: 4,
-        ),
-        itemCount: mergedList.length,
-        itemBuilder: (_, int index) => EHTag(tag: mergedList[index]),
-      ).enableMouseDrag(withScrollBar: false),
-    );
+    return mergedList;
   }
 
   Widget buildGalleryInfoFooter(BuildContext context) {

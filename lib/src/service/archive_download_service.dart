@@ -65,6 +65,12 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   List<ArchiveDownloadedData> archives = <ArchiveDownloadedData>[];
   Map<int, ArchiveDownloadInfo> archiveDownloadInfos = {};
 
+  /// Track which archives have been fully loaded (lazy loading)
+  final Set<int> _loadedArchives = {};
+
+  /// Synchronization: track archives currently being loaded to prevent duplicate loads
+  final Map<int, Completer<void>> _loadingCompleters = {};
+
   List<ArchiveDownloadedData> archivesWithGroup(String group) => archives.where((g) => archiveDownloadInfos[g.gid]!.group == group).toList();
 
   late Worker isolateCountListener;
@@ -1165,7 +1171,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
   // MEMORY
 
-  void _initArchiveInMemory(ArchiveDownloadedData archive, {bool sort = true}) {
+  void _initArchiveInMemory(ArchiveDownloadedData archive, {bool sort = true, bool markLoaded = true}) {
     if (!allGroups.contains(archive.groupName)) {
       allGroups.add(archive.groupName);
     }
@@ -1190,6 +1196,11 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       archiveDownloadInfos[archive.gid]!.speedComputer.resetDownloadedBytes(downloadTask.currentBytes);
     }
 
+    // Mark as loaded for lazy loading tracking
+    if (markLoaded) {
+      _loadedArchives.add(archive.gid);
+    }
+
     if (sort) {
       _sortArchives();
     }
@@ -1204,7 +1215,82 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     archiveDownloadInfo?.speedComputer.dispose();
     await archiveDownloadInfo?.downloadTask?.dispose();
 
+    // Remove from lazy load tracking
+    _loadedArchives.remove(gid);
+    _loadingCompleters.remove(gid);
+
     update([galleryCountChangedId]);
+  }
+
+  /// Load archive data on demand.
+  /// Thread-safe: uses Completer to prevent duplicate concurrent loads.
+  Future<void> ensureArchiveLoaded(int gid) async {
+    // Already loaded - fast path
+    if (_loadedArchives.contains(gid)) {
+      return;
+    }
+
+    // Check if another call is already loading this archive
+    final existingCompleter = _loadingCompleters[gid];
+    if (existingCompleter != null) {
+      // Wait for the existing load to complete
+      await existingCompleter.future;
+      return;
+    }
+
+    // We are the first to load - create completer to block other callers
+    final completer = Completer<void>();
+    _loadingCompleters[gid] = completer;
+
+    try {
+      final info = archiveDownloadInfos[gid];
+      if (info == null) {
+        // Archive info not in memory - try loading from database
+        final archiveData = await ArchiveDao.selectArchiveByGid(gid);
+        if (archiveData != null) {
+          _initArchiveInMemory(archiveData, sort: false, markLoaded: true);
+        }
+        completer.complete();
+        return;
+      }
+
+      // Archive info exists, mark as loaded
+      _loadedArchives.add(gid);
+      log.debug('Loaded archive $gid');
+
+      completer.complete();
+    } catch (e, stack) {
+      log.error('Failed to load archive $gid', e, stack);
+      completer.completeError(e);
+      rethrow;
+    } finally {
+      _loadingCompleters.remove(gid);
+    }
+  }
+
+  /// Unload archive data to free memory.
+  /// Safe: will not unload if archive is actively downloading or being loaded.
+  void unloadArchive(int gid) {
+    // Don't unload if currently loading
+    if (_loadingCompleters.containsKey(gid)) {
+      log.debug('Cannot unload archive $gid - currently loading');
+      return;
+    }
+
+    final info = archiveDownloadInfos[gid];
+    if (info == null) {
+      return;
+    }
+
+    // Don't unload if actively downloading
+    if (info.archiveStatus.code >= ArchiveStatus.unlocking.code &&
+        info.archiveStatus.code <= ArchiveStatus.unpacking.code) {
+      log.debug('Cannot unload archive $gid - actively downloading');
+      return;
+    }
+
+    _loadedArchives.remove(gid);
+    log.debug('Unloaded archive $gid');
   }
 
   // DISK

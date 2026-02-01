@@ -151,7 +151,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController
           initialIndex: readIndexRecord,
           readProgressRecordStorageKey: gallery.gid.toString(),
           pageCount: gallery.pageCount,
-          useSuperResolution: superResolutionService.get(gallery.gid, SuperResolutionType.gallery) != null,
+          useSuperResolution: await superResolutionService.get(gallery.gid, SuperResolutionType.gallery) != null,
         ),
       );
     }
@@ -164,14 +164,14 @@ mixin GalleryDownloadPageLogicMixin on GetxController
         actions: <CupertinoActionSheetAction>[
           if (superResolutionSetting.modelDirectoryPath.value != null &&
               downloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress.downloadStatus == DownloadStatus.downloaded &&
-              (superResolutionService.get(gallery.gid, SuperResolutionType.gallery) == null ||
-                  superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.paused))
+              (superResolutionService.getSync(gallery.gid, SuperResolutionType.gallery) == null ||
+                  superResolutionService.getSync(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.paused))
             CupertinoActionSheetAction(
               child: Text('superResolution'.tr),
               onPressed: () async {
                 backRoute();
 
-                if (superResolutionService.get(gallery.gid, SuperResolutionType.gallery) == null && gallery.downloadOriginalImage) {
+                if (superResolutionService.getSync(gallery.gid, SuperResolutionType.gallery) == null && gallery.downloadOriginalImage) {
                   bool? result = await Get.dialog(EHDialog(title: 'attention'.tr + '!', content: 'superResolveOriginalImageHint'.tr));
                   if (result == false) {
                     return;
@@ -181,7 +181,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController
                 superResolutionService.superResolve(gallery.gid, SuperResolutionType.gallery);
               },
             ),
-          if (superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.running)
+          if (superResolutionService.getSync(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.running)
             CupertinoActionSheetAction(
               child: Text('stopSuperResolution'.tr),
               onPressed: () async {
@@ -189,8 +189,8 @@ mixin GalleryDownloadPageLogicMixin on GetxController
                 superResolutionService.pauseSuperResolve(gallery.gid, SuperResolutionType.gallery).then((_) => toast("success".tr));
               },
             ),
-          if (superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.paused ||
-              superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.success)
+          if (superResolutionService.getSync(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.paused ||
+              superResolutionService.getSync(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.success)
             CupertinoActionSheetAction(
               child: Text('deleteSuperResolvedImage'.tr),
               onPressed: () async {

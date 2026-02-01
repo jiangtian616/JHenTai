@@ -403,7 +403,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
     return GetBuilder<srs.SuperResolutionService>(
       id: '${srs.SuperResolutionService.superResolutionId}::${archive.gid}',
       builder: (_) {
-        srs.SuperResolutionInfo? superResolutionInfo = superResolutionService.get(archive.gid, srs.SuperResolutionType.archive);
+        srs.SuperResolutionInfo? superResolutionInfo = superResolutionService.getSync(archive.gid, srs.SuperResolutionType.archive);
 
         if (superResolutionInfo == null) {
           return const SizedBox();

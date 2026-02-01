@@ -32,6 +32,9 @@ class Gallery {
   bool isExpunged;
   LinkedHashMap<String, List<GalleryTag>> tags;
 
+  /// Pre-sorted tags for UI display (watched tags first). Computed, not serialized.
+  List<GalleryTag>? sortedTagsForDisplay;
+
   bool blockedByLocalRules;
 
   int get gid => galleryUrl.gid;

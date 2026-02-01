@@ -86,6 +86,8 @@ class ReadPageLogic extends GetxController {
   );
   final Throttling _thr = Throttling(duration: const Duration(milliseconds: 200));
 
+  ReadDirection? _lastClearedDirection;
+
   final int normalPriority = 10000;
 
   bool inited = false;
@@ -222,6 +224,7 @@ class ReadPageLogic extends GetxController {
     Get.delete<HorizontalDoubleColumnLayoutLogic>(force: true);
 
     executor.close();
+    _thr.close();
 
     WakelockPlus.disable();
 
@@ -333,7 +336,27 @@ class ReadPageLogic extends GetxController {
 
     state.images[index] = image;
     state.parseImageUrlStates[index] = LoadingState.success;
+    prefetchNextImageUrls(index);
     updateSafely(['$onlineImageId::$index']);
+  }
+
+  void prefetchNextImageUrls(int currentIndex) {
+    final prefetchCount = state.readPageInfo.mode == ReadMode.online
+        ? readSetting.preloadPageCount.value
+        : readSetting.preloadPageCountLocal.value;
+
+    for (int i = 1; i <= prefetchCount; i++) {
+      final nextIndex = currentIndex + i;
+      if (nextIndex < state.readPageInfo.pageCount &&
+          state.images[nextIndex] == null &&
+          state.parseImageUrlStates[nextIndex] == LoadingState.idle) {
+        if (state.thumbnails[nextIndex] != null) {
+          beginToParseImageUrl(nextIndex, false);
+        } else {
+          beginToParseImageHref(nextIndex);
+        }
+      }
+    }
   }
 
   Future<GalleryImage> requestImage(int index, bool reParse, String? reloadKey) {
@@ -585,7 +608,7 @@ class ReadPageLogic extends GetxController {
   String getSuperResolutionProgress() {
     int gid = state.readPageInfo.gid!;
     SuperResolutionType type = state.readPageInfo.mode == ReadMode.downloaded ? SuperResolutionType.gallery : SuperResolutionType.archive;
-    SuperResolutionInfo? superResolutionInfo = superResolutionService.get(gid, type);
+    SuperResolutionInfo? superResolutionInfo = superResolutionService.getSync(gid, type);
 
     if (superResolutionInfo == null) {
       return '';
@@ -615,8 +638,13 @@ class ReadPageLogic extends GetxController {
   }
 
   void recordReadProgress(int index) {
+    int previousIndex = state.readPageInfo.currentImageIndex;
     state.readPageInfo.currentImageIndex = index;
-    update([sliderId, pageNoId, thumbnailNoId]);
+    update([sliderId, pageNoId]);
+    // Only update the previous and current thumbnail to show highlight change
+    if (previousIndex != index) {
+      updateSafely(['$thumbnailNoId::$previousIndex', '$thumbnailNoId::$index']);
+    }
   }
 
   Future<void> _flushReadProgress() async {
@@ -627,6 +655,9 @@ class ReadPageLogic extends GetxController {
   }
 
   void clearImageContainerSized() {
+    final currentDirection = readSetting.readDirection.value;
+    if (_lastClearedDirection == currentDirection) return;
+    _lastClearedDirection = currentDirection;
     state.imageContainerSizes = List.generate(state.readPageInfo.pageCount, (_) => null);
   }
 }
