@@ -124,6 +124,8 @@ class EHGalleryListCard extends StatelessWidget {
       containerColor: UIConfig.galleryCardBackGroundColor(context),
       containerHeight: withTags ? UIConfig.galleryCardHeight : UIConfig.galleryCardHeightWithoutTags,
       containerWidth: withTags ? UIConfig.galleryCardCoverWidth : UIConfig.galleryCardCoverWidthWithoutTags,
+      cacheHeight: (withTags ? UIConfig.galleryCardHeight : UIConfig.galleryCardHeightWithoutTags).toInt(),
+      cacheWidth: (withTags ? UIConfig.galleryCardCoverWidth : UIConfig.galleryCardCoverWidthWithoutTags).toInt(),
       heroTag: gallery.blockedByLocalRules ? null : gallery.cover,
       fit: BoxFit.fitWidth,
     );
