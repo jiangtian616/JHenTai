@@ -33,6 +33,8 @@ class EHImage extends StatelessWidget {
   final List<BoxShadow>? shadows;
   final bool forceFadeIn;
   final int? maxBytes;
+  final int? cacheWidth;
+  final int? cacheHeight;
 
   final LoadingProgressWidgetBuilder? loadingProgressWidgetBuilder;
   final FailedWidgetBuilder? failedWidgetBuilder;
@@ -56,6 +58,8 @@ class EHImage extends StatelessWidget {
     this.shadows,
     this.forceFadeIn = false,
     this.maxBytes,
+    this.cacheWidth,
+    this.cacheHeight,
     this.loadingProgressWidgetBuilder,
     this.failedWidgetBuilder,
     this.downloadingWidgetBuilder,
@@ -79,6 +83,8 @@ class EHImage extends StatelessWidget {
     this.shadows,
     this.forceFadeIn = false,
     this.maxBytes,
+    this.cacheWidth,
+    this.cacheHeight,
     this.loadingProgressWidgetBuilder,
     this.failedWidgetBuilder,
     this.downloadingWidgetBuilder,
@@ -124,6 +130,8 @@ class EHImage extends StatelessWidget {
       fit: fit,
       height: containerHeight,
       width: containerWidth,
+      cacheWidth: cacheWidth,
+      cacheHeight: cacheHeight,
       handleLoadingProgress: loadingProgressWidgetBuilder != null,
       printError: kDebugMode,
       enableSlideOutPage: enableSlideOutPage,
@@ -180,6 +188,8 @@ class EHImage extends StatelessWidget {
       fit: fit,
       height: containerHeight,
       width: containerWidth,
+      cacheWidth: cacheWidth,
+      cacheHeight: cacheHeight,
       enableLoadState: loadingWidgetBuilder != null || failedWidgetBuilder != null || completedWidgetBuilder != null,
       enableSlideOutPage: enableSlideOutPage,
       borderRadius: borderRadius,

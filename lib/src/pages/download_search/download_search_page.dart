@@ -283,7 +283,7 @@ class DownloadSearchPage extends StatelessWidget {
     return GetBuilder<SuperResolutionService>(
       id: '${SuperResolutionService.superResolutionId}::${gallery.gid}',
       builder: (_) {
-        SuperResolutionInfo? superResolutionInfo = superResolutionService.get(gallery.gid, SuperResolutionType.gallery);
+        SuperResolutionInfo? superResolutionInfo = superResolutionService.getSync(gallery.gid, SuperResolutionType.gallery);
 
         if (superResolutionInfo == null) {
           return const SizedBox();
@@ -466,7 +466,7 @@ class DownloadSearchPage extends StatelessWidget {
     return GetBuilder<SuperResolutionService>(
       id: '${SuperResolutionService.superResolutionId}::${archive.gid}',
       builder: (_) {
-        SuperResolutionInfo? superResolutionInfo = superResolutionService.get(archive.gid, SuperResolutionType.archive);
+        SuperResolutionInfo? superResolutionInfo = superResolutionService.getSync(archive.gid, SuperResolutionType.archive);
 
         if (superResolutionInfo == null) {
           return const SizedBox();

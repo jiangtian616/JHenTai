@@ -6712,6 +6712,10 @@ abstract class _$AppDb extends GeneratedDatabase {
       'CREATE INDEX g_idx_group_name ON gallery_downloaded_v2 (group_name)');
   late final Index gIdxTagRefreshTime = Index('g_idx_tag_refresh_time',
       'CREATE INDEX g_idx_tag_refresh_time ON gallery_downloaded_v2 (tag_refresh_time)');
+  late final Index idxImageGid =
+      Index('idx_image_gid', 'CREATE INDEX idx_image_gid ON image (gid)');
+  late final Index idxImageStatus = Index('idx_image_status',
+      'CREATE INDEX idx_image_status ON image (downloadStatusIndex)');
   late final Index idxLastReadTime = Index('idx_last_read_time',
       'CREATE INDEX idx_last_read_time ON gallery_history (lastReadTime)');
   late final Index idxGh2LastReadTime = Index('idx_gh2_last_read_time',
@@ -6759,6 +6763,8 @@ abstract class _$AppDb extends GeneratedDatabase {
         gIdxSortOrder,
         gIdxGroupName,
         gIdxTagRefreshTime,
+        idxImageGid,
+        idxImageStatus,
         idxLastReadTime,
         idxGh2LastReadTime,
         idxExpireDate,
@@ -8267,7 +8273,7 @@ final class $$GalleryDownloadedTableReferences extends BaseReferences<_$AppDb,
 
   $$ImageTableProcessedTableManager get imageRefs {
     final manager = $$ImageTableTableManager($_db, $_db.image)
-        .filter((f) => f.gid.gid.sqlEquals($_itemColumn<int>('gid')!));
+        .filter((f) => f.gid.gid($_item.gid));
 
     final cache = $_typedResult.readTableOrNull(_imageRefsTable($_db));
     return ProcessedTableManager(
@@ -8622,8 +8628,7 @@ class $$GalleryDownloadedTableTableManager extends RootTableManager<
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (imageRefs)
-                    await $_getPrefetchedData<GalleryDownloadedData,
-                            $GalleryDownloadedTable, ImageData>(
+                    await $_getPrefetchedData(
                         currentTable: table,
                         referencedTable: $$GalleryDownloadedTableReferences
                             ._imageRefsTable(db),
@@ -9137,12 +9142,11 @@ final class $$ImageTableReferences
       db.galleryDownloaded.createAlias(
           $_aliasNameGenerator(db.image.gid, db.galleryDownloaded.gid));
 
-  $$GalleryDownloadedTableProcessedTableManager get gid {
-    final $_column = $_itemColumn<int>('gid')!;
-
+  $$GalleryDownloadedTableProcessedTableManager? get gid {
+    if ($_item.gid == null) return null;
     final manager =
         $$GalleryDownloadedTableTableManager($_db, $_db.galleryDownloaded)
-            .filter((f) => f.gid.sqlEquals($_column));
+            .filter((f) => f.gid($_item.gid!));
     final item = $_typedResult.readTableOrNull(_gidTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(

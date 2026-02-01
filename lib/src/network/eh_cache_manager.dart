@@ -13,6 +13,20 @@ class EHCacheManager extends Interceptor {
   final CacheOptions _options;
   final SqliteCacheStore _store;
 
+  int _cacheHits = 0;
+  int _cacheMisses = 0;
+
+  double get cacheHitRatio {
+    final total = _cacheHits + _cacheMisses;
+    return total == 0 ? 0.0 : _cacheHits / total;
+  }
+
+  ({int hits, int misses, double ratio}) get cacheStats => (
+    hits: _cacheHits,
+    misses: _cacheMisses,
+    ratio: cacheHitRatio,
+  );
+
   static const allowedStatusCodes = [
     // OK
     200,
@@ -50,6 +64,7 @@ class EHCacheManager extends Interceptor {
       _getCacheStore(cacheOptions).get(cacheKey).then((CacheResponse? cacheResponse) {
         if (cacheResponse != null && cacheResponse.url == options.uri.toString()) {
           if (cacheResponse.expired()) {
+            _cacheMisses++;
             _deleteCacheResponse(cacheResponse, cacheOptions).then((_) {
               handler.next(options);
             }).catchError((e) {
@@ -59,7 +74,8 @@ class EHCacheManager extends Interceptor {
             return;
           }
 
-          log.trace('cache hit: ${options.uri.toString()}');
+          _cacheHits++;
+          log.trace('Cache HIT: ${options.uri} (ratio: ${cacheHitRatio.toStringAsFixed(2)})');
           _updateCacheResponse(cacheResponse, cacheOptions).then((updatedCache) {
             handler.resolve(updatedCache.toResponse(options), true);
           }).catchError((e) {
@@ -68,6 +84,7 @@ class EHCacheManager extends Interceptor {
           });
           return;
         }
+        _cacheMisses++;
         handler.next(options);
       }).catchError((e) {
         log.error('get cache failed', e);

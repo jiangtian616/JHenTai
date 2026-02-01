@@ -67,7 +67,7 @@ class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 24;
+  int get schemaVersion => 25;
 
   @override
   MigrationStrategy get migration {
@@ -174,6 +174,10 @@ class AppDb extends _$AppDb {
               await customStatement('UPDATE dio_cache SET size = LENGTH(content) WHERE size = 0');
               // Create index for size-based queries
               await customStatement('CREATE INDEX IF NOT EXISTS idx_size ON dio_cache (size)');
+            }
+            if (from < 25) {
+              await customStatement('CREATE INDEX IF NOT EXISTS idx_image_gid ON image (gid)');
+              await customStatement('CREATE INDEX IF NOT EXISTS idx_image_status ON image (downloadStatusIndex)');
             }
           });
         } on Exception catch (e) {

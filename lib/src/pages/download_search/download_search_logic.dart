@@ -265,7 +265,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
           initialIndex: readIndexRecord,
           readProgressRecordStorageKey: gallery.gid.toString(),
           pageCount: gallery.pageCount,
-          useSuperResolution: superResolutionService.get(gallery.gid, SuperResolutionType.gallery) != null,
+          useSuperResolution: await superResolutionService.get(gallery.gid, SuperResolutionType.gallery) != null,
         ),
       );
     }
@@ -296,7 +296,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
           isOriginal: archive.isOriginal,
           readProgressRecordStorageKey: archive.gid.toString(),
           images: images,
-          useSuperResolution: superResolutionService.get(archive.gid, SuperResolutionType.archive) != null,
+          useSuperResolution: await superResolutionService.get(archive.gid, SuperResolutionType.archive) != null,
         ),
       );
     }
