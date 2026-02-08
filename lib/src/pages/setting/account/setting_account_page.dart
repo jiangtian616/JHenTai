@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
-import '../../../network/eh_request.dart';
 import '../../../routes/routes.dart';
 import '../../../utils/route_util.dart';
 import '../../../widget/eh_log_out_dialog.dart';

@@ -1020,6 +1020,13 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         );
       }
     }
+    if (e.response?.statusCode == 403 && networkSetting.allHostAndIPs.contains(e.requestOptions.uri.host)) {
+      return EHSiteException(
+        type: EHSiteExceptionType.cloudflare,
+        message: 'cloudflare403'.tr,
+        shouldPauseAllDownloadTasks: false,
+      );
+    }
 
     return e;
   }

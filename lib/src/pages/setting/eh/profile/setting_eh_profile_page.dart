@@ -108,6 +108,12 @@ class _SettingEHProfilePageState extends State<SettingEHProfilePage> {
         loadingState = LoadingState.error;
       });
       return;
+    } catch (e) {
+      log.error('Load profile fail', e.toString());
+      setState(() {
+        loadingState = LoadingState.error;
+      });
+      return;
     }
 
     setStateSafely(() {

@@ -17,4 +17,12 @@ class EHSiteException implements Exception {
   }
 }
 
-enum EHSiteExceptionType { blankBody, banned, exceedLimit, galleryDeleted, internalError, ehServerError }
+enum EHSiteExceptionType {
+  cloudflare,
+  blankBody,
+  banned,
+  exceedLimit,
+  galleryDeleted,
+  internalError,
+  ehServerError,
+}

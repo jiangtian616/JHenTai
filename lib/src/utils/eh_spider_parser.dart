@@ -82,10 +82,6 @@ class EHSpiderParser {
       return _thumbnailGalleryPageDocument2GalleryListAndPageInfo(document);
     }
 
-    if (!html.contains('No hits found')) {
-      log.error('Parse gallery inline type failed');
-      log.uploadError(Exception('Parse gallery inline type failed'), extraInfos: {'html': html});
-    }
     return _compactGalleryPageDocument2GalleryPageInfo(document);
   }
 
@@ -489,7 +485,13 @@ class EHSpiderParser {
     }).toList();
   }
 
-  static Map<String, String?>? forumPage2UserInfo(Headers headers, dynamic data) {
+  static String? forumPage2UserName(Headers headers, dynamic data) {
+    Document document = parse(data as String);
+
+    return document.querySelector('.home > b > a')?.text;
+  }
+
+  static Map<String, String?>? profilePage2UserInfo(Headers headers, dynamic data) {
     Document document = parse(data as String);
 
     /// cookie is wrong, not logged in

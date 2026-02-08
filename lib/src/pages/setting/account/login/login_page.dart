@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/pages/setting/account/login/login_page_logic.dart';
 import 'package:jhentai/src/pages/setting/account/login/login_page_state.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
@@ -25,13 +26,17 @@ class LoginPage extends StatelessWidget {
         resizeToAvoidBottomInset: false,
         backgroundColor: UIConfig.loginPageBackgroundColor(context),
         appBar: AppBar(backgroundColor: UIConfig.loginPageBackgroundColor(context), leading: BackButton(color: UIConfig.loginPageForegroundColor(context))),
-        body: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const _TopArea(),
-            Text('EHenTai', style: TextStyle(color: UIConfig.loginPageForegroundColor(context), fontSize: 60)),
-            _buildForm(context),
-          ],
+        body: GetBuilder<LoginPageLogic>(
+          id: LoginPageLogic.formId,
+          builder: (_) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const _TopArea(),
+              Text('EHenTai', style: TextStyle(color: UIConfig.loginPageForegroundColor(context), fontSize: 60)),
+              _buildForm(context),
+              if (state.loginType == LoginType.cookie) _buildCookieOptions(context).marginOnly(top: 12),
+            ],
+          ),
         ),
       ),
     );
@@ -208,6 +213,40 @@ class LoginPage extends StatelessWidget {
         ),
         onChanged: (igneous) => state.igneous = igneous,
         onFieldSubmitted: (v) => logic.handleLogin(),
+      ),
+    );
+  }
+
+  Widget _buildCookieOptions(BuildContext context) {
+    return GetBuilder<LoginPageLogic>(
+      id: LoginPageLogic.cookieVerificationTypeId,
+      builder: (_) => Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Expanded(child: SizedBox()),
+          Text('useWebview'.tr),
+          Radio<CookieVerificationType>(
+            value: CookieVerificationType.webview,
+            groupValue: state.cookieVerificationType,
+            toggleable: true,
+            onChanged: (value) {
+              state.cookieVerificationType = value ?? CookieVerificationType.normal;
+              logic.updateSafely([LoginPageLogic.cookieVerificationTypeId]);
+            },
+          ),
+          const SizedBox(width: 60),
+          Text('skipCookieVerification'.tr),
+          Radio<CookieVerificationType>(
+            value: CookieVerificationType.skip,
+            groupValue: state.cookieVerificationType,
+            toggleable: true,
+            onChanged: (value) {
+              state.cookieVerificationType = value ?? CookieVerificationType.normal;
+              logic.updateSafely([LoginPageLogic.cookieVerificationTypeId]);
+            },
+          ),
+          const Expanded(child: SizedBox()),
+        ],
       ),
     );
   }

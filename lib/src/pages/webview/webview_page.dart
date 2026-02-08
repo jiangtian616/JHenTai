@@ -17,6 +17,7 @@ class WebviewPage extends StatefulWidget {
 class _WebviewPageState extends State<WebviewPage> {
   late final String title;
   late final Function? pageStartedCallback;
+  late final Function? pageFinishedCallback;
   late final WebViewController controller;
 
   LoadingState loadingState = LoadingState.loading;
@@ -32,6 +33,13 @@ class _WebviewPageState extends State<WebviewPage> {
     } else {
       pageStartedCallback = null;
     }
+    
+    if (Get.arguments is Map && Get.arguments['onPageFinished'] is Function) {
+      pageFinishedCallback = Get.arguments['onPageFinished'];
+    } else {
+      pageFinishedCallback = null;
+    }
+    
 
     CookieUtil.parse2Cookies(Get.arguments['cookies']).forEach((cookie) {
       WebViewCookieManager().setCookie(
@@ -50,7 +58,10 @@ class _WebviewPageState extends State<WebviewPage> {
           onPageStarted: (String url) {
             pageStartedCallback?.call(url, controller);
           },
-          onPageFinished: (_) => setStateSafely(() => loadingState = LoadingState.success),
+          onPageFinished: (String url) {
+            setStateSafely(() => loadingState = LoadingState.success);
+            pageFinishedCallback?.call(url, controller);
+          },
           onWebResourceError: (_) => setStateSafely(() => loadingState = LoadingState.success),
         ),
       )
