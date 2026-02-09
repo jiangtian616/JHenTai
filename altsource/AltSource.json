@@ -61,11 +61,11 @@
       "versions": [
         {
           "version": "8.0.11",
-          "buildVersion": "",
-          "date": "2026-02-08T07:40:22Z",
-          "localizedDescription": "- 支持使用webview辅助cookie登录\\n- 支持跳过cookie登录的用户名验证\\n\\n--------------------\\n\\n- Support using webView to assist with cookie login\\n- Support skipping username verification for cookie login",
-          "downloadURL": "https://github.com/jiangtian616/JHenTai/releases/download/v8.0.11/JHenTai_8.0.11+306.ipa",
-          "size": 15739810
+          "buildVersion": "307",
+          "date": "2026-02-09T13:05:16Z",
+          "localizedDescription": "- 修复iOS平台使用webview辅助cookie登录的问题\\n\\n--------------------\\n\\n- Fix issues with using webview to assist with cookie login on iOS platform",
+          "downloadURL": "https://github.com/jiangtian616/JHenTai/releases/download/v8.0.11+307/JHenTai_8.0.11+307.ipa",
+          "size": 15739546
         }
       ]
     }
