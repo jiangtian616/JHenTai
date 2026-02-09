@@ -316,7 +316,7 @@ class LoginPageLogic extends GetxController {
     }
 
     String? guestHint = await webview.evaluateJavaScript('''
-    document.querySelector('#userlinksguest').innerText ?? ""
+    document.querySelector('#userlinksguest')?.innerText ?? ""
     ''');
 
     bool loginFailed = !isEmptyOrNull(guestHint) && guestHint != 'null';
@@ -331,7 +331,7 @@ class LoginPageLogic extends GetxController {
     }
 
     String? username = await webview.evaluateJavaScript('''
-    document.querySelector('.home > b > a').innerText ?? ""
+    document.querySelector('.home > b > a')?.innerText ?? ""
     ''');
     if (isEmptyOrNull(username) || username == 'null') {
       return;
@@ -371,7 +371,7 @@ class LoginPageLogic extends GetxController {
     }
 
     String? guestHint = await controller.runJavaScriptReturningResult('''
-    document.querySelector('#userlinksguest').innerText ?? ""
+    document.querySelector('#userlinksguest')?.innerText ?? ""
     ''') as String?;
 
     bool loginFailed = !isEmptyOrNull(guestHint) && guestHint != 'null';
@@ -386,7 +386,7 @@ class LoginPageLogic extends GetxController {
     }
 
     String? username = await controller.runJavaScriptReturningResult('''
-    document.querySelector('.home > b > a').innerText ?? ""
+    document.querySelector('.home > b > a')?.innerText ?? ""
     ''') as String?;
     log.info(username ?? '');
     if (isEmptyOrNull(username) || username == 'null') {
