@@ -330,11 +330,18 @@ class LoginPageLogic extends GetxController {
       return;
     }
 
-    String? username = await webview.evaluateJavaScript('''
+    String? rawUsername = await webview.evaluateJavaScript('''
     document.querySelector('.home > b > a')?.innerText ?? ""
     ''');
-    if (isEmptyOrNull(username) || username == 'null') {
+    if (isEmptyOrNull(rawUsername) || rawUsername == 'null') {
       return;
+    }
+
+    String username;
+    try {
+      username = jsonDecode(rawUsername!);
+    } catch (e) {
+      username = rawUsername!;
     }
 
     await ehRequest.storeEHCookies([
@@ -348,7 +355,7 @@ class LoginPageLogic extends GetxController {
       ehSetting.site.value = 'EX';
     }
     await userSetting.saveUserInfo(
-      userName: jsonDecode(username!),
+      userName: username,
       ipbMemberId: int.parse(state.ipbMemberId!),
       ipbPassHash: state.ipbPassHash!,
     );
@@ -385,12 +392,18 @@ class LoginPageLogic extends GetxController {
       return;
     }
 
-    String? username = await controller.runJavaScriptReturningResult('''
+    String? rawUsername = await controller.runJavaScriptReturningResult('''
     document.querySelector('.home > b > a')?.innerText ?? ""
     ''') as String?;
-    log.info(username ?? '');
-    if (isEmptyOrNull(username) || username == 'null') {
+    if (isEmptyOrNull(rawUsername) || rawUsername == 'null') {
       return;
+    }
+
+    String username;
+    try {
+      username = jsonDecode(rawUsername!);
+    } catch (e) {
+      username = rawUsername!;
     }
 
     await ehRequest.storeEHCookies(cookies);
@@ -398,7 +411,7 @@ class LoginPageLogic extends GetxController {
       ehSetting.site.value = 'EX';
     }
     await userSetting.saveUserInfo(
-      userName: jsonDecode(username!),
+      userName: username,
       ipbMemberId: int.parse(state.ipbMemberId!),
       ipbPassHash: state.ipbPassHash!,
     );
