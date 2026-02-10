@@ -33,6 +33,23 @@ class GalleryGridDownloadPageLogic extends GetxController
   GalleryGridDownloadPageState state = GalleryGridDownloadPageState();
 
   @override
+  void onInit() {
+    super.onInit();
+    _loadGalleryImages();
+  }
+
+  /// Load images for all galleries to support lazy loading from earlier memory fix
+  Future<void> _loadGalleryImages() async {
+    for (final gallery in downloadService.gallerys) {
+      if (!downloadService.areGalleryImagesLoaded(gallery.gid)) {
+        await downloadService.ensureGalleryImagesLoaded(gallery.gid);
+        // Trigger UI update for this gallery's image
+        downloadService.update(['${downloadService.downloadImageUrlId}::${gallery.gid}::0']);
+      }
+    }
+  }
+
+  @override
   Scroll2TopStateMixin get scroll2TopState => state;
 
   @override

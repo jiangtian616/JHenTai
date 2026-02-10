@@ -146,6 +146,13 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
     );
   }
 
+  @override
+  void onClose() {
+    state.pageController.removeListener(_readProgressListener);
+    state.pageController.dispose();
+    super.onClose();
+  }
+
   void _readProgressListener() {
     int currentPage = state.pageController.page!.toInt();
     List<int> imageIndexes = computeImagesInPageIndex(currentPage);

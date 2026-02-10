@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../database.dart';
+import '../../service/gallery_download_service.dart' show DownloadStatus;
 
 class GalleryImageDao {
   static Future<List<ImageData>> selectImages() {
@@ -12,6 +13,28 @@ class GalleryImageDao {
           ..where((tbl) => tbl.gid.equals(gid))
           ..orderBy([(image) => OrderingTerm(expression: image.serialNo)]))
         .get();
+  }
+
+  /// Select images for a specific gallery (alias for selectImagesByGalleryId)
+  static Future<List<ImageData>> selectImagesByGid(int gid) {
+    return selectImagesByGalleryId(gid);
+  }
+
+  /// Get download progress summary for all galleries without loading image data.
+  /// Returns a map of gid -> (downloadedCount, totalCount).
+  static Future<Map<int, ({int downloadedCount, int totalCount})>> selectDownloadProgressSummary() async {
+    final result = await appDb.customSelect('''
+      SELECT gid,
+             COUNT(*) as total,
+             SUM(CASE WHEN downloadStatusIndex = ${DownloadStatus.downloaded.index} THEN 1 ELSE 0 END) as downloaded
+      FROM image
+      GROUP BY gid
+    ''').get();
+
+    return Map.fromEntries(result.map((row) => MapEntry(
+      row.read<int>('gid'),
+      (downloadedCount: row.read<int>('downloaded'), totalCount: row.read<int>('total')),
+    )));
   }
 
   static Future<int> insertImage(ImageData image) {

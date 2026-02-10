@@ -226,11 +226,11 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     state.apikey = detailPageInfo.apikey;
     state.nextPageIndexToLoadThumbnails = 1;
 
+    // Run tag translation and block rule filtering in parallel
+    final blockRulesResult = localBlockRuleService.executeRules(state.galleryDetails!.comments);
     await tagTranslationService.translateTagsIfNeeded(state.galleryDetails!.tags);
-
     _addColor2WatchedTags(state.galleryDetails!.tags);
-
-    state.galleryDetails!.comments = await localBlockRuleService.executeRules(state.galleryDetails!.comments);
+    state.galleryDetails!.comments = await blockRulesResult;
 
     state.loadingState = LoadingState.success;
     updateSafely(_judgeUpdateIds());
@@ -716,7 +716,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           isOriginal: archive.isOriginal,
           readProgressRecordStorageKey: archive.gid.toString(),
           images: images,
-          useSuperResolution: superResolutionService.get(archive.gid, SuperResolutionType.archive) != null,
+          useSuperResolution: await superResolutionService.get(archive.gid, SuperResolutionType.archive) != null,
         ),
       );
     }
@@ -1021,7 +1021,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         initialIndex: forceIndex ?? await getReadIndexRecord(),
         readProgressRecordStorageKey: state.galleryUrl.gid.toString(),
         pageCount: gallery.pageCount,
-        useSuperResolution: superResolutionService.get(state.galleryUrl.gid, SuperResolutionType.gallery) != null,
+        useSuperResolution: await superResolutionService.get(state.galleryUrl.gid, SuperResolutionType.gallery) != null,
       ),
     )?.whenComplete(() => Future.delayed(const Duration(milliseconds: 800))).whenComplete(() => updateSafely([readButtonId]));
   }
