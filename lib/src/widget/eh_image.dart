@@ -8,6 +8,9 @@ import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:jhentai/src/service/ml_tts_service.dart';
+import 'dart:math';
 import 'dart:io' as io;
 
 import '../service/gallery_download_service.dart';
@@ -252,12 +255,81 @@ class EHImage extends StatelessWidget {
       Size(containerWidth ?? double.infinity, containerHeight ?? double.infinity),
     );
 
-    return ExtendedRawImage(
-      image: state.extendedImageInfo?.image,
-      height: fittedSizes.destination.height == 0 ? null : fittedSizes.destination.height,
-      width: fittedSizes.destination.width == 0 ? null : fittedSizes.destination.width,
-      scale: state.extendedImageInfo?.scale ?? 1.0,
-      fit: fit,
+    return Obx(() {
+      TextBlock? textBlock = mlTtsService.currentSpeakingTextBlock.value;
+      return ExtendedRawImage(
+        image: state.extendedImageInfo?.image,
+        height: fittedSizes.destination.height == 0 ? null : fittedSizes.destination.height,
+        width: fittedSizes.destination.width == 0 ? null : fittedSizes.destination.width,
+        scale: state.extendedImageInfo?.scale ?? 1.0,
+        fit: fit,
+        afterPaintImage: (Canvas canvas, Rect imageRect, _, __) {
+          // Draw textBlock overlay after the image is painted
+          if (textBlock != null) {
+            _drawTextBlockOverlay(canvas, imageRect, state, textBlock);
+          }
+        },
+      );
+    });
+  }
+
+  void _drawTextBlockOverlay(Canvas canvas, Rect imageRect, ExtendedImageState state, TextBlock textBlock) {
+    if (state.extendedImageInfo == null) {
+      return;
+    }
+
+    // 获取原始图像尺寸
+    final sourceSize = Size(
+      state.extendedImageInfo!.image.width.toDouble(),
+      state.extendedImageInfo!.image.height.toDouble(),
     );
+
+    // 获取图像在画布中的实际尺寸和位置
+    final imageWidth = imageRect.width;
+    final imageHeight = imageRect.height;
+
+    // TextBlock 是基于压缩图片（最大边720px）的坐标，需要映射回原始图片尺寸
+    const compressedSize = 720.0;
+    final originalWidth = sourceSize.width;
+    final originalHeight = sourceSize.height;
+
+    // 计算压缩图片的缩放比例（从原始到压缩）
+    double scaleHeight = compressedSize / originalHeight;
+    double scaleWidth = compressedSize / originalWidth;
+    double scale = max(scaleHeight, scaleWidth);
+
+    final rect = textBlock!.boundingBox;
+
+    // 将 TextBlock 坐标从压缩图片映射回原始图片
+    double rectLeft, rectTop, rectRight, rectBottom;
+    if (scale >= 1) {
+      rectLeft = rect.left;
+      rectTop = rect.top;
+      rectRight = rect.right;
+      rectBottom = rect.bottom;
+    } else {
+      rectLeft = rect.left / scale;
+      rectTop = rect.top / scale;
+      rectRight = rect.right / scale;
+      rectBottom = rect.bottom / scale;
+    }
+
+    // 计算从原始图像到实际显示图像的缩放比例
+    double scaleX = imageWidth / sourceSize.width;
+    double scaleY = imageHeight / sourceSize.height;
+
+    // 应用缩放和偏移
+    const padding = 4.0;
+    final renderRect = Rect.fromLTRB(
+      imageRect.left + rectLeft * scaleX - padding,
+      imageRect.top + rectTop * scaleY - padding,
+      imageRect.left + rectRight * scaleX + padding,
+      imageRect.top + rectBottom * scaleY + padding,
+    );
+
+    final rrect = RRect.fromRectAndRadius(renderRect, const Radius.circular(4));
+
+    // 背景填充
+    canvas.drawRRect(rrect, Paint()..color = Colors.pink.withOpacity(0.3));
   }
 }
