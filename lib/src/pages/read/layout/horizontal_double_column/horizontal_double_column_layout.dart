@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_double_column/horizontal_double_column_layout_state.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/widget/eh_wheel_scroll_listener.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
@@ -38,7 +39,7 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
                 controller: state.photoViewController,
                 initialScale: 1.0,
                 minScale: 1.0,
-                maxScale: 2.5,
+                maxScale: UIConfig.readPageMaxScale,
                 child: PhotoViewGallery.builder(
                   scrollPhysics: const ClampingScrollPhysics(),
                   pageController: state.pageController,
@@ -50,7 +51,7 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
                   builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
                     initialScale: 1.0,
                     minScale: 1.0,
-                    maxScale: 2.5,
+                    maxScale: UIConfig.readPageMaxScale,
                     scaleStateCycle: readSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
                     enableTapDragZoom: readSetting.enableTapDragToScaleUp.isTrue,
                     child: index < 0 || index >= state.pageCount

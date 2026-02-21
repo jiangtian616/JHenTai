@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/pages/read/layout/vertical_list/vertical_list_layout_state.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/widget/eh_wheel_scroll_listener.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -35,7 +36,7 @@ class VerticalListLayout extends BaseLayout {
             controller: state.photoViewController,
             initialScale: 1.0,
             minScale: 1.0,
-            maxScale: 2.5,
+            maxScale: UIConfig.readPageMaxScale,
             scaleStateCycle: readSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
             enableTapDragZoom: readSetting.enableTapDragToScaleUp.isTrue,
             child: EHWheelSpeedControllerForReadPage(

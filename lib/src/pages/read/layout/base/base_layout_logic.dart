@@ -14,6 +14,7 @@ import 'package:get/get_navigation/get_navigation.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:get/get_utils/get_utils.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
@@ -142,7 +143,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     if (photoViewController == null || _lastScale == null) {
       return;
     }
-    photoViewController!.scale = (_lastScale! * event.scale).clamp(1.0, 2.5);
+    photoViewController!.scale = (_lastScale! * event.scale).clamp(1.0, UIConfig.readPageMaxScale);
   }
 
   void onPointerPanZoomEnd(PointerPanZoomEndEvent event) {
@@ -153,7 +154,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     if (photoViewController == null) {
       return;
     }
-    photoViewController!.scale = (photoViewController!.scale! * scaleDelta).clamp(1.0, 2.5);
+    photoViewController!.scale = (photoViewController!.scale! * scaleDelta).clamp(1.0, UIConfig.readPageMaxScale);
   }
 
   void showBottomMenuInOnlineMode(int index, BuildContext context) {
