@@ -64,6 +64,10 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     super.onClose();
   }
 
+  PhotoViewController? get photoViewController => null;
+
+  double? _lastScale;
+
   /// Tap left region or click right arrow key. If read direction is right-to-left, we should call [toNext], otherwise [toPrev]
   void toLeft();
 
@@ -96,6 +100,9 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   }
 
   PhotoViewScaleState scaleStateCycle(PhotoViewScaleState actual) {
+    if (photoViewController?.scale != 1.0) {
+      return PhotoViewScaleState.initial;
+    }
     switch (actual) {
       case PhotoViewScaleState.initial:
         return PhotoViewScaleState.zoomedIn;
@@ -114,11 +121,39 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   }
 
   void onPointerScroll(PointerScrollEvent value) {
+    if (HardwareKeyboard.instance.isControlPressed) {
+      final double delta = value.scrollDelta.dy;
+      final double scaleDelta = delta > 0 ? 0.95 : 1.05;
+      handleScale(scaleDelta);
+      return;
+    }
     if (value.scrollDelta.dy > 0) {
       toNext();
     } else if (value.scrollDelta.dy < 0) {
       toPrev();
     }
+  }
+
+  void onPointerPanZoomStart(PointerPanZoomStartEvent event) {
+    _lastScale = photoViewController?.scale;
+  }
+
+  void onPointerPanZoomUpdate(PointerPanZoomUpdateEvent event) {
+    if (photoViewController == null || _lastScale == null) {
+      return;
+    }
+    photoViewController!.scale = (_lastScale! * event.scale).clamp(1.0, 2.5);
+  }
+
+  void onPointerPanZoomEnd(PointerPanZoomEndEvent event) {
+    _lastScale = null;
+  }
+
+  void handleScale(double scaleDelta) {
+    if (photoViewController == null) {
+      return;
+    }
+    photoViewController!.scale = (photoViewController!.scale! * scaleDelta).clamp(1.0, 2.5);
   }
 
   void showBottomMenuInOnlineMode(int index, BuildContext context) {

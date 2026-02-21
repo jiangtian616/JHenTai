@@ -21,29 +21,41 @@ class HorizontalPageLayout extends BaseLayout {
   Widget buildBody(BuildContext context) {
     return EHWheelListener(
       onPointerScroll: readSetting.isInFitWidthReadDirection ? null : logic.onPointerScroll,
+      onPointerPanZoomStart: logic.onPointerPanZoomStart,
+      onPointerPanZoomUpdate: logic.onPointerPanZoomUpdate,
+      onPointerPanZoomEnd: logic.onPointerPanZoomEnd,
       child: PhotoViewGallery.builder(
-        itemCount: readPageState.readPageInfo.pageCount,
-        scrollPhysics: const ClampingScrollPhysics(),
-        pageController: logic.pageController,
-        cacheExtent: readPageState.readPageInfo.mode == ReadMode.online
-            ? readSetting.preloadPageCount.value.toDouble()
-            : readSetting.preloadPageCountLocal.value.toDouble(),
-        reverse: readSetting.isInRight2LeftDirection,
+        itemCount: 1,
         builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
+          controller: state.photoViewController,
           initialScale: 1.0,
           minScale: 1.0,
           maxScale: 2.5,
-          scaleStateCycle: readSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
-          enableTapDragZoom: readSetting.enableTapDragToScaleUp.isTrue,
-          child: Obx(() {
-            Widget item = readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index);
+          child: PhotoViewGallery.builder(
+            itemCount: readPageState.readPageInfo.pageCount,
+            scrollPhysics: const ClampingScrollPhysics(),
+            pageController: logic.pageController,
+            cacheExtent: readPageState.readPageInfo.mode == ReadMode.online
+                ? readSetting.preloadPageCount.value.toDouble()
+                : readSetting.preloadPageCountLocal.value.toDouble(),
+            reverse: readSetting.isInRight2LeftDirection,
+            builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
+              initialScale: 1.0,
+              minScale: 1.0,
+              maxScale: 2.5,
+              scaleStateCycle: readSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
+              enableTapDragZoom: readSetting.enableTapDragToScaleUp.isTrue,
+              child: Obx(() {
+                Widget item = readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index);
 
-            if (readSetting.isInFitWidthReadDirection) {
-              item = Center(child: SingleChildScrollView(controller: ScrollController(), child: item));
-            }
+                if (readSetting.isInFitWidthReadDirection) {
+                  item = Center(child: SingleChildScrollView(controller: ScrollController(), child: item));
+                }
 
-            return item;
-          }),
+                return item;
+              }),
+            ),
+          ),
         ),
       ),
     );
