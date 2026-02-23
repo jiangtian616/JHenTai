@@ -268,7 +268,20 @@ class AppDb extends _$AppDb {
 
   /// copy files
   Future<void> _updateConfigFileLocation() async {
-    await pathService.appSupportDir?.copy(pathService.getVisibleDir().path);
+    Directory? targetDir = pathService.appSupportDir ?? pathService.appDocDir;
+    Directory? sourceDir = pathService.externalStorageDir;
+    if (targetDir == null || sourceDir == null || targetDir.path == sourceDir.path) {
+      return;
+    }
+
+    try {
+      await targetDir.create(recursive: true);
+      if (await sourceDir.exists()) {
+        await sourceDir.copy(targetDir.path);
+      }
+    } catch (e) {
+      log.warning('Skip config file location migration due to file access error', e);
+    }
   }
 
   Future<void> _deleteImageSizeColumn(Migrator m) async {
@@ -384,7 +397,14 @@ class AppDb extends _$AppDb {
 
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
-    final file = io.File(join(pathService.getVisibleDir().path, 'db.sqlite'));
+    io.File file;
+    try {
+      file = await _resolveDatabaseFile();
+    } catch (e, s) {
+      log.error('Resolve database file failed, fallback to temp dir', e, s);
+      file = io.File(join(pathService.tempDir.path, 'db_fallback.sqlite'));
+      await file.parent.create(recursive: true);
+    }
 
     if (Platform.isAndroid) {
       await applyWorkaroundToOpenSqlite3OnOldAndroidVersions();
@@ -392,8 +412,78 @@ LazyDatabase _openConnection() {
 
     sqlite3.tempDirectory = pathService.tempDir.path;
 
-    return NativeDatabase(file);
+    try {
+      return NativeDatabase(file);
+    } catch (e, s) {
+      log.error('Open database failed, fallback to temp database', e, s);
+      final fallbackFile = io.File(join(pathService.tempDir.path, 'db_fallback.sqlite'));
+      await fallbackFile.parent.create(recursive: true);
+      return NativeDatabase(fallbackFile);
+    }
   });
+}
+
+Future<io.File> _resolveDatabaseFile() async {
+  final io.Directory baseDir = pathService.appSupportDir ?? pathService.appDocDir ?? pathService.tempDir;
+  io.Directory dbDir = io.Directory(join(baseDir.path, 'db'));
+
+  try {
+    await dbDir.create(recursive: true);
+  } catch (e, s) {
+    log.warning('Create db directory failed, fallback to temp dir', e);
+    log.uploadError(e, stackTrace: s);
+    dbDir = pathService.tempDir;
+    await dbDir.create(recursive: true);
+  }
+
+  final io.File newDbFile = io.File(join(dbDir.path, 'db.sqlite'));
+  await _migrateLegacyDbFileIfNeeded(newDbFile);
+  return newDbFile;
+}
+
+Future<void> _migrateLegacyDbFileIfNeeded(io.File targetDbFile) async {
+  try {
+    if (await targetDbFile.exists()) {
+      return;
+    }
+
+    final Set<String> legacyDirPaths = {
+      if (pathService.externalStorageDir != null) pathService.externalStorageDir!.path,
+      if (pathService.appDocDir != null) pathService.appDocDir!.path,
+    };
+
+    for (final String legacyDirPath in legacyDirPaths) {
+      final io.File legacyDbFile = io.File(join(legacyDirPath, 'db.sqlite'));
+      if (legacyDbFile.path == targetDbFile.path) {
+        continue;
+      }
+
+      try {
+        if (!await legacyDbFile.exists()) {
+          continue;
+        }
+
+        await targetDbFile.parent.create(recursive: true);
+        await legacyDbFile.copy(targetDbFile.path);
+
+        final io.File legacyWalFile = io.File('${legacyDbFile.path}-wal');
+        final io.File legacyShmFile = io.File('${legacyDbFile.path}-shm');
+        if (await legacyWalFile.exists()) {
+          await legacyWalFile.copy('${targetDbFile.path}-wal');
+        }
+        if (await legacyShmFile.exists()) {
+          await legacyShmFile.copy('${targetDbFile.path}-shm');
+        }
+        return;
+      } catch (e, s) {
+        log.warning('Migrate legacy database failed, continue startup', e);
+        log.uploadError(e, stackTrace: s);
+      }
+    }
+  } catch (e, s) {
+    log.warning('Scan legacy database failed, continue startup', e);
+    log.uploadError(e, stackTrace: s);
+  }
 }
 
 AppDb appDb = AppDb();
