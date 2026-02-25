@@ -16,6 +16,10 @@ class StorageService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean
   bool _storageAvailable = false;
 
   Directory _resolveStorageBaseDir() {
+    if (pathService.isAndroid16OrAbove) {
+      return pathService.getInternalRootDir();
+    }
+
     return pathService.appSupportDir ?? pathService.appDocDir ?? pathService.externalStorageDir ?? pathService.tempDir;
   }
 
@@ -91,6 +95,10 @@ class StorageService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean
   }
 
   Future<void> _migrateOldConfigFile(Directory targetDir) async {
+    if (pathService.isAndroid16OrAbove) {
+      return;
+    }
+
     final File targetConfig = File(join(targetDir.path, '$storageFileName.gs'));
     final File targetBak = File(join(targetDir.path, '$storageFileName.bak'));
     final List<Directory> legacyDirs = [

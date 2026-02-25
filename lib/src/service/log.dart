@@ -180,7 +180,9 @@ class LogService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
       return;
     }
 
-    final Directory? baseDir = pathService.appSupportDir ?? pathService.appDocDir ?? pathService.externalStorageDir;
+    final Directory? baseDir = pathService.isAndroid16OrAbove
+        ? pathService.getInternalRootDir()
+        : (pathService.appSupportDir ?? pathService.appDocDir ?? pathService.externalStorageDir);
     if (baseDir == null) {
       _disableFileLogging = true;
       _fallbackConsole('Init log dir failed: no available base directory, fallback to console logging.');

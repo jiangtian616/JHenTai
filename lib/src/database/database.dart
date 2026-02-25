@@ -268,6 +268,10 @@ class AppDb extends _$AppDb {
 
   /// copy files
   Future<void> _updateConfigFileLocation() async {
+    if (pathService.isAndroid16OrAbove) {
+      return;
+    }
+
     Directory? targetDir = pathService.appSupportDir ?? pathService.appDocDir;
     Directory? sourceDir = pathService.externalStorageDir;
     if (targetDir == null || sourceDir == null || targetDir.path == sourceDir.path) {
@@ -424,7 +428,9 @@ LazyDatabase _openConnection() {
 }
 
 Future<io.File> _resolveDatabaseFile() async {
-  final io.Directory baseDir = pathService.appSupportDir ?? pathService.appDocDir ?? pathService.tempDir;
+  final io.Directory baseDir = pathService.isAndroid16OrAbove
+      ? pathService.getInternalRootDir()
+      : (pathService.appSupportDir ?? pathService.appDocDir ?? pathService.tempDir);
   io.Directory dbDir = io.Directory(join(baseDir.path, 'db'));
 
   try {
@@ -442,6 +448,10 @@ Future<io.File> _resolveDatabaseFile() async {
 }
 
 Future<void> _migrateLegacyDbFileIfNeeded(io.File targetDbFile) async {
+  if (pathService.isAndroid16OrAbove) {
+    return;
+  }
+
   try {
     if (await targetDbFile.exists()) {
       return;

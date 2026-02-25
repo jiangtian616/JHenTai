@@ -69,10 +69,18 @@ class AppUpdateService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBe
   List<JHLifeCircleBean> get initDependencies => super.initDependencies..addAll(updateHandlers.map((h) => h.initDependencies).expand((e) => e));
 
   Directory? _resolveVersionDir() {
+    if (pathService.isAndroid16OrAbove) {
+      return pathService.getInternalRootDir();
+    }
+
     return pathService.appSupportDir ?? pathService.appDocDir ?? pathService.externalStorageDir;
   }
 
   Future<void> _migrateLegacyVersionFile(File targetFile) async {
+    if (pathService.isAndroid16OrAbove) {
+      return;
+    }
+
     try {
       File oldFile = File(join(pathService.getVisibleDir().path, 'jhentai.version'));
       if (oldFile.path == targetFile.path) {
