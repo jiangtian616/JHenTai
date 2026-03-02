@@ -141,7 +141,10 @@ class EHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
           return;
         }
 
-        if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.badResponse || e.type == DioExceptionType.connectionError) {
+        if (e.type == DioExceptionType.connectionTimeout ||
+            e.type == DioExceptionType.badResponse ||
+            e.type == DioExceptionType.connectionError ||
+            _isHandshakeError(e)) {
           String host = e.requestOptions.extra[domainFrontingExtraKey]['host'];
           String ip = e.requestOptions.extra[domainFrontingExtraKey]['ip'];
           _ehIpProvider.addUnavailableIp(host, ip);
@@ -949,6 +952,41 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return isolateService.run((list) => parser(list[0], list[1]), [response.headers, response.data]);
   }
 
+  static const int _maxRetryOnHandshakeError = 3;
+
+  bool _isHandshakeError(Object error) {
+    if (error is HandshakeException) {
+      return true;
+    }
+    if (error is DioException) {
+      if (error.error is HandshakeException) {
+        return true;
+      }
+      if (error.type == DioExceptionType.connectionError) {
+        final errStr = error.error?.toString() ?? '';
+        if (errStr.contains('HandshakeException') || errStr.contains('Connection terminated during handshake')) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /// Mark domain fronting IP as unavailable when a handshake error occurs,
+  /// so the next retry can use a different IP.
+  void _markDomainFrontingIpUnavailable(RequestOptions? requestOptions) {
+    if (requestOptions == null) {
+      return;
+    }
+    final dfExtra = requestOptions.extra[domainFrontingExtraKey];
+    if (dfExtra != null && dfExtra is Map) {
+      String host = dfExtra['host'];
+      String ip = dfExtra['ip'];
+      _ehIpProvider.addUnavailableIp(host, ip);
+      log.info('Handshake error, mark unavailable host-ip: $host-$ip');
+    }
+  }
+
   Future<Response> _getWithErrorHandler<T>(
     String url, {
     Map<String, dynamic>? queryParameters,
@@ -956,19 +994,16 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     CancelToken? cancelToken,
     ProgressCallback? onReceiveProgress,
   }) async {
-    Response response;
-
-    try {
-      response = await _dio.get(
+    Response response = await _requestWithRetry(
+      () => _dio.get(
         url,
         queryParameters: queryParameters,
         options: options,
         cancelToken: cancelToken,
         onReceiveProgress: onReceiveProgress,
-      );
-    } on DioException catch (e) {
-      throw _convertExceptionIfGalleryDeleted(e);
-    }
+      ),
+      url,
+    );
 
     try {
       _emitEHExceptionIfFailed(response);
@@ -989,9 +1024,8 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     ProgressCallback? onSendProgress,
     ProgressCallback? onReceiveProgress,
   }) async {
-    Response response;
-    try {
-      response = await _dio.post(
+    Response response = await _requestWithRetry(
+      () => _dio.post(
         url,
         data: data,
         queryParameters: queryParameters,
@@ -999,14 +1033,59 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         cancelToken: cancelToken,
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
-      );
-    } on DioException catch (e) {
-      throw _convertExceptionIfGalleryDeleted(e);
-    }
+      ),
+      url,
+    );
 
     _emitEHExceptionIfFailed(response);
 
     return response;
+  }
+
+  /// Retry wrapper that handles [HandshakeException] and [SocketException]
+  /// which are common transient errors on iOS, especially with domain fronting.
+  /// These errors often succeed on immediate retry.
+  Future<Response> _requestWithRetry(
+    Future<Response> Function() request,
+    String url,
+  ) async {
+    for (int attempt = 0;; attempt++) {
+      try {
+        return await request();
+      } on DioException catch (e) {
+        if (_isHandshakeError(e) && attempt < _maxRetryOnHandshakeError) {
+          log.warning('Handshake error on attempt ${attempt + 1}/$_maxRetryOnHandshakeError, retrying... url=$url');
+          _markDomainFrontingIpUnavailable(e.requestOptions);
+          await Future.delayed(Duration(milliseconds: 200 * (attempt + 1)));
+          continue;
+        }
+        throw _convertExceptionIfGalleryDeleted(e);
+      } on HandshakeException catch (e) {
+        if (attempt < _maxRetryOnHandshakeError) {
+          log.warning('HandshakeException on attempt ${attempt + 1}/$_maxRetryOnHandshakeError, retrying... url=$url');
+          await Future.delayed(Duration(milliseconds: 200 * (attempt + 1)));
+          continue;
+        }
+        throw DioException(
+          type: DioExceptionType.connectionError,
+          requestOptions: RequestOptions(path: url),
+          error: e,
+          message: e.toString(),
+        );
+      } on SocketException catch (e) {
+        if (attempt < _maxRetryOnHandshakeError) {
+          log.warning('SocketException on attempt ${attempt + 1}/$_maxRetryOnHandshakeError, retrying... url=$url');
+          await Future.delayed(Duration(milliseconds: 200 * (attempt + 1)));
+          continue;
+        }
+        throw DioException(
+          type: DioExceptionType.connectionError,
+          requestOptions: RequestOptions(path: url),
+          error: e,
+          message: e.toString(),
+        );
+      }
+    }
   }
 
   Exception _convertExceptionIfGalleryDeleted(DioException e) {
