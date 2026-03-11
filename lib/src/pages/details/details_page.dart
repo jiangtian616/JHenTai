@@ -328,6 +328,16 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
               anchors: editableTextState.contextMenuAnchors,
             );
 
+            toolbar.buttonItems?.add(
+              ContextMenuButtonItem(
+                label: 'block'.tr,
+                onPressed: () {
+                  ContextMenuController.removeAny();
+                  logic.blockGallery();
+                },
+              ),
+            );
+
             if (!editableTextState
                 .currentTextEditingValue.selection.isCollapsed) {
               toolbar.buttonItems?.add(

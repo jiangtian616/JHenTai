@@ -1409,6 +1409,19 @@ class DetailsPageLogic extends GetxController
     toast('success'.tr);
   }
 
+  Future<void> blockGallery() async {
+    await localBlockRuleService.upsertBlockRule(
+      LocalBlockRule(
+        groupId: newUUID(),
+        target: LocalBlockTargetEnum.gallery,
+        attribute: LocalBlockAttributeEnum.gid,
+        pattern: LocalBlockPatternEnum.equal,
+        expression: state.galleryUrl.gid.toString(),
+      ),
+    );
+    toast('success'.tr);
+  }
+
   Future<void> goToReadPage([int? forceIndex]) async {
     /// online
     if (galleryDownloadService

@@ -63,8 +63,8 @@ class zh_CN {
       'logout': '注销',
       'passwordLogin': '密码登录',
       'cookieLogin': 'cookie登录',
-      'useWebview':'Webview',
-      'skipCookieVerification':'跳过验证',
+      'useWebview': 'Webview',
+      'skipCookieVerification': '跳过验证',
       'youHaveLoggedInAs': '您已登录:   ',
       'cookieIsBlack': 'cookie为空',
       'cookieFormatError': 'cookie格式错误',
@@ -182,6 +182,7 @@ class zh_CN {
       'addTagFailed': '添加标签失败',
       'parentGallery': '父画廊',
       'blockUploaderLocally': '本地屏蔽上传者',
+      'block': '屏蔽',
 
       /// detail dialog
       'galleryUrl': '画廊链接',
