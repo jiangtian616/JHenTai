@@ -64,8 +64,8 @@ class pt_BR {
       'logout': 'Logout',
       'passwordLogin': 'Senha de login',
       'cookieLogin': 'Cookie de login',
-      'useWebview':'Use Webview',
-      'skipCookieVerification':'Skip Verification',
+      'useWebview': 'Use Webview',
+      'skipCookieVerification': 'Skip Verification',
       'youHaveLoggedInAs': 'Olá:   ',
       'cookieIsBlack': 'Cookie está preto/vazio',
       'cookieFormatError': 'Error no formato do cookie',
@@ -183,6 +183,7 @@ class pt_BR {
       'addTagFailed': 'Add Tag Failed',
       'parentGallery': 'Parent',
       'blockUploaderLocally': 'Block user locally',
+      'block': 'Block',
 
       /// detail dialog
       'galleryUrl': 'Gallery Url',

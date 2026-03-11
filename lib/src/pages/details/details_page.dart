@@ -299,6 +299,16 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
               anchors: editableTextState.contextMenuAnchors,
             );
 
+            toolbar.buttonItems?.add(
+              ContextMenuButtonItem(
+                label: 'block'.tr,
+                onPressed: () {
+                  ContextMenuController.removeAny();
+                  logic.blockGallery();
+                },
+              ),
+            );
+
             if (!editableTextState.currentTextEditingValue.selection.isCollapsed) {
               toolbar.buttonItems?.add(
                 ContextMenuButtonItem(
@@ -1370,18 +1380,18 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                                 child: LayoutBuilder(
                                   builder: (_, constraints) => downloadedImage?.downloadStatus == DownloadStatus.downloaded
                                       ? EHImage(
-                                    galleryImage: downloadedImage!,
-                                    containerHeight: constraints.maxHeight,
-                                    containerWidth: constraints.maxWidth,
-                                    borderRadius: BorderRadius.circular(8),
-                                    maxBytes: 128 * 1024,
-                                  )
+                                          galleryImage: downloadedImage!,
+                                          containerHeight: constraints.maxHeight,
+                                          containerWidth: constraints.maxWidth,
+                                          borderRadius: BorderRadius.circular(8),
+                                          maxBytes: 128 * 1024,
+                                        )
                                       : EHThumbnail(
-                                    thumbnail: state.galleryDetails!.thumbnails[index],
-                                    containerHeight: constraints.maxHeight,
-                                    containerWidth: constraints.maxWidth,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
+                                          thumbnail: state.galleryDetails!.thumbnails[index],
+                                          containerHeight: constraints.maxHeight,
+                                          containerWidth: constraints.maxWidth,
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
                                 ),
                               ),
                             ),

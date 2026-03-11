@@ -63,8 +63,8 @@ class ru_RU {
       'logout': 'Выйти',
       'passwordLogin': 'Вход по паролю',
       'cookieLogin': 'Вход по Cookie',
-      'useWebview':'Use Webview',
-      'skipCookieVerification':'Skip Verification',
+      'useWebview': 'Use Webview',
+      'skipCookieVerification': 'Skip Verification',
       'youHaveLoggedInAs': 'Здравствуйте:   ',
       'cookieIsBlack': 'Cookie недействителен',
       'cookieFormatError': 'Ошибка формата Cookie',
@@ -186,6 +186,7 @@ class ru_RU {
       'addTagFailed': 'Не удалось добавить тег',
       'parentGallery': 'Родительская галерея',
       'blockUploaderLocally': 'Заблокировать пользователя локально',
+      'block': 'Block',
 
       /// detail dialog
       'galleryUrl': 'URL Галереи',
