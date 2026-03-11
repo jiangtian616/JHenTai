@@ -314,7 +314,14 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     _sortArchives();
 
-    return _updateArchiveInDatabase(gid);
+    bool success = await _updateArchiveInDatabase(gid);
+    if (!success) {
+      return false;
+    }
+
+    _updateArchiveInfoInDisk(gid);
+
+    return true;
   }
 
   Future<void> renameGroup(String oldGroup, String newGroup) async {
@@ -334,6 +341,10 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
       await deleteGroup(oldGroup);
     });
+
+    for (ArchiveDownloadedData a in archiveDownloadedDatas) {
+      await _updateArchiveInfoInDisk(a.gid);
+    }
 
     _sortArchives();
   }
@@ -393,6 +404,10 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     });
 
     _sortArchives();
+
+    for (ArchiveDownloadedData archive in archives) {
+      await _updateArchiveInfoInDisk(archive.gid);
+    }
   }
 
   /// Use meta in each archive folder to restore download tasks, then sync to database.
@@ -1216,6 +1231,21 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     await file.writeAsString(jsonEncode(archive.toJson()));
+  }
+
+  Future<void> _updateArchiveInfoInDisk(int gid) async {
+    ArchiveDownloadedData? archive = archives.firstWhereOrNull((a) => a.gid == gid);
+    ArchiveDownloadInfo? archiveDownloadInfo = archiveDownloadInfos[gid];
+    if (archive == null || archiveDownloadInfo == null) {
+      return;
+    }
+
+    ArchiveDownloadedData archiveWithUpdatedInfo = archive.copyWith(
+      sortOrder: archiveDownloadInfo.sortOrder,
+      groupName: archiveDownloadInfo.group,
+    );
+
+    return _saveArchiveInfoInDisk(archiveWithUpdatedInfo);
   }
 
   Future<void> _deletePackingFileInDisk(ArchiveDownloadedData archive) async {
