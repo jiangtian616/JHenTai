@@ -149,6 +149,14 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                           children: [Text('history'.tr), const Icon(Icons.history)],
                         ),
                       ),
+                    if (state.galleryDetails != null)
+                      PopupMenuItem(
+                        value: 5,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [Text('block'.tr), const Icon(Icons.block)],
+                        ),
+                      ),
                   ];
                 },
                 onSelected: (value) {
@@ -170,6 +178,9 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                   }
                   if (value == 4) {
                     logic.handleTapHistoryButton(context);
+                  }
+                  if (value == 5) {
+                    logic.blockGallery();
                   }
                 },
               );
@@ -297,16 +308,6 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
             AdaptiveTextSelectionToolbar toolbar = AdaptiveTextSelectionToolbar.buttonItems(
               buttonItems: editableTextState.contextMenuButtonItems,
               anchors: editableTextState.contextMenuAnchors,
-            );
-
-            toolbar.buttonItems?.add(
-              ContextMenuButtonItem(
-                label: 'block'.tr,
-                onPressed: () {
-                  ContextMenuController.removeAny();
-                  logic.blockGallery();
-                },
-              ),
             );
 
             if (!editableTextState.currentTextEditingValue.selection.isCollapsed) {
