@@ -47,7 +47,7 @@ import '../utils/uuid_util.dart';
 AppUpdateService appUpdateService = AppUpdateService();
 
 class AppUpdateService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
-  late File file;
+  File? file;
   int? fromVersion;
   static const int toVersion = 12;
 
@@ -68,13 +68,54 @@ class AppUpdateService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBe
   @override
   List<JHLifeCircleBean> get initDependencies => super.initDependencies..addAll(updateHandlers.map((h) => h.initDependencies).expand((e) => e));
 
+  Directory? _resolveVersionDir() {
+    if (pathService.isAndroid16OrAbove) {
+      return pathService.getInternalRootDir();
+    }
+
+    return pathService.appSupportDir ?? pathService.appDocDir ?? pathService.externalStorageDir;
+  }
+
+  Future<void> _migrateLegacyVersionFile(File targetFile) async {
+    if (pathService.isAndroid16OrAbove) {
+      return;
+    }
+
+    try {
+      File oldFile = File(join(pathService.getVisibleDir().path, 'jhentai.version'));
+      if (oldFile.path == targetFile.path) {
+        return;
+      }
+
+      if (await oldFile.exists() && !await targetFile.exists()) {
+        await targetFile.parent.create(recursive: true);
+        await oldFile.copy(targetFile.path);
+      }
+    } catch (e, s) {
+      log.error('Migrate legacy jhentai.version failed', e, s);
+    }
+  }
+
   @override
   Future<void> doInitBean() async {
-    file = File(join(pathService.getVisibleDir().path, 'jhentai.version'));
-    if (file.existsSync()) {
-      fromVersion = int.tryParse(await file.readAsString());
+    Directory? versionDir = _resolveVersionDir();
+    if (versionDir == null) {
+      log.warning('AppUpdateService cannot resolve version directory, use in-memory version only.');
     } else {
-      file.create().then((_) => file.writeAsString(toVersion.toString()));
+      try {
+        await versionDir.create(recursive: true);
+        file = File(join(versionDir.path, 'jhentai.version'));
+        await _migrateLegacyVersionFile(file!);
+
+        if (await file!.exists()) {
+          fromVersion = int.tryParse(await file!.readAsString());
+        } else {
+          await file!.parent.create(recursive: true);
+          await file!.writeAsString(toVersion.toString());
+        }
+      } catch (e, s) {
+        log.error('Init jhentai.version failed, continue with defaults', e, s);
+      }
     }
 
     log.debug('AppUpdateService fromVersion: $fromVersion, toVersion: $toVersion');
@@ -105,7 +146,16 @@ class AppUpdateService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBe
 
     await Future.wait(futures);
 
-    await file.writeAsString(toVersion.toString());
+    if (file == null) {
+      return;
+    }
+
+    try {
+      await file!.parent.create(recursive: true);
+      await file!.writeAsString(toVersion.toString());
+    } catch (e, s) {
+      log.error('Persist jhentai.version failed', e, s);
+    }
   }
 }
 
