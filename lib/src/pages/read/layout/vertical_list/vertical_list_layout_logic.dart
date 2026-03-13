@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/pages/read/layout/vertical_list/vertical_list_layout_state.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../../../setting/read_setting.dart';
@@ -16,6 +17,9 @@ class VerticalListLayoutLogic extends BaseLayoutLogic {
   final String verticalLayoutId = 'verticalLayoutId';
 
   VerticalListLayoutState state = VerticalListLayoutState();
+  
+  @override
+  PhotoViewController get photoViewController => state.photoViewController;
 
   late Worker imageRegionWidthRatioListener;
 
