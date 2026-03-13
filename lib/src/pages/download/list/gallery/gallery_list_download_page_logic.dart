@@ -42,6 +42,20 @@ class GalleryListDownloadPageLogic extends GetxController
     state.displayGroupsCompleter.complete();
 
     maxGalleryNum4AnimationListener = ever(performanceSetting.maxGalleryNum4Animation, (_) => updateSafely([bodyId]));
+
+    // Load images for all galleries to support lazy loading from earlier memory fix
+    _loadGalleryImages();
+  }
+
+  /// Load images for all galleries to support lazy loading
+  Future<void> _loadGalleryImages() async {
+    for (final gallery in downloadService.gallerys) {
+      if (!downloadService.areGalleryImagesLoaded(gallery.gid)) {
+        await downloadService.ensureGalleryImagesLoaded(gallery.gid);
+        // Trigger UI update for this gallery's image
+        downloadService.update(['${downloadService.downloadImageUrlId}::${gallery.gid}::0']);
+      }
+    }
   }
 
   @override

@@ -27,22 +27,24 @@ class _EHDashboardCardState extends State<EHDashboardCard> {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(6),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => toRoute(
-          Routes.details,
-          arguments: DetailsPageArgument(galleryUrl: widget.gallery.galleryUrl, gallery: widget.gallery),
-        ),
+    return RepaintBoundary(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(6),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => toRoute(
+            Routes.details,
+            arguments: DetailsPageArgument(galleryUrl: widget.gallery.galleryUrl, gallery: widget.gallery),
+          ),
 
-        /// show info after image load success
-        child: Stack(
-          children: [
-            _buildCover(widget.gallery.cover),
-            if (loadSuccess) Positioned(child: _buildShade(), height: 60, width: UIConfig.dashboardCardSize, bottom: 0),
-            if (loadSuccess) Positioned(child: _buildGalleryDesc(), width: UIConfig.dashboardCardSize, bottom: 10),
-          ],
+          /// show info after image load success
+          child: Stack(
+            children: [
+              _buildCover(widget.gallery.cover),
+              if (loadSuccess) Positioned(child: _buildShade(), height: 60, width: UIConfig.dashboardCardSize, bottom: 0),
+              if (loadSuccess) Positioned(child: _buildGalleryDesc(), width: UIConfig.dashboardCardSize, bottom: 10),
+            ],
+          ),
         ),
       ),
     );
@@ -53,6 +55,7 @@ class _EHDashboardCardState extends State<EHDashboardCard> {
       containerHeight: UIConfig.dashboardCardSize,
       containerWidth: UIConfig.dashboardCardSize,
       galleryImage: image,
+      clearMemoryCacheWhenDispose: false,
       fit: BoxFit.cover,
       completedWidgetBuilder: (_) {
         Get.engine.addPostFrameCallback((_) {

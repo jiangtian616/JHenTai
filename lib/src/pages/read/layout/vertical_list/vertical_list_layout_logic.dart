@@ -39,9 +39,9 @@ class VerticalListLayoutLogic extends BaseLayoutLogic {
 
   @override
   void onClose() {
-    super.onClose();
-
+    state.itemPositionsListener.itemPositions.removeListener(_readProgressListener);
     imageRegionWidthRatioListener.dispose();
+    super.onClose();
   }
 
   @override

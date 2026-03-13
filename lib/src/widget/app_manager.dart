@@ -8,6 +8,7 @@ import 'package:jhentai/src/extension/get_logic_extension.dart';
 
 import '../config/theme_config.dart';
 import '../config/ui_config.dart';
+import '../main.dart' show disposeAllBeans;
 import '../routes/routes.dart';
 import '../setting/security_setting.dart';
 import '../setting/style_setting.dart';
@@ -93,6 +94,8 @@ class _AppManagerState extends State<AppManager> with WidgetsBindingObserver {
     AppManager.unRegisterAppLaunchCallback(_addSecureFlagForAndroid);
     AppManager.unRegisterDidChangePlatformBrightnessCallback(_changeTheme);
     AppManager.unRegisterDidHaveMemoryPressureCallback(_logMemoryPressure);
+    // Dispose all beans when app is terminated
+    disposeAllBeans();
     super.dispose();
   }
 

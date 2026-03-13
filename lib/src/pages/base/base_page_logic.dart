@@ -19,6 +19,7 @@ import '../../exception/eh_site_exception.dart';
 import '../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../mixin/scroll_to_top_state_mixin.dart';
 import '../../model/gallery.dart';
+import '../../model/gallery_tag.dart';
 import '../../network/eh_request.dart';
 import '../../routes/routes.dart';
 import '../../service/local_block_rule_service.dart';
@@ -421,12 +422,16 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     await _translateGalleryTagsIfNeeded(gallerys);
 
+    _preSortTagsForDisplay(gallerys);
+
     List<Gallery> filteredGallerys = await _filterByBlockingRules(gallerys);
 
     if (preferenceSetting.preloadGalleryCover.isTrue) {
-      for (Gallery gallery in gallerys) {
-        getNetworkImageData(gallery.cover.url, useCache: true);
-      }
+      // Batch prefetch first 20 covers with controlled concurrency
+      final covers = gallerys.take(20).map((g) => g.cover.url).toList();
+      Future.wait(
+        covers.map((url) => getNetworkImageData(url, useCache: true)),
+      );
     }
 
     return filteredGallerys;
@@ -455,5 +460,26 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     await Future.wait(gallerys.map((gallery) {
       return tagTranslationService.translateTagsIfNeeded(gallery.tags);
     }).toList());
+  }
+
+  void _preSortTagsForDisplay(List<Gallery> gallerys) {
+    for (Gallery gallery in gallerys) {
+      List<GalleryTag> mergedList = [];
+      gallery.tags.forEach((namespace, galleryTags) {
+        mergedList.addAll(galleryTags);
+      });
+      mergedList.sort((a, b) {
+        bool aWatched = a.backgroundColor != null;
+        bool bWatched = b.backgroundColor != null;
+        if (aWatched && !bWatched) {
+          return -1;
+        } else if (!aWatched && bWatched) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
+      gallery.sortedTagsForDisplay = mergedList;
+    }
   }
 }
