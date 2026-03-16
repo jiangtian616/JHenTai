@@ -229,6 +229,13 @@ mixin ArchiveDownloadPageLogicMixin on GetxController
               },
             ),
           CupertinoActionSheetAction(
+            child: Text('pushArchiveToAria2'.tr),
+            onPressed: () {
+              backRoute();
+              archiveDownloadService.pushArchiveToAria2(archive);
+            },
+          ),
+          CupertinoActionSheetAction(
             child: Text('changeGroup'.tr),
             onPressed: () {
               backRoute();

@@ -32,6 +32,11 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   RxBool manageArchiveDownloadConcurrency = true.obs;
   RxBool deleteArchiveFileAfterDownload = true.obs;
   RxBool restoreTasksAutomatically = false.obs;
+  RxBool enableAria2Push = false.obs;
+  RxString aria2RpcUrl = 'http://127.0.0.1:6800/jsonrpc'.obs;
+  RxString aria2Secret = ''.obs;
+  RxString aria2DownloadDir = ''.obs;
+  RxInt aria2ConnectTimeout = 8000.obs;
 
   @override
   ConfigEnum get configEnum => ConfigEnum.downloadSetting;
@@ -63,6 +68,11 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     manageArchiveDownloadConcurrency.value = map['manageArchiveDownloadConcurrency'] ?? manageArchiveDownloadConcurrency.value;
     deleteArchiveFileAfterDownload.value = map['deleteArchiveFileAfterDownload'] ?? deleteArchiveFileAfterDownload.value;
     restoreTasksAutomatically.value = map['restoreTasksAutomatically'] ?? restoreTasksAutomatically.value;
+    enableAria2Push.value = map['enableAria2Push'] ?? enableAria2Push.value;
+    aria2RpcUrl.value = map['aria2RpcUrl'] ?? aria2RpcUrl.value;
+    aria2Secret.value = map['aria2Secret'] ?? aria2Secret.value;
+    aria2DownloadDir.value = map['aria2DownloadDir'] ?? aria2DownloadDir.value;
+    aria2ConnectTimeout.value = map['aria2ConnectTimeout'] ?? aria2ConnectTimeout.value;
   }
 
   @override
@@ -83,6 +93,11 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
       'manageArchiveDownloadConcurrency': manageArchiveDownloadConcurrency.value,
       'deleteArchiveFileAfterDownload': deleteArchiveFileAfterDownload.value,
       'restoreTasksAutomatically': restoreTasksAutomatically.value,
+      'enableAria2Push': enableAria2Push.value,
+      'aria2RpcUrl': aria2RpcUrl.value,
+      'aria2Secret': aria2Secret.value,
+      'aria2DownloadDir': aria2DownloadDir.value,
+      'aria2ConnectTimeout': aria2ConnectTimeout.value,
     });
   }
 
@@ -195,6 +210,36 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   Future<void> saveRestoreTasksAutomatically(bool value) async {
     log.debug('saveRestoreTasksAutomatically:$value');
     restoreTasksAutomatically.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveEnableAria2Push(bool value) async {
+    log.debug('saveEnableAria2Push:$value');
+    enableAria2Push.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveAria2RpcUrl(String value) async {
+    log.debug('saveAria2RpcUrl:$value');
+    aria2RpcUrl.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveAria2Secret(String value) async {
+    log.debug('saveAria2Secret:${value.isEmpty ? '<empty>' : '<non-empty>'}');
+    aria2Secret.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveAria2DownloadDir(String value) async {
+    log.debug('saveAria2DownloadDir:$value');
+    aria2DownloadDir.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveAria2ConnectTimeout(int value) async {
+    log.debug('saveAria2ConnectTimeout:$value');
+    aria2ConnectTimeout.value = value;
     await saveBeanConfig();
   }
 

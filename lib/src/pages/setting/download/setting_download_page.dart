@@ -18,10 +18,12 @@ import 'package:path/path.dart';
 
 import '../../../routes/routes.dart';
 import '../../../service/archive_download_service.dart';
+import '../../../service/aria2_service.dart';
 import '../../../service/gallery_download_service.dart';
 import '../../../service/log.dart';
 import '../../../utils/permission_util.dart';
 import '../../../utils/route_util.dart';
+import '../../../utils/snack_util.dart';
 import '../../../widget/eh_download_dialog.dart';
 
 class SettingDownloadPage extends StatefulWidget {
@@ -61,6 +63,8 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
               _buildDefaultGalleryGroup(context),
               _buildDefaultArchiveGroup(context),
               _buildArchiveBotSettings(),
+              _buildEnableAria2Push(),
+              _buildAria2Setting(context),
               _buildDownloadConcurrency(),
               _buildSpeedLimit(context),
               _buildDownloadAllGallerysOfSamePriority(),
@@ -204,6 +208,37 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       subtitle: Text('archiveBotSettingsHint'.tr),
       trailing: const Icon(Icons.keyboard_arrow_right),
       onTap: () => toRoute(Routes.archiveBotSettings),
+    );
+  }
+
+  Widget _buildEnableAria2Push() {
+    return SwitchListTile(
+      title: Text('enableAria2Push'.tr),
+      subtitle: Text('enableAria2PushHint'.tr),
+      value: downloadSetting.enableAria2Push.value,
+      onChanged: downloadSetting.saveEnableAria2Push,
+    );
+  }
+
+  Widget _buildAria2Setting(BuildContext context) {
+    String rpcUrl = downloadSetting.aria2RpcUrl.value.trim().isEmpty ? 'aria2RpcUrlHint'.tr : downloadSetting.aria2RpcUrl.value;
+    String downloadDir = downloadSetting.aria2DownloadDir.value.trim().isEmpty ? 'default'.tr : downloadSetting.aria2DownloadDir.value;
+
+    return ListTile(
+      title: Text('aria2Settings'.tr),
+      subtitle: Text('${'aria2RpcUrl'.tr}: ${rpcUrl.breakWord}\n${'aria2DownloadDir'.tr}: ${downloadDir.breakWord}'),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            onPressed: _testAria2Connection,
+            icon: const Icon(Icons.wifi_tethering),
+            tooltip: 'testConnection'.tr,
+          ),
+          const Icon(Icons.keyboard_arrow_right),
+        ],
+      ),
+      onTap: () => _showAria2SettingsDialog(context),
     );
   }
 
@@ -449,5 +484,109 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       '${'restoredGalleryCount'.tr}: $restoredGalleryCount\n${'restoredArchiveCount'.tr}: $restoredArchiveCount',
       isShort: false,
     );
+  }
+
+  Future<void> _showAria2SettingsDialog(BuildContext context) async {
+    TextEditingController rpcUrlController = TextEditingController(text: downloadSetting.aria2RpcUrl.value);
+    TextEditingController secretController = TextEditingController(text: downloadSetting.aria2Secret.value);
+    TextEditingController dirController = TextEditingController(text: downloadSetting.aria2DownloadDir.value);
+    int timeout = downloadSetting.aria2ConnectTimeout.value;
+    bool obscureSecret = true;
+
+    bool? result = await showDialog<bool>(
+      context: context,
+      builder: (_) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('aria2Settings'.tr),
+              content: SizedBox(
+                width: 520,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: rpcUrlController,
+                      decoration: InputDecoration(
+                        labelText: 'aria2RpcUrl'.tr,
+                        hintText: 'aria2RpcUrlHint'.tr,
+                        border: const OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: secretController,
+                      obscureText: obscureSecret,
+                      decoration: InputDecoration(
+                        labelText: 'aria2Secret'.tr,
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          onPressed: () => setState(() => obscureSecret = !obscureSecret),
+                          icon: Icon(obscureSecret ? Icons.visibility_off : Icons.visibility),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: dirController,
+                      decoration: InputDecoration(
+                        labelText: 'aria2DownloadDir'.tr,
+                        hintText: 'aria2DownloadDirHint'.tr,
+                        border: const OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<int>(
+                      value: timeout,
+                      decoration: InputDecoration(
+                        labelText: 'aria2ConnectTimeout'.tr,
+                        border: const OutlineInputBorder(),
+                      ),
+                      items: const [
+                        DropdownMenuItem(value: 3000, child: Text('3000ms')),
+                        DropdownMenuItem(value: 5000, child: Text('5000ms')),
+                        DropdownMenuItem(value: 8000, child: Text('8000ms')),
+                        DropdownMenuItem(value: 12000, child: Text('12000ms')),
+                        DropdownMenuItem(value: 20000, child: Text('20000ms')),
+                      ],
+                      onChanged: (value) {
+                        if (value != null) {
+                          timeout = value;
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text('cancel'.tr)),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: Text('save'.tr),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (result != true) {
+      return;
+    }
+
+    await downloadSetting.saveAria2RpcUrl(rpcUrlController.text.trim());
+    await downloadSetting.saveAria2Secret(secretController.text.trim());
+    await downloadSetting.saveAria2DownloadDir(dirController.text.trim());
+    await downloadSetting.saveAria2ConnectTimeout(timeout);
+  }
+
+  Future<void> _testAria2Connection() async {
+    try {
+      await aria2Service.testConnection();
+      toast('aria2ConnectionSucceeded'.tr);
+    } catch (e) {
+      snack('aria2ConnectionFailed'.tr, e.toString(), isShort: true);
+    }
   }
 }
