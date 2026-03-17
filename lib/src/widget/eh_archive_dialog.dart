@@ -76,25 +76,32 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
       children: [
         EHGroupNameSelector(candidates: candidates, currentGroup: group, listener: (g) => group = g),
         if (downloadSetting.enableAria2Push.value)
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: CheckboxListTile(
-              value: pushToAria2,
-              onChanged: (value) => setState(() => pushToAria2 = value ?? false),
-              title: Text(
-                'pushArchiveToAria2'.tr,
-                style: TextStyle(fontSize: UIConfig.archiveDialogDownloadTextSize + 1),
-              ),
-              contentPadding: EdgeInsets.zero,
-              controlAffinity: ListTileControlAffinity.leading,
-              dense: true,
-              visualDensity: VisualDensity.compact,
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-          ),
+          _buildPushToAria2Option(),
         if (archive.creditCount != null && archive.gpCount != null) EHAsset(gpCount: archive.gpCount!, creditCount: archive.creditCount!).marginOnly(top: 12),
         Expanded(child: _buildButtons().marginOnly(top: 12)),
       ],
+    );
+  }
+
+  Widget _buildPushToAria2Option() {
+    return InkWell(
+      onTap: () => setState(() => pushToAria2 = !pushToAria2),
+      child: Row(
+        children: [
+          Checkbox(
+            value: pushToAria2,
+            onChanged: (value) => setState(() => pushToAria2 = value ?? false),
+            visualDensity: VisualDensity.compact,
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          Expanded(
+            child: Text(
+              'pushArchiveToAria2'.tr,
+              style: TextStyle(fontSize: UIConfig.archiveDialogDownloadTextSize + 1),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

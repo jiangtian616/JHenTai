@@ -152,13 +152,7 @@ class _Aria2SettingsPageState extends State<Aria2SettingsPage> {
           ListTile(
             contentPadding: EdgeInsets.zero,
             title: Text('testConnection'.tr),
-            trailing: LoadingStateIndicator(
-              loadingState: testConnectionState,
-              useCupertinoIndicator: true,
-              idleWidgetBuilder: () => const Icon(Icons.keyboard_arrow_right),
-              successWidgetBuilder: () => const Icon(Icons.check_circle_outline),
-              errorWidgetBuilder: () => const Icon(Icons.error_outline),
-            ),
+            trailing: _buildTestConnectionTrailing(),
             onTap: _testConnection,
           ),
         ],
@@ -196,6 +190,19 @@ class _Aria2SettingsPageState extends State<Aria2SettingsPage> {
       setState(() => testConnectionState = LoadingState.error);
       snack('aria2ConnectionFailed'.tr, e.toString(), isShort: true);
     }
+  }
+
+  Widget _buildTestConnectionTrailing() {
+    if (testConnectionState == LoadingState.loading) {
+      return const CupertinoActivityIndicator();
+    }
+    if (testConnectionState == LoadingState.success) {
+      return const Icon(Icons.check_circle_outline);
+    }
+    if (testConnectionState == LoadingState.error) {
+      return const Icon(Icons.error_outline);
+    }
+    return const Icon(Icons.keyboard_arrow_right);
   }
 
   Future<void> _showAria2FilenameTemplateHelp() async {
