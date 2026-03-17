@@ -64,8 +64,8 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
         child: LoadingStateIndicator(
           loadingState: loadingState,
           errorTapCallback: _getArchiveInfo,
-         Builder: _buildBody,
-        ), successWidget
+          successWidgetBuilder: _buildBody,
+        ),
       ),
     );
   }
