@@ -720,7 +720,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     String out = template
         .replaceAll('{gid}', archive.gid.toString())
         .replaceAll('{title}', _computeArchiveTitle(archive.title))
-        .replaceAll('{uploader}', _computeArchiveTitle(archive.uploader))
+        .replaceAll('{uploader}', _computeArchiveTitle(archive.uploader ?? ''))
         .replaceAll('{category}', _computeArchiveTitle(archive.category));
 
     out = out.replaceAll(RegExp(r'[/|?,:*"<>\\]'), ' ').replaceAll(RegExp(r'\s+'), ' ').trim();
