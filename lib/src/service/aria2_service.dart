@@ -52,7 +52,6 @@ class Aria2Service {
     required String uri,
     String? out,
     String? dir,
-    List<String>? headers,
   }) async {
     Dio dio = Dio(BaseOptions(
       connectTimeout: Duration(milliseconds: downloadSetting.aria2ConnectTimeout.value),
@@ -71,9 +70,6 @@ class Aria2Service {
     }
     if (dir != null && dir.isNotEmpty) {
       options['dir'] = dir;
-    }
-    if (headers != null && headers.isNotEmpty) {
-      options['header'] = headers;
     }
     if (options.isNotEmpty) {
       params.add(options);
