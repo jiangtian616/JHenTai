@@ -26,7 +26,6 @@ import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
 import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/utils/archive_bot_response_parser.dart';
-import 'package:jhentai/src/utils/cookie_util.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:logger/logger.dart';
@@ -406,19 +405,16 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     String? resolvedDownloadUrl;
-    String? referer;
 
     ArchiveDownloadInfo? archiveDownloadInfo = archiveDownloadInfos[archive.gid];
     if (!reParse && archiveDownloadInfo?.downloadUrl != null) {
       resolvedDownloadUrl = archiveDownloadInfo!.downloadUrl;
-      referer = archiveDownloadInfo.downloadPageUrl;
     } else {
-      ({String downloadUrl, String? referer})? result = await _resolveArchiveDownloadUrlForAria2(archive, reParse: reParse);
+      String? result = await _resolveArchiveDownloadUrlForAria2(archive, reParse: reParse);
       if (result == null) {
         return;
       }
-      resolvedDownloadUrl = result.downloadUrl;
-      referer = result.referer;
+      resolvedDownloadUrl = result;
     }
 
     if (resolvedDownloadUrl == null) {
@@ -426,21 +422,11 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       return;
     }
 
-    List<String> headers = [];
-    String cookies = CookieUtil.parse2String(ehRequest.cookies);
-    if (cookies.isNotEmpty) {
-      headers.add('Cookie: $cookies');
-    }
-    if (referer != null && referer.isNotEmpty) {
-      headers.add('Referer: $referer');
-    }
-
     try {
       await aria2Service.addUri(
         uri: resolvedDownloadUrl,
         out: _buildAria2OutName(archive),
         dir: downloadSetting.aria2DownloadDir.value.trim(),
-        headers: headers,
       );
       toast('aria2PushSuccess'.trArgs([archive.title]), isCenter: false);
     } on DioException catch (e) {
@@ -450,7 +436,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     }
   }
 
-  Future<({String downloadUrl, String? referer})?> _resolveArchiveDownloadUrlForAria2(
+  Future<String?> _resolveArchiveDownloadUrlForAria2(
     ArchiveDownloadedData archive, {
     bool reParse = false,
   }) async {
@@ -473,8 +459,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
           maxAttempts: _maxRetryTimes,
         );
 
-        String downloadUrl = _ensureStartQueryParameter('https://${Uri.parse(downloadPageUrl).host}$downloadPath');
-        return (downloadUrl: downloadUrl, referer: downloadPageUrl);
+        String downloadUrl = 'https://${Uri.parse(downloadPageUrl).host}$downloadPath';
+        return downloadUrl;
       }
 
       if (!archiveBotSetting.isReady) {
@@ -501,7 +487,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       }
 
       ArchiveResolveVO archiveResolveVO = ArchiveResolveVO.fromResponse(response.data);
-      return (downloadUrl: _ensureStartQueryParameter(archiveResolveVO.url), referer: null);
+      return archiveResolveVO.url;
     } on DioException catch (e) {
       snack('aria2PushFailed'.tr, e.error?.toString() ?? e.message ?? e.toString(), isShort: true);
       return null;
@@ -540,14 +526,6 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     snack('aria2PushFailed'.tr, 'archiveError'.tr, isShort: true);
     return null;
-  }
-
-  String _ensureStartQueryParameter(String url) {
-    Uri uri = Uri.parse(url);
-    Map<String, String> queryParameters = Map.from(uri.queryParameters);
-    queryParameters.remove('autostart');
-    queryParameters.putIfAbsent('start', () => '1');
-    return uri.replace(queryParameters: queryParameters).toString();
   }
 
   Future<void> batchUpdateArchiveInDatabase(List<ArchiveDownloadedData> archives) async {

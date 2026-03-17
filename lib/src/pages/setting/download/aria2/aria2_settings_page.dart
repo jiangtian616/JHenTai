@@ -1,6 +1,11 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/service/aria2_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
+import 'package:jhentai/src/utils/snack_util.dart';
+import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 class Aria2SettingsPage extends StatefulWidget {
   const Aria2SettingsPage({Key? key}) : super(key: key);
@@ -19,6 +24,7 @@ class _Aria2SettingsPageState extends State<Aria2SettingsPage> {
   int timeout = downloadSetting.aria2ConnectTimeout.value;
   bool defaultPushSelected = downloadSetting.aria2DefaultPushSelected.value;
   bool obscureSecret = true;
+  LoadingState testConnectionState = LoadingState.idle;
 
   @override
   void initState() {
@@ -137,9 +143,59 @@ class _Aria2SettingsPageState extends State<Aria2SettingsPage> {
               }
             },
           ),
+          const SizedBox(height: 12),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text('testConnection'.tr),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                LoadingStateIndicator(
+                  loadingState: testConnectionState,
+                  useCupertinoIndicator: true,
+                  idleWidgetBuilder: () => const Icon(Icons.keyboard_arrow_right),
+                  successWidgetBuilder: () => const Icon(Icons.check_circle_outline),
+                  errorWidgetBuilder: () => const Icon(Icons.error_outline),
+                ),
+              ],
+            ),
+            onTap: _testConnection,
+          ),
         ],
       ),
     );
+  }
+
+  Future<void> _testConnection() async {
+    if (testConnectionState == LoadingState.loading) {
+      return;
+    }
+
+    setState(() => testConnectionState = LoadingState.loading);
+    await downloadSetting.saveAria2RpcUrl(rpcUrlController.text.trim());
+    await downloadSetting.saveAria2Secret(secretController.text.trim());
+    await downloadSetting.saveAria2ConnectTimeout(timeout);
+
+    try {
+      await aria2Service.testConnection();
+      if (!mounted) {
+        return;
+      }
+      setState(() => testConnectionState = LoadingState.success);
+      toast('aria2ConnectionSucceeded'.tr, isCenter: false);
+    } on DioException catch (e) {
+      if (!mounted) {
+        return;
+      }
+      setState(() => testConnectionState = LoadingState.error);
+      snack('aria2ConnectionFailed'.tr, e.message ?? e.toString(), isShort: true);
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+      setState(() => testConnectionState = LoadingState.error);
+      snack('aria2ConnectionFailed'.tr, e.toString(), isShort: true);
+    }
   }
 
   Future<void> _showAria2FilenameTemplateHelp() async {
