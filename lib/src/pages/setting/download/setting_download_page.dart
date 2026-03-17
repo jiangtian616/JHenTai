@@ -61,7 +61,6 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
               _buildDefaultGalleryGroup(context),
               _buildDefaultArchiveGroup(context),
               _buildArchiveBotSettings(),
-              _buildEnableAria2Push(),
               _buildAria2Setting(),
               _buildDownloadConcurrency(),
               _buildSpeedLimit(context),
@@ -206,15 +205,6 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       subtitle: Text('archiveBotSettingsHint'.tr),
       trailing: const Icon(Icons.keyboard_arrow_right),
       onTap: () => toRoute(Routes.archiveBotSettings),
-    );
-  }
-
-  Widget _buildEnableAria2Push() {
-    return SwitchListTile(
-      title: Text('enableAria2Push'.tr),
-      subtitle: Text('enableAria2PushHint'.tr),
-      value: downloadSetting.enableAria2Push.value,
-      onChanged: downloadSetting.saveEnableAria2Push,
     );
   }
 

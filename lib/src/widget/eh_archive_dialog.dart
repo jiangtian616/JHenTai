@@ -64,8 +64,8 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
         child: LoadingStateIndicator(
           loadingState: loadingState,
           errorTapCallback: _getArchiveInfo,
-          successWidgetBuilder: _buildBody,
-        ),
+         Builder: _buildBody,
+        ), successWidget
       ),
     );
   }
@@ -77,7 +77,7 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
         EHGroupNameSelector(candidates: candidates, currentGroup: group, listener: (g) => group = g),
         if (downloadSetting.enableAria2Push.value)
           Transform.translate(
-            offset: const Offset(0, -8),
+            offset: const Offset(0, -16),
             child: CheckboxListTile(
               value: pushToAria2,
               onChanged: (value) => setState(() => pushToAria2 = value ?? false),
