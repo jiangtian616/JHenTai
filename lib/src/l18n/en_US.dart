@@ -224,7 +224,7 @@ class en_US {
       'back': 'Back',
       'toggleMenu': 'Toggle menu',
       'share': 'Share',
-      'save': 'Save to Pictures',
+      'save': 'Save',
 
       /// setting page
       'account': 'Account',
@@ -726,6 +726,14 @@ class en_US {
       'aria2Secret': 'RPC Secret',
       'aria2DownloadDir': 'aria2 Download Directory',
       'aria2DownloadDirHint': 'Optional, use aria2 default when empty',
+      'aria2FilenameTemplate': 'Filename Template',
+      'aria2FilenameTemplateHint': 'ArchiveV2 - {gid} - {title}.zip',
+      'aria2FilenameTemplateHelp': 'Filename template help',
+      'aria2FilenameTemplateOptionGid': '{gid}: Gallery ID',
+      'aria2FilenameTemplateOptionTitle': '{title}: Title',
+      'aria2FilenameTemplateOptionUploader': '{uploader}: Uploader',
+      'aria2FilenameTemplateOptionCategory': '{category}: Category',
+      'aria2FilenameTemplateExample': 'Example: ArchiveV2 - {gid} - {title}.zip',
       'aria2ConnectTimeout': 'RPC Timeout',
       'testConnection': 'Test Connection',
       'aria2ConnectionSucceeded': 'aria2 connection succeeded',

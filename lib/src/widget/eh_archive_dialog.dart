@@ -40,6 +40,7 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
   late List<String> candidates;
   late GalleryArchive archive;
   LoadingState loadingState = LoadingState.idle;
+  bool pushToAria2 = false;
 
   @override
   void initState() {
@@ -72,6 +73,13 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
       mainAxisSize: MainAxisSize.min,
       children: [
         EHGroupNameSelector(candidates: candidates, currentGroup: group, listener: (g) => group = g),
+        CheckboxListTile(
+          value: pushToAria2,
+          onChanged: (value) => setState(() => pushToAria2 = value ?? false),
+          title: Text('pushArchiveToAria2'.tr),
+          contentPadding: EdgeInsets.zero,
+          controlAffinity: ListTileControlAffinity.leading,
+        ),
         if (archive.creditCount != null && archive.gpCount != null) EHAsset(gpCount: archive.gpCount!, creditCount: archive.creditCount!).marginOnly(top: 12),
         Expanded(child: _buildButtons().marginOnly(top: 12)),
       ],
@@ -88,7 +96,7 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
           text: 'resample'.tr,
           callback: _canAffordDownload(isOriginal: false)
               ? () => backRoute(
-                    result: (useBot: false, isOriginal: false, size: _computeSizeInBytes(isOriginal: false), group: group),
+                    result: (useBot: false, isOriginal: false, size: _computeSizeInBytes(isOriginal: false), group: group, pushToAria2: pushToAria2),
                   )
               : null,
         ),
@@ -98,7 +106,7 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
           text: 'original'.tr,
           callback: _canAffordDownload(isOriginal: true)
               ? () => backRoute(
-                    result: (useBot: false, isOriginal: true, size: _computeSizeInBytes(isOriginal: true), group: group),
+                    result: (useBot: false, isOriginal: true, size: _computeSizeInBytes(isOriginal: true), group: group, pushToAria2: pushToAria2),
                   )
               : null,
         ),
@@ -108,7 +116,7 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
             size: archive.originalSize,
             icon: const Icon(Icons.smart_toy_outlined),
             callback: () => backRoute(
-              result: (useBot: true, isOriginal: true, size: _computeSizeInBytes(isOriginal: true), group: group),
+              result: (useBot: true, isOriginal: true, size: _computeSizeInBytes(isOriginal: true), group: group, pushToAria2: pushToAria2),
             ),
           ),
       ],

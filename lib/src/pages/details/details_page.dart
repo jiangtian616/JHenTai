@@ -157,14 +157,6 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                           children: [Text('block'.tr), const Icon(Icons.block)],
                         ),
                       ),
-                    if (state.galleryDetails != null)
-                      PopupMenuItem(
-                        value: 6,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [Text('pushArchiveToAria2'.tr), const Icon(Icons.send_and_archive_outlined)],
-                        ),
-                      ),
                   ];
                 },
                 onSelected: (value) {
@@ -189,9 +181,6 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                   }
                   if (value == 5) {
                     logic.blockGallery();
-                  }
-                  if (value == 6) {
-                    logic.handlePushArchiveToAria2();
                   }
                 },
               );

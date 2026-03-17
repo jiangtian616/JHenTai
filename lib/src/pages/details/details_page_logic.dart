@@ -639,7 +639,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         return;
       }
 
-      ({bool useBot, bool isOriginal, int size, String group})? result = await Get.dialog(
+      ({bool useBot, bool isOriginal, int size, String group, bool pushToAria2})? result = await Get.dialog(
         EHArchiveDialog(
           title: 'chooseArchive'.tr,
           archivePageUrl: state.galleryDetails!.archivePageUrl,
@@ -652,6 +652,10 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       }
 
       ArchiveDownloadedData archive = _buildArchiveTaskFromDialogResult(result);
+      if (result.pushToAria2) {
+        await archiveDownloadService.pushArchiveToAria2(archive);
+        return;
+      }
       archiveDownloadService.downloadArchive(archive);
 
       updateGlobalGalleryStatus();
@@ -702,32 +706,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
   }
 
-  Future<void> handlePushArchiveToAria2() async {
-    if (state.galleryDetails == null) {
-      return;
-    }
-    if (!userSetting.hasLoggedIn()) {
-      showLoginToast();
-      return;
-    }
-
-    ({bool useBot, bool isOriginal, int size, String group})? result = await Get.dialog(
-      EHArchiveDialog(
-        title: 'chooseArchive'.tr,
-        archivePageUrl: state.galleryDetails!.archivePageUrl,
-        currentGroup: downloadSetting.defaultArchiveGroup.value,
-        candidates: archiveDownloadService.allGroups,
-      ),
-    );
-    if (result == null) {
-      return;
-    }
-
-    ArchiveDownloadedData archive = _buildArchiveTaskFromDialogResult(result);
-    await archiveDownloadService.pushArchiveToAria2(archive);
-  }
-
-  ArchiveDownloadedData _buildArchiveTaskFromDialogResult(({bool useBot, bool isOriginal, int size, String group}) result) {
+  ArchiveDownloadedData _buildArchiveTaskFromDialogResult(({bool useBot, bool isOriginal, int size, String group, bool pushToAria2}) result) {
     return ArchiveDownloadedData(
       gid: state.galleryDetails!.galleryUrl.gid,
       token: state.galleryDetails!.galleryUrl.token,

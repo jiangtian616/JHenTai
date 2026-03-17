@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
@@ -25,6 +27,25 @@ class Aria2Service {
       }
     }
     return url;
+  }
+
+  Map<String, dynamic> _parseJsonRpcResponse(dynamic data) {
+    if (data is Map<String, dynamic>) {
+      return data;
+    }
+    if (data is Map) {
+      return Map<String, dynamic>.from(data);
+    }
+    if (data is String && data.isNotEmpty) {
+      dynamic decoded = jsonDecode(data);
+      if (decoded is Map<String, dynamic>) {
+        return decoded;
+      }
+      if (decoded is Map) {
+        return Map<String, dynamic>.from(decoded);
+      }
+    }
+    throw Exception('Invalid aria2 response');
   }
 
   Future<String> addUri({
@@ -68,15 +89,14 @@ class Aria2Service {
       },
     );
 
-    if (response.data is! Map<String, dynamic>) {
-      throw Exception('Invalid aria2 response');
-    }
-    if (response.data['error'] != null) {
-      String error = response.data['error'] is Map ? (response.data['error']['message']?.toString() ?? 'Unknown aria2 error') : 'Unknown aria2 error';
+    Map<String, dynamic> rpcResult = _parseJsonRpcResponse(response.data);
+
+    if (rpcResult['error'] != null) {
+      String error = rpcResult['error'] is Map ? (rpcResult['error']['message']?.toString() ?? 'Unknown aria2 error') : 'Unknown aria2 error';
       throw Exception(error);
     }
 
-    String? gid = response.data['result']?.toString();
+    String? gid = rpcResult['result']?.toString();
     if (gid.isBlank == true) {
       throw Exception('Empty aria2 task id');
     }
@@ -106,11 +126,10 @@ class Aria2Service {
       },
     );
 
-    if (response.data is! Map<String, dynamic>) {
-      throw Exception('Invalid aria2 response');
-    }
-    if (response.data['error'] != null) {
-      String error = response.data['error'] is Map ? (response.data['error']['message']?.toString() ?? 'Unknown aria2 error') : 'Unknown aria2 error';
+    Map<String, dynamic> rpcResult = _parseJsonRpcResponse(response.data);
+
+    if (rpcResult['error'] != null) {
+      String error = rpcResult['error'] is Map ? (rpcResult['error']['message']?.toString() ?? 'Unknown aria2 error') : 'Unknown aria2 error';
       throw Exception(error);
     }
   }

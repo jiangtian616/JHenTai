@@ -223,7 +223,7 @@ class zh_CN {
       'back': '返回',
       'toggleMenu': '展示/隐藏菜单',
       'share': '分享',
-      'save': '保存至图库',
+      'save': '保存',
 
       /// setting page
       'account': '账户',
@@ -731,6 +731,14 @@ favnote：匹配收藏备注
       'aria2Secret': 'RPC密钥',
       'aria2DownloadDir': 'aria2下载目录',
       'aria2DownloadDirHint': '可选，留空则使用aria2默认目录',
+      'aria2FilenameTemplate': '文件名模板',
+      'aria2FilenameTemplateHint': 'ArchiveV2 - {gid} - {title}.zip',
+      'aria2FilenameTemplateHelp': '文件名模板说明',
+      'aria2FilenameTemplateOptionGid': '{gid}：画廊ID',
+      'aria2FilenameTemplateOptionTitle': '{title}：标题',
+      'aria2FilenameTemplateOptionUploader': '{uploader}：上传者',
+      'aria2FilenameTemplateOptionCategory': '{category}：分类',
+      'aria2FilenameTemplateExample': '示例：ArchiveV2 - {gid} - {title}.zip',
       'aria2ConnectTimeout': 'RPC超时',
       'testConnection': '测试连接',
       'aria2ConnectionSucceeded': 'aria2连接成功',

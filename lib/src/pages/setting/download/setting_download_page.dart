@@ -18,12 +18,10 @@ import 'package:path/path.dart';
 
 import '../../../routes/routes.dart';
 import '../../../service/archive_download_service.dart';
-import '../../../service/aria2_service.dart';
 import '../../../service/gallery_download_service.dart';
 import '../../../service/log.dart';
 import '../../../utils/permission_util.dart';
 import '../../../utils/route_util.dart';
-import '../../../utils/snack_util.dart';
 import '../../../widget/eh_download_dialog.dart';
 
 class SettingDownloadPage extends StatefulWidget {
@@ -223,21 +221,16 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
   Widget _buildAria2Setting(BuildContext context) {
     String rpcUrl = downloadSetting.aria2RpcUrl.value.trim().isEmpty ? 'aria2RpcUrlHint'.tr : downloadSetting.aria2RpcUrl.value;
     String downloadDir = downloadSetting.aria2DownloadDir.value.trim().isEmpty ? 'default'.tr : downloadSetting.aria2DownloadDir.value;
+    String filenameTemplate = downloadSetting.aria2FilenameTemplate.value.trim().isEmpty ? 'aria2FilenameTemplateHint'.tr : downloadSetting.aria2FilenameTemplate.value;
 
     return ListTile(
       title: Text('aria2Settings'.tr),
-      subtitle: Text('${'aria2RpcUrl'.tr}: ${rpcUrl.breakWord}\n${'aria2DownloadDir'.tr}: ${downloadDir.breakWord}'),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            onPressed: _testAria2Connection,
-            icon: const Icon(Icons.wifi_tethering),
-            tooltip: 'testConnection'.tr,
-          ),
-          const Icon(Icons.keyboard_arrow_right),
-        ],
+      subtitle: Text(
+        '${'aria2RpcUrl'.tr}: ${rpcUrl.breakWord}\n'
+        '${'aria2DownloadDir'.tr}: ${downloadDir.breakWord}\n'
+        '${'aria2FilenameTemplate'.tr}: ${filenameTemplate.breakWord}',
       ),
+      trailing: const Icon(Icons.keyboard_arrow_right),
       onTap: () => _showAria2SettingsDialog(context),
     );
   }
@@ -490,6 +483,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     TextEditingController rpcUrlController = TextEditingController(text: downloadSetting.aria2RpcUrl.value);
     TextEditingController secretController = TextEditingController(text: downloadSetting.aria2Secret.value);
     TextEditingController dirController = TextEditingController(text: downloadSetting.aria2DownloadDir.value);
+    TextEditingController filenameTemplateController = TextEditingController(text: downloadSetting.aria2FilenameTemplate.value);
     int timeout = downloadSetting.aria2ConnectTimeout.value;
     bool obscureSecret = true;
 
@@ -536,6 +530,20 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
                       ),
                     ),
                     const SizedBox(height: 12),
+                    TextField(
+                      controller: filenameTemplateController,
+                      decoration: InputDecoration(
+                        labelText: 'aria2FilenameTemplate'.tr,
+                        hintText: 'aria2FilenameTemplateHint'.tr,
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          onPressed: () => _showAria2FilenameTemplateHelp(context),
+                          icon: const Icon(Icons.help_outline),
+                          tooltip: 'aria2FilenameTemplateHelp'.tr,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
                     DropdownButtonFormField<int>(
                       value: timeout,
                       decoration: InputDecoration(
@@ -578,15 +586,30 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     await downloadSetting.saveAria2RpcUrl(rpcUrlController.text.trim());
     await downloadSetting.saveAria2Secret(secretController.text.trim());
     await downloadSetting.saveAria2DownloadDir(dirController.text.trim());
+    await downloadSetting.saveAria2FilenameTemplate(filenameTemplateController.text.trim().isEmpty ? 'ArchiveV2 - {gid} - {title}.zip' : filenameTemplateController.text.trim());
     await downloadSetting.saveAria2ConnectTimeout(timeout);
   }
 
-  Future<void> _testAria2Connection() async {
-    try {
-      await aria2Service.testConnection();
-      toast('aria2ConnectionSucceeded'.tr);
-    } catch (e) {
-      snack('aria2ConnectionFailed'.tr, e.toString(), isShort: true);
-    }
+  Future<void> _showAria2FilenameTemplateHelp(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('aria2FilenameTemplateHelp'.tr),
+        content: Text(
+          '${'aria2FilenameTemplateOptionGid'.tr}\n'
+          '${'aria2FilenameTemplateOptionTitle'.tr}\n'
+          '${'aria2FilenameTemplateOptionUploader'.tr}\n'
+          '${'aria2FilenameTemplateOptionCategory'.tr}\n\n'
+          '${'aria2FilenameTemplateExample'.tr}',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('ok'.tr),
+          ),
+        ],
+      ),
+    );
   }
+
 }

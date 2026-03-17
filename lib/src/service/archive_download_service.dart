@@ -438,7 +438,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     try {
       await aria2Service.addUri(
         uri: resolvedDownloadUrl,
-        out: 'ArchiveV2 - ${archive.gid} - ${_computeArchiveTitle(archive.title)}.zip',
+        out: _buildAria2OutName(archive),
         dir: downloadSetting.aria2DownloadDir.value.trim(),
         headers: headers,
       );
@@ -709,6 +709,30 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     return title;
+  }
+
+  String _buildAria2OutName(ArchiveDownloadedData archive) {
+    String template = downloadSetting.aria2FilenameTemplate.value.trim();
+    if (template.isEmpty) {
+      template = 'ArchiveV2 - {gid} - {title}.zip';
+    }
+
+    String out = template
+        .replaceAll('{gid}', archive.gid.toString())
+        .replaceAll('{title}', _computeArchiveTitle(archive.title))
+        .replaceAll('{uploader}', _computeArchiveTitle(archive.uploader))
+        .replaceAll('{category}', _computeArchiveTitle(archive.category));
+
+    out = out.replaceAll(RegExp(r'[/|?,:*"<>\\]'), ' ').replaceAll(RegExp(r'\s+'), ' ').trim();
+
+    if (out.isEmpty) {
+      out = 'ArchiveV2 - ${archive.gid} - ${_computeArchiveTitle(archive.title)}';
+    }
+    if (!out.toLowerCase().endsWith('.zip')) {
+      out = '$out.zip';
+    }
+
+    return out;
   }
 
   String computePackingFileDownloadPath(ArchiveDownloadedData archive) {
