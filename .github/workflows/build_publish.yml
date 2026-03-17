@@ -42,7 +42,7 @@ jobs:
 #              build/linux/*.AppImage
           - target: Linux-arm64-deb
             os: ubuntu-22.04-arm
-            artifact_name: release-Linux-arm64-deb
+            artifact_name: blacksmith-4vcpu-ubuntu-2404-arm
             artifact_path: |
               build/linux/*.deb
           - target: iOS
@@ -246,7 +246,7 @@ jobs:
   Publish:
     name: Publish
     needs: Build
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout
         uses: actions/checkout@v4
