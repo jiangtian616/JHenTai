@@ -570,7 +570,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
                 TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text('cancel'.tr)),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: Text('save'.tr),
+                  child: Text('aria2SaveSettings'.tr),
                 ),
               ],
             );

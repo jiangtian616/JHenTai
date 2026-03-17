@@ -223,7 +223,7 @@ class zh_CN {
       'back': '返回',
       'toggleMenu': '展示/隐藏菜单',
       'share': '分享',
-      'save': '保存',
+      'save': '保存至图库',
 
       /// setting page
       'account': '账户',
@@ -747,6 +747,7 @@ favnote：匹配收藏备注
       'aria2PushSuccess': '已推送到aria2：%s',
       'aria2PushFailed': '推送到aria2失败',
       'aria2NotConfiguredHint': '请先在下载设置中启用并配置aria2',
+      'aria2SaveSettings': '保存',
 
       /// archive bot settings
       'archiveBotSettings': '归档机器人设置',

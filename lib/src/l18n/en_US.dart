@@ -224,7 +224,7 @@ class en_US {
       'back': 'Back',
       'toggleMenu': 'Toggle menu',
       'share': 'Share',
-      'save': 'Save',
+      'save': 'Save to Pictures',
 
       /// setting page
       'account': 'Account',
@@ -742,6 +742,7 @@ class en_US {
       'aria2PushSuccess': 'Pushed to aria2: %s',
       'aria2PushFailed': 'Push to aria2 failed',
       'aria2NotConfiguredHint': 'Please enable and configure aria2 in Download Settings',
+      'aria2SaveSettings': 'Save',
 
       /// archive bot settings
       'archiveBotSettings': 'Archive Bot Settings',
