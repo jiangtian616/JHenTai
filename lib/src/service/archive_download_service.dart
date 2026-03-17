@@ -55,6 +55,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   static const String archiveSpeedComputerId = 'archiveSpeedComputerId';
 
   static const int _maxRetryTimes = 3;
+  static const int _maxAria2ResolvePollingTimes = 12;
+  static const Duration _aria2ResolvePollingInterval = Duration(milliseconds: 1000);
   static const String metadataFileName = 'ametadata';
   static const int _maxTitleLength = 80;
   static const int _maxIsolateCountsTotal = 10;
@@ -440,6 +442,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     ArchiveDownloadedData archive, {
     bool reParse = false,
   }) async {
+    CancelToken? cancelToken = archiveDownloadInfos[archive.gid]?.cancelToken;
+
     try {
       if (archive.parseSource == ArchiveParseSource.official.code) {
         String? downloadPageUrl = archiveDownloadInfos[archive.gid]?.downloadPageUrl;
@@ -453,6 +457,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         String downloadPath = await retry(
           () => ehRequest.get(
             url: downloadPageUrl!,
+            cancelToken: cancelToken,
             parser: EHSpiderParser.downloadArchivePage2DownloadUrl,
           ),
           retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
@@ -475,6 +480,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
           gid: archive.gid,
           token: archive.token,
           reParse: reParse,
+          cancelToken: cancelToken,
           parser: ArchiveBotResponseParser.commonParse,
         ),
         retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
@@ -489,6 +495,9 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       ArchiveResolveVO archiveResolveVO = ArchiveResolveVO.fromResponse(response.data);
       return archiveResolveVO.url;
     } on DioException catch (e) {
+      if (e.type == DioExceptionType.cancel) {
+        return null;
+      }
       snack('aria2PushFailed'.tr, e.error?.toString() ?? e.message ?? e.toString(), isShort: true);
       return null;
     } on EHSiteException catch (e) {
@@ -501,11 +510,14 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   Future<String?> _resolveOfficialDownloadPageUrl(ArchiveDownloadedData archive) async {
-    for (int i = 0; i < 12; i++) {
+    CancelToken? cancelToken = archiveDownloadInfos[archive.gid]?.cancelToken;
+
+    for (int i = 0; i < _maxAria2ResolvePollingTimes; i++) {
       ArchiveUnlockResult result = await retry(
         () => ehRequest.requestUnlockArchive(
           url: archive.archivePageUrl.replaceFirst('--', '-'),
           isOriginal: archive.isOriginal,
+          cancelToken: cancelToken,
           parser: EHSpiderParser.unlockArchivePage2DownloadArchivePageUrl,
         ),
         retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
@@ -521,7 +533,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         return result.url!;
       }
 
-      await Future.delayed(const Duration(milliseconds: 1000));
+      await Future.delayed(_aria2ResolvePollingInterval);
     }
 
     snack('aria2PushFailed'.tr, 'archiveError'.tr, isShort: true);

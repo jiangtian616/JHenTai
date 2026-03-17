@@ -468,5 +468,4 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       isShort: false,
     );
   }
-
 }
