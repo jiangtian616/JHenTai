@@ -734,6 +734,8 @@ class en_US {
       'aria2FilenameTemplateOptionUploader': '{uploader}: Uploader',
       'aria2FilenameTemplateOptionCategory': '{category}: Category',
       'aria2FilenameTemplateExample': 'Example: ArchiveV2 - {gid} - {title}.zip',
+      'aria2DefaultPushSelected': 'Default Select Push to aria2',
+      'aria2DefaultPushSelectedHint': 'Pre-select "Push Archive to aria2" in archive dialog',
       'aria2ConnectTimeout': 'RPC Timeout',
       'testConnection': 'Test Connection',
       'aria2ConnectionSucceeded': 'aria2 connection succeeded',

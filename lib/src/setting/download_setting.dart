@@ -37,6 +37,7 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   RxString aria2Secret = ''.obs;
   RxString aria2DownloadDir = ''.obs;
   RxString aria2FilenameTemplate = 'ArchiveV2 - {gid} - {title}.zip'.obs;
+  RxBool aria2DefaultPushSelected = false.obs;
   RxInt aria2ConnectTimeout = 8000.obs;
 
   @override
@@ -74,6 +75,7 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     aria2Secret.value = map['aria2Secret'] ?? aria2Secret.value;
     aria2DownloadDir.value = map['aria2DownloadDir'] ?? aria2DownloadDir.value;
     aria2FilenameTemplate.value = map['aria2FilenameTemplate'] ?? aria2FilenameTemplate.value;
+    aria2DefaultPushSelected.value = map['aria2DefaultPushSelected'] ?? aria2DefaultPushSelected.value;
     aria2ConnectTimeout.value = map['aria2ConnectTimeout'] ?? aria2ConnectTimeout.value;
   }
 
@@ -100,6 +102,7 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
       'aria2Secret': aria2Secret.value,
       'aria2DownloadDir': aria2DownloadDir.value,
       'aria2FilenameTemplate': aria2FilenameTemplate.value,
+      'aria2DefaultPushSelected': aria2DefaultPushSelected.value,
       'aria2ConnectTimeout': aria2ConnectTimeout.value,
     });
   }
@@ -243,6 +246,12 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   Future<void> saveAria2FilenameTemplate(String value) async {
     log.debug('saveAria2FilenameTemplate:$value');
     aria2FilenameTemplate.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveAria2DefaultPushSelected(bool value) async {
+    log.debug('saveAria2DefaultPushSelected:$value');
+    aria2DefaultPushSelected.value = value;
     await saveBeanConfig();
   }
 

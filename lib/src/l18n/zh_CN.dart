@@ -739,6 +739,8 @@ favnote：匹配收藏备注
       'aria2FilenameTemplateOptionUploader': '{uploader}：上传者',
       'aria2FilenameTemplateOptionCategory': '{category}：分类',
       'aria2FilenameTemplateExample': '示例：ArchiveV2 - {gid} - {title}.zip',
+      'aria2DefaultPushSelected': '默认选中推送至aria2',
+      'aria2DefaultPushSelectedHint': '在归档弹窗中默认勾选“推送归档至aria2”',
       'aria2ConnectTimeout': 'RPC超时',
       'testConnection': '测试连接',
       'aria2ConnectionSucceeded': 'aria2连接成功',

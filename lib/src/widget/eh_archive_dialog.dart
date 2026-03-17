@@ -6,6 +6,7 @@ import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/setting/archive_bot_setting.dart';
+import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/widget/eh_asset.dart';
 import 'package:jhentai/src/widget/eh_group_name_selector.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
@@ -47,6 +48,7 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
     super.initState();
 
     group = widget.currentGroup ?? widget.candidates.firstOrNull ?? 'default'.tr;
+    pushToAria2 = downloadSetting.aria2DefaultPushSelected.value;
     candidates = List.of(widget.candidates);
     candidates.remove(group);
     candidates.insert(0, group);
@@ -73,22 +75,23 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
       mainAxisSize: MainAxisSize.min,
       children: [
         EHGroupNameSelector(candidates: candidates, currentGroup: group, listener: (g) => group = g),
-        Transform.translate(
-          offset: const Offset(0, -8),
-          child: CheckboxListTile(
-            value: pushToAria2,
-            onChanged: (value) => setState(() => pushToAria2 = value ?? false),
-            title: Text(
-              'pushArchiveToAria2'.tr,
-              style: TextStyle(fontSize: UIConfig.archiveDialogDownloadTextSize + 1),
+        if (downloadSetting.enableAria2Push.value)
+          Transform.translate(
+            offset: const Offset(0, -8),
+            child: CheckboxListTile(
+              value: pushToAria2,
+              onChanged: (value) => setState(() => pushToAria2 = value ?? false),
+              title: Text(
+                'pushArchiveToAria2'.tr,
+                style: TextStyle(fontSize: UIConfig.archiveDialogDownloadTextSize + 1),
+              ),
+              contentPadding: EdgeInsets.zero,
+              controlAffinity: ListTileControlAffinity.leading,
+              dense: true,
+              visualDensity: const VisualDensity(horizontal: 0, vertical: -4),
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
-            contentPadding: EdgeInsets.zero,
-            controlAffinity: ListTileControlAffinity.leading,
-            dense: true,
-            visualDensity: const VisualDensity(horizontal: 0, vertical: -4),
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
-        ),
         if (archive.creditCount != null && archive.gpCount != null) EHAsset(gpCount: archive.gpCount!, creditCount: archive.creditCount!).marginOnly(top: 12),
         Expanded(child: _buildButtons().marginOnly(top: 12)),
       ],

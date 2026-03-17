@@ -62,7 +62,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
               _buildDefaultArchiveGroup(context),
               _buildArchiveBotSettings(),
               _buildEnableAria2Push(),
-              _buildAria2Setting(context),
+              _buildAria2Setting(),
               _buildDownloadConcurrency(),
               _buildSpeedLimit(context),
               _buildDownloadAllGallerysOfSamePriority(),
@@ -218,7 +218,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     );
   }
 
-  Widget _buildAria2Setting(BuildContext context) {
+  Widget _buildAria2Setting() {
     String rpcUrl = downloadSetting.aria2RpcUrl.value.trim().isEmpty ? 'aria2RpcUrlHint'.tr : downloadSetting.aria2RpcUrl.value;
     String downloadDir = downloadSetting.aria2DownloadDir.value.trim().isEmpty ? 'default'.tr : downloadSetting.aria2DownloadDir.value;
     String filenameTemplate = downloadSetting.aria2FilenameTemplate.value.trim().isEmpty ? 'aria2FilenameTemplateHint'.tr : downloadSetting.aria2FilenameTemplate.value;
@@ -231,7 +231,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
         '${'aria2FilenameTemplate'.tr}: ${filenameTemplate.breakWord}',
       ),
       trailing: const Icon(Icons.keyboard_arrow_right),
-      onTap: () => _showAria2SettingsDialog(context),
+      onTap: () => toRoute(Routes.aria2Settings),
     );
   }
 
@@ -476,139 +476,6 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     toast(
       '${'restoredGalleryCount'.tr}: $restoredGalleryCount\n${'restoredArchiveCount'.tr}: $restoredArchiveCount',
       isShort: false,
-    );
-  }
-
-  Future<void> _showAria2SettingsDialog(BuildContext context) async {
-    TextEditingController rpcUrlController = TextEditingController(text: downloadSetting.aria2RpcUrl.value);
-    TextEditingController secretController = TextEditingController(text: downloadSetting.aria2Secret.value);
-    TextEditingController dirController = TextEditingController(text: downloadSetting.aria2DownloadDir.value);
-    TextEditingController filenameTemplateController = TextEditingController(text: downloadSetting.aria2FilenameTemplate.value);
-    int timeout = downloadSetting.aria2ConnectTimeout.value;
-    bool obscureSecret = true;
-
-    bool? result = await showDialog<bool>(
-      context: context,
-      builder: (_) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: Text('aria2Settings'.tr),
-              content: SizedBox(
-                width: 520,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: rpcUrlController,
-                      decoration: InputDecoration(
-                        labelText: 'aria2RpcUrl'.tr,
-                        hintText: 'aria2RpcUrlHint'.tr,
-                        border: const OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: secretController,
-                      obscureText: obscureSecret,
-                      decoration: InputDecoration(
-                        labelText: 'aria2Secret'.tr,
-                        border: const OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          onPressed: () => setState(() => obscureSecret = !obscureSecret),
-                          icon: Icon(obscureSecret ? Icons.visibility_off : Icons.visibility),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: dirController,
-                      decoration: InputDecoration(
-                        labelText: 'aria2DownloadDir'.tr,
-                        hintText: 'aria2DownloadDirHint'.tr,
-                        border: const OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: filenameTemplateController,
-                      decoration: InputDecoration(
-                        labelText: 'aria2FilenameTemplate'.tr,
-                        hintText: 'aria2FilenameTemplateHint'.tr,
-                        border: const OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          onPressed: () => _showAria2FilenameTemplateHelp(context),
-                          icon: const Icon(Icons.help_outline),
-                          tooltip: 'aria2FilenameTemplateHelp'.tr,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    DropdownButtonFormField<int>(
-                      value: timeout,
-                      decoration: InputDecoration(
-                        labelText: 'aria2ConnectTimeout'.tr,
-                        border: const OutlineInputBorder(),
-                      ),
-                      items: const [
-                        DropdownMenuItem(value: 3000, child: Text('3000ms')),
-                        DropdownMenuItem(value: 5000, child: Text('5000ms')),
-                        DropdownMenuItem(value: 8000, child: Text('8000ms')),
-                        DropdownMenuItem(value: 12000, child: Text('12000ms')),
-                        DropdownMenuItem(value: 20000, child: Text('20000ms')),
-                      ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          timeout = value;
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text('cancel'.tr)),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child: Text('aria2SaveSettings'.tr),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-
-    if (result != true) {
-      return;
-    }
-
-    await downloadSetting.saveAria2RpcUrl(rpcUrlController.text.trim());
-    await downloadSetting.saveAria2Secret(secretController.text.trim());
-    await downloadSetting.saveAria2DownloadDir(dirController.text.trim());
-    await downloadSetting.saveAria2FilenameTemplate(filenameTemplateController.text.trim().isEmpty ? 'ArchiveV2 - {gid} - {title}.zip' : filenameTemplateController.text.trim());
-    await downloadSetting.saveAria2ConnectTimeout(timeout);
-  }
-
-  Future<void> _showAria2FilenameTemplateHelp(BuildContext context) async {
-    await showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text('aria2FilenameTemplateHelp'.tr),
-        content: Text(
-          '${'aria2FilenameTemplateOptionGid'.tr}\n'
-          '${'aria2FilenameTemplateOptionTitle'.tr}\n'
-          '${'aria2FilenameTemplateOptionUploader'.tr}\n'
-          '${'aria2FilenameTemplateOptionCategory'.tr}\n\n'
-          '${'aria2FilenameTemplateExample'.tr}',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('ok'.tr),
-          ),
-        ],
-      ),
     );
   }
 

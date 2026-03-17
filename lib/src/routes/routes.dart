@@ -50,6 +50,7 @@ import '../pages/setting/account/setting_account_page.dart';
 import '../pages/setting/advanced/loglist/log/log_page.dart';
 import '../pages/setting/advanced/loglist/log_list_page.dart';
 import '../pages/setting/advanced/super_resolution/setting_super_resolution_page.dart';
+import '../pages/setting/download/aria2/aria2_settings_page.dart';
 import '../pages/setting/download/archive_bot/archive_bot_settings_page.dart';
 import '../pages/setting/preference/block_rule/add_block_rule/configure_blocking_rule_page.dart';
 import '../pages/setting/style/page_list_style/setting_page_list_style_page.dart';
@@ -121,6 +122,7 @@ class Routes {
 
   static const String extraGalleryScanPath = "/setting_download/extraGalleryScanPath";
   static const String archiveBotSettings = '/setting/download/archive_bot';
+  static const String aria2Settings = '/setting/download/aria2';
 
   static const String superResolution = "/setting_advanced/superResolution";
   static const String logList = "/setting_advanced/logList";
@@ -401,6 +403,12 @@ class Routes {
     EHPage(
       name: archiveBotSettings,
       page: () => const ArchiveBotSettingsPage().withEscOrFifthButton2BackRightRoute(),
+      transition: defaultTransition,
+      offAllBefore: false,
+    ),
+    EHPage(
+      name: aria2Settings,
+      page: () => const Aria2SettingsPage().withEscOrFifthButton2BackRightRoute(),
       transition: defaultTransition,
       offAllBefore: false,
     ),
