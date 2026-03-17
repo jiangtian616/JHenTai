@@ -73,17 +73,21 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
       mainAxisSize: MainAxisSize.min,
       children: [
         EHGroupNameSelector(candidates: candidates, currentGroup: group, listener: (g) => group = g),
-        CheckboxListTile(
-          value: pushToAria2,
-          onChanged: (value) => setState(() => pushToAria2 = value ?? false),
-          title: Text(
-            'pushArchiveToAria2'.tr,
-            style: TextStyle(fontSize: UIConfig.archiveDialogDownloadTextSize + 1),
+        Transform.translate(
+          offset: const Offset(0, -8),
+          child: CheckboxListTile(
+            value: pushToAria2,
+            onChanged: (value) => setState(() => pushToAria2 = value ?? false),
+            title: Text(
+              'pushArchiveToAria2'.tr,
+              style: TextStyle(fontSize: UIConfig.archiveDialogDownloadTextSize + 1),
+            ),
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            dense: true,
+            visualDensity: const VisualDensity(horizontal: 0, vertical: -4),
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
-          contentPadding: EdgeInsets.zero,
-          controlAffinity: ListTileControlAffinity.leading,
-          dense: true,
-          visualDensity: const VisualDensity(horizontal: 0, vertical: -3),
         ),
         if (archive.creditCount != null && archive.gpCount != null) EHAsset(gpCount: archive.gpCount!, creditCount: archive.creditCount!).marginOnly(top: 12),
         Expanded(child: _buildButtons().marginOnly(top: 12)),
