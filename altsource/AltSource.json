@@ -60,12 +60,12 @@
       },
       "versions": [
         {
-          "version": "8.0.18",
-          "buildVersion": "320",
-          "date": "2026-02-24T18:43:01Z",
-          "localizedDescription": "- merge upstream (jiangtian616/JHenTai@b992d828): optimize webview login\n  - fix: JS evaluateJavaScript returning JSON-encoded strings for guestHint\n  - fix: move username empty check after jsonDecode\n  - chore: update desktop_webview_window to use addOnUrlRequestCallback API\n",
-          "downloadURL": "https://github.com/errorfg/JHenTai/releases/download/v8.0.18+320/JHenTai_8.0.18+320.ipa",
-          "size": 15941221
+          "version": "8.0.19",
+          "buildVersion": "321",
+          "date": "2026-03-17T12:03:30Z",
+          "localizedDescription": "- 从上游合并: 修复修改画廊分组/排序后本地元数据未更新的bug\n- 从上游合并: 支持按gid屏蔽画廊\n\n--------------------\n\n- Merged from upstream: Fix bug where local metadata was not updated after modifying gallery group or sorting\n- Merged from upstream: Support block gallery by gid\n",
+          "downloadURL": "https://github.com/errorfg/JHenTai/releases/download/v8.0.19+321/JHenTai_8.0.19+321.ipa",
+          "size": 15946366
         },
         {
           "version": "8.0.15",
