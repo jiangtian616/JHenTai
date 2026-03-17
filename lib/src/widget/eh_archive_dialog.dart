@@ -76,8 +76,8 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
       children: [
         EHGroupNameSelector(candidates: candidates, currentGroup: group, listener: (g) => group = g),
         if (downloadSetting.enableAria2Push.value)
-          Transform.translate(
-            offset: const Offset(0, -16),
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
             child: CheckboxListTile(
               value: pushToAria2,
               onChanged: (value) => setState(() => pushToAria2 = value ?? false),
@@ -88,7 +88,7 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
               contentPadding: EdgeInsets.zero,
               controlAffinity: ListTileControlAffinity.leading,
               dense: true,
-              visualDensity: const VisualDensity(horizontal: 0, vertical: -4),
+              visualDensity: VisualDensity.compact,
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
           ),

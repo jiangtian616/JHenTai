@@ -1,11 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/service/aria2_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
+import 'package:throttling/throttling.dart';
 
 class Aria2SettingsPage extends StatefulWidget {
   const Aria2SettingsPage({Key? key}) : super(key: key);
@@ -25,6 +27,7 @@ class _Aria2SettingsPageState extends State<Aria2SettingsPage> {
   bool defaultPushSelected = downloadSetting.aria2DefaultPushSelected.value;
   bool obscureSecret = true;
   LoadingState testConnectionState = LoadingState.idle;
+  late final Debouncing saveDebouncing;
 
   @override
   void initState() {
@@ -33,6 +36,7 @@ class _Aria2SettingsPageState extends State<Aria2SettingsPage> {
     secretController = TextEditingController(text: downloadSetting.aria2Secret.value);
     dirController = TextEditingController(text: downloadSetting.aria2DownloadDir.value);
     filenameTemplateController = TextEditingController(text: downloadSetting.aria2FilenameTemplate.value);
+    saveDebouncing = Debouncing(duration: const Duration(milliseconds: 400));
   }
 
   @override
@@ -41,6 +45,7 @@ class _Aria2SettingsPageState extends State<Aria2SettingsPage> {
     secretController.dispose();
     dirController.dispose();
     filenameTemplateController.dispose();
+    saveDebouncing.close();
     super.dispose();
   }
 
@@ -76,7 +81,7 @@ class _Aria2SettingsPageState extends State<Aria2SettingsPage> {
           ),
           TextField(
             controller: rpcUrlController,
-            onChanged: (value) => downloadSetting.saveAria2RpcUrl(value.trim()),
+            onChanged: (value) => saveDebouncing.debounce(() => downloadSetting.saveAria2RpcUrl(value.trim())),
             decoration: InputDecoration(
               labelText: 'aria2RpcUrl'.tr,
               hintText: 'aria2RpcUrlHint'.tr,
@@ -87,7 +92,7 @@ class _Aria2SettingsPageState extends State<Aria2SettingsPage> {
           TextField(
             controller: secretController,
             obscureText: obscureSecret,
-            onChanged: (value) => downloadSetting.saveAria2Secret(value.trim()),
+            onChanged: (value) => saveDebouncing.debounce(() => downloadSetting.saveAria2Secret(value.trim())),
             decoration: InputDecoration(
               labelText: 'aria2Secret'.tr,
               border: const OutlineInputBorder(),
@@ -100,7 +105,7 @@ class _Aria2SettingsPageState extends State<Aria2SettingsPage> {
           const SizedBox(height: 12),
           TextField(
             controller: dirController,
-            onChanged: (value) => downloadSetting.saveAria2DownloadDir(value.trim()),
+            onChanged: (value) => saveDebouncing.debounce(() => downloadSetting.saveAria2DownloadDir(value.trim())),
             decoration: InputDecoration(
               labelText: 'aria2DownloadDir'.tr,
               hintText: 'aria2DownloadDirHint'.tr,
@@ -110,7 +115,7 @@ class _Aria2SettingsPageState extends State<Aria2SettingsPage> {
           const SizedBox(height: 12),
           TextField(
             controller: filenameTemplateController,
-            onChanged: (value) => downloadSetting.saveAria2FilenameTemplate(value.trim()),
+            onChanged: (value) => saveDebouncing.debounce(() => downloadSetting.saveAria2FilenameTemplate(value.trim())),
             decoration: InputDecoration(
               labelText: 'aria2FilenameTemplate'.tr,
               hintText: 'aria2FilenameTemplateHint'.tr,
@@ -147,22 +152,17 @@ class _Aria2SettingsPageState extends State<Aria2SettingsPage> {
           ListTile(
             contentPadding: EdgeInsets.zero,
             title: Text('testConnection'.tr),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                LoadingStateIndicator(
-                  loadingState: testConnectionState,
-                  useCupertinoIndicator: true,
-                  idleWidgetBuilder: () => const Icon(Icons.keyboard_arrow_right),
-                  successWidgetBuilder: () => const Icon(Icons.check_circle_outline),
-                  errorWidgetBuilder: () => const Icon(Icons.error_outline),
-                ),
-              ],
+            trailing: LoadingStateIndicator(
+              loadingState: testConnectionState,
+              useCupertinoIndicator: true,
+              idleWidgetBuilder: () => const Icon(Icons.keyboard_arrow_right),
+              successWidgetBuilder: () => const Icon(Icons.check_circle_outline),
+              errorWidgetBuilder: () => const Icon(Icons.error_outline),
             ),
             onTap: _testConnection,
           ),
         ],
-      ),
+      ).withListTileTheme(context),
     );
   }
 
