@@ -74,11 +74,13 @@ class _Aria2SettingsPageState extends State<Aria2SettingsPage> {
             contentPadding: EdgeInsets.zero,
             title: Text('aria2DefaultPushSelected'.tr),
             subtitle: Text('aria2DefaultPushSelectedHint'.tr),
-            value: defaultPushSelected,
-            onChanged: (value) async {
-              setState(() => defaultPushSelected = value);
-              await downloadSetting.saveAria2DefaultPushSelected(value);
-            },
+            value: enableAria2Push && defaultPushSelected,
+            onChanged: !enableAria2Push
+                ? null
+                : (value) async {
+                    setState(() => defaultPushSelected = value);
+                    await downloadSetting.saveAria2DefaultPushSelected(value);
+                  },
           ),
           TextField(
             controller: rpcUrlController,

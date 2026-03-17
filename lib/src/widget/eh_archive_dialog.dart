@@ -48,7 +48,7 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
     super.initState();
 
     group = widget.currentGroup ?? widget.candidates.firstOrNull ?? 'default'.tr;
-    pushToAria2 = downloadSetting.aria2DefaultPushSelected.value;
+    pushToAria2 = downloadSetting.enableAria2Push.value && downloadSetting.aria2DefaultPushSelected.value;
     candidates = List.of(widget.candidates);
     candidates.remove(group);
     candidates.insert(0, group);

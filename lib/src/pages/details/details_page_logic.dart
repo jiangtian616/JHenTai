@@ -652,7 +652,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       }
 
       ArchiveDownloadedData archive = _buildArchiveTaskFromDialogResult(result);
-      if (result.pushToAria2) {
+      if (downloadSetting.enableAria2Push.value && result.pushToAria2) {
         await archiveDownloadService.pushArchiveToAria2(archive);
         return;
       }
