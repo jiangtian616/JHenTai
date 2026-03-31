@@ -457,18 +457,20 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
       global: false,
       init: logic,
       builder: (_) {
+        if (isEmptyOrNull(logic.uploader)) {
+          return const SizedBox.shrink();
+        }
+
         return GestureDetector(
-          onLongPress: isEmptyOrNull(logic.uploader)
-              ? null
-              : () async {
-                  bool? result = await showDialog(
-                      context: context,
-                      builder: (_) =>
-                          EHDialog(title: 'blockUploaderLocally'.tr + '?'));
-                  if (result == true) {
-                    logic.blockUploader(logic.uploader);
-                  }
-                },
+          onLongPress: () async {
+            bool? result = await showDialog(
+                context: context,
+                builder: (_) =>
+                    EHDialog(title: 'blockUploaderLocally'.tr + '?'));
+            if (result == true) {
+              logic.blockUploader(logic.uploader);
+            }
+          },
           child: SelectableText(
             logic.uploader,
             style: TextStyle(
@@ -773,8 +775,18 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
             : state.gallery != null
                 ? state.gallery!.publishTime
                 : state.galleryMetadata?.publishTime;
+        if (publishTime != null) {
+          publishTime = publishTime.trim();
+          if (publishTime.isEmpty) {
+            publishTime = null;
+          }
+        }
         if (publishTime != null && preferenceSetting.showUtcTime.isFalse) {
-          publishTime = DateUtil.transformUtc2LocalTimeString(publishTime);
+          try {
+            publishTime = DateUtil.transformUtc2LocalTimeString(publishTime);
+          } catch (_) {
+            publishTime = null;
+          }
         }
         publishTime ??= '...';
 

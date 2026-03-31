@@ -142,7 +142,9 @@ class DetailsPageLogic extends GetxController
     DetailsPageArgument argument = Get.arguments;
 
     state.galleryUrl = argument.galleryUrl;
-    state.gallery = argument.gallery;
+    state.gallery = argument.galleryUrl.isNH || argument.galleryUrl.isWN
+        ? null
+        : argument.gallery;
     state.galleryDetails = argument.detailsPageInfo?.galleryDetails;
     state.apikey = argument.detailsPageInfo?.apikey;
 
@@ -1578,7 +1580,7 @@ class DetailsPageLogic extends GetxController
 
   /// some field in [gallery] sometimes is null
   List<Object> _judgeUpdateIds() {
-    List<Object> updateIds = [detailsId, loadingStateId];
+    List<Object> updateIds = [detailsId, loadingStateId, galleryId];
 
     if (state.gallery == null) {
       updateIds.add(galleryId);
@@ -1625,7 +1627,7 @@ class DetailsPageLogic extends GetxController
   }
 
   List<Object> _judgeUpdateIds4MetaData() {
-    List<Object> updateIds = [detailsId, metadataId, loadingStateId];
+    List<Object> updateIds = [detailsId, metadataId, loadingStateId, galleryId];
 
     if (state.gallery == null) {
       updateIds.add(galleryId);

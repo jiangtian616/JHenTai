@@ -197,6 +197,8 @@ class EHGalleryListCard extends StatelessWidget {
   }
 
   Widget buildGalleryInfoFooter(BuildContext context) {
+    Widget? timeWidget = _buildTime(context);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -217,7 +219,7 @@ class EHGalleryListCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildRatingBar(context),
-            _buildTime(context),
+            timeWidget ?? const SizedBox.shrink(),
           ],
         ),
       ],
@@ -303,9 +305,23 @@ class EHGalleryListCard extends StatelessWidget {
     );
   }
 
-  Text _buildTime(BuildContext context) {
+  Widget? _buildTime(BuildContext context) {
+    String publishTime = gallery.publishTime.trim();
+    if (publishTime.isEmpty) {
+      return null;
+    }
+
+    String displayTime;
+    try {
+      displayTime = preferenceSetting.showUtcTime.isTrue
+          ? publishTime
+          : DateUtil.transformUtc2LocalTimeString(publishTime);
+    } catch (_) {
+      return null;
+    }
+
     return Text(
-      preferenceSetting.showUtcTime.isTrue ? gallery.publishTime : DateUtil.transformUtc2LocalTimeString(gallery.publishTime),
+      displayTime,
       style: TextStyle(
           fontSize: UIConfig.galleryCardTextSize,
           color: UIConfig.galleryCardTextColor(context),

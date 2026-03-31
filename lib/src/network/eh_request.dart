@@ -10,6 +10,7 @@ import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_rx/src/rx_workers/rx_workers.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:get/get_utils/src/platform/platform.dart';
+import 'package:html/dom.dart' as html_dom;
 import 'package:intl/intl.dart';
 import 'package:j_downloader/j_downloader.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
@@ -36,6 +37,7 @@ import 'package:jhentai/src/setting/eh_setting.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/service/log.dart';
+import 'package:jhentai/src/service/nhentai_tag_id_service.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/proxy_util.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
@@ -58,7 +60,7 @@ class EHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late final EHIpProvider _ehIpProvider;
   late final String systemProxyAddress;
 
-  static const String _nhApiBase = 'https://nhentai.net/api';
+  static const String _nhApiBase = 'https://nhentai.net/api/v2';
   static const int _nhThumbnailsPerPage = 40;
   final Map<int, _NHentaiGalleryCache> _nhGalleryCache = {};
 
@@ -72,7 +74,7 @@ class EHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
 
   @override
   List<JHLifeCircleBean> get initDependencies =>
-      super.initDependencies..addAll([networkSetting, ehSetting]);
+      super.initDependencies..addAll([networkSetting, ehSetting, nhentaiTagIdService]);
 
   @override
   Future<void> doInitBean() async {
@@ -1203,7 +1205,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 
     _NHentaiImageInfo imageInfo = cache.pageInfos[pageNo - 1];
     String imageUrl =
-        _nhBuildPageImageUrl(cache.mediaId, pageNo, imageInfo.type);
+        _nhBuildPageImageUrl(cache.mediaId, pageNo, imageInfo.type, imagePath: imageInfo.path);
     GalleryImage image = GalleryImage(
       url: imageUrl,
       height: imageInfo.height?.toDouble(),
@@ -1228,7 +1230,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 
   Future<Map<String, dynamic>> _requestNhApiAll({required int pageNo}) {
     return _requestNhApiJson(
-      '/galleries/all',
+      '/galleries',
       queryParameters: {'page': pageNo},
     );
   }
@@ -1239,7 +1241,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     required int pageNo,
   }) {
     return _requestNhApiJson(
-      '/galleries/search',
+      '/search',
       queryParameters: {
         'query': query,
         'sort': sort,
@@ -1249,7 +1251,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }
 
   Future<Map<String, dynamic>> _requestNhApiGallery(int gid) {
-    return _requestNhApiJson('/gallery/$gid');
+    return _requestNhApiJson('/galleries/$gid');
   }
 
   Future<Map<String, dynamic>> _requestNhApiJson(
@@ -1282,7 +1284,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 
   Future<_NHentaiGalleryCache> _getNhGalleryCache(int gid) async {
     _NHentaiGalleryCache? cached = _nhGalleryCache[gid];
-    if (cached != null) {
+    if (cached != null && cached.hasFullDetail) {
       return cached;
     }
 
@@ -1295,6 +1297,12 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     int gid = _parseInt(item['id']);
     String mediaId = item['media_id']?.toString() ?? '';
     List<_NHentaiImageInfo> pageInfos = _parseNhPageInfos(item);
+    bool hasFullDetail = _nhHasFullDetail(item);
+
+    _NHentaiGalleryCache? existing = _nhGalleryCache[gid];
+    if (existing != null && existing.hasFullDetail && !hasFullDetail) {
+      return existing;
+    }
 
     _NHentaiGalleryCache cache = _NHentaiGalleryCache(
       gid: gid,
@@ -1307,6 +1315,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       ),
       pageInfos: pageInfos,
       rawGallery: item,
+      hasFullDetail: hasFullDetail,
     );
     _nhGalleryCache[gid] = cache;
     return cache;
@@ -1322,24 +1331,72 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     }).toList();
   }
 
-  Gallery _parseNhGallery(Map<String, dynamic> item) {
-    int gid = _parseInt(item['id']);
-    String mediaId = item['media_id']?.toString() ?? '';
-    Map<String, dynamic> titleMap =
-        ((item['title'] as Map?) ?? const {}).cast<String, dynamic>();
-    String title = (titleMap['pretty'] ??
-            titleMap['english'] ??
-            titleMap['japanese'] ??
-            '#$gid')
-        .toString();
+  /// Extract cover path from v2 or v1 format
+  ({String coverUrl, double? width, double? height}) _parseNhCover(Map<String, dynamic> item, String mediaId) {
+    // v2: cover.path or thumbnail as string
+    String? coverPath;
+    double? width;
+    double? height;
 
+    dynamic cover = item['cover'];
+    if (cover is Map) {
+      coverPath = cover['path']?.toString();
+      width = _tryParseInt(cover['width'] ?? cover['w'])?.toDouble();
+      height = _tryParseInt(cover['height'] ?? cover['h'])?.toDouble();
+    }
+    if (coverPath == null) {
+      dynamic thumbnail = item['thumbnail'];
+      if (thumbnail is String) {
+        coverPath = thumbnail;
+        width = _tryParseInt(item['thumbnail_width'])?.toDouble();
+        height = _tryParseInt(item['thumbnail_height'])?.toDouble();
+      } else if (thumbnail is Map) {
+        coverPath = thumbnail['path']?.toString();
+        width = _tryParseInt(thumbnail['width'] ?? thumbnail['w'])?.toDouble();
+        height = _tryParseInt(thumbnail['height'] ?? thumbnail['h'])?.toDouble();
+      }
+    }
+
+    if (coverPath != null && coverPath.isNotEmpty) {
+      return (coverUrl: _nhBuildCoverUrl(mediaId, 'j', coverPath: coverPath), width: width, height: height);
+    }
+
+    // v1 fallback: images.cover.{t,w,h}
     Map<String, dynamic> imagesMap =
         ((item['images'] as Map?) ?? const {}).cast<String, dynamic>();
     Map<String, dynamic> coverMap =
         ((imagesMap['cover'] as Map?) ?? const {}).cast<String, dynamic>();
     String coverType = (coverMap['t'] ?? 'j').toString();
+    return (
+      coverUrl: _nhBuildCoverUrl(mediaId, coverType),
+      width: _tryParseInt(coverMap['w'])?.toDouble(),
+      height: _tryParseInt(coverMap['h'])?.toDouble(),
+    );
+  }
+
+  Gallery _parseNhGallery(Map<String, dynamic> item) {
+    int gid = _parseInt(item['id']);
+    String mediaId = item['media_id']?.toString() ?? '';
+
+    // v2 list format: english_title (flat), v2 detail/v1: title.{pretty,english,japanese} (nested)
+    String title;
+    dynamic titleField = item['title'];
+    if (titleField is Map) {
+      Map<String, dynamic> titleMap = titleField.cast<String, dynamic>();
+      title = (titleMap['pretty'] ?? titleMap['english'] ?? titleMap['japanese'] ?? '#$gid').toString();
+    } else {
+      title = (item['english_title'] ?? item['japanese_title'] ?? '#$gid').toString();
+    }
+
+    var coverInfo = _parseNhCover(item, mediaId);
 
     LinkedHashMap<String, List<GalleryTag>> tags = _parseNhTagsMap(item);
+    String? uploader = item['scanlator']?.toString();
+    if (uploader != null && uploader.trim().isEmpty) {
+      uploader = null;
+    }
+    uploader ??= tags['artist']?.firstOrNull?.tagData.tagName ??
+        tags['artist']?.firstOrNull?.tagData.key;
 
     return Gallery(
       galleryUrl: GalleryUrl(
@@ -1351,9 +1408,9 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       title: title,
       category: _findNhCategory(item),
       cover: GalleryImage(
-        url: _nhBuildCoverUrl(mediaId, coverType),
-        width: _tryParseInt(coverMap['w'])?.toDouble(),
-        height: _tryParseInt(coverMap['h'])?.toDouble(),
+        url: coverInfo.coverUrl,
+        width: coverInfo.width,
+        height: coverInfo.height,
       ),
       pageCount:
           _tryParseInt(item['num_pages']) ?? _parseNhPageInfos(item).length,
@@ -1362,11 +1419,8 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       favoriteTagIndex: null,
       favoriteTagName: null,
       language: _findNhLanguage(item),
-      uploader: item['scanlator']?.toString(),
-      publishTime: DateTime.fromMillisecondsSinceEpoch(
-              (_tryParseInt(item['upload_date']) ?? 0) * 1000,
-              isUtc: true)
-          .toString(),
+      uploader: uploader,
+      publishTime: _formatNhPublishTime(item['upload_date']),
       isExpunged: false,
       tags: tags,
     );
@@ -1387,11 +1441,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         .toString();
     String? japaneseTitle = titleMap['japanese']?.toString();
 
-    Map<String, dynamic> imagesMap =
-        ((item['images'] as Map?) ?? const {}).cast<String, dynamic>();
-    Map<String, dynamic> coverMap =
-        ((imagesMap['cover'] as Map?) ?? const {}).cast<String, dynamic>();
-    String coverType = (coverMap['t'] ?? 'j').toString();
+    var coverInfo = _parseNhCover(item, mediaId);
 
     LinkedHashMap<String, List<GalleryTag>> tags = _parseNhTagsMap(item);
     int pageCount = _tryParseInt(item['num_pages']) ?? pageInfos.length;
@@ -1410,9 +1460,9 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
           : japaneseTitle,
       category: _findNhCategory(item),
       cover: GalleryImage(
-        url: _nhBuildCoverUrl(mediaId, coverType),
-        width: _tryParseInt(coverMap['w'])?.toDouble(),
-        height: _tryParseInt(coverMap['h'])?.toDouble(),
+        url: coverInfo.coverUrl,
+        width: coverInfo.width,
+        height: coverInfo.height,
       ),
       pageCount: pageCount,
       rating: 0,
@@ -1424,10 +1474,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       favoriteCount: _tryParseInt(item['num_favorites']) ?? 0,
       language: _findNhLanguage(item) ?? '',
       uploader: item['scanlator']?.toString(),
-      publishTime: DateTime.fromMillisecondsSinceEpoch(
-              (_tryParseInt(item['upload_date']) ?? 0) * 1000,
-              isUtc: true)
-          .toString(),
+      publishTime: _formatNhPublishTime(item['upload_date']),
       isExpunged: false,
       tags: tags,
       size: '$pageCount pages',
@@ -1460,18 +1507,18 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
           continue;
         }
 
-        String namespace = tag.namespace.trim();
+        String namespace = tag.namespace.trim().toLowerCase();
         if (namespace.isEmpty) {
           parts.add(key);
         } else {
-          parts.add('$namespace:$key');
+          parts.add(_formatNhField(namespace, key));
         }
       }
     }
 
     String? language = searchConfig.language?.trim();
     if (language != null && language.isNotEmpty) {
-      parts.add('language:$language');
+      parts.add(_formatNhField('language', language));
     }
 
     return parts.join(' ').trim();
@@ -1497,36 +1544,43 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 
     List<String> tokens = [];
     Iterable<RegExpMatch> matches =
-        RegExp(r'(\w+):"([^"]+)"|(\w+):(\S+)|"([^"]+)"|(\S+)')
+        RegExp(r'(-?)(\w+):"([^"]+)"|(-?)(\w+):(\S+)|"([^"]+)"|(\S+)')
             .allMatches(keyword);
 
     for (RegExpMatch match in matches) {
-      String? namespace = match.group(1) ?? match.group(3);
-      String? key = match.group(2) ?? match.group(4);
-      String? plain = match.group(5) ?? match.group(6);
+      String negative = (match.group(1) ?? match.group(4)) == '-' ? '-' : '';
+      String? namespace = match.group(2) ?? match.group(5);
+      String? key = match.group(3) ?? match.group(6);
+      String? plain = match.group(7) ?? match.group(8);
 
       if (namespace != null && key != null) {
-        String normalizedKey = key.replaceAll('\$', '').trim();
+        String normalizedKey = _stripTrailingExactMarker(key);
         if (normalizedKey.isEmpty) {
           continue;
         }
 
         String ns = namespace.toLowerCase();
         if (ns == 'title') {
-          tokens.add(normalizedKey);
+          tokens.add(
+            negative.isEmpty
+                ? _quoteNhTextIfNeeded(normalizedKey)
+                : '-${_quoteNhTextIfNeeded(normalizedKey)}',
+          );
           continue;
         }
         if (ns == 'uploader') {
-          tokens.add('artist:$normalizedKey');
+          tokens.add(
+            _formatNhField('artist', normalizedKey, negative: negative),
+          );
           continue;
         }
 
-        tokens.add('$ns:$normalizedKey');
+        tokens.add(_formatNhField(ns, normalizedKey, negative: negative));
         continue;
       }
 
       if (plain != null && plain.trim().isNotEmpty) {
-        tokens.add(plain.trim().replaceAll('\$', ''));
+        tokens.add(_quoteNhTextIfNeeded(_stripTrailingExactMarker(plain)));
       }
     }
 
@@ -1537,7 +1591,54 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return tokens.join(' ').trim();
   }
 
+  String _formatNhField(String namespace, String value, {String negative = ''}) {
+    return '$negative$namespace:${_quoteNhValue(value)}';
+  }
+
+  String _quoteNhValue(String value) {
+    String normalized = _stripTrailingExactMarker(value);
+    if (normalized.isEmpty) {
+      return '""';
+    }
+    String escaped = normalized.replaceAll('"', r'\"');
+    return '"$escaped"';
+  }
+
+  String _quoteNhTextIfNeeded(String value) {
+    String normalized = _stripTrailingExactMarker(value);
+    if (normalized.isEmpty) {
+      return '';
+    }
+    if (normalized.contains(' ')) {
+      return _quoteNhValue(normalized);
+    }
+    return normalized;
+  }
+
+  String _stripTrailingExactMarker(String value) {
+    return value.replaceAll('\$', '').trim();
+  }
+
   List<_NHentaiImageInfo> _parseNhPageInfos(Map<String, dynamic> item) {
+    // v2 format: pages[].path at top level
+    List<dynamic>? v2Pages = item['pages'] as List?;
+    if (v2Pages != null && v2Pages.isNotEmpty && v2Pages.first is Map) {
+      Map firstPage = v2Pages.first as Map;
+      if (firstPage.containsKey('path')) {
+        return v2Pages.whereType<Map>().map((raw) {
+          Map<String, dynamic> page = raw.cast<String, dynamic>();
+          return _NHentaiImageInfo(
+            type: _nhInferTypeFromPath(page['path']?.toString()) ??
+                (page['t'] ?? 'j').toString(),
+            width: _tryParseInt(page['width'] ?? page['w']),
+            height: _tryParseInt(page['height'] ?? page['h']),
+            path: page['path']?.toString(),
+          );
+        }).toList();
+      }
+    }
+
+    // v1 format: images.pages[].{t,w,h}
     Map<String, dynamic> images =
         ((item['images'] as Map?) ?? const {}).cast<String, dynamic>();
     List<dynamic> pages = (images['pages'] as List?) ?? const [];
@@ -1579,7 +1680,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         href: 'nh://${cache.gid}/$pageNo',
         isLarge: true,
         thumbUrl:
-            _nhBuildPageThumbnailUrl(cache.mediaId, pageNo, imageInfo.type),
+            _nhBuildPageThumbnailUrl(cache.mediaId, pageNo, imageInfo.type, imagePath: imageInfo.path),
         thumbWidth: imageInfo.width?.toDouble(),
         thumbHeight: imageInfo.height?.toDouble(),
         originImageHash: '${cache.mediaId}-$pageNo',
@@ -1633,11 +1734,11 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }
 
   String _findNhCategory(Map<String, dynamic> item) {
-    List<dynamic> tags = (item['tags'] as List?) ?? const [];
-    Map? categoryTag = tags
-        .whereType<Map>()
-        .firstWhereOrNull((tag) => tag['type']?.toString() == 'category');
-    String rawCategory = categoryTag?['name']?.toString() ?? 'manga';
+    String rawCategory = _parseNhTagsMap(item)['category']
+            ?.firstOrNull
+            ?.tagData
+            .key ??
+        'manga';
 
     switch (rawCategory.toLowerCase()) {
       case 'artistcg':
@@ -1671,13 +1772,8 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }
 
   String? _findNhLanguage(Map<String, dynamic> item) {
-    List<dynamic> tags = (item['tags'] as List?) ?? const [];
-    for (Map tag in tags.whereType<Map>()) {
-      if (tag['type']?.toString() != 'language') {
-        continue;
-      }
-
-      String language = tag['name']?.toString() ?? '';
+    for (GalleryTag tag in _parseNhTagsMap(item)['language'] ?? const <GalleryTag>[]) {
+      String language = tag.tagData.key;
       if (language.isEmpty || language == 'translated') {
         continue;
       }
@@ -1690,6 +1786,16 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       Map<String, dynamic> item) {
     LinkedHashMap<String, List<GalleryTag>> result = LinkedHashMap();
     List<dynamic> rawTags = (item['tags'] as List?) ?? const [];
+
+    if (rawTags.isEmpty) {
+      List<int> tagIds = ((item['tag_ids'] as List?) ?? const [])
+          .map(_tryParseInt)
+          .whereType<int>()
+          .toList();
+      if (tagIds.isNotEmpty) {
+        return nhentaiTagIdService.mapTagIds(tagIds);
+      }
+    }
 
     for (Map tagMap in rawTags.whereType<Map>()) {
       String name = tagMap['name']?.toString() ?? '';
@@ -1742,21 +1848,106 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       case 'w':
       case 'webp':
         return 'webp';
+      case 'jpg.webp':
+        return 'jpg.webp';
+      case 'png.webp':
+        return 'png.webp';
+      case 'gif.webp':
+        return 'gif.webp';
+      case 'webp.webp':
+        return 'webp.webp';
       default:
         return 'jpg';
     }
   }
 
-  String _nhBuildCoverUrl(String mediaId, String type) {
-    return 'https://t.nhentai.net/galleries/$mediaId/cover.${_nhType2Ext(type)}';
+  String? _nhInferTypeFromPath(String? path) {
+    if (path == null || path.isEmpty) {
+      return null;
+    }
+
+    String normalized = path.toLowerCase();
+    int dotIndex = normalized.lastIndexOf('.');
+    if (dotIndex < 0 || dotIndex == normalized.length - 1) {
+      return null;
+    }
+
+    String ext = normalized.substring(dotIndex + 1);
+    switch (ext) {
+      case 'jpg':
+      case 'jpeg':
+        return 'j';
+      case 'png':
+        return 'p';
+      case 'gif':
+        return 'g';
+      case 'webp':
+        return 'w';
+      default:
+        return ext;
+    }
   }
 
-  String _nhBuildPageThumbnailUrl(String mediaId, int pageNo, String type) {
-    return 'https://t.nhentai.net/galleries/$mediaId/${pageNo}t.${_nhType2Ext(type)}';
+  bool _nhHasFullDetail(Map<String, dynamic> item) {
+    if (item['pages'] is List) {
+      return true;
+    }
+    if (item['title'] is Map) {
+      return true;
+    }
+    List<dynamic>? tags = item['tags'] as List?;
+    if (tags != null && tags.isNotEmpty && tags.first is Map) {
+      return true;
+    }
+    return false;
   }
 
-  String _nhBuildPageImageUrl(String mediaId, int pageNo, String type) {
-    return 'https://i.nhentai.net/galleries/$mediaId/$pageNo.${_nhType2Ext(type)}';
+  String _formatNhPublishTime(dynamic uploadDate) {
+    int? seconds = _tryParseInt(uploadDate);
+    if (seconds == null || seconds <= 0) {
+      return '';
+    }
+
+    DateTime utc = DateTime.fromMillisecondsSinceEpoch(seconds * 1000, isUtc: true);
+    return DateFormat('yyyy-MM-dd HH:mm').format(utc);
+  }
+
+  String _nhResolvePath(String path, {required String cdnHost}) {
+    if (path.startsWith('https://') || path.startsWith('http://')) {
+      return path;
+    }
+    if (path.startsWith('//')) {
+      return 'https:$path';
+    }
+    String normalized = path.startsWith('/') ? path.substring(1) : path;
+    return 'https://$cdnHost/$normalized';
+  }
+
+  String _nhBuildCoverUrl(String mediaId, String type, {String? coverPath}) {
+    if (coverPath != null && coverPath.isNotEmpty) {
+      return _nhResolvePath(coverPath, cdnHost: 't1.nhentai.net');
+    }
+    return 'https://t1.nhentai.net/galleries/$mediaId/cover.${_nhType2Ext(type)}';
+  }
+
+  String _nhBuildPageThumbnailUrl(String mediaId, int pageNo, String type, {String? imagePath}) {
+    if (imagePath != null && imagePath.isNotEmpty) {
+      // Convert image path to thumbnail: /galleries/123/1.jpg → /galleries/123/1t.jpg
+      String normalized = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
+      int dotIndex = normalized.lastIndexOf('.');
+      if (dotIndex > 0) {
+        normalized = '${normalized.substring(0, dotIndex)}t${normalized.substring(dotIndex)}';
+      }
+      return 'https://t1.nhentai.net/$normalized';
+    }
+    return 'https://t1.nhentai.net/galleries/$mediaId/${pageNo}t.${_nhType2Ext(type)}';
+  }
+
+  String _nhBuildPageImageUrl(String mediaId, int pageNo, String type, {String? imagePath}) {
+    if (imagePath != null && imagePath.isNotEmpty) {
+      return _nhResolvePath(imagePath, cdnHost: 'i1.nhentai.net');
+    }
+    return 'https://i1.nhentai.net/galleries/$mediaId/$pageNo.${_nhType2Ext(type)}';
   }
 
   int _parseInt(dynamic value) {
@@ -1987,9 +2178,14 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     }
 
     String? keyword = _normalizeWnKeyword(searchConfig?.keyword);
+    String? tagKeyword = _extractWnTagKeyword(keyword);
 
     String requestUrl;
-    if (keyword != null && keyword.isNotEmpty) {
+    if (tagKeyword != null && tagKeyword.isNotEmpty) {
+      String encodedTag = Uri.encodeComponent(tagKeyword);
+      requestUrl =
+          'https://$_wnDomain/albums-index-page-$pageNo-tag-$encodedTag.html';
+    } else if (keyword != null && keyword.isNotEmpty) {
       requestUrl =
           'https://$_wnDomain/search/index.php?q=${Uri.encodeComponent(keyword)}&syn=yes&f=_all&s=create_time_DESC&p=$pageNo';
     } else {
@@ -2026,6 +2222,8 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 
       int aid = int.parse(aidMatch.group(1)!);
       String title = titleLink.text.trim();
+      String infoText = item.querySelector('.info_col')?.text.trim() ?? '';
+      ({int? pageCount, String publishTime}) meta = _parseWnSearchMeta(infoText);
 
       var img = item.querySelector('img');
       String coverUrl = '';
@@ -2043,14 +2241,14 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         title: title,
         category: 'Manga',
         cover: GalleryImage(url: coverUrl),
-        pageCount: null,
+        pageCount: meta.pageCount,
         rating: 0,
         hasRated: false,
         favoriteTagIndex: null,
         favoriteTagName: null,
         language: null,
         uploader: null,
-        publishTime: '',
+        publishTime: meta.publishTime,
         isExpunged: false,
         tags: LinkedHashMap(),
       ));
@@ -2072,7 +2270,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 
     // Fallback: check if there's a next page link
     if (totalPages == null) {
-      var pageLinks = document.querySelectorAll('.page_num a');
+      var pageLinks = document.querySelectorAll('.f_left.paginator > a, .page_num a');
       int maxPage = currentPage;
       for (var link in pageLinks) {
         int? p = int.tryParse(link.text.trim());
@@ -2080,9 +2278,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
           maxPage = p;
         }
       }
-      if (maxPage > currentPage) {
-        totalPages = maxPage;
-      }
+      totalPages = maxPage >= currentPage ? maxPage : null;
     }
 
     String? next;
@@ -2114,6 +2310,54 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     }
 
     return keyword;
+  }
+
+  String? _extractWnTagKeyword(String? keyword) {
+    if (keyword == null) {
+      return null;
+    }
+
+    String normalized = keyword.trim();
+    if (normalized.isEmpty) {
+      return null;
+    }
+
+    RegExpMatch? match = RegExp(r'^(?:tag):"(.+?)\$?"$').firstMatch(normalized);
+    match ??= RegExp(r'^(?:tag):(\S+)$').firstMatch(normalized);
+    if (match == null) {
+      return null;
+    }
+
+    String tag = match.group(1)?.trim() ?? '';
+    if (tag.isEmpty) {
+      return null;
+    }
+
+    return _stripTrailingExactMarker(tag);
+  }
+
+  ({int? pageCount, String publishTime}) _parseWnSearchMeta(String infoText) {
+    int? pageCount =
+        int.tryParse(RegExp(r'(\d+)\s*張圖片').firstMatch(infoText)?.group(1) ?? '');
+
+    String publishTime = '';
+    RegExpMatch? timeMatch =
+        RegExp(r'創建於(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})(?::\d{2})?').firstMatch(infoText);
+    if (timeMatch != null) {
+      publishTime = timeMatch.group(1)!.replaceAll(RegExp(r'\s+'), ' ').trim();
+    }
+
+    return (pageCount: pageCount, publishTime: publishTime);
+  }
+
+  String _parseWnDetailPublishTime(String html) {
+    RegExpMatch? match =
+        RegExp(r'上傳於\s*(\d{4}-\d{2}-\d{2})').firstMatch(html);
+    if (match == null) {
+      return '';
+    }
+
+    return '${match.group(1)!} 00:00';
   }
 
   // ── wnacg detail page ───────────────────────────────────────────────
@@ -2174,6 +2418,18 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     if (coverImg != null) {
       cover = _normalizeWnUrl(coverImg.attributes['src'] ?? '');
     }
+    String publishTime = _parseWnDetailPublishTime(detailHtml);
+
+    List<html_dom.Element> labels =
+        detailDoc.querySelectorAll('.asTBcell.uwconn > label');
+    String category = labels.isNotEmpty
+        ? labels.first.text.trim().replaceFirst('分類：', '')
+        : 'Manga';
+    int? detailImageCount = labels.length > 1
+        ? int.tryParse(
+            labels[1].text.trim().replaceFirst('頁數：', '').replaceAll('P', ''),
+          )
+        : null;
 
     // Parse tags
     LinkedHashMap<String, List<GalleryTag>> tags = LinkedHashMap();
@@ -2211,8 +2467,9 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       imageInfos: imageInfos,
       title: title,
       cover: cover,
-      category: 'Manga',
-      imageCount: imageInfos.length,
+      category: category,
+      imageCount: detailImageCount ?? imageInfos.length,
+      publishTime: publishTime,
       tags: tags,
     );
 
@@ -2251,10 +2508,23 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 
   /// Normalize wnacg URLs: strip excess leading slashes and add https://
   String _normalizeWnUrl(String raw) {
-    if (raw.startsWith('//')) {
-      return 'https://${raw.replaceFirst(RegExp(r'^/+'), '')}';
+    String normalized = raw.trim();
+    if (normalized.isEmpty) {
+      return normalized;
     }
-    return raw;
+    if (normalized.startsWith('https://') || normalized.startsWith('http://')) {
+      return normalized;
+    }
+    if (normalized.startsWith('//')) {
+      return 'https:${normalized.replaceFirst(RegExp(r'^/+'), '//')}';
+    }
+    if (normalized.startsWith('/')) {
+      return 'https://$_wnDomain$normalized';
+    }
+    if (normalized.startsWith('themes/') || normalized.startsWith('statics/')) {
+      return 'https://$_wnDomain/$normalized';
+    }
+    return 'https://${normalized.replaceFirst(RegExp(r'^/+'), '')}';
   }
 
   GalleryDetail _buildWnGalleryDetail(_WnacgGalleryCache cache) {
@@ -2281,7 +2551,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       favoriteCount: 0,
       language: 'N/A',
       uploader: null,
-      publishTime: '2000-01-01 00:00',
+      publishTime: cache.publishTime,
       isExpunged: false,
       tags: cache.tags,
       size: '$pageCount pages',
@@ -2470,11 +2740,13 @@ class _NHentaiImageInfo {
   final String type;
   final int? width;
   final int? height;
+  final String? path;
 
   const _NHentaiImageInfo({
     required this.type,
-    required this.width,
-    required this.height,
+    this.width,
+    this.height,
+    this.path,
   });
 }
 
@@ -2484,6 +2756,7 @@ class _NHentaiGalleryCache {
   final GalleryUrl galleryUrl;
   final List<_NHentaiImageInfo> pageInfos;
   final Map<String, dynamic> rawGallery;
+  final bool hasFullDetail;
 
   const _NHentaiGalleryCache({
     required this.gid,
@@ -2491,6 +2764,7 @@ class _NHentaiGalleryCache {
     required this.galleryUrl,
     required this.pageInfos,
     required this.rawGallery,
+    required this.hasFullDetail,
   });
 }
 
@@ -2509,6 +2783,7 @@ class _WnacgGalleryCache {
   final String cover;
   final String category;
   final int imageCount;
+  final String publishTime;
   final LinkedHashMap<String, List<GalleryTag>> tags;
 
   const _WnacgGalleryCache({
@@ -2519,6 +2794,7 @@ class _WnacgGalleryCache {
     required this.cover,
     required this.category,
     required this.imageCount,
+    required this.publishTime,
     required this.tags,
   });
 }

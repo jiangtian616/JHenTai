@@ -23,6 +23,7 @@ import 'package:jhentai/src/service/quick_search_service.dart';
 import 'package:jhentai/src/service/schedule_service.dart';
 import 'package:jhentai/src/service/search_history_service.dart';
 import 'package:jhentai/src/service/nhentai_favorite_service.dart';
+import 'package:jhentai/src/service/nhentai_tag_id_service.dart';
 import 'package:jhentai/src/service/wnacg_favorite_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
@@ -48,7 +49,6 @@ import 'package:jhentai/src/setting/super_resolution_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/setting/sync_setting.dart';
 import 'package:jhentai/src/widget/app_manager.dart';
-import 'exception/upload_exception.dart';
 import 'package:jhentai/src/l18n/locale_text.dart';
 import 'package:jhentai/src/routes/getx_router_observer.dart';
 import 'package:jhentai/src/routes/routes.dart';
@@ -80,6 +80,7 @@ List<JHLifeCircleBean> lifeCircleBeans = [
   scheduleService,
   searchHistoryService,
   nhentaiFavoriteService,
+  nhentaiTagIdService,
   wnacgFavoriteService,
   storageService,
   superResolutionService,
