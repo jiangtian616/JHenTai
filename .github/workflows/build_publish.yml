@@ -68,7 +68,7 @@ jobs:
     steps:
       # Checkout branch
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6.0.2
       # Add Android keystore
       - name: Setup Android keystore
         if: matrix.target == 'Android'
@@ -96,7 +96,7 @@ jobs:
           fi
       # Setup Flutter
       - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+        uses: subosito/flutter-action@v2.23.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'master'
@@ -107,7 +107,7 @@ jobs:
       # Cache Pod
       - name: Cache Pod
         if: matrix.cache_pod_key != null
-        uses: actions/cache@v3
+        uses: actions/cache@v5.0.4
         with:
           key: ${{ matrix.cache_pod_key }}
           path: ${{ matrix.cache_pod_path }}
@@ -115,7 +115,7 @@ jobs:
       # Setup JDK
       - name: Setup JDK 17 (Android)
         if: matrix.target == 'Android'
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v5.2.0
         with:
           distribution: 'zulu'
           java-version: '17'
@@ -238,7 +238,7 @@ jobs:
           mv JHenTai-latest-x86_64.AppImage JHenTai-${{ steps.get_version.outputs.version }}-Linux-x64.AppImage
       # Upload Artifacts
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.0
         with:
           name: ${{ matrix.artifact_name }}
           path: ${{ matrix.artifact_path }}
@@ -249,7 +249,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 0
 
@@ -271,7 +271,7 @@ jobs:
 
       - name: Download all Artifacts
         if: steps.rel.outputs.tag != ''
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8.0.1
         with:
           path: /tmp/artifacts
 
@@ -298,7 +298,7 @@ jobs:
 
       - name: Upload to release
         if: steps.rel.outputs.tag != ''
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@v1.21.0
         with:
           tag: ${{ steps.rel.outputs.tag }}
           allowUpdates: true

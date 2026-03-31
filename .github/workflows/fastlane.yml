@@ -15,6 +15,6 @@ jobs:
   go:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.2
       - name: Validate Fastlane Supply Metadata
-        uses: ashutoshgngwr/validate-fastlane-supply-metadata@v2
+        uses: ashutoshgngwr/validate-fastlane-supply-metadata@v2.1.0
