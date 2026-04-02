@@ -8,19 +8,23 @@ class ThemeConfig {
       colorSchemeSeed: color,
 
       /// default w500 is not supported for chinese characters in some devices
-      textTheme: const TextTheme(titleMedium: TextStyle(fontWeight: FontWeight.w400)),
+      textTheme:
+          const TextTheme(titleMedium: TextStyle(fontWeight: FontWeight.w400)),
       appBarTheme: const AppBarTheme(scrolledUnderElevation: 0),
       navigationBarTheme: const NavigationBarThemeData(
         height: 48,
         surfaceTintColor: Colors.transparent,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
       ),
-      popupMenuTheme: const PopupMenuThemeData(surfaceTintColor: Colors.transparent),
+      popupMenuTheme:
+          const PopupMenuThemeData(surfaceTintColor: Colors.transparent),
     );
 
     return themeData.copyWith(
-      appBarTheme: themeData.appBarTheme.copyWith(backgroundColor: themeData.colorScheme.surface),
-      dialogTheme: DialogTheme(backgroundColor: themeData.colorScheme.surface),
+      appBarTheme: themeData.appBarTheme
+          .copyWith(backgroundColor: themeData.colorScheme.surface),
+      dialogTheme:
+          DialogThemeData(backgroundColor: themeData.colorScheme.surface),
     );
   }
 }
