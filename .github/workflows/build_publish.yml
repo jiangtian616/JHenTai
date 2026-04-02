@@ -87,7 +87,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'master'
+          channel: 'stable'
           cache: true
       # Output Flutter Version
       - name: Output Flutter Version
@@ -97,9 +97,10 @@ jobs:
         if: matrix.cache_pod_key != null
         uses: actions/cache@v3
         with:
-          key: ${{ matrix.cache_pod_key }}
+          key: ${{ matrix.cache_pod_key }}-${{ hashFiles(matrix.cache_pod_restore_keys_hash_file) }}
           path: ${{ matrix.cache_pod_path }}
-          restore-keys: ${{ matrix.cache_key }}-${{ hashFiles(matrix.cache_pod_restore_keys_hash_file)}}
+          restore-keys: |
+            ${{ matrix.cache_pod_key }}-
       # Setup JDK
       - name: Setup JDK 17 (Android)
         if: matrix.target == 'Android'
@@ -108,10 +109,13 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
           cache: gradle
-      # Xcodebuild
-      - name: Build Xcode
-        if: matrix.os == 'macos-latest'
+      # Resolve Xcode package dependencies
+      - name: Resolve iOS package dependencies
+        if: matrix.target == 'iOS'
         run: xcodebuild -resolvePackageDependencies -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release
+      - name: Resolve macOS package dependencies
+        if: matrix.target == 'macOS'
+        run: xcodebuild -resolvePackageDependencies -workspace macos/Runner.xcworkspace -scheme Runner -configuration Release
       # Flutter Pub Get
       - name: Flutter Pub Get
         run: |
@@ -316,6 +320,10 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add altsource/AltSource.json
+          if git diff --cached --quiet; then
+            echo "No AltSource changes to commit"
+            exit 0
+          fi
           git commit -m "Update AltSource.json for version ${{ needs.Build.outputs.version }}"
           git push origin HEAD:master
 
