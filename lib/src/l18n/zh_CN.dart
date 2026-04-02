@@ -200,6 +200,7 @@ class zh_CN {
       'commentTooShort': '评论过短',
       'sendCommentFailed': '发送评论失败',
       'voteCommentFailed': '投票评论失败',
+      'voteCommentFailedHint': '请先下拉刷新详情页面',
       'unknownUser': '未知用户',
       'atLeast3Characters': '至少3个字符',
       'noJHenTaiHints': '请不要提及JHenTai，感谢理解',
