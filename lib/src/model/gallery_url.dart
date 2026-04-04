@@ -5,6 +5,7 @@ class GalleryUrl {
   final bool isEH;
   final bool isNH;
   final bool isWN;
+  final String? sourceHost;
 
   final int gid;
 
@@ -16,6 +17,7 @@ class GalleryUrl {
     required this.token,
     this.isNH = false,
     this.isWN = false,
+    this.sourceHost,
   }) : assert(isWN || isNH || token.length == 10);
 
   static GalleryUrl? tryParse(String url) {
@@ -40,6 +42,7 @@ class GalleryUrl {
           isNH: true,
           gid: int.parse(nhMatch.group(1)!),
           token: 'nhentai',
+          sourceHost: domain,
         );
       }
     }
@@ -79,7 +82,7 @@ class GalleryUrl {
       return 'https://${ehSetting.wnacgDomain.value}/photos-index-aid-$gid.html';
     }
     if (isNH) {
-      return 'https://nhentai.net/g/$gid/';
+      return 'https://${sourceHost ?? 'nhentai.net'}/g/$gid/';
     }
     return isEH
         ? 'https://e-hentai.org/g/$gid/$token/'
@@ -90,6 +93,7 @@ class GalleryUrl {
     bool? isEH,
     bool? isNH,
     bool? isWN,
+    String? sourceHost,
     int? gid,
     String? token,
   }) {
@@ -97,6 +101,7 @@ class GalleryUrl {
       isEH: isEH ?? this.isEH,
       isNH: isNH ?? this.isNH,
       isWN: isWN ?? this.isWN,
+      sourceHost: sourceHost ?? this.sourceHost,
       gid: gid ?? this.gid,
       token: token ?? this.token,
     );
@@ -104,6 +109,6 @@ class GalleryUrl {
 
   @override
   String toString() {
-    return 'GalleryUrl{isEH: $isEH, isNH: $isNH, isWN: $isWN, gid: $gid, token: $token}';
+    return 'GalleryUrl{isEH: $isEH, isNH: $isNH, isWN: $isWN, sourceHost: $sourceHost, gid: $gid, token: $token}';
   }
 }

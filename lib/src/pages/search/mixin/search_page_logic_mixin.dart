@@ -79,6 +79,9 @@ mixin SearchPageLogicMixin on BasePageLogic {
     await state.searchConfigInitCompleter.future;
 
     state.searchConfig.isNhSearch = !state.searchConfig.isNhSearch;
+    if (state.searchConfig.isNhSearch) {
+      state.searchConfig.nhentaiSource = 'net';
+    }
     await onInputChanged(state.searchConfig.keyword ?? '');
     updateSafely([searchFieldId]);
   }
@@ -90,6 +93,9 @@ mixin SearchPageLogicMixin on BasePageLogic {
       return;
     }
     state.searchConfig.isNhSearch = value;
+    if (value) {
+      state.searchConfig.nhentaiSource = 'net';
+    }
     await onInputChanged(state.searchConfig.keyword ?? '');
     updateSafely([searchFieldId]);
   }
@@ -97,16 +103,21 @@ mixin SearchPageLogicMixin on BasePageLogic {
   Future<void> setSiteSearchMode(String site) async {
     await state.searchConfigInitCompleter.future;
 
-    bool newNh = site == 'NH';
+    bool newNh = site == 'NH_NET' || site == 'NH_TO';
     bool newWn = site == 'WN';
+    String newNhSource = site == 'NH_TO' ? 'to' : 'net';
 
     if (state.searchConfig.isNhSearch == newNh &&
-        state.searchConfig.isWnacgSearch == newWn) {
+        state.searchConfig.isWnacgSearch == newWn &&
+        state.searchConfig.nhentaiSource == newNhSource) {
       return;
     }
 
     state.searchConfig.isNhSearch = newNh;
     state.searchConfig.isWnacgSearch = newWn;
+    if (newNh) {
+      state.searchConfig.nhentaiSource = newNhSource;
+    }
     await onInputChanged(state.searchConfig.keyword ?? '');
     updateSafely([searchFieldId]);
   }

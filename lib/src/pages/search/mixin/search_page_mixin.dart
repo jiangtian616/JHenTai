@@ -62,7 +62,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin,
                   ? Colors.orange
                   : null),
         tooltip: state.searchConfig.isNhSearch
-            ? 'NH'
+            ? 'NH-${state.searchConfig.nhentaiSource}'
             : state.searchConfig.isWnacgSearch
                 ? 'WN'
                 : 'EH',
@@ -74,9 +74,16 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin,
             child: const Text('EH'),
           ),
           PopupMenuItem(
-            value: 'NH',
-            enabled: !state.searchConfig.isNhSearch,
-            child: const Text('NH'),
+            value: 'NH_NET',
+            enabled: !(state.searchConfig.isNhSearch &&
+                state.searchConfig.nhentaiSource == 'net'),
+            child: const Text('NH-net'),
+          ),
+          PopupMenuItem(
+            value: 'NH_TO',
+            enabled: !(state.searchConfig.isNhSearch &&
+                state.searchConfig.nhentaiSource == 'to'),
+            child: const Text('NH-to'),
           ),
           PopupMenuItem(
             value: 'WN',

@@ -49,6 +49,7 @@ class SearchConfig {
 
   bool isNhSearch;
   bool isWnacgSearch;
+  String nhentaiSource;
 
   SearchConfig({
     this.searchType = SearchType.gallery,
@@ -76,6 +77,7 @@ class SearchConfig {
     this.searchFavoriteCategoryIndex,
     this.isNhSearch = false,
     this.isWnacgSearch = false,
+    this.nhentaiSource = 'net',
   });
 
   SearchConfig.nonHOnly({
@@ -104,6 +106,7 @@ class SearchConfig {
     this.searchFavoriteCategoryIndex,
     this.isNhSearch = false,
     this.isWnacgSearch = false,
+    this.nhentaiSource = 'net',
   });
 
   void enableAllCategories() {
@@ -296,6 +299,7 @@ class SearchConfig {
       searchFavoriteCategoryIndex: json["searchFavoriteCategoryIndex"],
       isNhSearch: json["isNhSearch"] ?? false,
       isWnacgSearch: json["isWnacgSearch"] ?? false,
+      nhentaiSource: json["nhentaiSource"] ?? 'net',
     );
   }
 
@@ -326,6 +330,7 @@ class SearchConfig {
       "searchFavoriteCategoryIndex": searchFavoriteCategoryIndex,
       "isNhSearch": isNhSearch,
       "isWnacgSearch": isWnacgSearch,
+      "nhentaiSource": nhentaiSource,
     };
   }
 
@@ -354,6 +359,7 @@ class SearchConfig {
     bool? disableFilterForTags,
     bool? isNhSearch,
     bool? isWnacgSearch,
+    String? nhentaiSource,
   }) {
     return SearchConfig(
       searchType: searchType ?? this.searchType,
@@ -381,11 +387,12 @@ class SearchConfig {
       searchFavoriteCategoryIndex: searchFavoriteCategoryIndex ?? searchFavoriteCategoryIndex,
       isNhSearch: isNhSearch ?? this.isNhSearch,
       isWnacgSearch: isWnacgSearch ?? this.isWnacgSearch,
+      nhentaiSource: nhentaiSource ?? this.nhentaiSource,
     );
   }
 
   @override
   String toString() {
-    return 'SearchConfig{searchType: $searchType, includeDoujinshi: $includeDoujinshi, includeManga: $includeManga, includeArtistCG: $includeArtistCG, includeGameCg: $includeGameCg, includeWestern: $includeWestern, includeNonH: $includeNonH, includeImageSet: $includeImageSet, includeCosplay: $includeCosplay, includeAsianPorn: $includeAsianPorn, includeMisc: $includeMisc, keyword: $keyword, tags: $tags, language: $language, onlySearchExpungedGalleries: $onlySearchExpungedGalleries, onlyShowGalleriesWithTorrents: $onlyShowGalleriesWithTorrents, pageAtLeast: $pageAtLeast, pageAtMost: $pageAtMost, minimumRating: $minimumRating, disableFilterForLanguage: $disableFilterForLanguage, disableFilterForUploader: $disableFilterForUploader, disableFilterForTags: $disableFilterForTags, searchFavoriteCategoryIndex: $searchFavoriteCategoryIndex, isNhSearch: $isNhSearch, isWnacgSearch: $isWnacgSearch}';
+    return 'SearchConfig{searchType: $searchType, includeDoujinshi: $includeDoujinshi, includeManga: $includeManga, includeArtistCG: $includeArtistCG, includeGameCg: $includeGameCg, includeWestern: $includeWestern, includeNonH: $includeNonH, includeImageSet: $includeImageSet, includeCosplay: $includeCosplay, includeAsianPorn: $includeAsianPorn, includeMisc: $includeMisc, keyword: $keyword, tags: $tags, language: $language, onlySearchExpungedGalleries: $onlySearchExpungedGalleries, onlyShowGalleriesWithTorrents: $onlyShowGalleriesWithTorrents, pageAtLeast: $pageAtLeast, pageAtMost: $pageAtMost, minimumRating: $minimumRating, disableFilterForLanguage: $disableFilterForLanguage, disableFilterForUploader: $disableFilterForUploader, disableFilterForTags: $disableFilterForTags, searchFavoriteCategoryIndex: $searchFavoriteCategoryIndex, isNhSearch: $isNhSearch, isWnacgSearch: $isWnacgSearch, nhentaiSource: $nhentaiSource}';
   }
 }

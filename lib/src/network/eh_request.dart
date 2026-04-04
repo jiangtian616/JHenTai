@@ -60,9 +60,8 @@ class EHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late final EHIpProvider _ehIpProvider;
   late final String systemProxyAddress;
 
-  static const String _nhApiBase = 'https://nhentai.net/api/v2';
   static const int _nhThumbnailsPerPage = 40;
-  final Map<int, _NHentaiGalleryCache> _nhGalleryCache = {};
+  final Map<String, _NHentaiGalleryCache> _nhGalleryCache = {};
 
   static const String _wnDefaultDomain = 'www.wn07.ru';
   static const int _wnThumbnailsPerPage = 40;
@@ -73,8 +72,8 @@ class EHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   static const String domainFrontingExtraKey = 'JHDF';
 
   @override
-  List<JHLifeCircleBean> get initDependencies =>
-      super.initDependencies..addAll([networkSetting, ehSetting, nhentaiTagIdService]);
+  List<JHLifeCircleBean> get initDependencies => super.initDependencies
+    ..addAll([networkSetting, ehSetting, nhentaiTagIdService]);
 
   @override
   Future<void> doInitBean() async {
@@ -1034,10 +1033,77 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       return false;
     }
     String host = uri.host.toLowerCase();
-    return host == 'nhentai.net' ||
-        host == 'www.nhentai.net' ||
-        host.endsWith('.nhentai.net');
+    return ehSetting.nhentaiDomains.any((domain) {
+      String normalized = domain.toLowerCase();
+      return host == normalized ||
+          host == 'www.$normalized' ||
+          host.endsWith('.$normalized');
+    });
   }
+
+  String _nhNormalizeHost(String host) {
+    String normalized = host.trim().toLowerCase();
+    if (normalized.startsWith('www.')) {
+      normalized = normalized.substring(4);
+    }
+    return normalized;
+  }
+
+  List<String> _nhFallbackHosts(String preferredHost) {
+    List<String> hosts = [];
+    Set<String> seen = <String>{};
+
+    void addHost(String? host) {
+      if (host == null) {
+        return;
+      }
+
+      String normalized = _nhNormalizeHost(host);
+      if (normalized.isEmpty || !seen.add(normalized)) {
+        return;
+      }
+
+      hosts.add(normalized);
+    }
+
+    addHost(preferredHost);
+    for (String domain in ehSetting.nhentaiDomains) {
+      addHost(domain);
+    }
+    addHost('nhentai.net');
+    addHost('nhentai.to');
+
+    return hosts;
+  }
+
+  bool _nhCanFallbackRequest(DioException exception) {
+    int? statusCode = exception.response?.statusCode;
+    if (statusCode == 404 ||
+        statusCode == 403 ||
+        statusCode == 429 ||
+        (statusCode != null && statusCode >= 500)) {
+      return true;
+    }
+
+    return exception.type == DioExceptionType.connectionError ||
+        exception.type == DioExceptionType.connectionTimeout ||
+        exception.type == DioExceptionType.receiveTimeout ||
+        exception.type == DioExceptionType.unknown;
+  }
+
+  String _nhCdnHost(String sourceHost, {required String prefix}) =>
+      '$prefix.${_nhNormalizeHost(sourceHost)}';
+
+  String _nhSourceToHost(String source) =>
+      _nhNormalizeHost(source == 'to' ? 'nhentai.to' : 'nhentai.net');
+
+  String _nhHostFromSearchConfig(SearchConfig? searchConfig) =>
+      _nhSourceToHost(searchConfig?.nhentaiSource ?? 'net');
+
+  String _nhHostFromGalleryUrl(GalleryUrl galleryUrl) =>
+      _nhNormalizeHost(galleryUrl.sourceHost ?? 'nhentai.net');
+
+  String _nhCacheKey(String host, int gid) => '$host::$gid';
 
   bool _shouldUseNhSearch({String? url, SearchConfig? searchConfig}) {
     if (_isNhentaiUrl(url)) {
@@ -1088,52 +1154,103 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       pageNo = 1;
     }
 
+    String preferredHost = url != null && _isNhentaiUrl(url)
+        ? (Uri.tryParse(url)?.host ?? _nhHostFromSearchConfig(searchConfig))
+        : _nhHostFromSearchConfig(searchConfig);
+    preferredHost = _nhNormalizeHost(preferredHost);
+
     bool isPopularRequest = searchType == SearchType.popular ||
         (url?.contains('/popular') ?? false);
     String query = _buildNhQuery(searchConfig);
 
-    Map<String, dynamic> body;
-    if (isPopularRequest) {
-      body = await _requestNhApiSearch(
-        query: query.isEmpty ? '*' : query,
-        sort: 'popular-week',
-        pageNo: pageNo,
-      );
-    } else if (query.isEmpty || query == '*') {
-      body = await _requestNhApiAll(pageNo: pageNo);
-    } else {
-      body = await _requestNhApiSearch(
-        query: query,
-        sort: 'date',
-        pageNo: pageNo,
-      );
+    DioException? lastException;
+    List<String> fallbackHosts = _nhFallbackHosts(preferredHost);
+
+    for (int index = 0; index < fallbackHosts.length; index++) {
+      String host = fallbackHosts[index];
+
+      try {
+        if (host == 'nhentai.to') {
+          GalleryPageInfo pageInfo = await _requestNhToGalleryPage(
+            host: host,
+            pageNo: pageNo,
+            query: query,
+          );
+          if (pageInfo.gallerys.isEmpty &&
+              pageNo == 1 &&
+              query.isNotEmpty &&
+              index < fallbackHosts.length - 1) {
+            continue;
+          }
+          return pageInfo as T;
+        }
+
+        Map<String, dynamic> body;
+        if (isPopularRequest) {
+          body = await _requestNhApiSearch(
+            host: host,
+            query: query.isEmpty ? '*' : query,
+            sort: 'popular-week',
+            pageNo: pageNo,
+          );
+        } else if (query.isEmpty || query == '*') {
+          body = await _requestNhApiAll(host: host, pageNo: pageNo);
+        } else {
+          body = await _requestNhApiSearch(
+            host: host,
+            query: query,
+            sort: 'date',
+            pageNo: pageNo,
+          );
+        }
+
+        List<Gallery> gallerys = _parseNhGalleryList(body, sourceHost: host);
+        int totalPages = _tryParseInt(body['num_pages']) ?? 0;
+        int? perPage = _tryParseInt(body['per_page']);
+
+        String? next;
+        if (totalPages > 0) {
+          next = pageNo < totalPages ? (pageNo + 1).toString() : null;
+        } else {
+          next = gallerys.isEmpty ? null : (pageNo + 1).toString();
+        }
+
+        GalleryCount? totalCount;
+        if (totalPages > 0 && perPage != null) {
+          totalCount = GalleryCount(
+            type: GalleryCountType.accurate,
+            count: (totalPages * perPage).toString(),
+          );
+        }
+
+        if (gallerys.isEmpty &&
+            pageNo == 1 &&
+            query.isNotEmpty &&
+            index < fallbackHosts.length - 1) {
+          continue;
+        }
+
+        return GalleryPageInfo(
+          gallerys: gallerys,
+          totalCount: totalCount,
+          prevGid: pageNo > 1 ? (pageNo - 1).toString() : null,
+          nextGid: next,
+        ) as T;
+      } on DioException catch (e) {
+        lastException = e;
+        if (index < fallbackHosts.length - 1 && _nhCanFallbackRequest(e)) {
+          continue;
+        }
+        rethrow;
+      }
     }
 
-    List<Gallery> gallerys = _parseNhGalleryList(body);
-    int totalPages = _tryParseInt(body['num_pages']) ?? 0;
-    int? perPage = _tryParseInt(body['per_page']);
-
-    String? next;
-    if (totalPages > 0) {
-      next = pageNo < totalPages ? (pageNo + 1).toString() : null;
-    } else {
-      next = gallerys.isEmpty ? null : (pageNo + 1).toString();
-    }
-
-    GalleryCount? totalCount;
-    if (totalPages > 0 && perPage != null) {
-      totalCount = GalleryCount(
-        type: GalleryCountType.accurate,
-        count: (totalPages * perPage).toString(),
-      );
-    }
-
-    return GalleryPageInfo(
-      gallerys: gallerys,
-      totalCount: totalCount,
-      prevGid: pageNo > 1 ? (pageNo - 1).toString() : null,
-      nextGid: next,
-    ) as T;
+    throw lastException ??
+        EHSiteException(
+          type: EHSiteExceptionType.internalError,
+          message: 'Unexpected nhentai source fallback state',
+          shouldPauseAllDownloadTasks: false,
+        );
   }
 
   Future<T> _requestNhDetailPage<T>({
@@ -1142,7 +1259,9 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     required HtmlParser<T> parser,
   }) async {
     GalleryUrl parsedUrl = GalleryUrl.parse(galleryUrl);
-    _NHentaiGalleryCache cache = await _getNhGalleryCache(parsedUrl.gid);
+    String host = _nhHostFromGalleryUrl(parsedUrl);
+    _NHentaiGalleryCache cache =
+        await _getNhGalleryCache(parsedUrl.gid, host: host);
 
     if (parser == EHSpiderParser.detailPage2GalleryAndDetailAndApikey) {
       return (
@@ -1183,18 +1302,25 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       return GalleryUrl.parse(href) as T;
     }
 
-    RegExpMatch? match = RegExp(r'^nh://(\d+)/(\d+)$').firstMatch(href);
+    RegExpMatch? match = RegExp(r'^nh://([^/]+)/(\d+)/(\d+)$').firstMatch(href);
     if (match == null) {
-      throw EHSiteException(
-        type: EHSiteExceptionType.internalError,
-        message: 'Invalid nhentai image url',
-        shouldPauseAllDownloadTasks: false,
-      );
+      match = RegExp(r'^nh://(\d+)/(\d+)$').firstMatch(href);
+      if (match == null) {
+        throw EHSiteException(
+          type: EHSiteExceptionType.internalError,
+          message: 'Invalid nhentai image url',
+          shouldPauseAllDownloadTasks: false,
+        );
+      }
     }
 
-    int gid = int.parse(match.group(1)!);
-    int pageNo = int.parse(match.group(2)!);
-    _NHentaiGalleryCache cache = await _getNhGalleryCache(gid);
+    String host = match.groupCount == 3 ? match.group(1)! : 'nhentai.net';
+    int gid = int.parse(match.group(match.groupCount == 3 ? 2 : 1)!);
+    int pageNo = int.parse(match.group(match.groupCount == 3 ? 3 : 2)!);
+    if (_isNhentaiUrl(href) && !href.startsWith('nh://')) {
+      host = Uri.tryParse(href)?.host ?? host;
+    }
+    _NHentaiGalleryCache cache = await _getNhGalleryCache(gid, host: host);
     if (pageNo < 1 || pageNo > cache.pageInfos.length) {
       throw EHSiteException(
         type: EHSiteExceptionType.internalError,
@@ -1204,8 +1330,13 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     }
 
     _NHentaiImageInfo imageInfo = cache.pageInfos[pageNo - 1];
-    String imageUrl =
-        _nhBuildPageImageUrl(cache.mediaId, pageNo, imageInfo.type, imagePath: imageInfo.path);
+    String imageUrl = _nhBuildPageImageUrl(
+      cache.mediaId,
+      pageNo,
+      imageInfo.type,
+      imagePath: imageInfo.path,
+      sourceHost: cache.galleryUrl.sourceHost ?? host,
+    );
     GalleryImage image = GalleryImage(
       url: imageUrl,
       height: imageInfo.height?.toDouble(),
@@ -1228,19 +1359,25 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return image as T;
   }
 
-  Future<Map<String, dynamic>> _requestNhApiAll({required int pageNo}) {
+  Future<Map<String, dynamic>> _requestNhApiAll({
+    required String host,
+    required int pageNo,
+  }) {
     return _requestNhApiJson(
+      host,
       '/galleries',
       queryParameters: {'page': pageNo},
     );
   }
 
   Future<Map<String, dynamic>> _requestNhApiSearch({
+    required String host,
     required String query,
     required String sort,
     required int pageNo,
   }) {
     return _requestNhApiJson(
+      host,
       '/search',
       queryParameters: {
         'query': query,
@@ -1250,16 +1387,18 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     );
   }
 
-  Future<Map<String, dynamic>> _requestNhApiGallery(int gid) {
-    return _requestNhApiJson('/galleries/$gid');
+  Future<Map<String, dynamic>> _requestNhApiGallery(int gid,
+      {required String host}) {
+    return _requestNhApiJson(host, '/galleries/$gid');
   }
 
   Future<Map<String, dynamic>> _requestNhApiJson(
+    String host,
     String path, {
     Map<String, dynamic>? queryParameters,
   }) async {
     Response response = await _getWithErrorHandler(
-      '$_nhApiBase$path',
+      'https://$host/api/v2$path',
       queryParameters: queryParameters,
     );
 
@@ -1282,24 +1421,225 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     );
   }
 
-  Future<_NHentaiGalleryCache> _getNhGalleryCache(int gid) async {
-    _NHentaiGalleryCache? cached = _nhGalleryCache[gid];
-    if (cached != null && cached.hasFullDetail) {
-      return cached;
-    }
+  Future<GalleryPageInfo> _requestNhToGalleryPage({
+    required String host,
+    required int pageNo,
+    required String query,
+  }) async {
+    String requestUrl = query.isEmpty
+        ? 'https://$host/?page=$pageNo'
+        : 'https://$host/search/?q=${Uri.encodeQueryComponent(query)}&page=$pageNo';
 
-    Map<String, dynamic> body = await _requestNhApiGallery(gid);
-    _NHentaiGalleryCache cache = _cacheNhGallery(body);
-    return cache;
+    Response response = await _getWithErrorHandler(
+      requestUrl,
+      options: Options(headers: {'Referer': 'https://$host/'}),
+    );
+
+    String html = response.data.toString();
+    html_dom.Document document = html_parser.parse(html);
+
+    List<Gallery> gallerys = document
+        .querySelectorAll('.gallery')
+        .map((element) {
+          String href =
+              element.querySelector('a.cover')?.attributes['href'] ?? '';
+          int gid = int.tryParse(
+                  RegExp(r'/g/(\d+)/').firstMatch(href)?.group(1) ?? '') ??
+              0;
+          String title =
+              element.querySelector('.caption')?.text.trim() ?? '#$gid';
+          String coverUrl =
+              element.querySelector('img')?.attributes['data-src'] ??
+                  element.querySelector('img')?.attributes['src'] ??
+                  '';
+          coverUrl = _normalizeNhToUrl(coverUrl, host: host);
+          String mediaId =
+              RegExp(r'/galleries/(\d+)/').firstMatch(coverUrl)?.group(1) ?? '';
+          List<int> tagIds = (element.attributes['data-tags'] ?? '')
+              .split(RegExp(r'\s+'))
+              .map(int.tryParse)
+              .whereType<int>()
+              .toList();
+
+          return _parseNhGallery(
+            <String, dynamic>{
+              'id': gid,
+              'media_id': mediaId,
+              'english_title': title,
+              'thumbnail': coverUrl,
+              'tag_ids': tagIds,
+            },
+            sourceHost: host,
+          );
+        })
+        .where((gallery) => gallery.gid > 0)
+        .toList();
+
+    int currentPage = int.tryParse(
+            document.querySelector('.pagination .page.current')?.text.trim() ??
+                '') ??
+        pageNo;
+    int totalPages = document
+        .querySelectorAll('.pagination .page')
+        .map((e) => int.tryParse(e.text.trim()) ?? 0)
+        .fold<int>(currentPage, (a, b) => a > b ? a : b);
+
+    return GalleryPageInfo(
+      gallerys: gallerys,
+      prevGid: currentPage > 1 ? (currentPage - 1).toString() : null,
+      nextGid: currentPage < totalPages ? (currentPage + 1).toString() : null,
+    );
   }
 
-  _NHentaiGalleryCache _cacheNhGallery(Map<String, dynamic> item) {
-    int gid = _parseInt(item['id']);
+  Future<_NHentaiGalleryCache> _requestNhToGalleryCache(int gid,
+      {required String host}) async {
+    Response response = await _getWithErrorHandler(
+      'https://$host/g/$gid/',
+      options: Options(headers: {'Referer': 'https://$host/'}),
+    );
+
+    String html = response.data.toString();
+    html_dom.Document document = html_parser.parse(html);
+    Map<String, dynamic> item = _extractNhToGalleryJson(html);
+
+    String coverUrl = _normalizeNhToUrl(
+      document.querySelector('#cover img')?.attributes['src'] ?? '',
+      host: host,
+    );
+    if (coverUrl.isNotEmpty) {
+      ((item['cover'] as Map?) ?? <String, dynamic>{})['path'] = coverUrl;
+      item['cover'] = ((item['cover'] as Map?) ?? <String, dynamic>{});
+    }
+
+    List<html_dom.Element> thumbImgs =
+        document.querySelectorAll('#thumbnail-container .thumb-container img');
+    List<dynamic> pages =
+        ((item['images'] as Map?)?['pages'] as List?) ?? const [];
+    for (int i = 0; i < pages.length && i < thumbImgs.length; i++) {
+      Map<String, dynamic> page = (pages[i] as Map).cast<String, dynamic>();
+      String thumbUrl = _normalizeNhToUrl(
+        thumbImgs[i].attributes['data-src'] ??
+            thumbImgs[i].attributes['src'] ??
+            '',
+        host: host,
+      );
+      if (thumbUrl.isNotEmpty) {
+        page['path'] = _nhToThumb2ImageUrl(thumbUrl);
+      }
+    }
+
+    item['public_id'] = gid;
+    return _cacheNhGallery(item, sourceHost: host);
+  }
+
+  Map<String, dynamic> _extractNhToGalleryJson(String html) {
+    RegExpMatch? match = RegExp(
+      r'var gallery = new N\.gallery\((\{.*?\})\);\s*gallery\.init',
+      dotAll: true,
+    ).firstMatch(html);
+    if (match == null) {
+      throw EHSiteException(
+        type: EHSiteExceptionType.internalError,
+        message: 'Unsupported nhentai.to detail parser',
+        shouldPauseAllDownloadTasks: false,
+      );
+    }
+
+    dynamic decoded = jsonDecode(match.group(1)!);
+    if (decoded is Map<String, dynamic>) {
+      return decoded;
+    }
+    if (decoded is Map) {
+      return decoded.cast<String, dynamic>();
+    }
+    throw EHSiteException(
+      type: EHSiteExceptionType.internalError,
+      message: 'Unexpected nhentai.to gallery payload',
+      shouldPauseAllDownloadTasks: false,
+    );
+  }
+
+  String _normalizeNhToUrl(String raw, {required String host}) {
+    String normalized = raw.trim();
+    if (normalized.isEmpty) {
+      return normalized;
+    }
+    if (normalized.startsWith('https://') || normalized.startsWith('http://')) {
+      return normalized;
+    }
+    if (normalized.startsWith('//')) {
+      return 'https:$normalized';
+    }
+    if (normalized.startsWith('/')) {
+      return 'https://$host$normalized';
+    }
+    return 'https://$host/$normalized';
+  }
+
+  String _nhToThumb2ImageUrl(String thumbUrl) {
+    return thumbUrl.replaceFirstMapped(
+      RegExp(r't(\.[a-z0-9]+)$', caseSensitive: false),
+      (match) => match.group(1)!,
+    );
+  }
+
+  Future<_NHentaiGalleryCache> _getNhGalleryCache(int gid,
+      {required String host}) async {
+    List<String> fallbackHosts = _nhFallbackHosts(host);
+    DioException? lastException;
+    EHSiteException? lastSiteException;
+
+    for (int index = 0; index < fallbackHosts.length; index++) {
+      String currentHost = fallbackHosts[index];
+      _NHentaiGalleryCache? cached =
+          _nhGalleryCache[_nhCacheKey(currentHost, gid)];
+      if (cached != null && cached.hasFullDetail) {
+        return cached;
+      }
+
+      try {
+        if (currentHost == 'nhentai.to') {
+          return _requestNhToGalleryCache(gid, host: currentHost);
+        }
+
+        Map<String, dynamic> body =
+            await _requestNhApiGallery(gid, host: currentHost);
+        return _cacheNhGallery(body, sourceHost: currentHost);
+      } on DioException catch (e) {
+        lastException = e;
+        if (index < fallbackHosts.length - 1 && _nhCanFallbackRequest(e)) {
+          continue;
+        }
+        rethrow;
+      } on EHSiteException catch (e) {
+        lastSiteException = e;
+        if (index < fallbackHosts.length - 1) {
+          continue;
+        }
+        rethrow;
+      }
+    }
+
+    throw lastSiteException ??
+        lastException ??
+        EHSiteException(
+          type: EHSiteExceptionType.internalError,
+          message: 'Unexpected nhentai gallery fallback state',
+          shouldPauseAllDownloadTasks: false,
+        );
+  }
+
+  _NHentaiGalleryCache _cacheNhGallery(Map<String, dynamic> item,
+      {required String sourceHost}) {
+    int gid = _tryParseInt(item['public_id']) ?? _parseInt(item['id']);
     String mediaId = item['media_id']?.toString() ?? '';
     List<_NHentaiImageInfo> pageInfos = _parseNhPageInfos(item);
     bool hasFullDetail = _nhHasFullDetail(item);
+    String normalizedHost =
+        sourceHost.startsWith('www.') ? sourceHost.substring(4) : sourceHost;
 
-    _NHentaiGalleryCache? existing = _nhGalleryCache[gid];
+    _NHentaiGalleryCache? existing =
+        _nhGalleryCache[_nhCacheKey(normalizedHost, gid)];
     if (existing != null && existing.hasFullDetail && !hasFullDetail) {
       return existing;
     }
@@ -1312,27 +1652,31 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         isNH: true,
         gid: gid,
         token: 'nhentai',
+        sourceHost: normalizedHost,
       ),
       pageInfos: pageInfos,
       rawGallery: item,
       hasFullDetail: hasFullDetail,
     );
-    _nhGalleryCache[gid] = cache;
+    _nhGalleryCache[_nhCacheKey(normalizedHost, gid)] = cache;
     return cache;
   }
 
-  List<Gallery> _parseNhGalleryList(Map<String, dynamic> body) {
+  List<Gallery> _parseNhGalleryList(Map<String, dynamic> body,
+      {required String sourceHost}) {
     List<dynamic> items = (body['result'] as List?) ?? const [];
 
     return items.whereType<Map>().map((item) {
       Map<String, dynamic> typedItem = item.cast<String, dynamic>();
-      _cacheNhGallery(typedItem);
-      return _parseNhGallery(typedItem);
+      _cacheNhGallery(typedItem, sourceHost: sourceHost);
+      return _parseNhGallery(typedItem, sourceHost: sourceHost);
     }).toList();
   }
 
   /// Extract cover path from v2 or v1 format
-  ({String coverUrl, double? width, double? height}) _parseNhCover(Map<String, dynamic> item, String mediaId) {
+  ({String coverUrl, double? width, double? height}) _parseNhCover(
+      Map<String, dynamic> item, String mediaId,
+      {required String sourceHost}) {
     // v2: cover.path or thumbnail as string
     String? coverPath;
     double? width;
@@ -1353,12 +1697,22 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       } else if (thumbnail is Map) {
         coverPath = thumbnail['path']?.toString();
         width = _tryParseInt(thumbnail['width'] ?? thumbnail['w'])?.toDouble();
-        height = _tryParseInt(thumbnail['height'] ?? thumbnail['h'])?.toDouble();
+        height =
+            _tryParseInt(thumbnail['height'] ?? thumbnail['h'])?.toDouble();
       }
     }
 
     if (coverPath != null && coverPath.isNotEmpty) {
-      return (coverUrl: _nhBuildCoverUrl(mediaId, 'j', coverPath: coverPath), width: width, height: height);
+      return (
+        coverUrl: _nhBuildCoverUrl(
+          mediaId,
+          'j',
+          coverPath: coverPath,
+          sourceHost: sourceHost,
+        ),
+        width: width,
+        height: height,
+      );
     }
 
     // v1 fallback: images.cover.{t,w,h}
@@ -1368,14 +1722,15 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         ((imagesMap['cover'] as Map?) ?? const {}).cast<String, dynamic>();
     String coverType = (coverMap['t'] ?? 'j').toString();
     return (
-      coverUrl: _nhBuildCoverUrl(mediaId, coverType),
+      coverUrl: _nhBuildCoverUrl(mediaId, coverType, sourceHost: sourceHost),
       width: _tryParseInt(coverMap['w'])?.toDouble(),
       height: _tryParseInt(coverMap['h'])?.toDouble(),
     );
   }
 
-  Gallery _parseNhGallery(Map<String, dynamic> item) {
-    int gid = _parseInt(item['id']);
+  Gallery _parseNhGallery(Map<String, dynamic> item,
+      {required String sourceHost}) {
+    int gid = _tryParseInt(item['public_id']) ?? _parseInt(item['id']);
     String mediaId = item['media_id']?.toString() ?? '';
 
     // v2 list format: english_title (flat), v2 detail/v1: title.{pretty,english,japanese} (nested)
@@ -1383,12 +1738,17 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     dynamic titleField = item['title'];
     if (titleField is Map) {
       Map<String, dynamic> titleMap = titleField.cast<String, dynamic>();
-      title = (titleMap['pretty'] ?? titleMap['english'] ?? titleMap['japanese'] ?? '#$gid').toString();
+      title = (titleMap['pretty'] ??
+              titleMap['english'] ??
+              titleMap['japanese'] ??
+              '#$gid')
+          .toString();
     } else {
-      title = (item['english_title'] ?? item['japanese_title'] ?? '#$gid').toString();
+      title = (item['english_title'] ?? item['japanese_title'] ?? '#$gid')
+          .toString();
     }
 
-    var coverInfo = _parseNhCover(item, mediaId);
+    var coverInfo = _parseNhCover(item, mediaId, sourceHost: sourceHost);
 
     LinkedHashMap<String, List<GalleryTag>> tags = _parseNhTagsMap(item);
     String? uploader = item['scanlator']?.toString();
@@ -1404,6 +1764,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         isNH: true,
         gid: gid,
         token: 'nhentai',
+        sourceHost: sourceHost,
       ),
       title: title,
       category: _findNhCategory(item),
@@ -1441,7 +1802,8 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         .toString();
     String? japaneseTitle = titleMap['japanese']?.toString();
 
-    var coverInfo = _parseNhCover(item, mediaId);
+    var coverInfo = _parseNhCover(item, mediaId,
+        sourceHost: galleryUrl.sourceHost ?? 'nhentai.net');
 
     LinkedHashMap<String, List<GalleryTag>> tags = _parseNhTagsMap(item);
     int pageCount = _tryParseInt(item['num_pages']) ?? pageInfos.length;
@@ -1473,7 +1835,15 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       favoriteTagName: null,
       favoriteCount: _tryParseInt(item['num_favorites']) ?? 0,
       language: _findNhLanguage(item) ?? '',
-      uploader: item['scanlator']?.toString(),
+      uploader: () {
+        String? uploader = item['scanlator']?.toString();
+        if (uploader != null && uploader.trim().isEmpty) {
+          uploader = null;
+        }
+        uploader ??= tags['artist']?.firstOrNull?.tagData.tagName ??
+            tags['artist']?.firstOrNull?.tagData.key;
+        return uploader;
+      }(),
       publishTime: _formatNhPublishTime(item['upload_date']),
       isExpunged: false,
       tags: tags,
@@ -1484,7 +1854,10 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       parentGalleryUrl: null,
       childrenGallerys: const [],
       comments: const [],
-      thumbnails: _buildNhThumbnails(_nhGalleryCache[galleryUrl.gid]!, 0),
+      thumbnails: _buildNhThumbnails(
+          _nhGalleryCache[
+              _nhCacheKey(_nhHostFromGalleryUrl(galleryUrl), galleryUrl.gid)]!,
+          0),
       thumbnailsPageCount: thumbnailsPageCount,
     );
   }
@@ -1591,7 +1964,8 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return tokens.join(' ').trim();
   }
 
-  String _formatNhField(String namespace, String value, {String negative = ''}) {
+  String _formatNhField(String namespace, String value,
+      {String negative = ''}) {
     return '$negative$namespace:${_quoteNhValue(value)}';
   }
 
@@ -1638,7 +2012,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       }
     }
 
-    // v1 format: images.pages[].{t,w,h}
+    // v1 format: images.pages[].{t,w,h,path}
     Map<String, dynamic> images =
         ((item['images'] as Map?) ?? const {}).cast<String, dynamic>();
     List<dynamic> pages = (images['pages'] as List?) ?? const [];
@@ -1648,6 +2022,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         type: (page['t'] ?? 'j').toString(),
         width: _tryParseInt(page['w']),
         height: _tryParseInt(page['h']),
+        path: page['path']?.toString(),
       );
     }).toList();
   }
@@ -1677,10 +2052,16 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       int pageNo = i + 1;
       _NHentaiImageInfo imageInfo = cache.pageInfos[i];
       thumbnails.add(GalleryThumbnail(
-        href: 'nh://${cache.gid}/$pageNo',
+        href:
+            'nh://${cache.galleryUrl.sourceHost ?? 'nhentai.net'}/${cache.gid}/$pageNo',
         isLarge: true,
-        thumbUrl:
-            _nhBuildPageThumbnailUrl(cache.mediaId, pageNo, imageInfo.type, imagePath: imageInfo.path),
+        thumbUrl: _nhBuildPageThumbnailUrl(
+          cache.mediaId,
+          pageNo,
+          imageInfo.type,
+          imagePath: imageInfo.path,
+          sourceHost: cache.galleryUrl.sourceHost ?? 'nhentai.net',
+        ),
         thumbWidth: imageInfo.width?.toDouble(),
         thumbHeight: imageInfo.height?.toDouble(),
         originImageHash: '${cache.mediaId}-$pageNo',
@@ -1734,11 +2115,8 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }
 
   String _findNhCategory(Map<String, dynamic> item) {
-    String rawCategory = _parseNhTagsMap(item)['category']
-            ?.firstOrNull
-            ?.tagData
-            .key ??
-        'manga';
+    String rawCategory =
+        _parseNhTagsMap(item)['category']?.firstOrNull?.tagData.key ?? 'manga';
 
     switch (rawCategory.toLowerCase()) {
       case 'artistcg':
@@ -1772,7 +2150,8 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }
 
   String? _findNhLanguage(Map<String, dynamic> item) {
-    for (GalleryTag tag in _parseNhTagsMap(item)['language'] ?? const <GalleryTag>[]) {
+    for (GalleryTag tag
+        in _parseNhTagsMap(item)['language'] ?? const <GalleryTag>[]) {
       String language = tag.tagData.key;
       if (language.isEmpty || language == 'translated') {
         continue;
@@ -1908,7 +2287,8 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       return '';
     }
 
-    DateTime utc = DateTime.fromMillisecondsSinceEpoch(seconds * 1000, isUtc: true);
+    DateTime utc =
+        DateTime.fromMillisecondsSinceEpoch(seconds * 1000, isUtc: true);
     return DateFormat('yyyy-MM-dd HH:mm').format(utc);
   }
 
@@ -1923,31 +2303,42 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return 'https://$cdnHost/$normalized';
   }
 
-  String _nhBuildCoverUrl(String mediaId, String type, {String? coverPath}) {
+  String _nhBuildCoverUrl(String mediaId, String type,
+      {String? coverPath, required String sourceHost}) {
     if (coverPath != null && coverPath.isNotEmpty) {
-      return _nhResolvePath(coverPath, cdnHost: 't1.nhentai.net');
+      return _nhResolvePath(
+        coverPath,
+        cdnHost: _nhCdnHost(sourceHost, prefix: 't1'),
+      );
     }
-    return 'https://t1.nhentai.net/galleries/$mediaId/cover.${_nhType2Ext(type)}';
+    return 'https://${_nhCdnHost(sourceHost, prefix: 't1')}/galleries/$mediaId/cover.${_nhType2Ext(type)}';
   }
 
-  String _nhBuildPageThumbnailUrl(String mediaId, int pageNo, String type, {String? imagePath}) {
+  String _nhBuildPageThumbnailUrl(String mediaId, int pageNo, String type,
+      {String? imagePath, required String sourceHost}) {
     if (imagePath != null && imagePath.isNotEmpty) {
       // Convert image path to thumbnail: /galleries/123/1.jpg → /galleries/123/1t.jpg
-      String normalized = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
+      String normalized =
+          imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
       int dotIndex = normalized.lastIndexOf('.');
       if (dotIndex > 0) {
-        normalized = '${normalized.substring(0, dotIndex)}t${normalized.substring(dotIndex)}';
+        normalized =
+            '${normalized.substring(0, dotIndex)}t${normalized.substring(dotIndex)}';
       }
-      return 'https://t1.nhentai.net/$normalized';
+      return 'https://${_nhCdnHost(sourceHost, prefix: 't1')}/$normalized';
     }
-    return 'https://t1.nhentai.net/galleries/$mediaId/${pageNo}t.${_nhType2Ext(type)}';
+    return 'https://${_nhCdnHost(sourceHost, prefix: 't1')}/galleries/$mediaId/${pageNo}t.${_nhType2Ext(type)}';
   }
 
-  String _nhBuildPageImageUrl(String mediaId, int pageNo, String type, {String? imagePath}) {
+  String _nhBuildPageImageUrl(String mediaId, int pageNo, String type,
+      {String? imagePath, required String sourceHost}) {
     if (imagePath != null && imagePath.isNotEmpty) {
-      return _nhResolvePath(imagePath, cdnHost: 'i1.nhentai.net');
+      return _nhResolvePath(
+        imagePath,
+        cdnHost: _nhCdnHost(sourceHost, prefix: 'i1'),
+      );
     }
-    return 'https://i1.nhentai.net/galleries/$mediaId/$pageNo.${_nhType2Ext(type)}';
+    return 'https://${_nhCdnHost(sourceHost, prefix: 'i1')}/galleries/$mediaId/$pageNo.${_nhType2Ext(type)}';
   }
 
   int _parseInt(dynamic value) {
@@ -2093,7 +2484,8 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         );
       }
     }
-    if (e.response?.statusCode == 403 && networkSetting.allHostAndIPs.contains(e.requestOptions.uri.host)) {
+    if (e.response?.statusCode == 403 &&
+        networkSetting.allHostAndIPs.contains(e.requestOptions.uri.host)) {
       return EHSiteException(
         type: EHSiteExceptionType.cloudflare,
         message: 'cloudflare403'.tr,
@@ -2214,8 +2606,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         continue;
       }
 
-      RegExpMatch? aidMatch =
-          RegExp(r'aid-(\d+)').firstMatch(href);
+      RegExpMatch? aidMatch = RegExp(r'aid-(\d+)').firstMatch(href);
       if (aidMatch == null) {
         continue;
       }
@@ -2223,12 +2614,14 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       int aid = int.parse(aidMatch.group(1)!);
       String title = titleLink.text.trim();
       String infoText = item.querySelector('.info_col')?.text.trim() ?? '';
-      ({int? pageCount, String publishTime}) meta = _parseWnSearchMeta(infoText);
+      ({int? pageCount, String publishTime}) meta =
+          _parseWnSearchMeta(infoText);
 
       var img = item.querySelector('img');
       String coverUrl = '';
       if (img != null) {
-        coverUrl = _normalizeWnUrl(img.attributes['src'] ?? img.attributes['data-src'] ?? '');
+        coverUrl = _normalizeWnUrl(
+            img.attributes['src'] ?? img.attributes['data-src'] ?? '');
       }
 
       gallerys.add(Gallery(
@@ -2262,7 +2655,8 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     int? totalPages;
     var resultElement = document.querySelector('#bodywrap .result > b');
     if (resultElement != null) {
-      int? totalCount = int.tryParse(resultElement.text.trim().replaceAll(',', ''));
+      int? totalCount =
+          int.tryParse(resultElement.text.trim().replaceAll(',', ''));
       if (totalCount != null) {
         totalPages = (totalCount / 24).ceil();
       }
@@ -2270,7 +2664,8 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
 
     // Fallback: check if there's a next page link
     if (totalPages == null) {
-      var pageLinks = document.querySelectorAll('.f_left.paginator > a, .page_num a');
+      var pageLinks =
+          document.querySelectorAll('.f_left.paginator > a, .page_num a');
       int maxPage = currentPage;
       for (var link in pageLinks) {
         int? p = int.tryParse(link.text.trim());
@@ -2337,12 +2732,13 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }
 
   ({int? pageCount, String publishTime}) _parseWnSearchMeta(String infoText) {
-    int? pageCount =
-        int.tryParse(RegExp(r'(\d+)\s*張圖片').firstMatch(infoText)?.group(1) ?? '');
+    int? pageCount = int.tryParse(
+        RegExp(r'(\d+)\s*張圖片').firstMatch(infoText)?.group(1) ?? '');
 
     String publishTime = '';
     RegExpMatch? timeMatch =
-        RegExp(r'創建於(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})(?::\d{2})?').firstMatch(infoText);
+        RegExp(r'創建於(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2})(?::\d{2})?')
+            .firstMatch(infoText);
     if (timeMatch != null) {
       publishTime = timeMatch.group(1)!.replaceAll(RegExp(r'\s+'), ' ').trim();
     }
@@ -2351,8 +2747,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }
 
   String _parseWnDetailPublishTime(String html) {
-    RegExpMatch? match =
-        RegExp(r'上傳於\s*(\d{4}-\d{2}-\d{2})').firstMatch(html);
+    RegExpMatch? match = RegExp(r'上傳於\s*(\d{4}-\d{2}-\d{2})').firstMatch(html);
     if (match == null) {
       return '';
     }
@@ -2412,7 +2807,8 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     String detailHtml = detailResponse.data.toString();
     var detailDoc = html_parser.parse(detailHtml);
 
-    String title = detailDoc.querySelector('#bodywrap > h2')?.text.trim() ?? '#$aid';
+    String title =
+        detailDoc.querySelector('#bodywrap > h2')?.text.trim() ?? '#$aid';
     String cover = '';
     var coverImg = detailDoc.querySelector('.asTBcell.uwthumb > img');
     if (coverImg != null) {
@@ -2440,8 +2836,8 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         String tagName = tagLink.text.trim();
         if (tagName.isNotEmpty) {
           tags.putIfAbsent('tag', () => []).add(GalleryTag(
-            tagData: TagData(namespace: 'tag', key: tagName),
-          ));
+                tagData: TagData(namespace: 'tag', key: tagName),
+              ));
         }
       }
     }
@@ -2495,7 +2891,9 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       String caption = match.group(2)!;
 
       // Filter out trailing "shoucang" (收藏) images
-      if (url.isEmpty || caption.toLowerCase().contains('shoucang') || url.contains('shoucang')) {
+      if (url.isEmpty ||
+          caption.toLowerCase().contains('shoucang') ||
+          url.contains('shoucang')) {
         continue;
       }
 
