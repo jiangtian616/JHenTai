@@ -5,6 +5,7 @@ import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_logic_mixin.dart';
 import 'package:jhentai/src/mixin/update_global_gallery_status_logic_mixin.dart';
 import 'package:jhentai/src/setting/archive_bot_setting.dart';
+import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/widget/eh_archive_parse_source_select_dialog.dart';
 
 import '../../../../database/database.dart';
@@ -226,6 +227,14 @@ mixin ArchiveDownloadPageLogicMixin on GetxController
               onPressed: () {
                 backRoute();
                 changeParseSource(archive.gid, ArchiveParseSource.bot);
+              },
+            ),
+          if (downloadSetting.enableAria2Push.value)
+            CupertinoActionSheetAction(
+              child: Text('pushArchiveToAria2'.tr),
+              onPressed: () {
+                backRoute();
+                archiveDownloadService.pushArchiveToAria2(archive);
               },
             ),
           CupertinoActionSheetAction(

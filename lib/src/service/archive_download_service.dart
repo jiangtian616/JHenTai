@@ -41,9 +41,11 @@ import '../model/gallery_image.dart';
 import '../pages/download/grid/mixin/grid_download_page_service_mixin.dart';
 import '../utils/archive_util.dart';
 import '../utils/file_util.dart';
+import '../utils/toast_util.dart';
 import 'jh_service.dart';
 import 'log.dart';
 import '../utils/snack_util.dart';
+import 'aria2_service.dart';
 import 'gallery_download_service.dart';
 
 ArchiveDownloadService archiveDownloadService = ArchiveDownloadService();
@@ -53,6 +55,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   static const String archiveSpeedComputerId = 'archiveSpeedComputerId';
 
   static const int _maxRetryTimes = 3;
+  static const int _maxAria2ResolvePollingTimes = 12;
+  static const Duration _aria2ResolvePollingInterval = Duration(milliseconds: 1000);
   static const String metadataFileName = 'ametadata';
   static const int _maxTitleLength = 80;
   static const int _maxIsolateCountsTotal = 10;
@@ -396,6 +400,146 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     update(['$archiveStatusId::$gid']);
   }
 
+  Future<void> pushArchiveToAria2(ArchiveDownloadedData archive, {bool reParse = false}) async {
+    if (!aria2Service.isReady) {
+      snack('aria2PushFailed'.tr, 'aria2NotConfiguredHint'.tr);
+      return;
+    }
+
+    String? resolvedDownloadUrl;
+
+    ArchiveDownloadInfo? archiveDownloadInfo = archiveDownloadInfos[archive.gid];
+    if (!reParse && archiveDownloadInfo?.downloadUrl != null) {
+      resolvedDownloadUrl = archiveDownloadInfo!.downloadUrl;
+    } else {
+      String? result = await _resolveArchiveDownloadUrlForAria2(archive, reParse: reParse);
+      if (result == null) {
+        return;
+      }
+      resolvedDownloadUrl = result;
+    }
+
+    if (resolvedDownloadUrl == null) {
+      snack('aria2PushFailed'.tr, 'archiveError'.tr);
+      return;
+    }
+
+    try {
+      await aria2Service.addUri(
+        uri: resolvedDownloadUrl,
+        out: _buildAria2OutName(archive),
+        dir: downloadSetting.aria2DownloadDir.value.trim(),
+      );
+      toast('aria2PushSuccess'.trArgs([archive.title]), isCenter: false);
+    } on DioException catch (e) {
+      snack('aria2PushFailed'.tr, e.message ?? e.toString(), isShort: true);
+    } catch (e) {
+      snack('aria2PushFailed'.tr, e.toString(), isShort: true);
+    }
+  }
+
+  Future<String?> _resolveArchiveDownloadUrlForAria2(
+    ArchiveDownloadedData archive, {
+    bool reParse = false,
+  }) async {
+    CancelToken? cancelToken = archiveDownloadInfos[archive.gid]?.cancelToken;
+
+    try {
+      if (archive.parseSource == ArchiveParseSource.official.code) {
+        String? downloadPageUrl = archiveDownloadInfos[archive.gid]?.downloadPageUrl;
+        if (downloadPageUrl == null || downloadPageUrl.isEmpty) {
+          downloadPageUrl = await _resolveOfficialDownloadPageUrl(archive);
+        }
+        if (downloadPageUrl == null) {
+          return null;
+        }
+
+        String downloadPath = await retry(
+          () => ehRequest.get(
+            url: downloadPageUrl!,
+            cancelToken: cancelToken,
+            parser: EHSpiderParser.downloadArchivePage2DownloadUrl,
+          ),
+          retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
+          maxAttempts: _maxRetryTimes,
+        );
+
+        String downloadUrl = 'https://${Uri.parse(downloadPageUrl).host}$downloadPath';
+        return downloadUrl;
+      }
+
+      if (!archiveBotSetting.isReady) {
+        snack('aria2PushFailed'.tr, 'pauseDownloadByInvalidArchiveBotKey'.tr);
+        return null;
+      }
+
+      ArchiveBotResponse response = await retry(
+        () => archiveBotRequest.requestResolve(
+          apiAddress: archiveBotSetting.apiAddress.value,
+          apiKey: archiveBotSetting.apiKey.value!,
+          gid: archive.gid,
+          token: archive.token,
+          reParse: reParse,
+          cancelToken: cancelToken,
+          parser: ArchiveBotResponseParser.commonParse,
+        ),
+        retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
+        maxAttempts: _maxRetryTimes,
+      );
+
+      if (!response.isSuccess) {
+        snack('aria2PushFailed'.tr, response.errorMessage, isShort: true);
+        return null;
+      }
+
+      ArchiveResolveVO archiveResolveVO = ArchiveResolveVO.fromResponse(response.data);
+      return archiveResolveVO.url;
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.cancel) {
+        return null;
+      }
+      snack('aria2PushFailed'.tr, e.error?.toString() ?? e.message ?? e.toString(), isShort: true);
+      return null;
+    } on EHSiteException catch (e) {
+      snack('aria2PushFailed'.tr, e.message, isShort: true);
+      return null;
+    } catch (e) {
+      snack('aria2PushFailed'.tr, e.toString(), isShort: true);
+      return null;
+    }
+  }
+
+  Future<String?> _resolveOfficialDownloadPageUrl(ArchiveDownloadedData archive) async {
+    CancelToken? cancelToken = archiveDownloadInfos[archive.gid]?.cancelToken;
+
+    for (int i = 0; i < _maxAria2ResolvePollingTimes; i++) {
+      ArchiveUnlockResult result = await retry(
+        () => ehRequest.requestUnlockArchive(
+          url: archive.archivePageUrl.replaceFirst('--', '-'),
+          isOriginal: archive.isOriginal,
+          cancelToken: cancelToken,
+          parser: EHSpiderParser.unlockArchivePage2DownloadArchivePageUrl,
+        ),
+        retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
+        maxAttempts: _maxRetryTimes,
+      );
+
+      if (!result.success) {
+        snack('aria2PushFailed'.tr, result.msg, isShort: true);
+        return null;
+      }
+
+      if (result.url != null && result.url!.isNotEmpty) {
+        return result.url!;
+      }
+
+      await Future.delayed(_aria2ResolvePollingInterval);
+    }
+
+    snack('aria2PushFailed'.tr, 'archiveError'.tr, isShort: true);
+    return null;
+  }
+
   Future<void> batchUpdateArchiveInDatabase(List<ArchiveDownloadedData> archives) async {
     await appDb.transaction(() async {
       for (ArchiveDownloadedData archive in archives) {
@@ -555,6 +699,30 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     return title;
+  }
+
+  String _buildAria2OutName(ArchiveDownloadedData archive) {
+    String template = downloadSetting.aria2FilenameTemplate.value.trim();
+    if (template.isEmpty) {
+      template = 'ArchiveV2 - {gid} - {title}.zip';
+    }
+
+    String out = template
+        .replaceAll('{gid}', archive.gid.toString())
+        .replaceAll('{title}', _computeArchiveTitle(archive.title))
+        .replaceAll('{uploader}', _computeArchiveTitle(archive.uploader ?? ''))
+        .replaceAll('{category}', _computeArchiveTitle(archive.category));
+
+    out = out.replaceAll(RegExp(r'[/|?,:*"<>\\]'), ' ').replaceAll(RegExp(r'\s+'), ' ').trim();
+
+    if (out.isEmpty) {
+      out = 'ArchiveV2 - ${archive.gid} - ${_computeArchiveTitle(archive.title)}';
+    }
+    if (!out.toLowerCase().endsWith('.zip')) {
+      out = '$out.zip';
+    }
+
+    return out;
   }
 
   String computePackingFileDownloadPath(ArchiveDownloadedData archive) {

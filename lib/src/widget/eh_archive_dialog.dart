@@ -6,6 +6,7 @@ import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/setting/archive_bot_setting.dart';
+import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/widget/eh_asset.dart';
 import 'package:jhentai/src/widget/eh_group_name_selector.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
@@ -40,12 +41,14 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
   late List<String> candidates;
   late GalleryArchive archive;
   LoadingState loadingState = LoadingState.idle;
+  bool pushToAria2 = false;
 
   @override
   void initState() {
     super.initState();
 
     group = widget.currentGroup ?? widget.candidates.firstOrNull ?? 'default'.tr;
+    pushToAria2 = downloadSetting.enableAria2Push.value && downloadSetting.aria2DefaultPushSelected.value;
     candidates = List.of(widget.candidates);
     candidates.remove(group);
     candidates.insert(0, group);
@@ -72,9 +75,33 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
       mainAxisSize: MainAxisSize.min,
       children: [
         EHGroupNameSelector(candidates: candidates, currentGroup: group, listener: (g) => group = g),
+        if (downloadSetting.enableAria2Push.value)
+          _buildPushToAria2Option(),
         if (archive.creditCount != null && archive.gpCount != null) EHAsset(gpCount: archive.gpCount!, creditCount: archive.creditCount!).marginOnly(top: 12),
         Expanded(child: _buildButtons().marginOnly(top: 12)),
       ],
+    );
+  }
+
+  Widget _buildPushToAria2Option() {
+    return InkWell(
+      onTap: () => setState(() => pushToAria2 = !pushToAria2),
+      child: Row(
+        children: [
+          Checkbox(
+            value: pushToAria2,
+            onChanged: (value) => setState(() => pushToAria2 = value ?? false),
+            visualDensity: VisualDensity.compact,
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          Expanded(
+            child: Text(
+              'pushArchiveToAria2'.tr,
+              style: TextStyle(fontSize: UIConfig.archiveDialogDownloadTextSize + 1),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -88,7 +115,7 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
           text: 'resample'.tr,
           callback: _canAffordDownload(isOriginal: false)
               ? () => backRoute(
-                    result: (useBot: false, isOriginal: false, size: _computeSizeInBytes(isOriginal: false), group: group),
+                    result: (useBot: false, isOriginal: false, size: _computeSizeInBytes(isOriginal: false), group: group, pushToAria2: pushToAria2),
                   )
               : null,
         ),
@@ -98,7 +125,7 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
           text: 'original'.tr,
           callback: _canAffordDownload(isOriginal: true)
               ? () => backRoute(
-                    result: (useBot: false, isOriginal: true, size: _computeSizeInBytes(isOriginal: true), group: group),
+                    result: (useBot: false, isOriginal: true, size: _computeSizeInBytes(isOriginal: true), group: group, pushToAria2: pushToAria2),
                   )
               : null,
         ),
@@ -108,7 +135,7 @@ class _EHArchiveDialogState extends State<EHArchiveDialog> {
             size: archive.originalSize,
             icon: const Icon(Icons.smart_toy_outlined),
             callback: () => backRoute(
-              result: (useBot: true, isOriginal: true, size: _computeSizeInBytes(isOriginal: true), group: group),
+              result: (useBot: true, isOriginal: true, size: _computeSizeInBytes(isOriginal: true), group: group, pushToAria2: pushToAria2),
             ),
           ),
       ],

@@ -639,7 +639,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         return;
       }
 
-      ({bool useBot, bool isOriginal, int size, String group})? result = await Get.dialog(
+      ({bool useBot, bool isOriginal, int size, String group, bool pushToAria2})? result = await Get.dialog(
         EHArchiveDialog(
           title: 'chooseArchive'.tr,
           archivePageUrl: state.galleryDetails!.archivePageUrl,
@@ -651,27 +651,11 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         return;
       }
 
-      ArchiveDownloadedData archive = ArchiveDownloadedData(
-        gid: state.galleryDetails!.galleryUrl.gid,
-        token: state.galleryDetails!.galleryUrl.token,
-        title: mainTitleText,
-        category: state.galleryDetails!.category,
-        pageCount: state.galleryDetails!.pageCount,
-        galleryUrl: state.galleryDetails!.galleryUrl.url,
-        uploader: state.galleryDetails!.uploader,
-        size: result.size,
-        coverUrl: state.galleryDetails!.cover.url,
-        publishTime: state.galleryDetails!.publishTime,
-        archiveStatusCode: ArchiveStatus.unlocking.code,
-        archivePageUrl: state.galleryDetails!.archivePageUrl,
-        isOriginal: result.isOriginal,
-        insertTime: DateTime.now().toString(),
-        sortOrder: 0,
-        groupName: result.group,
-        tags: state.galleryDetails != null ? tagMap2TagString(state.galleryDetails!.tags) : tagMap2TagString(state.gallery!.tags),
-        tagRefreshTime: DateTime.now().toString(),
-        parseSource: result.useBot ? ArchiveParseSource.bot.code : ArchiveParseSource.official.code,
-      );
+      ArchiveDownloadedData archive = _buildArchiveTaskFromDialogResult(result);
+      if (downloadSetting.enableAria2Push.value && result.pushToAria2) {
+        await archiveDownloadService.pushArchiveToAria2(archive);
+        return;
+      }
       archiveDownloadService.downloadArchive(archive);
 
       updateGlobalGalleryStatus();
@@ -720,6 +704,30 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         ),
       );
     }
+  }
+
+  ArchiveDownloadedData _buildArchiveTaskFromDialogResult(({bool useBot, bool isOriginal, int size, String group, bool pushToAria2}) result) {
+    return ArchiveDownloadedData(
+      gid: state.galleryDetails!.galleryUrl.gid,
+      token: state.galleryDetails!.galleryUrl.token,
+      title: mainTitleText,
+      category: state.galleryDetails!.category,
+      pageCount: state.galleryDetails!.pageCount,
+      galleryUrl: state.galleryDetails!.galleryUrl.url,
+      uploader: state.galleryDetails!.uploader,
+      size: result.size,
+      coverUrl: state.galleryDetails!.cover.url,
+      publishTime: state.galleryDetails!.publishTime,
+      archiveStatusCode: ArchiveStatus.unlocking.code,
+      archivePageUrl: state.galleryDetails!.archivePageUrl,
+      isOriginal: result.isOriginal,
+      insertTime: DateTime.now().toString(),
+      sortOrder: 0,
+      groupName: result.group,
+      tags: state.galleryDetails != null ? tagMap2TagString(state.galleryDetails!.tags) : tagMap2TagString(state.gallery!.tags),
+      tagRefreshTime: DateTime.now().toString(),
+      parseSource: result.useBot ? ArchiveParseSource.bot.code : ArchiveParseSource.official.code,
+    );
   }
 
   Future<void> handleTapHH() async {

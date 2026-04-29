@@ -61,6 +61,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
               _buildDefaultGalleryGroup(context),
               _buildDefaultArchiveGroup(context),
               _buildArchiveBotSettings(),
+              _buildAria2Setting(),
               _buildDownloadConcurrency(),
               _buildSpeedLimit(context),
               _buildDownloadAllGallerysOfSamePriority(),
@@ -204,6 +205,23 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       subtitle: Text('archiveBotSettingsHint'.tr),
       trailing: const Icon(Icons.keyboard_arrow_right),
       onTap: () => toRoute(Routes.archiveBotSettings),
+    );
+  }
+
+  Widget _buildAria2Setting() {
+    String rpcUrl = downloadSetting.aria2RpcUrl.value.trim().isEmpty ? 'aria2RpcUrlHint'.tr : downloadSetting.aria2RpcUrl.value;
+    String downloadDir = downloadSetting.aria2DownloadDir.value.trim().isEmpty ? 'default'.tr : downloadSetting.aria2DownloadDir.value;
+    String filenameTemplate = downloadSetting.aria2FilenameTemplate.value.trim().isEmpty ? 'aria2FilenameTemplateHint'.tr : downloadSetting.aria2FilenameTemplate.value;
+
+    return ListTile(
+      title: Text('aria2Settings'.tr),
+      subtitle: Text(
+        '${'aria2RpcUrl'.tr}: ${rpcUrl.breakWord}\n'
+        '${'aria2DownloadDir'.tr}: ${downloadDir.breakWord}\n'
+        '${'aria2FilenameTemplate'.tr}: ${filenameTemplate.breakWord}',
+      ),
+      trailing: const Icon(Icons.keyboard_arrow_right),
+      onTap: () => toRoute(Routes.aria2Settings),
     );
   }
 
