@@ -200,6 +200,7 @@ class zh_TW {
       'commentTooShort': '評論過短',
       'sendCommentFailed': '發送評論失敗',
       'voteCommentFailed': '投票評論失敗',
+      'voteCommentFailedHint': '請先下拉重新整理詳情頁面',
       'unknownUser': '未知使用者',
       'atLeast3Characters': '至少3個字元',
       'noJHenTaiHints': '請不要提及JHenTai，感謝理解',

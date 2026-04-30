@@ -2,6 +2,12 @@ name: Build & Release
 
 # Trigger on push to master branch or with a tag
 on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag to publish, e.g. v8.0.12+309'
+        required: false
+        type: string
   push:
     branches:
       - 'master'
@@ -10,7 +16,7 @@ on:
 
 # If previous workflow is still running, we push again, we will cancel the previous workflow
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref_name }}
+  group: ${{ github.workflow }}-${{ inputs.release_tag || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -81,7 +87,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
-          channel: 'master'
+          channel: 'stable'
           cache: true
       # Output Flutter Version
       - name: Output Flutter Version
@@ -91,9 +97,10 @@ jobs:
         if: matrix.cache_pod_key != null
         uses: actions/cache@v3
         with:
-          key: ${{ matrix.cache_pod_key }}
+          key: ${{ matrix.cache_pod_key }}-${{ hashFiles(matrix.cache_pod_restore_keys_hash_file) }}
           path: ${{ matrix.cache_pod_path }}
-          restore-keys: ${{ matrix.cache_key }}-${{ hashFiles(matrix.cache_pod_restore_keys_hash_file)}}
+          restore-keys: |
+            ${{ matrix.cache_pod_key }}-
       # Setup JDK
       - name: Setup JDK 17 (Android)
         if: matrix.target == 'Android'
@@ -102,10 +109,13 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
           cache: gradle
-      # Xcodebuild
-      - name: Build Xcode
-        if: matrix.os == 'macos-latest'
+      # Resolve Xcode package dependencies
+      - name: Resolve iOS package dependencies
+        if: matrix.target == 'iOS'
         run: xcodebuild -resolvePackageDependencies -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release
+      - name: Resolve macOS package dependencies
+        if: matrix.target == 'macOS'
+        run: xcodebuild -resolvePackageDependencies -workspace macos/Runner.xcworkspace -scheme Runner -configuration Release
       # Flutter Pub Get
       - name: Flutter Pub Get
         run: |
@@ -129,7 +139,7 @@ jobs:
           mv app-x86_64-release.apk JHenTai-${{ steps.get_version.outputs.version }}-x64.apk
       # Build iOS .ipa
       - name: Build iOS
-        if: matrix.target == 'ios'
+        if: matrix.target == 'iOS'
         run: |
           flutter precache --ios
           cd ios
@@ -226,10 +236,12 @@ jobs:
           path: ${{ matrix.artifact_path }}
           if-no-files-found: error
   Publish:
-    if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/') || (github.event_name == 'workflow_dispatch' && inputs.release_tag != '')
     name: Publish
     needs: Build
     runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ inputs.release_tag || github.ref_name }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -245,9 +257,9 @@ jobs:
       - name: Upload to release
         uses: ncipollo/release-action@v1
         with:
-          tag: ${{ github.ref_name }}
+          tag: ${{ env.RELEASE_TAG }}
           allowUpdates: true
-          bodyFile: changelog/${{ github.ref_name }}.md
+          bodyFile: changelog/${{ env.RELEASE_TAG }}.md
           artifacts: /tmp/artifacts/release-Android/*.apk,/tmp/artifacts/release-iOS/*.ipa,/tmp/artifacts/release-macOS/*.dmg,/tmp/artifacts/release-Windows/*.zip,/tmp/artifacts/release-Linux-x64-deb/*.deb,/tmp/artifacts/release-Linux-arm64-deb/*.deb
           artifactErrorsFailBuild: true
           replacesArtifacts: true
@@ -264,14 +276,14 @@ jobs:
         id: get_changelog
         run: |
           # Read changelog and preserve newlines for JSON
-          CHANGELOG=$(cat changelog/${{ github.ref_name }}.md | jq -Rs .)
+          CHANGELOG=$(cat changelog/${RELEASE_TAG}.md | jq -Rs .)
           echo "changelog=$CHANGELOG" >> $GITHUB_OUTPUT
 
       # Extract build version from tag
       - name: Get build version
         id: get_build_version
         run: |
-          BUILD_VERSION=$(echo "${{ github.ref_name }}" | grep -oE '\+[0-9]+' | tr -d '+')
+          BUILD_VERSION=$(echo "${RELEASE_TAG}" | grep -oE '\+[0-9]+' | tr -d '+')
           echo "build_version=$BUILD_VERSION" >> $GITHUB_OUTPUT
 
       # Update AltSource.json
@@ -290,7 +302,7 @@ jobs:
              --arg build "${{ steps.get_build_version.outputs.build_version }}" \
              --arg date "$DATE" \
              --arg desc "$CHANGELOG" \
-             --arg url "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/JHenTai_${FULL_VERSION}.ipa" \
+             --arg url "https://github.com/${{ github.repository }}/releases/download/${RELEASE_TAG}/JHenTai_${FULL_VERSION}.ipa" \
              --arg size "${{ steps.get_ipa_size.outputs.ipa_size }}" \
              '.apps[0].versions[0] = {
                 "version": $version,
@@ -308,6 +320,10 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add altsource/AltSource.json
+          if git diff --cached --quiet; then
+            echo "No AltSource changes to commit"
+            exit 0
+          fi
           git commit -m "Update AltSource.json for version ${{ needs.Build.outputs.version }}"
           git push origin HEAD:master
 
