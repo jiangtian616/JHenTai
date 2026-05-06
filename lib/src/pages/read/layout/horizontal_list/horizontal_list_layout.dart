@@ -23,35 +23,38 @@ class HorizontalListLayout extends BaseLayout {
   @override
   Widget buildBody(BuildContext context) {
     /// user PhotoViewGallery to scale up the whole gallery list, so set itemCount to 1
-    return PhotoViewGallery.builder(
-      itemCount: 1,
-      builder: (_, __) => PhotoViewGalleryPageOptions.customChild(
-        controller: state.photoViewController,
-        initialScale: 1.0,
-        minScale: 1.0,
-        maxScale: 2.5,
-        scaleStateCycle: readSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
-        enableTapDragZoom: readSetting.enableTapDragToScaleUp.isTrue,
-        child: EHWheelSpeedControllerForReadPage(
-          scrollOffsetController: state.scrollOffsetController,
-          child: ScrollablePositionedList.separated(
-            scrollDirection: Axis.horizontal,
-            reverse: readSetting.isInRight2LeftDirection,
-            physics: const ClampingScrollPhysics(),
-            minCacheExtent: readPageState.readPageInfo.mode == ReadMode.online
-                ? readSetting.preloadDistance * screenHeight * 1
-                : readSetting.preloadDistanceLocal * screenHeight * 1,
-            initialScrollIndex: readPageState.readPageInfo.initialIndex,
-            itemCount: readPageState.readPageInfo.pageCount,
-            itemScrollController: state.itemScrollController,
-            itemPositionsListener: state.itemPositionsListener,
+    return Obx(() {
+      final spacing = readSetting.imageSpace.value.toDouble();
+      return PhotoViewGallery.builder(
+        itemCount: 1,
+        builder: (_, __) => PhotoViewGalleryPageOptions.customChild(
+          controller: state.photoViewController,
+          initialScale: 1.0,
+          minScale: 1.0,
+          maxScale: 2.5,
+          scaleStateCycle: readSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
+          enableTapDragZoom: readSetting.enableTapDragToScaleUp.isTrue,
+          child: EHWheelSpeedControllerForReadPage(
             scrollOffsetController: state.scrollOffsetController,
-            itemBuilder: (context, index) =>
-            readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index),
-            separatorBuilder: (_, __) => Obx(() => SizedBox(width: readSetting.imageSpace.value.toDouble())),
+            child: ScrollablePositionedList.separated(
+              scrollDirection: Axis.horizontal,
+              reverse: readSetting.isInRight2LeftDirection,
+              physics: const ClampingScrollPhysics(),
+              minCacheExtent: readPageState.readPageInfo.mode == ReadMode.online
+                  ? readSetting.preloadDistance * screenHeight * 1
+                  : readSetting.preloadDistanceLocal * screenHeight * 1,
+              initialScrollIndex: readPageState.readPageInfo.initialIndex,
+              itemCount: readPageState.readPageInfo.pageCount,
+              itemScrollController: state.itemScrollController,
+              itemPositionsListener: state.itemPositionsListener,
+              scrollOffsetController: state.scrollOffsetController,
+              itemBuilder: (context, index) =>
+              readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index),
+              separatorBuilder: (_, __) => SizedBox(width: spacing),
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 }

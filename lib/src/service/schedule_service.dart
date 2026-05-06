@@ -10,6 +10,7 @@ import 'package:get/get_navigation/get_navigation.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_utils/get_utils.dart';
 import 'package:jhentai/src/database/dao/archive_dao.dart';
+import 'package:jhentai/src/database/dao/dio_cache_dao.dart';
 import 'package:jhentai/src/database/dao/gallery_dao.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
@@ -43,6 +44,11 @@ import 'log.dart';
 ScheduleService scheduleService = ScheduleService();
 
 class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
+  /// Periodic timers that need cancellation
+  Timer? _checkEHEventTimer;
+  Timer? _checkInArchiveBotTimer;
+  Timer? _dioCacheCleanupTimer;
+
   @override
   Future<void> doInitBean() async {}
 
@@ -55,10 +61,50 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
     Timer(const Duration(seconds: 1), _clearOutdatedGalleryImageHashCache);
 
     Timer(const Duration(seconds: 5), checkEHEvent);
-    Timer.periodic(const Duration(minutes: 5), (_) => checkEHEvent());
+    _checkEHEventTimer = Timer.periodic(const Duration(minutes: 5), (_) => checkEHEvent());
 
     Timer(const Duration(seconds: 5), checkInArchiveBot);
-    Timer.periodic(const Duration(minutes: 5), (_) => checkInArchiveBot());
+    _checkInArchiveBotTimer = Timer.periodic(const Duration(minutes: 5), (_) => checkInArchiveBot());
+
+    // Periodic DioCache cleanup (every 30 minutes)
+    Timer(const Duration(seconds: 30), _cleanDioCache);
+    _dioCacheCleanupTimer = Timer.periodic(const Duration(minutes: 30), (_) => _cleanDioCache());
+  }
+
+  /// Dispose timers when app terminates
+  void doDisposeBean() {
+    _checkEHEventTimer?.cancel();
+    _checkEHEventTimer = null;
+
+    _checkInArchiveBotTimer?.cancel();
+    _checkInArchiveBotTimer = null;
+
+    _dioCacheCleanupTimer?.cancel();
+    _dioCacheCleanupTimer = null;
+  }
+
+  /// Clean expired and oversized DioCache entries
+  Future<void> _cleanDioCache() async {
+    try {
+      await DioCacheDao.deleteCacheByDate(DateTime.now());
+      await _enforceCacheSizeLimit();
+    } catch (e) {
+      log.error('DioCache cleanup failed', e);
+    }
+  }
+
+  /// Enforce cache size limit (500MB max, 400MB target)
+  Future<void> _enforceCacheSizeLimit() async {
+    const int maxCacheSizeBytes = 500 * 1024 * 1024; // 500MB
+    const int targetCacheSizeBytes = 400 * 1024 * 1024; // 400MB
+
+    final totalSize = await DioCacheDao.getTotalCacheSize();
+    if (totalSize > maxCacheSizeBytes) {
+      log.info('DioCache size $totalSize exceeds limit, cleaning up...');
+      final bytesToDelete = totalSize - targetCacheSizeBytes;
+      await DioCacheDao.deleteOldestBySize(bytesToDelete);
+      log.info('DioCache cleanup complete');
+    }
   }
 
   Future<void> _checkUpdate() async {

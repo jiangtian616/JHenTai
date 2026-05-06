@@ -103,6 +103,13 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
     );
   }
 
+  @override
+  void onClose() {
+    pageController.removeListener(_readProgressListener);
+    pageController.dispose();
+    super.onClose();
+  }
+
   void _readProgressListener() {
     int currentPage = pageController.page!.toInt();
     readPageLogic.recordReadProgress(currentPage);

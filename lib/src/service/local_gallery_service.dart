@@ -30,23 +30,26 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin, 
 
   Map<int, LocalGallery> gid2EHViewerGallery = {};
 
+  RxBool isScanning = false.obs;
+
   List<String> get rootDirectories => path2SubDir[rootPath] ?? [];
 
   @override
   Future<void> doInitBean() async {
     Get.put(this, permanent: true);
-
-    await refreshLocalGallerys();
   }
 
   @override
-  Future<void> doAfterBeanReady() async {}
+  Future<void> doAfterBeanReady() async {
+    refreshLocalGallerys();
+  }
 
   Future<void> refreshLocalGallerys() {
     if (loadingState == LoadingState.loading) {
       return Future.value();
     }
     loadingState = LoadingState.loading;
+    isScanning.value = true;
 
     int preCount = allGallerys.length;
 
@@ -61,6 +64,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin, 
         'Refresh local gallerys, preCount:$preCount, newCount: ${allGallerys.length}, timeCost: ${DateTime.now().difference(start).inMilliseconds}ms',
       );
       loadingState = LoadingState.success;
+      isScanning.value = false;
       update([galleryCountChangedId]);
     });
   }

@@ -157,7 +157,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController
           isOriginal: archive.isOriginal,
           readProgressRecordStorageKey: archive.gid.toString(),
           images: images,
-          useSuperResolution: superResolutionService.get(archive.gid, SuperResolutionType.archive) != null,
+          useSuperResolution: await superResolutionService.get(archive.gid, SuperResolutionType.archive) != null,
         ),
       );
     }
@@ -171,14 +171,14 @@ mixin ArchiveDownloadPageLogicMixin on GetxController
       builder: (BuildContext context) => CupertinoActionSheet(
         actions: <CupertinoActionSheetAction>[
           if (superResolutionSetting.modelDirectoryPath.value != null &&
-              (superResolutionService.get(archive.gid, SuperResolutionType.archive) == null ||
-                  superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.paused))
+              (superResolutionService.getSync(archive.gid, SuperResolutionType.archive) == null ||
+                  superResolutionService.getSync(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.paused))
             CupertinoActionSheetAction(
               child: Text('superResolution'.tr),
               onPressed: () async {
                 backRoute();
 
-                if (superResolutionService.get(archive.gid, SuperResolutionType.archive) == null && archive.isOriginal) {
+                if (superResolutionService.getSync(archive.gid, SuperResolutionType.archive) == null && archive.isOriginal) {
                   bool? result = await Get.dialog(EHDialog(title: 'attention'.tr + '!', content: 'superResolveOriginalImageHint'.tr));
                   if (result == false) {
                     return;
@@ -188,7 +188,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController
                 superResolutionService.superResolve(archive.gid, SuperResolutionType.archive);
               },
             ),
-          if (superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.running)
+          if (superResolutionService.getSync(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.running)
             CupertinoActionSheetAction(
               child: Text('stopSuperResolution'.tr),
               onPressed: () async {
@@ -197,8 +197,8 @@ mixin ArchiveDownloadPageLogicMixin on GetxController
                 superResolutionService.pauseSuperResolve(archive.gid, SuperResolutionType.archive).then((_) => toast("success".tr));
               },
             ),
-          if (superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.paused ||
-              superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.success)
+          if (superResolutionService.getSync(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.paused ||
+              superResolutionService.getSync(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.success)
             CupertinoActionSheetAction(
               child: Text('deleteSuperResolvedImage'.tr),
               onPressed: () async {
