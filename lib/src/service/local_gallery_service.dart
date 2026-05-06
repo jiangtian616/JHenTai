@@ -108,10 +108,17 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin, 
   }
 
   Future<void> _loadGalleriesFromDisk() {
-    List<Future> futures = downloadSetting.extraGalleryScanPath.map((path) => _parseDirectory(Directory(path), true)).toList();
+    final List<String> scanPaths = pathService.isAndroid16OrAbove
+        ? downloadSetting.extraGalleryScanPath.where((path) => !pathService.isRestrictedAndroidDataPath(path)).toList()
+        : downloadSetting.extraGalleryScanPath.toList();
+    if (pathService.isAndroid16OrAbove && scanPaths.length != downloadSetting.extraGalleryScanPath.length) {
+      log.warning('Skip restricted local gallery scan path on Android 16+: ${downloadSetting.extraGalleryScanPath}');
+    }
+
+    List<Future> futures = scanPaths.map((path) => _parseDirectory(Directory(path), true)).toList();
 
     return Future.wait(futures).onError((error, stackTrace) {
-      log.error('_loadGalleriesFromDisk failed, path: ${downloadSetting.extraGalleryScanPath}', error, stackTrace);
+      log.error('_loadGalleriesFromDisk failed, path: $scanPaths', error, stackTrace);
       return [];
     }).whenComplete(() {
       allGallerys.sort((a, b) => FileUtil.naturalCompare(a.title, b.title));
