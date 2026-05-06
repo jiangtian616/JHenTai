@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_list/horizontal_list_layout_state.dart';
+import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/widget/eh_wheel_scroll_listener.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:zoom_view/zoom_view.dart';
@@ -23,13 +25,18 @@ class HorizontalListLayout extends BaseLayout {
   @override
   Widget buildBody(BuildContext context) {
     /// user PhotoViewGallery to scale up the whole gallery list, so set itemCount to 1
-    return PhotoViewGallery.builder(
+    return EHWheelListener(
+      onPointerScroll: logic.onPointerScroll,
+      onPointerPanZoomStart: logic.onPointerPanZoomStart,
+      onPointerPanZoomUpdate: logic.onPointerPanZoomUpdate,
+      onPointerPanZoomEnd: logic.onPointerPanZoomEnd,
+      child: PhotoViewGallery.builder(
       itemCount: 1,
       builder: (_, __) => PhotoViewGalleryPageOptions.customChild(
         controller: state.photoViewController,
         initialScale: 1.0,
         minScale: 1.0,
-        maxScale: 2.5,
+        maxScale: UIConfig.readPageMaxScale,
         scaleStateCycle: readSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
         enableTapDragZoom: readSetting.enableTapDragToScaleUp.isTrue,
         child: EHWheelSpeedControllerForReadPage(
@@ -51,6 +58,7 @@ class HorizontalListLayout extends BaseLayout {
             separatorBuilder: (_, __) => Obx(() => SizedBox(width: readSetting.imageSpace.value.toDouble())),
           ),
         ),
+      ),
       ),
     );
   }
