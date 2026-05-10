@@ -17,6 +17,7 @@ import '../../../routes/routes.dart';
 import '../../../service/search_history_service.dart';
 import '../../../service/tag_translation_service.dart';
 import '../../../utils/route_util.dart';
+import '../../../widget/eh_gallery_collection.dart';
 import '../../../widget/eh_search_config_dialog.dart';
 import '../../../widget/eh_tag.dart';
 import '../../../widget/eh_wheel_speed_controller.dart';
@@ -27,6 +28,24 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
 
   @override
   S get state;
+
+  @override
+  Widget buildGalleryCollection(BuildContext context) {
+    return Obx(
+      () => EHGalleryCollection(
+        key: state.galleryCollectionKey,
+        context: context,
+        gallerys: state.gallerys,
+        listMode: styleSetting.pageListMode[state.route] ?? styleSetting.listMode.value,
+        loadingState: state.loadingState,
+        handleTapCard: logic.handleTapGalleryCard,
+        handleLongPressCard: (gallery) => logic.handleLongPressCard(context, gallery),
+        handleSecondaryTapCard: (gallery) => logic.handleSecondaryTapCard(context, gallery),
+        handleLoadMore: logic.loadMore,
+        showVisitedBadge: true,
+      ),
+    );
+  }
 
   List<Widget> buildActionButtons({VisualDensity? visualDensity}) {
     return [

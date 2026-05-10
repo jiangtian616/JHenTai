@@ -16,6 +16,7 @@ import '../../../../mixin/scroll_to_top_page_mixin.dart';
 import '../../../../service/gallery_download_service.dart';
 import '../../../../setting/performance_setting.dart';
 import '../../../../widget/eh_image.dart';
+import '../../../../widget/read_progress_badge.dart';
 import '../../download_base_page.dart';
 import 'gallery_category_list_download_page_logic.dart';
 import 'gallery_category_list_download_page_state.dart';
@@ -292,13 +293,30 @@ class GalleryCategoryListDownloadPage extends StatelessWidget
           );
         }
 
-        return EHImage(
-          galleryImage: image!,
-          containerWidth: UIConfig.downloadPageCoverWidth,
-          containerHeight: UIConfig.downloadPageCoverHeight,
-          borderRadius: BorderRadius.circular(UIConfig.downloadPageCardBorderRadius),
-          fit: BoxFit.fitWidth,
-          maxBytes: 2 * 1024 * 1024,
+        return SizedBox(
+          width: UIConfig.downloadPageCoverWidth,
+          height: UIConfig.downloadPageCoverHeight,
+          child: Stack(
+            children: [
+              EHImage(
+                galleryImage: image!,
+                containerWidth: UIConfig.downloadPageCoverWidth,
+                containerHeight: UIConfig.downloadPageCoverHeight,
+                borderRadius:
+                    BorderRadius.circular(UIConfig.downloadPageCardBorderRadius),
+                fit: BoxFit.fitWidth,
+                maxBytes: 2 * 1024 * 1024,
+              ),
+              Positioned(
+                top: 4,
+                right: 4,
+                child: ReadProgressBadge(
+                  recordKey: gallery.gid.toString(),
+                  pageCount: gallery.pageCount,
+                ),
+              ),
+            ],
+          ),
         );
       },
     );

@@ -13,6 +13,7 @@ import '../../../../mixin/scroll_to_top_state_mixin.dart';
 import '../../../../utils/toast_util.dart';
 import '../../../../widget/eh_image.dart';
 import '../../../../widget/eh_wheel_speed_controller.dart';
+import '../../../../widget/read_progress_badge.dart';
 import '../../download_base_page.dart';
 import 'local_gallery_list_page_logic.dart';
 import 'local_gallery_list_page_state.dart';
@@ -237,12 +238,28 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
   }
 
   Widget _buildCover(LocalGallery gallery, BuildContext context) {
-    return EHImage(
-      galleryImage: gallery.cover,
-      containerWidth: UIConfig.downloadPageCoverWidth,
-      containerHeight: UIConfig.downloadPageCoverHeight,
-      fit: BoxFit.fitWidth,
-      maxBytes: 2 * 1024 * 1024,
+    return SizedBox(
+      width: UIConfig.downloadPageCoverWidth,
+      height: UIConfig.downloadPageCoverHeight,
+      child: Stack(
+        children: [
+          EHImage(
+            galleryImage: gallery.cover,
+            containerWidth: UIConfig.downloadPageCoverWidth,
+            containerHeight: UIConfig.downloadPageCoverHeight,
+            fit: BoxFit.fitWidth,
+            maxBytes: 2 * 1024 * 1024,
+          ),
+          Positioned(
+            top: 4,
+            right: 4,
+            child: ReadProgressBadge(
+              recordKey: gallery.cover.path!,
+              pageCount: gallery.pageCount,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

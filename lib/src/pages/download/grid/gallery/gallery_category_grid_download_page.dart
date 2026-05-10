@@ -192,6 +192,8 @@ class GalleryCategoryGridDownloadPage extends StatelessWidget
       ),
       parseFromBot: false,
       isOriginal: gallery.downloadOriginalImage,
+      readProgressRecordKey: gallery.gid.toString(),
+      pageCount: gallery.pageCount,
       gid: gallery.gid,
       superResolutionType: SuperResolutionType.gallery,
       onTapWidget: () => logic.handleTapItem(gallery),
