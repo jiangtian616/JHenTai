@@ -137,6 +137,30 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
           },
         ),
       ],
+      bottom: _buildGroupFilterBar(context),
+    );
+  }
+
+  PreferredSizeWidget _buildGroupFilterBar(BuildContext context) {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(48),
+      child: SizedBox(
+        height: 48,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
+          child: TextField(
+            controller: logic.groupFilterController,
+            onChanged: logic.updateGroupFilterKeyword,
+            decoration: InputDecoration(
+              isDense: true,
+              hintText: 'filter'.tr,
+              prefixIcon: const Icon(Icons.search, size: 20),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -155,7 +179,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                     maxGalleryNum4Animation: performanceSetting.maxGalleryNum4Animation.value,
                     scrollController: state.scrollController,
                     controller: state.groupedListController,
-                    groups: Map.fromEntries(logic.downloadService.allGroups.map((e) => MapEntry(e, state.displayGroups.contains(e)))),
+                    groups: logic.getGroupOpenStates(),
                     elements: logic.downloadService.gallerys,
                     elementGroup: (GalleryDownloadedData gallery) => logic.downloadService.galleryDownloadInfos[gallery.gid]!.group,
                     groupBuilder: (context, groupName, isOpen) => _groupBuilder(context, groupName, isOpen).marginAll(5),

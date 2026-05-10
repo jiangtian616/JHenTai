@@ -32,6 +32,8 @@ class GalleryGridDownloadPageLogic extends GetxController
         UpdateGlobalGalleryStatusLogicMixin {
   GalleryGridDownloadPageState state = GalleryGridDownloadPageState();
 
+  final TextEditingController groupFilterController = TextEditingController();
+
   @override
   Scroll2TopStateMixin get scroll2TopState => state;
 
@@ -96,6 +98,17 @@ class GalleryGridDownloadPageLogic extends GetxController
     updateSafely(multiSelectDownloadPageState.selectedGids.map((gid) => '$itemCardId::$gid').toList());
   }
 
+  void updateGroupFilterKeyword(String keyword) {
+    state.groupFilterKeyword = keyword;
+    updateSafely([bodyId]);
+  }
+
+  @override
+  void onClose() {
+    groupFilterController.dispose();
+    super.onClose();
+  }
+
   @override
   Future<void> saveGalleryOrderAfterDrag(int beforeIndex, int afterIndex) async {
     List<GalleryDownloadedData> gallerys = state.currentGalleryObjects.cast();
@@ -127,6 +140,23 @@ class GalleryGridDownloadPageLogic extends GetxController
 
   @override
   Future<void> saveGroupOrderAfterDrag(int beforeIndex, int afterIndex) async {
+    if (state.groupFilterKeyword.trim().isNotEmpty) {
+      List<String> filteredGroups = state.filteredGroups;
+      if (beforeIndex < 0 || beforeIndex >= filteredGroups.length || afterIndex < 0 || afterIndex >= filteredGroups.length) {
+        return;
+      }
+
+      String beforeGroup = filteredGroups[beforeIndex];
+      String afterGroup = filteredGroups[afterIndex];
+      int beforeGroupIndex = downloadService.allGroups.indexOf(beforeGroup);
+      int afterGroupIndex = downloadService.allGroups.indexOf(afterGroup);
+      if (beforeGroupIndex == -1 || afterGroupIndex == -1) {
+        return;
+      }
+
+      return downloadService.updateGroupOrder(beforeGroupIndex, afterGroupIndex);
+    }
+
     return downloadService.updateGroupOrder(beforeIndex, afterIndex);
   }
 }

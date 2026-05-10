@@ -125,6 +125,34 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
   }
 
   @override
+  PreferredSizeWidget? buildAppBarBottom(BuildContext context) {
+    return _buildGroupFilterBar(context);
+  }
+
+  PreferredSizeWidget _buildGroupFilterBar(BuildContext context) {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(48),
+      child: SizedBox(
+        height: 48,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
+          child: TextField(
+            controller: logic.groupFilterController,
+            onChanged: logic.updateGroupFilterKeyword,
+            decoration: InputDecoration(
+              isDense: true,
+              hintText: 'filter'.tr,
+              prefixIcon: const Icon(Icons.search, size: 20),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
   Widget? buildGridBottomAppBar(BuildContext context) {
     return buildBottomAppBar();
   }
