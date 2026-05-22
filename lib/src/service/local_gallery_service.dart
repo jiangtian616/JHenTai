@@ -91,12 +91,14 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin, 
       dir.delete(recursive: true).catchError((e) {
         log.error('Delete local gallery error!', e);
         log.uploadError(e);
+        return dir;
       });
     } else {
       for (File file in imageFiles) {
         file.delete().catchError((e) {
           log.error('Delete local gallery error!', e);
           log.uploadError(e);
+          return file;
         });
       }
     }
@@ -179,7 +181,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin, 
           onDone: () {
             if (result.isLegalGalleryDir) {
               images.sort(FileUtil.naturalCompareFile);
-              _initGalleryInfoInMemory(directory, images[0], parentPath);
+              _initGalleryInfoInMemory(directory, images[0], images.length, parentPath);
             }
 
             Future.wait(subFutures).then((_) {
@@ -200,10 +202,11 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin, 
     return completer.future;
   }
 
-  void _initGalleryInfoInMemory(Directory galleryDir, File coverImage, String parentPath) {
+  void _initGalleryInfoInMemory(Directory galleryDir, File coverImage, int pageCount, String parentPath) {
     LocalGallery gallery = LocalGallery(
       title: basename(galleryDir.path),
       path: galleryDir.path,
+      pageCount: pageCount,
       cover: GalleryImage(
         url: '',
         path: relative(coverImage.path, from: pathService.getVisibleDir().path),
@@ -219,9 +222,10 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin, 
 class LocalGallery {
   String title;
   String path;
+  int pageCount;
   GalleryImage cover;
 
-  LocalGallery({required this.title, required this.path, required this.cover});
+  LocalGallery({required this.title, required this.path, required this.pageCount, required this.cover});
 }
 
 class LocalGalleryParseResult {
