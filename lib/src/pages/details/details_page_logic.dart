@@ -225,6 +225,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     state.galleryDetails = detailPageInfo.galleryDetails;
     state.apikey = detailPageInfo.apikey;
     state.nextPageIndexToLoadThumbnails = 1;
+    state.loadingThumbnailsState = LoadingState.idle;
 
     await tagTranslationService.translateTagsIfNeeded(state.galleryDetails!.tags);
 
