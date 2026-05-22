@@ -27,10 +27,14 @@ def keystorePropertiesFile = rootProject.file('key.properties')
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
+def hasReleaseKeystore = keystoreProperties['storeFile'] &&
+        keystoreProperties['keyAlias'] &&
+        keystoreProperties['storePassword'] &&
+        keystoreProperties['keyPassword']
 
 android {
     namespace 'top.jtmonster.jhentai'
-    compileSdkVersion 34
+    compileSdkVersion 35
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -47,7 +51,7 @@ android {
 
     defaultConfig {
         applicationId "top.jtmonster.jhentai"
-        minSdkVersion 21
+        minSdkVersion flutter.minSdkVersion
         targetSdkVersion 34
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
@@ -65,7 +69,7 @@ android {
     /// If you want to use debug signing config, use default [signingConfigs.debug]
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            signingConfig hasReleaseKeystore ? signingConfigs.release : signingConfigs.debug
         }
     }
 }

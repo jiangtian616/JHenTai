@@ -21,8 +21,12 @@ class LocaleConsts {
     'zh_CN': '简体中文',
     'zh_TW': '繁體中文(台灣)',
     'en_US': 'English',
-    'pt_BR': 'Português brasileiro',
+    'ja_JP': '日本語',
     'ko_KR': '한국어',
+    'fr_FR': 'Français',
+    'de_DE': 'Deutsch',
+    'es_ES': 'Español',
+    'pt_BR': 'Português brasileiro',
     'ru_RU': 'Русский',
   };
 }

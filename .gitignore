@@ -48,3 +48,10 @@ app.*.map.json
 
 /lib/src/firebase_options.dart
 /assets/sentry_dsn
+
+# Local release artifacts
+/JHenTai-*.dmg
+/rw.*.dmg
+/JHenTai_*.ipa
+/JHenTai_*_windows.zip
+/JHenTai_*.zip
