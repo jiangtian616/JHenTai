@@ -1,6 +1,7 @@
 enum ConfigEnum {
   /// app update
   firstOpenInited('firstOpenInited'),
+  android16ModeShown('android16ModeShown'),
   renameDownloadMetadata('renameDownloadMetadata'),
   migrateGalleryHistory('migrateGalleryHistory'),
   migrateStorageConfig('migrateStorageConfig'),

@@ -19,6 +19,7 @@ LogService log = LogService();
 
 class LogService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   String? logDirPath;
+  bool _disableFileLogging = false;
 
   Logger? _consoleLogger;
   Logger? _verboseFileLogger;
@@ -57,51 +58,94 @@ class LogService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   Future<void> doAfterBeanReady() async {}
 
   /// For actions that print params
-  void trace(Object msg, [bool withStack = false]) async {
-    await _initLogger();
-    _consoleLogger?.t(msg, stackTrace: withStack ? null : StackTrace.empty);
-    _verboseFileLogger?.t(msg, stackTrace: withStack ? null : StackTrace.empty);
+  void trace(Object msg, [bool withStack = false]) {
+    _safeLogCall(() async {
+      await _initLogger();
+      _consoleLogger?.t(msg, stackTrace: withStack ? null : StackTrace.empty);
+      _verboseFileLogger?.t(msg, stackTrace: withStack ? null : StackTrace.empty);
+    });
   }
 
   /// For actions that is invisible to user
-  void debug(Object msg, [bool withStack = false]) async {
-    await _initLogger();
-    _consoleLogger?.d(msg, stackTrace: withStack ? null : StackTrace.empty);
-    _verboseFileLogger?.d(msg, stackTrace: withStack ? null : StackTrace.empty);
+  void debug(Object msg, [bool withStack = false]) {
+    _safeLogCall(() async {
+      await _initLogger();
+      _consoleLogger?.d(msg, stackTrace: withStack ? null : StackTrace.empty);
+      _verboseFileLogger?.d(msg, stackTrace: withStack ? null : StackTrace.empty);
+    });
   }
 
   /// For actions that is visible to user
-  void info(Object msg, [bool withStack = false]) async {
-    await _initLogger();
-    _consoleLogger?.i(msg, stackTrace: withStack ? null : StackTrace.empty);
-    _verboseFileLogger?.i(msg, stackTrace: withStack ? null : StackTrace.empty);
+  void info(Object msg, [bool withStack = false]) {
+    _safeLogCall(() async {
+      await _initLogger();
+      _consoleLogger?.i(msg, stackTrace: withStack ? null : StackTrace.empty);
+      _verboseFileLogger?.i(msg, stackTrace: withStack ? null : StackTrace.empty);
+    });
   }
 
-  void warning(Object msg, [Object? error, bool withStack = false]) async {
-    await _initLogger();
-    _consoleLogger?.w(msg, error: error, stackTrace: withStack ? null : StackTrace.empty);
-    _verboseFileLogger?.w(msg, error: error, stackTrace: withStack ? null : StackTrace.empty);
-    _warningFileLogger?.w(msg, error: error, stackTrace: withStack ? null : StackTrace.empty);
+  void warning(Object msg, [Object? error, bool withStack = false]) {
+    _safeLogCall(() async {
+      await _initLogger();
+      _consoleLogger?.w(msg, error: error, stackTrace: withStack ? null : StackTrace.empty);
+      _verboseFileLogger?.w(msg, error: error, stackTrace: withStack ? null : StackTrace.empty);
+      _warningFileLogger?.w(msg, error: error, stackTrace: withStack ? null : StackTrace.empty);
+    });
   }
 
-  void error(Object msg, [Object? error, StackTrace? stackTrace]) async {
-    await _initLogger();
-    _consoleLogger?.e(msg, error: error, stackTrace: stackTrace);
-    _verboseFileLogger?.e(msg, error: error, stackTrace: stackTrace);
-    _warningFileLogger?.e(msg, error: error, stackTrace: stackTrace);
+  void error(Object msg, [Object? error, StackTrace? stackTrace]) {
+    _safeLogCall(() async {
+      await _initLogger();
+      _consoleLogger?.e(msg, error: error, stackTrace: stackTrace);
+      _verboseFileLogger?.e(msg, error: error, stackTrace: stackTrace);
+      _warningFileLogger?.e(msg, error: error, stackTrace: stackTrace);
+    });
   }
 
-  void download(Object msg) async {
-    await _initLogger();
-    _consoleLogger?.t(msg, stackTrace: StackTrace.empty);
-    _downloadFileLogger?.t(msg, stackTrace: StackTrace.empty);
+  void download(Object msg) {
+    _safeLogCall(() async {
+      await _initLogger();
+      _consoleLogger?.t(msg, stackTrace: StackTrace.empty);
+      _downloadFileLogger?.t(msg, stackTrace: StackTrace.empty);
+    });
   }
 
   Future<void> uploadError(dynamic throwable, {dynamic stackTrace, Map<String, dynamic>? extraInfos}) async {
     /// sentry is removed
   }
 
+  void _safeLogCall(Future<void> Function() action) {
+    action().catchError((error, stackTrace) {
+      _fallbackConsole('Log write failed.', error, stackTrace is StackTrace ? stackTrace : null);
+    });
+  }
+
+  void _fallbackConsole(Object message, [Object? error, StackTrace? stackTrace]) {
+    if (kDebugMode) {
+      debugPrint('$message');
+      if (error != null) {
+        debugPrint('$error');
+      }
+      if (stackTrace != null) {
+        debugPrint('$stackTrace');
+      }
+      return;
+    }
+
+    stderr.writeln(message);
+    if (error != null) {
+      stderr.writeln(error);
+    }
+    if (stackTrace != null) {
+      stderr.writeln(stackTrace);
+    }
+  }
+
   Future<String> getSize() async {
+    if (logDirPath == null) {
+      return byte2String(0.0);
+    }
+
     return compute(
       (logDirPath) {
         Directory logDirectory = Directory(logDirPath!);
@@ -126,51 +170,82 @@ class LogService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     _warningFileLogger = null;
     _downloadFileLogger = null;
 
-    if (await Directory(logDirPath!).exists()) {
+    if (logDirPath != null && await Directory(logDirPath!).exists()) {
       await Directory(logDirPath!).delete(recursive: true);
     }
   }
 
   Future<void> _initLogDir() async {
-    if (logDirPath == null) {
-      logDirPath = path.join(pathService.getVisibleDir().path, 'logs');
-      if (!await Directory(logDirPath!).exists()) {
-        await Directory(logDirPath!).create();
-      }
+    if (logDirPath != null || _disableFileLogging) {
+      return;
+    }
+
+    final Directory? baseDir = pathService.isAndroid16OrAbove
+        ? pathService.getInternalRootDir()
+        : (pathService.appSupportDir ?? pathService.appDocDir ?? pathService.externalStorageDir);
+    if (baseDir == null) {
+      _disableFileLogging = true;
+      _fallbackConsole('Init log dir failed: no available base directory, fallback to console logging.');
+      return;
+    }
+
+    try {
+      logDirPath = path.join(baseDir.path, 'logs');
+      await Directory(logDirPath!).create(recursive: true);
+    } catch (e, s) {
+      logDirPath = null;
+      _disableFileLogging = true;
+      _fallbackConsole('Init log dir failed, fallback to console logging.', e, s);
     }
   }
 
   Future<void> _initLogger() async {
     _consoleLogger ??= Logger(printer: devPrinter);
+    await _consoleLogger!.init;
 
     await _initLogDir();
-    String fileName = DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now());
-
-    _verboseFileLogger ??= Logger(
-      printer: HybridPrinter(prodPrinterWithBox, trace: prodPrinterWithoutBox, debug: prodPrinterWithoutBox, info: prodPrinterWithoutBox),
-      filter: EHLogFilter(),
-      output: FileOutput(file: File(path.join(logDirPath!, '$fileName.log'))),
-    );
-    if (advancedSetting.enableVerboseLogging.isTrue) {
-      _warningFileLogger ??= Logger(
-        level: Level.warning,
-        printer: prodPrinterWithBox,
-        filter: ProductionFilter(),
-        output: FileOutput(file: File(path.join(logDirPath!, '${fileName}_error.log'))),
-      );
-      _downloadFileLogger ??= Logger(
-        printer: prodPrinterWithoutBox,
-        filter: ProductionFilter(),
-        output: FileOutput(file: File(path.join(logDirPath!, '${fileName}_download.log'))),
-      );
+    if (_disableFileLogging || logDirPath == null) {
+      return;
     }
 
-    await Future.wait([
-      _consoleLogger!.init,
-      _verboseFileLogger!.init,
-      if (_warningFileLogger != null) _warningFileLogger!.init,
-      if (_downloadFileLogger != null) _downloadFileLogger!.init,
-    ]);
+    String fileName = DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now());
+
+    try {
+      _verboseFileLogger ??= Logger(
+        printer: HybridPrinter(prodPrinterWithBox, trace: prodPrinterWithoutBox, debug: prodPrinterWithoutBox, info: prodPrinterWithoutBox),
+        filter: EHLogFilter(),
+        output: FileOutput(file: File(path.join(logDirPath!, '$fileName.log'))),
+      );
+      if (advancedSetting.enableVerboseLogging.isTrue) {
+        _warningFileLogger ??= Logger(
+          level: Level.warning,
+          printer: prodPrinterWithBox,
+          filter: ProductionFilter(),
+          output: FileOutput(file: File(path.join(logDirPath!, '${fileName}_error.log'))),
+        );
+        _downloadFileLogger ??= Logger(
+          printer: prodPrinterWithoutBox,
+          filter: ProductionFilter(),
+          output: FileOutput(file: File(path.join(logDirPath!, '${fileName}_download.log'))),
+        );
+      }
+
+      await Future.wait([
+        _verboseFileLogger!.init,
+        if (_warningFileLogger != null) _warningFileLogger!.init,
+        if (_downloadFileLogger != null) _downloadFileLogger!.init,
+      ]);
+    } catch (e, s) {
+      _disableFileLogging = true;
+      logDirPath = null;
+      await _verboseFileLogger?.close();
+      await _warningFileLogger?.close();
+      await _downloadFileLogger?.close();
+      _verboseFileLogger = null;
+      _warningFileLogger = null;
+      _downloadFileLogger = null;
+      _fallbackConsole('Init file logger failed, fallback to console logging.', e, s);
+    }
   }
 }
 

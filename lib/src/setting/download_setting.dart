@@ -39,14 +39,17 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   @override
   void applyBeanConfig(String configString) {
     Map map = jsonDecode(configString);
+    final bool forceInternalStorage = pathService.isAndroid16OrAbove;
 
     if (!GetPlatform.isIOS) {
-      downloadPath.value = map['downloadPath'] ?? downloadPath.value;
-      singleImageSavePath.value = map['singleImageSavePath'] ?? singleImageSavePath.value;
+      if (!forceInternalStorage) {
+        downloadPath.value = map['downloadPath'] ?? downloadPath.value;
+        singleImageSavePath.value = map['singleImageSavePath'] ?? singleImageSavePath.value;
+      }
     }
-    if (map['extraGalleryScanPath'] != null) {
+    if (map['extraGalleryScanPath'] != null && !forceInternalStorage) {
       extraGalleryScanPath.addAll(map['extraGalleryScanPath'].cast<String>());
-      extraGalleryScanPath.value = extraGalleryScanPath.toSet().toList();
+      extraGalleryScanPath.assignAll(extraGalleryScanPath.toSet().toList());
     }
     downloadOriginalImageByDefault.value = map['downloadOriginalImageByDefault'] ?? downloadOriginalImageByDefault.value;
     defaultGalleryGroup.value = map['defaultGalleryGroup'];
@@ -63,6 +66,12 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     manageArchiveDownloadConcurrency.value = map['manageArchiveDownloadConcurrency'] ?? manageArchiveDownloadConcurrency.value;
     deleteArchiveFileAfterDownload.value = map['deleteArchiveFileAfterDownload'] ?? deleteArchiveFileAfterDownload.value;
     restoreTasksAutomatically.value = map['restoreTasksAutomatically'] ?? restoreTasksAutomatically.value;
+
+    if (forceInternalStorage) {
+      downloadPath.value = defaultDownloadPath;
+      extraGalleryScanPath.assignAll([defaultExtraGalleryScanPath]);
+      singleImageSavePath.value = join(pathService.getVisibleDir().path, 'save');
+    }
   }
 
   @override

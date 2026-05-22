@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/model/gallery_image_page_url.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
@@ -12,7 +13,9 @@ import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2.dart';
 import 'package:jhentai/src/pages/layout/tablet_v2/tablet_layout_page_v2.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
+import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/service/log.dart';
+import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:window_manager/window_manager.dart';
@@ -53,6 +56,7 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
   void initState() {
     super.initState();
     initToast(context);
+    _showAndroid16StorageNoticeIfNeeded();
     _initSharingIntent();
     _handleUrlInClipBoard();
 
@@ -95,6 +99,28 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
         ),
       ),
     );
+  }
+
+  void _showAndroid16StorageNoticeIfNeeded() {
+    if (!pathService.isAndroid16OrAbove) {
+      return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final String? shown = await localConfigService.read(configKey: ConfigEnum.android16ModeShown);
+      if (shown == 'true') {
+        return;
+      }
+
+      snack(
+        'Android 16 Storage Notice',
+        'Android 16 tightened storage access. JHenTai now uses internal app storage. If old data is in '
+            '/storage/emulated/0/Android/data/top.jtmonster.jhentai/files, migrate/import it manually.',
+        isShort: false,
+      );
+
+      await localConfigService.write(configKey: ConfigEnum.android16ModeShown, value: 'true');
+    });
   }
 
   /// Listen to share or open urls/text coming from outside the app while the app is in the memory or is closed
