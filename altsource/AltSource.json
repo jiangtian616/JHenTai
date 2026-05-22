@@ -61,11 +61,11 @@
       "versions": [
         {
           "version": "8.0.12",
-          "buildVersion": "",
-          "date": "2026-02-24T12:24:27Z",
-          "localizedDescription": "- 优化webview相关登录的表现\\n\\n--------------------\\n\\n- Optimize the performance of webview related login",
-          "downloadURL": "https://github.com/jiangtian616/JHenTai/releases/download/v8.0.12/JHenTai_8.0.12+308.ipa",
-          "size": 15739502
+          "buildVersion": "310",
+          "date": "2026-05-22T12:47:25Z",
+          "localizedDescription": "- 修复画廊详情页部分场景下刷新页面后，缩略图无法正常全部加载的bug。\\n\\n--------------------\\n\\n- Fix a bug where thumbnails fail to fully load after refreshing the gallery detail page in certain scenarios.",
+          "downloadURL": "https://github.com/jiangtian616/JHenTai/releases/download/v8.0.12+310/JHenTai_8.0.12+310.ipa",
+          "size": 15745602
         }
       ]
     }
