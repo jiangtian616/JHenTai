@@ -301,7 +301,7 @@ class GridGallery extends StatelessWidget {
             GetBuilder<SuperResolutionService>(
               id: '${SuperResolutionService.superResolutionId}::$gid',
               builder: (_) {
-                SuperResolutionInfo? superResolutionInfo = superResolutionService.get(gid!, superResolutionType!);
+                SuperResolutionInfo? superResolutionInfo = superResolutionService.getSync(gid!, superResolutionType!);
                 return superResolutionInfo == null
                     ? const SizedBox()
                     : Container(

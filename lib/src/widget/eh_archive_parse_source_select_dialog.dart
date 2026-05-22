@@ -22,22 +22,22 @@ class _EHArchiveParseSourceSelectDialogState extends State<EHArchiveParseSourceS
       actionsPadding: const EdgeInsets.only(left: 24, right: 20, bottom: 12),
       content: SizedBox(
         width: UIConfig.archiveParseSourceSelectDialogWidth,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            RadioListTile<ArchiveParseSource>(
-              title: Text('official'.tr),
-              value: ArchiveParseSource.official,
-              groupValue: _archiveParseSource,
-              onChanged: (value) => setState(() => _archiveParseSource = value),
-            ),
-            RadioListTile(
-              title: Text('archiveBot'.tr),
-              value: ArchiveParseSource.bot,
-              groupValue: _archiveParseSource,
-              onChanged: (value) => setState(() => _archiveParseSource = value),
-            ),
-          ],
+        child: RadioGroup<ArchiveParseSource?>(
+          groupValue: _archiveParseSource,
+          onChanged: (value) => setState(() => _archiveParseSource = value),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RadioListTile<ArchiveParseSource?>(
+                title: Text('official'.tr),
+                value: ArchiveParseSource.official,
+              ),
+              RadioListTile<ArchiveParseSource?>(
+                title: Text('archiveBot'.tr),
+                value: ArchiveParseSource.bot,
+              ),
+            ],
+          ),
         ),
       ),
       actions: [

@@ -423,7 +423,7 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
             itemPositionsListener: state.thumbnailPositionsListener,
             scrollOffsetController: state.thumbnailsScrollOffsetController,
             itemBuilder: (_, index) => GetBuilder<ReadPageLogic>(
-              id: logic.thumbnailNoId,
+              id: '${logic.thumbnailNoId}::$index',
               builder: (_) => Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [

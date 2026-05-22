@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 
 import '../enum/config_enum.dart';
 import '../service/local_config_service.dart';
+import '../service/log.dart';
 import '../setting/network_setting.dart';
 import '../utils/cookie_util.dart';
 
@@ -54,11 +55,16 @@ class EHCookieManager extends Interceptor {
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     try {
-      _saveEHCookies(response);
+      // Fire-and-forget: Cookie persistence adds ~5-15ms latency per request.
+      // Cookies are already set in memory before save; persistence only affects
+      // next app launch. Acceptable tradeoff for response speed.
+      _saveEHCookies(response).catchError((e) {
+        log.error('save cookies failed', e);
+      });
       handler.next(response);
     } on Exception catch (e, s) {
       final err = DioException(requestOptions: response.requestOptions, error: e, stackTrace: s);
-      return handler.reject(err, true);
+      handler.reject(err, true);
     }
   }
 

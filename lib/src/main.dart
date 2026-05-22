@@ -163,6 +163,21 @@ class MyApp extends StatelessWidget {
   }
 }
 
+/// Safely dispose all beans that support disposal.
+/// Called during app termination.
+void disposeAllBeans() {
+  for (final bean in lifeCircleBeans.reversed) {
+    // Check if bean uses the mixin (has disposeBean method)
+    if (bean is JHLifeCircleBeanErrorCatch) {
+      try {
+        (bean as JHLifeCircleBeanErrorCatch).disposeBean();
+      } catch (e) {
+        log.error('Failed to dispose ${bean.runtimeType}', e);
+      }
+    }
+  }
+}
+
 List<JHLifeCircleBean> topologicalSort(List<JHLifeCircleBean> lifeCircleBeans) {
   // Maps to store the visiting state and result order
   final visiting = <JHLifeCircleBean, bool>{};

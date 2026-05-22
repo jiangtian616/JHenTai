@@ -74,5 +74,10 @@ class SpeedComputer {
 
   void dispose() {
     timer?.cancel();
+    timer = null;
+    updateCallback = null;  // Release callback reference
+    speed = '0 B/s';
+    downloadedBytes = 0;
+    downloadedBytesLastTime = 0;
   }
 }

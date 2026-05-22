@@ -39,11 +39,13 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => handleTapCard(gallery),
-      onLongPress: handleLongPressCard == null ? null : () => handleLongPressCard!(gallery),
-      onSecondaryTap: handleSecondaryTapCard == null ? null : () => handleSecondaryTapCard!(gallery),
-      child: FadeIn(child: _buildCard(context)),
+    return RepaintBoundary(
+      child: GestureDetector(
+        onTap: () => handleTapCard(gallery),
+        onLongPress: handleLongPressCard == null ? null : () => handleLongPressCard!(gallery),
+        onSecondaryTap: handleSecondaryTapCard == null ? null : () => handleSecondaryTapCard!(gallery),
+        child: FadeIn(child: _buildCard(context)),
+      ),
     );
   }
 
@@ -156,6 +158,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
 
         return EHImage(
           galleryImage: gallery.cover,
+          clearMemoryCacheWhenDispose: false,
           containerHeight: fittedSizes.destination.height,
           containerWidth: fittedSizes.destination.width,
           containerColor: UIConfig.waterFallFlowCardBackGroundColor(context),
@@ -247,9 +250,6 @@ class WaterFallFlowCardTagWaterFlow extends StatelessWidget {
         child: WaterfallFlow.builder(
           scrollDirection: Axis.horizontal,
           shrinkWrap: true,
-
-          /// disable keepScrollOffset because we used [PageStorageKey], which leads to a conflict with this WaterfallFlow
-          controller: ScrollController(keepScrollOffset: false),
           gridDelegate: SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
             crossAxisCount: computeRows,
             mainAxisSpacing: 4,

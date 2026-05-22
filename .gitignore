@@ -48,3 +48,5 @@ app.*.map.json
 
 /lib/src/firebase_options.dart
 /assets/sentry_dsn
+/.subtask/
+docs/

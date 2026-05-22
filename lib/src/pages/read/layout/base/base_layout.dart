@@ -253,7 +253,7 @@ abstract class BaseLayout extends StatelessWidget {
       builder: (_) {
         int gid = readPageState.readPageInfo.gid!;
         SuperResolutionType type = readPageState.readPageInfo.mode == ReadMode.downloaded ? SuperResolutionType.gallery : SuperResolutionType.archive;
-        if (superResolutionService.get(gid, type)?.imageStatuses[index] != SuperResolutionStatus.success) {
+        if (superResolutionService.getSync(gid, type)?.imageStatuses[index] != SuperResolutionStatus.success) {
           return _buildLocalImage(context, index);
         }
 

@@ -11,8 +11,6 @@ class TagCountDao {
         await appDb.batch((batch) {
           batch.insertAll(appDb.tagCount, tagCountData.skip(i).take(_batchSize).toList());
         });
-
-        await Future.delayed(const Duration(milliseconds: 10));
       }
     });
   }

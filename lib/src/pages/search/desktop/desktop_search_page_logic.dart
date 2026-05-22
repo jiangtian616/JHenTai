@@ -55,7 +55,11 @@ class DesktopSearchPageLogic extends GetxController with Scroll2TopLogicMixin {
     state.tabs.add(DesktopSearchPageTabView(key: ValueKey(newUUID()), logic: newTabLogic));
 
     state.currentTabIndex = state.tabs.length - 1;
+
+    // Dispose old controller before creating new one
+    state.pageController.dispose();
     state.pageController = PageController(initialPage: state.currentTabIndex);
+
     state.tabViewKey = Key(newUUID());
     updateSafely([pageId]);
 
@@ -72,18 +76,40 @@ class DesktopSearchPageLogic extends GetxController with Scroll2TopLogicMixin {
 
     if (index == state.currentTabIndex) {
       state.currentTabIndex = min(state.tabs.length - 1, state.currentTabIndex);
+
+      // Dispose old controller before creating new one
+      state.pageController.dispose();
       state.pageController = PageController(initialPage: state.currentTabIndex);
+
       state.tabViewKey = Key(newUUID());
       updateSafely([pageId]);
-    }
-
-    if (index < state.currentTabIndex) {
+    } else if (index < state.currentTabIndex) {
       state.currentTabIndex = state.currentTabIndex - 1;
+
+      // Dispose old controller before creating new one
+      state.pageController.dispose();
       state.pageController = PageController(initialPage: state.currentTabIndex);
+
       updateSafely([pageId]);
     }
 
     updateSafely([pageId]);
+  }
+
+  @override
+  void onClose() {
+    // Dispose all tab logics
+    for (final logic in state.tabLogics) {
+      logic.onClose();
+    }
+    state.tabLogics.clear();
+    state.tabs.clear();
+
+    // Dispose controllers
+    state.pageController.dispose();
+    state.tabController.dispose();
+
+    super.onClose();
   }
 
   void jump2Index(int index) {
