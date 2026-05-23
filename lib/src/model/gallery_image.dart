@@ -1,3 +1,7 @@
+import 'package:extended_image/extended_image.dart';
+import 'package:jhentai/src/service/path_service.dart';
+import 'package:path/path.dart' as Path;
+
 import '../service/gallery_download_service.dart';
 
 class GalleryImage {
@@ -28,6 +32,14 @@ class GalleryImage {
     this.path,
     this.downloadStatus = DownloadStatus.none,
   });
+
+  Future<String?> getValidAbsolutePath() async {
+    if (path != null) {
+      return Path.join(pathService.getVisibleDir().path, path);
+    }
+    path = await getCachedImageFilePath(url);
+    return path;
+  }
 
   Map<String, dynamic> toJson() {
     return {
