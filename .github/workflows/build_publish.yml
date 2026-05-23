@@ -97,7 +97,7 @@ jobs:
       # Setup JDK
       - name: Setup JDK 17 (Android)
         if: matrix.target == 'Android'
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
