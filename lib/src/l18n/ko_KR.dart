@@ -32,6 +32,7 @@ class ko_KR {
       'receiveDataTimeoutHint': 'Network receive data timeout',
       'archiveError': 'Download Archive Error',
       'edit': 'Edit',
+      'opened': 'Opened',
 
       'home': "홈",
       'gallery': "갤러리",
@@ -459,6 +460,7 @@ class ko_KR {
       'keepScreenAwakeWhenReading': '읽는 중에 화면 꺼짐 방지하기',
       'enableCustomReadBrightness': 'Enable Custom Brightness When Reading',
       'spaceBetweenImages': '이미지 간격',
+      'resetReadProgress': 'Reset Read Progress',
       'enableImmersiveHint': '시스템 바를 숨김',
       'enableImmersiveHint4Windows': 'Hide Title Bar',
       'deviceOrientation': 'Device Orientation',
@@ -537,6 +539,7 @@ class ko_KR {
 
       /// download page
       'local': '로컬',
+      'downloadCategory': 'Download Category',
       'reDownload': '다시 다운로드',
       'delete': '삭제',
       'deleteTask': '리스트에서만 삭제',

@@ -19,10 +19,10 @@ class LocalConfig {
 
   Map<String, dynamic> toJson() {
     return {
-      "configKey": this.configKey.key,
-      "subConfigKey": this.subConfigKey,
-      "value": this.value,
-      "utime": this.utime,
+      "configKey": configKey.key,
+      "subConfigKey": subConfigKey,
+      "value": value,
+      "utime": utime,
     };
   }
 
@@ -93,5 +93,9 @@ class LocalConfigService with JHLifeCircleBeanErrorCatch implements JHLifeCircle
         .filter((config) => config.configKey.equals(configKey.key) & config.subConfigKey.equals(subConfigKey))
         .delete()
         .then((value) => value > 0);
+  }
+
+  Future<int> deleteAll({required ConfigEnum configKey}) {
+    return appDb.managers.localConfig.filter((config) => config.configKey.equals(configKey.key)).delete();
   }
 }

@@ -9,16 +9,19 @@ class GalleryHistoryDao {
   static Future<List<GalleryHistoryV2Data>> selectAll() {
     return (appDb.select(appDb.galleryHistoryV2)
           ..orderBy([
-            (tbl) => OrderingTerm(expression: tbl.lastReadTime, mode: OrderingMode.asc),
+            (tbl) => OrderingTerm(
+                expression: tbl.lastReadTime, mode: OrderingMode.asc),
             (tbl) => OrderingTerm(expression: tbl.gid, mode: OrderingMode.asc),
           ]))
         .get();
   }
 
-  static Future<List<GalleryHistoryV2Data>> selectByPageIndex(int pageIndex, int pageSize) {
+  static Future<List<GalleryHistoryV2Data>> selectByPageIndex(
+      int pageIndex, int pageSize) {
     return (appDb.select(appDb.galleryHistoryV2)
           ..orderBy([
-            (tbl) => OrderingTerm(expression: tbl.lastReadTime, mode: OrderingMode.desc),
+            (tbl) => OrderingTerm(
+                expression: tbl.lastReadTime, mode: OrderingMode.desc),
             (tbl) => OrderingTerm(expression: tbl.gid, mode: OrderingMode.desc),
           ])
           ..limit(pageSize, offset: pageIndex * pageSize))
@@ -29,7 +32,15 @@ class GalleryHistoryDao {
     return appDb.into(appDb.galleryHistoryV2).insertOnConflictUpdate(history);
   }
 
-  static Future<void> batchReplaceHistory(List<GalleryHistoryV2Data> histories) async {
+  static Future<bool> contains(int gid) {
+    return (appDb.select(appDb.galleryHistoryV2)
+          ..where((tbl) => tbl.gid.equals(gid)))
+        .getSingleOrNull()
+        .then((value) => value != null);
+  }
+
+  static Future<void> batchReplaceHistory(
+      List<GalleryHistoryV2Data> histories) async {
     if (histories.isEmpty) {
       return;
     }
@@ -40,7 +51,9 @@ class GalleryHistoryDao {
   }
 
   static Future<int> deleteHistory(int gid) {
-    return (appDb.delete(appDb.galleryHistoryV2)..where((tbl) => tbl.gid.equals(gid))).go();
+    return (appDb.delete(appDb.galleryHistoryV2)
+          ..where((tbl) => tbl.gid.equals(gid)))
+        .go();
   }
 
   static Future<int> deleteAllHistory() {
@@ -51,11 +64,13 @@ class GalleryHistoryDao {
     return appDb.galleryHistory.count().getSingle();
   }
 
-  static Future<List<GalleryHistoryData>> selectLargerThanLastReadTimeAndGidOld(String lastReadTime, int limit) {
+  static Future<List<GalleryHistoryData>> selectLargerThanLastReadTimeAndGidOld(
+      String lastReadTime, int limit) {
     return (appDb.select(appDb.galleryHistory)
           ..where((tbl) => tbl.lastReadTime.isBiggerOrEqualValue(lastReadTime))
           ..orderBy([
-            (tbl) => OrderingTerm(expression: tbl.lastReadTime, mode: OrderingMode.asc),
+            (tbl) => OrderingTerm(
+                expression: tbl.lastReadTime, mode: OrderingMode.asc),
             (tbl) => OrderingTerm(expression: tbl.gid, mode: OrderingMode.asc),
           ])
           ..limit(limit))

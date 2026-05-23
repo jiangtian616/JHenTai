@@ -28,8 +28,8 @@ dependencies:
   waterfall_flow: 3.0.2
   extended_image: 8.1.0
   font_awesome_flutter: 9.2.0
-  intl: 0.19.0
-  collection: 1.19.0
+  intl: ^0.20.2
+  collection: any
   clipboard: 0.1.3
   scrollable_positioned_list: 
     git:
@@ -38,7 +38,7 @@ dependencies:
   flutter_list_view: 1.1.21
   executor: 2.2.2
   retry: 3.1.2
-  path: 1.9.0
+  path: ^1.9.0
   drift: 2.21.0
   sqlite3_flutter_libs: 0.5.32
   path_provider: 2.1.3
@@ -72,7 +72,7 @@ dependencies:
   flutter_windowmanager_plus: 1.0.1
   animate_do: 3.3.4
   share_plus: 10.1.1
-  syncfusion_flutter_charts: 27.1.48
+  syncfusion_flutter_charts: ^33.2.5
   archive: 3.6.1
   # https://github.com/ponnamkarthik/FlutterToast/pull/542
   fluttertoast: 
@@ -118,12 +118,14 @@ dependencies:
   j_downloader:
     git: https://github.com/jiangtian616/JDownloader
   device_info_plus: 11.1.0
-  template_expressions: 3.2.0+7
+  template_expressions: ^3.3.1+2
   uuid: 4.4.0
   xml: 6.5.0
   telegram: 0.0.9
   
 dependency_overrides:
+  system_network_proxy_macos:
+    path: plugins/system_network_proxy_macos
   test_api: 0.6.0
   matcher: 0.12.16
   chewie: 1.7.0

@@ -9,6 +9,7 @@ enum TabBarIconNameEnum {
   favorite,
   history,
   download,
+  localSearch,
   setting,
 }
 
