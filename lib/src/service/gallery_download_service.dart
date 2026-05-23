@@ -34,6 +34,7 @@ import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/convert_util.dart';
+import 'package:jhentai/src/utils/file_util.dart';
 import 'package:jhentai/src/utils/jh_response_parser.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/service/log.dart';
@@ -74,8 +75,13 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   List<String> allGroups = [];
   List<GalleryDownloadedData> gallerys = [];
   Map<int, GalleryDownloadInfo> galleryDownloadInfos = {};
+  List<String> authorGroups = [];
+  Map<String, List<GalleryDownloadedData>> author2Gallerys = {};
+  Map<int, String> galleryGid2Author = {};
 
   List<GalleryDownloadedData> gallerysWithGroup(String group) => gallerys.where((g) => galleryDownloadInfos[g.gid]!.group == group).toList();
+  List<GalleryDownloadedData> gallerysWithAuthor(String author) => author2Gallerys[author] ?? [];
+  String authorOfGallery(GalleryDownloadedData gallery) => galleryGid2Author[gallery.gid] ?? extractAuthorName(gallery.title);
 
   static const int _maxRetryTimes = 3;
   static const int _maxRetryTimes4FetchImageHashes = 1;
@@ -895,6 +901,43 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
       return bTime.difference(aTime).inMilliseconds;
     });
+
+    _rebuildAuthorCategory();
+  }
+
+  String extractAuthorName(String title) {
+    RegExpMatch? match = RegExp(r'^\s*[\[【]([^\]】]+)[\]】]').firstMatch(title);
+    if (match == null) {
+      return 'other'.tr;
+    }
+
+    String authorWithAlias = match.group(1)?.trim() ?? '';
+    RegExpMatch? aliasMatch = RegExp(r'[\(（]').firstMatch(authorWithAlias);
+    String author = aliasMatch == null ? authorWithAlias : authorWithAlias.substring(0, aliasMatch.start).trim();
+
+    return author.isEmpty ? 'other'.tr : author;
+  }
+
+  void _rebuildAuthorCategory() {
+    authorGroups.clear();
+    author2Gallerys.clear();
+    galleryGid2Author.clear();
+
+    for (GalleryDownloadedData gallery in gallerys) {
+      String author = extractAuthorName(gallery.title);
+      galleryGid2Author[gallery.gid] = author;
+      (author2Gallerys[author] ??= []).add(gallery);
+    }
+
+    authorGroups.addAll(author2Gallerys.keys);
+    authorGroups.sort(FileUtil.naturalCompare);
+    for (List<GalleryDownloadedData> authorGallerys in author2Gallerys.values) {
+      authorGallerys.sort((a, b) {
+        DateTime aTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(a.insertTime);
+        DateTime bTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(b.insertTime);
+        return bTime.difference(aTime).inMilliseconds;
+      });
+    }
   }
 
   bool _taskHasBeenPausedOrRemoved(GalleryDownloadedData gallery) {
@@ -1570,6 +1613,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   void _clearGalleryInfoInMemory(GalleryDownloadedData gallery) {
     gallerys.removeWhere((g) => g.gid == gallery.gid);
+    _rebuildAuthorCategory();
     GalleryDownloadInfo? galleryDownloadInfo = galleryDownloadInfos.remove(gallery.gid);
     galleryDownloadInfo?.speedComputer.dispose();
 
