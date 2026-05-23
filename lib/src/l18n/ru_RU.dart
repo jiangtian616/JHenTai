@@ -32,6 +32,7 @@ class ru_RU {
       'receiveDataTimeoutHint': 'Тайм-аут получения данных',
       'archiveError': 'Ошибка загрузки архива',
       'edit': 'Редактировать',
+      'opened': 'Opened',
 
       'home': "Главная",
       'gallery': "Галерея",
@@ -466,6 +467,7 @@ class ru_RU {
       'keepScreenAwakeWhenReading': 'Не выключать экран при чтении',
       'enableCustomReadBrightness': 'Включить пользовательскую яркость при чтении',
       'spaceBetweenImages': 'Пространство между изображениями',
+      'resetReadProgress': 'Reset Read Progress',
       'enableImmersiveHint': 'Скрыть системную панель',
       'enableImmersiveHint4Windows': 'Скрыть заголовок окна',
       'deviceOrientation': 'Ориентация устройства',
@@ -544,6 +546,7 @@ class ru_RU {
 
       /// download page
       'local': 'Локально',
+      'downloadCategory': 'Download Category',
       'reDownload': 'Перекачать',
       'delete': 'Удалить',
       'deleteTask': 'Удалить только задачу',

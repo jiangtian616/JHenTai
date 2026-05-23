@@ -32,6 +32,7 @@ class pt_BR {
       'receiveDataTimeoutHint': 'Network receive data timeout',
       'archiveError': 'Download Archive Error',
       'edit': 'Edit',
+      'opened': 'Opened',
 
       'home': "Home",
       'gallery': "Galeria",
@@ -460,6 +461,7 @@ class pt_BR {
       'keepScreenAwakeWhenReading': 'Keep Screen Awake When Reading',
       'enableCustomReadBrightness': 'Enable Custom Brightness When Reading',
       'spaceBetweenImages': 'Space Between Images',
+      'resetReadProgress': 'Reset Read Progress',
       'enableImmersiveHint': 'Esconder barra do sistema',
       'enableImmersiveHint4Windows': 'Hide Title Bar',
       'deviceOrientation': 'Device Orientation',
@@ -538,6 +540,7 @@ class pt_BR {
 
       /// download page
       'local': 'Local',
+      'downloadCategory': 'Download Category',
       'reDownload': 'Baixar novamente',
       'delete': 'Apagar',
       'deleteTask': 'Apagar apenas tarefa',

@@ -32,8 +32,11 @@ class zh_CN {
       'receiveDataTimeoutHint': '网络接收数据超时',
       'archiveError': '下载归档错误',
       'edit': '编辑',
+      'opened': '已打开',
 
       'home': "主页",
+      'localSearch': "本地搜索",
+      'inputKeyword2Search': "输入关键字以搜索",
       'gallery': "画廊",
       'setting': '设置',
 
@@ -459,6 +462,7 @@ class zh_CN {
       'keepScreenAwakeWhenReading': '阅读时屏幕不自动锁定',
       'enableCustomReadBrightness': '阅读页自定义亮度',
       'spaceBetweenImages': '图片间隔',
+      'resetReadProgress': '重置阅读进度',
       'enableImmersiveHint': '隐藏系统状态栏和底部导航栏',
       'enableImmersiveHint4Windows': '隐藏顶部标题栏',
       'deviceOrientation': '屏幕方向',
@@ -537,6 +541,7 @@ class zh_CN {
 
       /// download page
       'local': '本地',
+      'downloadCategory': '下载分类',
       'delete': '删除',
       'deleteTask': '仅删除任务',
       'deleteTaskAndImages': '删除任务和图片',
