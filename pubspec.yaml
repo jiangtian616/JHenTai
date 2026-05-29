@@ -2,7 +2,7 @@ name: jhentai
 description: A flutter app for E-Hentai/EXHentai
 
 publish_to: 'none'
-version: 8.0.11+307
+version: 8.0.12+310
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -57,7 +57,7 @@ dependencies:
     git:
       url: https://github.com/MixinNetwork/flutter-plugins
       path: packages/desktop_webview_window
-      ref: 21bc41b5d1c2419981e2a5c59ee98f186695bfd1
+      ref: d0c91d9c3ea12883d38215adc48586753fb41dde
   # rewrite double tap & tap drag gesture
   photo_view:
     git:

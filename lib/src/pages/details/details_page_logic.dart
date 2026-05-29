@@ -225,6 +225,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     state.galleryDetails = detailPageInfo.galleryDetails;
     state.apikey = detailPageInfo.apikey;
     state.nextPageIndexToLoadThumbnails = 1;
+    state.loadingThumbnailsState = LoadingState.idle;
 
     await tagTranslationService.translateTagsIfNeeded(state.galleryDetails!.tags);
 
@@ -977,6 +978,19 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         attribute: LocalBlockAttributeEnum.uploader,
         pattern: LocalBlockPatternEnum.equal,
         expression: uploader,
+      ),
+    );
+    toast('success'.tr);
+  }
+
+  Future<void> blockGallery() async {
+    await localBlockRuleService.upsertBlockRule(
+      LocalBlockRule(
+        groupId: newUUID(),
+        target: LocalBlockTargetEnum.gallery,
+        attribute: LocalBlockAttributeEnum.gid,
+        pattern: LocalBlockPatternEnum.equal,
+        expression: state.galleryUrl.gid.toString(),
       ),
     );
     toast('success'.tr);

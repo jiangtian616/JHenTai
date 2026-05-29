@@ -362,11 +362,11 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/desktop_webview_window"
-      ref: "21bc41b5d1c2419981e2a5c59ee98f186695bfd1"
-      resolved-ref: "21bc41b5d1c2419981e2a5c59ee98f186695bfd1"
+      ref: d0c91d9c3ea12883d38215adc48586753fb41dde
+      resolved-ref: d0c91d9c3ea12883d38215adc48586753fb41dde
       url: "https://github.com/MixinNetwork/flutter-plugins"
     source: git
-    version: "0.2.5"
+    version: "0.2.3"
   device_info_plus:
     dependency: "direct main"
     description:

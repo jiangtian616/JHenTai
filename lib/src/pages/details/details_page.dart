@@ -149,6 +149,14 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                           children: [Text('history'.tr), const Icon(Icons.history)],
                         ),
                       ),
+                    if (state.galleryDetails != null)
+                      PopupMenuItem(
+                        value: 5,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [Text('block'.tr), const Icon(Icons.block)],
+                        ),
+                      ),
                   ];
                 },
                 onSelected: (value) {
@@ -170,6 +178,9 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                   }
                   if (value == 4) {
                     logic.handleTapHistoryButton(context);
+                  }
+                  if (value == 5) {
+                    logic.blockGallery();
                   }
                 },
               );
@@ -1370,18 +1381,18 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                                 child: LayoutBuilder(
                                   builder: (_, constraints) => downloadedImage?.downloadStatus == DownloadStatus.downloaded
                                       ? EHImage(
-                                    galleryImage: downloadedImage!,
-                                    containerHeight: constraints.maxHeight,
-                                    containerWidth: constraints.maxWidth,
-                                    borderRadius: BorderRadius.circular(8),
-                                    maxBytes: 128 * 1024,
-                                  )
+                                          galleryImage: downloadedImage!,
+                                          containerHeight: constraints.maxHeight,
+                                          containerWidth: constraints.maxWidth,
+                                          borderRadius: BorderRadius.circular(8),
+                                          maxBytes: 128 * 1024,
+                                        )
                                       : EHThumbnail(
-                                    thumbnail: state.galleryDetails!.thumbnails[index],
-                                    containerHeight: constraints.maxHeight,
-                                    containerWidth: constraints.maxWidth,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
+                                          thumbnail: state.galleryDetails!.thumbnails[index],
+                                          containerHeight: constraints.maxHeight,
+                                          containerWidth: constraints.maxWidth,
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
                                 ),
                               ),
                             ),

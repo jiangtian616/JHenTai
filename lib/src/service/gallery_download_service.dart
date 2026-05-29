@@ -433,9 +433,17 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     _sortGallerys();
 
-    return await _updateGalleryInDatabase(
+    bool success = await _updateGalleryInDatabase(
       GalleryDownloadedCompanion(gid: Value(gallery.gid), groupName: Value(group)),
     );
+
+    if (!success) {
+      return false;
+    }
+
+    _saveGalleryMetadataInDisk(gallery);
+    
+    return true;
   }
 
   Future<void> renameGroup(String oldGroup, String newGroup) async {
@@ -474,6 +482,10 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     });
 
     _sortGallerys();
+
+    for (GalleryDownloadedData gallery in gallerys) {
+      _saveGalleryMetadataInDisk(gallery);
+    }
   }
 
   Future<void> updateGroupOrder(int beforeIndex, int afterIndex) async {

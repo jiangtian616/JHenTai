@@ -315,9 +315,16 @@ class LoginPageLogic extends GetxController {
       return;
     }
 
-    String? guestHint = await webview.evaluateJavaScript('''
+    String? rawGuestHint = await webview.evaluateJavaScript('''
     document.querySelector('#userlinksguest')?.innerText ?? ""
     ''');
+    
+    String guestHint;
+    try {
+      guestHint = jsonDecode(rawGuestHint!);
+    } catch (e) {
+      guestHint = rawGuestHint!;
+    }
 
     bool loginFailed = !isEmptyOrNull(guestHint) && guestHint != 'null';
     if (loginFailed) {
@@ -333,15 +340,15 @@ class LoginPageLogic extends GetxController {
     String? rawUsername = await webview.evaluateJavaScript('''
     document.querySelector('.home > b > a')?.innerText ?? ""
     ''');
-    if (isEmptyOrNull(rawUsername) || rawUsername == 'null') {
-      return;
-    }
 
     String username;
     try {
       username = jsonDecode(rawUsername!);
     } catch (e) {
       username = rawUsername!;
+    }
+    if (isEmptyOrNull(username) || username == 'null') {
+      return;
     }
 
     await ehRequest.storeEHCookies([
@@ -377,10 +384,17 @@ class LoginPageLogic extends GetxController {
       return;
     }
 
-    String? guestHint = await controller.runJavaScriptReturningResult('''
+    String? rawGuestHint = await controller.runJavaScriptReturningResult('''
     document.querySelector('#userlinksguest')?.innerText ?? ""
     ''') as String?;
 
+    String guestHint;
+    try {
+      guestHint = jsonDecode(rawGuestHint!);
+    } catch (e) {
+      guestHint = rawGuestHint!;
+    }
+    
     bool loginFailed = !isEmptyOrNull(guestHint) && guestHint != 'null';
     if (loginFailed) {
       log.info('Login failed by cookie via webview.');
@@ -395,9 +409,6 @@ class LoginPageLogic extends GetxController {
     String? rawUsername = await controller.runJavaScriptReturningResult('''
     document.querySelector('.home > b > a')?.innerText ?? ""
     ''') as String?;
-    if (isEmptyOrNull(rawUsername) || rawUsername == 'null') {
-      return;
-    }
 
     String username;
     try {
@@ -405,7 +416,10 @@ class LoginPageLogic extends GetxController {
     } catch (e) {
       username = rawUsername!;
     }
-
+    if (isEmptyOrNull(username) || username == 'null') {
+      return;
+    }
+    
     await ehRequest.storeEHCookies(cookies);
     if (useExSite) {
       ehSetting.site.value = 'EX';
@@ -482,9 +496,8 @@ class LoginPageLogic extends GetxController {
           userDataFolderWindows: pathService.getVisibleDir().path,
         ),
       );
-      webview.setOnUrlRequestCallback((url) {
+      webview.addOnUrlRequestCallback((url) {
         _onDesktopPageStarted4WebLogin(webview, url);
-        return true;
       });
       webview.launch(EHConsts.ELogin);
     } else {

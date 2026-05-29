@@ -63,8 +63,8 @@ class zh_TW {
       'logout': '登出',
       'passwordLogin': '密碼登入',
       'cookieLogin': 'cookie登入',
-      'useWebview':'Webview',
-      'skipCookieVerification':'跳過驗證',
+      'useWebview': 'Webview',
+      'skipCookieVerification': '跳過驗證',
       'youHaveLoggedInAs': '您已登入:   ',
       'cookieIsBlack': 'cookie為空',
       'cookieFormatError': 'cookie格式錯誤',
@@ -182,6 +182,7 @@ class zh_TW {
       'addTagFailed': '新增標籤失敗',
       'parentGallery': '父畫廊',
       'blockUploaderLocally': '於本機端隱藏的上傳者',
+      'block': '隱藏',
 
       /// detail dialog
       'galleryUrl': '畫廊連結',

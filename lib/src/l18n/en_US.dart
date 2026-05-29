@@ -182,6 +182,7 @@ class en_US {
       'addTagFailed': 'Add Tag Failed',
       'parentGallery': 'Parent',
       'blockUploaderLocally': 'Block user locally',
+      'block': 'Block',
 
       /// detail dialog
       'galleryUrl': 'Gallery Url',

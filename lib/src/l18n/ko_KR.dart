@@ -63,8 +63,8 @@ class ko_KR {
       'logout': '로그아웃',
       'passwordLogin': '비밀번호 로그인',
       'cookieLogin': '쿠키 로그인',
-      'useWebview':'Use Webview',
-      'skipCookieVerification':'Skip Verification',
+      'useWebview': 'Use Webview',
+      'skipCookieVerification': 'Skip Verification',
       'youHaveLoggedInAs': '환영합니다:   ',
       'cookieIsBlack': '쿠키가 비었습니다',
       'cookieFormatError': '쿠키 형식이 잘못됐습니다.',
@@ -182,6 +182,7 @@ class ko_KR {
       'addTagFailed': 'Add Tag Failed',
       'parentGallery': 'Parent',
       'blockUploaderLocally': 'Block user locally',
+      'block': 'Block',
 
       /// detail dialog
       'galleryUrl': '갤러리 주소',
