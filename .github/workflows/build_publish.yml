@@ -27,35 +27,6 @@ jobs:
             os: windows-latest
             artifact_name: release-Windows
             artifact_path: build/windows/*.zip
-          - target: Linux-x64-deb
-            os: ubuntu-22.04
-            artifact_name: release-Linux-x64-deb
-            artifact_path: |
-              build/linux/*.deb
-#          - target: Linux-x64-AppImage
-#            os: ubuntu-22.04
-#            artifact_name: release-Linux-x64-AppImage
-#            artifact_path: |
-#              build/linux/*.AppImage
-          - target: Linux-arm64-deb
-            os: ubuntu-22.04-arm
-            artifact_name: release-Linux-arm64-deb
-            artifact_path: |
-              build/linux/*.deb
-          - target: iOS
-            os: macos-latest
-            cache_pod_key: ios-pods
-            cache_pod_path: ios/Pods
-            cache_pod_restore_keys_hash_file: ios/Podfile.lock
-            artifact_name: release-iOS
-            artifact_path: build/**/*.ipa
-          - target: macOS
-            os: macos-latest
-            cache_pod_key: macos-pods
-            cache_pod_path: macos/Pods
-            cache_pod_restore_keys_hash_file: macos/Podfile.lock
-            artifact_name: release-macOS
-            artifact_path: /Users/runner/work/JHenTai/JHenTai/*.dmg
     outputs:
       version: ${{ steps.get_version.outputs.version }}
       arch: ${{ steps.get_version.outputs.arch}}
@@ -86,14 +57,6 @@ jobs:
       # Output Flutter Version
       - name: Output Flutter Version
         run: flutter --version
-      # Cache Pod
-      - name: Cache Pod
-        if: matrix.cache_pod_key != null
-        uses: actions/cache@v3
-        with:
-          key: ${{ matrix.cache_pod_key }}
-          path: ${{ matrix.cache_pod_path }}
-          restore-keys: ${{ matrix.cache_key }}-${{ hashFiles(matrix.cache_pod_restore_keys_hash_file)}}
       # Setup JDK
       - name: Setup JDK 17 (Android)
         if: matrix.target == 'Android'
@@ -102,10 +65,6 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
           cache: gradle
-      # Xcodebuild
-      - name: Build Xcode
-        if: matrix.os == 'macos-latest'
-        run: xcodebuild -resolvePackageDependencies -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release
       # Flutter Pub Get
       - name: Flutter Pub Get
         run: |
@@ -125,31 +84,7 @@ jobs:
           flutter build apk -t lib/src/main.dart --release --split-per-abi
           cd build/app/outputs/apk/release
           mv app-arm64-v8a-release.apk JHenTai-${{ steps.get_version.outputs.version }}-arm64-v8a.apk
-          mv app-armeabi-v7a-release.apk JHenTai-${{ steps.get_version.outputs.version }}-armeabi-v7a.apk
-          mv app-x86_64-release.apk JHenTai-${{ steps.get_version.outputs.version }}-x64.apk
-      # Build iOS .ipa
-      - name: Build iOS
-        if: matrix.target == 'ios'
-        run: |
-          flutter precache --ios
-          cd ios
-          pod update
-          cd ..
-          flutter build ios -t lib/src/main.dart --release --no-codesign
-          sh thin-payload.sh build/ios/iphoneos/*.app
-          cd build
-          mkdir -p Payload
-          mv ios/iphoneos/*.app Payload
-          zip -9 JHenTai_${{ steps.get_version.outputs.version }}.ipa -r Payload
-      # Build macOS .dmg
-      - name: Build macOS
-        if: matrix.target == 'macOS'
-        run: |
-          flutter precache --macos
-          cd macos
-          pod update
-          cd ..
-          sh dmg.sh
+          rm -f app-armeabi-v7a-release.apk app-x86_64-release.apk
       # Build Windows .zip
       - name: Build Windows
         if: matrix.target == 'Windows'
@@ -161,63 +96,6 @@ jobs:
           Copy-Item $SrcDir\* -Recurse $DestDir
           Copy-Item -Filter *.dll -Path windows\* -Destination $DestDir -Force
           Compress-Archive $DestDir build\windows\JHenTai_${{ steps.get_version.outputs.version }}_Windows.zip
-      # Build Linux .deb
-      - name: Build Linux deb
-        if: matrix.target == 'Linux-x64-deb' || matrix.target == 'Linux-arm64-deb'
-        run: |
-          # Prepare build depends
-          sudo apt-get update -y
-          sudo apt-get install -y ninja-build libfuse2 webkit2gtk-4.1
-          
-          # Compile
-          flutter build linux --release -t lib/src/main.dart
-
-          # Build debian package
-          mkdir -p build/linux/JHenTai-${{ steps.get_version.outputs.version }}-Linux-${{ steps.get_version.outputs.arch }}
-          cd build/linux/JHenTai-${{ steps.get_version.outputs.version }}-Linux-${{ steps.get_version.outputs.arch }}
-          mkdir -p opt/jhentai
-          mkdir -p usr/share/applications
-          mkdir -p usr/share/icons/hicolor/512x512/apps
-          cp -r ../${{ steps.get_version.outputs.arch }}/release/bundle/* opt/jhentai
-          cp -r ../../../linux/assets/DEBIAN .
-          chmod 0755 DEBIAN/postinst
-          chmod 0755 DEBIAN/postrm
-
-          cp ../../../linux/assets/top.jtmonster.jhentai.desktop usr/share/applications
-          cp ../../../assets/icon/JHenTai_512.png usr/share/icons/hicolor/512x512/apps/top.jtmonster.jhentai.png
-
-          sed -i "/^Version: /s/Version: .*/Version: ${{ steps.get_version.outputs.version }}/" DEBIAN/control
-          if [ "${{ steps.get_version.outputs.arch }}" = "arm64" ]; then
-              sed -i "/^Architecture: /s/Architecture: .*/Architecture: arm64/" DEBIAN/control
-          fi
-
-          cd ..
-          dpkg-deb --build --root-owner-group JHenTai-${{ steps.get_version.outputs.version }}-Linux-${{ steps.get_version.outputs.arch }}
-      # Build Linux .AppImage
-      - name: Build Linux AppImage
-        if: matrix.target == 'Linux-x64-AppImage'
-        run: |
-          # Prepare build depends
-          sudo apt-get update -y
-          sudo apt-get install -y ninja-build libfuse2 webkit2gtk-4.1
-          
-          # Compile
-          flutter build linux --release -t lib/src/main.dart
-          
-          cd build/linux
-          
-          mkdir AppDir
-          cp -r x64/release/bundle/* AppDir
-          mkdir -p AppDir/usr/share/icons/hicolor/512x512/apps/
-          mkdir -p AppDir/usr/share/applications
-          cp ../../linux/assets/top.jtmonster.jhentai.desktop AppDir/usr/share/applications
-          cp ../../assets/icon/JHenTai_512.png AppDir/usr/share/icons/hicolor/512x512/apps/top.jtmonster.jhentai.png
-          
-          wget -O appimage-builder https://github.com/AppImageCrafters/appimage-builder/releases/download/v1.1.0/appimage-builder-1.1.0-x86_64.AppImage
-          chmod +x appimage-builder
-          ./appimage-builder --skip-tests --recipe ../../linux/assets/AppImageBuilder.yml
-          
-          mv JHenTai-latest-x86_64.AppImage JHenTai-${{ steps.get_version.outputs.version }}-Linux-x64.AppImage
       # Upload Artifacts
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
@@ -248,66 +126,7 @@ jobs:
           tag: ${{ github.ref_name }}
           allowUpdates: true
           bodyFile: changelog/${{ github.ref_name }}.md
-          artifacts: /tmp/artifacts/release-Android/*.apk,/tmp/artifacts/release-iOS/*.ipa,/tmp/artifacts/release-macOS/*.dmg,/tmp/artifacts/release-Windows/*.zip,/tmp/artifacts/release-Linux-x64-deb/*.deb,/tmp/artifacts/release-Linux-arm64-deb/*.deb
+          artifacts: /tmp/artifacts/release-Android/*.apk,/tmp/artifacts/release-Windows/*.zip
           artifactErrorsFailBuild: true
           replacesArtifacts: true
-
-      # Get IPA file size
-      - name: Get IPA file size
-        id: get_ipa_size
-        run: |
-          IPA_SIZE=$(stat -c %s /tmp/artifacts/release-iOS/*.ipa)
-          echo "ipa_size=$IPA_SIZE" >> $GITHUB_OUTPUT
-
-      # Get changelog content
-      - name: Get changelog content
-        id: get_changelog
-        run: |
-          # Read changelog and preserve newlines for JSON
-          CHANGELOG=$(cat changelog/${{ github.ref_name }}.md | jq -Rs .)
-          echo "changelog=$CHANGELOG" >> $GITHUB_OUTPUT
-
-      # Extract build version from tag
-      - name: Get build version
-        id: get_build_version
-        run: |
-          BUILD_VERSION=$(echo "${{ github.ref_name }}" | grep -oE '\+[0-9]+' | tr -d '+')
-          echo "build_version=$BUILD_VERSION" >> $GITHUB_OUTPUT
-
-      # Update AltSource.json
-      - name: Update AltSource.json
-        run: |
-          FULL_VERSION="${{ needs.Build.outputs.version }}"
-          # Remove build number part (content after +)
-          VERSION="${FULL_VERSION%%+*}"
-          DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          
-          # Get changelog as raw string (remove quotes added by jq -Rs)
-          CHANGELOG=${{ steps.get_changelog.outputs.changelog }}
-          
-          # Create new version entry
-          jq --arg version "$VERSION" \
-             --arg build "${{ steps.get_build_version.outputs.build_version }}" \
-             --arg date "$DATE" \
-             --arg desc "$CHANGELOG" \
-             --arg url "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/JHenTai_${FULL_VERSION}.ipa" \
-             --arg size "${{ steps.get_ipa_size.outputs.ipa_size }}" \
-             '.apps[0].versions[0] = {
-                "version": $version,
-                "buildVersion": $build,
-                "date": $date,
-                "localizedDescription": $desc,
-                "downloadURL": $url,
-                "size": ($size | tonumber)
-              }' altsource/AltSource.json > altsource/AltSource.json.tmp
-          mv altsource/AltSource.json.tmp altsource/AltSource.json
-
-      # Commit and push updated AltSource.json
-      - name: Commit changes
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add altsource/AltSource.json
-          git commit -m "Update AltSource.json for version ${{ needs.Build.outputs.version }}"
-          git push origin HEAD:master
 
