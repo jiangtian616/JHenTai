@@ -405,6 +405,8 @@ class ru_RU {
       'updateSuccess': 'Успешно обновлено',
       'connectTimeout': 'Тайм-аут подключения',
       'receiveTimeout': 'Тайм-аут получения данных',
+      'autoRetryCount': 'Автоматические повторные попытки при сетевой ошибке',
+      'autoRetryCountHint': 'Установите 0 для отключения повторных попыток, максимальное значение 10',
       'pageCacheMaxAge': 'Время жизни кэша страниц',
       'pageCacheMaxAgeHint': 'Вы можете обновить кэш, обновив страницу',
       'cacheImageExpireDuration': 'Время жизни кэша изображений',

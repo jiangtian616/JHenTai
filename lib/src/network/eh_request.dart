@@ -957,17 +957,27 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     ProgressCallback? onReceiveProgress,
   }) async {
     Response response;
+    int retryCount = networkSetting.autoRetryCount.value;
+    int attempt = 0;
 
-    try {
-      response = await _dio.get(
-        url,
-        queryParameters: queryParameters,
-        options: options,
-        cancelToken: cancelToken,
-        onReceiveProgress: onReceiveProgress,
-      );
-    } on DioException catch (e) {
-      throw _convertExceptionIfGalleryDeleted(e);
+    while (true) {
+      try {
+        response = await _dio.get(
+          url,
+          queryParameters: queryParameters,
+          options: options,
+          cancelToken: cancelToken,
+          onReceiveProgress: onReceiveProgress,
+        );
+        break;
+      } on DioException catch (e) {
+        attempt++;
+        if (_isNetworkError(e) && attempt <= retryCount) {
+          log.info('Network request failed, retrying ($attempt/$retryCount): ${e.message}');
+          continue;
+        }
+        throw _convertExceptionIfGalleryDeleted(e);
+      }
     }
 
     try {
@@ -990,23 +1000,41 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     ProgressCallback? onReceiveProgress,
   }) async {
     Response response;
-    try {
-      response = await _dio.post(
-        url,
-        data: data,
-        queryParameters: queryParameters,
-        options: options,
-        cancelToken: cancelToken,
-        onSendProgress: onSendProgress,
-        onReceiveProgress: onReceiveProgress,
-      );
-    } on DioException catch (e) {
-      throw _convertExceptionIfGalleryDeleted(e);
+    int retryCount = networkSetting.autoRetryCount.value;
+    int attempt = 0;
+
+    while (true) {
+      try {
+        response = await _dio.post(
+          url,
+          data: data,
+          queryParameters: queryParameters,
+          options: options,
+          cancelToken: cancelToken,
+          onSendProgress: onSendProgress,
+          onReceiveProgress: onReceiveProgress,
+        );
+        break;
+      } on DioException catch (e) {
+        attempt++;
+        if (_isNetworkError(e) && attempt <= retryCount) {
+          log.info('Network request failed, retrying ($attempt/$retryCount): ${e.message}');
+          continue;
+        }
+        throw _convertExceptionIfGalleryDeleted(e);
+      }
     }
 
     _emitEHExceptionIfFailed(response);
 
     return response;
+  }
+
+  bool _isNetworkError(DioException e) {
+    return e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.receiveTimeout ||
+        e.type == DioExceptionType.connectionError ||
+        e.type == DioExceptionType.sendTimeout;
   }
 
   Exception _convertExceptionIfGalleryDeleted(DioException e) {

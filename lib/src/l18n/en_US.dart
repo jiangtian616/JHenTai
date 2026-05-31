@@ -400,6 +400,8 @@ class en_US {
       'updateSuccess': 'Update success',
       'connectTimeout': 'Connect Timeout',
       'receiveTimeout': 'Receive Data Timeout',
+      'autoRetryCount': 'Auto Retry Count on Network Failure',
+      'autoRetryCountHint': 'Set to 0 to disable retry, max value is 10',
       'pageCacheMaxAge': 'Page Cache Expiration Time',
       'pageCacheMaxAgeHint': 'You can update cache by refresh page',
       'cacheImageExpireDuration': 'Image Cache Expiration Time',

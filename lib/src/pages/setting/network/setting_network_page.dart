@@ -14,6 +14,7 @@ class SettingNetworkPage extends StatelessWidget {
   final TextEditingController proxyAddressController = TextEditingController(text: networkSetting.proxyAddress.value);
   final TextEditingController connectTimeoutController = TextEditingController(text: networkSetting.connectTimeout.value.toString());
   final TextEditingController receiveTimeoutController = TextEditingController(text: networkSetting.receiveTimeout.value.toString());
+  final TextEditingController autoRetryCountController = TextEditingController(text: networkSetting.autoRetryCount.value.toString());
 
   SettingNetworkPage({Key? key}) : super(key: key);
 
@@ -31,6 +32,7 @@ class SettingNetworkPage extends StatelessWidget {
             _buildCacheImageExpireDuration(),
             _buildConnectTimeout(context),
             _buildReceiveTimeout(context),
+            _buildAutoRetryCount(context),
           ],
         ).withListTileTheme(context),
       ),
@@ -158,6 +160,42 @@ class SettingNetworkPage extends StatelessWidget {
                 return;
               }
               networkSetting.saveReceiveTimeout(value);
+              toast('saveSuccess'.tr);
+            },
+            icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAutoRetryCount(BuildContext context) {
+    return ListTile(
+      title: Text('autoRetryCount'.tr),
+      subtitle: Text('autoRetryCountHint'.tr),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 50,
+            child: TextField(
+              controller: autoRetryCountController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
+              textAlign: TextAlign.center,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                IntRangeTextInputFormatter(minValue: 0, maxValue: 10),
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: () {
+              int? value = int.tryParse(autoRetryCountController.value.text);
+              if (value == null) {
+                return;
+              }
+              networkSetting.saveAutoRetryCount(value);
               toast('saveSuccess'.tr);
             },
             icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),

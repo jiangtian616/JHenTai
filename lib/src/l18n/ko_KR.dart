@@ -400,6 +400,8 @@ class ko_KR {
       'updateSuccess': '수정 성공',
       'connectTimeout': '연결 시간 초과',
       'receiveTimeout': '수신 시간 초과',
+      'autoRetryCount': '네트워크 연결 실패 시 자동 재시도 횟수',
+      'autoRetryCountHint': '0으로 설정하면 재시도 비활성화, 최대값은 10',
       'pageCacheMaxAge': '페이지 캐시의 수명 최대 시간',
       'pageCacheMaxAgeHint': '새로고침 페이지 별로 캐시를 업데이트할 수 있습니다.',
       'cacheImageExpireDuration': 'Image Cache Expiration Time',

@@ -20,6 +20,7 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
   RxnString proxyPassword = RxnString();
   RxInt connectTimeout = 6000.obs;
   RxInt receiveTimeout = 6000.obs;
+  RxInt autoRetryCount = 0.obs;
 
   static const Map<String, List<String>> host2IPs = {
     'e-hentai.org': ['172.66.132.196', '172.66.140.62'],
@@ -62,6 +63,7 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
     proxyPassword.value = map['proxyPassword'] ?? proxyPassword.value;
     connectTimeout.value = map['connectTimeout'] ?? connectTimeout.value;
     receiveTimeout.value = map['receiveTimeout'] ?? receiveTimeout.value;
+    autoRetryCount.value = map['autoRetryCount'] ?? autoRetryCount.value;
   }
 
   @override
@@ -76,6 +78,7 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
       'proxyPassword': proxyPassword.value,
       'connectTimeout': connectTimeout.value,
       'receiveTimeout': receiveTimeout.value,
+      'autoRetryCount': autoRetryCount.value,
     });
   }
 
@@ -121,6 +124,12 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
   Future<void> saveReceiveTimeout(int receiveTimeout) async {
     log.debug('saveReceiveTimeout:$receiveTimeout');
     this.receiveTimeout.value = receiveTimeout;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveAutoRetryCount(int autoRetryCount) async {
+    log.debug('saveAutoRetryCount:$autoRetryCount');
+    this.autoRetryCount.value = autoRetryCount;
     await saveBeanConfig();
   }
 }

@@ -401,6 +401,8 @@ class pt_BR {
       'updateSuccess': 'Atualizado com sucesso',
       'connectTimeout': 'Tempo limite de conexão',
       'receiveTimeout': 'Tempo limite de recebimento de dados',
+      'autoRetryCount': 'Número de tentativas automáticas em caso de falha de rede',
+      'autoRetryCountHint': 'Defina como 0 para desativar tentativas, valor máximo é 10',
       'pageCacheMaxAge': 'Idade máxima do cache de página',
       'pageCacheMaxAgeHint': 'Você pode atualizar o cache atualizando a página',
       'cacheImageExpireDuration': 'Image Cache Expiration Time',
