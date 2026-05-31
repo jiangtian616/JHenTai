@@ -974,7 +974,10 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         attempt++;
         if (_isNetworkError(e) && attempt <= retryCount) {
           log.info('Network request failed, retrying ($attempt/$retryCount): ${e.message}');
-          await Future.delayed(Duration(seconds: attempt));
+          int delay = networkSetting.retryDelay.value;
+          if (delay > 0) {
+            await Future.delayed(Duration(milliseconds: delay));
+          }
           continue;
         }
         throw _convertExceptionIfGalleryDeleted(e);
@@ -1020,7 +1023,10 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         attempt++;
         if (_isNetworkError(e) && attempt <= retryCount) {
           log.info('Network request failed, retrying ($attempt/$retryCount): ${e.message}');
-          await Future.delayed(Duration(seconds: attempt));
+          int delay = networkSetting.retryDelay.value;
+          if (delay > 0) {
+            await Future.delayed(Duration(milliseconds: delay));
+          }
           continue;
         }
         throw _convertExceptionIfGalleryDeleted(e);

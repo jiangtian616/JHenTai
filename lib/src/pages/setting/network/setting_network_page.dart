@@ -15,6 +15,7 @@ class SettingNetworkPage extends StatelessWidget {
   final TextEditingController connectTimeoutController = TextEditingController(text: networkSetting.connectTimeout.value.toString());
   final TextEditingController receiveTimeoutController = TextEditingController(text: networkSetting.receiveTimeout.value.toString());
   final TextEditingController autoRetryCountController = TextEditingController(text: networkSetting.autoRetryCount.value.toString());
+  final TextEditingController retryDelayController = TextEditingController(text: networkSetting.retryDelay.value.toString());
 
   SettingNetworkPage({Key? key}) : super(key: key);
 
@@ -33,6 +34,7 @@ class SettingNetworkPage extends StatelessWidget {
             _buildConnectTimeout(context),
             _buildReceiveTimeout(context),
             _buildAutoRetryCount(context),
+            _buildRetryDelay(context),
           ],
         ).withListTileTheme(context),
       ),
@@ -196,6 +198,43 @@ class SettingNetworkPage extends StatelessWidget {
                 return;
               }
               networkSetting.saveAutoRetryCount(value);
+              toast('saveSuccess'.tr);
+            },
+            icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRetryDelay(BuildContext context) {
+    return ListTile(
+      title: Text('retryDelay'.tr),
+      subtitle: Text('retryDelayHint'.tr),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 50,
+            child: TextField(
+              controller: retryDelayController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
+              textAlign: TextAlign.center,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                IntRangeTextInputFormatter(minValue: 0, maxValue: 3000),
+              ],
+            ),
+          ),
+          Text('ms', style: UIConfig.settingPageListTileTrailingTextStyle(context)),
+          IconButton(
+            onPressed: () {
+              int? value = int.tryParse(retryDelayController.value.text);
+              if (value == null) {
+                return;
+              }
+              networkSetting.saveRetryDelay(value);
               toast('saveSuccess'.tr);
             },
             icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),

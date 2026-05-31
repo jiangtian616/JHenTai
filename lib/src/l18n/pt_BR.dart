@@ -403,6 +403,8 @@ class pt_BR {
       'receiveTimeout': 'Tempo limite de recebimento de dados',
       'autoRetryCount': 'Número de tentativas automáticas em caso de falha de rede',
       'autoRetryCountHint': 'Defina como 0 para desativar tentativas, valor máximo é 10',
+      'retryDelay': 'Atraso entre tentativas',
+      'retryDelayHint': 'Defina como 0 para sem atraso, valor máximo é 3000ms',
       'pageCacheMaxAge': 'Idade máxima do cache de página',
       'pageCacheMaxAgeHint': 'Você pode atualizar o cache atualizando a página',
       'cacheImageExpireDuration': 'Image Cache Expiration Time',

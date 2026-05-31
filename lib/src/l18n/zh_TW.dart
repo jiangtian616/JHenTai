@@ -402,6 +402,8 @@ class zh_TW {
       'receiveTimeout': '接收資料超時時間',
       'autoRetryCount': '網路連線失敗自動重試次數',
       'autoRetryCountHint': '設定為0表示不重試，最大值為10',
+      'retryDelay': '重試間隔',
+      'retryDelayHint': '設定為0表示無間隔，最大值為3000毫秒',
       'pageCacheMaxAge': '頁面快取時間',
       'pageCacheMaxAgeHint': '你可以透過重新整理頁面來更新快取',
       'cacheImageExpireDuration': '圖片快取時間',
