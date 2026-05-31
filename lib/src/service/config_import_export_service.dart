@@ -126,4 +126,12 @@ class ConfigImportExportService {
 
     return importedCount;
   }
+
+  /// 获取可导入的配置模块名称（用于 UI 显示）
+  List<String> getAvailableConfigNames() {
+    return kSettingsConfigEnums
+        .where((e) => e != ConfigEnum.securitySetting)
+        .map((e) => e.key)
+        .toList();
+  }
 }
