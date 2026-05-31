@@ -2,9 +2,22 @@ import 'dart:convert';
 
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/service/log.dart';
+import 'package:jhentai/src/setting/advanced_setting.dart';
+import 'package:jhentai/src/setting/archive_bot_setting.dart';
+import 'package:jhentai/src/setting/download_setting.dart';
+import 'package:jhentai/src/setting/eh_setting.dart';
+import 'package:jhentai/src/setting/favorite_setting.dart';
+import 'package:jhentai/src/setting/mouse_setting.dart';
+import 'package:jhentai/src/setting/network_setting.dart';
+import 'package:jhentai/src/setting/performance_setting.dart';
+import 'package:jhentai/src/setting/preference_setting.dart';
+import 'package:jhentai/src/setting/read_setting.dart';
+import 'package:jhentai/src/setting/site_setting.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:jhentai/src/setting/super_resolution_setting.dart';
+import 'package:jhentai/src/setting/user_setting.dart';
 
 import 'jh_service.dart';
-import 'local_config_service.dart';
 
 /// 需要导入/导出的设置模块（排除 securitySetting）
 const List<ConfigEnum> kSettingsConfigEnums = [
@@ -66,9 +79,43 @@ class AppSettingsExportData {
 
 /// 配置导入导出服务
 class ConfigImportExportService {
-  final LocalConfigService _localConfigService;
+  ConfigImportExportService();
 
-  ConfigImportExportService(this._localConfigService);
+  /// 获取 ConfigEnum 对应的设置模块
+  JHLifeCircleBeanWithConfigStorage? _getSettingBean(ConfigEnum configEnum) {
+    switch (configEnum) {
+      case ConfigEnum.userSetting:
+        return userSetting;
+      case ConfigEnum.EHSetting:
+        return ehSetting;
+      case ConfigEnum.siteSetting:
+        return siteSetting;
+      case ConfigEnum.favoriteSetting:
+        return favoriteSetting;
+      case ConfigEnum.styleSetting:
+        return styleSetting;
+      case ConfigEnum.readSetting:
+        return readSetting;
+      case ConfigEnum.preferenceSetting:
+        return preferenceSetting;
+      case ConfigEnum.networkSetting:
+        return networkSetting;
+      case ConfigEnum.downloadSetting:
+        return downloadSetting;
+      case ConfigEnum.performanceSetting:
+        return performanceSetting;
+      case ConfigEnum.mouseSetting:
+        return mouseSetting;
+      case ConfigEnum.advancedSetting:
+        return advancedSetting;
+      case ConfigEnum.superResolutionSetting:
+        return superResolutionSetting;
+      case ConfigEnum.archiveBotSetting:
+        return archiveBotSetting;
+      default:
+        return null;
+    }
+  }
 
   /// 导出所有设置配置
   Future<AppSettingsExportData> exportSettings() async {
@@ -76,9 +123,10 @@ class ConfigImportExportService {
 
     for (final configEnum in kSettingsConfigEnums) {
       try {
-        final configString = await _localConfigService.read(configKey: configEnum.key);
-        if (configString != null && configString.isNotEmpty) {
-          configs[configEnum.key] = configString;
+        final bean = _getSettingBean(configEnum);
+        if (bean != null) {
+          // 通过设置模块的 toConfigString() 方法导出
+          configs[configEnum.key] = bean.toConfigString();
         }
       } catch (e) {
         log.warning('Failed to export config: ${configEnum.key}', e);
@@ -94,6 +142,7 @@ class ConfigImportExportService {
   }
 
   /// 导入设置配置
+  /// 通过设置模块的 applyBeanConfig() 方法导入，模拟用户从 UI 修改设置
   /// 返回成功导入的配置数量
   Future<int> importSettings(AppSettingsExportData data) async {
     int importedCount = 0;
@@ -122,11 +171,20 @@ class ConfigImportExportService {
           continue;
         }
 
-        await _localConfigService.write(
-          configKey: entry.key,
-          value: entry.value,
-        );
+        // 获取对应的设置模块
+        final bean = _getSettingBean(configEnum);
+        if (bean == null) {
+          log.warning('No setting bean found for: ${entry.key}');
+          continue;
+        }
+
+        // 通过设置模块的 applyBeanConfig() 方法导入配置
+        // 这会更新内存中的 Rx 变量，并自动触发保存到数据库
+        bean.applyBeanConfig(entry.value);
+        await bean.saveBeanConfig();
+
         importedCount++;
+        log.info('Imported config: ${entry.key}');
       } catch (e) {
         log.warning('Failed to import config: ${entry.key}', e);
       }
