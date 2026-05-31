@@ -435,18 +435,6 @@ class zh_TW {
       'selectExportItems': '選擇匯出項',
       'importData': '匯入資料',
       'importDataHint': '在匯入成功後程式會自動關閉以套用最新設定',
-      'importConfig': '匯入設定',
-      'importConfigHint': '匯入應用程式的所有設定（不含安全設定）',
-      'exportConfig': '匯出設定',
-      'exportConfigHint': '匯出應用程式的所有設定（不含安全設定）',
-      'importConfigSuccess': '設定匯入成功',
-      'importConfigFailed': '設定匯入失敗',
-      'exportConfigFailed': '設定匯出失敗',
-      'invalidConfigFile': '無效的設定檔',
-      'restartRequired': '需要重新啟動',
-      'restartRequiredHint': '匯入設定後需要重新啟動應用程式以套用所有設定',
-      'later': '稍後',
-      'restart': '重新啟動',
 
       /// host mapping page
       'hostDataSource': '預設情況下不用改動。\n資料來源: https://dns.google/',
@@ -846,6 +834,20 @@ favnote：配對收藏備註
 
       /// tagSet dialog
       'chooseTagSet': '選擇標籤集',
+
+      /// import/export config
+      'importConfig': '匯入設定',
+      'importConfigHint': '匯入應用程式的所有設定（不含安全設定）',
+      'exportConfig': '匯出設定',
+      'exportConfigHint': '匯出應用程式的所有設定（不含安全設定）',
+      'importConfigSuccess': '設定匯入成功',
+      'importConfigFailed': '設定匯入失敗',
+      'exportConfigFailed': '設定匯出失敗',
+      'invalidConfigFile': '無效的設定檔',
+      'restartRequired': '需要重新啟動',
+      'restartRequiredHint': '匯入設定後需要重新啟動應用程式以套用所有設定',
+      'later': '稍後',
+      'restart': '重新啟動',
 
       /// tag namespace
       'language': '語言',

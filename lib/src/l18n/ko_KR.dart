@@ -435,18 +435,6 @@ class ko_KR {
       'selectExportItems': 'Select Export Items',
       'importData': 'Import Data',
       'importDataHint': 'App will shutdown automatically after importing to apply the latest configuration',
-      'importConfig': 'Import Settings',
-      'importConfigHint': 'Import all app settings (excluding security settings)',
-      'exportConfig': 'Export Settings',
-      'exportConfigHint': 'Export all app settings (excluding security settings)',
-      'importConfigSuccess': 'Settings imported successfully',
-      'importConfigFailed': 'Failed to import settings',
-      'exportConfigFailed': 'Failed to export settings',
-      'invalidConfigFile': 'Invalid config file',
-      'restartRequired': 'Restart Required',
-      'restartRequiredHint': 'App restart is required to apply all imported settings',
-      'later': 'Later',
-      'restart': 'Restart',
 
       /// host mapping page
       'hostDataSource': '기본적으로 변경할 필요는 없습니다.\n데이터 소스: https://dns.google/',
@@ -839,6 +827,20 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
 
       /// tagSet dialog
       'chooseTagSet': 'Choose Tag Set',
+
+      /// import/export config
+      'importConfig': 'Import Settings',
+      'importConfigHint': 'Import all app settings (excluding security settings)',
+      'exportConfig': 'Export Settings',
+      'exportConfigHint': 'Export all app settings (excluding security settings)',
+      'importConfigSuccess': 'Settings imported successfully',
+      'importConfigFailed': 'Failed to import settings',
+      'exportConfigFailed': 'Failed to export settings',
+      'invalidConfigFile': 'Invalid config file',
+      'restartRequired': 'Restart Required',
+      'restartRequiredHint': 'App restart is required to apply all imported settings',
+      'later': 'Later',
+      'restart': 'Restart',
 
       /// tag namespace
       'language': '언어',
