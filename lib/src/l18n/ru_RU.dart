@@ -839,6 +839,20 @@ class ru_RU {
       /// tagSet dialog
       'chooseTagSet': 'Выбрать набор тегов',
 
+      /// import/export config
+      'importConfig': 'Импорт настроек',
+      'importConfigHint': 'Импорт всех настроек приложения (кроме настроек безопасности)',
+      'exportConfig': 'Экспорт настроек',
+      'exportConfigHint': 'Экспорт всех настроек приложения (кроме настроек безопасности)',
+      'importConfigSuccess': 'Настройки успешно импортированы',
+      'importConfigFailed': 'Ошибка импорта настроек',
+      'exportConfigFailed': 'Ошибка экспорта настроек',
+      'invalidConfigFile': 'Недопустимый файл конфигурации',
+      'restartRequired': 'Требуется перезапуск',
+      'restartRequiredHint': 'Для применения всех импортированных настроек необходим перезапуск приложения',
+      'later': 'Позже',
+      'restart': 'Перезапуск',
+
       /// tag namespace
       'language': 'Язык',
       'artist': 'Художник',

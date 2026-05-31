@@ -12,6 +12,7 @@ import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/config.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/cloud_service.dart';
+import 'package:jhentai/src/service/config_import_export_service.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/service/log.dart';
@@ -45,10 +46,16 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   LoadingState _exportDataLoadingState = LoadingState.idle;
   LoadingState _importDataLoadingState = LoadingState.idle;
 
+  LoadingState _exportConfigLoadingState = LoadingState.idle;
+  LoadingState _importConfigLoadingState = LoadingState.idle;
+
+  late final ConfigImportExportService _configImportExportService;
+
   @override
   void initState() {
     super.initState();
 
+    _configImportExportService = ConfigImportExportService();
     _loadingLogSize();
     _getImagesCacheSize();
   }
@@ -74,6 +81,8 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
             _buildInNoImageMode(),
             _buildImportData(context),
             _buildExportData(context),
+            _buildImportConfig(context),
+            _buildExportConfig(context),
           ],
         ).withListTileTheme(context),
       ),
@@ -468,5 +477,172 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
       setStateSafely(() => _exportDataLoadingState = LoadingState.error);
       file.delete().ignore();
     }
+  }
+
+  Widget _buildImportConfig(BuildContext context) {
+    return ListTile(
+      title: Text('importConfig'.tr),
+      subtitle: Text('importConfigHint'.tr),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          LoadingStateIndicator(
+            loadingState: _importConfigLoadingState,
+            idleWidgetBuilder: () => const Icon(Icons.keyboard_arrow_right),
+            successWidgetSameWithIdle: true,
+            useCupertinoIndicator: true,
+            errorWidgetSameWithIdle: true,
+          ).marginOnly(right: 8)
+        ],
+      ),
+      onTap: () => _importConfig(context),
+    );
+  }
+
+  Widget _buildExportConfig(BuildContext context) {
+    return ListTile(
+      title: Text('exportConfig'.tr),
+      subtitle: Text('exportConfigHint'.tr),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          LoadingStateIndicator(
+            loadingState: _exportConfigLoadingState,
+            idleWidgetBuilder: () => const Icon(Icons.keyboard_arrow_right),
+            successWidgetSameWithIdle: true,
+            useCupertinoIndicator: true,
+            errorWidgetSameWithIdle: true,
+          ).marginOnly(right: 8)
+        ],
+      ),
+      onTap: () => _exportConfig(context),
+    );
+  }
+
+  Future<void> _importConfig(BuildContext context) async {
+    if (_importConfigLoadingState == LoadingState.loading) {
+      return;
+    }
+
+    setStateSafely(() => _importConfigLoadingState = LoadingState.loading);
+
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+
+      if (result == null || result.files.isEmpty) {
+        setStateSafely(() => _importConfigLoadingState = LoadingState.idle);
+        return;
+      }
+
+      String filePath = result.files.first.path!;
+      String content = await File(filePath).readAsString();
+      AppSettingsExportData data = AppSettingsExportData.fromString(content);
+
+      // 验证文件格式
+      if (data.appName != 'JHenTai') {
+        toast('invalidConfigFile'.tr);
+        setStateSafely(() => _importConfigLoadingState = LoadingState.error);
+        return;
+      }
+
+      int importedCount = await _configImportExportService.importSettings(data);
+
+      log.info('Import config success, imported $importedCount settings');
+      toast('${'importConfigSuccess'.tr} ($importedCount)');
+      setStateSafely(() => _importConfigLoadingState = LoadingState.success);
+
+      // 需要重启应用以使所有设置生效
+      if (importedCount > 0) {
+        _showRestartDialog();
+      }
+    } catch (e) {
+      log.error('Import config failed', e);
+      toast('importConfigFailed'.tr);
+      setStateSafely(() => _importConfigLoadingState = LoadingState.error);
+    }
+  }
+
+  Future<void> _exportConfig(BuildContext context) async {
+    if (_exportConfigLoadingState == LoadingState.loading) {
+      return;
+    }
+
+    setStateSafely(() => _exportConfigLoadingState = LoadingState.loading);
+
+    try {
+      AppSettingsExportData data = await _configImportExportService.exportSettings();
+      String content = data.toJsonString();
+
+      String fileName = 'JHenTaiConfig-${DateFormat('yyyyMMddHHmmss').format(DateTime.now())}.json';
+
+      if (GetPlatform.isMobile) {
+        String? savedPath = await FilePicker.platform.saveFile(
+          fileName: fileName,
+          type: FileType.custom,
+          allowedExtensions: ['json'],
+          bytes: utf8.encode(content),
+          lockParentWindow: true,
+        );
+        if (savedPath != null) {
+          log.info('Export config to $savedPath success');
+          toast('success'.tr);
+          setStateSafely(() => _exportConfigLoadingState = LoadingState.success);
+        }
+      } else {
+        String? savedPath = await FilePicker.platform.saveFile(
+          fileName: fileName,
+          type: FileType.custom,
+          allowedExtensions: ['json'],
+          lockParentWindow: true,
+        );
+
+        if (savedPath == null) {
+          setStateSafely(() => _exportConfigLoadingState = LoadingState.idle);
+          return;
+        }
+
+        File file = File(savedPath);
+        if (await file.exists()) {
+          await file.create(recursive: true);
+        }
+        await file.writeAsString(content);
+        log.info('Export config to $savedPath success');
+        toast('success'.tr);
+        setStateSafely(() => _exportConfigLoadingState = LoadingState.success);
+      }
+    } catch (e) {
+      log.error('Export config failed', e);
+      toast('exportConfigFailed'.tr);
+      setStateSafely(() => _exportConfigLoadingState = LoadingState.error);
+    }
+  }
+
+  void _showRestartDialog() {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('restartRequired'.tr),
+        content: Text('restartRequiredHint'.tr),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('later'.tr),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              // 重启应用
+              if (GetPlatform.isAndroid) {
+                AndroidIntent().launch();
+              }
+            },
+            child: Text('restart'.tr),
+          ),
+        ],
+      ),
+    );
   }
 }

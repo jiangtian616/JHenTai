@@ -834,6 +834,20 @@ favnote：匹配收藏备注
       /// tagSet dialog
       'chooseTagSet': '选择标签集',
 
+      /// import/export config
+      'importConfig': '导入配置',
+      'importConfigHint': '导入应用的所有设置（不含安全设置）',
+      'exportConfig': '导出配置',
+      'exportConfigHint': '导出应用的所有设置（不含安全设置）',
+      'importConfigSuccess': '导入配置成功',
+      'importConfigFailed': '导入配置失败',
+      'exportConfigFailed': '导出配置失败',
+      'invalidConfigFile': '无效的配置文件',
+      'restartRequired': '需要重启',
+      'restartRequiredHint': '导入配置后需要重启应用以使所有设置生效',
+      'later': '稍后',
+      'restart': '重启',
+
       /// tag namespace
       'language': '语言',
       'artist': '作者',
