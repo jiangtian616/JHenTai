@@ -24,9 +24,9 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
   RxInt retryDelay = 1000.obs;
 
   // 图片加载 HttpClient 配置
-  static const int defaultImageConnectionTimeout = 15; // 秒
+  static const int defaultImageConnectionTimeout = 16; // 秒
   static const int defaultImageMaxConnectionsPerHost = 4;
-  static const int defaultImageIdleTimeout = 30; // 秒
+  static const int defaultImageIdleTimeout = 32; // 秒
 
   RxInt imageConnectionTimeout = defaultImageConnectionTimeout.obs;
   RxInt imageMaxConnectionsPerHost = defaultImageMaxConnectionsPerHost.obs;
