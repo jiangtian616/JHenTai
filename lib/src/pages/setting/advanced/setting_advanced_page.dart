@@ -622,18 +622,18 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
 
   void _showRestartDialog() {
     showDialog(
-      context: context,
+      context: this.context,
       builder: (_) => AlertDialog(
         title: Text('restartRequired'.tr),
         content: Text('restartRequiredHint'.tr),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(this.context).pop(),
             child: Text('later'.tr),
           ),
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop();
+              Navigator.of(this.context).pop();
               // 重启应用
               if (GetPlatform.isAndroid) {
                 AndroidIntent().launch();
