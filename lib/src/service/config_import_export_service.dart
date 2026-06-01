@@ -100,15 +100,7 @@ class ConfigImportExportService {
 
     for (final entry in data.configs.entries) {
       try {
-        // 安全解析 ConfigEnum，处理未知 key 的情况
-        ConfigEnum configEnum;
-        try {
-          configEnum = ConfigEnum.from(entry.key);
-        } catch (e) {
-          // 未知的配置 key，跳过（可能是旧版本或新版本的配置）
-          log.info('Skipping unknown config key: ${entry.key}');
-          continue;
-        }
+        final configEnum = ConfigEnum.from(entry.key);
 
         // 跳过不在导入列表中的配置
         if (!kSettingsConfigEnums.contains(configEnum)) {

@@ -436,6 +436,18 @@ class pt_BR {
       'selectExportItems': 'Select Export Items',
       'importData': 'Import Data',
       'importDataHint': 'App will shutdown automatically after importing to apply the latest configuration',
+      'importConfig': 'Importar Configurações',
+      'importConfigHint': 'Importar todas as configurações do app (excluindo configurações de segurança)',
+      'exportConfig': 'Exportar Configurações',
+      'exportConfigHint': 'Exportar todas as configurações do app (excluindo configurações de segurança)',
+      'importConfigSuccess': 'Configurações importadas com sucesso',
+      'importConfigFailed': 'Falha ao importar configurações',
+      'exportConfigFailed': 'Falha ao exportar configurações',
+      'invalidConfigFile': 'Arquivo de configuração inválido',
+      'restartRequired': 'Reinício Necessário',
+      'restartRequiredHint': 'O reinício do app é necessário para aplicar todas as configurações importadas',
+      'later': 'Mais tarde',
+      'restart': 'Reiniciar',
 
       /// host mapping page
       'hostDataSource': 'Não há necessidade de alterar por padrão.\nFonte de dados: https://dns.google/',
@@ -830,20 +842,6 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
 
       /// tagSet dialog
       'chooseTagSet': 'Choose Tag Set',
-
-      /// import/export config
-      'importConfig': 'Importar Configurações',
-      'importConfigHint': 'Importar todas as configurações do app (excluindo configurações de segurança)',
-      'exportConfig': 'Exportar Configurações',
-      'exportConfigHint': 'Exportar todas as configurações do app (excluindo configurações de segurança)',
-      'importConfigSuccess': 'Configurações importadas com sucesso',
-      'importConfigFailed': 'Falha ao importar configurações',
-      'exportConfigFailed': 'Falha ao exportar configurações',
-      'invalidConfigFile': 'Arquivo de configuração inválido',
-      'restartRequired': 'Reinício Necessário',
-      'restartRequiredHint': 'O reinício do app é necessário para aplicar todas as configurações importadas',
-      'later': 'Mais tarde',
-      'restart': 'Reiniciar',
 
       /// tag namespace
       'language': 'Idioma',
