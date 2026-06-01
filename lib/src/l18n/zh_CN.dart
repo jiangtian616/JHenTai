@@ -435,18 +435,6 @@ class zh_CN {
       'selectExportItems': '选择导出项',
       'importData': '导入数据',
       'importDataHint': '在导入成功后应用会自动关闭以应用最新配置',
-      'importConfig': '导入配置',
-      'importConfigHint': '导入应用的所有设置（不含安全设置）',
-      'exportConfig': '导出配置',
-      'exportConfigHint': '导出应用的所有设置（不含安全设置）',
-      'importConfigSuccess': '导入配置成功',
-      'importConfigFailed': '导入配置失败',
-      'exportConfigFailed': '导出配置失败',
-      'invalidConfigFile': '无效的配置文件',
-      'restartRequired': '需要重启',
-      'restartRequiredHint': '导入配置后需要重启应用以使所有设置生效',
-      'later': '稍后',
-      'restart': '重启',
 
       /// host mapping page
       'hostDataSource': '默认情况下不用改动。\n数据来源: https://dns.google/',
