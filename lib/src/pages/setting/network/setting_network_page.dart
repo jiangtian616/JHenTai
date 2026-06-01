@@ -16,6 +16,9 @@ class SettingNetworkPage extends StatelessWidget {
   final TextEditingController receiveTimeoutController = TextEditingController(text: networkSetting.receiveTimeout.value.toString());
   final TextEditingController autoRetryCountController = TextEditingController(text: networkSetting.autoRetryCount.value.toString());
   final TextEditingController retryDelayController = TextEditingController(text: networkSetting.retryDelay.value.toString());
+  final TextEditingController imageConnectionTimeoutController = TextEditingController(text: networkSetting.imageConnectionTimeout.value.toString());
+  final TextEditingController imageMaxConnectionsPerHostController = TextEditingController(text: networkSetting.imageMaxConnectionsPerHost.value.toString());
+  final TextEditingController imageIdleTimeoutController = TextEditingController(text: networkSetting.imageIdleTimeout.value.toString());
 
   SettingNetworkPage({Key? key}) : super(key: key);
 
@@ -35,6 +38,9 @@ class SettingNetworkPage extends StatelessWidget {
             _buildReceiveTimeout(context),
             _buildAutoRetryCount(context),
             _buildRetryDelay(context),
+            _buildImageConnectionTimeout(context),
+            _buildImageMaxConnectionsPerHost(context),
+            _buildImageIdleTimeout(context),
           ],
         ).withListTileTheme(context),
       ),
@@ -235,6 +241,131 @@ class SettingNetworkPage extends StatelessWidget {
                 return;
               }
               networkSetting.saveRetryDelay(value);
+              toast('saveSuccess'.tr);
+            },
+            icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImageConnectionTimeout(BuildContext context) {
+    return ListTile(
+      title: Text('imageConnectionTimeout'.tr),
+      subtitle: Text('imageConnectionTimeoutHint'.tr),
+      onLongPress: () {
+        networkSetting.saveImageConnectionTimeout(NetworkSetting.defaultImageConnectionTimeout);
+        imageConnectionTimeoutController.text = NetworkSetting.defaultImageConnectionTimeout.toString();
+        toast('resetSuccess'.tr);
+      },
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 50,
+            child: TextField(
+              controller: imageConnectionTimeoutController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
+              textAlign: TextAlign.center,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                IntRangeTextInputFormatter(minValue: 1, maxValue: 60),
+              ],
+            ),
+          ),
+          Text('s', style: UIConfig.settingPageListTileTrailingTextStyle(context)),
+          IconButton(
+            onPressed: () {
+              int? value = int.tryParse(imageConnectionTimeoutController.value.text);
+              if (value == null) {
+                return;
+              }
+              networkSetting.saveImageConnectionTimeout(value);
+              toast('saveSuccess'.tr);
+            },
+            icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImageMaxConnectionsPerHost(BuildContext context) {
+    return ListTile(
+      title: Text('imageMaxConnectionsPerHost'.tr),
+      subtitle: Text('imageMaxConnectionsPerHostHint'.tr),
+      onLongPress: () {
+        networkSetting.saveImageMaxConnectionsPerHost(NetworkSetting.defaultImageMaxConnectionsPerHost);
+        imageMaxConnectionsPerHostController.text = NetworkSetting.defaultImageMaxConnectionsPerHost.toString();
+        toast('resetSuccess'.tr);
+      },
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 50,
+            child: TextField(
+              controller: imageMaxConnectionsPerHostController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
+              textAlign: TextAlign.center,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                IntRangeTextInputFormatter(minValue: 1, maxValue: 20),
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: () {
+              int? value = int.tryParse(imageMaxConnectionsPerHostController.value.text);
+              if (value == null) {
+                return;
+              }
+              networkSetting.saveImageMaxConnectionsPerHost(value);
+              toast('saveSuccess'.tr);
+            },
+            icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImageIdleTimeout(BuildContext context) {
+    return ListTile(
+      title: Text('imageIdleTimeout'.tr),
+      subtitle: Text('imageIdleTimeoutHint'.tr),
+      onLongPress: () {
+        networkSetting.saveImageIdleTimeout(NetworkSetting.defaultImageIdleTimeout);
+        imageIdleTimeoutController.text = NetworkSetting.defaultImageIdleTimeout.toString();
+        toast('resetSuccess'.tr);
+      },
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 50,
+            child: TextField(
+              controller: imageIdleTimeoutController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
+              textAlign: TextAlign.center,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                IntRangeTextInputFormatter(minValue: 1, maxValue: 300),
+              ],
+            ),
+          ),
+          Text('s', style: UIConfig.settingPageListTileTrailingTextStyle(context)),
+          IconButton(
+            onPressed: () {
+              int? value = int.tryParse(imageIdleTimeoutController.value.text);
+              if (value == null) {
+                return;
+              }
+              networkSetting.saveImageIdleTimeout(value);
               toast('saveSuccess'.tr);
             },
             icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),
