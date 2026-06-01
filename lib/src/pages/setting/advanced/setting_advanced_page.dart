@@ -606,7 +606,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
         }
 
         File file = File(savedPath);
-        if (!await file.exists()) {
+        if (await file.exists()) {
           await file.create(recursive: true);
         }
         await file.writeAsString(content);
@@ -630,7 +630,17 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text('OK'.tr),
+            child: Text('later'.tr),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              // 重启应用
+              if (GetPlatform.isAndroid) {
+                AndroidIntent().launch();
+              }
+            },
+            child: Text('restart'.tr),
           ),
         ],
       ),
