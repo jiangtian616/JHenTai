@@ -32,6 +32,7 @@ import 'package:webview_flutter/webview_flutter.dart' show WebViewCookieManager;
 import '../service/jh_service.dart';
 import '../service/local_config_service.dart';
 import '../setting/network_setting.dart';
+import '../utils/toast_util.dart';
 import 'eh_cache_manager.dart';
 import 'eh_cookie_manager.dart';
 
@@ -972,8 +973,15 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         break;
       } on DioException catch (e) {
         attempt++;
-        if (_isNetworkError(e) && attempt <= retryCount) {
+        // retryCount == -1 表示无限重试，retryCount == 0 表示不重试
+        if (_isNetworkError(e) && (retryCount == -1 || attempt <= retryCount)) {
           log.info('Network request failed, retrying ($attempt/$retryCount): ${e.message}');
+          // 显示 toast 提示，第一次重试不显示括号内的数字
+          if (attempt == 1) {
+            toast('retrying'.tr, isCenter: false);
+          } else {
+            toast('${'retrying'.tr} ($attempt)', isCenter: false);
+          }
           int delay = networkSetting.retryDelay.value;
           if (delay > 0) {
             await Future.delayed(Duration(milliseconds: delay));
@@ -1021,8 +1029,15 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         break;
       } on DioException catch (e) {
         attempt++;
-        if (_isNetworkError(e) && attempt <= retryCount) {
+        // retryCount == -1 表示无限重试，retryCount == 0 表示不重试
+        if (_isNetworkError(e) && (retryCount == -1 || attempt <= retryCount)) {
           log.info('Network request failed, retrying ($attempt/$retryCount): ${e.message}');
+          // 显示 toast 提示，第一次重试不显示括号内的数字
+          if (attempt == 1) {
+            toast('retrying'.tr, isCenter: false);
+          } else {
+            toast('${'retrying'.tr} ($attempt)', isCenter: false);
+          }
           int delay = networkSetting.retryDelay.value;
           if (delay > 0) {
             await Future.delayed(Duration(milliseconds: delay));

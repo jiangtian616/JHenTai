@@ -186,8 +186,8 @@ class SettingNetworkPage extends StatelessWidget {
               decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
               textAlign: TextAlign.center,
               inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                IntRangeTextInputFormatter(minValue: 0, maxValue: 10),
+                FilteringTextInputFormatter.allow(RegExp(r'^-?\d*$')),
+                IntRangeTextInputFormatter(minValue: -1, maxValue: 10),
               ],
             ),
           ),
