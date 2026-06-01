@@ -401,9 +401,10 @@ class en_US {
       'connectTimeout': 'Connect Timeout',
       'receiveTimeout': 'Receive Data Timeout',
       'autoRetryCount': 'Auto Retry Count on Network Failure',
-      'autoRetryCountHint': 'Set to 0 to disable retry, max value is 10',
+      'autoRetryCountHint': 'Set to -1 for infinite retry, 0 to disable, max value is 10',
       'retryDelay': 'Retry Delay',
       'retryDelayHint': 'Set to 0 for no delay, max value is 3000ms',
+      'retrying': 'Retrying',
       'pageCacheMaxAge': 'Page Cache Expiration Time',
       'pageCacheMaxAgeHint': 'You can update cache by refresh page',
       'cacheImageExpireDuration': 'Image Cache Expiration Time',
@@ -828,20 +829,6 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
 
       /// tagSet dialog
       'chooseTagSet': 'Choose Tag Set',
-
-      /// import/export config
-      'importConfig': 'Import Settings',
-      'importConfigHint': 'Import all app settings (excluding security settings)',
-      'exportConfig': 'Export Settings',
-      'exportConfigHint': 'Export all app settings (excluding security settings)',
-      'importConfigSuccess': 'Settings imported successfully',
-      'importConfigFailed': 'Failed to import settings',
-      'exportConfigFailed': 'Failed to export settings',
-      'invalidConfigFile': 'Invalid config file',
-      'restartRequired': 'Restart Required',
-      'restartRequiredHint': 'App restart is required to apply all imported settings',
-      'later': 'Later',
-      'restart': 'Restart',
 
       /// tag namespace
       'language': 'Language',

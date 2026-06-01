@@ -402,9 +402,10 @@ class pt_BR {
       'connectTimeout': 'Tempo limite de conexão',
       'receiveTimeout': 'Tempo limite de recebimento de dados',
       'autoRetryCount': 'Número de tentativas automáticas em caso de falha de rede',
-      'autoRetryCountHint': 'Defina como 0 para desativar tentativas, valor máximo é 10',
+      'autoRetryCountHint': 'Defina como -1 para tentativas infinitas, 0 para desativar, valor máximo é 10',
       'retryDelay': 'Atraso entre tentativas',
       'retryDelayHint': 'Defina como 0 para sem atraso, valor máximo é 3000ms',
+      'retrying': 'Tentando novamente',
       'pageCacheMaxAge': 'Idade máxima do cache de página',
       'pageCacheMaxAgeHint': 'Você pode atualizar o cache atualizando a página',
       'cacheImageExpireDuration': 'Image Cache Expiration Time',
@@ -830,20 +831,6 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
 
       /// tagSet dialog
       'chooseTagSet': 'Choose Tag Set',
-
-      /// import/export config
-      'importConfig': 'Importar Configurações',
-      'importConfigHint': 'Importar todas as configurações do app (excluindo configurações de segurança)',
-      'exportConfig': 'Exportar Configurações',
-      'exportConfigHint': 'Exportar todas as configurações do app (excluindo configurações de segurança)',
-      'importConfigSuccess': 'Configurações importadas com sucesso',
-      'importConfigFailed': 'Falha ao importar configurações',
-      'exportConfigFailed': 'Falha ao exportar configurações',
-      'invalidConfigFile': 'Arquivo de configuração inválido',
-      'restartRequired': 'Reinício Necessário',
-      'restartRequiredHint': 'O reinício do app é necessário para aplicar todas as configurações importadas',
-      'later': 'Mais tarde',
-      'restart': 'Reiniciar',
 
       /// tag namespace
       'language': 'Idioma',

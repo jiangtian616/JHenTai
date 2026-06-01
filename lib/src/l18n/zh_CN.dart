@@ -401,9 +401,10 @@ class zh_CN {
       'connectTimeout': '建立连接超时时间',
       'receiveTimeout': '接收数据超时时间',
       'autoRetryCount': '网络连接失败自动重试次数',
-      'autoRetryCountHint': '设置为0表示不重试，最大值为10',
+      'autoRetryCountHint': '设置为-1表示无限重试，0表示不重试，最大值为10',
       'retryDelay': '重试间隔',
       'retryDelayHint': '设置为0表示无间隔，最大值为3000毫秒',
+      'retrying': '重试中',
       'pageCacheMaxAge': '页面缓存时间',
       'pageCacheMaxAgeHint': '你可以通过刷新页面来更新缓存',
       'cacheImageExpireDuration': '图片缓存时间',
@@ -833,20 +834,6 @@ favnote：匹配收藏备注
 
       /// tagSet dialog
       'chooseTagSet': '选择标签集',
-
-      /// import/export config
-      'importConfig': '导入配置',
-      'importConfigHint': '导入应用的所有设置（不含安全设置）',
-      'exportConfig': '导出配置',
-      'exportConfigHint': '导出应用的所有设置（不含安全设置）',
-      'importConfigSuccess': '导入配置成功',
-      'importConfigFailed': '导入配置失败',
-      'exportConfigFailed': '导出配置失败',
-      'invalidConfigFile': '无效的配置文件',
-      'restartRequired': '需要重启',
-      'restartRequiredHint': '导入配置后需要重启应用以使所有设置生效',
-      'later': '稍后',
-      'restart': '重启',
 
       /// tag namespace
       'language': '语言',

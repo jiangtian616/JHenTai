@@ -401,9 +401,10 @@ class zh_TW {
       'connectTimeout': '建立連線超時時間',
       'receiveTimeout': '接收資料超時時間',
       'autoRetryCount': '網路連線失敗自動重試次數',
-      'autoRetryCountHint': '設定為0表示不重試，最大值為10',
+      'autoRetryCountHint': '設定為-1表示無限重試，0表示不重試，最大值為10',
       'retryDelay': '重試間隔',
       'retryDelayHint': '設定為0表示無間隔，最大值為3000毫秒',
+      'retrying': '重試中',
       'pageCacheMaxAge': '頁面快取時間',
       'pageCacheMaxAgeHint': '你可以透過重新整理頁面來更新快取',
       'cacheImageExpireDuration': '圖片快取時間',
@@ -834,20 +835,6 @@ favnote：配對收藏備註
 
       /// tagSet dialog
       'chooseTagSet': '選擇標籤集',
-
-      /// import/export config
-      'importConfig': '匯入設定',
-      'importConfigHint': '匯入應用程式的所有設定（不含安全設定）',
-      'exportConfig': '匯出設定',
-      'exportConfigHint': '匯出應用程式的所有設定（不含安全設定）',
-      'importConfigSuccess': '設定匯入成功',
-      'importConfigFailed': '設定匯入失敗',
-      'exportConfigFailed': '設定匯出失敗',
-      'invalidConfigFile': '無效的設定檔',
-      'restartRequired': '需要重新啟動',
-      'restartRequiredHint': '匯入設定後需要重新啟動應用程式以套用所有設定',
-      'later': '稍後',
-      'restart': '重新啟動',
 
       /// tag namespace
       'language': '語言',
