@@ -16,6 +16,9 @@ class AdvancedSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   RxBool enableCheckClipboard = true.obs;
   RxBool inNoImageMode = false.obs;
 
+  static const int defaultLongPressDuration = 500; // 毫秒
+  RxInt longPressDuration = defaultLongPressDuration.obs;
+
   @override
   ConfigEnum get configEnum => ConfigEnum.advancedSetting;
 
@@ -28,6 +31,7 @@ class AdvancedSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     enableCheckUpdate.value = map['enableCheckUpdate'] ?? enableCheckUpdate.value;
     enableCheckClipboard.value = map['enableCheckClipboard'] ?? enableCheckClipboard.value;
     inNoImageMode.value = map['inNoImageMode'] ?? inNoImageMode.value;
+    longPressDuration.value = map['longPressDuration'] ?? longPressDuration.value;
   }
 
   @override
@@ -38,6 +42,7 @@ class AdvancedSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
       'enableCheckUpdate': enableCheckUpdate.value,
       'enableCheckClipboard': enableCheckClipboard.value,
       'inNoImageMode': inNoImageMode.value,
+      'longPressDuration': longPressDuration.value,
     });
   }
 
@@ -74,6 +79,12 @@ class AdvancedSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   Future<void> saveInNoImageMode(bool inNoImageMode) async {
     log.debug('saveInNoImageMode:$inNoImageMode');
     this.inNoImageMode.value = inNoImageMode;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveLongPressDuration(int milliseconds) async {
+    log.debug('saveLongPressDuration:$milliseconds');
+    this.longPressDuration.value = milliseconds;
     await saveBeanConfig();
   }
 }

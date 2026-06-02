@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/widget/eh_gesture_detector.dart';
 
 class EHGalleryCategoryTag extends StatelessWidget {
   final String category;
@@ -31,10 +32,10 @@ class EHGalleryCategoryTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return EHGestureDetector(
       onTap: onTap,
       onLongPress: onLongPress,
-      onSecondaryTap: onSecondaryTap,
+      onSecondaryTapUp: onSecondaryTap != null ? (_) => onSecondaryTap!() : null,
       child: Container(
         alignment: Alignment.center,
         height: height,

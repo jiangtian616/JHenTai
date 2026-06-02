@@ -45,10 +45,13 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   LoadingState _exportDataLoadingState = LoadingState.idle;
   LoadingState _importDataLoadingState = LoadingState.idle;
 
+  late TextEditingController _longPressDurationController;
+
   @override
   void initState() {
     super.initState();
 
+    _longPressDurationController = TextEditingController(text: advancedSetting.longPressDuration.value.toString());
     _loadingLogSize();
     _getImagesCacheSize();
   }
@@ -72,6 +75,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
             _buildCheckClipboard(),
             if (GetPlatform.isAndroid) _buildVerifyAppLinks(),
             _buildInNoImageMode(),
+            _buildLongPressDuration(context),
             _buildImportData(context),
             _buildExportData(context),
           ],
@@ -209,6 +213,48 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
       title: Text('noImageMode'.tr),
       value: advancedSetting.inNoImageMode.value,
       onChanged: advancedSetting.saveInNoImageMode,
+    );
+  }
+
+  Widget _buildLongPressDuration(BuildContext context) {
+    return ListTile(
+      title: Text('longPressDuration'.tr),
+      subtitle: Text('longPressDurationHint'.tr),
+      onLongPress: () {
+        advancedSetting.saveLongPressDuration(AdvancedSetting.defaultLongPressDuration);
+        _longPressDurationController.text = AdvancedSetting.defaultLongPressDuration.toString();
+        toast('resetSuccess'.tr);
+      },
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 60,
+            child: TextField(
+              controller: _longPressDurationController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
+              textAlign: TextAlign.center,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                IntRangeTextInputFormatter(minValue: 200),
+              ],
+            ),
+          ),
+          Text('ms', style: UIConfig.settingPageListTileTrailingTextStyle(context)),
+          IconButton(
+            onPressed: () {
+              int? value = int.tryParse(_longPressDurationController.value.text);
+              if (value == null) {
+                return;
+              }
+              advancedSetting.saveLongPressDuration(value);
+              toast('saveSuccess'.tr);
+            },
+            icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),
+          ),
+        ],
+      ),
     );
   }
 

@@ -4,6 +4,7 @@ import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/pages/download_search/download_search_state.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
+import 'package:jhentai/src/widget/eh_gesture_detector.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
@@ -112,11 +113,11 @@ class DownloadSearchPage extends StatelessWidget {
               _buildGalleryCover(gallery, context),
               const SizedBox(width: 6),
               Expanded(
-                child: GestureDetector(
+                child: EHGestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => logic.goToGalleryReadPage(gallery),
                   onLongPress: () => logic.onLongPressGallery(context, gallery),
-                  onSecondaryTap: () => logic.onLongPressGallery(context, gallery),
+                  onSecondaryTapUp: (_) => logic.onLongPressGallery(context, gallery),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -359,11 +360,11 @@ class DownloadSearchPage extends StatelessWidget {
               _buildArchiveCover(archive, context),
               const SizedBox(width: 6),
               Expanded(
-                child: GestureDetector(
+                child: EHGestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => logic.goToArchiveReadPage(archive),
                   onLongPress: () => logic.onLongPressArchive(context, archive),
-                  onSecondaryTap: () => logic.onLongPressArchive(context, archive),
+                  onSecondaryTapUp: (_) => logic.onLongPressArchive(context, archive),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

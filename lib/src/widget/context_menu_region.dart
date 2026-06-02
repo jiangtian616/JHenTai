@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:jhentai/src/widget/eh_gesture_detector.dart';
 
 typedef ContextMenuBuilder = Widget Function(BuildContext context, Offset offset);
 
@@ -84,7 +85,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return EHGestureDetector(
       behavior: HitTestBehavior.opaque,
       onSecondaryTapUp: _onSecondaryTapUp,
       onTap: _onTap,

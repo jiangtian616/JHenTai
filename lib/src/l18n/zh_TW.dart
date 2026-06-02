@@ -431,6 +431,8 @@ class zh_TW {
       'verityAppLinks4Android12': '驗證應用程式連結（安卓12+）',
       'verityAppLinks4Android12Hint': '對於Android 12+，您需要手動新增連結到已驗證連結才能在其他程式中喚起JHenTai',
       'noImageMode': '無圖模式',
+      'longPressDuration': '長按觸發時長',
+      'longPressDurationHint': '長按事件觸發所需的按住時長，長按重置為預設值',
       'exportData': '匯出資料',
       'exportDataHint': '匯出設定、隱藏規則與歷史記錄',
       'selectExportItems': '選擇匯出項',
