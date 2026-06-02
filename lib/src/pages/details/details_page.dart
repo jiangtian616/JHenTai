@@ -1002,7 +1002,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
               ),
             ),
             onPressed: disabled ? null : () => logic.handleTapFavorite(useDefault: preferenceSetting.enableDefaultFavorite.isTrue),
-            onLongPress: disabled || preferenceSetting.enableDefaultFavorite.isFalse ? null : () => logic.handleTapFavorite(useDefault: false),
+            onLongPress: disabled ? null : () => logic.handleLongPressFavorite(),
           ),
           errorWidgetSameWithIdle: true,
         );
