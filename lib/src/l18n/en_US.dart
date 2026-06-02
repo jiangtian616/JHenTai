@@ -431,6 +431,8 @@ class en_US {
       'verityAppLinks4Android12': 'Verity App Links(Android 12+)',
       'verityAppLinks4Android12Hint': 'For Android 12+, you need to manually add link to verified links in order to open JHenTai in 3-rd apps',
       'noImageMode': 'No Image Mode',
+      'longPressDuration': 'Long Press Duration',
+      'longPressDurationHint': 'Hold time required to trigger long press, long press to reset',
       'exportData': 'Export Data',
       'exportDataHint': 'Export configs, block rules and history',
       'selectExportItems': 'Select Export Items',

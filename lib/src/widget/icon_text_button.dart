@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jhentai/src/widget/eh_gesture_detector.dart';
 
 class IconTextButton extends StatelessWidget {
   final double? height;
@@ -23,7 +24,7 @@ class IconTextButton extends StatelessWidget {
     return SizedBox(
       height: height,
       width: width,
-      child: GestureDetector(
+      child: EHGestureDetector(
         onLongPress: onLongPress,
         child: IconButton(
           splashColor: Colors.transparent,
