@@ -198,20 +198,7 @@ class ArchiveAtHomeProtocol extends ArchiveBotProtocol {
 
   @override
   ArchiveBotResponse normalizeResponse(Response response) {
-    if (response.statusCode != 200) {
-      final dynamic body = response.data;
-      final String errorMsg = (body is Map && body['error'] != null) ? body['error'].toString() : 'internalError';
-      return ArchiveBotResponse(
-        code: response.statusCode ?? -1,
-        message: errorMsg,
-        data: const {},
-      );
-    }
-    return ArchiveBotResponse(
-      code: 0,
-      message: 'success',
-      data: Map<String, dynamic>.from(response.data as Map),
-    );
+    return ArchiveBotResponse.fromJson(response.data);
   }
 
   @override
