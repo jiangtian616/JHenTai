@@ -19,15 +19,6 @@ typedef PausedWidgetBuilder = Widget Function();
 typedef LoadingWidgetBuilder = Widget Function();
 typedef CompletedWidgetBuilder = Widget? Function(ExtendedImageState state);
 
-/// 创建自定义的 HttpClient，配置连接超时和最大连接数
-/// 用于解决图片加载假死问题
-io.HttpClient createImageHttpClient() {
-  return io.HttpClient()
-    ..connectionTimeout = const Duration(seconds: 15)
-    ..maxConnectionsPerHost = 4
-    ..idleTimeout = const Duration(seconds: 30);
-}
-
 class EHImage extends StatelessWidget {
   final GalleryImage galleryImage;
   final bool autoLayout;
@@ -172,12 +163,6 @@ class EHImage extends StatelessWidget {
         }
       },
       maxBytes: maxBytes,
-      // 使用自定义 HttpClient，限制连接数防止假死
-      imageProvider: ExtendedNetworkImageProvider(
-        _replaceEXUrl(galleryImage.url),
-        cache: true,
-        httpClient: createImageHttpClient(),
-      ),
     );
   }
 
