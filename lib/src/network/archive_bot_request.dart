@@ -185,12 +185,12 @@ class EhArBotProtocol extends ArchiveBotProtocol {
 class ArchiveAtHomeProtocol extends ArchiveBotProtocol {
   const ArchiveAtHomeProtocol(super.dio);
 
-  Options _authOptions({Map<String, dynamic>? extraHeaders}) {
+  Options _authOptions(String apiKey, {Map<String, dynamic>? extraHeaders}) {
     return Options(
       contentType: Headers.jsonContentType,
       validateStatus: (status) => true,
       headers: {
-        'Authorization': 'Bearer ${archiveBotSetting.apiKey.value}',
+        'Authorization': 'Bearer $apiKey',
         if (extraHeaders != null) ...extraHeaders,
       },
     );
@@ -221,7 +221,7 @@ class ArchiveAtHomeProtocol extends ArchiveBotProtocol {
   }) async {
     Response response = await dio.get(
       '$apiAddress/api/v1/me/balance',
-      options: _authOptions(),
+      options: _authOptions(apiKey),
     );
     return normalizeResponse(response);
   }
@@ -233,7 +233,7 @@ class ArchiveAtHomeProtocol extends ArchiveBotProtocol {
   }) async {
     Response response = await dio.post(
       '$apiAddress/api/v1/me/checkin',
-      options: _authOptions(),
+      options: _authOptions(apiKey),
     );
     return normalizeResponse(response);
   }
@@ -249,7 +249,7 @@ class ArchiveAtHomeProtocol extends ArchiveBotProtocol {
   }) async {
     Response response = await dio.post(
       '$apiAddress/api/v1/parse',
-      options: _authOptions(extraHeaders: {'X-Client': ArchiveBotConsts.archiveAtHomeXClient}),
+      options: _authOptions(apiKey, extraHeaders: {'X-Client': ArchiveBotConsts.archiveAtHomeXClient}),
       data: {
         'gallery_id': gid.toString(),
         'gallery_key': token,
