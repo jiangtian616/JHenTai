@@ -500,14 +500,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     try {
       if (operation.isDelete) {
-        await ehRequest.requestRemoveFavorite(state.galleryUrl.gid, state.galleryUrl.token);
-        favoriteSetting.decrementFavByIndex(operation.favIndex);
-        state.gallery
-          ?..favoriteTagIndex = null
-          ..favoriteTagName = null;
-        state.galleryDetails
-          ?..favoriteTagIndex = null
-          ..favoriteTagName = null;
+        await _removeFavorite(operation.favIndex);
       } else {
         await ehRequest.requestAddFavorite(state.galleryUrl.gid, state.galleryUrl.token, operation.favIndex, operation.note);
         favoriteSetting.incrementFavByIndex(operation.favIndex);
@@ -550,6 +543,69 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       operation.isDelete ? 'removeFavoriteSuccess'.tr : 'favoriteGallerySuccess'.tr,
       isCenter: false,
     );
+  }
+
+  /// 长按收藏按钮的处理：如果已收藏则取消收藏，否则弹出收藏夹选择对话框
+  Future<void> handleLongPressFavorite() async {
+    if (!checkLogin()) {
+      return;
+    }
+
+    if (state.favoriteState == LoadingState.loading) {
+      return;
+    }
+
+    int? currentFavIndex = state.galleryDetails?.favoriteTagIndex ?? state.gallery?.favoriteTagIndex;
+
+    // 如果已收藏，直接取消收藏
+    if (currentFavIndex != null) {
+      state.favoriteState = LoadingState.loading;
+      updateSafely([favoriteId]);
+
+      try {
+        await _removeFavorite(currentFavIndex);
+      } on DioException catch (e) {
+        log.error('removeFavoriteFailed'.tr, e.errorMsg);
+        snack('removeFavoriteFailed'.tr, e.errorMsg ?? '', isShort: true);
+        state.favoriteState = LoadingState.error;
+        updateSafely([favoriteId]);
+        return;
+      } on EHSiteException catch (e) {
+        log.error('removeFavoriteFailed'.tr, e.message);
+        snack('removeFavoriteFailed'.tr, e.message, isShort: true);
+        state.favoriteState = LoadingState.error;
+        updateSafely([favoriteId]);
+        return;
+      } catch (e, s) {
+        log.error('removeFavoriteFailed'.tr, e, s);
+        snack('removeFavoriteFailed'.tr, e.toString(), isShort: true);
+        state.favoriteState = LoadingState.error;
+        updateSafely([favoriteId]);
+        return;
+      }
+
+      removeCache();
+      state.favoriteState = LoadingState.idle;
+      updateSafely([favoriteId]);
+      updateGlobalGalleryStatus();
+      toast('removeFavoriteSuccess'.tr, isCenter: false);
+      return;
+    }
+
+    // 如果未收藏，弹出收藏夹选择对话框（与原来的行为一致）
+    handleTapFavorite(useDefault: false);
+  }
+
+  /// 取消收藏的核心逻辑
+  Future<void> _removeFavorite(int favIndex) async {
+    await ehRequest.requestRemoveFavorite(state.galleryUrl.gid, state.galleryUrl.token);
+    favoriteSetting.decrementFavByIndex(favIndex);
+    state.gallery
+      ?..favoriteTagIndex = null
+      ..favoriteTagName = null;
+    state.galleryDetails
+      ?..favoriteTagIndex = null
+      ..favoriteTagName = null;
   }
 
   Future<void> handleTapRating() async {
