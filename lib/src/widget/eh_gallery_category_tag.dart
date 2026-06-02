@@ -32,10 +32,10 @@ class EHGalleryCategoryTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return EHGestureDetector(
+    return GestureDetector(
       onTap: onTap,
       onLongPress: onLongPress,
-      onSecondaryTapUp: onSecondaryTap != null ? (_) => onSecondaryTap!() : null,
+      onSecondaryTap: onSecondaryTap,
       child: Container(
         alignment: Alignment.center,
         height: height,

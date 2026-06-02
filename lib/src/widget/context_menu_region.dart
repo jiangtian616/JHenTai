@@ -85,7 +85,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
   @override
   Widget build(BuildContext context) {
-    return EHGestureDetector(
+    return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onSecondaryTapUp: _onSecondaryTapUp,
       onTap: _onTap,

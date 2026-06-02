@@ -113,11 +113,11 @@ class DownloadSearchPage extends StatelessWidget {
               _buildGalleryCover(gallery, context),
               const SizedBox(width: 6),
               Expanded(
-                child: EHGestureDetector(
+                child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => logic.goToGalleryReadPage(gallery),
                   onLongPress: () => logic.onLongPressGallery(context, gallery),
-                  onSecondaryTapUp: (_) => logic.onLongPressGallery(context, gallery),
+                  onSecondaryTap: () => logic.onLongPressGallery(context, gallery),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -360,11 +360,11 @@ class DownloadSearchPage extends StatelessWidget {
               _buildArchiveCover(archive, context),
               const SizedBox(width: 6),
               Expanded(
-                child: EHGestureDetector(
+                child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => logic.goToArchiveReadPage(archive),
                   onLongPress: () => logic.onLongPressArchive(context, archive),
-                  onSecondaryTapUp: (_) => logic.onLongPressArchive(context, archive),
+                  onSecondaryTap: () => logic.onLongPressArchive(context, archive),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

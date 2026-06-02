@@ -40,10 +40,10 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return EHGestureDetector(
+    return GestureDetector(
       onTap: () => handleTapCard(gallery),
       onLongPress: handleLongPressCard == null ? null : () => handleLongPressCard!(gallery),
-      onSecondaryTapUp: handleSecondaryTapCard == null ? null : (_) => handleSecondaryTapCard!(gallery),
+      onSecondaryTap: handleSecondaryTapCard == null ? null : () => handleSecondaryTapCard!(gallery),
       child: FadeIn(child: _buildCard(context)),
     );
   }
