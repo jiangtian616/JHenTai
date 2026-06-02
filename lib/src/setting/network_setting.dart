@@ -23,15 +23,6 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
   RxInt autoRetryCount = 0.obs;
   RxInt retryDelay = 1000.obs;
 
-  // 图片加载 HttpClient 配置
-  static const int defaultImageConnectionTimeout = 16; // 秒
-  static const int defaultImageMaxConnectionsPerHost = 4;
-  static const int defaultImageIdleTimeout = 32; // 秒
-
-  RxInt imageConnectionTimeout = defaultImageConnectionTimeout.obs;
-  RxInt imageMaxConnectionsPerHost = defaultImageMaxConnectionsPerHost.obs;
-  RxInt imageIdleTimeout = defaultImageIdleTimeout.obs;
-
   static const Map<String, List<String>> host2IPs = {
     'e-hentai.org': ['172.66.132.196', '172.66.140.62'],
     'exhentai.org': [
@@ -75,9 +66,6 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
     receiveTimeout.value = map['receiveTimeout'] ?? receiveTimeout.value;
     autoRetryCount.value = map['autoRetryCount'] ?? autoRetryCount.value;
     retryDelay.value = map['retryDelay'] ?? retryDelay.value;
-    imageConnectionTimeout.value = map['imageConnectionTimeout'] ?? imageConnectionTimeout.value;
-    imageMaxConnectionsPerHost.value = map['imageMaxConnectionsPerHost'] ?? imageMaxConnectionsPerHost.value;
-    imageIdleTimeout.value = map['imageIdleTimeout'] ?? imageIdleTimeout.value;
   }
 
   @override
@@ -94,9 +82,6 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
       'receiveTimeout': receiveTimeout.value,
       'autoRetryCount': autoRetryCount.value,
       'retryDelay': retryDelay.value,
-      'imageConnectionTimeout': imageConnectionTimeout.value,
-      'imageMaxConnectionsPerHost': imageMaxConnectionsPerHost.value,
-      'imageIdleTimeout': imageIdleTimeout.value,
     });
   }
 
@@ -154,24 +139,6 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
   Future<void> saveRetryDelay(int retryDelay) async {
     log.debug('saveRetryDelay:$retryDelay');
     this.retryDelay.value = retryDelay;
-    await saveBeanConfig();
-  }
-
-  Future<void> saveImageConnectionTimeout(int seconds) async {
-    log.debug('saveImageConnectionTimeout:$seconds');
-    this.imageConnectionTimeout.value = seconds;
-    await saveBeanConfig();
-  }
-
-  Future<void> saveImageMaxConnectionsPerHost(int count) async {
-    log.debug('saveImageMaxConnectionsPerHost:$count');
-    this.imageMaxConnectionsPerHost.value = count;
-    await saveBeanConfig();
-  }
-
-  Future<void> saveImageIdleTimeout(int seconds) async {
-    log.debug('saveImageIdleTimeout:$seconds');
-    this.imageIdleTimeout.value = seconds;
     await saveBeanConfig();
   }
 }

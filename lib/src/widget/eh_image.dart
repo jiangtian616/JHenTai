@@ -7,7 +7,6 @@ import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
-import 'package:jhentai/src/setting/network_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'dart:io' as io;
 
@@ -19,15 +18,6 @@ typedef DownloadingWidgetBuilder = Widget Function();
 typedef PausedWidgetBuilder = Widget Function();
 typedef LoadingWidgetBuilder = Widget Function();
 typedef CompletedWidgetBuilder = Widget? Function(ExtendedImageState state);
-
-/// 创建自定义的 HttpClient，使用网络设置中的配置
-/// 用于解决图片加载假死问题
-io.HttpClient createImageHttpClient() {
-  return io.HttpClient()
-    ..connectionTimeout = Duration(seconds: networkSetting.imageConnectionTimeout.value)
-    ..maxConnectionsPerHost = networkSetting.imageMaxConnectionsPerHost.value
-    ..idleTimeout = Duration(seconds: networkSetting.imageIdleTimeout.value);
-}
 
 class EHImage extends StatelessWidget {
   final GalleryImage galleryImage;
@@ -173,12 +163,6 @@ class EHImage extends StatelessWidget {
         }
       },
       maxBytes: maxBytes,
-      // 使用自定义 HttpClient，限制连接数防止假死
-      imageProvider: ExtendedNetworkImageProvider(
-        _replaceEXUrl(galleryImage.url),
-        cache: true,
-        httpClient: createImageHttpClient(),
-      ),
     );
   }
 
