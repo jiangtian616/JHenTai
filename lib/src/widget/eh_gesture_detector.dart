@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 
@@ -26,15 +27,33 @@ class EHGestureDetector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      onLongPress: onLongPress,
-      onSecondaryTapUp: onSecondaryTapUp,
-      onLongPressStart: onLongPressStart,
-      onLongPressMoveUpdate: onLongPressMoveUpdate,
-      onLongPressEnd: onLongPressEnd,
+    return RawGestureDetector(
+      gestures: <Type, GestureRecognizerFactory>{
+        TapGestureRecognizer: GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+          () => TapGestureRecognizer(),
+          (TapGestureRecognizer instance) {
+            instance.onTap = onTap;
+          },
+        ),
+        if (onLongPress != null || onLongPressStart != null)
+          LongPressGestureRecognizer: GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
+            () => LongPressGestureRecognizer(duration: Duration(milliseconds: advancedSetting.longPressDuration.value)),
+            (LongPressGestureRecognizer instance) {
+              instance.onLongPress = onLongPress;
+              instance.onLongPressStart = onLongPressStart;
+              instance.onLongPressMoveUpdate = onLongPressMoveUpdate;
+              instance.onLongPressEnd = onLongPressEnd;
+            },
+          ),
+        if (onSecondaryTapUp != null)
+          SecondaryTapGestureRecognizer: GestureRecognizerFactoryWithHandlers<SecondaryTapGestureRecognizer>(
+            () => SecondaryTapGestureRecognizer(),
+            (SecondaryTapGestureRecognizer instance) {
+              instance.onTapUp = onSecondaryTapUp;
+            },
+          ),
+      },
       behavior: behavior,
-      longPressDuration: Duration(milliseconds: advancedSetting.longPressDuration.value),
       child: child,
     );
   }
