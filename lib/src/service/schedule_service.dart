@@ -29,11 +29,9 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '../database/database.dart';
 import '../enum/config_enum.dart';
 import '../model/archive_bot_response/archive_bot_response.dart';
-import '../model/archive_bot_response/check_in_vo.dart';
 import '../model/gallery_metadata.dart';
 import '../network/archive_bot_request.dart';
 import '../setting/advanced_setting.dart';
-import '../utils/archive_bot_response_parser.dart';
 import '../utils/version_util.dart';
 import '../widget/update_dialog.dart';
 import 'jh_service.dart';
@@ -231,13 +229,13 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
 
     try {
       ArchiveBotResponse response = await archiveBotRequest.requestCheckIn(
-        apiAddress: archiveBotSetting.apiAddress.value,
+        botType: archiveBotSetting.botType.value,
+        apiAddress: archiveBotSetting.apiAddress.value!,
         apiKey: archiveBotSetting.apiKey.value!,
-        parser: ArchiveBotResponseParser.commonParse,
       );
       log.debug('Auto Checkin response: $response');
       if (response.isSuccess) {
-        CheckInVO checkInVO = CheckInVO.fromResponse(response.data);
+        final checkInVO = archiveBotSetting.botType.value.parseCheckIn(response.data);
         snack('checkInSuccess'.tr, 'checkInSuccessHint'.trArgs([checkInVO.getGP.toString(), checkInVO.currentGP.toString()]));
       }
     } on DioException catch (e) {

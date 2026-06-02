@@ -733,6 +733,7 @@ class ru_RU {
       'archiveBotSettings': 'Archive Bot Settings',
       'archiveBotSettingsHint': 'Use archive bot to get archive links for free',
       'apiSetting': 'API Setting',
+      'archiveBotProtocol': 'Protocol',
       'apiAddress': 'Address',
       'apiKey': 'Key',
       'apiKeyHint': 'Enter the key you got from Telegram bot',

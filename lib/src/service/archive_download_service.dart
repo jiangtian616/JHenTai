@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
@@ -20,14 +21,13 @@ import 'package:jhentai/src/model/archive_bot_response/archive_resolve_vo.dart';
 import 'package:jhentai/src/model/archive_unlock_result.dart';
 import 'package:jhentai/src/network/archive_bot_request.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/archive_bot_setting.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
-import 'package:jhentai/src/service/path_service.dart';
-import 'package:jhentai/src/utils/archive_bot_response_parser.dart';
-import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
+import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:logger/logger.dart';
 import 'package:path/path.dart';
 import 'package:retry/retry.dart';
@@ -41,10 +41,10 @@ import '../model/gallery_image.dart';
 import '../pages/download/grid/mixin/grid_download_page_service_mixin.dart';
 import '../utils/archive_util.dart';
 import '../utils/file_util.dart';
-import 'jh_service.dart';
-import 'log.dart';
 import '../utils/snack_util.dart';
 import 'gallery_download_service.dart';
+import 'jh_service.dart';
+import 'log.dart';
 
 ArchiveDownloadService archiveDownloadService = ArchiveDownloadService();
 
@@ -922,13 +922,13 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       try {
         ArchiveBotResponse response = await retry(
           () => archiveBotRequest.requestResolve(
-            apiAddress: archiveBotSetting.apiAddress.value,
+            botType: archiveBotSetting.botType.value,
+            apiAddress: archiveBotSetting.apiAddress.value!,
             apiKey: archiveBotSetting.apiKey.value!,
             gid: archive.gid,
             token: archive.token,
             reParse: reParse,
             cancelToken: archiveDownloadInfo.cancelToken,
-            parser: ArchiveBotResponseParser.commonParse,
           ),
           retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
           onRetry: (e) => log.download('Parse archive download url: ${archive.title} failed, retry. Reason: ${(e as DioException).message}'),
@@ -937,7 +937,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         log.download('Parse archive download url via bot, response: $response');
 
         if (response.isSuccess) {
-          ArchiveResolveVO archiveResolveVO = ArchiveResolveVO.fromResponse(response.data);
+          ArchiveResolveVO archiveResolveVO = archiveBotSetting.botType.value.parseResolve(response.data);
           downloadPath = archiveResolveVO.url;
         } else {
           snack('archiveError'.tr, response.errorMessage);

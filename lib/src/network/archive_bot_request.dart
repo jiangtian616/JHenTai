@@ -1,13 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:get/get_rx/src/rx_workers/rx_workers.dart';
 import 'package:jhentai/src/consts/archive_bot_consts.dart';
+import 'package:jhentai/src/model/archive_bot_response/archive_bot_response.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/setting/archive_bot_setting.dart';
 
-import '../service/isolate_service.dart';
 import '../service/jh_service.dart';
 import '../setting/network_setting.dart';
-import '../utils/eh_spider_parser.dart';
 
 ArchiveBotRequest archiveBotRequest = ArchiveBotRequest();
 
@@ -43,49 +42,129 @@ class ArchiveBotRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleB
     _dio.options.receiveTimeout = Duration(milliseconds: receiveTimeout);
   }
 
-  Future<T> requestBalance<T>({
-    String? apiAddress,
-    required String apiKey,
-    HtmlParser<T>? parser,
-  }) async {
-    Response response = await _dio.post(
-      '${archiveBotSetting.useProxyServer.value ? ArchiveBotConsts.proxyServerAddress : apiAddress}/balance',
-      options: Options(contentType: Headers.jsonContentType),
-      data: {
-        'apikey': apiKey,
-      },
-    );
-
-    return _parseResponse(response, parser);
+  ArchiveBotProtocol _mappingProtocol(ArchiveBotType botType) {
+    switch (botType) {
+      case ArchiveBotType.ehArBot:
+        return EhArBotProtocol(_dio);
+      case ArchiveBotType.archiveAtHome:
+        return ArchiveAtHomeProtocol(_dio);
+    }
   }
 
-  Future<T> requestCheckIn<T>({
-    String? apiAddress,
+  Future<ArchiveBotResponse> requestBalance({
+    required ArchiveBotType botType,
+    required String apiAddress,
     required String apiKey,
-    HtmlParser<T>? parser,
-  }) async {
-    Response response = await _dio.post(
-      '${archiveBotSetting.useProxyServer.value ? ArchiveBotConsts.proxyServerAddress : apiAddress}/checkin',
-      options: Options(contentType: Headers.jsonContentType),
-      data: {
-        'apikey': apiKey,
-      },
-    );
-
-    return _parseResponse(response, parser);
+  }) {
+    return _mappingProtocol(botType).requestBalance(apiAddress: apiAddress, apiKey: apiKey);
   }
 
-  Future<T> requestResolve<T>({
-    String? apiAddress,
+  Future<ArchiveBotResponse> requestCheckIn({
+    required ArchiveBotType botType,
+    required String apiAddress,
+    required String apiKey,
+  }) {
+    return _mappingProtocol(botType).requestCheckIn(apiAddress: apiAddress, apiKey: apiKey);
+  }
+
+  Future<ArchiveBotResponse> requestResolve({
+    required ArchiveBotType botType,
+    required String apiAddress,
     required String apiKey,
     required int gid,
     required String token,
     bool reParse = true,
     CancelToken? cancelToken,
-    HtmlParser<T>? parser,
+  }) {
+    return _mappingProtocol(botType).requestResolve(
+      apiAddress: apiAddress,
+      apiKey: apiKey,
+      gid: gid,
+      token: token,
+      reParse: reParse,
+      cancelToken: cancelToken,
+    );
+  }
+}
+
+abstract class ArchiveBotProtocol {
+  final Dio dio;
+
+  const ArchiveBotProtocol(this.dio);
+
+  Future<ArchiveBotResponse> requestBalance({
+    required String apiAddress,
+    required String apiKey,
+  });
+
+  Future<ArchiveBotResponse> requestCheckIn({
+    required String apiAddress,
+    required String apiKey,
+  });
+
+  Future<ArchiveBotResponse> requestResolve({
+    required String apiAddress,
+    required String apiKey,
+    required int gid,
+    required String token,
+    bool reParse = true,
+    CancelToken? cancelToken,
+  });
+
+  /// Converts the raw HTTP [response] to a normalized [ArchiveBotResponse].
+  ArchiveBotResponse normalizeResponse(Response response);
+}
+
+/// Protocol implementation for the original EH-ArBot API.
+///
+/// - Auth: POST body field `apikey`
+/// - Base URL: configurable
+/// - Response format: `{ code, msg, data }`
+class EhArBotProtocol extends ArchiveBotProtocol {
+  const EhArBotProtocol(super.dio);
+
+  @override
+  ArchiveBotResponse normalizeResponse(Response response) {
+    return ArchiveBotResponse.fromJson(response.data);
+  }
+
+  @override
+  Future<ArchiveBotResponse> requestBalance({
+    required String apiAddress,
+    required String apiKey,
   }) async {
-    Response response = await _dio.post(
-      '${archiveBotSetting.useProxyServer.value ? ArchiveBotConsts.proxyServerAddress : apiAddress}/resolve',
+    Response response = await dio.post(
+      '$apiAddress/balance',
+      options: Options(contentType: Headers.jsonContentType),
+      data: {'apikey': apiKey},
+    );
+    return normalizeResponse(response);
+  }
+
+  @override
+  Future<ArchiveBotResponse> requestCheckIn({
+    required String apiAddress,
+    required String apiKey,
+  }) async {
+    Response response = await dio.post(
+      '$apiAddress/checkin',
+      options: Options(contentType: Headers.jsonContentType),
+      data: {'apikey': apiKey},
+    );
+    return normalizeResponse(response);
+  }
+
+  @override
+  Future<ArchiveBotResponse> requestResolve({
+    required String apiAddress,
+    required String apiKey,
+    required int gid,
+    required String token,
+    bool reParse = true,
+    CancelToken? cancelToken,
+  }) async {
+    Response response = await dio.post(
+      '$apiAddress/resolve',
       options: Options(contentType: Headers.jsonContentType),
       data: {
         'apikey': apiKey,
@@ -95,14 +174,89 @@ class ArchiveBotRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleB
       },
       cancelToken: cancelToken,
     );
+    return normalizeResponse(response);
+  }
+}
 
-    return _parseResponse(response, parser);
+/// Protocol implementation for the Archive-at-Home API.
+///
+/// - Auth: HTTP header `Authorization: Bearer <apiKey>`
+/// - Response format: direct business object on 200; `{ error: "..." }` on non-200
+class ArchiveAtHomeProtocol extends ArchiveBotProtocol {
+  const ArchiveAtHomeProtocol(super.dio);
+
+  Options _authOptions({Map<String, dynamic>? extraHeaders}) {
+    return Options(
+      contentType: Headers.jsonContentType,
+      validateStatus: (status) => true,
+      headers: {
+        'Authorization': 'Bearer ${archiveBotSetting.apiKey.value}',
+        if (extraHeaders != null) ...extraHeaders,
+      },
+    );
   }
 
-  Future<T> _parseResponse<T>(Response response, HtmlParser<T>? parser) async {
-    if (parser == null) {
-      return response as T;
+  @override
+  ArchiveBotResponse normalizeResponse(Response response) {
+    if (response.statusCode != 200) {
+      final dynamic body = response.data;
+      final String errorMsg = (body is Map && body['error'] != null) ? body['error'].toString() : 'internalError';
+      return ArchiveBotResponse(
+        code: response.statusCode ?? -1,
+        message: errorMsg,
+        data: const {},
+      );
     }
-    return isolateService.run((list) => parser(list[0], list[1]), [response.headers, response.data]);
+    return ArchiveBotResponse(
+      code: 0,
+      message: 'success',
+      data: Map<String, dynamic>.from(response.data as Map),
+    );
+  }
+
+  @override
+  Future<ArchiveBotResponse> requestBalance({
+    required String apiAddress,
+    required String apiKey,
+  }) async {
+    Response response = await dio.get(
+      '$apiAddress/api/v1/me/balance',
+      options: _authOptions(),
+    );
+    return normalizeResponse(response);
+  }
+
+  @override
+  Future<ArchiveBotResponse> requestCheckIn({
+    required String apiAddress,
+    required String apiKey,
+  }) async {
+    Response response = await dio.post(
+      '$apiAddress/api/v1/me/checkin',
+      options: _authOptions(),
+    );
+    return normalizeResponse(response);
+  }
+
+  @override
+  Future<ArchiveBotResponse> requestResolve({
+    required String apiAddress,
+    required String apiKey,
+    required int gid,
+    required String token,
+    bool reParse = true,
+    CancelToken? cancelToken,
+  }) async {
+    Response response = await dio.post(
+      '$apiAddress/api/v1/parse',
+      options: _authOptions(extraHeaders: {'X-Client': ArchiveBotConsts.archiveAtHomeXClient}),
+      data: {
+        'gallery_id': gid.toString(),
+        'gallery_key': token,
+        'force': reParse,
+      },
+      cancelToken: cancelToken,
+    );
+    return normalizeResponse(response);
   }
 }
