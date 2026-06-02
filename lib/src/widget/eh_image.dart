@@ -7,7 +7,6 @@ import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
-import 'package:jhentai/src/setting/network_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'dart:io' as io;
 
@@ -20,13 +19,13 @@ typedef PausedWidgetBuilder = Widget Function();
 typedef LoadingWidgetBuilder = Widget Function();
 typedef CompletedWidgetBuilder = Widget? Function(ExtendedImageState state);
 
-/// 创建自定义的 HttpClient，使用网络设置中的配置
+/// 创建自定义的 HttpClient，配置连接超时和最大连接数
 /// 用于解决图片加载假死问题
 io.HttpClient createImageHttpClient() {
   return io.HttpClient()
-    ..connectionTimeout = Duration(seconds: networkSetting.imageConnectionTimeout.value)
-    ..maxConnectionsPerHost = networkSetting.imageMaxConnectionsPerHost.value
-    ..idleTimeout = Duration(seconds: networkSetting.imageIdleTimeout.value);
+    ..connectionTimeout = const Duration(seconds: 15)
+    ..maxConnectionsPerHost = 4
+    ..idleTimeout = const Duration(seconds: 30);
 }
 
 class EHImage extends StatelessWidget {
