@@ -733,6 +733,7 @@ favnote：配對收藏備註
       'archiveBotSettings': '歸檔機器人設定',
       'archiveBotSettingsHint': '使用歸檔機器人免費獲取歸檔連結',
       'apiSetting': 'API設置',
+      'archiveBotProtocol': '協議',
       'apiAddress': '地址',
       'apiKey': 'Key',
       'apiKeyHint': '填寫您從 Telegram 機器人獲取的金鑰',

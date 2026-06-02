@@ -1,22 +1,16 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
-import 'package:jhentai/src/model/archive_bot_response/balance_vo.dart';
-import 'package:jhentai/src/model/archive_bot_response/check_in_vo.dart';
 import 'package:jhentai/src/network/archive_bot_request.dart';
 import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/setting/archive_bot_setting.dart';
-import 'package:jhentai/src/utils/archive_bot_response_parser.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/widget/eh_archive_bot_setting_dialog.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../../model/archive_bot_response/archive_bot_response.dart';
-import '../../../../setting/preference_setting.dart';
 
 class ArchiveBotSettingsPage extends StatefulWidget {
   const ArchiveBotSettingsPage({Key? key}) : super(key: key);
@@ -46,18 +40,7 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
       appBar: AppBar(
         centerTitle: true,
         title: Text('archiveBotSettings'.tr),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.help),
-            onPressed: () {
-              launchUrlString(
-                preferenceSetting.locale.value.languageCode == 'zh'
-                    ? 'https://github.com/jiangtian616/JHenTai/wiki/%E5%BD%92%E6%A1%A3%E6%9C%BA%E5%99%A8%E4%BA%BA%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95'
-                    : 'https://github.com/jiangtian616/JHenTai/wiki/Archive-Bot-Usage',
-              );
-            },
-          ),
-        ],
+        actions: const [],
       ),
       body: ListView(
         padding: const EdgeInsets.only(top: 16),
@@ -116,25 +99,13 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
     );
   }
 
-  Widget _buildUseProxyServer() {
-    return SwitchListTile(
-      title: Text('useProxyServer'.tr),
-      subtitle: Text('useProxyServerHint'.tr),
-      value: archiveBotSetting.useProxyServer.value,
-      onChanged: (bool value) async {
-        await archiveBotSetting.saveUseProxyServer(value);
-        setStateSafely(() {});
-      },
-    );
-  }
-
   Future<void> _showApiKeyDialog() async {
     bool? result = await showDialog(
       context: context,
       builder: (_) => EHArchiveBotSettingDialog(
-        apiAddress: archiveBotSetting.apiAddress.value,
+        botType: archiveBotSetting.botType.value,
+        apiAddress: archiveBotSetting.apiAddress.value!,
         apiKey: archiveBotSetting.apiKey.value,
-        useProxy: archiveBotSetting.useProxyServer.value,
       ),
     );
 
@@ -157,16 +128,16 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
 
     try {
       ArchiveBotResponse response = await archiveBotRequest.requestBalance(
-        apiAddress: archiveBotSetting.apiAddress.value,
+        botType: archiveBotSetting.botType.value,
+        apiAddress: archiveBotSetting.apiAddress.value!,
         apiKey: archiveBotSetting.apiKey.value!,
-        parser: ArchiveBotResponseParser.commonParse,
       );
       log.info('Check balance response: $response');
 
       if (response.isSuccess) {
         setStateSafely(() {
           _balanceState = LoadingState.success;
-          _balance.value = BalanceVO.fromResponse(response.data).gp;
+          _balance.value = archiveBotSetting.botType.value.parseBalance(response.data).gp;
         });
       } else {
         snack('checkBalanceFailed'.tr, response.errorMessage);
@@ -195,13 +166,13 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
 
     try {
       ArchiveBotResponse response = await archiveBotRequest.requestCheckIn(
-        apiAddress: archiveBotSetting.apiAddress.value,
+        botType: archiveBotSetting.botType.value,
+        apiAddress: archiveBotSetting.apiAddress.value!,
         apiKey: archiveBotSetting.apiKey.value!,
-        parser: ArchiveBotResponseParser.commonParse,
       );
       log.info('Checkin response: $response');
       if (response.isSuccess) {
-        CheckInVO checkInVO = CheckInVO.fromResponse(response.data);
+        final checkInVO = archiveBotSetting.botType.value.parseCheckIn(response.data);
         setStateSafely(() {
           _checkinState = LoadingState.success;
           _balance.value = checkInVO.currentGP;

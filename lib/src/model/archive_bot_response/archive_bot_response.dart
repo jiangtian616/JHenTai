@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:jhentai/src/utils/archive_bot_response_parser.dart';
 
 class ArchiveBotResponse {
   final int code;
@@ -23,5 +22,25 @@ class ArchiveBotResponse {
   @override
   String toString() {
     return 'ArchiveBotResponse{code: $code, message: $message, data: $data}';
+  }
+}
+
+enum ArchiveBotResponseCodeEnum {
+  invalidParam(1),
+  invalidApiKey(2),
+  banned(3),
+  fetchGalleryInfoFailed(4),
+  insufficientGP(5),
+  parseFailed(6),
+  checkedIn(7),
+  serverError(99),
+  ;
+
+  final int code;
+
+  const ArchiveBotResponseCodeEnum(this.code);
+
+  static ArchiveBotResponseCodeEnum? fromCode(int code) {
+    return ArchiveBotResponseCodeEnum.values.firstWhereOrNull((e) => e.code == code);
   }
 }

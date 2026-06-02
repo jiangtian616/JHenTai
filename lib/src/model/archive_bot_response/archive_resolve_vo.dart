@@ -3,9 +3,15 @@ class ArchiveResolveVO {
 
   ArchiveResolveVO({required this.url});
 
-  factory ArchiveResolveVO.fromResponse(Map<String, dynamic> json) {
+  factory ArchiveResolveVO.fromEhArBotResponse(Map<String, dynamic> json) {
     return ArchiveResolveVO(
-      url: json["archive_url"],
+      url: json['archive_url'],
+    );
+  }
+
+  factory ArchiveResolveVO.fromArchiveAtHomeResponse(Map<String, dynamic> json) {
+    return ArchiveResolveVO(
+      url: json['archive_url'],
     );
   }
 }
