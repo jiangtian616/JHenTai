@@ -26,12 +26,27 @@ class EHGestureDetector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      onLongPress: onLongPress,
-      onLongPressStart: onLongPressStart,
-      onLongPressMoveUpdate: onLongPressMoveUpdate,
-      onLongPressEnd: onLongPressEnd,
+    return RawGestureDetector(
+      gestures: <Type, GestureRecognizerFactory>{
+        TapGestureRecognizer: GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+          () => TapGestureRecognizer(),
+          (TapGestureRecognizer instance) {
+            instance.onTap = onTap;
+          },
+        ),
+        if (onLongPress != null || onLongPressStart != null)
+          LongPressGestureRecognizer: GestureRecognizerFactoryWithHandlers<LongPressGestureRecognizer>(
+            () => LongPressGestureRecognizer(
+              duration: Duration(milliseconds: advancedSetting.longPressDuration.value),
+            ),
+            (LongPressGestureRecognizer instance) {
+              instance.onLongPress = onLongPress;
+              instance.onLongPressStart = onLongPressStart;
+              instance.onLongPressMoveUpdate = onLongPressMoveUpdate;
+              instance.onLongPressEnd = onLongPressEnd;
+            },
+          ),
+      },
       behavior: behavior,
       child: child,
     );
