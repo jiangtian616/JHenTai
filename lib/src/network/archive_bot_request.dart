@@ -208,7 +208,7 @@ class ArchiveAtHomeProtocol extends ArchiveBotProtocol {
   }) async {
     Response response = await dio.get(
       '$apiAddress/api/v1/me/balance',
-      options: _authOptions(apiKey),
+      options: _authOptions(apiKey, extraHeaders: {'X-Client': ArchiveBotConsts.archiveAtHomeXClient}),
     );
     return normalizeResponse(response);
   }
@@ -220,7 +220,7 @@ class ArchiveAtHomeProtocol extends ArchiveBotProtocol {
   }) async {
     Response response = await dio.post(
       '$apiAddress/api/v1/me/checkin',
-      options: _authOptions(apiKey),
+      options: _authOptions(apiKey, extraHeaders: {'X-Client': ArchiveBotConsts.archiveAtHomeXClient}),
     );
     return normalizeResponse(response);
   }
