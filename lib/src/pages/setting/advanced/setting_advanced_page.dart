@@ -239,7 +239,6 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
               textAlign: TextAlign.center,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
-                IntRangeTextInputFormatter(minValue: 200),
               ],
             ),
           ),
@@ -247,8 +246,9 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
           IconButton(
             onPressed: () {
               int? value = int.tryParse(_longPressDurationController.value.text);
-              if (value == null) {
-                return;
+              if (value == null || value < 200) {
+                _longPressDurationController.text = '200';
+                value = 200;
               }
               advancedSetting.saveLongPressDuration(value);
               toast('saveSuccess'.tr);
