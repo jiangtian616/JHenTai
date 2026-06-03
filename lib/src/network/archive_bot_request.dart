@@ -198,7 +198,79 @@ class ArchiveAtHomeProtocol extends ArchiveBotProtocol {
 
   @override
   ArchiveBotResponse normalizeResponse(Response response) {
-    return ArchiveBotResponse.fromJson(response.data);
+    final dynamic body = response.data;
+    final int statusCode = response.statusCode ?? -1;
+
+    if (body is! Map) {
+      return ArchiveBotResponse(
+        code: ArchiveBotResponseCodeEnum.serverError.code,
+        message: 'internalError',
+        data: const {},
+      );
+    }
+
+    final Map<String, dynamic> data = Map<String, dynamic>.from(body as Map);
+
+    if (statusCode == 200) {
+      final String? error = data['error']?.toString();
+      if (error != null && error.isNotEmpty) {
+        return ArchiveBotResponse(
+          code: _inferErrorCode(error),
+          message: error,
+          data: const {},
+        );
+      }
+
+      final bool? checkinSuccess = data['success'] is bool ? data['success'] as bool : null;
+      if (checkinSuccess == false) {
+        final String msg = data['message']?.toString() ?? 'checkInFailed';
+        return ArchiveBotResponse(
+          code: ArchiveBotResponseCodeEnum.checkedIn.code,
+          message: msg,
+          data: const {},
+        );
+      }
+
+      return ArchiveBotResponse(
+        code: 0,
+        message: 'success',
+        data: data,
+      );
+    }
+
+    final String error = data['error']?.toString() ?? data['message']?.toString() ?? 'internalError';
+    if (statusCode == 401) {
+      return ArchiveBotResponse(
+        code: ArchiveBotResponseCodeEnum.invalidApiKey.code,
+        message: error,
+        data: const {},
+      );
+    }
+
+    return ArchiveBotResponse(
+      code: _inferErrorCode(error),
+      message: error,
+      data: const {},
+    );
+  }
+
+  int _inferErrorCode(String error) {
+    final String lowerError = error.toLowerCase();
+
+    if (lowerError.contains('invalid api key') ||
+        lowerError.contains('authorization') ||
+        lowerError.contains('unauthorized') ||
+        lowerError.contains('bearer')) {
+      return ArchiveBotResponseCodeEnum.invalidApiKey.code;
+    }
+    if (lowerError.contains('insufficient') || lowerError.contains('balance')) {
+      return ArchiveBotResponseCodeEnum.insufficientGP.code;
+    }
+    if (lowerError.contains('parse') || lowerError.contains('gallery')) {
+      return ArchiveBotResponseCodeEnum.parseFailed.code;
+    }
+
+    return ArchiveBotResponseCodeEnum.serverError.code;
   }
 
   @override
