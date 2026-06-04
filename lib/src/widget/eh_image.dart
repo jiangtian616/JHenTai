@@ -9,6 +9,7 @@ import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'dart:io' as io;
+import 'dart:ui' as ui;
 
 import '../service/gallery_download_service.dart';
 
@@ -40,6 +41,7 @@ class EHImage extends StatelessWidget {
   final PausedWidgetBuilder? pausedWidgetBuilder;
   final LoadingWidgetBuilder? loadingWidgetBuilder;
   final CompletedWidgetBuilder? completedWidgetBuilder;
+  final bool disableGifAnimation;
 
   const EHImage({
     Key? key,
@@ -56,6 +58,7 @@ class EHImage extends StatelessWidget {
     this.shadows,
     this.forceFadeIn = false,
     this.maxBytes,
+    this.disableGifAnimation = false,
     this.loadingProgressWidgetBuilder,
     this.failedWidgetBuilder,
     this.downloadingWidgetBuilder,
@@ -79,6 +82,7 @@ class EHImage extends StatelessWidget {
     this.shadows,
     this.forceFadeIn = false,
     this.maxBytes,
+    this.disableGifAnimation = false,
     this.loadingProgressWidgetBuilder,
     this.failedWidgetBuilder,
     this.downloadingWidgetBuilder,
@@ -175,6 +179,21 @@ class EHImage extends StatelessWidget {
       return downloadingWidgetBuilder?.call() ?? const Center(child: CircularProgressIndicator());
     }
 
+    if (disableGifAnimation && galleryImage.path!.toLowerCase().endsWith('.webp')) {
+      Widget image = Image(
+        image: _SingleFrameFileImage(io.File(GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(galleryImage.path!))),
+        fit: fit,
+        height: containerHeight,
+        width: containerWidth,
+        filterQuality: FilterQuality.medium,
+        errorBuilder: (context, error, stackTrace) =>
+            const Center(child: Icon(Icons.sentiment_very_dissatisfied)),
+      );
+      if (borderRadius != BorderRadius.zero) {
+        image = ClipRRect(borderRadius: borderRadius, child: image);
+      }
+      return image;
+    }
     return ExtendedImage.file(
       io.File(GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(galleryImage.path!)),
       fit: fit,
@@ -259,5 +278,40 @@ class EHImage extends StatelessWidget {
       scale: state.extendedImageInfo?.scale ?? 1.0,
       fit: fit,
     );
+  }
+}
+
+class _SingleFrameCodec implements ui.Codec {
+  final ui.Codec _inner;
+
+  _SingleFrameCodec(this._inner);
+
+  @override
+  int get frameCount => 1;
+
+  @override
+  int get repetitionCount => 0;
+
+  @override
+  Future<ui.FrameInfo> getNextFrame() => _inner.getNextFrame();
+
+  @override
+  void dispose() => _inner.dispose();
+}
+
+class _SingleFrameFileImage extends FileImage {
+  const _SingleFrameFileImage(super.file);
+
+  @override
+  ImageStreamCompleter loadImage(FileImage key, ImageDecoderCallback decode) {
+    Future<ui.Codec> wrappedDecode(ui.ImmutableBuffer buffer, {ui.TargetImageSizeCallback? getTargetSize}) async {
+      final ui.Codec codec = await decode(buffer, getTargetSize: getTargetSize);
+      if (codec.frameCount > 1) {
+        return _SingleFrameCodec(codec);
+      }
+      return codec;
+    }
+
+    return super.loadImage(key, wrappedDecode);
   }
 }

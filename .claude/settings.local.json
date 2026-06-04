@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//mnt/c/code/**)",
+      "Bash(flutter analyze *)",
+      "Bash(flutter --version)",
+      "Git",
+      "Flutter",
+      "Dart",
+      "Java",
+      "Mvn"
+    ]
+  }
+}
