@@ -61,11 +61,11 @@
       "versions": [
         {
           "version": "8.0.13",
-          "buildVersion": "",
-          "date": "2026-06-03T13:48:55Z",
-          "localizedDescription": "- 支持 [archive-at-home](https://t.me/ArchiveAtHome_bot)\\n\\n--------------------\\n\\n- Support [archive-at-home](https://t.me/ArchiveAtHome_bot)",
-          "downloadURL": "https://github.com/jiangtian616/JHenTai/releases/download/v8.0.13/JHenTai_8.0.13+311.ipa",
-          "size": 15744223
+          "buildVersion": "312",
+          "date": "2026-06-04T02:11:05Z",
+          "localizedDescription": "- 优化 [archive-at-home](https://t.me/ArchiveAtHome_bot)\\n\\n--------------------\\n\\n- Optimize [archive-at-home](https://t.me/ArchiveAtHome_bot)",
+          "downloadURL": "https://github.com/jiangtian616/JHenTai/releases/download/v8.0.13+312/JHenTai_8.0.13+312.ipa",
+          "size": 15744326
         }
       ]
     }
