@@ -383,7 +383,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
     return GetBuilder<srs.SuperResolutionService>(
       id: '${srs.SuperResolutionService.superResolutionId}::${gallery.gid}',
       builder: (_) {
-        srs.SuperResolutionInfo? superResolutionInfo = superResolutionService.get(gallery.gid, srs.SuperResolutionType.gallery);
+        srs.SuperResolutionInfo? superResolutionInfo = superResolutionService.getSync(gallery.gid, srs.SuperResolutionType.gallery);
 
         if (superResolutionInfo == null) {
           return const SizedBox();

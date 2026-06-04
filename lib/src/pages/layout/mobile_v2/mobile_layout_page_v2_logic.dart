@@ -39,6 +39,7 @@ class MobileLayoutPageV2Logic extends GetxController with DoubleTapToRefreshLogi
   void onClose() {
     super.onClose();
     hideBottomBarLister?.dispose();
+    simpleModeLister?.dispose();
     state.scrollController.dispose();
   }
 

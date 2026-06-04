@@ -44,6 +44,11 @@ class EHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late final EHIpProvider _ehIpProvider;
   late final String systemProxyAddress;
 
+  /// Workers that need disposal
+  late Worker _siteLister;
+  late Worker _connectTimeoutLister;
+  late Worker _receiveTimeoutLister;
+
   List<Cookie> get cookies => List.unmodifiable(_cookieManager.cookies);
 
   static const String domainFrontingExtraKey = 'JHDF';
@@ -72,19 +77,27 @@ class EHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
 
     _initTimeOutTranslator();
 
-    ever(ehSetting.site, (_) {
+    _siteLister = ever(ehSetting.site, (_) {
       _cookieManager.removeCookies(['sp']);
     });
-    ever(networkSetting.connectTimeout, (_) {
+    _connectTimeoutLister = ever(networkSetting.connectTimeout, (_) {
       setConnectTimeout(networkSetting.connectTimeout.value);
     });
-    ever(networkSetting.receiveTimeout, (_) {
+    _receiveTimeoutLister = ever(networkSetting.receiveTimeout, (_) {
       setReceiveTimeout(networkSetting.receiveTimeout.value);
     });
   }
 
   @override
   Future<void> doAfterBeanReady() async {}
+
+  @override
+  void doDisposeBean() {
+    _siteLister.dispose();
+    _connectTimeoutLister.dispose();
+    _receiveTimeoutLister.dispose();
+    _dio.close();
+  }
 
   Future<void> _initProxy() async {
     SocksProxy.initProxy(

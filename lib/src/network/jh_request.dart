@@ -15,6 +15,10 @@ JHRequest jhRequest = JHRequest();
 class JHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late final Dio _dio;
 
+  /// Workers that need disposal
+  late Worker _connectTimeoutLister;
+  late Worker _receiveTimeoutLister;
+
   @override
   List<JHLifeCircleBean> get initDependencies => super.initDependencies..add(ehRequest);
 
@@ -25,16 +29,23 @@ class JHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
       receiveTimeout: Duration(milliseconds: networkSetting.receiveTimeout.value),
     ));
 
-    ever(networkSetting.connectTimeout, (_) {
+    _connectTimeoutLister = ever(networkSetting.connectTimeout, (_) {
       setConnectTimeout(networkSetting.connectTimeout.value);
     });
-    ever(networkSetting.receiveTimeout, (_) {
+    _receiveTimeoutLister = ever(networkSetting.receiveTimeout, (_) {
       setReceiveTimeout(networkSetting.receiveTimeout.value);
     });
   }
 
   @override
   Future<void> doAfterBeanReady() async {}
+
+  @override
+  void doDisposeBean() {
+    _connectTimeoutLister.dispose();
+    _receiveTimeoutLister.dispose();
+    _dio.close();
+  }
 
   void setConnectTimeout(int connectTimeout) {
     _dio.options.connectTimeout = Duration(milliseconds: connectTimeout);
