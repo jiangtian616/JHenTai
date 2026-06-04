@@ -104,7 +104,7 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
       context: context,
       builder: (_) => EHArchiveBotSettingDialog(
         botType: archiveBotSetting.botType.value,
-        apiAddress: archiveBotSetting.apiAddress.value!,
+        apiAddress: archiveBotSetting.apiAddress.value,
         apiKey: archiveBotSetting.apiKey.value,
       ),
     );
