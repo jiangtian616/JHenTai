@@ -1,4 +1,4 @@
-import 'package:animate_do/animate_do.dart';
+﻿import 'package:animate_do/animate_do.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +9,7 @@ import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'dart:io' as io;
+
 import 'dart:ui' as ui;
 
 import '../service/gallery_download_service.dart';
@@ -179,30 +180,22 @@ class EHImage extends StatelessWidget {
       return downloadingWidgetBuilder?.call() ?? const Center(child: CircularProgressIndicator());
     }
 
-    if (disableGifAnimation && galleryImage.path!.toLowerCase().endsWith('.webp')) {
-      Widget image = Image(
-        image: _SingleFrameFileImage(io.File(GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(galleryImage.path!))),
-        fit: fit,
-        height: containerHeight,
-        width: containerWidth,
-        filterQuality: FilterQuality.medium,
-        errorBuilder: (context, error, stackTrace) =>
-            const Center(child: Icon(Icons.sentiment_very_dissatisfied)),
-      );
-      if (borderRadius != BorderRadius.zero) {
-        image = ClipRRect(borderRadius: borderRadius, child: image);
-      }
-      return image;
-    }
-    return ExtendedImage.file(
-      io.File(GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(galleryImage.path!)),
+    final io.File file = io.File(GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(galleryImage.path!));
+    final bool shouldRenderSingleFrame = disableGifAnimation && (galleryImage.path!.toLowerCase().endsWith('.webp') || galleryImage.path!.toLowerCase().endsWith('.gif'));
+
+    final ImageProvider provider = shouldRenderSingleFrame
+        ? _SingleFrameExtendedFileImageProvider(file)
+        : ExtendedFileImageProvider(file);
+
+    return ExtendedImage(
+      image: ExtendedResizeImage.resizeIfNeeded(provider: provider, maxBytes: maxBytes),
       fit: fit,
       height: containerHeight,
       width: containerWidth,
       enableLoadState: loadingWidgetBuilder != null || failedWidgetBuilder != null || completedWidgetBuilder != null,
       enableSlideOutPage: enableSlideOutPage,
       borderRadius: borderRadius,
-      shape: borderRadius != null ? BoxShape.rectangle : null,
+      shape: BoxShape.rectangle,
       clearMemoryCacheWhenDispose: clearMemoryCacheWhenDispose,
       loadStateChanged: (ExtendedImageState state) {
         switch (state.extendedImageLoadState) {
@@ -218,9 +211,7 @@ class EHImage extends StatelessWidget {
 
             Widget child = completedWidgetBuilder?.call(state) ?? _buildExtendedRawImage(state);
 
-            if (borderRadius != null) {
-              child = ClipRRect(child: child, borderRadius: borderRadius);
-            }
+            child = ClipRRect(child: child, borderRadius: borderRadius);
 
             if (state.slidePageState != null) {
               child = ExtendedImageSlidePageHandler(child: child, extendedImageSlidePageState: state.slidePageState);
@@ -236,7 +227,6 @@ class EHImage extends StatelessWidget {
             );
         }
       },
-      maxBytes: maxBytes,
       filterQuality: FilterQuality.medium,
     );
   }
@@ -299,19 +289,15 @@ class _SingleFrameCodec implements ui.Codec {
   void dispose() => _inner.dispose();
 }
 
-class _SingleFrameFileImage extends FileImage {
-  const _SingleFrameFileImage(super.file);
+class _SingleFrameExtendedFileImageProvider extends ExtendedFileImageProvider {
+  const _SingleFrameExtendedFileImageProvider(super.file);
 
   @override
-  ImageStreamCompleter loadImage(FileImage key, ImageDecoderCallback decode) {
-    Future<ui.Codec> wrappedDecode(ui.ImmutableBuffer buffer, {ui.TargetImageSizeCallback? getTargetSize}) async {
-      final ui.Codec codec = await decode(buffer, getTargetSize: getTargetSize);
-      if (codec.frameCount > 1) {
-        return _SingleFrameCodec(codec);
-      }
-      return codec;
+  Future<ui.Codec> instantiateImageCodec(Uint8List data, ImageDecoderCallback decode) async {
+    final ui.Codec codec = await super.instantiateImageCodec(data, decode);
+    if (codec.frameCount > 1) {
+      return _SingleFrameCodec(codec);
     }
-
-    return super.loadImage(key, wrappedDecode);
+    return codec;
   }
 }

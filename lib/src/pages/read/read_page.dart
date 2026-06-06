@@ -1,4 +1,4 @@
-import 'dart:math';
+﻿import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -393,7 +393,7 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (readSetting.showThumbnails.isTrue) _buildThumbnails(context),
+                if (readSetting.showThumbnails.isTrue) Offstage(offstage: !state.isMenuOpen, child: _buildThumbnails(context)),
                 _buildSlider(),
                 if (readSetting.enableBottomMenu.isTrue) _buildBottomAction(),
                 SizedBox(height: max(MediaQuery.of(context).viewPadding.bottom, UIConfig.readPageBottomSpacingHeight)),
