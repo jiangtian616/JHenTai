@@ -7,6 +7,7 @@ class IconTextButton extends StatelessWidget {
   final Widget text;
   final VoidCallback? onPressed;
   final VoidCallback? onLongPress;
+  final VoidCallback? onSecondaryTap;
 
   const IconTextButton({
     Key? key,
@@ -16,6 +17,7 @@ class IconTextButton extends StatelessWidget {
     required this.text,
     this.onPressed,
     this.onLongPress,
+    this.onSecondaryTap,
   }) : super(key: key);
 
   @override
@@ -25,6 +27,7 @@ class IconTextButton extends StatelessWidget {
       width: width,
       child: GestureDetector(
         onLongPress: onLongPress,
+        onSecondaryTap: onSecondaryTap,
         child: IconButton(
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
