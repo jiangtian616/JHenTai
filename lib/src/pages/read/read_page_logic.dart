@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -78,6 +78,7 @@ class ReadPageLogic extends GetxController {
   late Worker enableCustomBrightnessListener;
   late Worker customBrightnessListener;
   late Worker preloadListener;
+  late Worker enableBottomMenuListener;
 
   /// limit the rate of parsing to decrease the lagging of build
   final EHExecutor executor = EHExecutor(
@@ -174,6 +175,10 @@ class ReadPageLogic extends GetxController {
       applyCurrentBrightness();
     });
 
+    enableBottomMenuListener = ever(readSetting.enableBottomMenu, (_) {
+      updateSafely([topMenuId]);
+    });
+
     preloadListener = everAll(
       [readSetting.preloadPageCountLocal, readSetting.preloadPageCount, readSetting.preloadDistanceLocal, readSetting.preloadDistance],
       (_) => updateSafely([layoutId]),
@@ -199,6 +204,7 @@ class ReadPageLogic extends GetxController {
     enableCustomBrightnessListener.dispose();
     customBrightnessListener.dispose();
     preloadListener.dispose();
+    enableBottomMenuListener.dispose();
 
     restoreVolumeListener();
 

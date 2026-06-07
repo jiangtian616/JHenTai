@@ -32,6 +32,7 @@ import '../../widget/eh_thumbnail.dart';
 import '../../widget/eh_wheel_speed_controller_for_read_page.dart';
 import '../../widget/loading_state_indicator.dart';
 import '../home_page.dart';
+import '../setting/read/setting_read_page.dart';
 import 'layout/horizontal_double_column/horizontal_double_column_layout.dart';
 import 'layout/vertical_list/vertical_list_layout.dart';
 
@@ -140,7 +141,7 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
     Widget child = GetBuilder<ReadPageLogic>(
       id: logic.layoutId,
       builder: (_) {
-        return  LayoutBuilder(
+        return LayoutBuilder(
           builder: (context, constraints) {
             logic.clearImageContainerSized();
             state.displayRegionSize = Size(constraints.maxWidth, constraints.maxHeight);
@@ -352,13 +353,7 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
             if (readSetting.enableBottomMenu.isFalse)
               ElevatedButton(
                 child: const Icon(Icons.settings, color: UIConfig.readPageButtonColor),
-                onPressed: () {
-                  logic.restoreImmersiveMode();
-                  toRoute(Routes.settingRead, id: fullScreen)?.then((_) {
-                    logic.applyCurrentImmersiveMode();
-                    state.focusNode.requestFocus();
-                  });
-                },
+                onPressed: () => _openReadSetting(context),
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
                   padding: const EdgeInsets.all(0),
@@ -601,16 +596,58 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
                 ),
               ),
             ),
-            onTap: () {
-              logic.restoreImmersiveMode();
-              toRoute(Routes.settingRead, id: fullScreen)?.then((_) {
-                logic.applyCurrentImmersiveMode();
-                state.focusNode.requestFocus();
-              });
-            },
+            onTap: () => _openReadSetting(context),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _openReadSetting(BuildContext context) async {
+    if (GetPlatform.isDesktop) {
+      await _showReadSettingDrawer(context);
+    } else {
+      await _pushReadSettingPage();
+    }
+  }
+
+  Future<void> _pushReadSettingPage() async {
+    logic.restoreImmersiveMode();
+    toRoute(Routes.settingRead, id: fullScreen)?.then((_) {
+      logic.applyCurrentImmersiveMode();
+      state.focusNode.requestFocus();
+    });
+  }
+
+  Future<void> _showReadSettingDrawer(BuildContext context) async {
+    logic.restoreImmersiveMode();
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.4),
+      builder: (_) {
+        double width = MediaQuery.of(context).size.width * 0.55;
+        if (width < 360) {
+          width = 360;
+        }
+        if (width > 600) {
+          width = 600;
+        }
+        return Align(
+          alignment: Alignment.centerRight,
+          child: SizedBox(
+            width: width,
+            child: Material(
+              elevation: 16,
+              child: SettingReadPage(),
+            ),
+          ),
+        );
+      },
+    );
+
+    logic.applyCurrentImmersiveMode();
+    state.focusNode.requestFocus();
   }
 }
