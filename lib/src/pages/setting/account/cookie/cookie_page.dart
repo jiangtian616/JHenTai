@@ -64,7 +64,7 @@ class _CookiePageState extends State<CookiePage> {
                         ],
                       )
                     : null,
-                onTap: _copyAllCookies,
+                onTap: () => _copyCookie(cookie),
                 dense: true,
               ),
             )
@@ -73,8 +73,8 @@ class _CookiePageState extends State<CookiePage> {
     );
   }
 
-  Future<void> _copyAllCookies() async {
-    await FlutterClipboard.copy(CookieUtil.parse2String(ehRequest.cookies));
+  Future<void> _copyCookie(Cookie cookie) async {
+    await FlutterClipboard.copy(CookieUtil.parse2String([cookie]));
     toast('hasCopiedToClipboard'.tr);
   }
 
