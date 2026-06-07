@@ -71,6 +71,8 @@ class EHConsts {
 
   static const String EExchange = 'https://e-hentai.org/exchange.php?t=gp';
 
+  static const String EHathExchange = 'https://e-hentai.org/exchange.php?t=hath';
+
   static const String EH509ImageUrl = 'https://ehgt.org/g/509.gif';
 
   static const String EX509ImageUrl = 'https://exhentai.org/img/509.gif';

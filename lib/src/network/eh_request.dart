@@ -887,6 +887,12 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _parseResponse(response, parser);
   }
 
+  Future<T> requestHathPage<T>({HtmlParser<T>? parser}) async {
+    Response response = await _getWithErrorHandler(EHConsts.EHathExchange);
+
+    return _parseResponse(response, parser);
+  }
+
   Future<T> requestResetImageLimit<T>({HtmlParser<T>? parser}) async {
     Response response = await _postWithErrorHandler(
       EHConsts.EHome,

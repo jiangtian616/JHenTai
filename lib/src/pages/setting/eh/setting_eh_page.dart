@@ -39,6 +39,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
 
   String credit = '';
   String gp = '';
+  String hath = '';
   LoadingState assetsLoadingState = LoadingState.idle;
 
   @override
@@ -174,7 +175,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
         loadingWidgetBuilder: () => const Text(''),
         idleWidgetBuilder: () => const Text(''),
         errorWidgetSameWithIdle: true,
-        successWidgetBuilder: () => Text('GP: $gp    Credits: $credit').fadeIn(),
+        successWidgetBuilder: () => Text('GP: $gp    Credits: $credit    Hath: $hath').fadeIn(),
       ),
       onTap: getAssets,
       trailing: Row(
@@ -270,35 +271,42 @@ class _SettingEHPageState extends State<SettingEHPage> {
 
     log.debug('Get eh assets from exchange page');
 
-    Map<String, String> assets;
+    // Start both requests concurrently
+    Future<Map<String, String>> gpCreditFuture = ehRequest.requestExchangePage(parser: EHSpiderParser.exchangePage2Assets);
+    Future<String> hathFuture = ehRequest.requestHathPage(parser: EHSpiderParser.hathPage2Hath);
+
+    Map<String, String>? assets;
     try {
-      assets = await ehRequest.requestExchangePage(parser: EHSpiderParser.exchangePage2Assets);
+      assets = await gpCreditFuture;
     } on DioException catch (e) {
       log.error('Get eh assets failed', e.errorMsg);
-      snack('Get eh failed'.tr, e.errorMsg ?? '', isShort: false);
-      setStateSafely(() {
-        assetsLoadingState = LoadingState.error;
-      });
-      return;
     } on EHSiteException catch (e) {
       log.error('Get eh assets failed', e.message);
-      snack('Get eh assets failed'.tr, e.message, isShort: false);
-      setStateSafely(() {
-        assetsLoadingState = LoadingState.error;
-      });
-      return;
     } catch (e) {
       log.error('Get eh assets failed', e);
-      snack('Get eh assets failed'.tr, e.toString(), isShort: false);
-      setStateSafely(() {
-        assetsLoadingState = LoadingState.error;
-      });
-      return;
     }
 
     setStateSafely(() {
-      gp = assets['gp']!;
-      credit = assets['credit']!;
+      gp = assets?['gp'] ?? '-1';
+      credit = assets?['credit'] ?? '-1';
+    });
+
+    String? h;
+    try {
+      h = await hathFuture;
+    } on DioException catch (e) {
+      log.error('Get hath failed', e.errorMsg);
+    } on EHSiteException catch (e) {
+      log.error('Get hath failed', e.message);
+    } catch (e) {
+      log.error('Get hath failed', e);
+    }
+
+    setStateSafely(() {
+      hath = h ?? '-1';
+    });
+
+    setStateSafely(() {
       assetsLoadingState = LoadingState.success;
     });
   }
