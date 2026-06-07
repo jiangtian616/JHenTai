@@ -15,11 +15,14 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:retry/retry.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
+import 'dart:io';
 import '../../../exception/eh_site_exception.dart';
 import '../../../setting/eh_setting.dart';
 import '../../../service/log.dart';
 import '../../../utils/route_util.dart';
 import '../../../utils/snack_util.dart';
+
+import '../../../model/profile.dart';
 
 class SettingEHPage extends StatefulWidget {
   const SettingEHPage({Key? key}) : super(key: key);
@@ -42,11 +45,14 @@ class _SettingEHPageState extends State<SettingEHPage> {
   String hath = '';
   LoadingState assetsLoadingState = LoadingState.idle;
 
+  List<Profile> profiles = [];
+  LoadingState profileLoadingState = LoadingState.idle;
+
   @override
   void initState() {
     super.initState();
-
     fetchDataFromHomePage();
+    _loadProfile();
     getAssets();
   }
 
@@ -84,7 +90,10 @@ class _SettingEHPageState extends State<SettingEHPage> {
           'EH': Text('E-Hentai'),
           'EX': Text('EXHentai'),
         },
-        onValueChanged: (value) => ehSetting.saveSite(value ?? 'EH'),
+        onValueChanged: (value) {
+          ehSetting.saveSite(value ?? 'EH');
+          _loadProfile();
+        },
       ),
     );
   }
@@ -105,9 +114,38 @@ class _SettingEHPageState extends State<SettingEHPage> {
   Widget _buildProfile() {
     return ListTile(
       title: Text('profileSetting'.tr),
-      subtitle: Text('chooseProfileHint'.tr),
-      trailing: const Icon(Icons.keyboard_arrow_right),
-      onTap: () => toRoute(Routes.profile),
+      subtitle: Text('resetIfSwitchSite'.tr),
+      onTap: _loadProfile,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          LoadingStateIndicator(
+            useCupertinoIndicator: true,
+            loadingState: profileLoadingState,
+            indicatorRadius: 10,
+            idleWidgetBuilder: () => const SizedBox(),
+            errorWidgetSameWithIdle: true,
+            successWidgetBuilder: () {
+              int number = profiles.firstWhere((p) => p.selected).number;
+              return DropdownButton<int>(
+                value: number,
+                elevation: 4,
+                alignment: AlignmentDirectional.centerEnd,
+                onChanged: (int? newValue) {
+                  ehRequest.storeEHCookies([Cookie('sp', newValue?.toString() ?? '1')]);
+                  setStateSafely(() {
+                    for (Profile value in profiles) {
+                      value.selected = value.number == newValue;
+                    }
+                  });
+                },
+                items: profiles.map((p) => DropdownMenuItem(child: Text(p.name), value: p.number)).toList(),
+              );
+            },
+          ).marginOnly(right: 4),
+          const Icon(Icons.keyboard_arrow_right),
+        ],
+      ),
     );
   }
 
@@ -308,6 +346,51 @@ class _SettingEHPageState extends State<SettingEHPage> {
 
     setStateSafely(() {
       assetsLoadingState = LoadingState.success;
+    });
+  }
+
+  Future<void> _loadProfile() async {
+    if (profileLoadingState == LoadingState.loading) {
+      return;
+    }
+
+    setStateSafely(() {
+      profileLoadingState = LoadingState.loading;
+    });
+
+    log.debug('Load profile');
+
+    try {
+      var settings = await retry(
+        () => ehRequest.requestSettingPage(EHSpiderParser.settingPage2SiteSetting),
+        retryIf: (e) => e is DioException,
+        maxAttempts: 3,
+      );
+      profiles = settings.profiles;
+    } on DioException catch (e) {
+      log.error('Load profile fail', e.errorMsg);
+      snack('loadProfileFailed'.tr, e.errorMsg ?? '', isShort: false);
+      setStateSafely(() {
+        profileLoadingState = LoadingState.error;
+      });
+      return;
+    } on EHSiteException catch (e) {
+      log.error('Load profile fail', e.message);
+      snack('loadProfileFailed'.tr, e.message, isShort: false);
+      setStateSafely(() {
+        profileLoadingState = LoadingState.error;
+      });
+      return;
+    } catch (e) {
+      log.error('Load profile fail', e.toString());
+      setStateSafely(() {
+        profileLoadingState = LoadingState.error;
+      });
+      return;
+    }
+
+    setStateSafely(() {
+      profileLoadingState = LoadingState.success;
     });
   }
 
