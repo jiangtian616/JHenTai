@@ -27,7 +27,7 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   RxInt maximum = 2.obs;
   Rx<Duration> period = const Duration(seconds: 1).obs;
   RxBool downloadAllGallerysOfSamePriority = false.obs;
-  RxBool useJH2UpdateGallery = true.obs;
+  RxBool useJH2UpdateGallery = false.obs;
   RxInt archiveDownloadIsolateCount = 1.obs;
   RxBool manageArchiveDownloadConcurrency = true.obs;
   RxBool deleteArchiveFileAfterDownload = true.obs;
