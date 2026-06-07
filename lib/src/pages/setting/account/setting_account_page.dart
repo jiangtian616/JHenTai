@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import '../../../routes/routes.dart';
 import '../../../utils/route_util.dart';
-import '../../../widget/eh_log_out_dialog.dart';
+import '../../../network/eh_request.dart';
+import '../../../widget/eh_alert_dialog.dart';
 
 class SettingAccountPage extends StatelessWidget {
   const SettingAccountPage({Key? key}) : super(key: key);
@@ -40,11 +41,21 @@ class SettingAccountPage extends StatelessWidget {
   Widget _buildLogout(BuildContext context) {
     return ListTile(
       title: Text('${'youHaveLoggedInAs'.tr}${userSetting.nickName.value ?? userSetting.userName.value!}'),
-      onTap: () => Get.dialog(const LogoutDialog()),
+      onTap: () async {
+        bool? result = await Get.dialog(EHDialog(title: '${'logout'.tr} ?'));
+        if (result == true) {
+          await ehRequest.requestLogout();
+        }
+      },
       trailing: IconButton(
         icon: const Icon(Icons.logout),
         color: UIConfig.alertColor(context),
-        onPressed: () => Get.dialog(const LogoutDialog()),
+        onPressed: () async {
+          bool? result = await Get.dialog(EHDialog(title: '${'logout'.tr} ?'));
+          if (result == true) {
+            await ehRequest.requestLogout();
+          }
+        },
       ),
     );
   }

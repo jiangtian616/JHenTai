@@ -14,7 +14,8 @@ import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/widget/will_pop_interceptor.dart';
 import '../../../setting/preference_setting.dart';
-import '../../../widget/eh_log_out_dialog.dart';
+import '../../../network/eh_request.dart';
+import '../../../widget/eh_alert_dialog.dart';
 import 'notification/tap_tab_bat_button_notification.dart';
 
 class MobileLayoutPageV2 extends StatelessWidget {
@@ -163,12 +164,15 @@ class EHUserAvatar extends StatelessWidget {
             ),
           ),
           title: Text(userSetting.nickName.value ?? userSetting.userName.value ?? 'tap2Login'.tr),
-          onTap: () {
+          onTap: () async {
             if (!userSetting.hasLoggedIn()) {
               toRoute(Routes.login);
               return;
             }
-            Get.dialog(const LogoutDialog());
+            bool? result = await Get.dialog(const EHDialog(title: 'logout ?'));
+            if (result == true) {
+              await ehRequest.requestLogout();
+            }
           },
         ),
       ),
