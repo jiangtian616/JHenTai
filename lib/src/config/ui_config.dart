@@ -501,6 +501,8 @@ class UIConfig {
 
   static TextStyle settingPageListTileTrailingTextStyle(BuildContext context) => TextStyle(color: onBackGroundColor(context), fontSize: 14);
 
+  static TextStyle settingPageListTileTrailingTextDisabledStyle(BuildContext context) => TextStyle(color: Theme.of(context).disabledColor, fontSize: 14);
+
   /// Group selector
   static const double groupSelectorHeight = 116;
   static const double groupSelectorWidth = 230;
