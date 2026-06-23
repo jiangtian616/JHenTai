@@ -2,7 +2,7 @@ name: jhentai
 description: A flutter app for E-Hentai/EXHentai
 
 publish_to: 'none'
-version: 8.0.13+314
+version: 8.0.13+315
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -95,6 +95,12 @@ dependencies:
     git: 
       url: https://github.com/jiangtian616/system_network_proxy
       path: system_network_proxy
+      ref: 6b02ba0
+  system_network_proxy_linux:
+    git:
+      url: https://github.com/jiangtian616/system_network_proxy
+      path: system_network_proxy_linux
+      ref: 6b02ba0
   http_proxy: 
     git: https://github.com/jiangtian616/http_proxy
   flutter_socks_proxy:
@@ -135,6 +141,12 @@ dependency_overrides:
       path: dio
       ref: append-mode
   collection: 1.19.0
+  system_network_proxy_linux:
+    git:
+      url: https://github.com/jiangtian616/system_network_proxy
+      path: system_network_proxy_linux
+      ref: 6b02ba0
+  
     
 dev_dependencies:
   flutter_test:

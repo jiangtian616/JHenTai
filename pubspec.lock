@@ -1687,18 +1687,19 @@ packages:
     dependency: "direct main"
     description:
       path: system_network_proxy
-      ref: HEAD
-      resolved-ref: "10d02b4e7097622cd24ba0b537ee7ecb6a85a538"
+      ref: "6b02ba0"
+      resolved-ref: "6b02ba0fc91e90ba102dca3374747b091e719987"
       url: "https://github.com/jiangtian616/system_network_proxy"
     source: git
     version: "1.0.2"
   system_network_proxy_linux:
-    dependency: transitive
+    dependency: "direct main"
     description:
-      name: system_network_proxy_linux
-      sha256: "34b4a9dbea76bcde366c6093c41d348c688d4fb16daba9a4b034a9d2b1b47ac9"
-      url: "https://pub.dev"
-    source: hosted
+      path: system_network_proxy_linux
+      ref: "6b02ba0"
+      resolved-ref: "6b02ba0fc91e90ba102dca3374747b091e719987"
+      url: "https://github.com/jiangtian616/system_network_proxy"
+    source: git
     version: "1.0.2"
   system_network_proxy_macos:
     dependency: transitive
