@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
+
 import 'package:clipboard/clipboard.dart';
 import 'package:dio/dio.dart';
 import 'package:extended_image/extended_image.dart';
@@ -28,7 +30,6 @@ import 'package:saver_gallery/saver_gallery.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../../exception/eh_image_exception.dart';
 import '../../../../model/gallery_image.dart';
-import '../../../../service/path_service.dart';
 import '../../../../setting/read_setting.dart';
 import '../../../../service/log.dart';
 import '../../../../utils/route_util.dart';
@@ -161,6 +162,57 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     );
   }
 
+  Future<void> showOnlineContextMenuAtPosition({
+    required int index,
+    required BuildContext context,
+    required Offset position,
+  }) async {
+    final selected = await showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        position.dx,
+        position.dy,
+        position.dx,
+        position.dy,
+      ),
+      items: [
+        PopupMenuItem(
+          value: 'reload',
+          child: Text('reload'.tr),
+        ),
+        PopupMenuItem(
+          value: 'share',
+          child: Text('share'.tr),
+        ),
+        PopupMenuItem(
+          value: 'save',
+          child: Text('${'save'.tr}(${'resampleImage'.tr})'),
+        ),
+        if (readPageState.images[index]!.originalImageUrl != null &&
+            userSetting.hasLoggedIn())
+          PopupMenuItem(
+            value: 'save_original',
+            child: Text('${'save'.tr}(${'originalImage'.tr})'),
+          ),
+      ],
+    );
+
+    switch (selected) {
+      case 'reload':
+        readPageLogic.reloadImage(index);
+        break;
+      case 'share':
+        shareOnlineImage(index);
+        break;
+      case 'save':
+        await saveOnlineImage(index);
+        break;
+      case 'save_original':
+        await saveOriginalOnlineImage(index);
+        break;
+    }
+  }
+
   void showBottomMenuInLocalMode(int index, BuildContext context) {
     if (galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]?.images[index]?.downloadStatus != DownloadStatus.downloaded) {
       return;
@@ -195,6 +247,59 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
         cancelButton: CupertinoActionSheetAction(child: Text('cancel'.tr), onPressed: backRoute),
       ),
     );
+  }
+
+  Future<void> showLocalContextMenuAtPosition({
+    required int index,
+    required BuildContext context,
+    required Offset position,
+  }) async {
+    if (galleryDownloadService.galleryDownloadInfos[
+                readPageState.readPageInfo.gid]
+            ?.images[index]
+            ?.downloadStatus !=
+        DownloadStatus.downloaded) {
+      return;
+    }
+
+    final selected = await showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        position.dx,
+        position.dy,
+        position.dx,
+        position.dy,
+      ),
+      items: [
+        PopupMenuItem(
+          value: 'share',
+          child: Text('share'.tr),
+        ),
+        PopupMenuItem(
+          value: 'save',
+          child: Text('save'.tr),
+        ),
+        PopupMenuItem(
+          value: 'redownload',
+          child: Text('reDownload'.tr),
+        ),
+      ],
+    );
+
+    switch (selected) {
+      case 'share':
+        shareLocalImage(index);
+        break;
+      case 'save':
+        saveLocalImage(index);
+        break;
+      case 'redownload':
+        galleryDownloadService.reDownloadImage(
+          readPageState.readPageInfo.gid!,
+          index,
+        );
+        break;
+    }
   }
 
   void shareOnlineImage(int index) async {

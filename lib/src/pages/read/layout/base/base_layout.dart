@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../../../config/ui_config.dart';
@@ -156,8 +157,25 @@ abstract class BaseLayout extends StatelessWidget {
 
   Widget _buildOnlineImage(BuildContext context, int index) {
     return GestureDetector(
-      onLongPress: () => logic.showBottomMenuInOnlineMode(index, context),
-      onSecondaryTap: () => logic.showBottomMenuInOnlineMode(index, context),
+      onLongPressStart: (details) {
+        if (styleSetting.isInDesktopLayout) {
+          logic.showOnlineContextMenuAtPosition(
+            index: index,
+            context: context,
+            position: details.globalPosition,
+          );
+        } else {
+          logic.showBottomMenuInOnlineMode(index, context);
+        }
+      },
+
+      onSecondaryTapDown: (details) {
+        logic.showOnlineContextMenuAtPosition(
+          index: index,
+          context: context,
+          position: details.globalPosition,
+        );
+      },
       child: EHImage(
         galleryImage: readPageState.images[index]!,
         containerWidth: logic.readPageState.imageContainerSizes[index]?.width ?? logic.getPlaceHolderSize(index).width,
@@ -258,8 +276,25 @@ abstract class BaseLayout extends StatelessWidget {
         }
 
         return GestureDetector(
-          onLongPress: () => logic.showBottomMenuInLocalMode(index, context),
-          onSecondaryTap: () => logic.showBottomMenuInLocalMode(index, context),
+          onLongPressStart: (details) {
+            if (styleSetting.isInDesktopLayout) {
+              logic.showLocalContextMenuAtPosition(
+                index: index,
+                context: context,
+                position: details.globalPosition,
+              );
+            } else {
+              logic.showBottomMenuInLocalMode(index, context);
+            }
+          },
+
+          onSecondaryTapDown: (details) {
+            logic.showLocalContextMenuAtPosition(
+              index: index,
+              context: context,
+              position: details.globalPosition,
+            );
+          },
           child: EHImage(
             galleryImage: readPageState.images[index]!.copyWith(
               path: superResolutionService.computeImageOutputRelativePath(readPageState.images[index]!.path!),
@@ -318,8 +353,25 @@ abstract class BaseLayout extends StatelessWidget {
 
   Widget _buildLocalImage(BuildContext context, int index) {
     return GestureDetector(
-      onLongPress: () => logic.showBottomMenuInLocalMode(index, context),
-      onSecondaryTap: () => logic.showBottomMenuInLocalMode(index, context),
+      onLongPressStart: (details) {
+        if (styleSetting.isInDesktopLayout) {
+          logic.showLocalContextMenuAtPosition(
+            index: index,
+            context: context,
+            position: details.globalPosition,
+          );
+        } else {
+          logic.showBottomMenuInLocalMode(index, context);
+        }
+      },
+
+      onSecondaryTapDown: (details) {
+        logic.showLocalContextMenuAtPosition(
+          index: index,
+          context: context,
+          position: details.globalPosition,
+        );
+      },
       child: EHImage(
         galleryImage: readPageState.images[index]!,
         containerWidth: logic.readPageState.imageContainerSizes[index]?.width ?? logic.getPlaceHolderSize(index).width,
