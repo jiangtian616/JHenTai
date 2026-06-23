@@ -24,8 +24,7 @@ jobs:
             artifact_name: release-Android
             artifact_path: build/app/outputs/apk/release/*.apk
           - target: Windows
-            os: windows-latest
-            artifact_name: release-Windows
+            os: windows-2022
             artifact_path: build/windows/*.zip
           - target: Linux-x64-deb
             os: ubuntu-22.04
