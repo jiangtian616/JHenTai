@@ -26,6 +26,7 @@ jobs:
           - target: Windows
             os: windows-2022
             artifact_path: build/windows/*.zip
+            artifact_name: release-Windows
           - target: Linux-x64-deb
             os: ubuntu-22.04
             artifact_name: release-Linux-x64-deb
