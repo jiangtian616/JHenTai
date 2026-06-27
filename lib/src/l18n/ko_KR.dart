@@ -225,6 +225,7 @@ class ko_KR {
       'toggleMenu': '토글 메뉴',
       'share': '공유',
       'save': '사진으로 저장',
+      'copyEHPageUrl': 'E-hentai 페이지 URL 복사',
 
       /// setting page
       'account': '계정',

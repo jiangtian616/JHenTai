@@ -16,6 +16,7 @@ import 'package:get/get_navigation/get_navigation.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:get/get_utils/get_utils.dart';
+import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
@@ -142,6 +143,13 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
             },
           ),
           CupertinoActionSheetAction(
+            child: Text('copyEHPageUrl'.tr),
+            onPressed: () async {
+              backRoute();
+              copyEHPageUrl(index);
+            },
+          ),
+          CupertinoActionSheetAction(
             child: Text('${'save'.tr}(${'resampleImage'.tr})'),
             onPressed: () async {
               backRoute();
@@ -185,11 +193,14 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
           child: Text('share'.tr),
         ),
         PopupMenuItem(
+          value: 'copy_eh_page_url',
+          child: Text('copyEHPageUrl'.tr),
+        ),
+        PopupMenuItem(
           value: 'save',
           child: Text('${'save'.tr}(${'resampleImage'.tr})'),
         ),
-        if (readPageState.images[index]!.originalImageUrl != null &&
-            userSetting.hasLoggedIn())
+        if (readPageState.images[index]!.originalImageUrl != null && userSetting.hasLoggedIn())
           PopupMenuItem(
             value: 'save_original',
             child: Text('${'save'.tr}(${'originalImage'.tr})'),
@@ -203,6 +214,9 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
         break;
       case 'share':
         shareOnlineImage(index);
+        break;
+      case 'copy_eh_page_url':
+        copyEHPageUrl(index);
         break;
       case 'save':
         await saveOnlineImage(index);
@@ -230,6 +244,13 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
             },
           ),
           CupertinoActionSheetAction(
+            child: Text('copyEHPageUrl'.tr),
+            onPressed: () async {
+              backRoute();
+              copyEHPageUrl(index);
+            },
+          ),
+          CupertinoActionSheetAction(
             child: Text('save'.tr),
             onPressed: () {
               backRoute();
@@ -254,11 +275,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     required BuildContext context,
     required Offset position,
   }) async {
-    if (galleryDownloadService.galleryDownloadInfos[
-                readPageState.readPageInfo.gid]
-            ?.images[index]
-            ?.downloadStatus !=
-        DownloadStatus.downloaded) {
+    if (galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]?.images[index]?.downloadStatus != DownloadStatus.downloaded) {
       return;
     }
 
@@ -276,6 +293,10 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
           child: Text('share'.tr),
         ),
         PopupMenuItem(
+          value: 'copy_eh_page_url',
+          child: Text('copyEHPageUrl'.tr),
+        ),
+        PopupMenuItem(
           value: 'save',
           child: Text('save'.tr),
         ),
@@ -289,6 +310,9 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     switch (selected) {
       case 'share':
         shareLocalImage(index);
+        break;
+      case 'copy_eh_page_url':
+        copyEHPageUrl(index);
         break;
       case 'save':
         saveLocalImage(index);
@@ -323,7 +347,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     if (isEmptyOrNull(ext)) {
       ext = basename(readPageState.images[index]!.url);
     }
-    
+
     String fileName = '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index$ext';
 
     Share.shareXFiles(
@@ -411,9 +435,8 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     if (isEmptyOrNull(ext)) {
       ext = basename(readPageState.images[index]!.originalImageUrl!);
     }
-    
-    String fileName =
-        '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_${index}_original$ext';
+
+    String fileName = '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_${index}_original$ext';
     String downloadPath = join(downloadSetting.tempDownloadPath.value, fileName);
     File file = File(downloadPath);
 
@@ -488,6 +511,26 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     } else {
       _saveFile2Album(filePath, fileName).then((_) => toast('success'.tr));
     }
+  }
+
+  void copyEHPageUrl(int index) {
+    String? pageUrl;
+
+    if (readPageState.thumbnails[index] != null) {
+      pageUrl = readPageState.thumbnails[index]!.replacedMPVHref(index + 1);
+    }
+
+    if (pageUrl == null && readPageState.images[index]?.imageHash != null && readPageState.readPageInfo.gid != null) {
+      bool isEX = readPageState.readPageInfo.galleryUrl?.contains(EHConsts.EXIndex) == true;
+      pageUrl = (isEX ? EHConsts.EXIndex : EHConsts.EHIndex) + '/s/${readPageState.images[index]!.imageHash}/${readPageState.readPageInfo.gid}-${index + 1}';
+    }
+
+    if (pageUrl == null) {
+      toast('failed'.tr);
+      return;
+    }
+
+    FlutterClipboard.copy(pageUrl).then((_) => toast('hasCopiedToClipboard'.tr));
   }
 
   /// Compute image container size when we haven't parsed image's size

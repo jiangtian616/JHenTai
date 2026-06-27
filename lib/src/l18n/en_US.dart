@@ -225,6 +225,7 @@ class en_US {
       'toggleMenu': 'Toggle menu',
       'share': 'Share',
       'save': 'Save to Pictures',
+      'copyEHPageUrl': 'Copy E-Hentai Page URL',
 
       /// setting page
       'account': 'Account',

@@ -224,6 +224,7 @@ class zh_TW {
       'toggleMenu': '顯示/隱藏選單',
       'share': '分享',
       'save': '儲存至相簿',
+      'copyEHPageUrl': '複製E站頁面鏈接',
 
       /// setting page
       'account': '帳戶',
