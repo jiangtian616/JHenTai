@@ -27,6 +27,7 @@ class zh_TW {
       'stop': '停止',
       'attention': '注意',
       'jump': '跳轉',
+      'resetReadProgress': '重置閱讀進度',
       'deleteAll': '刪除全部',
       'connectionTimeoutHint': '建立網路連線超時',
       'receiveDataTimeoutHint': '接收網路資料超時',

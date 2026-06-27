@@ -41,6 +41,16 @@ class ReadProgressService extends GetxController with JHLifeCircleBeanErrorCatch
     return progress;
   }
 
+  /// Delete read progress for a gallery and notify listeners
+  Future<void> deleteReadProgress(String recordKey) async {
+    _progressCache.remove(recordKey);
+    await localConfigService.delete(
+      configKey: ConfigEnum.readIndexRecord,
+      subConfigKey: recordKey,
+    );
+    updateSafely(['$readProgressUpdateId::$recordKey']);
+  }
+
   /// Update read progress and notify listeners
   Future<void> updateReadProgress(String recordKey, int index) async {
     _progressCache[recordKey] = index;

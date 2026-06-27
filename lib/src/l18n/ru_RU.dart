@@ -27,6 +27,7 @@ class ru_RU {
       'stop': 'Остановить',
       'attention': 'Внимание',
       'jump': 'Перейти',
+      'resetReadProgress': 'Reset Read Progress',
       'deleteAll': 'Удалить все',
       'connectionTimeoutHint': 'Тайм-аут подключения к сети',
       'receiveDataTimeoutHint': 'Тайм-аут получения данных',

@@ -27,6 +27,7 @@ class zh_CN {
       'stop': '停止',
       'attention': '注意',
       'jump': '跳转',
+      'resetReadProgress': '重置阅读进度',
       'deleteAll': '删除全部',
       'connectionTimeoutHint': '建立网络连接超时',
       'receiveDataTimeoutHint': '网络接收数据超时',

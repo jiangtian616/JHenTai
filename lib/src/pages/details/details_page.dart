@@ -157,6 +157,13 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                           children: [Text('block'.tr), const Icon(Icons.block)],
                         ),
                       ),
+                    PopupMenuItem(
+                      value: 6,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [Text('resetReadProgress'.tr), const Icon(Icons.restore)],
+                      ),
+                    ),
                   ];
                 },
                 onSelected: (value) {
@@ -181,6 +188,9 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                   }
                   if (value == 5) {
                     logic.blockGallery();
+                  }
+                  if (value == 6) {
+                    logic.handleResetReadProgress();
                   }
                 },
               );

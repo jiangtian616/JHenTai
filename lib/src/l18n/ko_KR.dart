@@ -27,6 +27,7 @@ class ko_KR {
       'stop': '멈춤',
       'attention': '경고',
       'jump': 'Jump',
+      'resetReadProgress': 'Reset Read Progress',
       'deleteAll': 'Delete All',
       'connectionTimeoutHint': 'Network connect timeout',
       'receiveDataTimeoutHint': 'Network receive data timeout',

@@ -27,6 +27,7 @@ class en_US {
       'stop': 'Stop',
       'attention': 'Attention',
       'jump': 'Jump',
+      'resetReadProgress': 'Reset Read Progress',
       'deleteAll': 'Delete All',
       'connectionTimeoutHint': 'Network connect timeout',
       'receiveDataTimeoutHint': 'Network receive data timeout',
