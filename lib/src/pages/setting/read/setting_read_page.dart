@@ -4,11 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
+import 'package:jhentai/src/service/read_progress_service.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 
 import '../../../service/log.dart';
 import '../../../utils/text_input_formatter.dart';
 import '../../../utils/toast_util.dart';
+import '../../../widget/eh_alert_dialog.dart';
 
 class SettingReadPage extends StatelessWidget {
   final TextEditingController imageRegionWidthRatioController = TextEditingController(text: readSetting.imageRegionWidthRatio.value.toString());
@@ -57,6 +59,7 @@ class SettingReadPage extends StatelessWidget {
               if (readSetting.isInListReadDirection) _buildAutoModeStyle().fadeIn(const Key('autoModeStyle')).center(),
               if (readSetting.isInListReadDirection) _buildTurnPageMode().fadeIn(const Key('turnPageMode')).center(),
               _buildImageSpace().center(),
+              _buildResetReadProgress().center(),
             ],
           ).withListTileTheme(context),
         ),
@@ -162,6 +165,26 @@ class SettingReadPage extends StatelessWidget {
         ],
       ),
     ).marginOnly(right: 12);
+  }
+
+  Widget _buildResetReadProgress() {
+    return ListTile(
+      title: Text('resetReadProgress'.tr),
+      trailing: const Icon(Icons.restart_alt),
+      onTap: _handleResetReadProgress,
+    );
+  }
+
+  Future<void> _handleResetReadProgress() async {
+    bool? result = await Get.dialog(
+      EHDialog(title: '${'resetReadProgress'.tr}?'),
+    );
+    if (result != true) {
+      return;
+    }
+
+    await readProgressService.clearAllReadProgress();
+    toast('clearSuccess'.tr);
   }
 
   Widget _buildShowStatusInfo() {

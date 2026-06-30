@@ -34,8 +34,11 @@ class en_US {
       'receiveDataTimeoutHint': 'Network receive data timeout',
       'archiveError': 'Download Archive Error',
       'edit': 'Edit',
+      'opened': 'Opened',
 
       'home': "Home",
+      'localSearch': "Local Search",
+      'inputKeyword2Search': "Input keyword to search",
       'gallery': "Gallery",
       'setting': 'Setting',
 
@@ -462,6 +465,7 @@ class en_US {
       'keepScreenAwakeWhenReading': 'Keep Screen Awake When Reading',
       'enableCustomReadBrightness': 'Enable Custom Brightness When Reading',
       'spaceBetweenImages': 'Space Between Images',
+      'resetReadProgress': 'Reset Read Progress',
       'enableImmersiveHint': 'Hide System Bar',
       'enableImmersiveHint4Windows': 'Hide Title Bar',
       'deviceOrientation': 'Device Orientation',
@@ -540,6 +544,7 @@ class en_US {
 
       /// download page
       'local': 'Local',
+      'downloadCategory': 'Download Category',
       'reDownload': 'Re-Download',
       'delete': 'Delete',
       'deleteTask': 'Delete Task Only',

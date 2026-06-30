@@ -23,6 +23,7 @@ import '../../../../utils/date_util.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../widget/eh_gallery_category_tag.dart';
 import '../../../../widget/eh_image.dart';
+import '../../../../widget/read_progress_badge.dart';
 import '../../../details/details_page_logic.dart';
 import '../../../layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import '../../download_base_page.dart';
@@ -250,13 +251,29 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
         Routes.details,
         arguments: DetailsPageArgument(galleryUrl: GalleryUrl.parse(archive.galleryUrl)),
       ),
-      child: EHImage(
-        galleryImage: GalleryImage(url: archive.coverUrl),
-        containerWidth: UIConfig.downloadPageCoverWidth,
-        containerHeight: UIConfig.downloadPageCoverHeight,
-        borderRadius: BorderRadius.circular(UIConfig.downloadPageCardBorderRadius),
-        fit: BoxFit.fitWidth,
-        maxBytes: 2 * 1024 * 1024,
+      child: SizedBox(
+        width: UIConfig.downloadPageCoverWidth,
+        height: UIConfig.downloadPageCoverHeight,
+        child: Stack(
+          children: [
+            EHImage(
+              galleryImage: GalleryImage(url: archive.coverUrl),
+              containerWidth: UIConfig.downloadPageCoverWidth,
+              containerHeight: UIConfig.downloadPageCoverHeight,
+              borderRadius: BorderRadius.circular(UIConfig.downloadPageCardBorderRadius),
+              fit: BoxFit.fitWidth,
+              maxBytes: 2 * 1024 * 1024,
+            ),
+            Positioned(
+              top: 4,
+              right: 4,
+              child: ReadProgressBadge(
+                recordKey: archive.gid.toString(),
+                pageCount: archive.pageCount,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

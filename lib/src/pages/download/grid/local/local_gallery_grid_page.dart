@@ -93,6 +93,8 @@ class LocalGalleryGridPage extends StatelessWidget with Scroll2TopPageMixin, Gri
       widget: buildGalleryImage(gallery.cover),
       parseFromBot: false,
       isOriginal: false,
+      readProgressRecordKey: gallery.cover.path,
+      pageCount: gallery.pageCount,
       onTapWidget: () => logic.goToReadPage(gallery),
       onTapTitle: () => logic.goToReadPage(gallery),
       onLongPress: () => logic.showBottomSheet(gallery, context),

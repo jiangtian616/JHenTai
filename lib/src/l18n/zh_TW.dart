@@ -34,6 +34,7 @@ class zh_TW {
       'receiveDataTimeoutHint': '接收網路資料超時',
       'archiveError': '下載歸檔錯誤',
       'edit': '編輯',
+      'opened': '已開啟',
 
       'home': "首頁",
       'gallery': "畫廊",
@@ -462,6 +463,7 @@ class zh_TW {
       'keepScreenAwakeWhenReading': '閱讀時螢幕不自動鎖定',
       'enableCustomReadBrightness': '閱讀頁自訂亮度',
       'spaceBetweenImages': '圖片間隔',
+      'resetReadProgress': '重設閱讀進度',
       'enableImmersiveHint': '隱藏系統狀態欄和底部導航欄',
       'enableImmersiveHint4Windows': '隱藏頂部標題欄',
       'deviceOrientation': '螢幕方向',
@@ -540,6 +542,7 @@ class zh_TW {
 
       /// download page
       'local': '本機',
+      'downloadCategory': '下載分類',
       'delete': '刪除',
       'deleteTask': '僅刪除任務',
       'deleteTaskAndImages': '刪除任務和圖片',

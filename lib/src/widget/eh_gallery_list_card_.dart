@@ -18,7 +18,8 @@ import '../utils/date_util.dart';
 import 'eh_image.dart';
 import 'eh_tag.dart';
 import 'eh_gallery_category_tag.dart';
-import '../service/read_progress_service.dart';
+import 'gallery_visited_badge.dart';
+import 'read_progress_badge.dart';
 
 typedef CardCallback = FutureOr<void> Function(Gallery gallery);
 
@@ -30,6 +31,7 @@ class EHGalleryListCard extends StatelessWidget {
   final CardCallback? handleLongPressCard;
   final CardCallback? handleSecondaryTapCard;
   final bool withTags;
+  final bool showVisitedBadge;
 
   const EHGalleryListCard({
     Key? key,
@@ -38,6 +40,7 @@ class EHGalleryListCard extends StatelessWidget {
     required this.listMode,
     required this.handleTapCard,
     this.withTags = true,
+    this.showVisitedBadge = false,
     this.handleLongPressCard,
     this.handleSecondaryTapCard,
   }) : super(key: key);
@@ -116,13 +119,37 @@ class EHGalleryListCard extends StatelessWidget {
   }
 
   Widget buildGalleryCardCover(BuildContext context) {
-    return EHImage(
-      galleryImage: gallery.cover,
-      containerColor: UIConfig.galleryCardBackGroundColor(context),
-      containerHeight: withTags ? UIConfig.galleryCardHeight : UIConfig.galleryCardHeightWithoutTags,
-      containerWidth: withTags ? UIConfig.galleryCardCoverWidth : UIConfig.galleryCardCoverWidthWithoutTags,
-      heroTag: gallery.blockedByLocalRules ? null : gallery.cover,
-      fit: BoxFit.fitWidth,
+    final height = withTags ? UIConfig.galleryCardHeight : UIConfig.galleryCardHeightWithoutTags;
+    final width = withTags ? UIConfig.galleryCardCoverWidth : UIConfig.galleryCardCoverWidthWithoutTags;
+
+    return SizedBox(
+      width: width,
+      height: height,
+      child: Stack(
+        children: [
+          EHImage(
+            galleryImage: gallery.cover,
+            containerColor: UIConfig.galleryCardBackGroundColor(context),
+            containerHeight: height,
+            containerWidth: width,
+            heroTag: gallery.blockedByLocalRules ? null : gallery.cover,
+            fit: BoxFit.fitWidth,
+          ),
+          Positioned(
+            top: 4,
+            left: 4,
+            child: showVisitedBadge ? GalleryVisitedBadge(gid: gallery.gid) : const SizedBox.shrink(),
+          ),
+          Positioned(
+            top: 4,
+            right: 4,
+            child: ReadProgressBadge(
+              recordKey: gallery.gid.toString(),
+              pageCount: gallery.pageCount,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -202,7 +229,6 @@ class EHGalleryListCard extends StatelessWidget {
           children: [
             EHGalleryCategoryTag(category: gallery.category),
             const Expanded(child: SizedBox()),
-            if (gallery.pageCount != null) _buildReadingProgress(context).marginOnly(right: 8),
             if (downloaded) _buildDownloadIcon(context).marginOnly(right: 4),
             if (gallery.isFavorite) _buildFavoriteIcon().marginOnly(right: 4),
             if (gallery.language != null) _buildLanguage(context).marginOnly(right: 4),
@@ -234,43 +260,6 @@ class EHGalleryListCard extends StatelessWidget {
         color: gallery.hasRated ? UIConfig.galleryRatingStarRatedColor(context) : UIConfig.galleryRatingStarColor,
       ),
       onRatingUpdate: (rating) {},
-    );
-  }
-
-  Widget _buildReadingProgress(BuildContext context) {
-    return GetBuilder<ReadProgressService>(
-      init: Get.find<ReadProgressService>(),
-      id: '${ReadProgressService.readProgressUpdateId}::${gallery.gid}',
-      builder: (_) {
-        return FutureBuilder<int>(
-          future: readProgressService.getReadProgress(gallery.gid),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState != ConnectionState.done) {
-              return const SizedBox.shrink();
-            }
-
-            final readIndex = snapshot.data ?? 0;
-
-            double progress = gallery.pageCount != null && gallery.pageCount! > 0 ? ((readIndex + 1) / gallery.pageCount!).clamp(0.0, 1.0) : 0.0;
-
-            // Don't show indicator if no progress
-            if (readIndex == 0.0) {
-              return const SizedBox.shrink();
-            }
-
-            return SizedBox(
-              width: UIConfig.galleryCardReadProgressIndicatorSize,
-              height: UIConfig.galleryCardReadProgressIndicatorSize,
-              child: CircularProgressIndicator(
-                value: progress,
-                strokeWidth: 2,
-                backgroundColor: UIConfig.galleryCardTextColor(context).withOpacity(0.2),
-                valueColor: AlwaysStoppedAnimation<Color>(UIConfig.galleryCardTextColor(context)),
-              ),
-            );
-          },
-        );
-      },
     );
   }
 

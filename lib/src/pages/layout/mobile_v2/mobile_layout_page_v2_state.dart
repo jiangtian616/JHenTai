@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page_logic.dart';
 import 'package:jhentai/src/pages/gallerys/dashboard/simple/simple_dashboard_page_logic.dart';
+import 'package:jhentai/src/pages/local_search/local_search_page.dart';
 import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2.dart';
 
 import '../../../mixin/double_tap_to_refresh_state_mixin.dart';
@@ -58,6 +59,14 @@ class MobileLayoutPageV2State with DoubleTapToRefreshStateMixin {
         page: () => SearchPageMobileV2(),
         shouldRender: false,
         enterNewRoute: true,
+      ),
+      TabBarIcon(
+        name: TabBarIconNameEnum.localSearch,
+        routeName: Routes.localSearch,
+        selectedIcon: const Icon(Icons.manage_search, shadows: [Shadow(blurRadius: 2)]),
+        unselectedIcon: const Icon(Icons.manage_search),
+        page: () => LocalSearchPage(),
+        shouldRender: false,
       ),
       TabBarIcon(
         name: TabBarIconNameEnum.popular,

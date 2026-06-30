@@ -15,6 +15,7 @@ import '../../../../mixin/scroll_to_top_page_mixin.dart';
 import '../../../../mixin/scroll_to_top_state_mixin.dart';
 import '../../../../routes/routes.dart';
 import '../../../../setting/style_setting.dart';
+import '../../../../widget/read_progress_badge.dart';
 import '../../../layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import '../../download_base_page.dart';
 import 'grid_download_page_logic_mixin.dart';
@@ -62,6 +63,7 @@ mixin GridBasePage on StatelessWidget implements Scroll2TopPageMixin {
       titleSpacing: 0,
       title: DownloadPageSegmentControl(galleryType: galleryType),
       actions: buildAppBarActions(context),
+      bottom: buildAppBarBottom(context),
     );
   }
 
@@ -145,6 +147,10 @@ mixin GridBasePage on StatelessWidget implements Scroll2TopPageMixin {
 
   List<Widget> buildAppBarActions(BuildContext context) {
     return [];
+  }
+
+  PreferredSizeWidget? buildAppBarBottom(BuildContext context) {
+    return null;
   }
 
   Widget? buildGridBottomAppBar(BuildContext context) {
@@ -231,6 +237,8 @@ class GridGallery extends StatelessWidget {
   final Widget widget;
   final bool parseFromBot;
   final bool isOriginal;
+  final String? readProgressRecordKey;
+  final int? pageCount;
   final int? gid;
   final SuperResolutionType? superResolutionType;
   final VoidCallback? onTapWidget;
@@ -245,6 +253,8 @@ class GridGallery extends StatelessWidget {
     required this.widget,
     required this.parseFromBot,
     required this.isOriginal,
+    this.readProgressRecordKey,
+    this.pageCount,
     this.gid,
     this.superResolutionType,
     this.onTapWidget,
@@ -267,7 +277,19 @@ class GridGallery extends StatelessWidget {
         children: [
           Expanded(
             child: Stack(
-              children: [widget, buildChips(context)],
+              children: [
+                widget,
+                if (readProgressRecordKey != null)
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: ReadProgressBadge(
+                      recordKey: readProgressRecordKey!,
+                      pageCount: pageCount,
+                    ),
+                  ),
+                buildChips(context),
+              ],
             ),
           ),
           GestureDetector(
