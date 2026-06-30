@@ -1,14 +1,12 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
-
-import 'package:flutter/material.dart';
 
 import 'package:clipboard/clipboard.dart';
 import 'package:dio/dio.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/get_instance.dart';
@@ -20,6 +18,7 @@ import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
+import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
@@ -31,11 +30,12 @@ import 'package:photo_view/photo_view.dart';
 import 'package:saver_gallery/saver_gallery.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:super_clipboard/super_clipboard.dart';
+
 import '../../../../exception/eh_image_exception.dart';
-import '../../../../model/read_page_info.dart';
 import '../../../../model/gallery_image.dart';
-import '../../../../setting/read_setting.dart';
+import '../../../../model/read_page_info.dart';
 import '../../../../service/log.dart';
+import '../../../../setting/read_setting.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../utils/screen_size_util.dart';
 import '../../read_page_logic.dart';
@@ -127,15 +127,17 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   }
 
   /// Unified entry point for online image context menus.
+  /// Dispatches to [showOnlineDesktopContextMenu] on desktop or [showOnlineMobileBottomMenu] on mobile.
   void showOnlineImageContextMenu(int index, BuildContext context, {Offset? position}) {
     if (styleSetting.isInDesktopLayout && position != null) {
-      showOnlineContextMenuAtPosition(index: index, context: context, position: position);
+      showOnlineDesktopContextMenu(index: index, context: context, position: position);
     } else {
-      showBottomMenuInOnlineMode(index, context);
+      showOnlineMobileBottomMenu(index, context);
     }
   }
 
-  void showBottomMenuInOnlineMode(int index, BuildContext context) {
+  /// Mobile bottom action sheet for online images.
+  void showOnlineMobileBottomMenu(int index, BuildContext context) {
     showCupertinoModalPopup(
       context: context,
       builder: (_) => CupertinoActionSheet(
@@ -182,7 +184,8 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     );
   }
 
-  Future<void> showOnlineContextMenuAtPosition({
+  /// Desktop right-click context menu for online images.
+  Future<void> showOnlineDesktopContextMenu({
     required int index,
     required BuildContext context,
     required Offset position,
@@ -239,14 +242,19 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     }
   }
 
-  String _getImageAbsolutePath(int index) {
+  String _getDownloadedImageAbsolutePath(int index) {
     return GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
       readPageState.images[index]!.path!,
     );
   }
 
+  String _getArchiveImageAbsolutePath(int index) {
+    return join(pathService.getVisibleDir().path, readPageState.images[index]!.path!);
+  }
+
   /// Unified entry point for local image context menus.
-  /// Handles [ReadMode.downloaded], [ReadMode.archive], and [ReadMode.local].
+  /// Handles [ReadMode.downloaded] and [ReadMode.archive].
+  /// Dispatches to desktop context menus or mobile bottom sheets based on current layout.
   /// [ReadMode.online] images use [showOnlineImageContextMenu] instead.
   void showLocalImageContextMenu(int index, BuildContext context, {Offset? position}) {
     final mode = readPageState.readPageInfo.mode;
@@ -258,96 +266,21 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
 
     if (styleSetting.isInDesktopLayout && position != null) {
       if (showDownloadedMenu) {
-        showContextMenuForDownloadedImage(index: index, context: context, position: position);
+        showDownloadedDesktopContextMenu(index: index, context: context, position: position);
       } else {
-        showContextMenuForArchiveImage(index: index, context: context, position: position);
+        showArchiveDesktopContextMenu(index: index, context: context, position: position);
       }
     } else {
       if (showDownloadedMenu) {
-        showBottomMenuForDownloadedImage(index, context);
+        showDownloadedMobileBottomMenu(index, context);
       } else {
-        showBottomMenuForArchiveImage(index, context);
+        showArchiveMobileBottomMenu(index, context);
       }
     }
   }
 
-  List<PopupMenuItem<String>> _buildDownloadedModePopupItems() {
-    return [
-      PopupMenuItem(value: 'share', child: Text('share'.tr)),
-      PopupMenuItem(value: 'copy_eh_page_url', child: Text('copyEHPageUrl'.tr)),
-      PopupMenuItem(value: 'save', child: Text('save'.tr)),
-      PopupMenuItem(value: 'redownload', child: Text('reDownload'.tr)),
-    ];
-  }
-
-  List<PopupMenuItem<String>> _buildArchiveModePopupItems() {
-    return [
-      PopupMenuItem(value: 'share', child: Text('share'.tr)),
-      PopupMenuItem(value: 'copy_eh_page_url', child: Text('copyEHPageUrl'.tr)),
-      PopupMenuItem(value: 'save', child: Text('save'.tr)),
-    ];
-  }
-
-  List<CupertinoActionSheetAction> _buildDownloadedModeSheetActions(int index) {
-    return [
-      CupertinoActionSheetAction(
-        child: Text('share'.tr),
-        onPressed: () {
-          backRoute();
-          shareImageFile(index);
-        },
-      ),
-      CupertinoActionSheetAction(
-        child: Text('copyEHPageUrl'.tr),
-        onPressed: () async {
-          backRoute();
-          copyEHPageUrl(index);
-        },
-      ),
-      CupertinoActionSheetAction(
-        child: Text('save'.tr),
-        onPressed: () {
-          backRoute();
-          saveImageFile(index);
-        },
-      ),
-      CupertinoActionSheetAction(
-        child: Text('reDownload'.tr),
-        onPressed: () {
-          backRoute();
-          galleryDownloadService.reDownloadImage(readPageState.readPageInfo.gid!, index);
-        },
-      ),
-    ];
-  }
-
-  List<CupertinoActionSheetAction> _buildArchiveModeSheetActions(int index) {
-    return [
-      CupertinoActionSheetAction(
-        child: Text('share'.tr),
-        onPressed: () {
-          backRoute();
-          shareImageFile(index);
-        },
-      ),
-      CupertinoActionSheetAction(
-        child: Text('copyEHPageUrl'.tr),
-        onPressed: () async {
-          backRoute();
-          copyEHPageUrl(index);
-        },
-      ),
-      CupertinoActionSheetAction(
-        child: Text('save'.tr),
-        onPressed: () {
-          backRoute();
-          saveImageFile(index);
-        },
-      ),
-    ];
-  }
-
-  void showBottomMenuForDownloadedImage(int index, BuildContext context) {
+  /// Mobile bottom action sheet for downloaded-mode images.
+  void showDownloadedMobileBottomMenu(int index, BuildContext context) {
     if (galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]?.images[index]?.downloadStatus != DownloadStatus.downloaded) {
       return;
     }
@@ -355,13 +288,43 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     showCupertinoModalPopup(
       context: context,
       builder: (_) => CupertinoActionSheet(
-        actions: _buildDownloadedModeSheetActions(index),
+        actions: [
+          CupertinoActionSheetAction(
+            child: Text('share'.tr),
+            onPressed: () {
+              backRoute();
+              shareDownloadedImageFile(index);
+            },
+          ),
+          CupertinoActionSheetAction(
+            child: Text('copyEHPageUrl'.tr),
+            onPressed: () async {
+              backRoute();
+              copyEHPageUrl(index);
+            },
+          ),
+          CupertinoActionSheetAction(
+            child: Text('save'.tr),
+            onPressed: () {
+              backRoute();
+              saveDownloadedImageFile(index);
+            },
+          ),
+          CupertinoActionSheetAction(
+            child: Text('reDownload'.tr),
+            onPressed: () {
+              backRoute();
+              galleryDownloadService.reDownloadImage(readPageState.readPageInfo.gid!, index);
+            },
+          ),
+        ],
         cancelButton: CupertinoActionSheetAction(child: Text('cancel'.tr), onPressed: backRoute),
       ),
     );
   }
 
-  void showBottomMenuForArchiveImage(int index, BuildContext context) {
+  /// Mobile bottom action sheet for archive-mode images.
+  void showArchiveMobileBottomMenu(int index, BuildContext context) {
     if (readPageState.images[index] == null) {
       return;
     }
@@ -369,13 +332,36 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     showCupertinoModalPopup(
       context: context,
       builder: (_) => CupertinoActionSheet(
-        actions: _buildArchiveModeSheetActions(index),
+        actions: [
+          CupertinoActionSheetAction(
+            child: Text('share'.tr),
+            onPressed: () {
+              backRoute();
+              shareArchiveImageFile(index);
+            },
+          ),
+          CupertinoActionSheetAction(
+            child: Text('copyEHPageUrl'.tr),
+            onPressed: () async {
+              backRoute();
+              copyEHPageUrl(index);
+            },
+          ),
+          CupertinoActionSheetAction(
+            child: Text('save'.tr),
+            onPressed: () {
+              backRoute();
+              saveArchiveImageFile(index);
+            },
+          ),
+        ],
         cancelButton: CupertinoActionSheetAction(child: Text('cancel'.tr), onPressed: backRoute),
       ),
     );
   }
 
-  Future<void> showContextMenuForDownloadedImage({
+  /// Desktop right-click context menu for downloaded-mode images.
+  Future<void> showDownloadedDesktopContextMenu({
     required int index,
     required BuildContext context,
     required Offset position,
@@ -387,18 +373,23 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     final selected = await showMenu<String>(
       context: context,
       position: RelativeRect.fromLTRB(position.dx, position.dy, position.dx, position.dy),
-      items: _buildDownloadedModePopupItems(),
+      items: [
+        PopupMenuItem(value: 'share', child: Text('share'.tr)),
+        PopupMenuItem(value: 'copy_eh_page_url', child: Text('copyEHPageUrl'.tr)),
+        PopupMenuItem(value: 'save', child: Text('save'.tr)),
+        PopupMenuItem(value: 'redownload', child: Text('reDownload'.tr)),
+      ],
     );
 
     switch (selected) {
       case 'share':
-        shareImageFile(index);
+        shareDownloadedImageFile(index);
         break;
       case 'copy_eh_page_url':
         copyEHPageUrl(index);
         break;
       case 'save':
-        saveImageFile(index);
+        saveDownloadedImageFile(index);
         break;
       case 'redownload':
         galleryDownloadService.reDownloadImage(readPageState.readPageInfo.gid!, index);
@@ -406,7 +397,8 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     }
   }
 
-  Future<void> showContextMenuForArchiveImage({
+  /// Desktop right-click context menu for archive-mode images.
+  Future<void> showArchiveDesktopContextMenu({
     required int index,
     required BuildContext context,
     required Offset position,
@@ -418,18 +410,22 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     final selected = await showMenu<String>(
       context: context,
       position: RelativeRect.fromLTRB(position.dx, position.dy, position.dx, position.dy),
-      items: _buildArchiveModePopupItems(),
+      items: [
+        PopupMenuItem(value: 'share', child: Text('share'.tr)),
+        PopupMenuItem(value: 'copy_eh_page_url', child: Text('copyEHPageUrl'.tr)),
+        PopupMenuItem(value: 'save', child: Text('save'.tr)),
+      ],
     );
 
     switch (selected) {
       case 'share':
-        shareImageFile(index);
+        shareArchiveImageFile(index);
         break;
       case 'copy_eh_page_url':
         copyEHPageUrl(index);
         break;
       case 'save':
-        saveImageFile(index);
+        saveArchiveImageFile(index);
         break;
     }
   }
@@ -481,10 +477,11 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     );
   }
 
-  void shareImageFile(int index) {
+  /// Share a downloaded-mode image file. On desktop, copies file path to clipboard; on mobile, invokes share sheet.
+  void shareDownloadedImageFile(int index) {
     if (GetPlatform.isDesktop) {
       final item = DataWriterItem();
-      item.add(Formats.fileUri(Uri.file(_getImageAbsolutePath(index))));
+      item.add(Formats.fileUri(Uri.file(_getDownloadedImageAbsolutePath(index))));
       if (SystemClipboard.instance == null) {
         toast('platformNotSupported'.tr);
         return;
@@ -494,7 +491,26 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     }
 
     Share.shareXFiles(
-      [XFile(_getImageAbsolutePath(index))],
+      [XFile(_getDownloadedImageAbsolutePath(index))],
+      sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, readPageState.displayRegionSize.height * 2 / 3),
+    );
+  }
+
+  /// Share an archive-mode image file. On desktop, copies file path to clipboard; on mobile, invokes share sheet.
+  void shareArchiveImageFile(int index) {
+    if (GetPlatform.isDesktop) {
+      final item = DataWriterItem();
+      item.add(Formats.fileUri(Uri.file(_getArchiveImageAbsolutePath(index))));
+      if (SystemClipboard.instance == null) {
+        toast('platformNotSupported'.tr);
+        return;
+      }
+      SystemClipboard.instance!.write([item]).then((_) => toast('hasCopiedToClipboard'.tr));
+      return;
+    }
+
+    Share.shareXFiles(
+      [XFile(_getArchiveImageAbsolutePath(index))],
       sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, readPageState.displayRegionSize.height * 2 / 3),
     );
   }
@@ -619,8 +635,26 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     }
   }
 
-  void saveImageFile(int index) {
-    String filePath = _getImageAbsolutePath(index);
+  /// Save a downloaded-mode image file to the gallery/album or designated save path.
+  void saveDownloadedImageFile(int index) {
+    String filePath = _getDownloadedImageAbsolutePath(index);
+    File image = File(filePath);
+
+    String fileName = basename(image.path);
+    if (readPageState.readPageInfo.gid != null && readPageState.readPageInfo.token != null) {
+      fileName = '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index${extension(image.path)}';
+    }
+
+    if (GetPlatform.isDesktop) {
+      image.copy(join(downloadSetting.singleImageSavePath.value, fileName)).then((_) => toast('success'.tr));
+    } else {
+      _saveFile2Album(filePath, fileName).then((_) => toast('success'.tr));
+    }
+  }
+
+  /// Save an archive-mode image file to the gallery/album or designated save path.
+  void saveArchiveImageFile(int index) {
+    String filePath = _getArchiveImageAbsolutePath(index);
     File image = File(filePath);
 
     String fileName = basename(image.path);
