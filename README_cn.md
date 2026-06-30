@@ -62,6 +62,14 @@ MacOS安装（不维护）： 下载dmg后安装即可。
 
 Linux安装（不维护）：根据你的系统选择 Linux-amd64.deb 或 Linux-x86_64.AppImage，下载后安装运行即可。(视需要你可能需要安装webkit2gtk-4.1)
 
+基于 Fedora 的 dnf Linux 发行版：
+
+```bash
+sudo rpm --import https://meeks233.github.io/Jhentai-rpm/fedora/RPM-GPG-KEY-jhentai
+sudo curl -fsSL -o /etc/yum.repos.d/jhentai.repo https://meeks233.github.io/Jhentai-rpm/fedora/jhentai.repo
+sudo dnf install -y jhentai
+```
+
 - 如果你使用了代理服务器，在网络设置里配置代理地址。
 
 ## 更新

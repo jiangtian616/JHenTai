@@ -61,6 +61,14 @@ Install for MacOS(No maintenance): download .dmg.
 Install for Linux(No maintenance): download Linux-amd64.deb or Linux-x86_64.AppImage due to your platform, then install
 or execute it (You may need to install webkit2gtk-4.1).
 
+Fedora-based dnf linux distro:
+
+```bash
+sudo rpm --import https://meeks233.github.io/Jhentai-rpm/fedora/RPM-GPG-KEY-jhentai
+sudo curl -fsSL -o /etc/yum.repos.d/jhentai.repo https://meeks233.github.io/Jhentai-rpm/fedora/jhentai.repo
+sudo dnf install -y jhentai
+```
+
 
 - If you use a proxy server, set proxy address at network setting page.
 
