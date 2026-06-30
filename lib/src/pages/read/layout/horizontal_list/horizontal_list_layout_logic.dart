@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../../../setting/read_setting.dart';
@@ -13,6 +14,9 @@ import 'horizontal_list_layout_state.dart';
 
 class HorizontalListLayoutLogic extends BaseLayoutLogic {
   HorizontalListLayoutState state = HorizontalListLayoutState();
+  
+  @override
+  PhotoViewController get photoViewController => state.photoViewController;
 
   @override
   void onInit() {
