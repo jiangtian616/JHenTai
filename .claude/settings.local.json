@@ -12,7 +12,11 @@
       "Find",
       "Read",
       "WebSearch",
-      "Bash(flutter pub *)"
+      "Bash(flutter pub *)",
+      "WebFetch(domain:skillsmp.com)",
+      "Bash(npx --version)",
+      "Bash(npx skills@latest *)",
+      "PowerShell(Test-Path *)"
     ]
   }
 }
