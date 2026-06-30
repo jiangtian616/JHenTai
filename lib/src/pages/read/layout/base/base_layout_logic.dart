@@ -292,19 +292,31 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     return [
       CupertinoActionSheetAction(
         child: Text('share'.tr),
-        onPressed: () { backRoute(); shareImageFile(index); },
+        onPressed: () {
+          backRoute();
+          shareImageFile(index);
+        },
       ),
       CupertinoActionSheetAction(
         child: Text('copyEHPageUrl'.tr),
-        onPressed: () async { backRoute(); copyEHPageUrl(index); },
+        onPressed: () async {
+          backRoute();
+          copyEHPageUrl(index);
+        },
       ),
       CupertinoActionSheetAction(
         child: Text('save'.tr),
-        onPressed: () { backRoute(); saveImageFile(index); },
+        onPressed: () {
+          backRoute();
+          saveImageFile(index);
+        },
       ),
       CupertinoActionSheetAction(
         child: Text('reDownload'.tr),
-        onPressed: () { backRoute(); galleryDownloadService.reDownloadImage(readPageState.readPageInfo.gid!, index); },
+        onPressed: () {
+          backRoute();
+          galleryDownloadService.reDownloadImage(readPageState.readPageInfo.gid!, index);
+        },
       ),
     ];
   }
@@ -313,15 +325,24 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     return [
       CupertinoActionSheetAction(
         child: Text('share'.tr),
-        onPressed: () { backRoute(); shareImageFile(index); },
+        onPressed: () {
+          backRoute();
+          shareImageFile(index);
+        },
       ),
       CupertinoActionSheetAction(
         child: Text('copyEHPageUrl'.tr),
-        onPressed: () async { backRoute(); copyEHPageUrl(index); },
+        onPressed: () async {
+          backRoute();
+          copyEHPageUrl(index);
+        },
       ),
       CupertinoActionSheetAction(
         child: Text('save'.tr),
-        onPressed: () { backRoute(); saveImageFile(index); },
+        onPressed: () {
+          backRoute();
+          saveImageFile(index);
+        },
       ),
     ];
   }
