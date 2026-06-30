@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/pages/gallerys/simple/gallerys_page_logic.dart';
+import 'package:jhentai/src/pages/local_search/local_search_page.dart';
 import 'package:jhentai/src/pages/history/history_page.dart';
 import 'package:jhentai/src/pages/gallerys/simple/gallerys_page.dart';
 import 'package:jhentai/src/pages/popular/popular_page.dart';
@@ -54,6 +55,14 @@ class DesktopLayoutPageState with DoubleTapToRefreshStateMixin {
         scrollController: () =>
             Get.find<DesktopSearchPageLogic>().state.tabLogics[Get.find<DesktopSearchPageLogic>().state.currentTabIndex].state.scrollController,
         shouldRender: true,
+      ),
+      TabBarIcon(
+        name: TabBarIconNameEnum.localSearch,
+        routeName: Routes.localSearch,
+        selectedIcon: const Icon(Icons.manage_search, shadows: [Shadow(blurRadius: 2)]),
+        unselectedIcon: const Icon(Icons.manage_search),
+        page: () => LocalSearchPage(),
+        shouldRender: false,
       ),
       TabBarIcon(
         name: TabBarIconNameEnum.popular,

@@ -18,6 +18,8 @@ import '../model/gallery_tag.dart';
 import 'eh_gallery_category_tag.dart';
 import 'eh_gallery_list_card_.dart';
 import 'eh_image.dart';
+import 'gallery_visited_badge.dart';
+import 'read_progress_badge.dart';
 
 class EHGalleryWaterFlowCard extends StatelessWidget {
   final Gallery gallery;
@@ -26,6 +28,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
   final CardCallback handleTapCard;
   final CardCallback? handleLongPressCard;
   final CardCallback? handleSecondaryTapCard;
+  final bool showVisitedBadge;
 
   const EHGalleryWaterFlowCard({
     Key? key,
@@ -33,6 +36,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
     required this.downloaded,
     required this.listMode,
     required this.handleTapCard,
+    this.showVisitedBadge = false,
     this.handleLongPressCard,
     this.handleSecondaryTapCard,
   }) : super(key: key);
@@ -154,17 +158,38 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
           ),
         );
 
-        return EHImage(
-          galleryImage: gallery.cover,
-          containerHeight: fittedSizes.destination.height,
-          containerWidth: fittedSizes.destination.width,
-          containerColor: UIConfig.waterFallFlowCardBackGroundColor(context),
-          heroTag: gallery.blockedByLocalRules ? null : gallery.cover,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(listMode == ListMode.waterfallFlowBig ? 12 : 8),
-            topRight: Radius.circular(listMode == ListMode.waterfallFlowBig ? 12 : 8),
-            bottomLeft: Radius.circular(listMode == ListMode.waterfallFlowBig || listMode == ListMode.waterfallFlowMedium ? 0 : 8),
-            bottomRight: Radius.circular(listMode == ListMode.waterfallFlowBig || listMode == ListMode.waterfallFlowMedium ? 0 : 8),
+        return SizedBox(
+          width: fittedSizes.destination.width,
+          height: fittedSizes.destination.height,
+          child: Stack(
+            children: [
+              EHImage(
+                galleryImage: gallery.cover,
+                containerHeight: fittedSizes.destination.height,
+                containerWidth: fittedSizes.destination.width,
+                containerColor: UIConfig.waterFallFlowCardBackGroundColor(context),
+                heroTag: gallery.blockedByLocalRules ? null : gallery.cover,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(listMode == ListMode.waterfallFlowBig ? 12 : 8),
+                  topRight: Radius.circular(listMode == ListMode.waterfallFlowBig ? 12 : 8),
+                  bottomLeft: Radius.circular(listMode == ListMode.waterfallFlowBig || listMode == ListMode.waterfallFlowMedium ? 0 : 8),
+                  bottomRight: Radius.circular(listMode == ListMode.waterfallFlowBig || listMode == ListMode.waterfallFlowMedium ? 0 : 8),
+                ),
+              ),
+              Positioned(
+                top: 4,
+                left: 4,
+                child: showVisitedBadge ? GalleryVisitedBadge(gid: gallery.gid) : const SizedBox.shrink(),
+              ),
+              Positioned(
+                top: 4,
+                right: 4,
+                child: ReadProgressBadge(
+                  recordKey: gallery.gid.toString(),
+                  pageCount: gallery.pageCount,
+                ),
+              ),
+            ],
           ),
         );
       },

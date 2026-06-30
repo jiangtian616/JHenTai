@@ -21,6 +21,8 @@ class GalleryListDownloadPageLogic extends GetxController
     with Scroll2TopLogicMixin, MultiSelectDownloadPageLogicMixin<GalleryDownloadedData>, GalleryDownloadPageLogicMixin, UpdateGlobalGalleryStatusLogicMixin {
   GalleryListDownloadPageState state = GalleryListDownloadPageState();
 
+  final TextEditingController groupFilterController = TextEditingController();
+
   @override
   MultiSelectDownloadPageStateMixin get multiSelectDownloadPageState => state;
 
@@ -46,9 +48,9 @@ class GalleryListDownloadPageLogic extends GetxController
 
   @override
   void onClose() {
-    super.onClose();
-
+    groupFilterController.dispose();
     maxGalleryNum4AnimationListener.dispose();
+    super.onClose();
   }
 
   Future<void> toggleDisplayGroups(String groupName) async {
@@ -101,11 +103,20 @@ class GalleryListDownloadPageLogic extends GetxController
     await state.displayGroupsCompleter.future;
 
     List<GalleryDownloadedData> gallerys = [];
-    for (String group in state.displayGroups) {
+    for (String group in state.filteredGroups.where((group) => state.displayGroups.contains(group))) {
       gallerys.addAll(downloadService.gallerysWithGroup(group));
     }
 
     multiSelectDownloadPageState.selectedGids.addAll(gallerys.map((gallery) => gallery.gid));
     updateSafely(multiSelectDownloadPageState.selectedGids.map((gid) => '$itemCardId::$gid').toList());
+  }
+
+  Map<String, bool> getGroupOpenStates() {
+    return Map.fromEntries(state.filteredGroups.map((group) => MapEntry(group, state.displayGroups.contains(group))));
+  }
+
+  void updateGroupFilterKeyword(String keyword) {
+    state.groupFilterKeyword = keyword;
+    updateSafely([bodyId]);
   }
 }

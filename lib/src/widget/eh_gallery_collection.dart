@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
-import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
@@ -14,6 +13,7 @@ import '../setting/style_setting.dart';
 import 'eh_gallery_waterflow_card.dart';
 
 /// Act as a List or WaterfallFlow according to Style Setting
+// ignore: non_constant_identifier_names
 Widget EHGalleryCollection({
   Key? key,
   required BuildContext context,
@@ -24,6 +24,7 @@ Widget EHGalleryCollection({
   CardCallback? handleLongPressCard,
   CardCallback? handleSecondaryTapCard,
   VoidCallback? handleLoadMore,
+  bool showVisitedBadge = false,
 }) {
   Widget _buildGalleryList() {
     /// use FlutterSliverList to [keepPosition] when insert items at top
@@ -50,6 +51,7 @@ Widget EHGalleryCollection({
               handleLongPressCard: handleLongPressCard == null ? null : (gallery) => handleLongPressCard(gallery),
               handleSecondaryTapCard: handleSecondaryTapCard == null ? null : (gallery) => handleSecondaryTapCard(gallery),
               withTags: listMode == ListMode.listWithTags || listMode == ListMode.flat,
+              showVisitedBadge: showVisitedBadge,
             ),
           );
         },
@@ -90,6 +92,7 @@ Widget EHGalleryCollection({
               handleTapCard: handleTapCard,
               handleLongPressCard: handleLongPressCard == null ? null : (gallery) => handleLongPressCard(gallery),
               handleSecondaryTapCard: handleSecondaryTapCard == null ? null : (gallery) => handleSecondaryTapCard(gallery),
+              showVisitedBadge: showVisitedBadge,
             );
           },
           childCount: gallerys.length,

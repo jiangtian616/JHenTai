@@ -3,7 +3,6 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
-import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/pages/download/mixin/gallery/gallery_download_page_mixin.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart' as srs;
@@ -21,6 +20,7 @@ import '../../../../utils/date_util.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../widget/eh_gallery_category_tag.dart';
 import '../../../../widget/eh_image.dart';
+import '../../../../widget/read_progress_badge.dart';
 import '../../../details/details_page_logic.dart';
 import '../../../layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import '../../download_base_page.dart';
@@ -137,6 +137,30 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
           },
         ),
       ],
+      bottom: _buildGroupFilterBar(context),
+    );
+  }
+
+  PreferredSizeWidget _buildGroupFilterBar(BuildContext context) {
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(48),
+      child: SizedBox(
+        height: 48,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
+          child: TextField(
+            controller: logic.groupFilterController,
+            onChanged: logic.updateGroupFilterKeyword,
+            decoration: InputDecoration(
+              isDense: true,
+              hintText: 'filter'.tr,
+              prefixIcon: const Icon(Icons.search, size: 20),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -155,7 +179,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                     maxGalleryNum4Animation: performanceSetting.maxGalleryNum4Animation.value,
                     scrollController: state.scrollController,
                     controller: state.groupedListController,
-                    groups: Map.fromEntries(logic.downloadService.allGroups.map((e) => MapEntry(e, state.displayGroups.contains(e)))),
+                    groups: logic.getGroupOpenStates(),
                     elements: logic.downloadService.gallerys,
                     elementGroup: (GalleryDownloadedData gallery) => logic.downloadService.galleryDownloadInfos[gallery.gid]!.group,
                     groupBuilder: (context, groupName, isOpen) => _groupBuilder(context, groupName, isOpen).marginAll(5),
@@ -276,13 +300,29 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
             );
           }
 
-          return EHImage(
-            galleryImage: image!,
-            containerWidth: UIConfig.downloadPageCoverWidth,
-            containerHeight: UIConfig.downloadPageCoverHeight,
-            borderRadius: BorderRadius.circular(UIConfig.downloadPageCardBorderRadius),
-            fit: BoxFit.fitWidth,
-            maxBytes: 2 * 1024 * 1024,
+          return SizedBox(
+            width: UIConfig.downloadPageCoverWidth,
+            height: UIConfig.downloadPageCoverHeight,
+            child: Stack(
+              children: [
+                EHImage(
+                  galleryImage: image!,
+                  containerWidth: UIConfig.downloadPageCoverWidth,
+                  containerHeight: UIConfig.downloadPageCoverHeight,
+                  borderRadius: BorderRadius.circular(UIConfig.downloadPageCardBorderRadius),
+                  fit: BoxFit.fitWidth,
+                  maxBytes: 2 * 1024 * 1024,
+                ),
+                Positioned(
+                  top: 4,
+                  right: 4,
+                  child: ReadProgressBadge(
+                    recordKey: gallery.gid.toString(),
+                    pageCount: gallery.pageCount,
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),

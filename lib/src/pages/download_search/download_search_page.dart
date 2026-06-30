@@ -18,6 +18,7 @@ import '../../utils/byte_util.dart';
 import '../../utils/date_util.dart';
 import '../../utils/route_util.dart';
 import '../../widget/eh_gallery_category_tag.dart';
+import '../../widget/read_progress_badge.dart';
 import '../details/details_page_logic.dart';
 import 'download_search_logic.dart';
 
@@ -103,7 +104,6 @@ class DownloadSearchPage extends StatelessWidget {
       child: GetBuilder<GalleryDownloadService>(
         id: '${galleryDownloadService.galleryDownloadProgressId}::${gallery.gid}',
         builder: (_) {
-          GalleryImage? cover = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.images[0];
           GalleryDownloadProgress? downloadProgress = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress;
           String? groupName = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.group;
 
@@ -186,23 +186,41 @@ class DownloadSearchPage extends StatelessWidget {
         builder: (_) {
           GalleryImage? image = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.images[0];
 
-          /// cover is the first image, if we haven't downloaded first image, then return a [UIConfig.loadingAnimation]
-          if (image?.downloadStatus != DownloadStatus.downloaded) {
-            return SizedBox(
+          Widget cover;
+          if (image?.downloadStatus == DownloadStatus.downloaded) {
+            cover = EHImage(
+              galleryImage: image!,
+              containerWidth: UIConfig.downloadSearchPageCoverWidth,
+              containerHeight: UIConfig.downloadSearchPageCoverHeight,
+              containerColor: UIConfig.galleryCardBackGroundColor(context),
+              borderRadius: BorderRadius.circular(UIConfig.downloadPageCardBorderRadius),
+              fit: BoxFit.fitWidth,
+              maxBytes: 2 * 1024 * 1024,
+            );
+          } else {
+            cover = SizedBox(
               width: UIConfig.downloadSearchPageCoverWidth,
               height: UIConfig.downloadSearchPageCoverHeight,
               child: Center(child: UIConfig.loadingAnimation(context)),
             );
           }
 
-          return EHImage(
-            galleryImage: image!,
-            containerWidth: UIConfig.downloadSearchPageCoverWidth,
-            containerHeight: UIConfig.downloadSearchPageCoverHeight,
-            containerColor: UIConfig.galleryCardBackGroundColor(context),
-            borderRadius: BorderRadius.circular(UIConfig.downloadPageCardBorderRadius),
-            fit: BoxFit.fitWidth,
-            maxBytes: 2 * 1024 * 1024,
+          return SizedBox(
+            width: UIConfig.downloadSearchPageCoverWidth,
+            height: UIConfig.downloadSearchPageCoverHeight,
+            child: Stack(
+              children: [
+                cover,
+                Positioned(
+                  top: 4,
+                  right: 4,
+                  child: ReadProgressBadge(
+                    recordKey: gallery.gid.toString(),
+                    pageCount: gallery.pageCount,
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),
@@ -411,14 +429,30 @@ class DownloadSearchPage extends StatelessWidget {
         Routes.details,
         arguments: DetailsPageArgument(galleryUrl: GalleryUrl.parse(archive.galleryUrl)),
       ),
-      child: EHImage(
-        galleryImage: GalleryImage(url: archive.coverUrl),
-        containerWidth: UIConfig.downloadSearchPageCoverWidth,
-        containerHeight: UIConfig.downloadSearchPageCoverHeight,
-        containerColor: UIConfig.galleryCardBackGroundColor(context),
-        borderRadius: BorderRadius.circular(UIConfig.downloadPageCardBorderRadius),
-        fit: BoxFit.fitWidth,
-        maxBytes: 2 * 1024 * 1024,
+      child: SizedBox(
+        width: UIConfig.downloadSearchPageCoverWidth,
+        height: UIConfig.downloadSearchPageCoverHeight,
+        child: Stack(
+          children: [
+            EHImage(
+              galleryImage: GalleryImage(url: archive.coverUrl),
+              containerWidth: UIConfig.downloadSearchPageCoverWidth,
+              containerHeight: UIConfig.downloadSearchPageCoverHeight,
+              containerColor: UIConfig.galleryCardBackGroundColor(context),
+              borderRadius: BorderRadius.circular(UIConfig.downloadPageCardBorderRadius),
+              fit: BoxFit.fitWidth,
+              maxBytes: 2 * 1024 * 1024,
+            ),
+            Positioned(
+              top: 4,
+              right: 4,
+              child: ReadProgressBadge(
+                recordKey: archive.gid.toString(),
+                pageCount: archive.pageCount,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
