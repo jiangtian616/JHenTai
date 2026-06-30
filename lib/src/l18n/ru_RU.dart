@@ -18,6 +18,7 @@ class ru_RU {
       'operationFailed': 'Операция не удалась',
       'needLoginToOperate': 'Требуется вход для выполнения операции',
       'hasCopiedToClipboard': "Скопировано в буфер обмена",
+      'platformNotSupported': "Текущая платформа не поддерживается",
       'networkError': "Сетевая ошибка, Нажмите для перезагрузки",
       'systemError': "Системная ошибка",
       'invalid': "Недопустимо",
@@ -163,8 +164,7 @@ class ru_RU {
       'score': 'Оценка',
       'NotOnTheList': 'Нет в списке',
       'getGalleryArchiveFailed': 'Не удалось получить архив галереи',
-      'parseGalleryArchiveFailed':
-          'Ошибка парсинга, убедитесь, что ваши [Настройки архиватора] на e-hentai установлены как [Ручной выбор, Ручной запуск (По умолчанию)]',
+      'parseGalleryArchiveFailed': 'Ошибка парсинга, убедитесь, что ваши [Настройки архиватора] на e-hentai установлены как [Ручной выбор, Ручной запуск (По умолчанию)]',
       'original': 'Оригинал',
       'resample': 'Уменьшенная',
       'beginToDownloadArchive': 'Начать загрузку архива',

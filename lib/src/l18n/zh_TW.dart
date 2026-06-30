@@ -18,6 +18,7 @@ class zh_TW {
       'operationFailed': '操作失敗',
       'needLoginToOperate': '需要登入後才能操作',
       'hasCopiedToClipboard': "已複製到剪貼簿",
+      'platformNotSupported': "目前平台不支援",
       'networkError': "網路錯誤，點擊重試",
       'systemError': "系統錯誤",
       'invalid': "無效",

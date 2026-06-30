@@ -18,6 +18,7 @@ class zh_CN {
       'operationFailed': '操作失败',
       'needLoginToOperate': '需要登录后才能操作',
       'hasCopiedToClipboard': "已复制到粘贴板",
+      'platformNotSupported': "当前平台不支持",
       'networkError': "网络错误，点击重试",
       'systemError': "系统错误",
       'invalid': "无效",

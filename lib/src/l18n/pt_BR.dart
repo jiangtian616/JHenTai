@@ -18,6 +18,7 @@ class pt_BR {
       'operationFailed': 'Falha na opreção',
       'needLoginToOperate': 'Precisa de login para operar',
       'hasCopiedToClipboard': "Copiado para aréa de transferência",
+      'platformNotSupported': "Plataforma atual não suportada",
       'networkError': "Erro na conexão com a rede",
       'systemError': "Erro no sistema",
       'invalid': "Inválido",
@@ -558,8 +559,7 @@ class pt_BR {
       'needReUnlock': 'Precisa de novo desbloqueio',
       'reUnlock': 'Desbloquear novamente',
       'reUnlockHint': 'Atenção! precisa comprar este arquivo novamente para desbloque-lo novamente.',
-      'downloadHelpInfo':
-          'Se você não conseguir fazer o download e encontrar erros como a tabela não existe nos logs, desinstale o aplicativo atual e reinstale.',
+      'downloadHelpInfo': 'Se você não conseguir fazer o download e encontrar erros como a tabela não existe nos logs, desinstale o aplicativo atual e reinstale.',
       'localGalleryHelpInfo': 'Load gallerys which is not downloaded by JHenTai. Add config in Download Setting -> Extra Gallery Scan Path and then refresh.',
       'localGalleryHelpInfo4iOSAndMacOS': 'Load gallerys which is not downloaded by JHenTai. Put your gallerys in default download path and then refresh',
       'deleteLocalGalleryHint': 'Delete your local files',

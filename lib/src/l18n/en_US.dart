@@ -18,6 +18,7 @@ class en_US {
       'operationFailed': 'Operation Failed',
       'needLoginToOperate': 'Need Log In To Operate',
       'hasCopiedToClipboard': "Has Copied To Clipboard",
+      'platformNotSupported': "Current platform not supported",
       'networkError': "Network Error, Tap to Reload",
       'systemError': "System Error",
       'invalid': "Invalid",

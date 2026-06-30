@@ -439,7 +439,11 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
         await file.writeAsBytes(data);
         final item = DataWriterItem();
         item.add(Formats.fileUri(Uri.file(file.path)));
-        await SystemClipboard.instance?.write([item]);
+        if (SystemClipboard.instance == null) {
+          toast('platformNotSupported'.tr);
+          return;
+        }
+        await SystemClipboard.instance!.write([item]);
         toast('hasCopiedToClipboard'.tr);
       } catch (e) {
         log.error('Copy online image to clipboard failed: $e');
@@ -460,7 +464,11 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     if (GetPlatform.isDesktop) {
       final item = DataWriterItem();
       item.add(Formats.fileUri(Uri.file(_getImageAbsolutePath(index))));
-      SystemClipboard.instance?.write([item]).then((_) => toast('hasCopiedToClipboard'.tr));
+      if (SystemClipboard.instance == null) {
+        toast('platformNotSupported'.tr);
+        return;
+      }
+      SystemClipboard.instance!.write([item]).then((_) => toast('hasCopiedToClipboard'.tr));
       return;
     }
 

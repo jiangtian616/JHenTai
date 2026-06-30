@@ -18,6 +18,7 @@ class ko_KR {
       'operationFailed': '작업 실패',
       'needLoginToOperate': '로그인이 필요한 작업',
       'hasCopiedToClipboard': "클립보드에 복사됨",
+      'platformNotSupported': "현재 플랫폼은 지원되지 않습니다",
       'networkError': "네트워크 오류, 재시도 클릭",
       'systemError': "시스템 오류",
       'invalid': "유효하지 않음",
