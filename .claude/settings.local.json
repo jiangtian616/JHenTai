@@ -10,7 +10,9 @@
       "Java",
       "Mvn",
       "Find",
-      "Read"
+      "Read",
+      "WebSearch",
+      "Bash(flutter pub *)"
     ]
   }
 }
