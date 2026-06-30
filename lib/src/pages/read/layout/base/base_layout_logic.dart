@@ -341,13 +341,6 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('copyEHPageUrl'.tr),
-            onPressed: () async {
-              backRoute();
-              copyEHPageUrl(index);
-            },
-          ),
-          CupertinoActionSheetAction(
             child: Text('save'.tr),
             onPressed: () {
               backRoute();
@@ -412,7 +405,6 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       position: RelativeRect.fromLTRB(position.dx, position.dy, position.dx, position.dy),
       items: [
         PopupMenuItem(value: 'share', child: Text('share'.tr)),
-        PopupMenuItem(value: 'copy_eh_page_url', child: Text('copyEHPageUrl'.tr)),
         PopupMenuItem(value: 'save', child: Text('save'.tr)),
       ],
     );
@@ -420,9 +412,6 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     switch (selected) {
       case 'share':
         shareArchiveImageFile(index);
-        break;
-      case 'copy_eh_page_url':
-        copyEHPageUrl(index);
         break;
       case 'save':
         saveArchiveImageFile(index);
