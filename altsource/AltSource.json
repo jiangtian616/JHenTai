@@ -60,12 +60,12 @@
       },
       "versions": [
         {
-          "version": "8.0.13",
-          "buildVersion": "312",
-          "date": "2026-06-04T02:11:05Z",
-          "localizedDescription": "- 优化 [archive-at-home](https://t.me/ArchiveAtHome_bot)\\n\\n--------------------\\n\\n- Optimize [archive-at-home](https://t.me/ArchiveAtHome_bot)",
-          "downloadURL": "https://github.com/jiangtian616/JHenTai/releases/download/v8.0.13+312/JHenTai_8.0.13+312.ipa",
-          "size": 15744326
+          "version": "8.0.14",
+          "buildVersion": "",
+          "date": "2026-07-01T12:55:22Z",
+          "localizedDescription": "- 修改桌面端阅读页右键菜单逻辑\\n- 修改桌面端阅读页分享图片逻辑\\n- 阅读页增加复制图片页链接功能\\n- 优化注销弹窗UI展示\\n- 桌面端部分按钮新增右键触发逻辑\\n- 资产页面支持展示hath\\n- 优化阅读页缩略图中展示webp动图的性能\\n- 优化阅读页缩略图展示的逻辑\\n- 优化cookie页面点击单项cookie的复制逻辑\\n- 优化profile设置组件的展示\\n- 优化桌面端阅读页打开阅读设置时的展示逻辑\\n- 修复Linux下无法正确获取系统代理的bug\\n\\n--------------------\\n\\n- Modify the right-click menu logic on the desktop reading page\\n- Modify the share image logic on the desktop reading page\\n- Add the ability to copy the image page link on the reading page\\n- Optimize the UI display of the logout pop-up window\\n- Add right-click trigger logic to some buttons on the desktop side\\n- Support displaying hath on the asset page\\n- Optimize the performance of displaying webp animations in the thumbnail of the reading page\\n- Optimize the logic of displaying thumbnails on the reading page\\n- Optimize the logic of copying single cookies when clicking on the cookie page\\n- Optimize the display of profile settings components\\n- Optimize the display logic when opening reading settings on the desktop reading page\\n- Fix the bug that prevents Linux from correctly obtaining the system proxy",
+          "downloadURL": "https://github.com/jiangtian616/JHenTai/releases/download/v8.0.14/JHenTai_8.0.14+317.ipa",
+          "size": 15767125
         }
       ]
     }
