@@ -7,6 +7,7 @@ import 'package:jhentai/src/pages/download_search/download_search_page.dart';
 import 'package:jhentai/src/pages/gallery_image/gallery_image_page.dart';
 import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page.dart';
 import 'package:jhentai/src/pages/history/history_page.dart';
+import 'package:jhentai/src/pages/local_search/local_search_page.dart';
 import 'package:jhentai/src/pages/gallerys/simple/gallerys_page.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_home_page.dart';
 import 'package:jhentai/src/pages/lock_page.dart';
@@ -78,6 +79,7 @@ class Routes {
   static const String setting = "/setting";
   static const String desktopSearch = "/desktop_search";
   static const String mobileV2Search = "/mobile_v2_search";
+  static const String localSearch = "/local_search";
   static const String downloadSearch = "/download_search";
 
   /// right
@@ -239,6 +241,12 @@ class Routes {
     EHPage(
       name: mobileV2Search,
       page: () => SearchPageMobileV2(),
+      transition: defaultTransition,
+      side: Side.left,
+    ),
+    EHPage(
+      name: localSearch,
+      page: () => LocalSearchPage(),
       transition: defaultTransition,
       side: Side.left,
     ),
