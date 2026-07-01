@@ -47,7 +47,7 @@ android {
 
     defaultConfig {
         applicationId "top.jtmonster.jhentai"
-        minSdkVersion 23
+        minSdkVersion 21
         targetSdkVersion 34
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName

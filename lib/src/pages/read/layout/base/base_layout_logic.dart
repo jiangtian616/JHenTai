@@ -25,11 +25,11 @@ import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/permission_util.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:pasteboard/pasteboard.dart';
 import 'package:path/path.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:saver_gallery/saver_gallery.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:super_clipboard/super_clipboard.dart';
 
 import '../../../../exception/eh_image_exception.dart';
 import '../../../../model/gallery_image.dart';
@@ -443,13 +443,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       try {
         await file.create(recursive: true);
         await file.writeAsBytes(data);
-        final item = DataWriterItem();
-        item.add(Formats.fileUri(Uri.file(file.path)));
-        if (SystemClipboard.instance == null) {
-          toast('platformNotSupported'.tr);
-          return;
-        }
-        await SystemClipboard.instance!.write([item]);
+        await Pasteboard.writeFiles([file.path]);
         toast('hasCopiedToClipboard'.tr);
       } catch (e) {
         log.error('Copy online image to clipboard failed: $e');
@@ -469,13 +463,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   /// Share a downloaded-mode image file. On desktop, copies file path to clipboard; on mobile, invokes share sheet.
   void shareDownloadedImageFile(int index) {
     if (GetPlatform.isDesktop) {
-      final item = DataWriterItem();
-      item.add(Formats.fileUri(Uri.file(_getDownloadedImageAbsolutePath(index))));
-      if (SystemClipboard.instance == null) {
-        toast('platformNotSupported'.tr);
-        return;
-      }
-      SystemClipboard.instance!.write([item]).then((_) => toast('hasCopiedToClipboard'.tr));
+      Pasteboard.writeFiles([_getDownloadedImageAbsolutePath(index)]).then((_) => toast('hasCopiedToClipboard'.tr));
       return;
     }
 
@@ -488,13 +476,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   /// Share an archive-mode image file. On desktop, copies file path to clipboard; on mobile, invokes share sheet.
   void shareArchiveImageFile(int index) {
     if (GetPlatform.isDesktop) {
-      final item = DataWriterItem();
-      item.add(Formats.fileUri(Uri.file(_getArchiveImageAbsolutePath(index))));
-      if (SystemClipboard.instance == null) {
-        toast('platformNotSupported'.tr);
-        return;
-      }
-      SystemClipboard.instance!.write([item]).then((_) => toast('hasCopiedToClipboard'.tr));
+      Pasteboard.writeFiles([_getArchiveImageAbsolutePath(index)]).then((_) => toast('hasCopiedToClipboard'.tr));
       return;
     }
 
