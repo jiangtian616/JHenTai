@@ -16,7 +16,8 @@
       "WebFetch(domain:skillsmp.com)",
       "Bash(npx --version)",
       "Bash(npx skills@latest *)",
-      "PowerShell(Test-Path *)"
+      "PowerShell(Test-Path *)",
+      "Bash(dart analyze *)"
     ]
   }
 }

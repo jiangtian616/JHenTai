@@ -353,7 +353,7 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
             if (readSetting.enableBottomMenu.isFalse)
               ElevatedButton(
                 child: const Icon(Icons.settings, color: UIConfig.readPageButtonColor),
-                onPressed: () => _openReadSetting(context),
+                onPressed: () => logic.openReadSetting(context),
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
                   padding: const EdgeInsets.all(0),
@@ -596,58 +596,10 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
                 ),
               ),
             ),
-            onTap: () => _openReadSetting(context),
+            onTap: () => logic.openReadSetting(context),
           ),
         ],
       ),
     );
-  }
-
-  Future<void> _openReadSetting(BuildContext context) async {
-    if (GetPlatform.isDesktop) {
-      await _showReadSettingDrawer(context);
-    } else {
-      await _pushReadSettingPage();
-    }
-  }
-
-  Future<void> _pushReadSettingPage() async {
-    logic.restoreImmersiveMode();
-    toRoute(Routes.settingRead, id: fullScreen)?.then((_) {
-      logic.applyCurrentImmersiveMode();
-      state.focusNode.requestFocus();
-    });
-  }
-
-  Future<void> _showReadSettingDrawer(BuildContext context) async {
-    logic.restoreImmersiveMode();
-
-    await showDialog<void>(
-      context: context,
-      barrierDismissible: true,
-      barrierColor: Colors.black.withOpacity(0.4),
-      builder: (_) {
-        double width = MediaQuery.of(context).size.width * 0.55;
-        if (width < 360) {
-          width = 360;
-        }
-        if (width > 600) {
-          width = 600;
-        }
-        return Align(
-          alignment: Alignment.centerRight,
-          child: SizedBox(
-            width: width,
-            child: Material(
-              elevation: 16,
-              child: SettingReadPage(),
-            ),
-          ),
-        );
-      },
-    );
-
-    logic.applyCurrentImmersiveMode();
-    state.focusNode.requestFocus();
   }
 }

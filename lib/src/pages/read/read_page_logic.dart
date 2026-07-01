@@ -5,9 +5,9 @@ import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:executor/executor.dart';
 import 'package:extended_image/extended_image.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/exception/eh_parse_exception.dart';
 import 'package:jhentai/src/exception/eh_site_exception.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
@@ -18,9 +18,9 @@ import 'package:jhentai/src/pages/read/layout/horizontal_list/horizontal_list_la
 import 'package:jhentai/src/pages/read/layout/horizontal_page/horizontal_page_layout_logic.dart';
 import 'package:jhentai/src/pages/read/layout/vertical_list/vertical_list_layout_logic.dart';
 import 'package:jhentai/src/pages/read/read_page_state.dart';
-import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/service/volume_service.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/eh_executor.dart';
 import 'package:retry/retry.dart';
 import 'package:screen_brightness/screen_brightness.dart';
@@ -32,13 +32,17 @@ import '../../model/detail_page_info.dart';
 import '../../model/gallery_image.dart';
 import '../../model/read_page_info.dart';
 import '../../network/eh_request.dart';
+import '../../routes/routes.dart';
 import '../../service/storage_service.dart';
 import '../../setting/read_setting.dart';
 import '../../utils/eh_spider_parser.dart';
 import '../../service/log.dart';
+import '../../utils/route_util.dart';
 import '../../widget/auto_mode_interval_dialog.dart';
 import '../../widget/loading_state_indicator.dart';
 import '../../service/read_progress_service.dart';
+import '../home_page.dart';
+import '../setting/read/setting_read_page.dart';
 
 class ReadPageLogic extends GetxController {
   final String pageId = 'pageId';
@@ -626,5 +630,53 @@ class ReadPageLogic extends GetxController {
 
   void clearImageContainerSized() {
     state.imageContainerSizes = List.generate(state.readPageInfo.pageCount, (_) => null);
+  }
+
+  Future<void> openReadSetting(BuildContext context) async {
+    if (styleSetting.isInDesktopLayout || styleSetting.isInTabletLayout) {
+      await _showReadSettingDrawer(context);
+    } else {
+      await _pushReadSettingPage();
+    }
+  }
+
+  Future<void> _pushReadSettingPage() async {
+    restoreImmersiveMode();
+    toRoute(Routes.settingRead, id: fullScreen)?.then((_) {
+      applyCurrentImmersiveMode();
+      state.focusNode.requestFocus();
+    });
+  }
+
+  Future<void> _showReadSettingDrawer(BuildContext context) async {
+    restoreImmersiveMode();
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.4),
+      builder: (_) {
+        double width = MediaQuery.of(context).size.width * 0.55;
+        if (width < 360) {
+          width = 360;
+        }
+        if (width > 600) {
+          width = 600;
+        }
+        return Align(
+          alignment: Alignment.centerRight,
+          child: SizedBox(
+            width: width,
+            child: Material(
+              elevation: 16,
+              child: SettingReadPage(),
+            ),
+          ),
+        );
+      },
+    );
+
+    applyCurrentImmersiveMode();
+    state.focusNode.requestFocus();
   }
 }

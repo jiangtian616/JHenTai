@@ -38,6 +38,7 @@ import '../../../../service/log.dart';
 import '../../../../setting/read_setting.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../utils/screen_size_util.dart';
+import '../../../../routes/routes.dart';
 import '../../read_page_logic.dart';
 import '../../read_page_state.dart';
 
@@ -192,6 +193,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   }) async {
     final selected = await showMenu<String>(
       context: context,
+      popUpAnimationStyle: AnimationStyle.noAnimation,
       position: RelativeRect.fromLTRB(
         position.dx,
         position.dy,
@@ -220,6 +222,10 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
             value: 'save_original',
             child: Text('${'save'.tr}(${'originalImage'.tr})'),
           ),
+        PopupMenuItem(
+          value: 'open_read_setting',
+          child: Text('setting'.tr),
+        ),
       ],
     );
 
@@ -238,6 +244,9 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
         break;
       case 'save_original':
         await saveOriginalOnlineImage(index);
+        break;
+      case 'open_read_setting':
+        readPageLogic.openReadSetting(context);
         break;
     }
   }
@@ -365,12 +374,14 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
 
     final selected = await showMenu<String>(
       context: context,
+      popUpAnimationStyle: AnimationStyle.noAnimation,
       position: RelativeRect.fromLTRB(position.dx, position.dy, position.dx, position.dy),
       items: [
         PopupMenuItem(value: 'share', child: Text('share'.tr)),
         PopupMenuItem(value: 'copy_eh_page_url', child: Text('copyEHPageUrl'.tr)),
         PopupMenuItem(value: 'save', child: Text('save'.tr)),
         PopupMenuItem(value: 'redownload', child: Text('reDownload'.tr)),
+        PopupMenuItem(value: 'open_read_setting', child: Text('setting'.tr)),
       ],
     );
 
@@ -387,6 +398,9 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       case 'redownload':
         galleryDownloadService.reDownloadImage(readPageState.readPageInfo.gid!, index);
         break;
+      case 'open_read_setting':
+        readPageLogic.openReadSetting(context);
+        break;
     }
   }
 
@@ -402,10 +416,12 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
 
     final selected = await showMenu<String>(
       context: context,
+      popUpAnimationStyle: AnimationStyle.noAnimation,
       position: RelativeRect.fromLTRB(position.dx, position.dy, position.dx, position.dy),
       items: [
         PopupMenuItem(value: 'share', child: Text('share'.tr)),
         PopupMenuItem(value: 'save', child: Text('save'.tr)),
+        PopupMenuItem(value: 'open_read_setting', child: Text('setting'.tr)),
       ],
     );
 
@@ -415,6 +431,9 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
         break;
       case 'save':
         saveArchiveImageFile(index);
+        break;
+      case 'open_read_setting':
+        toRoute(Routes.settingRead);
         break;
     }
   }
