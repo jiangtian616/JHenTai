@@ -90,12 +90,12 @@ class _EHArchiveBotSettingDialogState extends State<EHArchiveBotSettingDialog> {
         value: _botType,
         items: const [
           DropdownMenuItem(
-            value: ArchiveBotType.ehArBot,
-            child: Text('EH-ArBot'),
-          ),
-          DropdownMenuItem(
             value: ArchiveBotType.archiveAtHome,
             child: Text('Archive-at-Home'),
+          ),
+          DropdownMenuItem(
+            value: ArchiveBotType.ehArBot,
+            child: Text('EH-ArBot'),
           ),
         ],
         onChanged: (ArchiveBotType? selected) {
