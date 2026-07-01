@@ -62,6 +62,7 @@ mixin GridBasePage on StatelessWidget implements Scroll2TopPageMixin {
       titleSpacing: 0,
       title: DownloadPageSegmentControl(galleryType: galleryType),
       actions: buildAppBarActions(context),
+      bottom: buildAppBarBottom(context),
     );
   }
 
@@ -145,6 +146,10 @@ mixin GridBasePage on StatelessWidget implements Scroll2TopPageMixin {
 
   List<Widget> buildAppBarActions(BuildContext context) {
     return [];
+  }
+
+  PreferredSizeWidget? buildAppBarBottom(BuildContext context) {
+    return null;
   }
 
   Widget? buildGridBottomAppBar(BuildContext context) {
