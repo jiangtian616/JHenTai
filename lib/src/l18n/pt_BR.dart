@@ -664,6 +664,7 @@ class pt_BR {
       'pageRangeSelectHint': 'min <= 1000, max >= 10\nmin/max <= 0.8, max-min >= 20',
       'to': 'para',
       'minimumRating': 'Classificação mínima',
+      'noLimit': 'Sem limite',
       'disableFilterForLanguage': 'Desativar filtro para idioma',
       'disableFilterForUploader': 'Desativar filtro para uploader',
       'disableFilterForTags': 'Desativar filtro para Tags',

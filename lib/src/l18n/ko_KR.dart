@@ -663,6 +663,7 @@ class ko_KR {
       'pageRangeSelectHint': '최소 ≤ 1000, 최대 ≥ 10\n최소/최대 ≤ 0.8, 최대-최소 ≥ 20',
       'to': '~',
       'minimumRating': '최소 점수',
+      'noLimit': '제한 없음',
       'disableFilterForLanguage': '언어 필터 사용 안 함',
       'disableFilterForUploader': '업로더 필터 사용 안 함',
       'disableFilterForTags': '태그 필터 사용 안 함',

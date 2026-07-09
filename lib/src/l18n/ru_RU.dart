@@ -672,6 +672,7 @@ class ru_RU {
       'pageRangeSelectHint': 'мин <= 1000, макс >= 10\nмин/макс <= 0.8, макс-мин >= 20',
       'to': 'до',
       'minimumRating': 'Минимальный рейтинг',
+      'noLimit': 'Без ограничений',
       'disableFilterForLanguage': 'Отключить фильтр по языку',
       'disableFilterForUploader': 'Отключить фильтр по загрузившему',
       'disableFilterForTags': 'Отключить фильтр по тегам',

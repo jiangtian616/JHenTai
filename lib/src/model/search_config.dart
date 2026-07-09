@@ -38,7 +38,7 @@ class SearchConfig {
   int? pageAtLeast;
   int? pageAtMost;
 
-  int minimumRating = 1;
+  double minimumRating = 1;
 
   bool disableFilterForLanguage = false;
   bool disableFilterForUploader = false;
@@ -171,7 +171,7 @@ class SearchConfig {
       }
 
       if (minimumRating > 1) {
-        params['f_srdd'] = minimumRating;
+        params['f_srdd'] = minimumRating.floor();
       }
 
       if (disableFilterForLanguage) {
@@ -337,7 +337,7 @@ class SearchConfig {
     bool? onlyShowGalleriesWithTorrents,
     int? pageAtLeast,
     int? pageAtMost,
-    int? minimumRating,
+    double? minimumRating,
     bool? disableFilterForLanguage,
     bool? disableFilterForUploader,
     bool? disableFilterForTags,

@@ -619,25 +619,27 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
     return ListTile(
       dense: true,
       contentPadding: EdgeInsets.zero,
-      title: Text('minimumRating'.tr, style: const TextStyle(fontSize: 15)),
-      trailing: SizedBox(
-        width: 50,
-        child: DropdownButton<int>(
-          value: searchConfig.minimumRating,
-          elevation: 4,
-          onChanged: (int? newValue) {
-            setState(() {
-              searchConfig.minimumRating = newValue!;
-            });
-          },
-          items: const [
-            DropdownMenuItem(child: Text('1'), value: 1),
-            DropdownMenuItem(child: Text('2'), value: 2),
-            DropdownMenuItem(child: Text('3'), value: 3),
-            DropdownMenuItem(child: Text('4'), value: 4),
-            DropdownMenuItem(child: Text('5'), value: 5),
-          ],
-        ),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text('minimumRating'.tr, style: const TextStyle(fontSize: 15)),
+          Text(
+            searchConfig.minimumRating == 1 ? 'noLimit'.tr : '${searchConfig.minimumRating.toStringAsFixed(1)} ★',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+      subtitle: Slider(
+        value: searchConfig.minimumRating.clamp(1.0, 5.0),
+        min: 1.0,
+        max: 5.0,
+        divisions: 8,
+        label: searchConfig.minimumRating == 1 ? 'noLimit'.tr : searchConfig.minimumRating.toStringAsFixed(1),
+        onChanged: (double newValue) {
+          setState(() {
+            searchConfig.minimumRating = newValue;
+          });
+        },
       ),
     );
   }

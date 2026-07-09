@@ -423,6 +423,8 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     List<Gallery> filteredGallerys = await _filterByBlockingRules(gallerys);
 
+    filteredGallerys = _filterByMinimumRating(filteredGallerys);
+
     if (preferenceSetting.preloadGalleryCover.isTrue) {
       for (Gallery gallery in gallerys) {
         getNetworkImageData(gallery.cover.url, useCache: true);
@@ -449,6 +451,13 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     } else {
       return newGallerys.sublist(0, 1).map((g) => g..blockedByLocalRules = true).toList();
     }
+  }
+
+  List<Gallery> _filterByMinimumRating(List<Gallery> gallerys) {
+    if (state.searchConfig.minimumRating <= 1) {
+      return gallerys;
+    }
+    return gallerys.where((g) => g.rating >= state.searchConfig.minimumRating).toList();
   }
 
   Future<void> _translateGalleryTagsIfNeeded(List<Gallery> gallerys) async {

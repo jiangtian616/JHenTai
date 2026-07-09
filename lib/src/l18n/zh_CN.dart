@@ -663,6 +663,7 @@ class zh_CN {
       'pageRangeSelectHint': 'min <= 1000, max >= 10\nmin/max <= 0.8, max-min >= 20',
       'to': '到',
       'minimumRating': '最低评分',
+      'noLimit': '不限',
       'disableFilterForLanguage': '禁用语言过滤',
       'disableFilterForUploader': '禁用上传者过滤',
       'disableFilterForTags': '禁用标签过滤',

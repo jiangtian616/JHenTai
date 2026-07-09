@@ -663,6 +663,7 @@ class zh_TW {
       'pageRangeSelectHint': 'min <= 1000, max >= 10\nmin/max <= 0.8, max-min >= 20',
       'to': '到',
       'minimumRating': '最低評分',
+      'noLimit': '不限',
       'disableFilterForLanguage': '停用語言過濾',
       'disableFilterForUploader': '停用上傳者過濾',
       'disableFilterForTags': '停用標籤過濾',

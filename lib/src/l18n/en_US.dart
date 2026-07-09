@@ -663,6 +663,7 @@ class en_US {
       'pageRangeSelectHint': 'min <= 1000, max >= 10\nmin/max <= 0.8, max-min >= 20',
       'to': 'to',
       'minimumRating': 'Minimum Rating',
+      'noLimit': 'No Limit',
       'disableFilterForLanguage': 'Disable Filter For Language',
       'disableFilterForUploader': 'Disable Filter For Uploader',
       'disableFilterForTags': 'Disable Filter For Tags',
