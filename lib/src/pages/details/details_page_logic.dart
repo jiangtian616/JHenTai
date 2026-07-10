@@ -358,6 +358,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           candidates: galleryDownloadService.allGroups,
           showDownloadOriginalImageCheckBox: userSetting.hasLoggedIn(),
           downloadOriginalImage: downloadSetting.downloadOriginalImageByDefault.value,
+          preferredGroups: downloadSetting.recentGalleryGroups,
         ),
       );
 
@@ -368,6 +369,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       if (state.gallery == null && state.galleryDetails == null) {
         return;
       }
+
+      unawaited(downloadSetting.saveRecentGalleryGroup(result.group));
 
       GalleryDownloadedData galleryDownloadedData = GalleryDownloadedData(
         gid: state.galleryDetails?.galleryUrl.gid ?? state.gallery!.galleryUrl.gid,

@@ -19,6 +19,7 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   RxBool downloadOriginalImageByDefault = false.obs;
   RxnString defaultGalleryGroup = RxnString();
   RxnString defaultArchiveGroup = RxnString();
+  List<String> recentGalleryGroups = [];
   late String defaultExtraGalleryScanPath;
   late RxList<String> extraGalleryScanPath;
   late RxString singleImageSavePath;
@@ -51,6 +52,9 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     downloadOriginalImageByDefault.value = map['downloadOriginalImageByDefault'] ?? downloadOriginalImageByDefault.value;
     defaultGalleryGroup.value = map['defaultGalleryGroup'];
     defaultArchiveGroup.value = map['defaultArchiveGroup'];
+    if (map['recentGalleryGroups'] != null) {
+      recentGalleryGroups = map['recentGalleryGroups'].cast<String>();
+    }
     downloadTaskConcurrency.value = map['downloadTaskConcurrency'];
     maximum.value = map['maximum'];
     period.value = Duration(milliseconds: map['period']);
@@ -74,6 +78,7 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
       'downloadOriginalImageByDefault': downloadOriginalImageByDefault.value,
       'defaultGalleryGroup': defaultGalleryGroup.value,
       'defaultArchiveGroup': defaultArchiveGroup.value,
+      'recentGalleryGroups': recentGalleryGroups,
       'downloadTaskConcurrency': downloadTaskConcurrency.value,
       'maximum': maximum.value,
       'period': period.value.inMilliseconds,
@@ -141,6 +146,12 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   Future<void> saveDefaultArchiveGroup(String? group) async {
     log.debug('saveDefaultArchiveGroup:$group');
     this.defaultArchiveGroup.value = group;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveRecentGalleryGroup(String group) async {
+    recentGalleryGroups.removeWhere((candidate) => candidate == group);
+    recentGalleryGroups.insert(0, group);
     await saveBeanConfig();
   }
 
