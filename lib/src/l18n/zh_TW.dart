@@ -716,6 +716,7 @@ favnote：配對收藏備註
       'originalImage': '原圖',
       'resampleImage': '壓縮',
       'defaultGalleryGroup': '預設分組（下載）',
+      'prioritizeRecentGalleryGroups': '最近使用的下載分組優先',
       'defaultArchiveGroup': '預設分組（歸檔）',
       'never': '從不',
       'manual': '手動',

@@ -711,6 +711,7 @@ class pt_BR {
       'originalImage': 'Original',
       'resampleImage': 'Redimensionada',
       'defaultGalleryGroup': 'Default Gallery Group',
+      'prioritizeRecentGalleryGroups': 'Priorizar grupos de galeria usados recentemente',
       'defaultArchiveGroup': 'Default Archive Group',
       'never': 'Nunca',
       'manual': 'Manual',

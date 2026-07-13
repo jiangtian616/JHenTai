@@ -358,7 +358,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           candidates: galleryDownloadService.allGroups,
           showDownloadOriginalImageCheckBox: userSetting.hasLoggedIn(),
           downloadOriginalImage: downloadSetting.downloadOriginalImageByDefault.value,
-          preferredGroups: downloadSetting.recentGalleryGroups,
+          preferredGroups: downloadSetting.preferredGalleryGroups,
         ),
       );
 

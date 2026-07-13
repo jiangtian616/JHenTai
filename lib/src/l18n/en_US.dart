@@ -710,6 +710,7 @@ class en_US {
       'originalImage': 'Original',
       'resampleImage': 'Resample',
       'defaultGalleryGroup': 'Default Gallery Group',
+      'prioritizeRecentGalleryGroups': 'Prioritize Recently Used Gallery Groups',
       'defaultArchiveGroup': 'Default Archive Group',
       'never': 'Never',
       'manual': 'Manual',

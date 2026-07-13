@@ -719,6 +719,7 @@ class ru_RU {
       'originalImage': 'Оригинал',
       'resampleImage': 'Уменьшенное',
       'defaultGalleryGroup': 'Группа галерей по умолчанию',
+      'prioritizeRecentGalleryGroups': 'Недавние группы галерей в начале списка',
       'defaultArchiveGroup': 'Группа архивов по умолчанию',
       'never': 'Никогда',
       'manual': 'Вручную',
