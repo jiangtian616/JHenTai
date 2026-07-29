@@ -59,6 +59,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
               if (GetPlatform.isDesktop) _buildSingleImageSavePath(),
               _buildDownloadOriginalImage(),
               _buildDefaultGalleryGroup(context),
+              _buildPrioritizeRecentGalleryGroups(),
               _buildDefaultArchiveGroup(context),
               _buildArchiveBotSettings(),
               _buildDownloadConcurrency(),
@@ -178,6 +179,14 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
         onLongPress: () {
           downloadSetting.saveDefaultArchiveGroup(null);
         }).marginOnly(right: 12);
+  }
+
+  Widget _buildPrioritizeRecentGalleryGroups() {
+    return SwitchListTile(
+      title: Text('prioritizeRecentGalleryGroups'.tr),
+      value: downloadSetting.prioritizeRecentGalleryGroups.value,
+      onChanged: downloadSetting.savePrioritizeRecentGalleryGroups,
+    );
   }
 
   Widget _buildDownloadConcurrency() {

@@ -710,6 +710,7 @@ class ko_KR {
       'originalImage': '원본',
       'resampleImage': '압축',
       'defaultGalleryGroup': 'Default Gallery Group',
+      'prioritizeRecentGalleryGroups': '최근 사용한 갤러리 그룹 우선',
       'defaultArchiveGroup': 'Default Archive Group',
       'never': '영원히 안 함',
       'manual': '수동',

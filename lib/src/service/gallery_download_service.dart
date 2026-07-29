@@ -898,10 +898,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         return aOrder - bOrder;
       }
 
-      DateTime aTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(a.insertTime);
-      DateTime bTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(b.insertTime);
-
-      return bTime.difference(aTime).inMilliseconds;
+      return b.insertTime.compareTo(a.insertTime);
     });
   }
 

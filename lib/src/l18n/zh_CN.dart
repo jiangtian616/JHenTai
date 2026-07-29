@@ -717,6 +717,7 @@ favnote：匹配收藏备注
       'originalImage': '原图',
       'resampleImage': '压缩',
       'defaultGalleryGroup': '默认分组（下载）',
+      'prioritizeRecentGalleryGroups': '最近使用的下载分组优先',
       'defaultArchiveGroup': '默认分组（归档）',
       'never': '从不',
       'manual': '手动',
