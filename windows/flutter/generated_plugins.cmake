@@ -13,6 +13,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   share_plus
   smart_auth
   sqlite3_flutter_libs
+  system_network_proxy_windows
   url_launcher_windows
   window_manager
 )

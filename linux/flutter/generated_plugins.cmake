@@ -8,6 +8,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   screen_retriever
   smart_auth
   sqlite3_flutter_libs
+  system_network_proxy_linux
   url_launcher_linux
   window_manager
 )
