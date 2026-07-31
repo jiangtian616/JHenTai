@@ -1,19 +1,24 @@
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:volume_key_board/volume_key_board.dart';
+import 'package:volume_button_override/volume_button_override.dart';
 
 import 'jh_service.dart';
 import 'log.dart';
 
 VolumeService volumeService = VolumeService();
 
+/// Listens to volume key events so that they can be used to turn page in read page.
+///
+/// - On Android, volume events are intercepted natively via [methodChannel], and the system volume won't change.
+/// - On iOS, volume events are captured via [VolumeButtonController], the system volume may still change.
 class VolumeService extends GetxService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
-  late final MethodChannel methodChannel;
+  static const int _volumeUp = 1;
+  static const int _volumeDown = -1;
 
-  Function(VolumeEventType)? _onData;
+  late final MethodChannel _methodChannel;
+  final VolumeButtonController _iosController = VolumeButtonController();
 
-  static const int volumeUp = 1;
-  static const int volumeDown = -1;
+  bool _isListening = false;
 
   @override
   Future<void> doInitBean() async {
@@ -23,7 +28,7 @@ class VolumeService extends GetxService with JHLifeCircleBeanErrorCatch implemen
   @override
   Future<void> doAfterBeanReady() async {
     if (GetPlatform.isAndroid) {
-      methodChannel = const MethodChannel('top.jtmonster.jhentai.volume.event.intercept');
+      _methodChannel = const MethodChannel('top.jtmonster.jhentai.volume.event.intercept');
     }
   }
 
@@ -33,56 +38,67 @@ class VolumeService extends GetxService with JHLifeCircleBeanErrorCatch implemen
     cancelListen();
   }
 
-  Future<void> setInterceptVolumeEvent(bool value) async {
+  Future<void> listen(Function(VolumeEventType) onData) async {
+    await cancelListen();
+
     if (GetPlatform.isAndroid) {
       try {
-        await methodChannel.invokeMethod('set', value);
+        await _methodChannel.invokeMethod('set', true);
       } on PlatformException catch (e) {
         log.error('Set intercept volume event error!', e);
         log.uploadError(e);
+        return;
       }
-    } else if (GetPlatform.isIOS) {
-      if (value && _onData != null) {
-        VolumeKeyBoard.instance.addListener(_onVolumeKeyEvent);
-      } else {
-        VolumeKeyBoard.instance.removeListener();
-      }
-    }
-  }
 
-  void _onVolumeKeyEvent(VolumeKey event) {
-    if (event == VolumeKey.up) {
-      _onData?.call(VolumeEventType.volumeUp);
-    } else if (event == VolumeKey.down) {
-      _onData?.call(VolumeEventType.volumeDown);
-    }
-  }
-
-  void listen(Function(VolumeEventType)? onData) {
-    _onData = onData;
-
-    if (GetPlatform.isAndroid) {
-      methodChannel.setMethodCallHandler((MethodCall call) {
+      _methodChannel.setMethodCallHandler((MethodCall call) {
         if (call.method == 'event') {
           final int eventType = call.arguments as int;
-          if (eventType == volumeUp) {
-            onData?.call(VolumeEventType.volumeUp);
-          } else if (eventType == volumeDown) {
-            onData?.call(VolumeEventType.volumeDown);
+          if (eventType == _volumeUp) {
+            onData(VolumeEventType.volumeUp);
+          } else if (eventType == _volumeDown) {
+            onData(VolumeEventType.volumeDown);
           }
         }
         return Future.value();
       });
+
+      _isListening = true;
+    } else if (GetPlatform.isIOS) {
+      try {
+        _isListening = await _iosController.startListening(
+          volumeUpAction: ButtonAction(id: ButtonActionId.volumeUp, onAction: () => onData(VolumeEventType.volumeUp)),
+          volumeDownAction: ButtonAction(id: ButtonActionId.volumeDown, onAction: () => onData(VolumeEventType.volumeDown)),
+        );
+      } catch (e) {
+        log.error('Start listening to volume button error!', e);
+        log.uploadError(e);
+      }
     }
   }
 
-  void cancelListen() {
-    if (GetPlatform.isAndroid) {
-      methodChannel.setMethodCallHandler(null);
-    } else if (GetPlatform.isIOS) {
-      VolumeKeyBoard.instance.removeListener();
+  Future<void> cancelListen() async {
+    if (!_isListening) {
+      return;
     }
-    _onData = null;
+
+    if (GetPlatform.isAndroid) {
+      try {
+        await _methodChannel.invokeMethod('set', false);
+      } on PlatformException catch (e) {
+        log.error('Set intercept volume event error!', e);
+        log.uploadError(e);
+      }
+      _methodChannel.setMethodCallHandler(null);
+    } else if (GetPlatform.isIOS) {
+      try {
+        await _iosController.stopListening();
+      } catch (e) {
+        log.error('Stop listening to volume button error!', e);
+        log.uploadError(e);
+      }
+    }
+
+    _isListening = false;
   }
 }
 

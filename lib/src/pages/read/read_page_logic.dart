@@ -43,8 +43,8 @@ import '../../utils/toast_util.dart';
 import '../../widget/auto_mode_interval_dialog.dart';
 import '../../widget/loading_state_indicator.dart';
 import '../home_page.dart';
-import '../setting/read/setting_read_page.dart';
 import '../setting/keyboard_shortcuts/setting_keyboard_shortcuts_page.dart';
+import '../setting/read/setting_read_page.dart';
 
 class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   final String pageId = 'pageId';
@@ -241,6 +241,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
 
     state.focusNode.dispose();
     refreshCurrentTimeAndBatteryLevelTimer.cancel();
+    toggleTurnPageByVolumeKeyLister.dispose();
     toggleCurrentImmersiveModeLister.dispose();
     readDirectionLister.dispose();
     imageSpaceLister.dispose();
@@ -407,6 +408,11 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   }
 
   void listen2VolumeKeys() {
+    if (readSetting.enablePageTurnByVolumeKeys.isFalse) {
+      volumeService.cancelListen();
+      return;
+    }
+
     volumeService.listen((VolumeEventType type) {
       if (type == VolumeEventType.volumeUp) {
         layoutLogic.toPrev();
@@ -414,12 +420,10 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
         layoutLogic.toNext();
       }
     });
-    volumeService.setInterceptVolumeEvent(readSetting.enablePageTurnByVolumeKeys.value);
   }
 
   void restoreVolumeListener() {
     volumeService.cancelListen();
-    volumeService.setInterceptVolumeEvent(false);
   }
 
   /// If [immersiveMode], switch to [SystemUiMode.immersiveSticky], otherwise reset to [SystemUiMode.edgeToEdge]
@@ -567,18 +571,14 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     if (!GetPlatform.isMobile || readSetting.enableOrientationSpecificReadDirection.isFalse) {
       return readSetting.imageRegionWidthRatio.value;
     }
-    return isPortrait
-        ? readSetting.portraitImageRegionWidthRatio.value
-        : readSetting.landscapeImageRegionWidthRatio.value;
+    return isPortrait ? readSetting.portraitImageRegionWidthRatio.value : readSetting.landscapeImageRegionWidthRatio.value;
   }
 
   bool get effectiveDisplayFirstPageAlone {
     if (!GetPlatform.isMobile || readSetting.enableOrientationSpecificReadDirection.isFalse) {
       return readSetting.displayFirstPageAlone.value;
     }
-    return isPortrait
-        ? readSetting.portraitDisplayFirstPageAlone.value
-        : readSetting.landscapeDisplayFirstPageAlone.value;
+    return isPortrait ? readSetting.portraitDisplayFirstPageAlone.value : readSetting.landscapeDisplayFirstPageAlone.value;
   }
 
   bool get isInListReadDirection => ReadSetting.isListDirection(effectiveReadDirection);

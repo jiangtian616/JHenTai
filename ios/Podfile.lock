@@ -106,6 +106,8 @@ PODS:
   - video_player_avfoundation (0.0.1):
     - Flutter
     - FlutterMacOS
+  - volume_key_board (0.0.1):
+    - Flutter
   - wakelock_plus (0.0.1):
     - Flutter
   - webview_flutter_wkwebview (0.0.1):
@@ -136,6 +138,7 @@ DEPENDENCIES:
   - system_network_proxy (from `.symlinks/plugins/system_network_proxy/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/darwin`)
+  - volume_key_board (from `.symlinks/plugins/volume_key_board/ios`)
   - wakelock_plus (from `.symlinks/plugins/wakelock_plus/ios`)
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
 
@@ -195,6 +198,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   video_player_avfoundation:
     :path: ".symlinks/plugins/video_player_avfoundation/darwin"
+  volume_key_board:
+    :path: ".symlinks/plugins/volume_key_board/ios"
   wakelock_plus:
     :path: ".symlinks/plugins/wakelock_plus/ios"
   webview_flutter_wkwebview:
@@ -230,6 +235,7 @@ SPEC CHECKSUMS:
   Toast: 1f5ea13423a1e6674c4abdac5be53587ae481c4e
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   video_player_avfoundation: 7c6c11d8470e1675df7397027218274b6d2360b3
+  volume_key_board: 544501f83cce6478414091fb47f614471108b220
   wakelock_plus: 78ec7c5b202cab7761af8e2b2b3d0671be6c4ae1
   webview_flutter_wkwebview: 0982481e3d9c78fd5c6f62a002fcd24fc791f1e4
 
