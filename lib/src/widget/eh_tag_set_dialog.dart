@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
@@ -45,7 +44,7 @@ class _EHTagSetDialogState extends State<EHTagSetDialog> {
         if (_loadingState == LoadingState.error)
           GestureDetector(
             onTap: _getTagSet,
-            child: Icon(FontAwesomeIcons.redoAlt.data, size: 24, color: UIConfig.loadingStateIndicatorButtonColor(context)),
+            child: Icon(Icons.refresh, size: 24, color: UIConfig.loadingStateIndicatorButtonColor(context)),
           ),
         if (_loadingState == LoadingState.success)
           ..._tagSets

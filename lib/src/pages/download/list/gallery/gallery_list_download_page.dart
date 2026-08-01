@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
@@ -65,7 +64,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       centerTitle: true,
       leading: styleSetting.isInV2Layout
           ? IconButton(
-              icon: isRouteAtTop(Routes.download) ? const Icon(Icons.arrow_back) : Icon(FontAwesomeIcons.bars.data, size: 20),
+              icon: isRouteAtTop(Routes.download) ? const Icon(Icons.arrow_back) : Icon(Icons.menu, size: 20),
               onPressed: () {
                 if (isRouteAtTop(Routes.download)) {
                   backRoute(currentRoute: Routes.download);
@@ -220,7 +219,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
           onPressed: (_) => logic.handleChangeGroup(gallery),
         ),
         SlidableAction(
-          icon: FontAwesomeIcons.sort.data,
+          icon: Icons.sort,
           backgroundColor: UIConfig.downloadPageActionBackGroundColor(context),
           onPressed: (BuildContext context) => logic.showPrioritySheet(gallery, context),
         ),

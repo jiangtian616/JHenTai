@@ -667,14 +667,6 @@ packages:
       url: "https://github.com/MarlonJD/FlutterToast"
     source: git
     version: "8.2.8"
-  font_awesome_flutter:
-    dependency: "direct main"
-    description:
-      name: font_awesome_flutter
-      sha256: "09dcde8ab90ffae1a7d65ff2ef96fc62a17ad9d0ce7c127b317ded676b0d5935"
-      url: "https://pub.dev"
-    source: hosted
-    version: "11.0.0"
   frontend_server_client:
     dependency: "direct dev"
     description:

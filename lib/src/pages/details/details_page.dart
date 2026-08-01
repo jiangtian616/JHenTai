@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/enum/eh_namespace.dart';
@@ -115,7 +114,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                         value: 0,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [Text('jump'.tr), Icon(FontAwesomeIcons.paperPlane.data, size: 20)],
+                          children: [Text('jump'.tr), Icon(Icons.send, size: 20)],
                         ),
                       ),
                     PopupMenuItem(

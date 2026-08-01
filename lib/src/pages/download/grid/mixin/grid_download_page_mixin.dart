@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
@@ -49,7 +48,7 @@ mixin GridBasePage on StatelessWidget implements Scroll2TopPageMixin {
       centerTitle: true,
       leading: styleSetting.isInV2Layout
           ? IconButton(
-              icon: isRouteAtTop(Routes.download) ? const Icon(Icons.arrow_back) : Icon(FontAwesomeIcons.bars.data, size: 20),
+              icon: isRouteAtTop(Routes.download) ? const Icon(Icons.arrow_back) : Icon(Icons.menu, size: 20),
               onPressed: () {
                 if (isRouteAtTop(Routes.download)) {
                   backRoute(currentRoute: Routes.download);
