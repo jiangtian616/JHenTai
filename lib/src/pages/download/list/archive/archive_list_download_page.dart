@@ -194,8 +194,8 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       key: Key(archive.gid.toString()),
       endActionPane: _buildEndActionPane(context, archive),
       child: GestureDetector(
-        onSecondaryTap: () => logic.handleLongPressOrSecondaryTapItem(archive, context),
-        onLongPress: () => logic.handleLongPressOrSecondaryTapItem(archive, context),
+        onSecondaryTapDown: (details) => logic.handleLongPressOrSecondaryTapItem(archive, context, position: details.globalPosition),
+        onLongPressStart: (details) => logic.handleLongPressOrSecondaryTapItem(archive, context, position: details.globalPosition),
         child: _buildCard(context, archive).marginAll(5),
       ),
     );

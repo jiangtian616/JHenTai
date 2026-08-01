@@ -170,8 +170,8 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
         listMode: styleSetting.pageListMode[state.route] ?? styleSetting.listMode.value,
         loadingState: state.loadingState,
         handleTapCard: logic.handleTapGalleryCard,
-        handleLongPressCard: (gallery) => logic.handleLongPressCard(context, gallery),
-        handleSecondaryTapCard: (gallery) => logic.handleSecondaryTapCard(context, gallery),
+        handleLongPressCard: (gallery, position) => logic.handleLongPressCard(context, gallery, position: position),
+        handleSecondaryTapCard: (gallery, position) => logic.handleSecondaryTapCard(context, gallery, position: position),
         handleLoadMore: logic.loadMore,
       ),
     );

@@ -1,8 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/widget/eh_action_sheet_text.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
@@ -11,7 +9,9 @@ import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
+import 'package:jhentai/src/utils/search_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/eh_context_menu.dart';
 
 import '../../../../database/database.dart';
 import '../../../../exception/eh_site_exception.dart';
@@ -21,7 +21,6 @@ import '../../../../model/tag_set.dart';
 import '../../../../service/tag_translation_service.dart';
 import '../../../../utils/color_util.dart';
 import '../../../../service/log.dart';
-import '../../../../utils/route_util.dart';
 import '../../../../utils/snack_util.dart';
 import '../../../../widget/loading_state_indicator.dart';
 import 'tag_sets_page_state.dart';
@@ -208,68 +207,42 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
     myTagsSetting.refreshOnlineTagSets(state.currentTagSetNo);
   }
 
-  Future<void> showBottomSheet(int index, BuildContext context) async {
+  Future<void> showBottomSheet(int index, BuildContext context, {Offset? position}) async {
     Get.focusScope?.unfocus();
 
-    showCupertinoModalPopup(
-      context: context,
-      builder: (_) => CupertinoActionSheet(
-        actions: <CupertinoActionSheetAction>[
-          CupertinoActionSheetAction(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.favorite, color: UIConfig.tagSetsPageIconDefaultColor(context)).marginOnly(right: 4),
-                SizedBox(width: 56, child: ehActionSheetText('favorite'.tr)),
-              ],
-            ),
-            onPressed: () {
-              backRoute();
-              handleUpdateTagStatus(index, TagSetStatus.watched);
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.not_interested, color: UIConfig.tagSetsPageIconDefaultColor(context)).marginOnly(right: 4),
-                SizedBox(width: 56, child: ehActionSheetText('hidden'.tr)),
-              ],
-            ),
-            onPressed: () {
-              backRoute();
-              handleUpdateTagStatus(index, TagSetStatus.hidden);
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.question_mark, color: UIConfig.tagSetsPageIconDefaultColor(context)),
-                SizedBox(width: 56, child: ehActionSheetText('nope'.tr)),
-              ],
-            ),
-            onPressed: () {
-              backRoute();
-              handleUpdateTagStatus(index, TagSetStatus.nope);
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.delete, color: UIConfig.alertColor(context)),
-                SizedBox(width: 56, child: ehActionSheetText('delete'.tr)),
-              ],
-            ),
-            onPressed: () {
-              backRoute();
-              deleteTag(index);
-            },
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(child: ehActionSheetText('cancel'.tr), onPressed: backRoute),
-      ),
+    WatchedTag tag = state.tags[index];
+
+    showEHContextMenu(
+      context,
+      position: position,
+      actions: [
+        EHContextMenuAction(
+          text: 'search'.tr,
+          icon: Icon(Icons.search),
+          onTap: () => newSearch(keyword: '${tag.tagData.namespace}:${tag.tagData.key}'),
+        ),
+        EHContextMenuAction(
+          text: 'favorite'.tr,
+          icon: Icon(Icons.favorite, color: UIConfig.tagSetsPageIconDefaultColor(context)),
+          onTap: () => handleUpdateTagStatus(index, TagSetStatus.watched),
+        ),
+        EHContextMenuAction(
+          text: 'hidden'.tr,
+          icon: Icon(Icons.not_interested, color: UIConfig.tagSetsPageIconDefaultColor(context)),
+          onTap: () => handleUpdateTagStatus(index, TagSetStatus.hidden),
+        ),
+        EHContextMenuAction(
+          text: 'nope'.tr,
+          icon: Icon(Icons.question_mark, color: UIConfig.tagSetsPageIconDefaultColor(context)),
+          onTap: () => handleUpdateTagStatus(index, TagSetStatus.nope),
+        ),
+        EHContextMenuAction(
+          text: 'delete'.tr,
+          icon: Icon(Icons.delete, color: UIConfig.alertColor(context)),
+          color: UIConfig.alertColor(context),
+          onTap: () => deleteTag(index),
+        ),
+      ],
     );
   }
 

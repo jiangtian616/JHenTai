@@ -18,7 +18,7 @@ import '../../../../utils/process_util.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../utils/toast_util.dart';
 import '../../../../widget/eh_alert_dialog.dart';
-import '../../../../widget/eh_action_sheet_text.dart';
+import '../../../../widget/eh_context_menu.dart';
 import '../../../../widget/eh_download_dialog.dart';
 import '../basic/multi_select/multi_select_download_page_logic_mixin.dart';
 
@@ -115,11 +115,11 @@ mixin GalleryDownloadPageLogicMixin on GetxController
   }
 
   @override
-  void handleLongPressOrSecondaryTapItem(GalleryDownloadedData item, BuildContext context) {
+  void handleLongPressOrSecondaryTapItem(GalleryDownloadedData item, BuildContext context, {Offset? position}) {
     if (multiSelectDownloadPageState.inMultiSelectMode) {
       toggleSelectItem(item.gid);
     } else {
-      showBottomSheet(item, context);
+      showBottomSheet(item, context, position: position);
     }
   }
 
@@ -171,136 +171,93 @@ mixin GalleryDownloadPageLogicMixin on GetxController
     }
   }
 
-  void showBottomSheet(GalleryDownloadedData gallery, BuildContext context) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        actions: <CupertinoActionSheetAction>[
-          if (superResolutionSetting.modelDirectoryPath.value != null &&
-              downloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress.downloadStatus == DownloadStatus.downloaded &&
-              (superResolutionService.get(gallery.gid, SuperResolutionType.gallery) == null ||
-                  superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.paused))
-            CupertinoActionSheetAction(
-              child: ehActionSheetText('superResolution'.tr),
-              onPressed: () async {
-                backRoute();
-
-                if (superResolutionService.get(gallery.gid, SuperResolutionType.gallery) == null && gallery.downloadOriginalImage) {
-                  bool? result = await Get.dialog(EHDialog(title: 'attention'.tr + '!', content: 'superResolveOriginalImageHint'.tr));
-                  if (result == false) {
-                    return;
-                  }
+  void showBottomSheet(GalleryDownloadedData gallery, BuildContext context, {Offset? position}) {
+    showEHContextMenu(
+      context,
+      position: position,
+      actions: [
+        if (superResolutionSetting.modelDirectoryPath.value != null &&
+            downloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress.downloadStatus == DownloadStatus.downloaded &&
+            (superResolutionService.get(gallery.gid, SuperResolutionType.gallery) == null ||
+                superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.paused))
+          EHContextMenuAction(
+            text: 'superResolution'.tr,
+            onTap: () async {
+              if (superResolutionService.get(gallery.gid, SuperResolutionType.gallery) == null && gallery.downloadOriginalImage) {
+                bool? result = await Get.dialog(EHDialog(title: 'attention'.tr + '!', content: 'superResolveOriginalImageHint'.tr));
+                if (result != true) {
+                  return;
                 }
+              }
 
-                superResolutionService.superResolve(gallery.gid, SuperResolutionType.gallery);
-              },
-            ),
-          if (superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.running)
-            CupertinoActionSheetAction(
-              child: ehActionSheetText('stopSuperResolution'.tr),
-              onPressed: () async {
-                backRoute();
-                superResolutionService.pauseSuperResolve(gallery.gid, SuperResolutionType.gallery).then((_) => toast("success".tr));
-              },
-            ),
-          if (superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.paused ||
-              superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.success)
-            CupertinoActionSheetAction(
-              child: ehActionSheetText('deleteSuperResolvedImage'.tr),
-              onPressed: () async {
-                backRoute();
-                superResolutionService.deleteSuperResolve(gallery.gid, SuperResolutionType.gallery).then((_) => toast("success".tr));
-              },
-            ),
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('changeGroup'.tr),
-            onPressed: () {
-              backRoute();
-              handleChangeGroup(gallery);
+              superResolutionService.superResolve(gallery.gid, SuperResolutionType.gallery);
             },
           ),
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('changePriority'.tr),
-            onPressed: () {
-              backRoute();
-              showPrioritySheet(gallery, context);
-            },
+        if (superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.running)
+          EHContextMenuAction(
+            text: 'stopSuperResolution'.tr,
+            onTap: () => superResolutionService.pauseSuperResolve(gallery.gid, SuperResolutionType.gallery).then((_) => toast("success".tr)),
           ),
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('reDownload'.tr),
-            onPressed: () {
-              backRoute();
-              handleReDownloadItem(gallery);
-            },
+        if (superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.paused ||
+            superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.success)
+          EHContextMenuAction(
+            text: 'deleteSuperResolvedImage'.tr,
+            onTap: () => superResolutionService.deleteSuperResolve(gallery.gid, SuperResolutionType.gallery).then((_) => toast("success".tr)),
           ),
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('deleteTask'.tr, color: UIConfig.alertColor(context)),
-            onPressed: () {
-              backRoute();
-              handleRemoveItem(gallery, false, context);
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('deleteTaskAndImages'.tr, color: UIConfig.alertColor(context)),
-            onPressed: () {
-              backRoute();
-              handleRemoveItem(gallery, true, context);
-            },
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          child: ehActionSheetText('cancel'.tr),
-          onPressed: backRoute,
+        EHContextMenuAction(
+          text: 'changeGroup'.tr,
+          onTap: () => handleChangeGroup(gallery),
         ),
-      ),
+        EHContextMenuAction(
+          text: 'changePriority'.tr,
+          onTap: () => showPrioritySheet(gallery, context, position: position),
+        ),
+        EHContextMenuAction(
+          text: 'reDownload'.tr,
+          onTap: () => handleReDownloadItem(gallery),
+        ),
+        EHContextMenuAction(
+          text: 'deleteTask'.tr,
+          color: UIConfig.alertColor(context),
+          onTap: () => handleRemoveItem(gallery, false, context),
+        ),
+        EHContextMenuAction(
+          text: 'deleteTaskAndImages'.tr,
+          color: UIConfig.alertColor(context),
+          onTap: () => handleRemoveItem(gallery, true, context),
+        ),
+      ],
     );
   }
 
-  void showPrioritySheet(GalleryDownloadedData gallery, BuildContext context) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        actions: [
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('${'priority'.tr} : 1 (${'highest'.tr})'),
-            isDefaultAction: downloadService.galleryDownloadInfos[gallery.gid]?.priority == 1,
-            onPressed: () {
-              handleAssignPriority(gallery, 1);
-              backRoute();
-            },
-          ),
-          ...[2, 3]
-              .map((i) => CupertinoActionSheetAction(
-                    child: ehActionSheetText('${'priority'.tr} : $i'),
-                    isDefaultAction: downloadService.galleryDownloadInfos[gallery.gid]?.priority == i,
-                    onPressed: () {
-                      handleAssignPriority(gallery, i);
-                      backRoute();
-                    },
-                  ))
-              .toList(),
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('${'priority'.tr} : 4 (${'default'.tr})'),
-            isDefaultAction: downloadService.galleryDownloadInfos[gallery.gid]?.priority == 4,
-            onPressed: () {
-              handleAssignPriority(gallery, 4);
-              backRoute();
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('${'priority'.tr} : 5'),
-            isDefaultAction: downloadService.galleryDownloadInfos[gallery.gid]?.priority == 5,
-            onPressed: () {
-              handleAssignPriority(gallery, 5);
-              backRoute();
-            },
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          child: ehActionSheetText('cancel'.tr),
-          onPressed: backRoute,
+  void showPrioritySheet(GalleryDownloadedData gallery, BuildContext context, {Offset? position}) {
+    showEHContextMenu(
+      context,
+      position: position,
+      actions: [
+        EHContextMenuAction(
+          text: '${'priority'.tr} : 1 (${'highest'.tr})',
+          isDefault: downloadService.galleryDownloadInfos[gallery.gid]?.priority == 1,
+          onTap: () => handleAssignPriority(gallery, 1),
         ),
-      ),
+        ...[2, 3]
+            .map((i) => EHContextMenuAction(
+                  text: '${'priority'.tr} : $i',
+                  isDefault: downloadService.galleryDownloadInfos[gallery.gid]?.priority == i,
+                  onTap: () => handleAssignPriority(gallery, i),
+                ))
+            .toList(),
+        EHContextMenuAction(
+          text: '${'priority'.tr} : 4 (${'default'.tr})',
+          isDefault: downloadService.galleryDownloadInfos[gallery.gid]?.priority == 4,
+          onTap: () => handleAssignPriority(gallery, 4),
+        ),
+        EHContextMenuAction(
+          text: '${'priority'.tr} : 5',
+          isDefault: downloadService.galleryDownloadInfos[gallery.gid]?.priority == 5,
+          onTap: () => handleAssignPriority(gallery, 5),
+        ),
+      ],
     );
   }
 

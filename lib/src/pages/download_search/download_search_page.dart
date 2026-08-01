@@ -115,8 +115,8 @@ class DownloadSearchPage extends StatelessWidget {
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => logic.goToGalleryReadPage(gallery),
-                  onLongPress: () => logic.onLongPressGallery(context, gallery),
-                  onSecondaryTap: () => logic.onLongPressGallery(context, gallery),
+                  onLongPressStart: (details) => logic.onLongPressGallery(context, gallery, position: details.globalPosition),
+                  onSecondaryTapDown: (details) => logic.onLongPressGallery(context, gallery, position: details.globalPosition),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -362,8 +362,8 @@ class DownloadSearchPage extends StatelessWidget {
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => logic.goToArchiveReadPage(archive),
-                  onLongPress: () => logic.onLongPressArchive(context, archive),
-                  onSecondaryTap: () => logic.onLongPressArchive(context, archive),
+                  onLongPressStart: (details) => logic.onLongPressArchive(context, archive, position: details.globalPosition),
+                  onSecondaryTapDown: (details) => logic.onLongPressArchive(context, archive, position: details.globalPosition),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

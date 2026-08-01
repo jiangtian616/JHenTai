@@ -24,8 +24,8 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
   final bool downloaded;
   final ListMode listMode;
   final CardCallback handleTapCard;
-  final CardCallback? handleLongPressCard;
-  final CardCallback? handleSecondaryTapCard;
+  final CardContextMenuCallback? handleLongPressCard;
+  final CardContextMenuCallback? handleSecondaryTapCard;
 
   const EHGalleryWaterFlowCard({
     Key? key,
@@ -41,8 +41,8 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => handleTapCard(gallery),
-      onLongPress: handleLongPressCard == null ? null : () => handleLongPressCard!(gallery),
-      onSecondaryTap: handleSecondaryTapCard == null ? null : () => handleSecondaryTapCard!(gallery),
+      onLongPressStart: handleLongPressCard == null ? null : (details) => handleLongPressCard!(gallery, details.globalPosition),
+      onSecondaryTapDown: handleSecondaryTapCard == null ? null : (details) => handleSecondaryTapCard!(gallery, details.globalPosition),
       child: FadeIn(child: _buildCard(context)),
     );
   }

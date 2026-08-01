@@ -201,8 +201,8 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       key: Key(gallery.gid.toString()),
       endActionPane: _buildEndActionPane(context, gallery),
       child: GestureDetector(
-        onSecondaryTap: () => logic.handleLongPressOrSecondaryTapItem(gallery, context),
-        onLongPress: () => logic.handleLongPressOrSecondaryTapItem(gallery, context),
+        onSecondaryTapDown: (details) => logic.handleLongPressOrSecondaryTapItem(gallery, context, position: details.globalPosition),
+        onLongPressStart: (details) => logic.handleLongPressOrSecondaryTapItem(gallery, context, position: details.globalPosition),
         child: _buildCard(context, gallery).marginAll(5),
       ),
     );

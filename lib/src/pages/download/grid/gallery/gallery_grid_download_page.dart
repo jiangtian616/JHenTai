@@ -173,8 +173,8 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
           )
           .toList(),
       onTap: inEditMode ? null : () => logic.enterGroup(groupName),
-      onLongPress: inEditMode ? null : () => logic.handleLongPressGroup(groupName),
-      onSecondTap: inEditMode ? null : () => logic.handleLongPressGroup(groupName),
+      onLongPress: inEditMode ? null : (_) => logic.handleLongPressGroup(groupName),
+      onSecondTap: inEditMode ? null : (_) => logic.handleLongPressGroup(groupName),
     );
   }
 
@@ -226,8 +226,8 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       superResolutionType: SuperResolutionType.gallery,
       onTapWidget: inEditMode ? null : () => logic.handleTapItem(gallery),
       onTapTitle: inEditMode ? null : () => logic.handleTapTitle(gallery),
-      onLongPress: inEditMode ? null : () => logic.handleLongPressOrSecondaryTapItem(gallery, context),
-      onSecondTap: inEditMode ? null : () => logic.handleLongPressOrSecondaryTapItem(gallery, context),
+      onLongPress: inEditMode ? null : (position) => logic.handleLongPressOrSecondaryTapItem(gallery, context, position: position),
+      onSecondTap: inEditMode ? null : (position) => logic.handleLongPressOrSecondaryTapItem(gallery, context, position: position),
       onTertiaryTap: inEditMode ? null : () => logic.handleTapTitle(gallery),
     );
   }

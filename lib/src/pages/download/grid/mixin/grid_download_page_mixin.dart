@@ -234,8 +234,8 @@ class GridGallery extends StatelessWidget {
   final SuperResolutionType? superResolutionType;
   final VoidCallback? onTapWidget;
   final VoidCallback? onTapTitle;
-  final VoidCallback? onLongPress;
-  final VoidCallback? onSecondTap;
+  final void Function(Offset globalPosition)? onLongPress;
+  final void Function(Offset globalPosition)? onSecondTap;
   final VoidCallback? onTertiaryTap;
 
   const GridGallery({
@@ -258,8 +258,8 @@ class GridGallery extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTapWidget,
-      onLongPress: onLongPress,
-      onSecondaryTap: onSecondTap,
+      onLongPressStart: onLongPress == null ? null : (details) => onLongPress!(details.globalPosition),
+      onSecondaryTapDown: onSecondTap == null ? null : (details) => onSecondTap!(details.globalPosition),
       onTertiaryTapDown: (_) => onTertiaryTap?.call(),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -351,8 +351,8 @@ class GridGroup extends StatelessWidget {
   final List<Widget> widgets;
   final VoidCallback? onTap;
   final IconData? emptyIcon;
-  final VoidCallback? onLongPress;
-  final VoidCallback? onSecondTap;
+  final void Function(Offset globalPosition)? onLongPress;
+  final void Function(Offset globalPosition)? onSecondTap;
 
   const GridGroup({
     Key? key,
@@ -369,8 +369,8 @@ class GridGroup extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      onSecondaryTap: onSecondTap,
-      onLongPress: onLongPress,
+      onSecondaryTapDown: onSecondTap == null ? null : (details) => onSecondTap!(details.globalPosition),
+      onLongPressStart: onLongPress == null ? null : (details) => onLongPress!(details.globalPosition),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

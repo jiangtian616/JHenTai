@@ -21,7 +21,7 @@ import '../../../../utils/process_util.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../utils/toast_util.dart';
 import '../../../../widget/eh_alert_dialog.dart';
-import '../../../../widget/eh_action_sheet_text.dart';
+import '../../../../widget/eh_context_menu.dart';
 import '../../../../widget/eh_download_dialog.dart';
 import '../../../../widget/re_unlock_dialog.dart';
 import '../basic/multi_select/multi_select_download_page_logic_mixin.dart';
@@ -79,11 +79,11 @@ mixin ArchiveDownloadPageLogicMixin on GetxController
   }
 
   @override
-  void handleLongPressOrSecondaryTapItem(ArchiveDownloadedData item, BuildContext context) {
+  void handleLongPressOrSecondaryTapItem(ArchiveDownloadedData item, BuildContext context, {Offset? position}) {
     if (multiSelectDownloadPageState.inMultiSelectMode) {
       toggleSelectItem(item.gid);
     } else {
-      showBottomSheet(item, context);
+      showBottomSheet(item, context, position: position);
     }
   }
 
@@ -173,91 +173,65 @@ mixin ArchiveDownloadPageLogicMixin on GetxController
     }
   }
 
-  void showBottomSheet(ArchiveDownloadedData archive, BuildContext context) {
+  void showBottomSheet(ArchiveDownloadedData archive, BuildContext context, {Offset? position}) {
     ArchiveDownloadInfo? archiveDownloadInfo = archiveDownloadService.archiveDownloadInfos[archive.gid];
 
-    showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        actions: <CupertinoActionSheetAction>[
-          if (superResolutionSetting.modelDirectoryPath.value != null &&
-              (superResolutionService.get(archive.gid, SuperResolutionType.archive) == null ||
-                  superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.paused))
-            CupertinoActionSheetAction(
-              child: ehActionSheetText('superResolution'.tr),
-              onPressed: () async {
-                backRoute();
-
-                if (superResolutionService.get(archive.gid, SuperResolutionType.archive) == null && archive.isOriginal) {
-                  bool? result = await Get.dialog(EHDialog(title: 'attention'.tr + '!', content: 'superResolveOriginalImageHint'.tr));
-                  if (result == false) {
-                    return;
-                  }
+    showEHContextMenu(
+      context,
+      position: position,
+      actions: [
+        if (superResolutionSetting.modelDirectoryPath.value != null &&
+            (superResolutionService.get(archive.gid, SuperResolutionType.archive) == null ||
+                superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.paused))
+          EHContextMenuAction(
+            text: 'superResolution'.tr,
+            onTap: () async {
+              if (superResolutionService.get(archive.gid, SuperResolutionType.archive) == null && archive.isOriginal) {
+                bool? result = await Get.dialog(EHDialog(title: 'attention'.tr + '!', content: 'superResolveOriginalImageHint'.tr));
+                if (result != true) {
+                  return;
                 }
+              }
 
-                superResolutionService.superResolve(archive.gid, SuperResolutionType.archive);
-              },
-            ),
-          if (superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.running)
-            CupertinoActionSheetAction(
-              child: ehActionSheetText('stopSuperResolution'.tr),
-              onPressed: () async {
-                backRoute();
-
-                superResolutionService.pauseSuperResolve(archive.gid, SuperResolutionType.archive).then((_) => toast("success".tr));
-              },
-            ),
-          if (superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.paused ||
-              superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.success)
-            CupertinoActionSheetAction(
-              child: ehActionSheetText('deleteSuperResolvedImage'.tr),
-              onPressed: () async {
-                backRoute();
-
-                superResolutionService.deleteSuperResolve(archive.gid, SuperResolutionType.archive).then((_) => toast("success".tr));
-              },
-            ),
-          if (archiveDownloadInfo != null &&
-              archiveDownloadInfo.archiveStatus.code < ArchiveStatus.downloaded.code &&
-              archiveDownloadInfo.parseSource == ArchiveParseSource.bot.code)
-            CupertinoActionSheetAction(
-              child: ehActionSheetText('changeParseSource2Official'.tr),
-              onPressed: () {
-                backRoute();
-                changeParseSource(archive.gid, ArchiveParseSource.official);
-              },
-            ),
-          if (archiveDownloadInfo != null &&
-              archiveDownloadInfo.archiveStatus.code < ArchiveStatus.downloaded.code &&
-              archiveBotSetting.isReady &&
-              archiveDownloadInfo.parseSource == ArchiveParseSource.official.code)
-            CupertinoActionSheetAction(
-              child: ehActionSheetText('changeParseSource2Bot'.tr),
-              onPressed: () {
-                backRoute();
-                changeParseSource(archive.gid, ArchiveParseSource.bot);
-              },
-            ),
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('changeGroup'.tr),
-            onPressed: () {
-              backRoute();
-              handleChangeArchiveGroup(archive);
+              superResolutionService.superResolve(archive.gid, SuperResolutionType.archive);
             },
           ),
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('delete'.tr, color: UIConfig.alertColor(context)),
-            onPressed: () {
-              backRoute();
-              handleRemoveItem(archive);
-            },
+        if (superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.running)
+          EHContextMenuAction(
+            text: 'stopSuperResolution'.tr,
+            onTap: () => superResolutionService.pauseSuperResolve(archive.gid, SuperResolutionType.archive).then((_) => toast("success".tr)),
           ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          child: ehActionSheetText('cancel'.tr),
-          onPressed: backRoute,
+        if (superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.paused ||
+            superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.success)
+          EHContextMenuAction(
+            text: 'deleteSuperResolvedImage'.tr,
+            onTap: () => superResolutionService.deleteSuperResolve(archive.gid, SuperResolutionType.archive).then((_) => toast("success".tr)),
+          ),
+        if (archiveDownloadInfo != null &&
+            archiveDownloadInfo.archiveStatus.code < ArchiveStatus.downloaded.code &&
+            archiveDownloadInfo.parseSource == ArchiveParseSource.bot.code)
+          EHContextMenuAction(
+            text: 'changeParseSource2Official'.tr,
+            onTap: () => changeParseSource(archive.gid, ArchiveParseSource.official),
+          ),
+        if (archiveDownloadInfo != null &&
+            archiveDownloadInfo.archiveStatus.code < ArchiveStatus.downloaded.code &&
+            archiveBotSetting.isReady &&
+            archiveDownloadInfo.parseSource == ArchiveParseSource.official.code)
+          EHContextMenuAction(
+            text: 'changeParseSource2Bot'.tr,
+            onTap: () => changeParseSource(archive.gid, ArchiveParseSource.bot),
+          ),
+        EHContextMenuAction(
+          text: 'changeGroup'.tr,
+          onTap: () => handleChangeArchiveGroup(archive),
         ),
-      ),
+        EHContextMenuAction(
+          text: 'delete'.tr,
+          color: UIConfig.alertColor(context),
+          onTap: () => handleRemoveItem(archive),
+        ),
+      ],
     );
   }
 
