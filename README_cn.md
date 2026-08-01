@@ -5,6 +5,8 @@
 
 # JHenTai (Fork)
 
+[English](README.md) | 简体中文 | [한국어](README_kr.md)
+
 本项目是 [JHenTai](https://github.com/jiangtian616/JHenTai) 的 Fork，一个支持 Android、iOS、Windows、MacOS 和 Linux 的 E-Hentai 多端漫画阅读器。
 
 此 Fork 在原版基础上添加了若干功能和优化，所有改动均设计为非侵入式，与上游代码库兼容。

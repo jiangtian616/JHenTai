@@ -5,6 +5,8 @@
 
 # JHenTai (Fork)
 
+English | [简体中文](README_cn.md) | [한국어](README_kr.md)
+
 This is a fork of [JHenTai](https://github.com/jiangtian616/JHenTai), a manga app for E-Hentai, supporting Android & iOS & Windows & MacOS & Linux.
 
 This fork adds several features and optimizations on top of the original project. All changes are designed to be non-invasive and compatible with the upstream codebase.

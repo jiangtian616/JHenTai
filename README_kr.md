@@ -5,6 +5,8 @@
 
 # JHenTai (Fork)
 
+[English](README.md) | [简体中文](README_cn.md) | 한국어
+
 이 저장소는 [JHenTai](https://github.com/jiangtian616/JHenTai)의 Fork로, Android, iOS, Windows, MacOS, Linux를 지원하는 E-Hentai 만화 애플리케이션입니다.
 
 이 Fork는 원본 프로젝트에 여러 기능과 최적화를 추가합니다. 모든 변경사항은 비침투적으로 설계되었으며 상위 코드베이스와 호환됩니다.
