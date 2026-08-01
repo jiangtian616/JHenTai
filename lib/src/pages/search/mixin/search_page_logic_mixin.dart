@@ -207,23 +207,36 @@ mixin SearchPageLogicMixin on BasePageLogic {
       state.suggestions = await tagTranslationService.searchTags(keyword, limit: 100);
     } else {
       String lastPart = keyword.split(' ').last;
+      String effectivePart = lastPart;
+      String? operator;
+      if (lastPart.startsWith('-') || lastPart.startsWith('~')) {
+        operator = lastPart[0];
+        effectivePart = lastPart.substring(1);
+      }
       try {
-        List<EHRawTag> tags = await ehRequest.requestTagSuggestion(lastPart, EHSpiderParser.tagSuggestion2TagList);
-        state.suggestions = tags
-            .map((t) => (
-                  searchText: keyword,
-                  matchStart: keyword.length - lastPart.length,
-                  matchEnd: keyword.length,
-                  tagData: TagData(namespace: t.namespace, key: t.key),
-                  operator: null,
-                  score: 0.0,
-                  namespaceMatch:
-                      t.namespace.contains(lastPart) ? (start: t.namespace.indexOf(lastPart), end: t.namespace.indexOf(lastPart) + lastPart.length) : null,
-                  translatedNamespaceMatch: null,
-                  keyMatch: t.key.contains(lastPart) ? (start: t.key.indexOf(lastPart), end: t.key.indexOf(lastPart) + lastPart.length) : null,
-                  tagNameMatch: null,
-                ))
-            .toList();
+        if (effectivePart.isEmpty) {
+          state.suggestions = [];
+        } else {
+          List<EHRawTag> tags = await ehRequest.requestTagSuggestion(effectivePart, EHSpiderParser.tagSuggestion2TagList);
+          state.suggestions = tags
+              .map((t) => (
+                    searchText: keyword,
+                    matchStart: keyword.length - lastPart.length,
+                    matchEnd: keyword.length,
+                    tagData: TagData(namespace: t.namespace, key: t.key),
+                    operator: operator,
+                    score: 0.0,
+                    namespaceMatch: t.namespace.contains(effectivePart)
+                        ? (start: t.namespace.indexOf(effectivePart), end: t.namespace.indexOf(effectivePart) + effectivePart.length)
+                        : null,
+                    translatedNamespaceMatch: null,
+                    keyMatch: t.key.contains(effectivePart)
+                        ? (start: t.key.indexOf(effectivePart), end: t.key.indexOf(effectivePart) + effectivePart.length)
+                        : null,
+                    tagNameMatch: null,
+                  ))
+              .toList();
+        }
       } on DioException catch (e) {
         log.error('Request tag suggestion failed', e);
         state.suggestions = [];
