@@ -55,6 +55,7 @@ class SettingPreferencePage extends StatelessWidget {
               _buildShowDawnInfo(),
               _buildShowEncounterMonster(),
               _buildUseBuiltInBlockedUsers(),
+              _buildConfirmDestructiveActions(),
               _buildBlockRules(),
             ],
           ).withListTileTheme(context),
@@ -486,6 +487,15 @@ class SettingPreferencePage extends StatelessWidget {
           )
         ],
       ),
+    );
+  }
+
+  Widget _buildConfirmDestructiveActions() {
+    return SwitchListTile(
+      title: Text('confirmDestructiveActions'.tr),
+      subtitle: Text('confirmDestructiveActionsHint'.tr),
+      value: preferenceSetting.confirmDestructiveActions.value,
+      onChanged: preferenceSetting.saveConfirmDestructiveActions,
     );
   }
 }

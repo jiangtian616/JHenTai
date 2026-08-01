@@ -39,7 +39,8 @@ class PreferenceSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
   RxBool showHVInfo = false.obs;
   RxBool useBuiltInBlockedUsers = true.obs;
   Rx<DownloadPageGalleryType> defaultDownloadTab = DownloadPageGalleryType.download.obs;
-  
+  RxBool confirmDestructiveActions = false.obs;
+
   @override
   ConfigEnum get configEnum => ConfigEnum.preferenceSetting;
 
@@ -75,6 +76,7 @@ class PreferenceSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
     showHVInfo.value = map['showHVInfo'] ?? showHVInfo.value;
     useBuiltInBlockedUsers.value = map['useBuiltInBlockedUsers'] ?? useBuiltInBlockedUsers.value;
     defaultDownloadTab.value = DownloadPageGalleryType.values[map['defaultDownloadTab'] ?? DownloadPageGalleryType.download.index];
+    confirmDestructiveActions.value = map['confirmDestructiveActions'] ?? confirmDestructiveActions.value;
   }
 
   @override
@@ -106,6 +108,7 @@ class PreferenceSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
       'showHVInfo': showHVInfo.value,
       'useBuiltInBlockedUsers': useBuiltInBlockedUsers.value,
       'defaultDownloadTab': defaultDownloadTab.value.index,
+      'confirmDestructiveActions': confirmDestructiveActions.value,
     });
   }
 
@@ -269,6 +272,12 @@ class PreferenceSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
   Future<void> saveDefaultDownloadTab(DownloadPageGalleryType defaultDownloadTab) async {
     log.debug('saveDefaultDownloadTab:$defaultDownloadTab');
     this.defaultDownloadTab.value = defaultDownloadTab;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveConfirmDestructiveActions(bool confirmDestructiveActions) async {
+    log.debug('saveConfirmDestructiveActions:$confirmDestructiveActions');
+    this.confirmDestructiveActions.value = confirmDestructiveActions;
     await saveBeanConfig();
   }
 }

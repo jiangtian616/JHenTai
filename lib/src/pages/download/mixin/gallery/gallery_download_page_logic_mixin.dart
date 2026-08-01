@@ -13,6 +13,7 @@ import '../../../../routes/routes.dart';
 import '../../../../service/gallery_download_service.dart';
 import '../../../../service/read_progress_service.dart';
 import '../../../../setting/read_setting.dart';
+import '../../../../setting/preference_setting.dart';
 import '../../../../utils/process_util.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../utils/toast_util.dart';
@@ -26,6 +27,14 @@ mixin GalleryDownloadPageLogicMixin on GetxController
   final String bodyId = 'bodyId';
 
   final GalleryDownloadService downloadService = galleryDownloadService;
+
+  Future<bool> confirmDestructiveAction({required String title, String? content}) async {
+    if (!preferenceSetting.confirmDestructiveActions.isTrue) {
+      return true;
+    }
+    bool? result = await Get.dialog(EHDialog(title: title, content: content));
+    return result == true;
+  }
 
   Future<void> handleChangeGroup(GalleryDownloadedData gallery) async {
     String oldGroup = downloadService.galleryDownloadInfos[gallery.gid]!.group;
@@ -131,7 +140,11 @@ mixin GalleryDownloadPageLogicMixin on GetxController
     updateSafely([bodyId]);
   }
 
-  void handleReDownloadItem(GalleryDownloadedData gallery) {
+  Future<void> handleReDownloadItem(GalleryDownloadedData gallery) async {
+    bool confirmed = await confirmDestructiveAction(title: 'reDownload'.tr + '?');
+    if (!confirmed) {
+      return;
+    }
     downloadService.reDownloadGallery(gallery);
   }
 

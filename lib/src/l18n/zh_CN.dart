@@ -34,6 +34,8 @@ class zh_CN {
       'receiveDataTimeoutHint': '网络接收数据超时',
       'archiveError': '下载归档错误',
       'edit': '编辑',
+      'confirmDestructiveActions': '二次确认破坏性操作',
+      'confirmDestructiveActionsHint': '开启后，在下载页删除任务、重新下载等破坏性操作前会弹出确认框',
 
       'home': "主页",
       'gallery': "画廊",

@@ -74,6 +74,11 @@ class GalleryListDownloadPageLogic extends GetxController
 
   @override
   void handleRemoveItem(GalleryDownloadedData gallery, bool deleteImages, BuildContext context) async {
+    bool confirmed = await confirmDestructiveAction(title: deleteImages ? 'deleteTaskAndImages'.tr + '?' : 'deleteTask'.tr + '?');
+    if (!confirmed) {
+      return;
+    }
+
     bool isUpdatingDependent = downloadService.isUpdatingDependent(gallery.gid);
 
     if (isUpdatingDependent) {

@@ -34,6 +34,8 @@ class pt_BR {
       'receiveDataTimeoutHint': 'Network receive data timeout',
       'archiveError': 'Download Archive Error',
       'edit': 'Edit',
+      'confirmDestructiveActions': 'Confirmar ações destrutivas',
+      'confirmDestructiveActionsHint': 'Mostrar um diálogo de confirmação antes de ações destrutivas, como excluir tarefas ou baixar novamente na página de downloads',
 
       'home': "Home",
       'gallery': "Galeria",

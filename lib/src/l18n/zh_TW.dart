@@ -34,6 +34,8 @@ class zh_TW {
       'receiveDataTimeoutHint': '接收網路資料超時',
       'archiveError': '下載歸檔錯誤',
       'edit': '編輯',
+      'confirmDestructiveActions': '二次確認破壞性操作',
+      'confirmDestructiveActionsHint': '開啟後，在下載頁刪除任務、重新下載等破壞性操作前會彈出確認框',
 
       'home': "首頁",
       'gallery': "畫廊",

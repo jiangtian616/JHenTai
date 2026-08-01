@@ -34,6 +34,8 @@ class ko_KR {
       'receiveDataTimeoutHint': 'Network receive data timeout',
       'archiveError': 'Download Archive Error',
       'edit': 'Edit',
+      'confirmDestructiveActions': '파괴적 작업 확인',
+      'confirmDestructiveActionsHint': '켜면 다운로드 페이지에서 작업 삭제, 다시 다운로드 등 파괴적 작업 전에 확인 대화상자가 표시됩니다',
 
       'home': "홈",
       'gallery': "갤러리",

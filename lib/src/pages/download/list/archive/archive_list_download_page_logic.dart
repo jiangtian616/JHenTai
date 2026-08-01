@@ -74,7 +74,11 @@ class ArchiveListDownloadPageLogic extends GetxController
   }
 
   @override
-  void handleRemoveItem(ArchiveDownloadedData archive) {
+  Future<void> handleRemoveItem(ArchiveDownloadedData archive) async {
+    bool confirmed = await confirmDestructiveAction(title: 'delete'.tr + '?');
+    if (!confirmed) {
+      return;
+    }
     state.groupedListController.removeElement(archive).then((_) async {
       state.selectedGids.remove(archive.gid);
       await archiveDownloadService.deleteArchive(archive.gid);

@@ -15,6 +15,7 @@ import '../../../../service/archive_download_service.dart';
 import '../../../../service/read_progress_service.dart';
 import '../../../../service/super_resolution_service.dart';
 import '../../../../setting/read_setting.dart';
+import '../../../../setting/preference_setting.dart';
 import '../../../../setting/super_resolution_setting.dart';
 import '../../../../utils/process_util.dart';
 import '../../../../utils/route_util.dart';
@@ -35,6 +36,14 @@ mixin ArchiveDownloadPageLogicMixin on GetxController
 
   @override
   MultiSelectDownloadPageStateMixin get multiSelectDownloadPageState => archiveDownloadPageState;
+
+  Future<bool> confirmDestructiveAction({required String title, String? content}) async {
+    if (!preferenceSetting.confirmDestructiveActions.isTrue) {
+      return true;
+    }
+    bool? result = await Get.dialog(EHDialog(title: title, content: content));
+    return result == true;
+  }
 
   Future<void> handleChangeArchiveGroup(ArchiveDownloadedData archive) async {
     String oldGroup = archiveDownloadService.archiveDownloadInfos[archive.gid]!.group;
@@ -239,8 +248,8 @@ mixin ArchiveDownloadPageLogicMixin on GetxController
           CupertinoActionSheetAction(
             child: ehActionSheetText('delete'.tr, color: UIConfig.alertColor(context)),
             onPressed: () {
-              handleRemoveItem(archive);
               backRoute();
+              handleRemoveItem(archive);
             },
           ),
         ],
