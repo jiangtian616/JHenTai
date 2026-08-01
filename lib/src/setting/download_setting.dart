@@ -167,6 +167,9 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     }
     recentGalleryGroups.removeWhere((candidate) => candidate == group);
     recentGalleryGroups.insert(0, group);
+    if (recentGalleryGroups.length > 10) {
+      recentGalleryGroups.removeLast();
+    }
     await saveBeanConfig();
   }
 
