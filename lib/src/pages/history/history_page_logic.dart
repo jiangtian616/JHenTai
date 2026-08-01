@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/widget/eh_action_sheet_text.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/widget/eh_alert_dialog.dart';
@@ -52,7 +53,7 @@ class HistoryPageLogic extends OldBasePageLogic {
       builder: (_) => CupertinoActionSheet(
         actions: <CupertinoActionSheetAction>[
           CupertinoActionSheetAction(
-            child: Text('delete'.tr, style: TextStyle(color: UIConfig.alertColor(context))),
+            child: ehActionSheetText('delete'.tr, color: UIConfig.alertColor(context)),
             onPressed: () {
               backRoute();
               delete(gallery.gid);
@@ -60,7 +61,7 @@ class HistoryPageLogic extends OldBasePageLogic {
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
-          child: Text('cancel'.tr),
+          child: ehActionSheetText('cancel'.tr),
           onPressed: () => backRoute(),
         ),
       ),

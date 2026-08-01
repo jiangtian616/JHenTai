@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:jhentai/src/widget/eh_action_sheet_text.dart';
 import 'package:jhentai/src/enum/config_type_enum.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
@@ -130,7 +131,7 @@ class _ConfigSyncPageState extends State<ConfigSyncPage> {
       builder: (BuildContext context) => CupertinoActionSheet(
         actions: <CupertinoActionSheetAction>[
           CupertinoActionSheetAction(
-            child: Text('copyShareCode'.tr),
+            child: ehActionSheetText('copyShareCode'.tr),
             onPressed: () {
               backRoute();
               Clipboard.setData(ClipboardData(text: config.shareCode));
@@ -138,28 +139,28 @@ class _ConfigSyncPageState extends State<ConfigSyncPage> {
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('download'.tr),
+            child: ehActionSheetText('download'.tr),
             onPressed: () {
               backRoute();
               _downloadConfig(config);
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('import'.tr),
+            child: ehActionSheetText('import'.tr),
             onPressed: () {
               backRoute();
               _importConfig(config);
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('delete'.tr, style: TextStyle(color: UIConfig.alertColor(context))),
+            child: ehActionSheetText('delete'.tr, color: UIConfig.alertColor(context)),
             onPressed: () {
               backRoute();
               _deleteConfig(config);
             },
           ),
         ],
-        cancelButton: CupertinoActionSheetAction(child: Text('cancel'.tr), onPressed: backRoute),
+        cancelButton: CupertinoActionSheetAction(child: ehActionSheetText('cancel'.tr), onPressed: backRoute),
       ),
     );
   }

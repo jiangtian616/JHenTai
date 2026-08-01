@@ -17,6 +17,7 @@ import '../../../../utils/process_util.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../utils/toast_util.dart';
 import '../../../../widget/eh_alert_dialog.dart';
+import '../../../../widget/eh_action_sheet_text.dart';
 import '../../../../widget/eh_download_dialog.dart';
 import '../basic/multi_select/multi_select_download_page_logic_mixin.dart';
 
@@ -167,7 +168,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController
               (superResolutionService.get(gallery.gid, SuperResolutionType.gallery) == null ||
                   superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.paused))
             CupertinoActionSheetAction(
-              child: Text('superResolution'.tr),
+              child: ehActionSheetText('superResolution'.tr),
               onPressed: () async {
                 backRoute();
 
@@ -183,7 +184,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController
             ),
           if (superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.running)
             CupertinoActionSheetAction(
-              child: Text('stopSuperResolution'.tr),
+              child: ehActionSheetText('stopSuperResolution'.tr),
               onPressed: () async {
                 backRoute();
                 superResolutionService.pauseSuperResolve(gallery.gid, SuperResolutionType.gallery).then((_) => toast("success".tr));
@@ -192,42 +193,42 @@ mixin GalleryDownloadPageLogicMixin on GetxController
           if (superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.paused ||
               superResolutionService.get(gallery.gid, SuperResolutionType.gallery)?.status == SuperResolutionStatus.success)
             CupertinoActionSheetAction(
-              child: Text('deleteSuperResolvedImage'.tr),
+              child: ehActionSheetText('deleteSuperResolvedImage'.tr),
               onPressed: () async {
                 backRoute();
                 superResolutionService.deleteSuperResolve(gallery.gid, SuperResolutionType.gallery).then((_) => toast("success".tr));
               },
             ),
           CupertinoActionSheetAction(
-            child: Text('changeGroup'.tr),
+            child: ehActionSheetText('changeGroup'.tr),
             onPressed: () {
               backRoute();
               handleChangeGroup(gallery);
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('changePriority'.tr),
+            child: ehActionSheetText('changePriority'.tr),
             onPressed: () {
               backRoute();
               showPrioritySheet(gallery, context);
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('reDownload'.tr),
+            child: ehActionSheetText('reDownload'.tr),
             onPressed: () {
               backRoute();
               handleReDownloadItem(gallery);
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('deleteTask'.tr, style: TextStyle(color: UIConfig.alertColor(context))),
+            child: ehActionSheetText('deleteTask'.tr, color: UIConfig.alertColor(context)),
             onPressed: () {
               backRoute();
               handleRemoveItem(gallery, false, context);
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('deleteTaskAndImages'.tr, style: TextStyle(color: UIConfig.alertColor(context))),
+            child: ehActionSheetText('deleteTaskAndImages'.tr, color: UIConfig.alertColor(context)),
             onPressed: () {
               backRoute();
               handleRemoveItem(gallery, true, context);
@@ -235,7 +236,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
-          child: Text('cancel'.tr),
+          child: ehActionSheetText('cancel'.tr),
           onPressed: backRoute,
         ),
       ),
@@ -248,7 +249,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController
       builder: (BuildContext context) => CupertinoActionSheet(
         actions: [
           CupertinoActionSheetAction(
-            child: Text('${'priority'.tr} : 1 (${'highest'.tr})'),
+            child: ehActionSheetText('${'priority'.tr} : 1 (${'highest'.tr})'),
             isDefaultAction: downloadService.galleryDownloadInfos[gallery.gid]?.priority == 1,
             onPressed: () {
               handleAssignPriority(gallery, 1);
@@ -257,7 +258,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController
           ),
           ...[2, 3]
               .map((i) => CupertinoActionSheetAction(
-                    child: Text('${'priority'.tr} : $i'),
+                    child: ehActionSheetText('${'priority'.tr} : $i'),
                     isDefaultAction: downloadService.galleryDownloadInfos[gallery.gid]?.priority == i,
                     onPressed: () {
                       handleAssignPriority(gallery, i);
@@ -266,7 +267,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController
                   ))
               .toList(),
           CupertinoActionSheetAction(
-            child: Text('${'priority'.tr} : 4 (${'default'.tr})'),
+            child: ehActionSheetText('${'priority'.tr} : 4 (${'default'.tr})'),
             isDefaultAction: downloadService.galleryDownloadInfos[gallery.gid]?.priority == 4,
             onPressed: () {
               handleAssignPriority(gallery, 4);
@@ -274,7 +275,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('${'priority'.tr} : 5'),
+            child: ehActionSheetText('${'priority'.tr} : 5'),
             isDefaultAction: downloadService.galleryDownloadInfos[gallery.gid]?.priority == 5,
             onPressed: () {
               handleAssignPriority(gallery, 5);
@@ -283,7 +284,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
-          child: Text('cancel'.tr),
+          child: ehActionSheetText('cancel'.tr),
           onPressed: backRoute,
         ),
       ),

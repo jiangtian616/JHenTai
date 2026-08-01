@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/widget/eh_action_sheet_text.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
@@ -309,21 +310,21 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
       builder: (BuildContext context) => CupertinoActionSheet(
         actions: <CupertinoActionSheetAction>[
           CupertinoActionSheetAction(
-            child: Text('changeGroup'.tr),
+            child: ehActionSheetText('changeGroup'.tr),
             onPressed: () {
               backRoute();
               handleChangeGalleryGroup(gallery);
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('deleteTaskAndImages'.tr, style: TextStyle(color: UIConfig.alertColor(context))),
+            child: ehActionSheetText('deleteTaskAndImages'.tr, color: UIConfig.alertColor(context)),
             onPressed: () {
               backRoute();
               handleRemoveGallery(gallery, context);
             },
           ),
         ],
-        cancelButton: CupertinoActionSheetAction(child: Text('cancel'.tr), onPressed: backRoute),
+        cancelButton: CupertinoActionSheetAction(child: ehActionSheetText('cancel'.tr), onPressed: backRoute),
       ),
     );
   }
@@ -334,14 +335,14 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
       builder: (BuildContext context) => CupertinoActionSheet(
         actions: <CupertinoActionSheetAction>[
           CupertinoActionSheetAction(
-            child: Text('changeGroup'.tr),
+            child: ehActionSheetText('changeGroup'.tr),
             onPressed: () {
               backRoute();
               handleChangeArchiveGroup(archive);
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('delete'.tr, style: TextStyle(color: UIConfig.alertColor(context))),
+            child: ehActionSheetText('delete'.tr, color: UIConfig.alertColor(context)),
             onPressed: () {
               handleRemoveArchive(archive);
               backRoute();
@@ -349,7 +350,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
-          child: Text('cancel'.tr),
+          child: ehActionSheetText('cancel'.tr),
           onPressed: backRoute,
         ),
       ),

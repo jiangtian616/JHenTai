@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/widget/eh_action_sheet_text.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/pages/setting/preference/block_rule/add_block_rule/configure_blocking_rule_page_logic.dart';
 import 'package:jhentai/src/service/local_block_rule_service.dart';
@@ -181,7 +182,7 @@ class BlockingRulePage extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.edit_note, color: UIConfig.primaryColor(context)).marginOnly(right: 4),
-                SizedBox(width: 56, child: Text('edit'.tr)),
+                SizedBox(width: 56, child: ehActionSheetText('edit'.tr)),
               ],
             ),
             onPressed: () async {
@@ -200,7 +201,7 @@ class BlockingRulePage extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.delete, color: UIConfig.alertColor(context)).marginOnly(right: 4),
-                SizedBox(width: 56, child: Text('delete'.tr, style: TextStyle(color: UIConfig.alertColor(context)))),
+                SizedBox(width: 56, child: ehActionSheetText('delete'.tr, color: UIConfig.alertColor(context))),
               ],
             ),
             onPressed: () async {
@@ -210,7 +211,7 @@ class BlockingRulePage extends StatelessWidget {
             },
           ),
         ],
-        cancelButton: CupertinoActionSheetAction(child: Text('cancel'.tr), onPressed: backRoute),
+        cancelButton: CupertinoActionSheetAction(child: ehActionSheetText('cancel'.tr), onPressed: backRoute),
       ),
     );
   }

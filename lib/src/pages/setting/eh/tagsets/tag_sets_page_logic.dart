@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/widget/eh_action_sheet_text.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
@@ -219,7 +220,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.favorite, color: UIConfig.tagSetsPageIconDefaultColor(context)).marginOnly(right: 4),
-                SizedBox(width: 56, child: Text('favorite'.tr)),
+                SizedBox(width: 56, child: ehActionSheetText('favorite'.tr)),
               ],
             ),
             onPressed: () {
@@ -232,7 +233,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.not_interested, color: UIConfig.tagSetsPageIconDefaultColor(context)).marginOnly(right: 4),
-                SizedBox(width: 56, child: Text('hidden'.tr)),
+                SizedBox(width: 56, child: ehActionSheetText('hidden'.tr)),
               ],
             ),
             onPressed: () {
@@ -245,7 +246,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.question_mark, color: UIConfig.tagSetsPageIconDefaultColor(context)),
-                SizedBox(width: 56, child: Text('nope'.tr)),
+                SizedBox(width: 56, child: ehActionSheetText('nope'.tr)),
               ],
             ),
             onPressed: () {
@@ -258,7 +259,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(Icons.delete, color: UIConfig.alertColor(context)),
-                SizedBox(width: 56, child: Text('delete'.tr)),
+                SizedBox(width: 56, child: ehActionSheetText('delete'.tr)),
               ],
             ),
             onPressed: () {
@@ -267,7 +268,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
             },
           ),
         ],
-        cancelButton: CupertinoActionSheetAction(child: Text('cancel'.tr), onPressed: backRoute),
+        cancelButton: CupertinoActionSheetAction(child: ehActionSheetText('cancel'.tr), onPressed: backRoute),
       ),
     );
   }

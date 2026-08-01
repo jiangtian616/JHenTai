@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/widget/eh_action_sheet_text.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:path/path.dart';
 
@@ -125,7 +126,7 @@ mixin LocalGalleryDownloadPageLogicMixin on GetxController {
       builder: (BuildContext context) => CupertinoActionSheet(
         actions: <CupertinoActionSheetAction>[
           CupertinoActionSheetAction(
-            child: Text('delete'.tr, style: TextStyle(color: UIConfig.alertColor(context))),
+            child: ehActionSheetText('delete'.tr, color: UIConfig.alertColor(context)),
             onPressed: () {
               route.backRoute();
               handleRemoveItem(gallery);
@@ -133,7 +134,7 @@ mixin LocalGalleryDownloadPageLogicMixin on GetxController {
           ),
         ],
         cancelButton: CupertinoActionSheetAction(
-          child: Text('cancel'.tr),
+          child: ehActionSheetText('cancel'.tr),
           onPressed: route.backRoute,
         ),
       ),

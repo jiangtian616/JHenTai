@@ -14,6 +14,7 @@ import 'package:get/get_navigation/get_navigation.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:get/get_utils/get_utils.dart';
+import 'package:jhentai/src/widget/eh_action_sheet_text.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
@@ -188,35 +189,35 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       builder: (_) => CupertinoActionSheet(
         actions: <CupertinoActionSheetAction>[
           CupertinoActionSheetAction(
-            child: Text('reload'.tr),
+            child: ehActionSheetText('reload'.tr),
             onPressed: () {
               backRoute();
               readPageLogic.reloadImage(index);
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('share'.tr),
+            child: ehActionSheetText('share'.tr),
             onPressed: () async {
               backRoute();
               shareOnlineImage(index);
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('copyImage'.tr),
+            child: ehActionSheetText('copyImage'.tr),
             onPressed: () async {
               backRoute();
               copyOnlineImage(index);
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('copyEHPageUrl'.tr),
+            child: ehActionSheetText('copyEHPageUrl'.tr),
             onPressed: () async {
               backRoute();
               copyEHPageUrl(index);
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('${'save'.tr}(${'resampleImage'.tr})'),
+            child: ehActionSheetText('${'save'.tr}(${'resampleImage'.tr})'),
             onPressed: () async {
               backRoute();
               saveOnlineImage(index);
@@ -224,14 +225,14 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
           ),
           if (readPageState.images[index]!.originalImageUrl != null && userSetting.hasLoggedIn())
             CupertinoActionSheetAction(
-              child: Text('${'save'.tr}(${'originalImage'.tr})'),
+              child: ehActionSheetText('${'save'.tr}(${'originalImage'.tr})'),
               onPressed: () async {
                 backRoute();
                 saveOriginalOnlineImage(index);
               },
             ),
         ],
-        cancelButton: CupertinoActionSheetAction(child: Text('cancel'.tr), onPressed: backRoute),
+        cancelButton: CupertinoActionSheetAction(child: ehActionSheetText('cancel'.tr), onPressed: backRoute),
       ),
     );
   }
@@ -284,42 +285,42 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       builder: (_) => CupertinoActionSheet(
         actions: [
           CupertinoActionSheetAction(
-            child: Text('share'.tr),
+            child: ehActionSheetText('share'.tr),
             onPressed: () {
               backRoute();
               shareDownloadedImageFile(index);
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('copyImage'.tr),
+            child: ehActionSheetText('copyImage'.tr),
             onPressed: () {
               backRoute();
               copyDownloadedImageFile(index);
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('copyEHPageUrl'.tr),
+            child: ehActionSheetText('copyEHPageUrl'.tr),
             onPressed: () async {
               backRoute();
               copyEHPageUrl(index);
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('save'.tr),
+            child: ehActionSheetText('save'.tr),
             onPressed: () {
               backRoute();
               saveDownloadedImageFile(index);
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('reDownload'.tr),
+            child: ehActionSheetText('reDownload'.tr),
             onPressed: () {
               backRoute();
               galleryDownloadService.reDownloadImage(readPageState.readPageInfo.gid!, index);
             },
           ),
         ],
-        cancelButton: CupertinoActionSheetAction(child: Text('cancel'.tr), onPressed: backRoute),
+        cancelButton: CupertinoActionSheetAction(child: ehActionSheetText('cancel'.tr), onPressed: backRoute),
       ),
     );
   }
@@ -335,28 +336,28 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       builder: (_) => CupertinoActionSheet(
         actions: [
           CupertinoActionSheetAction(
-            child: Text('share'.tr),
+            child: ehActionSheetText('share'.tr),
             onPressed: () {
               backRoute();
               shareArchiveImageFile(index);
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('copyImage'.tr),
+            child: ehActionSheetText('copyImage'.tr),
             onPressed: () {
               backRoute();
               copyArchiveImageFile(index);
             },
           ),
           CupertinoActionSheetAction(
-            child: Text('save'.tr),
+            child: ehActionSheetText('save'.tr),
             onPressed: () {
               backRoute();
               saveArchiveImageFile(index);
             },
           ),
         ],
-        cancelButton: CupertinoActionSheetAction(child: Text('cancel'.tr), onPressed: backRoute),
+        cancelButton: CupertinoActionSheetAction(child: ehActionSheetText('cancel'.tr), onPressed: backRoute),
       ),
     );
   }
