@@ -41,6 +41,7 @@ import '../../utils/eh_spider_parser.dart';
 import '../../utils/route_util.dart';
 import '../../utils/toast_util.dart';
 import '../../widget/auto_mode_interval_dialog.dart';
+import '../../widget/eh_image.dart';
 import '../../widget/loading_state_indicator.dart';
 import '../home_page.dart';
 import '../setting/keyboard_shortcuts/setting_keyboard_shortcuts_page.dart';
@@ -279,6 +280,8 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     executor.close();
 
     WakelockPlus.disable();
+
+    EHImageAnimationGateRegistry.clear();
   }
 
   void beginToParseImageHref(int index) {
