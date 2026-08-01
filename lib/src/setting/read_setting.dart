@@ -18,7 +18,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   RxBool showThumbnails = true.obs;
   RxBool showScrollBar = true.obs;
   RxBool showStatusInfo = true.obs;
-  RxBool enablePageTurnByVolumeKeys = true.obs;
+  RxBool enablePageTurnByVolumeKeys = (GetPlatform.isIOS ? false : true).obs;
   RxBool enablePageTurnAnime = true.obs;
   RxBool enableDoubleTapToScaleUp = false.obs;
   RxBool enableTapDragToScaleUp = false.obs;

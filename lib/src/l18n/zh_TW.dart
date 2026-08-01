@@ -501,6 +501,7 @@ class zh_TW {
       'left2rightList': '從左至右(連續)',
       'right2leftList': '從右至左(連續)',
       'enablePageTurnByVolumeKeys': '使用音量鍵翻頁',
+      'enablePageTurnByVolumeKeysHint': 'iOS 上，若音量為 0 或 100%，進入閱讀頁時音量將被自動調整以支援翻頁，退出後恢復',
       'enablePageTurnAnime': '開啟翻頁動畫',
       'enableDoubleTapToScaleUp': '允許雙擊放大圖片',
       'enableTapDragToScaleUp': '允許單擊後拖曳放大圖片',

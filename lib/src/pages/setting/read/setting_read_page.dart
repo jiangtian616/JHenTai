@@ -210,6 +210,7 @@ class SettingReadPage extends StatelessWidget {
   Widget _buildEnablePageTurnByVolumeKeys() {
     return SwitchListTile(
       title: Text('enablePageTurnByVolumeKeys'.tr),
+      subtitle: GetPlatform.isIOS ? Text('enablePageTurnByVolumeKeysHint'.tr) : null,
       value: readSetting.enablePageTurnByVolumeKeys.value,
       onChanged: readSetting.saveEnablePageTurnByVolumeKeys,
     );
