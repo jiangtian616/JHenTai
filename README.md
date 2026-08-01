@@ -1,212 +1,56 @@
 ![platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Windows%20%7C%20MacOS%20%7C%20Linux-brightgreen)
-![last-commit](https://img.shields.io/github/last-commit/jiangtian616/JHenTai)
-[![downloads](https://img.shields.io/github/downloads/jiangtian616/JHenTai/total)](https://github.com/jiangtian616/JHenTai/releases)
-[![downloads](https://img.shields.io/github/downloads/jiangtian616/JHenTai/latest/total)](https://github.com/jiangtian616/JHenTai/releases)
-![star](https://img.shields.io/github/stars/jiangtian616/JHenTai)
-[![issue](https://img.shields.io/badge/chat-issue-brightgreen)](https://github.com/jiangtian616/JHenTai/issues/new)
-[![telegram](https://img.shields.io/badge/chat-telegram(Chinese_Mainly)-brightgreen)](https://t.me/+PindoE9yvIpmOWI9)
+![last-commit](https://img.shields.io/github/last-commit/bingxizhe/JHenTai)
+![star](https://img.shields.io/github/stars/bingxizhe/JHenTai)
+[![issue](https://img.shields.io/badge/chat-issue-brightgreen)](https://github.com/bingxizhe/JHenTai/issues/new)
 
-# JHenTai
+# JHenTai (Fork)
 
-English | [简体中文](https://github.com/jiangtian616/JHenTai/blob/master/README_cn.md) | [한국어](https://github.com/jiangtian616/JHenTai/blob/master/README_kr.md)
+This is a fork of [JHenTai](https://github.com/jiangtian616/JHenTai), a manga app for E-Hentai, supporting Android & iOS & Windows & MacOS & Linux.
 
-[Q&A](https://github.com/jiangtian616/JHenTai/wiki/Common-Questions)
+This fork adds several features and optimizations on top of the original project. All changes are designed to be non-invasive and compatible with the upstream codebase.
 
-## Description
+## Fork Features & Optimizations
 
-A manga app for E-Hentai, supporting Android & iOS & Windows & MacOS & Linux.
+### 1. Startup Performance Optimization
 
-Still in development stage, welcome to submit issues or feature requests.
+- **Deferred gallery scanning**: Local gallery scanning no longer blocks app startup. Scanning logic runs after UI rendering is complete via `doAfterBeanReady()` instead of `doInitBean()`.
+- **Lazy database queries**: Large dataset queries (e.g., image records) are delayed until UI initialization completes, reducing initial database query time from ~3.9s to ~82ms.
+- **Restore race condition fix**: `restoreTasks()` now uses an `isRestoring` guard with `try-finally` to prevent concurrent restore operations when entering the download page and manually triggering restore from settings simultaneously.
+
+### 2. History Version Batch Delete
+
+- **Version grouping via Union-Find**: Galleries are grouped by version chain using `oldVersionGalleryUrl` field (not by name), avoiding misjudgment when multiple galleries share the same name.
+- **Deep scan with dual-site fallback**: When scanning gallery versions, the system first tries the original site (e-hentai.org/exhentai.org) with up to 5 retries. On failure, it falls back to the opposite site with another 5 retries, improving scan success rate for galleries moved between sites.
+- **Scan result persistence**: Deep scan results (including retry results) are saved as an integral whole, with automatic merging of retry data into existing scan history. Results older than 24 hours are automatically discarded.
+- **Global status update**: After deletion, `updateGlobalGalleryStatus()` is called to sync gallery status across all pages.
+- **Pre-selected old versions**: All old versions are pre-selected by default, allowing users to delete them without manually expanding any group.
+
+### 3. Favorite Batch Download
+
+- **One-click batch download**: Download all favorites from a specific group with a single action, with support for breakpoint resume.
+- **Incremental persistence**: Favorites are saved every 5 pages instead of every page, reducing O(n²) serialization overhead for large collections.
+- **Rate limiting at network layer**: No artificial delay between enqueue operations. Rate limiting is handled by the download engine (`EHExecutor`) at the actual network request dispatch level via `Rate(maximum, period)`.
+- **Retry mechanism**: Failed download tasks are retried up to 5 times with configurable retry intervals.
+
+### 4. WebP/GIF Animation Playback Optimization
+
+- **Visibility-based animation control**: Animated WebP/GIF images only play when visible in the viewport. Off-screen images render only the first frame, reducing decode cost and memory pressure.
+- **Simplified animation fields**: Consolidated from 3 animation control fields (`disableGifAnimation`, `playAnimation`, `forcePlay`) to 2 (`disableGifAnimation`, `playAnimation`), relying solely on `VisibilityDetector` for visibility tracking.
+- **Single-frame decoding for off-screen images**: Off-screen local images use `_SingleFrameExtendedFileImageProvider` and off-screen online images use `_SingleFrameExtendedNetworkImageProvider` to limit decoding to the first frame only.
+
+### 5. Stability Fixes
+
+- **setState() after dispose() fix**: Added `if (!mounted) return;` guard in `VisibilityDetector` callback to prevent state updates on disposed widgets.
+- **Debug code cleanup**: Replaced `debugPrint` calls with the project's unified `log.trace` system.
 
 ## Download & Install
 
-[<img src="https://raw.githubusercontent.com/jiangtian616/JHenTai/master/badges/download_from_github.png" 
-      alt="Download from GitHub" 
-      height="60">](https://github.com/jiangtian616/JHenTai/releases)
-[<img src="https://raw.githubusercontent.com/jiangtian616/JHenTai/master/badges/get_it_on_obtainium.png" 
-      alt="Get it on Obtainium" 
-      height="60">](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22top.jtmonster.jhentai%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fjiangtian616%2FJHenTai%22%2C%22author%22%3A%22jiangtian616%22%2C%22name%22%3A%22JHenTai%22%2C%22preferredApkIndex%22%3A0%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22filterReleaseTitlesByRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22filterReleaseNotesByRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22verifyLatestTag%5C%22%3Afalse%2C%5C%22sortMethodChoice%5C%22%3A%5C%22date%5C%22%2C%5C%22useLatestAssetDateAsReleaseDate%5C%22%3Afalse%2C%5C%22releaseTitleAsVersion%5C%22%3Afalse%2C%5C%22trackOnly%5C%22%3Afalse%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22v(.*)%5C%22%2C%5C%22matchGroupToUse%5C%22%3A%5C%22%241%5C%22%2C%5C%22versionDetection%5C%22%3Atrue%2C%5C%22releaseDateAsVersion%5C%22%3Afalse%2C%5C%22useVersionCodeAsOSVersion%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22invertAPKFilter%5C%22%3Afalse%2C%5C%22autoApkFilterByArch%5C%22%3Atrue%2C%5C%22appName%5C%22%3A%5C%22JHenTai%5C%22%2C%5C%22appAuthor%5C%22%3A%5C%22JTMonster%5C%22%2C%5C%22shizukuPretendToBeGooglePlay%5C%22%3Afalse%2C%5C%22allowInsecure%5C%22%3Afalse%2C%5C%22exemptFromBackgroundUpdates%5C%22%3Afalse%2C%5C%22skipUpdateNotifications%5C%22%3Afalse%2C%5C%22about%5C%22%3A%5C%22https%3A%2F%2Fgithub.com%2Fjiangtian616%2FJHenTai%2Fblob%2Fmaster%2FREADME.md%5C%22%2C%5C%22refreshBeforeDownload%5C%22%3Afalse%7D%22%2C%22overrideSource%22%3Anull%7D)
+Refer to the [original project's releases](https://github.com/jiangtian616/JHenTai/releases) for stable builds.
 
-[<img src="https://raw.githubusercontent.com/jiangtian616/JHenTai/master/badges/add_to_altstore.png" 
-      alt="Add to AltStore" 
-      height="60">](https://intradeus.github.io/http-protocol-redirector?r=altstore://source?url=https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/altsource/AltSource.json)
-[<img src="https://raw.githubusercontent.com/jiangtian616/JHenTai/master/badges/add_to_sidestore.png" 
-      alt="Add to SideStore" 
-      height="60">](https://intradeus.github.io/http-protocol-redirector?r=sidestore://source?url=https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/altsource/AltSource.json)
-[<img src="https://raw.githubusercontent.com/jiangtian616/JHenTai/master/badges/add_to_feather.png" 
-      alt="Add to Feather" 
-      height="60">](https://intradeus.github.io/http-protocol-redirector?r=feather://source/https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/altsource/AltSource.json)
+To build from source:
 
-Install for Android: download .apk according to your device architecture and install.
-
-- arm64-v8a：Suitable for Android phones with 8th generation ARM processor(common choice)
-- armeabiv-v7a：Suitable for Android phones with 7th generation ARM processor
-- x86_64：rare
-
-Install for iOS: download .ipa, then use [AltStore](https://altstore.io) or SideLoadly to sign.
-
-- You can get easier installation and updates by adding [AltStore Repo](https://intradeus.github.io/http-protocol-redirector?r=altstore://source?url=https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/altsource/AltSource.json)
-
-Install for Windows: download Windows_xxx.zip, then unpack it.
-
-- If you use a proxy server, set proxy address at network setting page.
-- If you're using Windows 11 and can't launch app, try to run jhentai.exe in compatibility mode.
-- If it's blocked by Windows Defender, Please trust it.
-
-Install for MacOS(No maintenance): download .dmg.
-
-- Trust it in system setting.
-- If you use a proxy server, set proxy address at network setting page.
-
-Install for Linux(No maintenance): download Linux-amd64.deb or Linux-x86_64.AppImage due to your platform, then install
-or execute it (You may need to install webkit2gtk-4.1).
-
-Fedora-based dnf linux distro:
-
-```bash
-sudo rpm --import https://meeks233.github.io/Jhentai-rpm/fedora/RPM-GPG-KEY-jhentai
-sudo curl -fsSL -o /etc/yum.repos.d/jhentai.repo https://meeks233.github.io/Jhentai-rpm/fedora/jhentai.repo
-sudo dnf install -y jhentai
-```
-
-
-- If you use a proxy server, set proxy address at network setting page.
-
-## Update
-
-Update for Android: download .apk according to your device architecture and install.
-
-Update for iOS: download .ipa, then use [AltStore](https://altstore.io) or SideLoadly to sign.
-
-Update for Windows: Delete old unpacked directory directly, then download latest Windows_xxx.zip, unpack it.
-
-Update for MacOS(No maintenance): download .dmg.
-
-Update for Linux(No maintenance): Delete old and download the latest product.
-
-## Help With Translation
-
-Please submit a PR if you want to help with translation.
-
-[steps](https://github.com/jiangtian616/JHenTai#Translation)
-
-## Develop Motivation
-
-My first project With Flutter. I aim at getting familiar with Flutter during development. Devices I use include Android
-phone, Ipad and Windows computer. E-hentai apps I used before have several bugs, and I don't understand source code
-because I have no development
-experience with Android or ios, so I choose JHenTai to become my first Flutter Project.
-
-2022.08.20 After five months of development, JHenTai has gradually become more and more strong, and I have completely
-refactored some codes for gallery page, reading page, download, etc.
-which are written at the beginning stage. I tried my best to extract the commonality between different page and style to
-reduce coupling,
-in order to benefit the development of new features. I would be very grateful if any kind of you could give me some
-advice on coding style,
-design patterns and anything related to Flutter development or participate in the development of JHenTai.
-
-2022.10.29 I have been more familiar with basic Flutter development, and I'll focus on another area from now on.
-So updates for JHenTai will be less than previous, but I'll still handle bugs or issues in time。
-
-## References & Thanks
-
-Layout and style references:
-
-- [FEhviewer](https://github.com/honjow/FEhViewer) : Mainly
-- [EHPanda](https://github.com/tatsuz0u/EhPanda)
-- [EHViewer](https://gitlab.com/NekoInverter/EhViewer)
-
-Tag translation:
-
-- [EhTagTranslation](https://github.com/EhTagTranslation/Database)
-
-Tag order optimization:
-
-- [e-hentai-db](https://github.com/ccloli/e-hentai-db)
-- [e-hentai-tag-count](https://github.com/mokurin000/e-hentai-tag-count)
-- [EhSyringe](https://github.com/EhTagTranslation/EhSyringe)
-
-App translation：
-
-- [andyching168](https://github.com/andyching168) [kenny03211](https://github.com/kenny03211) [NeKoOuO](https://github.com/NeKoOuO) 繁體中文(台灣)
-- [lucas-04](https://github.com/lucas-04) Português brasileiro
-- [qlife1146](https://github.com/qlife1146) 한국어
-- [bropines](https://github.com/bropines) Russian
-
-mush thanks to these projects and people🙇‍
-
-## Screenshots
-
-### Mobile Layout
-
-<img width="250" src="screenshot/mobile_v2.jpg"/>
-
-### Tablet Layout
-
-<img width="770" src="screenshot/tabletV2.png"/>
-
-### Desktop Layout
-
-<img width="770" src="screenshot/desktop1.png"/>
-
-### Gallery & Search
-
-<img width="250" style="margin-right:10px" src="screenshot/mobile_v2.jpg"/><img width="250" style="margin-right:10px" src="screenshot/search.jpg"/> 
-
-### Gallery Detail
-
-<img width="250" src="screenshot/detail.png" style="margin-right:10px" /><img width="250" src="screenshot/archive.jpg" style="margin-right:10px" />
-
-### Setting & Download
-
-<img width="270" src="screenshot/setting_en.jpg" style="margin-right:10px" /><img width="250" src="screenshot/download.jpg" style="margin-right:10px" />
-
-### Read
-
-<img width="250" src="screenshot/read.jpg" /><img src="screenshot/read_double_column.png" /><img src="screenshot/read_continuous_scroll.png" />
-
-## Main Features
-
--   [x] Mobile, tablet, desktop layout(3 kinds)
--   [x] Vertical, horizontal, double column read page layout(4 kinds)
--   [x] GalleryPage, Popular, Favorite, Watched, History, support multiple gallery list style
--   [x] search, search suggestion, tap tag to search, file search, jump to a certain page
--   [x] online reading and download, support restore download task, support synchronize updates after the uploader has
-    uploaded a new version
--   [x] archive download and automatic unpacking and reading
--   [x] support loading local images and read
--   [x] support assign priority to download task manually
--   [x] support assign group to gallery and archive
--   [x] favorite, rating, torrent, archive, statistics, share
--   [x] password login, Cookie login, web login
--   [x] support EX site(domain fronting optional)
--   [x] vote for Tag, watch and hidden tags
--   [x] comment, vote for comment
--   [x] Fingerprint unlock
-
-## Translation
-
-> [languageCode](https://github.com/unicode-org/cldr/blob/master/common/validity/language.xml)
->
-> [countryCode](https://github.com/unicode-org/cldr/blob/master/common/validity/region.xml)
-
-1. Copy `/lib/src/l18n/en_US.dart ` and rename to `{your_languageCode}_{your_countryCode}.dart`
-2. Rename classname in new file(optional)
-3. Modify k-v pairs in method `keys` ,translate values to your language
-
-Now you can submit your PR, I'll do the remaining things. Or you can go on with:
-
-4. Enter `/lib/src/l18n/locale_text.dart ` , add a new k-v pair in method `keys`
-   => `{your_languageCode}_{your_countryCode} : {your_className}.keys()`
-5. Enter `/lib/src/consts/locale_consts.dart`, add a new k-v pair in
-   property `localeCode2Description`: `{your_languageCode}_{your_countryCode} : {languageDescription}` to describe your
-   language.
-
-## About compiling
-
-1. You need to manage your Android signing by yourself,
-   check https://docs.flutter.dev/deployment/android#signing-the-app
-2. Just run this project via IDEA or VSCode simply.
+1. You need to manage your Android signing by yourself, check https://docs.flutter.dev/deployment/android#signing-the-app
+2. Run this project via IDEA or VSCode.
 
 ## Main Dart Dependencies
 
@@ -214,3 +58,10 @@ Now you can submit your PR, I'll do the remaining things. Or you can go on with:
 - [dio](https://pub.flutter-io.cn/packages?q=dio): network
 - [extendedImage](https://pub.flutter-io.cn/packages/extended_image): image
 - [drift](https://pub.flutter-io.cn/packages/drift): database
+
+## References & Thanks
+
+- [JHenTai](https://github.com/jiangtian616/JHenTai) - The original project
+- [FEhviewer](https://github.com/honjow/FEhViewer) - Layout and style reference
+- [EHPanda](https://github.com/tatsuz0u/EhPanda) - Layout and style reference
+- [EhTagTranslation](https://github.com/EhTagTranslation/Database) - Tag translation
