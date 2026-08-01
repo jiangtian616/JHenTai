@@ -1682,8 +1682,8 @@ packages:
     dependency: "direct main"
     description:
       path: system_network_proxy
-      ref: "6b02ba0"
-      resolved-ref: "6b02ba0fc91e90ba102dca3374747b091e719987"
+      ref: "46f89c8"
+      resolved-ref: "46f89c88575239618d8e9fc20e4bd3a1ef70b9cd"
       url: "https://github.com/jiangtian616/system_network_proxy"
     source: git
     version: "1.0.2"
@@ -1691,18 +1691,19 @@ packages:
     dependency: "direct main"
     description:
       path: system_network_proxy_linux
-      ref: "6b02ba0"
-      resolved-ref: "6b02ba0fc91e90ba102dca3374747b091e719987"
+      ref: "46f89c8"
+      resolved-ref: "46f89c88575239618d8e9fc20e4bd3a1ef70b9cd"
       url: "https://github.com/jiangtian616/system_network_proxy"
     source: git
     version: "1.0.2"
   system_network_proxy_macos:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: system_network_proxy_macos
-      sha256: "89ed28d040f21b2794df1147150900e88f046372d60a7fa7848b5e4c9fe6263f"
-      url: "https://pub.dev"
-    source: hosted
+      path: system_network_proxy_macos
+      ref: "46f89c8"
+      resolved-ref: "46f89c88575239618d8e9fc20e4bd3a1ef70b9cd"
+      url: "https://github.com/jiangtian616/system_network_proxy"
+    source: git
     version: "1.0.2"
   system_network_proxy_platform_interface:
     dependency: transitive
@@ -1721,12 +1722,13 @@ packages:
     source: hosted
     version: "1.0.2"
   system_network_proxy_windows:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: system_network_proxy_windows
-      sha256: "67f911602edd0a96890239090b8b929f90038547680264625f6f2334ef8a7a23"
-      url: "https://pub.dev"
-    source: hosted
+      path: system_network_proxy_windows
+      ref: "46f89c8"
+      resolved-ref: "46f89c88575239618d8e9fc20e4bd3a1ef70b9cd"
+      url: "https://github.com/jiangtian616/system_network_proxy"
+    source: git
     version: "1.0.2"
   telegram:
     dependency: "direct main"

@@ -96,12 +96,12 @@ dependencies:
     git: 
       url: https://github.com/jiangtian616/system_network_proxy
       path: system_network_proxy
-      ref: 6b02ba0
+      ref: 46f89c8
   system_network_proxy_linux:
     git:
       url: https://github.com/jiangtian616/system_network_proxy
       path: system_network_proxy_linux
-      ref: 6b02ba0
+      ref: 46f89c8
   http_proxy: 
     git: https://github.com/jiangtian616/http_proxy
   flutter_socks_proxy:
@@ -147,7 +147,17 @@ dependency_overrides:
     git:
       url: https://github.com/jiangtian616/system_network_proxy
       path: system_network_proxy_linux
-      ref: 6b02ba0
+      ref: 46f89c8
+  system_network_proxy_windows:
+    git:
+      url: https://github.com/jiangtian616/system_network_proxy
+      path: system_network_proxy_windows
+      ref: 46f89c8
+  system_network_proxy_macos:
+    git:
+      url: https://github.com/jiangtian616/system_network_proxy
+      path: system_network_proxy_macos
+      ref: 46f89c8
   
     
 dev_dependencies:
