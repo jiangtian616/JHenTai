@@ -128,7 +128,9 @@ dependencies:
   uuid: 4.4.0
   xml: 6.5.0
   telegram: 0.0.9
-  volume_button_override: 0.0.1
+  volume_button_override:
+    git:
+      url: https://github.com/jiangtian616/volume_button_override
 
 dependency_overrides:
   test_api: 0.6.0

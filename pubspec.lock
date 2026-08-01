@@ -1973,10 +1973,11 @@ packages:
   volume_button_override:
     dependency: "direct main"
     description:
-      name: volume_button_override
-      sha256: "368926d2fea5b802e9286d98bb47a93e26667521288e8fff60e53b1fcaf2fb1b"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: d5f9c14fa96d2d52e74481cdef495ac3df2ea68d
+      url: "https://github.com/jiangtian616/volume_button_override"
+    source: git
     version: "0.0.1"
   wakelock_plus:
     dependency: "direct main"
