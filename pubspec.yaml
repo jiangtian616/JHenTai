@@ -27,7 +27,7 @@ dependencies:
   flutter_rating_bar: 4.0.1
   waterfall_flow: 3.0.2
   extended_image: 8.1.0
-  font_awesome_flutter: 9.2.0
+  font_awesome_flutter: ^11.0.0
   intl: 0.20.2
   collection: 1.19.0
   clipboard: 0.1.3

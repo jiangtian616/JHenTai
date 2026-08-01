@@ -161,7 +161,7 @@ class LoginPage extends StatelessWidget {
         decoration: InputDecoration(
           hintText: 'ipb_member_id',
           hintStyle: TextStyle(color: UIConfig.loginPageTextHintColor(context), fontSize: UIConfig.loginPageTextHintSize, height: 1),
-          prefixIcon: Icon(FontAwesomeIcons.cookieBite, size: 18, color: UIConfig.loginPagePrefixIconColor(context)),
+          prefixIcon: Icon(FontAwesomeIcons.cookieBite.data, size: 18, color: UIConfig.loginPagePrefixIconColor(context)),
           suffixIcon: const SizedBox(
             height: 8,
             width: 8,
@@ -184,7 +184,7 @@ class LoginPage extends StatelessWidget {
         decoration: InputDecoration(
           hintText: 'ipb_pass_hash',
           hintStyle: TextStyle(color: UIConfig.loginPageTextHintColor(context), fontSize: UIConfig.loginPageTextHintSize, height: 1),
-          prefixIcon: Icon(FontAwesomeIcons.cookieBite, size: 18, color: UIConfig.loginPagePrefixIconColor(context)),
+          prefixIcon: Icon(FontAwesomeIcons.cookieBite.data, size: 18, color: UIConfig.loginPagePrefixIconColor(context)),
           suffixIcon: const SizedBox(
             height: 8,
             width: 8,
@@ -209,7 +209,7 @@ class LoginPage extends StatelessWidget {
         decoration: InputDecoration(
           hintText: 'igneousHint'.tr,
           hintStyle: TextStyle(color: UIConfig.loginPageTextHintColor(context), fontSize: UIConfig.loginPageTextHintSize, height: 1),
-          prefixIcon: Icon(FontAwesomeIcons.cookieBite, size: 18, color: UIConfig.loginPagePrefixIconColor(context)),
+          prefixIcon: Icon(FontAwesomeIcons.cookieBite.data, size: 18, color: UIConfig.loginPagePrefixIconColor(context)),
         ),
         onChanged: (igneous) => state.igneous = igneous,
         onFieldSubmitted: (v) => logic.handleLogin(),

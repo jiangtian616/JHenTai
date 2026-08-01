@@ -78,7 +78,7 @@ class LoadingStateIndicator extends StatelessWidget {
                 ? idleWidgetBuilder!.call()
                 : GestureDetector(
                     onTap: errorTapCallback,
-                    child: Icon(FontAwesomeIcons.redoAlt, size: indicatorRadius * 2, color: UIConfig.loadingStateIndicatorButtonColor(context)),
+                    child: Icon(FontAwesomeIcons.redoAlt.data, size: indicatorRadius * 2, color: UIConfig.loadingStateIndicatorButtonColor(context)),
                   ));
         break;
       case LoadingState.idle:

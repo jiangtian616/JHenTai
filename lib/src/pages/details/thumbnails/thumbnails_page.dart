@@ -55,7 +55,7 @@ class ThumbnailsPage extends StatelessWidget with Scroll2TopPageMixin {
       title: Text(_mainTitleText, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
       actions: [
         IconButton(
-          icon: const Icon(FontAwesomeIcons.paperPlane, size: 21),
+          icon: Icon(FontAwesomeIcons.paperPlane.data, size: 21),
           visualDensity: const VisualDensity(vertical: -2),
           onPressed: logic.handleTapJumpButton,
         ),
