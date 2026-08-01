@@ -219,33 +219,30 @@ class LoginPage extends StatelessWidget {
   Widget _buildCookieOptions(BuildContext context) {
     return GetBuilder<LoginPageLogic>(
       id: LoginPageLogic.cookieVerificationTypeId,
-      builder: (_) => Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Expanded(child: SizedBox()),
-          Text('useWebview'.tr),
-          Radio<CookieVerificationType>(
-            value: CookieVerificationType.webview,
-            groupValue: state.cookieVerificationType,
-            toggleable: true,
-            onChanged: (value) {
-              state.cookieVerificationType = value ?? CookieVerificationType.normal;
-              logic.updateSafely([LoginPageLogic.cookieVerificationTypeId]);
-            },
-          ),
-          const SizedBox(width: 60),
-          Text('skipCookieVerification'.tr),
-          Radio<CookieVerificationType>(
-            value: CookieVerificationType.skip,
-            groupValue: state.cookieVerificationType,
-            toggleable: true,
-            onChanged: (value) {
-              state.cookieVerificationType = value ?? CookieVerificationType.normal;
-              logic.updateSafely([LoginPageLogic.cookieVerificationTypeId]);
-            },
-          ),
-          const Expanded(child: SizedBox()),
-        ],
+      builder: (_) => RadioGroup<CookieVerificationType>(
+        groupValue: state.cookieVerificationType,
+        onChanged: (value) {
+          state.cookieVerificationType = value ?? CookieVerificationType.normal;
+          logic.updateSafely([LoginPageLogic.cookieVerificationTypeId]);
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Expanded(child: SizedBox()),
+            Text('useWebview'.tr),
+            Radio<CookieVerificationType>(
+              value: CookieVerificationType.webview,
+              toggleable: true,
+            ),
+            const SizedBox(width: 60),
+            Text('skipCookieVerification'.tr),
+            Radio<CookieVerificationType>(
+              value: CookieVerificationType.skip,
+              toggleable: true,
+            ),
+            const Expanded(child: SizedBox()),
+          ],
+        ),
       ),
     );
   }

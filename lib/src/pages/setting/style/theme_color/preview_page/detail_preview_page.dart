@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'dart:collection';
 import 'dart:math';
 
@@ -43,7 +44,7 @@ class DetailPreviewPage extends DetailsPage {
       child: EHWheelSpeedController(
         controller: state.scrollController,
         child: CustomScrollView(
-          cacheExtent: 5000,
+          scrollCacheExtent: ScrollCacheExtent.pixels(5000),
           controller: state.scrollController,
           scrollBehavior: UIConfig.scrollBehaviourWithScrollBarWithMouse  ,
           slivers: [

@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -109,7 +110,7 @@ class DashboardPage extends BasePage {
               itemCount: state.ranklistGallerys.length,
               itemBuilder: (_, index) => EHDashboardCard(gallery: state.ranklistGallerys[index], badge: _getRanklistBadge(index)),
               separatorBuilder: (_, __) => const VerticalDivider(),
-              cacheExtent: 2000,
+              scrollCacheExtent: ScrollCacheExtent.pixels(2000),
             ).enableMouseDrag(withScrollBar: false).fadeIn(),
           ),
         ),
@@ -141,7 +142,7 @@ class DashboardPage extends BasePage {
               itemCount: state.popularGallerys.length,
               itemBuilder: (_, index) => EHDashboardCard(gallery: state.popularGallerys[index]),
               separatorBuilder: (_, __) => const VerticalDivider(),
-              cacheExtent: 2000,
+              scrollCacheExtent: ScrollCacheExtent.pixels(2000),
             ).enableMouseDrag(withScrollBar: false).fadeIn(),
           ),
         ),

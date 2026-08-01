@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'dart:async';
 
 import 'package:collection/collection.dart';
@@ -111,7 +112,7 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
       controller: scrollController,
       child: ListView.builder(
         controller: scrollController,
-        cacheExtent: 200,
+        scrollCacheExtent: ScrollCacheExtent.pixels(200),
         itemCount: _groups.length + widget.elements.length,
         itemBuilder: (context, index) {
           int i = 0;
@@ -147,7 +148,7 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
       controller: scrollController,
       child: CustomScrollView(
         controller: scrollController,
-        cacheExtent: 200,
+        scrollCacheExtent: ScrollCacheExtent.pixels(200),
         slivers: _buildSlivers(context),
       ),
     );

@@ -63,8 +63,8 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
     Map map = jsonDecode(configString);
 
     themeMode.value = ThemeMode.values[map['themeMode']];
-    lightThemeColor.value = Color(map['lightThemeColor'] ?? lightThemeColor.value.value);
-    darkThemeColor.value = Color(map['darkThemeColor'] ?? darkThemeColor.value.value);
+    lightThemeColor.value = Color(map['lightThemeColor'] ?? lightThemeColor.value.toARGB32());
+    darkThemeColor.value = Color(map['darkThemeColor'] ?? darkThemeColor.value.toARGB32());
     listMode.value = ListMode.values[map['listMode']];
     crossAxisCountInWaterFallFlow.value = map['crossAxisCountInWaterFallFlow'];
     crossAxisCountInGridDownloadPageForGroup.value = map['crossAxisCountInGridDownloadPageForGroup'];
@@ -89,8 +89,8 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
   String toConfigString() {
     return jsonEncode({
       'themeMode': themeMode.value.index,
-      'lightThemeColor': lightThemeColor.value.value,
-      'darkThemeColor': darkThemeColor.value.value,
+      'lightThemeColor': lightThemeColor.value.toARGB32(),
+      'darkThemeColor': darkThemeColor.value.toARGB32(),
       'listMode': listMode.value.index,
       'crossAxisCountInWaterFallFlow': crossAxisCountInWaterFallFlow.value,
       'crossAxisCountInGridDownloadPageForGroup': crossAxisCountInGridDownloadPageForGroup.value,

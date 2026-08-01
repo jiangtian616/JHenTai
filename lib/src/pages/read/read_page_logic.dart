@@ -818,7 +818,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     await showDialog<void>(
       context: context,
       barrierDismissible: true,
-      barrierColor: Colors.black.withOpacity(0.4),
+      barrierColor: Colors.black.withValues(alpha: 0.4),
       builder: (_) {
         double width = MediaQuery.of(context).size.width * 0.55;
         if (width < 360) {

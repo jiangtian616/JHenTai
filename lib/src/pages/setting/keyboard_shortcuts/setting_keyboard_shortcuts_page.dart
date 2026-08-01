@@ -131,7 +131,7 @@ class _SettingKeyboardShortcutsPageState extends State<SettingKeyboardShortcutsP
 
     if (isFixed) {
       keyContent = _buildKeyChip(_fixedSlotLabel(action), dimmed: true);
-      actionContent = Icon(Icons.lock_outline, size: 16, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.4));
+      actionContent = Icon(Icons.lock_outline, size: 16, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4));
     } else if (isCapturing) {
       keyContent = _buildCapturingChip();
       actionContent = const SizedBox.shrink();
@@ -194,7 +194,7 @@ class _SettingKeyboardShortcutsPageState extends State<SettingKeyboardShortcutsP
       width: _keyChipWidth,
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       decoration: BoxDecoration(
-        color: dimmed ? Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5) : Theme.of(context).colorScheme.surfaceContainerHighest,
+        color: dimmed ? Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5) : Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
@@ -204,7 +204,7 @@ class _SettingKeyboardShortcutsPageState extends State<SettingKeyboardShortcutsP
         maxLines: 1,
         style: TextStyle(
           fontSize: 13,
-          color: dimmed ? Theme.of(context).colorScheme.onSurface.withOpacity(0.45) : null,
+          color: dimmed ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.45) : null,
         ),
       ),
     );
