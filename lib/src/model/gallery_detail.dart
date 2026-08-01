@@ -40,14 +40,23 @@ class GalleryDetail {
   String torrentPageUrl;
   String archivePageUrl;
   GalleryUrl? parentGalleryUrl;
-  List<({GalleryUrl galleryUrl, String title, String updateTime})>? childrenGallerys;
+  List<({GalleryUrl galleryUrl, String title, String updateTime})>?
+      childrenGallerys;
   List<GalleryComment> comments;
   List<GalleryThumbnail> thumbnails;
   int thumbnailsPageCount;
 
   bool get isFavorite => favoriteTagIndex != null || favoriteTagName != null;
 
-  GalleryUrl? get newVersionGalleryUrl => childrenGallerys?.lastOrNull?.galleryUrl;
+  GalleryUrl? get newVersionGalleryUrl {
+    if (childrenGallerys == null || childrenGallerys!.isEmpty) {
+      return null;
+    }
+    List<({GalleryUrl galleryUrl, String title, String updateTime})> sorted =
+        List.of(childrenGallerys!)
+          ..sort((a, b) => b.updateTime.compareTo(a.updateTime));
+    return sorted.first.galleryUrl;
+  }
 
   GalleryDetail({
     required this.galleryUrl,

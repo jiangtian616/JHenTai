@@ -120,12 +120,12 @@ void main(List<String> args) async {
     await bean.initBean();
     sw.stop();
     if (sw.elapsedMilliseconds > 50) {
-      debugPrint(
+      log.trace(
           '[startup] ${bean.runtimeType}.initBean took ${sw.elapsedMilliseconds}ms');
     }
   }
   totalSw.stop();
-  debugPrint('[startup] total initBean took ${totalSw.elapsedMilliseconds}ms');
+  log.trace('[startup] total initBean took ${totalSw.elapsedMilliseconds}ms');
   runApp(const MyApp());
 }
 
@@ -169,11 +169,9 @@ class MyApp extends StatelessWidget {
       /// enable swipe back feature
       popGesture: preferenceSetting.enableSwipeBackGesture.isTrue,
       onReady: () {
-        debugPrint('[startup] onReady fired (UI should be visible now)');
         for (JHLifeCircleBean bean in lifeCircleBeans) {
           bean.afterBeanReady();
         }
-        debugPrint('[startup] afterBeanReady completed');
       },
     );
   }

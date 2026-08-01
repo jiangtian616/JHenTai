@@ -588,8 +588,6 @@ class GalleryDownloadService extends GetxController
     if (downloadSetting.restoreTasksAutomatically.isTrue) {
       log.info(
           'ensureRestored: begin restoreTasks (scanning download directory)');
-      isRestoring = true;
-      update([galleryCountChangedId]);
       try {
         int count = await restoreTasks();
         log.info(
@@ -597,10 +595,6 @@ class GalleryDownloadService extends GetxController
       } catch (e, stack) {
         log.error('ensureRestored: restoreTasks failed', e, stack);
       } finally {
-        isRestoring = false;
-        restoreTotalCount = 0;
-        restoreCurrentCount = 0;
-        update([galleryCountChangedId]);
         toast('scanCompleted'.tr);
       }
     }
@@ -611,145 +605,164 @@ class GalleryDownloadService extends GetxController
   Future<int> restoreTasks() async {
     await completed;
 
-    io.Directory downloadDir = io.Directory(downloadSetting.downloadPath.value);
-    if (!await downloadDir.exists()) {
+    if (isRestoring) {
+      log.info('restoreTasks: already in progress, skipping');
       return 0;
     }
-
-    log.info(
-        'restoreTasks: listing download directory ${downloadSetting.downloadPath.value}');
-    List<io.FileSystemEntity> allItems = await downloadDir.list().toList();
-    restoreTotalCount = allItems.length;
-    restoreCurrentCount = 0;
-    log.info('restoreTasks: found ${allItems.length} items, begin restoring');
+    isRestoring = true;
     update([galleryCountChangedId]);
 
-    int restoredCount = 0;
-    int skippedCount = 0;
-    DateTime start = DateTime.now();
-    DateTime lastProgressUpdate = DateTime.now();
-
-    for (io.FileSystemEntity galleryDir in allItems) {
-      restoreCurrentCount++;
-
-      /// update progress every 5 items or every 500ms
-      DateTime now = DateTime.now();
-      if (restoreCurrentCount % 5 == 0 ||
-          now.difference(lastProgressUpdate).inMilliseconds >= 500) {
-        update([galleryCountChangedId]);
-        lastProgressUpdate = now;
+    try {
+      io.Directory downloadDir =
+          io.Directory(downloadSetting.downloadPath.value);
+      if (!await downloadDir.exists()) {
+        return 0;
       }
 
-      io.File metadataFile =
-          io.File(path.join(galleryDir.path, metadataFileName));
+      log.info(
+          'restoreTasks: listing download directory ${downloadSetting.downloadPath.value}');
+      List<io.FileSystemEntity> allItems = await downloadDir.list().toList();
+      restoreTotalCount = allItems.length;
+      restoreCurrentCount = 0;
+      log.info(
+          'restoreTasks: found ${allItems.length} items, begin restoring');
+      update([galleryCountChangedId]);
 
-      /// metadata file does not exist
-      if (!await metadataFile.exists()) {
-        continue;
-      }
+      int restoredCount = 0;
+      int skippedCount = 0;
+      DateTime start = DateTime.now();
+      DateTime lastProgressUpdate = DateTime.now();
 
-      /// parse gid from directory name to quickly check if already exists
-      int? gid = _parseGidFromDirName(galleryDir.path);
-      if (gid != null && galleryDownloadInfos.containsKey(gid)) {
-        skippedCount++;
-        continue;
-      }
+      for (io.FileSystemEntity galleryDir in allItems) {
+        restoreCurrentCount++;
 
-      Map metadata;
-      try {
-        metadata = jsonDecode(await metadataFile.readAsString());
-      } catch (e) {
-        log.error(
-            'restoreTasks: parse metadata failed for ${galleryDir.path}', e);
-        continue;
-      }
+        /// update progress every 5 items or every 500ms
+        DateTime now = DateTime.now();
+        if (restoreCurrentCount % 5 == 0 ||
+            now.difference(lastProgressUpdate).inMilliseconds >= 500) {
+          update([galleryCountChangedId]);
+          lastProgressUpdate = now;
+        }
 
-      /// compatible with new field
-      (metadata['gallery'] as Map)
-          .putIfAbsent('downloadOriginalImage', () => false);
-      (metadata['gallery'] as Map).putIfAbsent('sortOrder', () => 0);
-      if ((metadata['gallery'] as Map)['insertTime'] == null) {
-        (metadata['gallery'] as Map)['insertTime'] = DateTime.now().toString();
-      }
-      if ((metadata['gallery'] as Map)['priority'] == null) {
-        (metadata['gallery'] as Map)['priority'] =
-            defaultDownloadGalleryPriority;
-      }
-      if ((metadata['gallery'] as Map)['groupName'] == null) {
-        (metadata['gallery'] as Map)['groupName'] = 'default'.tr;
-      }
-      if (metadata['tags'] == null) {
-        (metadata['gallery'] as Map)['tags'] = '';
-      }
-      if (metadata['tagRefreshTime'] == null) {
-        (metadata['gallery'] as Map)['tagRefreshTime'] =
-            DateTime.now().toString();
-      }
+        io.File metadataFile =
+            io.File(path.join(galleryDir.path, metadataFileName));
 
-      GalleryDownloadedData gallery =
-          GalleryDownloadedData.fromJson(metadata['gallery']);
-
-      /// Back-fill sanitizedTitle for metadata files written before this field was introduced.
-      if (gallery.sanitizedTitle == null) {
-        final int reservedBytes = utf8.encode('${gallery.gid} - ').length;
-        gallery = gallery.copyWith(
-            sanitizedTitle: Value(
-                _computeSanitizedGalleryTitle(gallery.title, reservedBytes)));
-      }
-
-      /// skip if exists (double check with parsed gallery gid)
-      if (galleryDownloadInfos.containsKey(gallery.gid)) {
-        skippedCount++;
-        continue;
-      }
-
-      List<GalleryImage?> images = (jsonDecode(metadata['images']) as List)
-          .map((_map) => _map == null ? null : GalleryImage.fromJson(_map))
-          .toList();
-
-      /// To deal with changed download location, compute download path again.
-      for (int serialNo = 0; serialNo < images.length; serialNo++) {
-        if (images[serialNo] == null) {
+        /// metadata file does not exist
+        if (!await metadataFile.exists()) {
           continue;
         }
-        images[serialNo]!.path = _computeImageDownloadRelativePath(
-            gallery, images[serialNo]!.url, serialNo);
-        images[serialNo]!.imageHash ??= '';
-      }
 
-      /// For some reason, downloaded status is not updated correctly, check it again
-      if (gallery.downloadStatusIndex != DownloadStatus.downloaded.index) {
-        int downloadedImageCount = images.fold(
-            0,
-            (total, image) =>
-                total +
-                (image?.downloadStatus == DownloadStatus.downloaded ? 1 : 0));
-        if (downloadedImageCount == gallery.pageCount) {
-          gallery = gallery.copyWith(
-              downloadStatusIndex: DownloadStatus.downloaded.index);
+        /// parse gid from directory name to quickly check if already exists
+        int? gid = _parseGidFromDirName(galleryDir.path);
+        if (gid != null && galleryDownloadInfos.containsKey(gid)) {
+          skippedCount++;
+          continue;
         }
+
+        Map metadata;
+        try {
+          metadata = jsonDecode(await metadataFile.readAsString());
+        } catch (e) {
+          log.error(
+              'restoreTasks: parse metadata failed for ${galleryDir.path}', e);
+          continue;
+        }
+
+        /// compatible with new field
+        (metadata['gallery'] as Map)
+            .putIfAbsent('downloadOriginalImage', () => false);
+        (metadata['gallery'] as Map).putIfAbsent('sortOrder', () => 0);
+        if ((metadata['gallery'] as Map)['insertTime'] == null) {
+          (metadata['gallery'] as Map)['insertTime'] =
+              DateTime.now().toString();
+        }
+        if ((metadata['gallery'] as Map)['priority'] == null) {
+          (metadata['gallery'] as Map)['priority'] =
+              defaultDownloadGalleryPriority;
+        }
+        if ((metadata['gallery'] as Map)['groupName'] == null) {
+          (metadata['gallery'] as Map)['groupName'] = 'default'.tr;
+        }
+        if (metadata['tags'] == null) {
+          (metadata['gallery'] as Map)['tags'] = '';
+        }
+        if (metadata['tagRefreshTime'] == null) {
+          (metadata['gallery'] as Map)['tagRefreshTime'] =
+              DateTime.now().toString();
+        }
+
+        GalleryDownloadedData gallery =
+            GalleryDownloadedData.fromJson(metadata['gallery']);
+
+        /// Back-fill sanitizedTitle for metadata files written before this field was introduced.
+        if (gallery.sanitizedTitle == null) {
+          final int reservedBytes = utf8.encode('${gallery.gid} - ').length;
+          gallery = gallery.copyWith(
+              sanitizedTitle: Value(
+                  _computeSanitizedGalleryTitle(gallery.title, reservedBytes)));
+        }
+
+        /// skip if exists (double check with parsed gallery gid)
+        if (galleryDownloadInfos.containsKey(gallery.gid)) {
+          skippedCount++;
+          continue;
+        }
+
+        List<GalleryImage?> images = (jsonDecode(metadata['images']) as List)
+            .map((_map) => _map == null ? null : GalleryImage.fromJson(_map))
+            .toList();
+
+        /// To deal with changed download location, compute download path again.
+        for (int serialNo = 0; serialNo < images.length; serialNo++) {
+          if (images[serialNo] == null) {
+            continue;
+          }
+          images[serialNo]!.path = _computeImageDownloadRelativePath(
+              gallery, images[serialNo]!.url, serialNo);
+          images[serialNo]!.imageHash ??= '';
+        }
+
+        /// For some reason, downloaded status is not updated correctly, check it again
+        if (gallery.downloadStatusIndex != DownloadStatus.downloaded.index) {
+          int downloadedImageCount = images.fold(
+              0,
+              (total, image) =>
+                  total +
+                  (image?.downloadStatus == DownloadStatus.downloaded
+                      ? 1
+                      : 0));
+          if (downloadedImageCount == gallery.pageCount) {
+            gallery = gallery.copyWith(
+                downloadStatusIndex: DownloadStatus.downloaded.index);
+          }
+        }
+
+        if (!await _restoreInfoInDatabase(gallery, images)) {
+          log.error('Restore download failed. Gallery: ${gallery.title}');
+          _clearGalleryDownloadInfoInDatabase(gallery.gid);
+          continue;
+        }
+
+        _initGalleryInfoInMemory(gallery, images: images, sort: false);
+
+        restoredCount++;
       }
 
-      if (!await _restoreInfoInDatabase(gallery, images)) {
-        log.error('Restore download failed. Gallery: ${gallery.title}');
-        _clearGalleryDownloadInfoInDatabase(gallery.gid);
-        continue;
+      if (restoredCount > 0) {
+        _sortGallerys();
       }
 
-      _initGalleryInfoInMemory(gallery, images: images, sort: false);
+      log.info(
+          'restoreTasks: done, restored=$restoredCount, skipped=$skippedCount, '
+          'total=${allItems.length}, timeCost=${DateTime.now().difference(start).inMilliseconds}ms');
 
-      restoredCount++;
+      return restoredCount;
+    } finally {
+      isRestoring = false;
+      restoreTotalCount = 0;
+      restoreCurrentCount = 0;
+      update([galleryCountChangedId]);
     }
-
-    if (restoredCount > 0) {
-      _sortGallerys();
-    }
-
-    log.info(
-        'restoreTasks: done, restored=$restoredCount, skipped=$skippedCount, '
-        'total=${allItems.length}, timeCost=${DateTime.now().difference(start).inMilliseconds}ms');
-
-    return restoredCount;
   }
 
   /// Parse gid from gallery directory name like "123456 - [Artist] Title..."

@@ -62,12 +62,6 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   final String thumbnailNoId = 'thumbnailsId';
   final String sliderId = 'sliderId';
 
-  /// Per-image GetBuilder ID prefix used to notify individual [EHImage]
-  /// widgets when their membership in the animated-image playback window
-  /// (current index ± 1) changes. The full ID is
-  /// `'$animationPlaybackIdPrefix$index'`.
-  static const String animationPlaybackIdPrefix = 'animationPlayback::';
-
   ReadPageState state = ReadPageState();
 
   BaseLayoutLogic get layoutLogic => effectiveReadDirection == ReadDirection.top2bottomList
@@ -784,39 +778,8 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   }
 
   void recordReadProgress(int index) {
-    int oldIndex = state.readPageInfo.currentImageIndex;
     state.readPageInfo.currentImageIndex = index;
     update([sliderId, pageNoId, thumbnailNoId]);
-    _notifyAnimationPlaybackWindow(oldIndex, index);
-  }
-
-  /// Notifies [EHImage] widgets whose membership in the animated-image
-  /// playback window (current index ± 1) may have changed.
-  ///
-  /// Only the symmetric difference of the old and new windows is rebuilt,
-  /// so a single-index scroll touches at most 4 images (2 leaving + 2
-  /// entering). This keeps the per-frame cost of scroll-driven index
-  /// updates bounded and independent of gallery length.
-  void _notifyAnimationPlaybackWindow(int oldIndex, int newIndex) {
-    if (oldIndex == newIndex) {
-      return;
-    }
-
-    final int pageCount = state.readPageInfo.pageCount;
-    final Set<int> affected = <int>{};
-    for (int i = oldIndex - 1; i <= oldIndex + 1; i++) {
-      if (i >= 0 && i < pageCount) {
-        affected.add(i);
-      }
-    }
-    for (int i = newIndex - 1; i <= newIndex + 1; i++) {
-      if (i >= 0 && i < pageCount) {
-        affected.add(i);
-      }
-    }
-    for (int i in affected) {
-      update(['$animationPlaybackIdPrefix$i']);
-    }
   }
 
   Future<void> _flushReadProgress() async {

@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:get/get_utils/get_utils.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/gallery_page.dart';
 import 'package:jhentai/src/network/eh_request.dart';
@@ -19,6 +20,7 @@ import '../../enum/config_enum.dart';
 import '../../exception/eh_site_exception.dart';
 import '../../model/gallery.dart';
 import '../../model/search_config.dart';
+import '../../service/archive_download_service.dart';
 import '../../service/gallery_download_service.dart';
 import '../../service/local_config_service.dart';
 import '../../setting/user_setting.dart';
@@ -47,8 +49,11 @@ class FavoritePageLogic extends BasePageLogic {
   /// wait between page loads (matches the normal inter-page delay)
   static const Duration _pageLoadWait = Duration(seconds: 2);
 
-  /// wait between download tasks (matches the normal inter-download delay)
-  static const Duration _downloadWait = Duration(milliseconds: 1500);
+  /// wait between retry attempts for local enqueue failures
+  static const Duration _retryWait = Duration(milliseconds: 500);
+
+  /// save favorites to disk every N pages to avoid O(n²) write overhead
+  static const int _favoritesSaveInterval = 5;
 
   /// resume window for breakpoint continuation
   static const Duration _resumeTimeout = Duration(minutes: 30);
@@ -184,9 +189,10 @@ class FavoritePageLogic extends BasePageLogic {
         allFavorites = loaded;
       }
 
-      List<Gallery> toDownload = allFavorites
-          .where((g) => !galleryDownloadService.containGallery(g.gid))
-          .toList();
+      List<Gallery> toDownload = allFavorites.where((g) {
+        return !galleryDownloadService.containGallery(g.gid) &&
+            !archiveDownloadService.containArchive(g.gid);
+      }).toList();
 
       if (toDownload.isEmpty) {
         toast('noNewFavoritesToDownload'.tr);
@@ -239,6 +245,7 @@ class FavoritePageLogic extends BasePageLogic {
   }) async {
     List<Gallery> allFavorites = List.of(existing);
     String? nextGid = savedNextGid;
+    int pageCount = 0;
 
     while (true) {
       GalleryPageInfo galleryPage;
@@ -256,6 +263,7 @@ class FavoritePageLogic extends BasePageLogic {
 
       allFavorites.addAll(galleryPage.gallerys);
       nextGid = galleryPage.nextGid;
+      pageCount++;
 
       state.batchDownloadTotalCount = allFavorites.length;
       updateSafely([batchDownloadProgressId]);
@@ -267,7 +275,12 @@ class FavoritePageLogic extends BasePageLogic {
         nextGid: nextGid,
         failureTime: null,
       );
-      await _saveFavorites(allFavorites);
+
+      /// Save favorites every N pages or when loading is complete,
+      /// instead of every page, to avoid O(n²) serialization overhead.
+      if (pageCount % _favoritesSaveInterval == 0 || nextGid == null) {
+        await _saveFavorites(allFavorites);
+      }
 
       if (nextGid == null) {
         break;
@@ -332,16 +345,12 @@ class FavoritePageLogic extends BasePageLogic {
           failureTime: null,
         );
       }
-
-      if (i < toDownload.length - 1) {
-        await Future.delayed(_downloadWait);
-      }
     }
     return successCount;
   }
 
   /// Adds a single gallery to the download queue, retrying up to
-  /// [_maxRetryTimes] times with [_downloadWait] between attempts. Returns
+  /// [_maxRetryTimes] times with [_retryWait] between attempts. Returns
   /// false if all retries are exhausted (the gallery is then skipped).
   Future<bool> _downloadGalleryWithRetry(
     Gallery gallery, {
@@ -382,7 +391,7 @@ class FavoritePageLogic extends BasePageLogic {
         log.error(
             'batch download gallery failed (retry $attempt/$_maxRetryTimes): ${gallery.gid}',
             e);
-        await Future.delayed(_downloadWait);
+        await Future.delayed(_retryWait);
       }
     }
   }
@@ -595,5 +604,78 @@ class FavoritePageLogic extends BasePageLogic {
       subConfigKey: searchConfigKey,
       value: jsonEncode(searchConfig.copyWith(keyword: '', tags: [])),
     );
+  }
+
+  /// Retry count for loadMore auto-retry on transient failures.
+  static const int _loadMoreMaxRetry = 3;
+  static const Duration _loadMoreRetryWait = Duration(seconds: 2);
+
+  /// Override loadMore to add auto-retry on network failures.
+  /// After [_loadMoreMaxRetry] attempts, falls back to the normal error state
+  /// (with tap-to-retry) so the user can manually retry.
+  @override
+  Future<void> loadMore({bool checkLoadingState = true}) async {
+    if (checkLoadingState && state.loadingState == LoadingState.loading) {
+      return;
+    }
+
+    state.loadingState = LoadingState.loading;
+    updateSafely([loadingStateId]);
+
+    GalleryPageInfo? galleryPage;
+    Object? lastError;
+
+    for (int attempt = 1; attempt <= _loadMoreMaxRetry; attempt++) {
+      try {
+        galleryPage = await getGalleryPage(nextGid: state.nextGid);
+        break;
+      } on DioException catch (e) {
+        lastError = e;
+        log.error(
+            'loadMore failed (attempt $attempt/$_loadMoreMaxRetry)', e.errorMsg);
+      } on EHSiteException catch (e) {
+        lastError = e;
+        log.error(
+            'loadMore failed (attempt $attempt/$_loadMoreMaxRetry)', e.message);
+      } catch (e) {
+        lastError = e;
+        log.error(
+            'loadMore failed (attempt $attempt/$_loadMoreMaxRetry)', e.toString());
+      }
+
+      if (attempt < _loadMoreMaxRetry) {
+        await Future.delayed(_loadMoreRetryWait);
+      }
+    }
+
+    if (galleryPage == null) {
+      // All retries exhausted → show error state with tap-to-retry.
+      String errorMsg = lastError is DioException
+          ? lastError.errorMsg ?? ''
+          : lastError.toString();
+      snack('getGallerysFailed'.tr, errorMsg, isShort: true);
+      state.loadingState = LoadingState.error;
+      updateSafely([loadingStateId]);
+      return;
+    }
+
+    List<Gallery> gallerys = await postHandleNewGallerys(galleryPage.gallerys);
+
+    state.gallerys.addAll(gallerys);
+    state.totalCount = galleryPage.totalCount;
+    state.nextGid = galleryPage.nextGid;
+    state.favoriteSortOrder = galleryPage.favoriteSortOrder;
+
+    if (state.nextGid == null &&
+        state.prevGid == null &&
+        state.gallerys.isEmpty) {
+      state.loadingState = LoadingState.noData;
+    } else if (state.nextGid == null) {
+      state.loadingState = LoadingState.noMore;
+    } else {
+      state.loadingState = LoadingState.idle;
+    }
+
+    updateSafely();
   }
 }

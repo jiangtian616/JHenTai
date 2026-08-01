@@ -15,6 +15,8 @@ import '../config/ui_config.dart';
 import '../consts/locale_consts.dart';
 import '../model/gallery.dart';
 import '../model/gallery_tag.dart';
+import '../service/archive_download_service.dart';
+import '../service/gallery_download_service.dart';
 import 'eh_gallery_category_tag.dart';
 import 'eh_gallery_list_card_.dart';
 import 'eh_image.dart';
@@ -100,7 +102,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
               children: [
                 _buildRatingBar(context),
                 const Expanded(child: SizedBox()),
-                if (downloaded) _buildDownloadIcon().marginOnly(right: 2),
+                _buildReactiveDownloadIcon().marginOnly(right: 2),
                 if (gallery.isFavorite) _buildFavoriteIcon().marginOnly(right: 2),
                 if (gallery.pageCount != null) _buildPageCount(),
               ],
@@ -124,7 +126,7 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
               children: [
                 _buildRatingBar(context),
                 const Expanded(child: SizedBox()),
-                if (downloaded) _buildDownloadIcon(),
+                _buildReactiveDownloadIcon(),
                 if (gallery.isFavorite) _buildFavoriteIcon().marginOnly(left: 2),
                 _buildCategory().marginOnly(left: 4, right: 4),
                 if (gallery.language != null) _buildLanguage().marginOnly(right: 2),
@@ -186,6 +188,25 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
   }
 
   Widget _buildDownloadIcon() => const Icon(Icons.download, size: 10);
+
+  /// Reactively shows the download icon when the gallery is downloaded
+  /// (either as a gallery download or an archive download).
+  /// Rebuilds when either service emits [galleryCountChangedId].
+  Widget _buildReactiveDownloadIcon() {
+    return GetBuilder<GalleryDownloadService>(
+      id: Get.find<GalleryDownloadService>().galleryCountChangedId,
+      builder: (_) => GetBuilder<ArchiveDownloadService>(
+        id: Get.find<ArchiveDownloadService>().galleryCountChangedId,
+        builder: (_) {
+          bool isDownloaded = galleryDownloadService.containGallery(gallery.gid) ||
+              archiveDownloadService.containArchive(gallery.gid);
+          return isDownloaded
+              ? _buildDownloadIcon()
+              : const SizedBox.shrink();
+        },
+      ),
+    );
+  }
 
   Widget _buildFavoriteIcon() => Icon(Icons.favorite, size: 10, color: UIConfig.favoriteTagColor[gallery.favoriteTagIndex!]);
 

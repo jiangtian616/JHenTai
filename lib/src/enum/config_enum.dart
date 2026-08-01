@@ -58,6 +58,9 @@ enum ConfigEnum {
   /// favorites batch download (retry + breakpoint resume)
   favoriteBatchDownloadProgress('favoriteBatchDownloadProgress'),
   favoriteBatchDownloadFavorites('favoriteBatchDownloadFavorites'),
+
+  /// deep scan result for delete history versions dialog
+  deepScanResult('deepScanResult'),
   ;
 
   final String key;

@@ -56,14 +56,24 @@ class GalleryThumbnail {
 
   @override
   int get hashCode =>
-      href.hashCode ^ isLarge.hashCode ^ thumbUrl.hashCode ^ thumbHeight.hashCode ^ thumbWidth.hashCode ^ offSet.hashCode ^ originImageHash.hashCode;
+      href.hashCode ^
+      isLarge.hashCode ^
+      thumbUrl.hashCode ^
+      thumbHeight.hashCode ^
+      thumbWidth.hashCode ^
+      offSet.hashCode ^
+      originImageHash.hashCode;
 
   @override
   String toString() {
-    return 'GalleryThumbnail{' ' href: $href,' ' isLarge: $isLarge,' ' thumbUrl: $thumbUrl,' ' thumbHeight: $thumbHeight,' +
-        ' thumbWidth: $thumbWidth,' +
-        ' offSet: $offSet,' +
-        ' originImageHash: $originImageHash,' +
+    return 'GalleryThumbnail{'
+        ' href: $href,'
+        ' isLarge: $isLarge,'
+        ' thumbUrl: $thumbUrl,'
+        ' thumbHeight: $thumbHeight,'
+        ' thumbWidth: $thumbWidth,'
+        ' offSet: $offSet,'
+        ' originImageHash: $originImageHash,'
         '}';
   }
 

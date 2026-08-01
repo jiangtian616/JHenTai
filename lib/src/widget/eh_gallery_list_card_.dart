@@ -15,6 +15,8 @@ import 'package:waterfall_flow/waterfall_flow.dart';
 
 import '../consts/locale_consts.dart';
 import '../utils/date_util.dart';
+import '../service/archive_download_service.dart';
+import '../service/gallery_download_service.dart';
 import 'eh_image.dart';
 import 'eh_tag.dart';
 import 'eh_gallery_category_tag.dart';
@@ -203,7 +205,7 @@ class EHGalleryListCard extends StatelessWidget {
             EHGalleryCategoryTag(category: gallery.category),
             const Expanded(child: SizedBox()),
             if (gallery.pageCount != null) _buildReadingProgress(context).marginOnly(right: 8),
-            if (downloaded) _buildDownloadIcon(context).marginOnly(right: 4),
+            _buildReactiveDownloadIcon(context).marginOnly(right: 4),
             if (gallery.isFavorite) _buildFavoriteIcon().marginOnly(right: 4),
             if (gallery.language != null) _buildLanguage(context).marginOnly(right: 4),
             if (gallery.pageCount != null) _buildPageCount(context),
@@ -275,6 +277,25 @@ class EHGalleryListCard extends StatelessWidget {
   }
 
   Widget _buildDownloadIcon(BuildContext context) => Icon(Icons.downloading, size: 11, color: UIConfig.galleryCardTextColor(context));
+
+  /// Reactively shows the download icon when the gallery is downloaded
+  /// (either as a gallery download or an archive download).
+  /// Rebuilds when either service emits [galleryCountChangedId].
+  Widget _buildReactiveDownloadIcon(BuildContext context) {
+    return GetBuilder<GalleryDownloadService>(
+      id: Get.find<GalleryDownloadService>().galleryCountChangedId,
+      builder: (_) => GetBuilder<ArchiveDownloadService>(
+        id: Get.find<ArchiveDownloadService>().galleryCountChangedId,
+        builder: (_) {
+          bool isDownloaded = galleryDownloadService.containGallery(gallery.gid) ||
+              archiveDownloadService.containArchive(gallery.gid);
+          return isDownloaded
+              ? _buildDownloadIcon(context)
+              : const SizedBox.shrink();
+        },
+      ),
+    );
+  }
 
   Widget _buildFavoriteIcon() => Icon(Icons.favorite, size: 11, color: UIConfig.favoriteTagColor[gallery.favoriteTagIndex!]);
 

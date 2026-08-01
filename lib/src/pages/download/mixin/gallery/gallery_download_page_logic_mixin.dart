@@ -131,6 +131,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController
     bool? result = await Get.dialog(const EHDeleteHistoryVersionsDialog());
     if (result == true) {
       updateSafely([bodyId]);
+      updateGlobalGalleryStatus();
     }
   }
 

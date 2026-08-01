@@ -54,15 +54,6 @@ class EHImage extends StatefulWidget {
   /// [disableGifAnimation] (all-or-nothing).
   final bool playAnimation;
 
-  /// When true, the full animated codec is used regardless of visibility.
-  /// This is used to implement the playback window: the caller sets
-  /// [forcePlay] to true for images within the current ±1 index window so
-  /// the next image is preloaded (frames ready to play before it enters the
-  /// viewport) and the previous image is retained in memory (frames stay
-  /// decoded after it leaves the viewport). Only effective when
-  /// [playAnimation] is also true.
-  final bool forcePlay;
-
   const EHImage({
     Key? key,
     required this.galleryImage,
@@ -80,7 +71,6 @@ class EHImage extends StatefulWidget {
     this.maxBytes,
     this.disableGifAnimation = false,
     this.playAnimation = false,
-    this.forcePlay = false,
     this.loadingProgressWidgetBuilder,
     this.failedWidgetBuilder,
     this.downloadingWidgetBuilder,
@@ -106,7 +96,6 @@ class EHImage extends StatefulWidget {
     this.maxBytes,
     this.disableGifAnimation = false,
     this.playAnimation = false,
-    this.forcePlay = false,
     this.loadingProgressWidgetBuilder,
     this.failedWidgetBuilder,
     this.downloadingWidgetBuilder,
@@ -157,11 +146,9 @@ class _EHImageState extends State<EHImage> {
   /// Priority:
   /// 1. Non-animated formats always render normally (false).
   /// 2. [widget.disableGifAnimation] forces single-frame (existing behavior).
-  /// 3. [widget.playAnimation] + [widget.forcePlay] always uses the full
-  ///    animated codec (preload / retention window).
-  /// 4. [widget.playAnimation] enables visibility-aware control: visible
+  /// 3. [widget.playAnimation] enables visibility-aware control: visible
   ///    images play, off-screen images show the first frame only.
-  /// 5. Otherwise, animations play (existing default).
+  /// 4. Otherwise, animations play (existing default).
   bool get _shouldUseSingleFrame {
     if (!_isPotentiallyAnimated) {
       return false;
@@ -170,15 +157,13 @@ class _EHImageState extends State<EHImage> {
       return true;
     }
     if (widget.playAnimation) {
-      if (widget.forcePlay) {
-        return false;
-      }
       return !_isVisible;
     }
     return false;
   }
 
   void _onVisibilityChanged(VisibilityInfo info) {
+    if (!mounted) return;
     final newVisible = info.visibleFraction > _visibilityThreshold;
     if (newVisible != _isVisible) {
       setState(() {

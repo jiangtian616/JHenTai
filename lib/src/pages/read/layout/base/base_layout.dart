@@ -174,40 +174,27 @@ abstract class BaseLayout extends StatelessWidget {
       onSecondaryTapDown: (details) => logic.showOnlineImageContextMenu(
           index, context,
           position: details.globalPosition),
-      child: GetBuilder<ReadPageLogic>(
-        id: '${ReadPageLogic.animationPlaybackIdPrefix}$index',
-        builder: (_) => EHImage(
-          galleryImage: readPageState.images[index]!,
-          containerWidth:
-              logic.readPageState.imageContainerSizes[index]?.width ??
-                  logic.getPlaceHolderSize(index).width,
-          containerHeight:
-              logic.readPageState.imageContainerSizes[index]?.height ??
-                  logic.getPlaceHolderSize(index).height,
-          clearMemoryCacheWhenDispose: true,
-          playAnimation: true,
-          forcePlay: _isInPlaybackWindow(index),
-          loadingProgressWidgetBuilder: (double progress) =>
-              _loadingProgressWidgetBuilder(index, progress),
-          failedWidgetBuilder: (ExtendedImageState state) =>
-              _failedWidgetBuilder(index, state),
-          completedWidgetBuilder: (state) =>
-              completedWidgetBuilderCallBack(index, state),
-          maxBytes: readSetting.enableMaxImageKilobyte.isTrue
-              ? readSetting.maxImageKilobyte.toInt() * 1024
-              : null,
-        ),
+      child: EHImage(
+        galleryImage: readPageState.images[index]!,
+        containerWidth:
+            logic.readPageState.imageContainerSizes[index]?.width ??
+                logic.getPlaceHolderSize(index).width,
+        containerHeight:
+            logic.readPageState.imageContainerSizes[index]?.height ??
+                logic.getPlaceHolderSize(index).height,
+        clearMemoryCacheWhenDispose: true,
+        playAnimation: true,
+        loadingProgressWidgetBuilder: (double progress) =>
+            _loadingProgressWidgetBuilder(index, progress),
+        failedWidgetBuilder: (ExtendedImageState state) =>
+            _failedWidgetBuilder(index, state),
+        completedWidgetBuilder: (state) =>
+            completedWidgetBuilderCallBack(index, state),
+        maxBytes: readSetting.enableMaxImageKilobyte.isTrue
+            ? readSetting.maxImageKilobyte.toInt() * 1024
+            : null,
       ),
     );
-  }
-
-  /// Whether [index] falls within the animated-image playback window
-  /// (current image index ± 1). Images inside the window use the full
-  /// animated codec so the next image is preloaded and the previous image
-  /// is retained in memory; images outside render only the first frame.
-  bool _isInPlaybackWindow(int index) {
-    final int current = readPageState.readPageInfo.currentImageIndex;
-    return index >= current - 1 && index <= current + 1;
   }
 
   /// loading for online mode
@@ -313,31 +300,27 @@ abstract class BaseLayout extends StatelessWidget {
           onSecondaryTapDown: (details) => logic.showLocalImageContextMenu(
               index, context,
               position: details.globalPosition),
-          child: GetBuilder<ReadPageLogic>(
-            id: '${ReadPageLogic.animationPlaybackIdPrefix}$index',
-            builder: (_) => EHImage(
-              galleryImage: readPageState.images[index]!.copyWith(
-                path: superResolutionService.computeImageOutputRelativePath(
-                    readPageState.images[index]!.path!),
-              ),
-              containerWidth:
-                  logic.readPageState.imageContainerSizes[index]?.width ??
-                      logic.getPlaceHolderSize(index).width,
-              containerHeight:
-                  logic.readPageState.imageContainerSizes[index]?.height ??
-                      logic.getPlaceHolderSize(index).height,
-              clearMemoryCacheWhenDispose: true,
-              playAnimation: true,
-              forcePlay: _isInPlaybackWindow(index),
-              loadingWidgetBuilder: () => _loadingWidgetBuilder(context, index),
-              failedWidgetBuilder: (state) =>
-                  _failedWidgetBuilderForLocalMode(index, state),
-              completedWidgetBuilder: (state) =>
-                  completedWidgetBuilderForLocalModeCallBack(index, state),
-              maxBytes: readSetting.enableMaxImageKilobyte.isTrue
-                  ? readSetting.maxImageKilobyte.toInt() * 1024
-                  : null,
+          child: EHImage(
+            galleryImage: readPageState.images[index]!.copyWith(
+              path: superResolutionService.computeImageOutputRelativePath(
+                  readPageState.images[index]!.path!),
             ),
+            containerWidth:
+                logic.readPageState.imageContainerSizes[index]?.width ??
+                    logic.getPlaceHolderSize(index).width,
+            containerHeight:
+                logic.readPageState.imageContainerSizes[index]?.height ??
+                    logic.getPlaceHolderSize(index).height,
+            clearMemoryCacheWhenDispose: true,
+            playAnimation: true,
+            loadingWidgetBuilder: () => _loadingWidgetBuilder(context, index),
+            failedWidgetBuilder: (state) =>
+                _failedWidgetBuilderForLocalMode(index, state),
+            completedWidgetBuilder: (state) =>
+                completedWidgetBuilderForLocalModeCallBack(index, state),
+            maxBytes: readSetting.enableMaxImageKilobyte.isTrue
+                ? readSetting.maxImageKilobyte.toInt() * 1024
+                : null,
           ),
         );
       },
@@ -409,30 +392,26 @@ abstract class BaseLayout extends StatelessWidget {
       onSecondaryTapDown: (details) => logic.showLocalImageContextMenu(
           index, context,
           position: details.globalPosition),
-      child: GetBuilder<ReadPageLogic>(
-        id: '${ReadPageLogic.animationPlaybackIdPrefix}$index',
-        builder: (_) => EHImage(
-          galleryImage: readPageState.images[index]!,
-          containerWidth:
-              logic.readPageState.imageContainerSizes[index]?.width ??
-                  logic.getPlaceHolderSize(index).width,
-          containerHeight:
-              logic.readPageState.imageContainerSizes[index]?.height ??
-                  logic.getPlaceHolderSize(index).height,
-          clearMemoryCacheWhenDispose: true,
-          playAnimation: true,
-          forcePlay: _isInPlaybackWindow(index),
-          downloadingWidgetBuilder: () => _downloadingWidgetBuilder(index),
-          pausedWidgetBuilder: () => _pausedWidgetBuilder(index),
-          loadingWidgetBuilder: () => _loadingWidgetBuilder(context, index),
-          failedWidgetBuilder: (state) =>
-              _failedWidgetBuilderForLocalMode(index, state),
-          completedWidgetBuilder: (state) =>
-              completedWidgetBuilderForLocalModeCallBack(index, state),
-          maxBytes: readSetting.enableMaxImageKilobyte.isTrue
-              ? readSetting.maxImageKilobyte.toInt() * 1024
-              : null,
-        ),
+      child: EHImage(
+        galleryImage: readPageState.images[index]!,
+        containerWidth:
+            logic.readPageState.imageContainerSizes[index]?.width ??
+                logic.getPlaceHolderSize(index).width,
+        containerHeight:
+            logic.readPageState.imageContainerSizes[index]?.height ??
+                logic.getPlaceHolderSize(index).height,
+        clearMemoryCacheWhenDispose: true,
+        playAnimation: true,
+        downloadingWidgetBuilder: () => _downloadingWidgetBuilder(index),
+        pausedWidgetBuilder: () => _pausedWidgetBuilder(index),
+        loadingWidgetBuilder: () => _loadingWidgetBuilder(context, index),
+        failedWidgetBuilder: (state) =>
+            _failedWidgetBuilderForLocalMode(index, state),
+        completedWidgetBuilder: (state) =>
+            completedWidgetBuilderForLocalModeCallBack(index, state),
+        maxBytes: readSetting.enableMaxImageKilobyte.isTrue
+            ? readSetting.maxImageKilobyte.toInt() * 1024
+            : null,
       ),
     );
   }
