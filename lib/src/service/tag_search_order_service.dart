@@ -42,7 +42,7 @@ class TagSearchOrderOptimizationService with JHLifeCircleBeanErrorCatch implemen
 
   @override
   Future<void> doInitBean() async {
-    savePath = join(pathService.getVisibleDir().path, 'tid_count_tag.csv.gz');
+    savePath = join(pathService.getVisibleDir().path, 'tagname_count.csv.gz');
 
     localConfigService
         .read(configKey: ConfigEnum.tagSearchOrderOptimizationServiceLoadingState)
@@ -101,7 +101,7 @@ class TagSearchOrderOptimizationService with JHLifeCircleBeanErrorCatch implemen
     try {
       await retry(
         () => ehRequest.download(
-          url: 'https://github.com/mokurin000/e-hentai-tag-count/releases/download/$tag/tid_count_tag.csv.gz',
+          url: 'https://github.com/mokurin000/e-hentai-tag-count/releases/download/$tag/tagname_count.csv.gz',
           path: savePath,
           receiveTimeout: 10 * 60 * 1000,
           onReceiveProgress: (count, total) => downloadProgress.value = byte2String(count.toDouble()),
@@ -153,7 +153,7 @@ class TagSearchOrderOptimizationService with JHLifeCircleBeanErrorCatch implemen
     }
 
     List<TagCountData> tagCountData =
-        rows.where((row) => row[1] >= 5).map((row) => TagCountData(namespaceWithKey: (row[2] as String).replaceAll('"', ''), count: row[1])).toList();
+        rows.where((row) => row[1] >= 5).map((row) => TagCountData(namespaceWithKey: (row[0] as String).replaceAll('"', ''), count: row[1])).toList();
     version.value = null;
     await TagCountDao.replaceTagCount(tagCountData);
     version.value = tag;

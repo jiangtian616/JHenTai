@@ -552,6 +552,7 @@ class ru_RU {
       /// preference setting page
       'showR18GImageDirectly': 'Показывать R18G изображения сразу',
       'defaultTab': 'Вкладка по умолчанию',
+      'defaultDownloadTab': 'Вкладка загрузок по умолчанию',
       'showUtcTime': 'Показывать UTC время для галерей',
       'showDawnInfo': 'Показывать событие "Новый рассвет"',
       'showEncounterMonster': 'Показывать событие "Встреча с монстром" (HentaiVerse)',
@@ -758,6 +759,7 @@ class ru_RU {
       'originalImage': 'Оригинал',
       'resampleImage': 'Уменьшенное',
       'defaultGalleryGroup': 'Группа галерей по умолчанию',
+      'prioritizeRecentGalleryGroups': 'Недавние группы галерей в начале списка',
       'defaultArchiveGroup': 'Группа архивов по умолчанию',
       'never': 'Никогда',
       'manual': 'Вручную',

@@ -547,6 +547,7 @@ class pt_BR {
       /// preference setting page
       'showR18GImageDirectly': 'Show R18G Image Directly',
       'defaultTab': 'Default Tab',
+      'defaultDownloadTab': 'Default Download Tab',
       'showUtcTime': 'Show UTC Time for Gallery',
       'showDawnInfo': 'Show new dawn event',
       'showEncounterMonster': 'Show hentaiVerse monster encounter event',
@@ -750,6 +751,7 @@ class pt_BR {
       'originalImage': 'Original',
       'resampleImage': 'Redimensionada',
       'defaultGalleryGroup': 'Default Gallery Group',
+      'prioritizeRecentGalleryGroups': 'Priorizar grupos de galeria usados recentemente',
       'defaultArchiveGroup': 'Default Archive Group',
       'never': 'Nunca',
       'manual': 'Manual',

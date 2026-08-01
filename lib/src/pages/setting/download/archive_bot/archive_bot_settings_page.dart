@@ -47,7 +47,7 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
         children: [
           _buildApiKeySetting(),
           if (archiveBotSetting.isReady) _buildBalance(),
-          if (archiveBotSetting.isReady) _buildCheckin(),
+          if (archiveBotSetting.isReady && archiveBotSetting.botType.value.supportsCheckIn) _buildCheckin(),
         ],
       ).withListTileTheme(context),
     );
@@ -157,6 +157,9 @@ class _ArchiveBotSettingsPageState extends State<ArchiveBotSettingsPage> {
       return;
     }
     if (!archiveBotSetting.isReady) {
+      return;
+    }
+    if (!archiveBotSetting.botType.value.supportsCheckIn) {
       return;
     }
 

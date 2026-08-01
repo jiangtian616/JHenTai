@@ -19,6 +19,8 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   RxBool downloadOriginalImageByDefault = false.obs;
   RxnString defaultGalleryGroup = RxnString();
   RxnString defaultArchiveGroup = RxnString();
+  RxBool prioritizeRecentGalleryGroups = true.obs;
+  List<String> recentGalleryGroups = [];
   late String defaultExtraGalleryScanPath;
   late RxList<String> extraGalleryScanPath;
   late RxString singleImageSavePath;
@@ -51,6 +53,10 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     downloadOriginalImageByDefault.value = map['downloadOriginalImageByDefault'] ?? downloadOriginalImageByDefault.value;
     defaultGalleryGroup.value = map['defaultGalleryGroup'];
     defaultArchiveGroup.value = map['defaultArchiveGroup'];
+    prioritizeRecentGalleryGroups.value = map['prioritizeRecentGalleryGroups'] ?? prioritizeRecentGalleryGroups.value;
+    if (map['recentGalleryGroups'] != null) {
+      recentGalleryGroups = map['recentGalleryGroups'].cast<String>();
+    }
     downloadTaskConcurrency.value = map['downloadTaskConcurrency'];
     maximum.value = map['maximum'];
     period.value = Duration(milliseconds: map['period']);
@@ -74,6 +80,8 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
       'downloadOriginalImageByDefault': downloadOriginalImageByDefault.value,
       'defaultGalleryGroup': defaultGalleryGroup.value,
       'defaultArchiveGroup': defaultArchiveGroup.value,
+      'prioritizeRecentGalleryGroups': prioritizeRecentGalleryGroups.value,
+      'recentGalleryGroups': recentGalleryGroups,
       'downloadTaskConcurrency': downloadTaskConcurrency.value,
       'maximum': maximum.value,
       'period': period.value.inMilliseconds,
@@ -141,6 +149,24 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   Future<void> saveDefaultArchiveGroup(String? group) async {
     log.debug('saveDefaultArchiveGroup:$group');
     defaultArchiveGroup.value = group;
+    await saveBeanConfig();
+  }
+
+  Future<void> savePrioritizeRecentGalleryGroups(bool value) async {
+    log.debug('savePrioritizeRecentGalleryGroups:$value');
+    prioritizeRecentGalleryGroups.value = value;
+    await saveBeanConfig();
+  }
+
+  List<String> get preferredGalleryGroups => prioritizeRecentGalleryGroups.isTrue ? recentGalleryGroups : const [];
+
+  Future<void> saveRecentGalleryGroup(String group) async {
+    log.debug('saveRecentGalleryGroup:$group');
+    if (prioritizeRecentGalleryGroups.isFalse) {
+      return;
+    }
+    recentGalleryGroups.removeWhere((candidate) => candidate == group);
+    recentGalleryGroups.insert(0, group);
     await saveBeanConfig();
   }
 

@@ -21,6 +21,11 @@ enum ArchiveBotType {
 
   const ArchiveBotType(this.code);
 
+  bool get supportsCheckIn => switch (this) {
+        ehArBot => true,
+        _ => false,
+      };
+
   String get defaultServerAddress {
     switch (this) {
       case ArchiveBotType.ehArBot:

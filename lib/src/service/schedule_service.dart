@@ -55,8 +55,10 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
     Timer(const Duration(seconds: 5), checkEHEvent);
     Timer.periodic(const Duration(minutes: 5), (_) => checkEHEvent());
 
-    Timer(const Duration(seconds: 5), checkInArchiveBot);
-    Timer.periodic(const Duration(minutes: 5), (_) => checkInArchiveBot());
+    if (archiveBotSetting.botType.value.supportsCheckIn) {
+      Timer(const Duration(seconds: 5), checkInArchiveBot);
+      Timer.periodic(const Duration(minutes: 5), (_) => checkInArchiveBot());
+    }
   }
 
   Future<void> _checkUpdate() async {
@@ -224,6 +226,9 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
 
   Future<void> checkInArchiveBot() async {
     if (!archiveBotSetting.isReady) {
+      return;
+    }
+    if (!archiveBotSetting.botType.value.supportsCheckIn) {
       return;
     }
 

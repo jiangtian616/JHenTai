@@ -546,6 +546,7 @@ class ko_KR {
       /// preference setting page
       'showR18GImageDirectly': 'R18G 이미지 표시',
       'defaultTab': 'Default Tab',
+      'defaultDownloadTab': 'Default Download Tab',
       'showUtcTime': 'Show UTC Time for Gallery',
       'showDawnInfo': 'Show new dawn event',
       'showEncounterMonster': 'Show hentaiVerse monster encounter event',
@@ -748,6 +749,7 @@ class ko_KR {
       'originalImage': '원본',
       'resampleImage': '압축',
       'defaultGalleryGroup': 'Default Gallery Group',
+      'prioritizeRecentGalleryGroups': '최근 사용한 갤러리 그룹 우선',
       'defaultArchiveGroup': 'Default Archive Group',
       'never': '영원히 안 함',
       'manual': '수동',

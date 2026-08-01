@@ -1002,14 +1002,14 @@ class EHSpiderParser {
 
     return {'credit': credit?.trim() ?? '-1', 'gp': gp?.trim() ?? '-1'};
   }
-  static String hathPage2Hath(Headers headers, dynamic data) {
+
+  static String? hathPage2Hath(Headers headers, dynamic data) {
     Document document = parse(data as String);
 
-    String? sellDesc = document.querySelector('#sellform')?.parent?.nextElementSibling?.text;
+    List<Element> ps = document.querySelectorAll('.stuffbox > div > p');
+    String? hath = ps.length >= 4 ? RegExp(r'You currently have ([\d,.]+) Hath').firstMatch(ps[3].text)?.group(1) : null;
 
-    String? hath = RegExp(r'([\d,k ]+)Hath').firstMatch(sellDesc ?? '')?.group(1);
-
-    return hath?.trim() ?? '-1';
+    return hath?.trim();
   }
 
   static String githubReleasePage2LatestVersion(Headers headers, dynamic data) {

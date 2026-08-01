@@ -311,7 +311,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
 
     // Start both requests concurrently
     Future<Map<String, String>> gpCreditFuture = ehRequest.requestExchangePage(parser: EHSpiderParser.exchangePage2Assets);
-    Future<String> hathFuture = ehRequest.requestHathPage(parser: EHSpiderParser.hathPage2Hath);
+    Future<String?> hathFuture = ehRequest.requestHathPage(parser: EHSpiderParser.hathPage2Hath);
 
     Map<String, String>? assets;
     try {

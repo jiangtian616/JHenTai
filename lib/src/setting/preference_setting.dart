@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/model/tab_bar_icon.dart';
+import 'package:jhentai/src/pages/download/download_base_page.dart';
 
 import '../service/jh_service.dart';
 import '../utils/locale_util.dart';
@@ -37,6 +38,7 @@ class PreferenceSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
   RxBool showDawnInfo = false.obs;
   RxBool showHVInfo = false.obs;
   RxBool useBuiltInBlockedUsers = true.obs;
+  Rx<DownloadPageGalleryType> defaultDownloadTab = DownloadPageGalleryType.download.obs;
   
   @override
   ConfigEnum get configEnum => ConfigEnum.preferenceSetting;
@@ -72,6 +74,7 @@ class PreferenceSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
     showDawnInfo.value = map['showDawnInfo'] ?? showDawnInfo.value;
     showHVInfo.value = map['showHVInfo'] ?? showHVInfo.value;
     useBuiltInBlockedUsers.value = map['useBuiltInBlockedUsers'] ?? useBuiltInBlockedUsers.value;
+    defaultDownloadTab.value = DownloadPageGalleryType.values[map['defaultDownloadTab'] ?? DownloadPageGalleryType.download.index];
   }
 
   @override
@@ -102,6 +105,7 @@ class PreferenceSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
       'showDawnInfo': showDawnInfo.value,
       'showHVInfo': showHVInfo.value,
       'useBuiltInBlockedUsers': useBuiltInBlockedUsers.value,
+      'defaultDownloadTab': defaultDownloadTab.value.index,
     });
   }
 
@@ -259,6 +263,12 @@ class PreferenceSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
   Future<void> saveUseBuiltInBlockedUsers(bool useBuiltInBlockedUsers) async {
     log.debug('saveUseBuiltInBlockedUsers:$useBuiltInBlockedUsers');
     this.useBuiltInBlockedUsers.value = useBuiltInBlockedUsers;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveDefaultDownloadTab(DownloadPageGalleryType defaultDownloadTab) async {
+    log.debug('saveDefaultDownloadTab:$defaultDownloadTab');
+    this.defaultDownloadTab.value = defaultDownloadTab;
     await saveBeanConfig();
   }
 }

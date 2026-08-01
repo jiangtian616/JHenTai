@@ -888,7 +888,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }
 
   Future<T> requestHathPage<T>({HtmlParser<T>? parser}) async {
-    Response response = await _getWithErrorHandler(EHConsts.EHathExchange);
+    Response response = await _getWithErrorHandler(EHConsts.EHathPerks);
 
     return _parseResponse(response, parser);
   }
