@@ -20,7 +20,7 @@ class ThemeConfig {
 
     return themeData.copyWith(
       appBarTheme: themeData.appBarTheme.copyWith(backgroundColor: themeData.colorScheme.surface),
-      dialogTheme: DialogTheme(backgroundColor: themeData.colorScheme.surface),
+      dialogTheme: DialogThemeData(backgroundColor: themeData.colorScheme.surface),
     );
   }
 }
