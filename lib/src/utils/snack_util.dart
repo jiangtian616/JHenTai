@@ -35,6 +35,9 @@ void snack(
       showCloseIcon: onPressed == null,
       action: onPressed == null ? null : SnackBarAction(label: '->', onPressed: onPressed),
       duration: Duration(milliseconds: isShort ? 3000 : 5000),
+
+      /// Flutter 3.38 起带 action 的 SnackBar 默认不再自动消失，用 persist 恢复按 duration 自动消失
+      persist: false,
       behavior: styleSetting.isInMobileLayout ? null : SnackBarBehavior.floating,
       width: styleSetting.isInMobileLayout ? null : max(fullScreenWidth / 2, UIConfig.snackWidth),
     ),
