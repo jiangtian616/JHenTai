@@ -1975,7 +1975,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: bc24ea374c0d778d4805f43e6d57d69eb0f78338
+      resolved-ref: a138c2125492f938b723259f57428a0b77f3f4b1
       url: "https://github.com/jiangtian616/volume_button_override"
     source: git
     version: "0.0.1"
