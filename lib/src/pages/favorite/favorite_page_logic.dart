@@ -320,6 +320,7 @@ class FavoritePageLogic extends BasePageLogic {
     required bool downloadOriginalImage,
   }) async {
     int successCount = 0;
+    final DateTime baseInsertTime = DateTime.now();
     for (int i = 0; i < toDownload.length; i++) {
       Gallery gallery = toDownload[i];
 
@@ -327,6 +328,7 @@ class FavoritePageLogic extends BasePageLogic {
         gallery,
         targetGroup: targetGroup,
         downloadOriginalImage: downloadOriginalImage,
+        insertTime: baseInsertTime.subtract(Duration(seconds: i)),
       );
       if (ok) {
         successCount++;
@@ -356,6 +358,7 @@ class FavoritePageLogic extends BasePageLogic {
     Gallery gallery, {
     required String targetGroup,
     required bool downloadOriginalImage,
+    required DateTime insertTime,
   }) async {
     int attempt = 0;
     while (true) {
@@ -373,7 +376,7 @@ class FavoritePageLogic extends BasePageLogic {
           downloadOriginalImage: downloadOriginalImage,
           sortOrder: 0,
           groupName: targetGroup,
-          insertTime: DateTime.now().toString(),
+          insertTime: insertTime.toString(),
           priority: GalleryDownloadService.defaultDownloadGalleryPriority,
           tags: tagMap2TagString(gallery.tags),
           tagRefreshTime: DateTime.now().toString(),
