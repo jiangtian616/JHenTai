@@ -311,6 +311,8 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
                 return ElevatedButton(
                   child: Icon(
                     Icons.looks_one,
+                    // ElevatedButton M3 default iconSize (18) shrinks a bare child Icon; pin size explicitly
+                    size: 24,
                     color: state.displayFirstPageAlone ? UIConfig.readPageActiveButtonColor(context) : UIConfig.readPageButtonColor,
                   ),
                   onPressed: logic.toggleDisplayFirstPageAlone,
@@ -327,7 +329,7 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
               GetBuilder<ReadPageLogic>(
                 id: logic.autoModeId,
                 builder: (_) => ElevatedButton(
-                  child: Icon(Icons.schedule, color: state.autoMode ? UIConfig.readPageActiveButtonColor(context) : UIConfig.readPageButtonColor),
+                  child: Icon(Icons.schedule, size: 24, color: state.autoMode ? UIConfig.readPageActiveButtonColor(context) : UIConfig.readPageButtonColor),
                   onPressed: logic.toggleAutoMode,
                   style: ElevatedButton.styleFrom(
                     elevation: 0,
@@ -341,7 +343,7 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
               ),
               if (readSetting.enableBottomMenu.isFalse)
                 ElevatedButton(
-                  child: const Icon(Icons.settings, color: UIConfig.readPageButtonColor),
+                  child: const Icon(Icons.settings, size: 24, color: UIConfig.readPageButtonColor),
                   onPressed: () => logic.openReadSetting(context),
                   style: ElevatedButton.styleFrom(
                     elevation: 0,

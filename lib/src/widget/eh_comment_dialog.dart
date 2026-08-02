@@ -66,7 +66,7 @@ class EHCommentDialogState extends State<EHCommentDialog> {
       ),
       actions: [
         if (sendCommentState == LoadingState.loading) const CupertinoActivityIndicator(radius: 10),
-        TextButton(child: const Icon(Icons.send), onPressed: _sendComment)
+        TextButton(child: const Icon(Icons.send, size: 24), onPressed: _sendComment)
       ],
     );
   }
