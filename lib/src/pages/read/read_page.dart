@@ -267,87 +267,95 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
   Widget buildTopMenu(BuildContext context) {
     return GetBuilder<ReadPageLogic>(
       id: logic.topMenuId,
-      builder: (_) => AnimatedPositioned(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.ease,
-        height: state.isMenuOpen ? UIConfig.appBarHeight + context.mediaQuery.padding.top : 0,
-        width: fullScreenWidth,
-        child: AppBar(
-          backgroundColor: UIConfig.readPageMenuColor,
-          title: Text(state.readPageInfo.galleryTitle, style: const TextStyle(color: UIConfig.readPageButtonColor)),
-          leading: const BackButton(color: UIConfig.readPageButtonColor),
-          actions: [
-            if (GetPlatform.isDesktop &&
-                state.readPageInfo.gid != null &&
-                (state.readPageInfo.mode == ReadMode.downloaded || state.readPageInfo.mode == ReadMode.archive) &&
-                state.readPageInfo.useSuperResolution)
-              TextButton(
-                child: GetBuilder<SuperResolutionService>(
-                  id: '${SuperResolutionService.superResolutionId}::${state.readPageInfo.gid}',
-                  builder: (_) => Text(
-                    'AI' + logic.getSuperResolutionProgress(),
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: state.useSuperResolution ? UIConfig.readPageActiveButtonColor(context) : UIConfig.readPageButtonColor,
+      builder: (_) {
+        // Slide the whole app bar (leading/title/actions together) in from the
+        // top instead of animating its height. Growing the height only animates
+        // the middle/trailing slots; the leading is laid out at full toolbar
+        // height and pops in place.
+        final double menuHeight = UIConfig.appBarHeight + context.mediaQuery.padding.top;
+        return AnimatedPositioned(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.ease,
+          top: state.isMenuOpen ? 0 : -menuHeight,
+          height: menuHeight,
+          width: fullScreenWidth,
+          child: AppBar(
+            backgroundColor: UIConfig.readPageMenuColor,
+            title: Text(state.readPageInfo.galleryTitle, style: const TextStyle(color: UIConfig.readPageButtonColor)),
+            leading: const BackButton(color: UIConfig.readPageButtonColor),
+            actions: [
+              if (GetPlatform.isDesktop &&
+                  state.readPageInfo.gid != null &&
+                  (state.readPageInfo.mode == ReadMode.downloaded || state.readPageInfo.mode == ReadMode.archive) &&
+                  state.readPageInfo.useSuperResolution)
+                TextButton(
+                  child: GetBuilder<SuperResolutionService>(
+                    id: '${SuperResolutionService.superResolutionId}::${state.readPageInfo.gid}',
+                    builder: (_) => Text(
+                      'AI' + logic.getSuperResolutionProgress(),
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: state.useSuperResolution ? UIConfig.readPageActiveButtonColor(context) : UIConfig.readPageButtonColor,
+                      ),
                     ),
                   ),
+                  onPressed: logic.handleTapSuperResolutionButton,
+                  style: TextButton.styleFrom(
+                    minimumSize: const Size(56, 56),
+                  ),
                 ),
-                onPressed: logic.handleTapSuperResolutionButton,
-                style: TextButton.styleFrom(
-                  minimumSize: const Size(56, 56),
-                ),
-              ),
-            Obx(() {
-              if (!logic.isInDoubleColumnReadDirection) {
-                return const SizedBox();
-              }
-              return ElevatedButton(
-                child: Icon(
-                  Icons.looks_one,
-                  color: state.displayFirstPageAlone ? UIConfig.readPageActiveButtonColor(context) : UIConfig.readPageButtonColor,
-                ),
-                onPressed: logic.toggleDisplayFirstPageAlone,
-                style: ElevatedButton.styleFrom(
-                  elevation: 0,
-                  padding: const EdgeInsets.all(0),
-                  surfaceTintColor: Colors.transparent,
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  minimumSize: const Size(56, 56),
-                ),
-              );
-            }),
-            GetBuilder<ReadPageLogic>(
-              id: logic.autoModeId,
-              builder: (_) => ElevatedButton(
-                child: Icon(Icons.schedule, color: state.autoMode ? UIConfig.readPageActiveButtonColor(context) : UIConfig.readPageButtonColor),
-                onPressed: logic.toggleAutoMode,
-                style: ElevatedButton.styleFrom(
-                  elevation: 0,
-                  padding: const EdgeInsets.all(0),
-                  surfaceTintColor: Colors.transparent,
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  minimumSize: const Size(56, 56),
-                ),
-              ),
-            ),
-            if (readSetting.enableBottomMenu.isFalse)
-              ElevatedButton(
-                child: const Icon(Icons.settings, color: UIConfig.readPageButtonColor),
-                onPressed: () => logic.openReadSetting(context),
-                style: ElevatedButton.styleFrom(
-                  elevation: 0,
-                  padding: const EdgeInsets.all(0),
-                  surfaceTintColor: Colors.transparent,
-                  backgroundColor: Colors.transparent,
-                  shadowColor: Colors.transparent,
-                  minimumSize: const Size(56, 56),
+              Obx(() {
+                if (!logic.isInDoubleColumnReadDirection) {
+                  return const SizedBox();
+                }
+                return ElevatedButton(
+                  child: Icon(
+                    Icons.looks_one,
+                    color: state.displayFirstPageAlone ? UIConfig.readPageActiveButtonColor(context) : UIConfig.readPageButtonColor,
+                  ),
+                  onPressed: logic.toggleDisplayFirstPageAlone,
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    padding: const EdgeInsets.all(0),
+                    surfaceTintColor: Colors.transparent,
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    minimumSize: const Size(56, 56),
+                  ),
+                );
+              }),
+              GetBuilder<ReadPageLogic>(
+                id: logic.autoModeId,
+                builder: (_) => ElevatedButton(
+                  child: Icon(Icons.schedule, color: state.autoMode ? UIConfig.readPageActiveButtonColor(context) : UIConfig.readPageButtonColor),
+                  onPressed: logic.toggleAutoMode,
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    padding: const EdgeInsets.all(0),
+                    surfaceTintColor: Colors.transparent,
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    minimumSize: const Size(56, 56),
+                  ),
                 ),
               ),
-          ],
-        ),
-      ),
+              if (readSetting.enableBottomMenu.isFalse)
+                ElevatedButton(
+                  child: const Icon(Icons.settings, color: UIConfig.readPageButtonColor),
+                  onPressed: () => logic.openReadSetting(context),
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    padding: const EdgeInsets.all(0),
+                    surfaceTintColor: Colors.transparent,
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    minimumSize: const Size(56, 56),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 
