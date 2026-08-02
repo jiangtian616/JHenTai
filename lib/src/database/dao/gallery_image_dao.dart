@@ -15,7 +15,7 @@ class GalleryImageDao {
   }
 
   static Future<int> insertImage(ImageData image) {
-    return appDb.into(appDb.image).insert(image);
+    return appDb.into(appDb.image).insert(image, mode: InsertMode.insertOrReplace);
   }
 
   static Future<int> updateImage(ImageCompanion image) {
