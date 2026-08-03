@@ -164,6 +164,10 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
   Future<void> clearOutdatedImageCache() async {
     Directory cacheImageDirectory = Directory(join((await getTemporaryDirectory()).path, cacheImageFolderName));
 
+    if (!cacheImageDirectory.existsSync()) {
+      return;
+    }
+
     int count = 0;
     cacheImageDirectory.list().forEach((FileSystemEntity entity) {
       if (entity is File && DateTime.now().difference(entity.lastAccessedSync()) > networkSetting.cacheImageExpireDuration.value) {

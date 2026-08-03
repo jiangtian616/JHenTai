@@ -1,164 +1,68 @@
 PODS:
   - audio_session (0.0.1):
     - FlutterMacOS
-  - battery_plus (0.0.1):
-    - FlutterMacOS
   - desktop_webview_window (0.0.1):
-    - FlutterMacOS
-  - device_info_plus (0.0.1):
     - FlutterMacOS
   - FlutterMacOS (1.0.0)
   - just_audio (0.0.1):
     - FlutterMacOS
-  - local_auth_darwin (0.0.1):
-    - Flutter
-    - FlutterMacOS
   - package_info_plus (0.0.1):
-    - FlutterMacOS
-  - pasteboard (0.0.1):
-    - FlutterMacOS
-  - path_provider_foundation (0.0.1):
-    - Flutter
     - FlutterMacOS
   - screen_brightness_macos (0.1.0):
     - FlutterMacOS
   - screen_retriever (0.0.1):
     - FlutterMacOS
-  - share_plus (0.0.1):
-    - FlutterMacOS
   - smart_auth (0.0.1):
     - FlutterMacOS
-  - sqflite_darwin (0.0.4):
-    - Flutter
-    - FlutterMacOS
-  - sqlite3 (3.49.1):
-    - sqlite3/common (= 3.49.1)
-  - sqlite3/common (3.49.1)
-  - sqlite3/dbstatvtab (3.49.1):
-    - sqlite3/common
-  - sqlite3/fts5 (3.49.1):
-    - sqlite3/common
-  - sqlite3/math (3.49.1):
-    - sqlite3/common
-  - sqlite3/perf-threadsafe (3.49.1):
-    - sqlite3/common
-  - sqlite3/rtree (3.49.1):
-    - sqlite3/common
-  - sqlite3_flutter_libs (0.0.1):
-    - Flutter
-    - FlutterMacOS
-    - sqlite3 (~> 3.49.1)
-    - sqlite3/dbstatvtab
-    - sqlite3/fts5
-    - sqlite3/math
-    - sqlite3/perf-threadsafe
-    - sqlite3/rtree
-  - url_launcher_macos (0.0.1):
-    - FlutterMacOS
-  - video_player_avfoundation (0.0.1):
-    - Flutter
-    - FlutterMacOS
   - wakelock_plus (0.0.1):
-    - FlutterMacOS
-  - webview_flutter_wkwebview (0.0.1):
-    - Flutter
     - FlutterMacOS
   - window_manager (0.2.0):
     - FlutterMacOS
 
 DEPENDENCIES:
   - audio_session (from `Flutter/ephemeral/.symlinks/plugins/audio_session/macos`)
-  - battery_plus (from `Flutter/ephemeral/.symlinks/plugins/battery_plus/macos`)
   - desktop_webview_window (from `Flutter/ephemeral/.symlinks/plugins/desktop_webview_window/macos`)
-  - device_info_plus (from `Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - just_audio (from `Flutter/ephemeral/.symlinks/plugins/just_audio/macos`)
-  - local_auth_darwin (from `Flutter/ephemeral/.symlinks/plugins/local_auth_darwin/darwin`)
   - package_info_plus (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos`)
-  - pasteboard (from `Flutter/ephemeral/.symlinks/plugins/pasteboard/macos`)
-  - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin`)
   - screen_brightness_macos (from `Flutter/ephemeral/.symlinks/plugins/screen_brightness_macos/macos`)
   - screen_retriever (from `Flutter/ephemeral/.symlinks/plugins/screen_retriever/macos`)
-  - share_plus (from `Flutter/ephemeral/.symlinks/plugins/share_plus/macos`)
   - smart_auth (from `Flutter/ephemeral/.symlinks/plugins/smart_auth/macos`)
-  - sqflite_darwin (from `Flutter/ephemeral/.symlinks/plugins/sqflite_darwin/darwin`)
-  - sqlite3_flutter_libs (from `Flutter/ephemeral/.symlinks/plugins/sqlite3_flutter_libs/darwin`)
-  - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
-  - video_player_avfoundation (from `Flutter/ephemeral/.symlinks/plugins/video_player_avfoundation/darwin`)
   - wakelock_plus (from `Flutter/ephemeral/.symlinks/plugins/wakelock_plus/macos`)
-  - webview_flutter_wkwebview (from `Flutter/ephemeral/.symlinks/plugins/webview_flutter_wkwebview/darwin`)
   - window_manager (from `Flutter/ephemeral/.symlinks/plugins/window_manager/macos`)
-
-SPEC REPOS:
-  trunk:
-    - sqlite3
 
 EXTERNAL SOURCES:
   audio_session:
     :path: Flutter/ephemeral/.symlinks/plugins/audio_session/macos
-  battery_plus:
-    :path: Flutter/ephemeral/.symlinks/plugins/battery_plus/macos
   desktop_webview_window:
     :path: Flutter/ephemeral/.symlinks/plugins/desktop_webview_window/macos
-  device_info_plus:
-    :path: Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
   just_audio:
     :path: Flutter/ephemeral/.symlinks/plugins/just_audio/macos
-  local_auth_darwin:
-    :path: Flutter/ephemeral/.symlinks/plugins/local_auth_darwin/darwin
   package_info_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos
-  pasteboard:
-    :path: Flutter/ephemeral/.symlinks/plugins/pasteboard/macos
-  path_provider_foundation:
-    :path: Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin
   screen_brightness_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/screen_brightness_macos/macos
   screen_retriever:
     :path: Flutter/ephemeral/.symlinks/plugins/screen_retriever/macos
-  share_plus:
-    :path: Flutter/ephemeral/.symlinks/plugins/share_plus/macos
   smart_auth:
     :path: Flutter/ephemeral/.symlinks/plugins/smart_auth/macos
-  sqflite_darwin:
-    :path: Flutter/ephemeral/.symlinks/plugins/sqflite_darwin/darwin
-  sqlite3_flutter_libs:
-    :path: Flutter/ephemeral/.symlinks/plugins/sqlite3_flutter_libs/darwin
-  url_launcher_macos:
-    :path: Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos
-  video_player_avfoundation:
-    :path: Flutter/ephemeral/.symlinks/plugins/video_player_avfoundation/darwin
   wakelock_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/wakelock_plus/macos
-  webview_flutter_wkwebview:
-    :path: Flutter/ephemeral/.symlinks/plugins/webview_flutter_wkwebview/darwin
   window_manager:
     :path: Flutter/ephemeral/.symlinks/plugins/window_manager/macos
 
 SPEC CHECKSUMS:
   audio_session: dea1f41890dbf1718f04a56f1d6150fd50039b72
-  battery_plus: 0ed4cf1e771b535a89ac7323e0855ec734cf745f
   desktop_webview_window: d4365e71bcd4e1aa0c14cf0377aa24db0c16a7e2
-  device_info_plus: 74e614483d05c89290d30a4c8feae15d555f7427
-  FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
+  FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
   just_audio: 9b67ca7b97c61cfc9784ea23cd8cc55eb226d489
-  local_auth_darwin: 66e40372f1c29f383a314c738c7446e2f7fdadc3
   package_info_plus: d2f71247aab4b6521434f887276093acc70d214c
-  pasteboard: f179698f095f9778bb5753a249027e697ba98953
-  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   screen_brightness_macos: 2d6d3af2165592d9a55ffcd95b7550970e41ebda
   screen_retriever: 59634572a57080243dd1bf715e55b6c54f241a38
-  share_plus: fd717ef89a2801d3491e737630112b80c310640e
   smart_auth: b38e3ab4bfe089eacb1e233aca1a2340f96c28e9
-  sqflite_darwin: 5a7236e3b501866c1c9befc6771dfd73ffb8702d
-  sqlite3: fc1400008a9b3525f5914ed715a5d1af0b8f4983
-  sqlite3_flutter_libs: 487032b9008b28de37c72a3aa66849ef3745f3e6
-  url_launcher_macos: c82c93949963e55b228a30115bd219499a6fe404
-  video_player_avfoundation: 7c6c11d8470e1675df7397027218274b6d2360b3
   wakelock_plus: 4783562c9a43d209c458cb9b30692134af456269
-  webview_flutter_wkwebview: 0982481e3d9c78fd5c6f62a002fcd24fc791f1e4
   window_manager: 3a1844359a6295ab1e47659b1a777e36773cd6e8
 
 PODFILE CHECKSUM: 0d3963a09fc94f580682bd88480486da345dc3f0
