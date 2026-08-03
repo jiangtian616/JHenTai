@@ -153,7 +153,7 @@ class TagSearchOrderOptimizationService with JHLifeCircleBeanErrorCatch implemen
     }
 
     List<TagCountData> tagCountData =
-        rows.where((row) => row[1] >= 5).map((row) => TagCountData(namespaceWithKey: (row[0] as String).replaceAll('"', ''), count: row[1])).toList();
+        rows.skip(1).where((row) => row[1] >= 5).map((row) => TagCountData(namespaceWithKey: (row[0] as String).replaceAll('"', ''), count: row[1])).toList();
     version.value = null;
     await TagCountDao.replaceTagCount(tagCountData);
     version.value = tag;
