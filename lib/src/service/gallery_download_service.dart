@@ -429,22 +429,24 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   Future<bool> updateGroup(GalleryDownloadedData gallery, String group) async {
-    galleryDownloadInfos[gallery.gid]?.group = group;
-
-    if (!allGroups.contains(group) && !await _addGroup(group)) {
-      return false;
-    }
-
-    _sortGallerys();
-
-    bool success = await _updateGalleryInDatabase(
-      GalleryDownloadedCompanion(gid: Value(gallery.gid), groupName: Value(group)),
-    );
+    /// Atomically create the group (if new) and update the gallery's group column.
+    /// Without a transaction, a failure in the gallery update would leave an orphan
+    /// group row in [gallery_group] — and in-memory state would already be mutated.
+    bool success = await appDb.transaction(() async {
+      if (!allGroups.contains(group) && !await _addGroup(group)) {
+        return false;
+      }
+      return _updateGalleryInDatabase(
+        GalleryDownloadedCompanion(gid: Value(gallery.gid), groupName: Value(group)),
+      );
+    });
 
     if (!success) {
       return false;
     }
 
+    galleryDownloadInfos[gallery.gid]?.group = group;
+    _sortGallerys();
     _saveGalleryMetadataInDisk(gallery);
 
     return true;
