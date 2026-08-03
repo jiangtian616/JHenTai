@@ -1383,7 +1383,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                         });
                       }
 
-                      GalleryImage? downloadedImage = galleryDownloadService.galleryDownloadInfos[state.galleryUrl.gid]?.images[index];
+                      GalleryImage? downloadedImage = galleryDownloadService.galleryDownloadInfos[state.galleryUrl.gid]?.indexAt(index)?.toGalleryImage();
 
                       return Column(
                         children: [

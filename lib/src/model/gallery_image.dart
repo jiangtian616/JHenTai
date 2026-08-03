@@ -1,3 +1,4 @@
+import '../database/database.dart';
 import '../service/gallery_download_service.dart';
 
 class GalleryImage {
@@ -87,5 +88,44 @@ class GalleryImage {
   @override
   String toString() {
     return 'GalleryImage{url: $url, height: $height, width: $width, originalImageUrl: $originalImageUrl, originalImageHeight: $originalImageHeight, originalImageWidth: $originalImageWidth, reloadKey: $reloadKey, path: $path, imageHash: $imageHash, downloadStatus: $downloadStatus}';
+  }
+}
+
+/// Lightweight index of a [GalleryImage], mirroring the DB columns of the `image` table.
+/// Always resident in memory for every gallery that has DB rows; the full [GalleryImage]
+/// (with runtime-only fields like `reloadKey`, `originalImageUrl`, dimensions) is lazy-loaded
+/// into [GalleryDownloadInfo.imagesCache] only when needed.
+class GalleryImageIndex {
+  final int serialNo;
+  final String url;
+  String? path;
+  DownloadStatus downloadStatus;
+  String? imageHash;
+
+  GalleryImageIndex({
+    required this.serialNo,
+    required this.url,
+    this.path,
+    required this.downloadStatus,
+    this.imageHash,
+  });
+
+  factory GalleryImageIndex.fromImageData(ImageData d) {
+    return GalleryImageIndex(
+      serialNo: d.serialNo,
+      url: d.url,
+      path: d.path,
+      downloadStatus: DownloadStatus.values[d.downloadStatusIndex],
+      imageHash: d.imageHash.isEmpty ? null : d.imageHash,
+    );
+  }
+
+  GalleryImage toGalleryImage() {
+    return GalleryImage(
+      url: url,
+      path: path,
+      imageHash: imageHash,
+      downloadStatus: downloadStatus,
+    );
   }
 }

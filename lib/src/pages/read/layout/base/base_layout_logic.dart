@@ -276,7 +276,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
 
   /// Mobile bottom action sheet for downloaded-mode images.
   void showDownloadedMobileBottomMenu(int index, BuildContext context) {
-    if (galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]?.images[index]?.downloadStatus != DownloadStatus.downloaded) {
+    if (galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]?.indexAt(index)?.downloadStatus != DownloadStatus.downloaded) {
       return;
     }
 
@@ -368,7 +368,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     required BuildContext context,
     required Offset position,
   }) async {
-    if (galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]?.images[index]?.downloadStatus != DownloadStatus.downloaded) {
+    if (galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]?.indexAt(index)?.downloadStatus != DownloadStatus.downloaded) {
       return;
     }
 

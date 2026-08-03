@@ -51,7 +51,13 @@ class ReadPageState with ScrollStatusListerState {
     }
 
     if (readPageInfo.mode == ReadMode.downloaded) {
-      images = galleryDownloadService.galleryDownloadInfos[readPageInfo.gid]!.images;
+      /// Build a snapshot from the always-resident imageIndices. This carries
+      /// url/path/imageHash/downloadStatus — everything the reading page needs
+      /// synchronously. Runtime-only fields (reloadKey, originalImageUrl,
+      /// dimensions) are null for downloaded galleries anyway (cache was
+      /// evicted on download complete, and they were never persisted).
+      final info = galleryDownloadService.galleryDownloadInfos[readPageInfo.gid]!;
+      images = List.generate(readPageInfo.pageCount, (i) => info.indexAt(i)?.toGalleryImage());
     }
 
     if (readPageInfo.mode == ReadMode.archive || readPageInfo.mode == ReadMode.local) {

@@ -264,7 +264,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       child: GetBuilder<GalleryDownloadService>(
         id: '${logic.downloadService.downloadImageUrlId}::${gallery.gid}::0',
         builder: (_) {
-          GalleryImage? image = logic.downloadService.galleryDownloadInfos[gallery.gid]?.images[0];
+          GalleryImage? image = logic.downloadService.galleryDownloadInfos[gallery.gid]?.indexAt(0)?.toGalleryImage();
 
           /// cover is the first image, if we haven't downloaded first image, then return a [UIConfig.loadingAnimation]
           if (image?.downloadStatus != DownloadStatus.downloaded) {

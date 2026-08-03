@@ -193,7 +193,10 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
     if (superResolutionInfo == null) {
       List<GalleryImage> rawImages;
       if (type == SuperResolutionType.gallery) {
-        rawImages = galleryDownloadService.galleryDownloadInfos[gid]!.images.cast();
+        rawImages = galleryDownloadService.galleryDownloadInfos[gid]!.imageIndices
+            .map((idx) => idx?.toGalleryImage())
+            .cast<GalleryImage>()
+            .toList();
       } else {
         rawImages = await archiveDownloadService.getUnpackedImages(gid);
       }
@@ -276,7 +279,10 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
   Future<void> _doSuperResolve(int gid, SuperResolutionType type) async {
     List<GalleryImage> rawImages;
     if (type == SuperResolutionType.gallery) {
-      rawImages = galleryDownloadService.galleryDownloadInfos[gid]!.images.cast();
+      rawImages = galleryDownloadService.galleryDownloadInfos[gid]!.imageIndices
+          .map((idx) => idx?.toGalleryImage())
+          .cast<GalleryImage>()
+          .toList();
     } else {
       rawImages = await archiveDownloadService.getUnpackedImages(gid);
     }
@@ -512,14 +518,14 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
     log.debug('copy old super resolution image to new gallery, old: ${oldGallery.gid} $oldImageSerialNo, new: ${newGallery.gid} $newImageSerialNo');
 
     SuperResolutionInfo? newGallerySuperResolutionInfo = get(newGallery.gid, SuperResolutionType.gallery);
-    String oldPath = computeImageOutputAbsolutePath(galleryDownloadService.galleryDownloadInfos[oldGallery.gid]!.images[oldImageSerialNo]!.path!);
-    String newPath = computeImageOutputAbsolutePath(galleryDownloadService.galleryDownloadInfos[newGallery.gid]!.images[newImageSerialNo]!.path!);
+    String oldPath = computeImageOutputAbsolutePath(galleryDownloadService.galleryDownloadInfos[oldGallery.gid]!.indexAt(oldImageSerialNo)!.path!);
+    String newPath = computeImageOutputAbsolutePath(galleryDownloadService.galleryDownloadInfos[newGallery.gid]!.indexAt(newImageSerialNo)!.path!);
 
     if (newGallerySuperResolutionInfo == null) {
       newGallerySuperResolutionInfo = SuperResolutionInfo(
         SuperResolutionType.gallery,
         SuperResolutionStatus.paused,
-        List.generate(galleryDownloadService.galleryDownloadInfos[newGallery.gid]!.images.length, (_) => SuperResolutionStatus.running),
+        List.generate(galleryDownloadService.galleryDownloadInfos[newGallery.gid]!.imageIndices.length, (_) => SuperResolutionStatus.running),
       );
       superResolutionInfoTable.put(newGallery.gid, SuperResolutionType.gallery, newGallerySuperResolutionInfo);
       await _insertSuperResolutionInfo(newGallery.gid, newGallerySuperResolutionInfo);

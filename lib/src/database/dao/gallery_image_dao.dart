@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../model/gallery_image.dart';
 import '../database.dart';
 
 class GalleryImageDao {
@@ -11,6 +12,43 @@ class GalleryImageDao {
     return (appDb.select(appDb.image)
           ..where((tbl) => tbl.gid.equals(gid))
           ..orderBy([(image) => OrderingTerm(expression: image.serialNo)]))
+        .get();
+  }
+
+  /// Returns cover indices (serialNo == 0) for all galleries, keyed by gid.
+  /// Used at startup to populate [GalleryDownloadInfo.imageIndices] slot 0
+  /// without loading every image into memory.
+  static Future<Map<int, GalleryImageIndex>> selectCoverIndices() async {
+    final rows = await (appDb.select(appDb.image)
+          ..where((tbl) => tbl.serialNo.equals(0)))
+        .get();
+    return {for (final d in rows) d.gid: GalleryImageIndex.fromImageData(d)};
+  }
+
+  /// Returns downloaded-image counts per gid in one query.
+  /// Used at startup to populate [GalleryDownloadProgress.curCount] without
+  /// loading every image row into memory.
+  static Future<Map<int, int>> selectDownloadedCountsByGid() async {
+    final countExp = appDb.image.serialNo.count();
+    final query = appDb.selectOnly(appDb.image)
+      ..addColumns([appDb.image.gid, countExp])
+      ..where(appDb.image.downloadStatusIndex.equals(4))
+      ..groupBy([appDb.image.gid]);
+    final rows = await query.get();
+    return {
+      for (final row in rows)
+        row.read(appDb.image.gid)!: row.read(countExp)!,
+    };
+  }
+
+  /// Returns full image indices for a single gallery, ordered by serialNo.
+  /// Used on first access (detail page, read page, download start) to lazy-load
+  /// the complete [GalleryDownloadInfo.imageIndices] list.
+  static Future<List<GalleryImageIndex>> selectImageIndicesByGid(int gid) {
+    return (appDb.select(appDb.image)
+          ..where((tbl) => tbl.gid.equals(gid))
+          ..orderBy([(image) => OrderingTerm(expression: image.serialNo)]))
+        .map(GalleryImageIndex.fromImageData)
         .get();
   }
 

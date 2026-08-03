@@ -103,7 +103,7 @@ class DownloadSearchPage extends StatelessWidget {
       child: GetBuilder<GalleryDownloadService>(
         id: '${galleryDownloadService.galleryDownloadProgressId}::${gallery.gid}',
         builder: (_) {
-          GalleryImage? cover = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.images[0];
+          GalleryImage? cover = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.indexAt(0)?.toGalleryImage();
           GalleryDownloadProgress? downloadProgress = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress;
           String? groupName = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.group;
 
@@ -184,7 +184,7 @@ class DownloadSearchPage extends StatelessWidget {
       child: GetBuilder<GalleryDownloadService>(
         id: '${galleryDownloadService.downloadImageUrlId}::${gallery.gid}::0',
         builder: (_) {
-          GalleryImage? image = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.images[0];
+          GalleryImage? image = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.indexAt(0)?.toGalleryImage();
 
           /// cover is the first image, if we haven't downloaded first image, then return a [UIConfig.loadingAnimation]
           if (image?.downloadStatus != DownloadStatus.downloaded) {
