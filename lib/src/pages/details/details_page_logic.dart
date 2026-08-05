@@ -58,6 +58,7 @@ import '../../model/gallery_note.dart';
 import '../../model/search_config.dart';
 import '../../model/tag_set.dart';
 import '../../service/history_service.dart';
+import '../../service/download_path_resolver.dart';
 import '../../service/gallery_download_service.dart';
 import '../../service/local_block_rule_service.dart';
 import '../../service/storage_service.dart';
@@ -346,7 +347,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   Future<void> handleTapDownload() async {
-    GalleryDownloadedData? galleryDownloadedData = galleryDownloadService.gallerys.singleWhereOrNull((g) => g.gid == state.galleryUrl.gid);
+    GalleryDownloadInfo? galleryDownloadedData = galleryDownloadService.gallerys.singleWhereOrNull((g) => g.gid == state.galleryUrl.gid);
     GalleryDownloadProgress? downloadProgress = galleryDownloadService.galleryDownloadInfos[state.galleryUrl.gid]?.downloadProgress;
 
     /// new download
@@ -372,7 +373,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
       unawaited(downloadSetting.saveRecentGalleryGroup(result.group));
 
-      GalleryDownloadedData galleryDownloadedData = GalleryDownloadedData(
+      GalleryDownloadRequest galleryDownloadRequest = GalleryDownloadRequest(
         gid: state.galleryDetails?.galleryUrl.gid ?? state.gallery!.galleryUrl.gid,
         token: state.galleryDetails?.galleryUrl.token ?? state.gallery!.galleryUrl.token,
         title: mainTitleText,
@@ -381,16 +382,12 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         galleryUrl: state.galleryDetails?.galleryUrl.url ?? state.gallery!.galleryUrl.url,
         uploader: state.galleryDetails?.uploader ?? state.gallery?.uploader,
         publishTime: state.galleryDetails?.publishTime ?? state.gallery!.publishTime,
-        downloadStatusIndex: DownloadStatus.downloading.index,
         downloadOriginalImage: result.downloadOriginalImage,
-        sortOrder: 0,
-        groupName: result.group,
-        insertTime: DateTime.now().toString(),
-        priority: GalleryDownloadService.defaultDownloadGalleryPriority,
+        group: result.group,
         tags: state.galleryDetails != null ? tagMap2TagString(state.galleryDetails!.tags) : tagMap2TagString(state.gallery!.tags),
         tagRefreshTime: DateTime.now().toString(),
       );
-      galleryDownloadService.downloadGallery(galleryDownloadedData);
+      galleryDownloadService.downloadGallery(galleryDownloadRequest);
 
       updateGlobalGalleryStatus();
 
@@ -1029,10 +1026,10 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
 
     /// use GalleryDownloadedData's title
-    GalleryDownloadedData gallery = galleryDownloadService.gallerys.firstWhere((g) => g.gid == state.galleryUrl.gid);
+    GalleryDownloadInfo gallery = galleryDownloadService.gallerys.firstWhere((g) => g.gid == state.galleryUrl.gid);
 
     if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
-      openThirdPartyViewer(galleryDownloadService.computeGalleryDownloadAbsolutePath(gallery));
+      openThirdPartyViewer(DownloadPathResolver.computeGalleryDownloadAbsolutePath(gallery.toGalleryDownloadedData()));
       return;
     }
 

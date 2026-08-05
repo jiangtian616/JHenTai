@@ -26,7 +26,7 @@ import 'gallery_grid_download_page_state.dart';
 class GalleryGridDownloadPageLogic extends GetxController
     with
         Scroll2TopLogicMixin,
-        MultiSelectDownloadPageLogicMixin<GalleryDownloadedData>,
+        MultiSelectDownloadPageLogicMixin<GalleryDownloadInfo>,
         GalleryDownloadPageLogicMixin,
         GridBasePageLogic,
         UpdateGlobalGalleryStatusLogicMixin {
@@ -44,7 +44,7 @@ class GalleryGridDownloadPageLogic extends GetxController
   @override
   GridBasePageServiceMixin get galleryService => downloadService;
 
-  void handleTapTitle(GalleryDownloadedData gallery) {
+  void handleTapTitle(GalleryDownloadInfo gallery) {
     if (multiSelectDownloadPageState.inMultiSelectMode) {
       toggleSelectItem(gallery.gid);
     } else {
@@ -53,7 +53,7 @@ class GalleryGridDownloadPageLogic extends GetxController
   }
 
   @override
-  void handleRemoveItem(GalleryDownloadedData gallery, bool deleteImages, BuildContext context) async {
+  void handleRemoveItem(GalleryDownloadInfo gallery, bool deleteImages, BuildContext context) async {
     bool confirmed = await confirmDestructiveAction(title: deleteImages ? 'deleteTaskAndImages'.tr + '?' : 'deleteTask'.tr + '?');
     if (!confirmed) {
       return;
@@ -77,7 +77,7 @@ class GalleryGridDownloadPageLogic extends GetxController
     downloadService.deleteGallery(gallery, deleteImages: deleteImages).then((_) => super.handleRemoveItem(gallery, deleteImages, context));
   }
 
-  void goToDetailPage(GalleryDownloadedData gallery) {
+  void goToDetailPage(GalleryDownloadInfo gallery) {
     toRoute(
       Routes.details,
       arguments: DetailsPageArgument(galleryUrl: GalleryUrl.parse(gallery.galleryUrl)),
@@ -103,20 +103,18 @@ class GalleryGridDownloadPageLogic extends GetxController
 
   @override
   Future<void> saveGalleryOrderAfterDrag(int beforeIndex, int afterIndex) async {
-    List<GalleryDownloadedData> gallerys = state.currentGalleryObjects.cast();
+    List<GalleryDownloadInfo> gallerys = state.currentGalleryObjects.cast();
 
     /// default order is 0, we must assign current order to the archive first
     for (int i = 0; i < gallerys.length; i++) {
-      GalleryDownloadedData gallery = gallerys[i];
-      GalleryDownloadInfo galleryDownloadInfo = downloadService.galleryDownloadInfos[gallery.gid]!;
-      galleryDownloadInfo.sortOrder = i;
+      gallerys[i].sortOrder = i;
     }
 
     int head = min(beforeIndex, afterIndex);
     int tail = max(beforeIndex, afterIndex);
 
     for (int index = head; index <= tail; index++) {
-      GalleryDownloadInfo galleryDownloadInfo = downloadService.galleryDownloadInfos[gallerys[index].gid]!;
+      GalleryDownloadInfo galleryDownloadInfo = gallerys[index];
 
       if (index == beforeIndex) {
         galleryDownloadInfo.sortOrder = afterIndex;

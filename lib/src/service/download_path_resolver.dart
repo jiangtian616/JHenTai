@@ -8,6 +8,11 @@ import 'path_service.dart';
 
 /// Pure path-computation helpers for gallery download storage. No state —
 /// all methods are static and read singletons ([downloadSetting], [pathService]).
+///
+/// Accepts [GalleryDownloadedData] (the DB shape) since path computation is
+/// pure and doesn't need runtime state. Callers holding [GalleryDownloadInfo]
+/// should convert via `.toGalleryDownloadedData()` at the call site, or use
+/// the wrappers on [GalleryDownloadService] which do that automatically.
 class DownloadPathResolver {
   static const int maxFileNameBytes = 200;
 

@@ -26,6 +26,7 @@ import '../utils/toast_util.dart';
 import '../widget/loading_state_indicator.dart';
 import '../utils/table.dart' as util;
 import 'archive_download_service.dart';
+import 'download_path_resolver.dart';
 import 'gallery_download_service.dart';
 
 SuperResolutionService superResolutionService = SuperResolutionService();
@@ -255,11 +256,11 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
 
     String dirPath;
     if (type == SuperResolutionType.gallery) {
-      GalleryDownloadedData? gallery = galleryDownloadService.gallerys.firstWhereOrNull((g) => g.gid == gid);
+      GalleryDownloadInfo? gallery = galleryDownloadService.gallerys.firstWhereOrNull((g) => g.gid == gid);
       if (gallery == null) {
         return;
       }
-      dirPath = join(galleryDownloadService.computeGalleryDownloadAbsolutePath(gallery), imageDirName);
+      dirPath = join(DownloadPathResolver.computeGalleryDownloadAbsolutePath(gallery.toGalleryDownloadedData()), imageDirName);
     } else {
       ArchiveDownloadedData? archive = archiveDownloadService.archives.firstWhereOrNull((a) => a.gid == gid);
       if (archive == null) {
@@ -342,7 +343,7 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
 
   Future<bool> _handleImage(GalleryImage rawImage, SuperResolutionInfo superResolutionInfo) async {
     if (extension(rawImage.path!) == '.gif') {
-      String inputAbsolutePath = GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(rawImage.path!);
+      String inputAbsolutePath = DownloadPathResolver.computeImageDownloadAbsolutePathFromRelativePath(rawImage.path!);
       String outputAbsolutePath = computeImageOutputAbsolutePath(rawImage.path!);
       try {
         File(inputAbsolutePath).copySync(outputAbsolutePath);

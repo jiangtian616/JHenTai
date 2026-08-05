@@ -272,7 +272,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       return;
     }
 
-    GalleryDownloadedData galleryDownloadedData = GalleryDownloadedData(
+    GalleryDownloadRequest galleryDownloadRequest = GalleryDownloadRequest(
       gid: archive.gid,
       token: archive.token,
       title: archive.title,
@@ -281,12 +281,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       galleryUrl: archive.galleryUrl,
       uploader: archive.uploader,
       publishTime: archive.publishTime,
-      downloadStatusIndex: DownloadStatus.downloaded.index,
       downloadOriginalImage: archive.isOriginal,
-      sortOrder: 0,
-      groupName: archiveDownloadInfo.group,
-      insertTime: DateTime.now().toString(),
-      priority: GalleryDownloadService.defaultDownloadGalleryPriority,
+      group: archiveDownloadInfo.group,
       tags: archive.tags,
       tagRefreshTime: archive.tagRefreshTime,
     );
@@ -297,7 +293,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       return;
     }
 
-    return galleryDownloadService.importGallery(galleryDownloadedData, images);
+    return galleryDownloadService.importGallery(galleryDownloadRequest, images);
   }
 
   Future<bool> updateArchiveGroup(int gid, String group) async {

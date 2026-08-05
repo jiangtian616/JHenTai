@@ -131,7 +131,7 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
 
   @override
   GridGroup groupBuilder(BuildContext context, String groupName, bool inEditMode) {
-    List<GalleryDownloadedData> gallerys = state.galleryObjectsWithGroup(groupName);
+    List<GalleryDownloadInfo> gallerys = state.galleryObjectsWithGroup(groupName);
     return GridGroup(
       groupName: groupName,
       contentSize: gallerys.length,
@@ -179,7 +179,7 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
   }
 
   @override
-  GridGallery galleryBuilder(BuildContext context, GalleryDownloadedData gallery, bool inEditMode) {
+  GridGallery galleryBuilder(BuildContext context, GalleryDownloadInfo gallery, bool inEditMode) {
     return GridGallery(
       title: gallery.title,
       widget: GetBuilder<GalleryGridDownloadPageLogic>(
@@ -232,7 +232,7 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
     );
   }
 
-  GetBuilder<GalleryDownloadService> _buildCover(GalleryDownloadedData gallery) {
+  GetBuilder<GalleryDownloadService> _buildCover(GalleryDownloadInfo gallery) {
     return GetBuilder<GalleryDownloadService>(
       id: '${logic.downloadService.downloadImageUrlId}::${gallery.gid}::0',
       builder: (_) {
@@ -260,7 +260,7 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
     );
   }
 
-  Center _buildCircularProgressIndicator(GalleryDownloadedData gallery, GalleryDownloadProgress downloadProgress) {
+  Center _buildCircularProgressIndicator(GalleryDownloadInfo gallery, GalleryDownloadProgress downloadProgress) {
     return Center(
       child: GetBuilder<GalleryDownloadService>(
         id: '${logic.downloadService.galleryDownloadProgressId}::${gallery.gid}',
@@ -279,7 +279,7 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
     );
   }
 
-  Center _buildDownloadProgress(GalleryDownloadedData gallery, GalleryDownloadProgress downloadProgress) {
+  Center _buildDownloadProgress(GalleryDownloadInfo gallery, GalleryDownloadProgress downloadProgress) {
     return Center(
       child: GetBuilder<GalleryDownloadService>(
         id: '${logic.downloadService.galleryDownloadProgressId}::${gallery.gid}',
@@ -291,7 +291,7 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
     );
   }
 
-  GestureDetector _buildActionButton(GalleryDownloadedData gallery, GalleryDownloadProgress downloadProgress, GalleryDownloadSpeedComputer speedComputer) {
+  GestureDetector _buildActionButton(GalleryDownloadInfo gallery, GalleryDownloadProgress downloadProgress, GalleryDownloadSpeedComputer speedComputer) {
     return GestureDetector(
       onTap: () {
         downloadProgress.downloadStatus == DownloadStatus.paused

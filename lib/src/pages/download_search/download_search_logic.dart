@@ -18,6 +18,7 @@ import '../../model/gallery_image.dart';
 import '../../model/read_page_info.dart';
 import '../../routes/routes.dart';
 import '../../service/archive_download_service.dart';
+import '../../service/download_path_resolver.dart';
 import '../../service/gallery_download_service.dart';
 import '../../service/super_resolution_service.dart';
 import '../../setting/preference_setting.dart';
@@ -118,7 +119,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
             downloadOriginalImage: g.downloadOriginalImage,
             priority: g.priority,
             sortOrder: g.sortOrder,
-            groupName: g.groupName,
+            groupName: g.group,
             tags: tagDataString2TagDataList(g.tags).map((tagData) => translatedTagDataTable.get(tagData.namespace, tagData.key) ?? tagData).toList(),
             tagRefreshTime: g.tagRefreshTime,
           ),
@@ -249,8 +250,8 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
     }
 
     if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
-      GalleryDownloadedData galleryData = galleryDownloadService.gallerys.firstWhere((g) => g.gid == gallery.gid);
-      openThirdPartyViewer(galleryDownloadService.computeGalleryDownloadAbsolutePath(galleryData));
+      GalleryDownloadInfo galleryData = galleryDownloadService.gallerys.firstWhere((g) => g.gid == gallery.gid);
+      openThirdPartyViewer(DownloadPathResolver.computeGalleryDownloadAbsolutePath(galleryData.toGalleryDownloadedData()));
     } else {
       String? string = await localConfigService.read(configKey: ConfigEnum.readIndexRecord, subConfigKey: gallery.gid.toString());
       int readIndexRecord = (string == null ? 0 : (int.tryParse(string) ?? 0));

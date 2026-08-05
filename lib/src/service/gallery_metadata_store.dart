@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io' as io;
 
+import 'package:drift/drift.dart' show Value;
 import 'package:path/path.dart' as path;
 
 import '../database/database.dart';
+import '../model/gallery_image.dart';
 import 'download_path_resolver.dart';
 import 'gallery_download_service.dart';
 import 'log.dart';
@@ -27,7 +29,7 @@ class GalleryMetadataStore {
   GalleryMetadataStore(this._service);
 
   /// Schedule a debounced metadata write. Safe to call from sync contexts.
-  void save(GalleryDownloadedData gallery) {
+  void save(GalleryDownloadInfo gallery) {
     if (!_service.galleryDownloadInfos.containsKey(gallery.gid)) {
       return;
     }
@@ -41,7 +43,7 @@ class GalleryMetadataStore {
   }
 
   /// Cancel any pending debounced write and flush the latest state to disk now.
-  Future<void> flush(GalleryDownloadedData gallery) async {
+  Future<void> flush(GalleryDownloadInfo gallery) async {
     _metadataSaveTimers[gallery.gid]?.cancel();
     _metadataSaveTimers.remove(gallery.gid);
     await _metadataWrites[gallery.gid];
@@ -53,11 +55,8 @@ class GalleryMetadataStore {
     _metadataSaveTimers.remove(gid)?.cancel();
   }
 
-  Future<void> _write(GalleryDownloadedData gallery) async {
-    final info = _service.galleryDownloadInfos[gallery.gid];
-    if (info == null) {
-      return;
-    }
+  Future<void> _write(GalleryDownloadInfo gallery) async {
+    final info = gallery;
 
     /// Serialize from imageIndices (always resident) — full-data cache may be
     /// evicted, but index mirrors the DB columns (url/path/hash/status) which
@@ -70,6 +69,7 @@ class GalleryMetadataStore {
 
     Map<String, Object> metadata = {
       'gallery': gallery
+          .toGalleryDownloadedData()
           .copyWith(
             downloadStatusIndex: info.downloadProgress.downloadStatus.index,
             priority: info.priority,
@@ -81,7 +81,7 @@ class GalleryMetadataStore {
 
     try {
       io.File file = io.File(
-        path.join(DownloadPathResolver.computeGalleryDownloadAbsolutePath(gallery), metadataFileName),
+        path.join(DownloadPathResolver.computeGalleryDownloadAbsolutePath(gallery.toGalleryDownloadedData()), metadataFileName),
       );
       if (!await file.exists()) {
         await file.create(recursive: true);
@@ -90,6 +90,50 @@ class GalleryMetadataStore {
     } catch (e, st) {
       log.error('Save gallery metadata failed, gid: ${gallery.gid}', e, st);
     }
+  }
+
+  /// Parsed metadata for a single gallery's restore. The store has applied
+  /// all compatibility back-fills (missing fields, sanitizedTitle, recomputed
+  /// image paths after download-location change, and the downloaded-status
+  /// sanity check).
+  ({GalleryDownloadedData gallery, List<GalleryImage?> images})? readForRestore(io.Directory galleryDir) {
+    final Map<String, dynamic>? raw = read(galleryDir);
+    if (raw == null) {
+      return null;
+    }
+
+    GalleryDownloadedData gallery = GalleryDownloadedData.fromJson(raw['gallery']);
+
+    /// Back-fill sanitizedTitle for metadata files written before this field was introduced.
+    if (gallery.sanitizedTitle == null) {
+      final int reservedBytes = utf8.encode('${gallery.gid} - ').length;
+      gallery = gallery.copyWith(
+        sanitizedTitle: Value(DownloadPathResolver.computeSanitizedGalleryTitle(gallery.title, reservedBytes)),
+      );
+    }
+
+    List<GalleryImage?> images = (jsonDecode(raw['images']) as List)
+        .map((_map) => _map == null ? null : GalleryImage.fromJson(_map))
+        .toList();
+
+    /// To deal with changed download location, compute download path again.
+    for (int serialNo = 0; serialNo < images.length; serialNo++) {
+      if (images[serialNo] == null) {
+        continue;
+      }
+      images[serialNo]!.path = DownloadPathResolver.computeImageDownloadRelativePath(gallery, images[serialNo]!.url, serialNo);
+      images[serialNo]!.imageHash ??= '';
+    }
+
+    /// For some reason, downloaded status is not updated correctly, check it again
+    if (gallery.downloadStatusIndex != DownloadStatus.downloaded.index) {
+      int downloadedImageCount = images.fold(0, (total, image) => total + (image?.downloadStatus == DownloadStatus.downloaded ? 1 : 0));
+      if (downloadedImageCount == gallery.pageCount) {
+        gallery = gallery.copyWith(downloadStatusIndex: DownloadStatus.downloaded.index);
+      }
+    }
+
+    return (gallery: gallery, images: images);
   }
 
   /// Read + parse the metadata file in [galleryDir]. Returns null if the file
@@ -134,3 +178,4 @@ class GalleryMetadataStore {
     }
   }
 }
+

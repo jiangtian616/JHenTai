@@ -18,6 +18,7 @@ import 'dart:io' as io;
 
 import 'dart:ui' as ui;
 
+import '../service/download_path_resolver.dart';
 import '../service/gallery_download_service.dart';
 
 typedef LoadingProgressWidgetBuilder = Widget Function(double);
@@ -265,7 +266,7 @@ class _EHImageState extends State<EHImage> {
       return widget.downloadingWidgetBuilder?.call() ?? const Center(child: CircularProgressIndicator());
     }
 
-    final io.File file = io.File(GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(widget.galleryImage.path!));
+    final io.File file = io.File(DownloadPathResolver.computeImageDownloadAbsolutePathFromRelativePath(widget.galleryImage.path!));
     final String lowerPath = widget.galleryImage.path!.toLowerCase();
     final bool isAnimatedFile = lowerPath.endsWith('.webp') || lowerPath.endsWith('.gif');
 

@@ -18,6 +18,8 @@ import 'package:jhentai/src/widget/eh_action_sheet_text.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/service/download_path_resolver.dart';
+import 'package:jhentai/src/service/eh_image_exception_matcher.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
@@ -238,7 +240,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   }
 
   String _getDownloadedImageAbsolutePath(int index) {
-    return GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
+    return DownloadPathResolver.computeImageDownloadAbsolutePathFromRelativePath(
       readPageState.images[index]!.path!,
     );
   }
@@ -608,7 +610,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       String data = file.readAsStringSync();
       file.delete().ignore();
 
-      EHImageException? exception = GalleryDownloadService.imageData2Exception(data);
+      EHImageException? exception = EHImageExceptionMatcher.match(data);
       log.error('Save ${readPageState.readPageInfo.galleryTitle} image: $index failed, invalid reason: $exception');
 
       if (exception != null) {
