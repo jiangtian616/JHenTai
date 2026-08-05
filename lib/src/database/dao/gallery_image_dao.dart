@@ -19,9 +19,7 @@ class GalleryImageDao {
   /// Used at startup to populate [GalleryDownloadInfo.imageIndices] slot 0
   /// without loading every image into memory.
   static Future<Map<int, GalleryImageIndex>> selectCoverIndices() async {
-    final List<ImageData> rows = await (appDb.select(appDb.image)
-          ..where((tbl) => tbl.serialNo.equals(0)))
-        .get();
+    final List<ImageData> rows = await (appDb.select(appDb.image)..where((tbl) => tbl.serialNo.equals(0))).get();
     return {for (final d in rows) d.gid: GalleryImageIndex.fromImageData(d)};
   }
 
@@ -39,14 +37,12 @@ class GalleryImageDao {
       ])
       ..addColumns([appDb.image.gid, countExp])
       ..where(
-        appDb.image.downloadStatusIndex.equals(4) &
-            appDb.galleryDownloaded.downloadStatusIndex.isNotIn([4]),
+        appDb.image.downloadStatusIndex.equals(4) & appDb.galleryDownloaded.downloadStatusIndex.isNotIn([4]),
       )
       ..groupBy([appDb.image.gid]);
     final List<TypedResult> rows = await query.get();
     return {
-      for (final row in rows)
-        row.read(appDb.image.gid)!: row.read(countExp)!,
+      for (final row in rows) row.read(appDb.image.gid)!: row.read(countExp)!,
     };
   }
 
@@ -65,6 +61,15 @@ class GalleryImageDao {
     return appDb.into(appDb.image).insert(image);
   }
 
+  /// Batch-insert all images for a gallery in a single transaction. Used by
+  /// `restoreTasks` to persist hundreds of image rows without N round-trips.
+  static Future<void> batchInsertImages(List<ImageData> images) async {
+    if (images.isEmpty) {
+      return;
+    }
+    await appDb.batch((b) => b.insertAll(appDb.image, images));
+  }
+
   static Future<int> updateImage(ImageCompanion image) {
     return (appDb.update(appDb.image)..where((tbl) => tbl.gid.equals(image.gid.value) & tbl.serialNo.equals(image.serialNo.value))).write(image);
   }
@@ -74,8 +79,7 @@ class GalleryImageDao {
   /// status so a restart doesn't leave stale `downloading` rows on a paused
   /// gallery.
   static Future<int> updateImageStatusByGallery(int gid, int fromStatusIndex, int toStatusIndex) {
-    return (appDb.update(appDb.image)
-          ..where((tbl) => tbl.gid.equals(gid) & tbl.downloadStatusIndex.equals(fromStatusIndex)))
+    return (appDb.update(appDb.image)..where((tbl) => tbl.gid.equals(gid) & tbl.downloadStatusIndex.equals(fromStatusIndex)))
         .write(ImageCompanion(downloadStatusIndex: Value(toStatusIndex)));
   }
 
@@ -85,8 +89,7 @@ class GalleryImageDao {
   static Future<int> updateImageStatusByGids(Iterable<int> gids, int fromStatusIndex, int toStatusIndex) {
     final List<int> gidList = gids.toList();
     if (gidList.isEmpty) return Future.value(0);
-    return (appDb.update(appDb.image)
-          ..where((tbl) => tbl.downloadStatusIndex.equals(fromStatusIndex) & tbl.gid.isIn(gidList)))
+    return (appDb.update(appDb.image)..where((tbl) => tbl.downloadStatusIndex.equals(fromStatusIndex) & tbl.gid.isIn(gidList)))
         .write(ImageCompanion(downloadStatusIndex: Value(toStatusIndex)));
   }
 

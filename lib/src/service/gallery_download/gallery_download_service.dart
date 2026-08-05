@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
 import 'dart:io' as io;
+import 'dart:isolate';
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
@@ -661,6 +662,10 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   /// Use metadata in each gallery folder to restore download status, then sync to database.
   /// This is used after re-install app, or share download folder to another user.
+  ///
+  /// Metadata parsing runs in a background isolate to avoid UI jank when
+  /// hundreds of galleries each parse a multi-KB JSON file. DB writes stay on
+  /// the main isolate (Drift's connection isn't isolate-safe).
   Future<int> restoreTasks() async {
     await completed;
 
@@ -669,16 +674,46 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       return 0;
     }
 
+    final List<String> galleryDirPaths = downloadDir
+        .listSync()
+        .whereType<io.Directory>()
+        .map((d) => d.path)
+        .toList();
+    if (galleryDirPaths.isEmpty) {
+      return 0;
+    }
+
+    /// Parse all metadata files in a single background isolate. Each parse
+    /// is pure (static [GalleryMetadataStore.readForRestore]); only primitive
+    /// paths cross the isolate boundary.
+    final List<({GalleryDownloadedData gallery, List<GalleryImage?> images})?> restoredList = await Isolate.run(() {
+      return galleryDirPaths.map((p) {
+        try {
+          return GalleryMetadataStore.readForRestore(io.Directory(p));
+        } catch (e, st) {
+          // Logging from a worker isolate may not reach file handlers; swallow
+          // here so one bad metadata file doesn't abort the whole restore.
+          return null;
+        }
+      }).toList();
+    });
+
     int restoredCount = 0;
-    for (io.FileSystemEntity galleryDir in downloadDir.listSync()) {
-      final ({GalleryDownloadedData gallery, List<GalleryImage?> images})? restored =
-          _metadataStore.readForRestore(io.Directory(galleryDir.path));
+    for (final ({GalleryDownloadedData gallery, List<GalleryImage?> images})? restored in restoredList) {
       if (restored == null) {
         continue;
       }
 
       GalleryDownloadedData gallery = restored.gallery;
       List<GalleryImage?> images = restored.images;
+
+      /// A gallery left in `downloading` state at shutdown cannot be safely
+      /// resumed — its image tasks were killed mid-flight. Demote to `paused`
+      /// so the user explicitly resumes, rather than silently re-launching
+      /// downloads that may have half-written image files.
+      if (gallery.downloadStatusIndex == DownloadStatus.downloading.index) {
+        gallery = gallery.copyWith(downloadStatusIndex: DownloadStatus.paused.index);
+      }
 
       /// skip if exists
       if (galleryDownloadInfos.containsKey(gallery.gid)) {
@@ -1178,35 +1213,34 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     });
   }
 
+  /// Persist a restored gallery + its images to DB. Caller ([restoreTasks])
+  /// is responsible for status fix-ups (e.g. demoting `downloading` →
+  /// `paused`); this method only does DB writes.
   Future<bool> _restoreInfoInDatabase(GalleryDownloadedData gallery, List<GalleryImage?> images) async {
-    if (gallery.downloadStatusIndex == DownloadStatus.downloading.index) {
-      gallery = gallery.copyWith(downloadStatusIndex: DownloadStatus.paused.index);
-    }
-
     if (!await _saveGalleryInfoAndGroupInDB(gallery)) {
       return false;
     }
 
     return await appDb.transaction(() async {
-      int serialNo = 0;
-
-      Iterator iterator = images.iterator;
-      while (iterator.moveNext()) {
-        GalleryImage? image = iterator.current;
-
+      final List<ImageData> imageRows = <ImageData>[];
+      for (int serialNo = 0; serialNo < images.length && serialNo < gallery.pageCount; serialNo++) {
+        final GalleryImage? image = images[serialNo];
         if (image == null) {
-          serialNo++;
           continue;
         }
-
-        if (!await _saveNewImageInfoInDatabase(image, serialNo++, gallery.gid)) {
-          return false;
-        }
+        imageRows.add(ImageData(
+          gid: gallery.gid,
+          serialNo: serialNo,
+          url: image.url,
+          path: image.path!,
+          imageHash: image.imageHash ?? '',
+          downloadStatusIndex: image.downloadStatus.index,
+        ));
       }
-
+      await GalleryImageDao.batchInsertImages(imageRows);
       return true;
     }).catchError((e) {
-      log.error('Restore images into database error}', e);
+      log.error('Restore images into database error', e);
       log.uploadError(e);
       return false;
     });
