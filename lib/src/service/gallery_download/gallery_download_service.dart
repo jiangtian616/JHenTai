@@ -126,16 +126,16 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     _completer.complete(true);
 
-    if (downloadSetting.restoreTasksAutomatically.isTrue) {
-      await restoreTasks();
-    }
-
     _downloadSettingListener = everAll(
       [downloadSetting.downloadTaskConcurrency, downloadSetting.maximum, downloadSetting.period],
-      (_) {
+          (_) {
         updateExecutor();
       },
     );
+    
+    if (downloadSetting.restoreTasksAutomatically.isTrue) {
+      restoreTasks();
+    }
   }
 
   @override
@@ -666,9 +666,30 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   /// Metadata parsing runs in a background isolate to avoid UI jank when
   /// hundreds of galleries each parse a multi-KB JSON file. DB writes stay on
   /// the main isolate (Drift's connection isn't isolate-safe).
+  ///
+  /// Concurrent calls are coalesced — if a restore is already in flight, the
+  /// caller awaits the same future instead of starting a second pass (which
+  /// would race on DB inserts and double-count galleries).
+  Future<int>? _restoreTasksFuture;
+
   Future<int> restoreTasks() async {
     await completed;
 
+    /// Coalesce concurrent triggers (e.g. user taps "restore" while the
+    /// auto-restore on startup is still running). The second caller awaits
+    /// the first's result.
+    if (_restoreTasksFuture != null) {
+      return _restoreTasksFuture!;
+    }
+    _restoreTasksFuture = _doRestoreTasks();
+    try {
+      return await _restoreTasksFuture!;
+    } finally {
+      _restoreTasksFuture = null;
+    }
+  }
+
+  Future<int> _doRestoreTasks() async {
     io.Directory downloadDir = io.Directory(downloadSetting.downloadPath.value);
     if (!downloadDir.existsSync()) {
       return 0;
