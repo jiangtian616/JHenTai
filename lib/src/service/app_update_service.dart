@@ -10,7 +10,7 @@ import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
-import 'package:jhentai/src/service/gallery_download_service.dart';
+import 'package:jhentai/src/service/gallery_download/gallery_download_service.dart';
 import 'package:jhentai/src/service/isolate_service.dart';
 import 'package:jhentai/src/service/local_block_rule_service.dart';
 import 'package:jhentai/src/service/local_config_service.dart';

@@ -26,8 +26,8 @@ import '../utils/toast_util.dart';
 import '../widget/loading_state_indicator.dart';
 import '../utils/table.dart' as util;
 import 'archive_download_service.dart';
-import 'download_path_resolver.dart';
-import 'gallery_download_service.dart';
+import 'gallery_download/download_path_resolver.dart';
+import 'gallery_download/gallery_download_service.dart';
 
 SuperResolutionService superResolutionService = SuperResolutionService();
 

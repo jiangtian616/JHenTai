@@ -19,7 +19,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../../config/ui_config.dart';
-import '../../service/gallery_download_service.dart';
+import '../../service/gallery_download/gallery_download_service.dart';
 import '../../setting/keyboard_shortcut_setting.dart';
 import '../../setting/read_setting.dart';
 import '../../utils/route_util.dart';

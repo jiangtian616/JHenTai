@@ -18,7 +18,7 @@ import 'package:path/path.dart';
 
 import '../../../routes/routes.dart';
 import '../../../service/archive_download_service.dart';
-import '../../../service/gallery_download_service.dart';
+import '../../../service/gallery_download/gallery_download_service.dart';
 import '../../../service/log.dart';
 import '../../../utils/permission_util.dart';
 import '../../../utils/route_util.dart';

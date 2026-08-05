@@ -1,5 +1,5 @@
-import '../database/dao/gallery_image_dao.dart';
-import '../model/gallery_image.dart';
+import '../../database/dao/gallery_image_dao.dart';
+import '../../model/gallery_image.dart';
 import 'gallery_download_service.dart';
 
 /// Per-gallery image index + full-data cache. Owns the two-tier lazy-loading

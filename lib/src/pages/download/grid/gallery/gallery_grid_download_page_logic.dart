@@ -12,7 +12,7 @@ import 'package:jhentai/src/pages/download/mixin/basic/multi_select/multi_select
 
 import '../../../../database/database.dart';
 import '../../../../routes/routes.dart';
-import '../../../../service/gallery_download_service.dart';
+import '../../../../service/gallery_download/gallery_download_service.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../utils/toast_util.dart';
 import '../../../../widget/eh_alert_dialog.dart';

@@ -11,7 +11,7 @@ import '../../../../database/database.dart';
 import '../../../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../../../mixin/scroll_to_top_state_mixin.dart';
 import '../../../../mixin/update_global_gallery_status_logic_mixin.dart';
-import '../../../../service/gallery_download_service.dart';
+import '../../../../service/gallery_download/gallery_download_service.dart';
 import '../../../../service/local_config_service.dart';
 import '../../../../widget/eh_alert_dialog.dart';
 import '../../mixin/basic/multi_select/multi_select_download_page_logic_mixin.dart';

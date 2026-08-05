@@ -8,7 +8,7 @@ import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/utils/screen_size_util.dart';
 
-import '../../../../service/gallery_download_service.dart';
+import '../../../../service/gallery_download/gallery_download_service.dart';
 import '../../../../setting/read_setting.dart';
 import '../base/base_layout_logic.dart';
 import 'horizontal_double_column_layout_state.dart';

@@ -4,7 +4,7 @@ import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/utils/file_util.dart';
 import 'package:path/path.dart' as path;
 
-import 'path_service.dart';
+import '../path_service.dart';
 
 /// Pure path-computation helpers for gallery download storage. No state —
 /// all methods are static and read singletons ([downloadSetting], [pathService]).

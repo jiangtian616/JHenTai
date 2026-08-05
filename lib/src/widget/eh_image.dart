@@ -18,8 +18,8 @@ import 'dart:io' as io;
 
 import 'dart:ui' as ui;
 
-import '../service/download_path_resolver.dart';
-import '../service/gallery_download_service.dart';
+import '../service/gallery_download/download_path_resolver.dart';
+import '../service/gallery_download/gallery_download_service.dart';
 
 typedef LoadingProgressWidgetBuilder = Widget Function(double);
 typedef FailedWidgetBuilder = Widget Function(ExtendedImageState state);

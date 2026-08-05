@@ -1,5 +1,5 @@
 import '../database/database.dart';
-import '../service/gallery_download_service.dart';
+import '../service/gallery_download/gallery_download_service.dart';
 
 class GalleryImage {
   String url;

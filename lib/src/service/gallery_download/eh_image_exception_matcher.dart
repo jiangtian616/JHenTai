@@ -1,6 +1,6 @@
 import 'package:get/get_utils/get_utils.dart';
 
-import '../exception/eh_image_exception.dart';
+import '../../exception/eh_image_exception.dart';
 
 /// Matches downloaded image bytes against known E-Hentai error-page signatures.
 /// Order matters: more specific patterns must come before generic ones.

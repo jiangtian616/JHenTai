@@ -4,13 +4,13 @@ import 'package:collection/collection.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:path/path.dart' as path;
 
-import '../database/database.dart';
-import '../model/gallery_image.dart';
+import '../../database/database.dart';
+import '../../model/gallery_image.dart';
 import 'download_path_resolver.dart';
 import 'gallery_download_service.dart';
-import 'log.dart';
-import 'path_service.dart';
-import 'super_resolution_service.dart';
+import '../log.dart';
+import '../path_service.dart';
+import '../super_resolution_service.dart';
 
 /// Handles copying image data (bytes + metadata + super-resolution info) from
 /// an old gallery version to a new one during a gallery update. Locates

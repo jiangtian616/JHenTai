@@ -22,11 +22,11 @@ import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/jh_response_parser.dart';
 import 'package:retry/retry.dart';
 
-import '../database/dao/gallery_image_dao.dart';
-import '../model/detail_page_info.dart';
-import '../model/gallery_image.dart';
-import '../network/eh_request.dart';
-import '../utils/eh_spider_parser.dart';
+import '../../database/dao/gallery_image_dao.dart';
+import '../../model/detail_page_info.dart';
+import '../../model/gallery_image.dart';
+import '../../network/eh_request.dart';
+import '../../utils/eh_spider_parser.dart';
 import 'download_path_resolver.dart';
 import 'eh_image_exception_matcher.dart';
 import 'gallery_download_service.dart';

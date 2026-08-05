@@ -19,7 +19,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../../../config/ui_config.dart';
 import '../../../../model/gallery_image.dart';
-import '../../../../service/gallery_download_service.dart';
+import '../../../../service/gallery_download/gallery_download_service.dart';
 import '../../download_base_page.dart';
 import '../mixin/grid_download_page_mixin.dart';
 import 'gallery_grid_download_page_logic.dart';

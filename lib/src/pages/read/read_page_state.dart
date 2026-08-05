@@ -10,7 +10,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../model/gallery_image.dart';
 import '../../model/gallery_thumbnail.dart';
-import '../../service/gallery_download_service.dart';
+import '../../service/gallery_download/gallery_download_service.dart';
 import '../../setting/read_setting.dart';
 import '../../widget/loading_state_indicator.dart';
 

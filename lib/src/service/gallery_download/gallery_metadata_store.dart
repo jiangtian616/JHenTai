@@ -5,11 +5,11 @@ import 'dart:io' as io;
 import 'package:drift/drift.dart' show Value;
 import 'package:path/path.dart' as path;
 
-import '../database/database.dart';
-import '../model/gallery_image.dart';
+import '../../database/database.dart';
+import '../../model/gallery_image.dart';
 import 'download_path_resolver.dart';
 import 'gallery_download_service.dart';
-import 'log.dart';
+import '../log.dart';
 
 /// Owns gallery metadata JSON persistence: debounced writes, immediate flush,
 /// and disk reads for restore. The in-memory state lives in

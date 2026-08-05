@@ -42,7 +42,7 @@ import '../pages/download/grid/mixin/grid_download_page_service_mixin.dart';
 import '../utils/archive_util.dart';
 import '../utils/file_util.dart';
 import '../utils/snack_util.dart';
-import 'gallery_download_service.dart';
+import 'gallery_download/gallery_download_service.dart';
 import 'jh_service.dart';
 import 'log.dart';
 

@@ -32,7 +32,7 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import '../../database/database.dart';
 import '../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../mixin/scroll_to_top_state_mixin.dart';
-import '../../service/gallery_download_service.dart';
+import '../../service/gallery_download/gallery_download_service.dart';
 import '../../setting/preference_setting.dart';
 import '../../setting/style_setting.dart';
 import '../../utils/date_util.dart';

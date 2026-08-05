@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_page_mixin.dart';
 import 'package:jhentai/src/pages/details/thumbnails/thumbnails_page_logic.dart';
 import 'package:jhentai/src/pages/details/thumbnails/thumbnails_page_state.dart';
-import 'package:jhentai/src/service/gallery_download_service.dart';
+import 'package:jhentai/src/service/gallery_download/gallery_download_service.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/keep_alive.dart';
 

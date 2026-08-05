@@ -12,7 +12,7 @@ import '../../config/ui_config.dart';
 import '../../model/gallery_image.dart';
 import '../../model/gallery_url.dart';
 import '../../routes/routes.dart';
-import '../../service/gallery_download_service.dart';
+import '../../service/gallery_download/gallery_download_service.dart';
 import '../../service/super_resolution_service.dart';
 import '../../utils/byte_util.dart';
 import '../../utils/date_util.dart';

@@ -8,7 +8,7 @@ import 'package:jhentai/src/pages/read/layout/horizontal_double_column/horizonta
 import 'package:jhentai/src/widget/eh_wheel_scroll_listener.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
-import '../../../../service/gallery_download_service.dart';
+import '../../../../service/gallery_download/gallery_download_service.dart';
 import '../../../../setting/read_setting.dart';
 import '../base/base_layout.dart';
 import 'horizontal_double_column_layout_logic.dart';
