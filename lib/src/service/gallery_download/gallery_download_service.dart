@@ -520,9 +520,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       return;
     }
 
-    _initGalleryInfoInMemory(
+    _initGalleryInfoInMemoryWithIndices(
       gallery,
-      imageIndices: copiedImages
+      copiedImages
           .asMap()
           .map((i, img) => MapEntry(
               i,
@@ -760,7 +760,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         }
       }
 
-      _initGalleryInfoInMemory(gallery, imageIndices: restoredIndices);
+      _initGalleryInfoInMemoryWithIndices(gallery, restoredIndices);
 
       restoredCount++;
     }
@@ -1102,7 +1102,30 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   // MEMORY
 
-  void _initGalleryInfoInMemory(GalleryDownloadedData gallery, {List<GalleryImageIndex?>? imageIndices}) {
+  /// Initialize in-memory state for a gallery that has **no image indices
+  /// available yet** — e.g. just downloaded fresh, or loaded from DB at
+  /// startup where indices lazy-load on first access. The
+  /// [GalleryDownloadInfo.imageIndices] list starts all-null; curCount and
+  /// hasDownloaded default to zero / all-false.
+  void _initGalleryInfoInMemory(GalleryDownloadedData gallery) {
+    _buildGalleryInfoInMemory(gallery, imageIndices: null);
+  }
+
+  /// Initialize in-memory state for a gallery with **already-known image
+  /// indices** — e.g. restored from disk metadata, or imported from a
+  /// folder of existing image files. curCount and hasDownloaded are derived
+  /// from the indices.
+  void _initGalleryInfoInMemoryWithIndices(
+    GalleryDownloadedData gallery,
+    List<GalleryImageIndex?> imageIndices,
+  ) {
+    _buildGalleryInfoInMemory(gallery, imageIndices: imageIndices);
+  }
+
+  void _buildGalleryInfoInMemory(
+    GalleryDownloadedData gallery, {
+    required List<GalleryImageIndex?>? imageIndices,
+  }) {
     if (!allGroups.contains(gallery.groupName)) {
       allGroups.add(gallery.groupName);
     }
