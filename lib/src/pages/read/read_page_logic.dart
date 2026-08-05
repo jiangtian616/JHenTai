@@ -64,8 +64,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
 
   ReadPageState state = ReadPageState();
 
-  BaseLayoutLogic get layoutLogic =>
-      effectiveReadDirection == ReadDirection.top2bottomList
+  BaseLayoutLogic get layoutLogic => effectiveReadDirection == ReadDirection.top2bottomList
       ? Get.find<VerticalListLayoutLogic>()
       : isInListReadDirection
           ? Get.find<HorizontalListLayoutLogic>()
@@ -408,6 +407,11 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   }
 
   void listen2VolumeKeys() {
+    if (readSetting.enablePageTurnByVolumeKeys.isFalse) {
+      volumeService.cancelListen();
+      return;
+    }
+
     volumeService.listen((VolumeEventType type) {
       if (type == VolumeEventType.volumeUp) {
         layoutLogic.toPrev();
@@ -415,12 +419,10 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
         layoutLogic.toNext();
       }
     });
-    volumeService.setInterceptVolumeEvent(readSetting.enablePageTurnByVolumeKeys.value);
   }
 
   void restoreVolumeListener() {
     volumeService.cancelListen();
-    volumeService.setInterceptVolumeEvent(false);
   }
 
   /// If [immersiveMode], switch to [SystemUiMode.immersiveSticky], otherwise reset to [SystemUiMode.edgeToEdge]
@@ -568,18 +570,14 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     if (!GetPlatform.isMobile || readSetting.enableOrientationSpecificReadDirection.isFalse) {
       return readSetting.imageRegionWidthRatio.value;
     }
-    return isPortrait
-        ? readSetting.portraitImageRegionWidthRatio.value
-        : readSetting.landscapeImageRegionWidthRatio.value;
+    return isPortrait ? readSetting.portraitImageRegionWidthRatio.value : readSetting.landscapeImageRegionWidthRatio.value;
   }
 
   bool get effectiveDisplayFirstPageAlone {
     if (!GetPlatform.isMobile || readSetting.enableOrientationSpecificReadDirection.isFalse) {
       return readSetting.displayFirstPageAlone.value;
     }
-    return isPortrait
-        ? readSetting.portraitDisplayFirstPageAlone.value
-        : readSetting.landscapeDisplayFirstPageAlone.value;
+    return isPortrait ? readSetting.portraitDisplayFirstPageAlone.value : readSetting.landscapeDisplayFirstPageAlone.value;
   }
 
   bool get isInListReadDirection => ReadSetting.isListDirection(effectiveReadDirection);
