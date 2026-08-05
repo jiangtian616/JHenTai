@@ -80,7 +80,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   List<GalleryDownloadInfo> _rebuildGallerysCache() {
-    final list = galleryDownloadInfos.values.toList();
+    final List<GalleryDownloadInfo> list = galleryDownloadInfos.values.toList();
     list.sort();
     return list;
   }
@@ -219,7 +219,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     /// Snapshot the downloading galleries — pauseDownloadGallery mutates
     /// `downloadProgress.downloadStatus` mid-iteration, so we can't filter
     /// lazily against the live map.
-    final downloading = galleryDownloadInfos.values
+    final List<GalleryDownloadInfo> downloading = galleryDownloadInfos.values
         .where((g) => g.downloadProgress.downloadStatus == DownloadStatus.downloading)
         .toList();
     if (downloading.isEmpty) return;
@@ -245,7 +245,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     /// In-memory + UI updates per gallery. No further DB writes here.
     for (final gallery in downloading) {
-      final info = galleryDownloadInfos[gallery.gid]!;
+      final GalleryDownloadInfo info = galleryDownloadInfos[gallery.gid]!;
       info.downloadProgress.downloadStatus = DownloadStatus.paused;
 
       for (AsyncTask task in info.tasks) {
@@ -323,7 +323,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   Future<void> resumeAllDownloadGallery() async {
-    final paused = galleryDownloadInfos.values
+    final List<GalleryDownloadInfo> paused = galleryDownloadInfos.values
         .where((g) => g.downloadProgress.downloadStatus == DownloadStatus.paused)
         .toList();
     if (paused.isEmpty) return;
@@ -346,7 +346,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     });
 
     for (final gallery in paused) {
-      final info = galleryDownloadInfos[gallery.gid]!;
+      final GalleryDownloadInfo info = galleryDownloadInfos[gallery.gid]!;
       info.downloadProgress.downloadStatus = DownloadStatus.downloading;
 
       /// can't reuse cancelToken across pause/resume
@@ -726,7 +726,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     int restoredCount = 0;
     for (io.FileSystemEntity galleryDir in downloadDir.listSync()) {
-      final restored = _metadataStore.readForRestore(io.Directory(galleryDir.path));
+      final ({GalleryDownloadedData gallery, List<GalleryImage?> images})? restored =
+          _metadataStore.readForRestore(io.Directory(galleryDir.path));
       if (restored == null) {
         continue;
       }
@@ -748,7 +749,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       /// Build imageIndices from the restored images (index fields only).
       List<GalleryImageIndex?> restoredIndices = List.generate(gallery.pageCount, (_) => null);
       for (int serialNo = 0; serialNo < images.length && serialNo < gallery.pageCount; serialNo++) {
-        final img = images[serialNo];
+        final GalleryImage? img = images[serialNo];
         if (img != null) {
           restoredIndices[serialNo] = GalleryImageIndex(
             serialNo: serialNo,
@@ -989,7 +990,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   Future<void> _instantiateFromDB() async {
     /// Parallelize the three startup DB queries — they have no data dependency
     /// on each other. Sequential awaits added ~3 round-trips to cold start.
-    final results = await Future.wait([
+    final List<Object> results = await Future.wait([
       GalleryGroupDao.selectGalleryGroups(),
       GalleryDao.selectGallerys(),
       GalleryImageDao.selectCoverIndices(),
@@ -1540,17 +1541,17 @@ class GalleryDownloadInfo implements Comparable<GalleryDownloadInfo> {
   /// Canonical order: group rank → group name → sortOrder → insertTime desc.
   @override
   int compareTo(GalleryDownloadInfo other) {
-    final rankCmp = groupSortRank(group) - groupSortRank(other.group);
+    final int rankCmp = groupSortRank(group) - groupSortRank(other.group);
     if (rankCmp != 0) {
       return rankCmp;
     }
 
-    final groupCmp = group.compareTo(other.group);
+    final int groupCmp = group.compareTo(other.group);
     if (groupCmp != 0) {
       return groupCmp;
     }
 
-    final orderCmp = sortOrder - other.sortOrder;
+    final int orderCmp = sortOrder - other.sortOrder;
     if (orderCmp != 0) {
       return orderCmp;
     }
@@ -1560,7 +1561,7 @@ class GalleryDownloadInfo implements Comparable<GalleryDownloadInfo> {
 
   int _parseInsertTimePriority() {
     try {
-      final dt = DateFormat('yyyy-MM-dd HH:mm:ss').parse(insertTime);
+      final DateTime dt = DateFormat('yyyy-MM-dd HH:mm:ss').parse(insertTime);
       return int.parse(DateFormat('MMddHHmmss').format(dt));
     } catch (_) {
       return 0;

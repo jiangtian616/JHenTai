@@ -1,4 +1,5 @@
 import '../../database/dao/gallery_image_dao.dart';
+import '../../database/database.dart';
 import '../../model/gallery_image.dart';
 import 'gallery_download_service.dart';
 
@@ -44,7 +45,7 @@ class GalleryImageCache {
     if (_imagesCacheLoadingFuture != null) {
       return _imagesCacheLoadingFuture!;
     }
-    final rows = await GalleryImageDao.selectImageIndicesByGid(gid);
+    final List<GalleryImageIndex> rows = await GalleryImageDao.selectImageIndicesByGid(gid);
     for (final idx in rows) {
       if (idx.serialNo < imageIndices.length) {
         imageIndices[idx.serialNo] = idx;
@@ -69,7 +70,7 @@ class GalleryImageCache {
 
   Future<void> _loadImagesCache() async {
     await ensureImageIndicesLoaded();
-    final rows = await GalleryImageDao.selectImagesByGalleryId(gid);
+    final List<ImageData> rows = await GalleryImageDao.selectImagesByGalleryId(gid);
     imagesCache = {
       for (final d in rows)
         d.serialNo: GalleryImage(
@@ -112,7 +113,7 @@ class GalleryImageCache {
 
   /// Update index downloadStatus. Mirrors to cache if resident.
   void updateImageStatus(int serialNo, DownloadStatus status) {
-    final idx = imageIndices[serialNo];
+    final GalleryImageIndex? idx = imageIndices[serialNo];
     if (idx != null) {
       idx.downloadStatus = status;
     }
@@ -121,7 +122,7 @@ class GalleryImageCache {
 
   /// Update index path. Mirrors to cache if resident.
   void updateImagePath(int serialNo, String? newPath) {
-    final idx = imageIndices[serialNo];
+    final GalleryImageIndex? idx = imageIndices[serialNo];
     if (idx != null) {
       idx.path = newPath;
     }

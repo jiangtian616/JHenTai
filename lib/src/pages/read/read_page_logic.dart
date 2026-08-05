@@ -525,7 +525,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   }
 
   void _syncDisplayFirstPageAloneToState() {
-    final effective = effectiveDisplayFirstPageAlone;
+    final bool effective = effectiveDisplayFirstPageAlone;
     if (state.displayFirstPageAlone != effective) {
       state.displayFirstPageAlone = effective;
       layoutLogic.toggleDisplayFirstPageAlone();
@@ -540,7 +540,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     if (readSetting.deviceDirection.value == DeviceDirection.landscape) {
       return false;
     }
-    final size = WidgetsBinding.instance.platformDispatcher.views.first.physicalSize;
+    final Size size = WidgetsBinding.instance.platformDispatcher.views.first.physicalSize;
     return size.height >= size.width;
   }
 

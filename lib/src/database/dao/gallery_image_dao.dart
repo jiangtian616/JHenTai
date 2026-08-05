@@ -19,7 +19,7 @@ class GalleryImageDao {
   /// Used at startup to populate [GalleryDownloadInfo.imageIndices] slot 0
   /// without loading every image into memory.
   static Future<Map<int, GalleryImageIndex>> selectCoverIndices() async {
-    final rows = await (appDb.select(appDb.image)
+    final List<ImageData> rows = await (appDb.select(appDb.image)
           ..where((tbl) => tbl.serialNo.equals(0)))
         .get();
     return {for (final d in rows) d.gid: GalleryImageIndex.fromImageData(d)};
@@ -32,7 +32,7 @@ class GalleryImageDao {
   /// For a library where most galleries are downloaded, this can cut the
   /// scanned row count by an order of magnitude at startup.
   static Future<Map<int, int>> selectDownloadedCountsByGid() async {
-    final countExp = appDb.image.serialNo.count();
+    final Expression<int> countExp = appDb.image.serialNo.count();
     final query = appDb.selectOnly(appDb.image)
       ..join([
         innerJoin(appDb.galleryDownloaded, appDb.galleryDownloaded.gid.equalsExp(appDb.image.gid)),
@@ -43,7 +43,7 @@ class GalleryImageDao {
             appDb.galleryDownloaded.downloadStatusIndex.isNotIn([4]),
       )
       ..groupBy([appDb.image.gid]);
-    final rows = await query.get();
+    final List<TypedResult> rows = await query.get();
     return {
       for (final row in rows)
         row.read(appDb.image.gid)!: row.read(countExp)!,
@@ -83,7 +83,7 @@ class GalleryImageDao {
   /// status matches [from] AND whose gid is in [gids] are updated to [to].
   /// Used by pauseAll/resumeAll to avoid N per-gallery DB round-trips.
   static Future<int> updateImageStatusByGids(Iterable<int> gids, int fromStatusIndex, int toStatusIndex) {
-    final gidList = gids.toList();
+    final List<int> gidList = gids.toList();
     if (gidList.isEmpty) return Future.value(0);
     return (appDb.update(appDb.image)
           ..where((tbl) => tbl.downloadStatusIndex.equals(fromStatusIndex) & tbl.gid.isIn(gidList)))

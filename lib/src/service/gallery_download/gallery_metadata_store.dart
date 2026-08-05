@@ -56,7 +56,7 @@ class GalleryMetadataStore {
   }
 
   Future<void> _write(GalleryDownloadInfo gallery) async {
-    final info = gallery;
+    final GalleryDownloadInfo info = gallery;
 
     /// Serialize from imageIndices (always resident) — full-data cache may be
     /// evicted, but index mirrors the DB columns (url/path/hash/status) which
