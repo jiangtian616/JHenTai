@@ -1022,7 +1022,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       /// otherwise use the precise count from DB. hasDownloaded stays all-false
       /// (lazy-loaded with full indices on first access).
       int downloadedCount = downloadedCounts[gallery.gid] ?? 0;
-      if (gallery.downloadStatusIndex == DownloadStatus.downloaded.index) {
+      if (info.downloadProgress.downloadStatus == DownloadStatus.downloaded) {
         info.downloadProgress.curCount = gallery.pageCount;
         info.downloadProgress.hasDownloaded = List.generate(gallery.pageCount, (_) => true);
       } else {
