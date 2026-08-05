@@ -60,6 +60,16 @@ class GalleryImageDao {
     return (appDb.update(appDb.image)..where((tbl) => tbl.gid.equals(image.gid.value) & tbl.serialNo.equals(image.serialNo.value))).write(image);
   }
 
+  /// Batch-update image status for a gallery: all images whose status matches
+  /// [from] are updated to [to]. Used by pause/resume to persist per-image
+  /// status so a restart doesn't leave stale `downloading` rows on a paused
+  /// gallery.
+  static Future<int> updateImageStatusByGallery(int gid, int fromStatusIndex, int toStatusIndex) {
+    return (appDb.update(appDb.image)
+          ..where((tbl) => tbl.gid.equals(gid) & tbl.downloadStatusIndex.equals(fromStatusIndex)))
+        .write(ImageCompanion(downloadStatusIndex: Value(toStatusIndex)));
+  }
+
   static Future<int> resetImageUrl(int gid, int imageIndex) {
     return (appDb.update(appDb.image)..where((tbl) => tbl.gid.equals(gid) & tbl.serialNo.equals(imageIndex))).write(const ImageCompanion(url: Value.absent()));
   }

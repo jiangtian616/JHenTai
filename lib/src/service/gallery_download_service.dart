@@ -185,8 +185,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       downloadStatusIndex: status.index,
       insertTime: DateTime.now().toString(),
       downloadOriginalImage: request.downloadOriginalImage,
-      priority: defaultDownloadGalleryPriority,
-      sortOrder: 0,
+      priority: request.priority ?? defaultDownloadGalleryPriority,
+      sortOrder: request.sortOrder ?? 0,
       groupName: request.group,
       tags: request.tags,
       tagRefreshTime: request.tagRefreshTime,
@@ -231,8 +231,16 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     galleryDownloadInfo.cancelToken.cancel();
     galleryDownloadInfo.speedComputer.pause();
 
+    /// Persist per-image paused status so a restart doesn't leave stale
+    /// `downloading` rows on a paused gallery — the in-memory coercion below
+    /// would otherwise be lost on `_instantiateFromDB`'s DB read.
+    await GalleryImageDao.updateImageStatusByGallery(
+      gallery.gid,
+      DownloadStatus.downloading.index,
+      DownloadStatus.paused.index,
+    );
+
     for (GalleryImageIndex? idx in galleryDownloadInfo.imageIndices) {
-      /// no need to update db
       if (idx?.downloadStatus == DownloadStatus.downloading) {
         idx?.downloadStatus = DownloadStatus.paused;
         update(['$downloadImageId::${gallery.gid}']);
@@ -276,8 +284,15 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     galleryDownloadInfo.cancelToken = CancelToken();
     galleryDownloadInfo.speedComputer.start();
 
+    /// Mirror the pause-time batch write: flip persisted `paused` rows back to
+    /// `downloading` so the DB matches in-memory state.
+    await GalleryImageDao.updateImageStatusByGallery(
+      gallery.gid,
+      DownloadStatus.paused.index,
+      DownloadStatus.downloading.index,
+    );
+
     for (GalleryImageIndex? idx in galleryDownloadInfo.imageIndices) {
-      /// no need to update db
       if (idx?.downloadStatus == DownloadStatus.paused) {
         idx?.downloadStatus = DownloadStatus.downloading;
         update(['$downloadImageId::${gallery.gid}']);
@@ -625,12 +640,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         }
       }
 
-      _initGalleryInfoInMemory(gallery, imageIndices: restoredIndices, sort: false);
+      _initGalleryInfoInMemory(gallery, imageIndices: restoredIndices);
 
       restoredCount++;
-    }
-
-    if (restoredCount > 0) {
     }
 
     return restoredCount;
@@ -778,9 +790,10 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       return groupPriority;
     }
 
-    /// priority is same, order by insert time
-    DateTime insertTime = DateFormat('yyyy-MM-dd HH:mm:ss').parse(gallery.insertTime);
-    int timePriority = int.parse(DateFormat('MMddHHmmss').format(insertTime)) * 2000;
+    /// priority is same, order by insert time — uses the cached
+    /// [GalleryDownloadInfo.insertTimePriority] to avoid DateFormat.parse
+    /// on every image task submit.
+    int timePriority = galleryDownloadInfos[gallery.gid]!.insertTimePriority * 2000;
 
     return groupPriority + timePriority;
   }
@@ -854,20 +867,28 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   Future<void> updateProgressAfterImageDownloaded(GalleryDownloadInfo gallery, int serialNo) => _updateProgressAfterImageDownloaded(gallery, serialNo);
 
   Future<void> _instantiateFromDB() async {
-    allGroups = (await GalleryGroupDao.selectGalleryGroups()).map((e) => e.groupName).toList();
+    /// Parallelize the three startup DB queries — they have no data dependency
+    /// on each other. Sequential awaits added ~3 round-trips to cold start.
+    final results = await Future.wait([
+      GalleryGroupDao.selectGalleryGroups(),
+      GalleryDao.selectGallerys(),
+      GalleryImageDao.selectCoverIndices(),
+      GalleryImageDao.selectDownloadedCountsByGid(),
+    ]);
+    allGroups = (results[0] as List<GalleryGroupData>).map((e) => e.groupName).toList();
     log.debug('init Gallery groups: $allGroups');
 
     /// Get download info from database
-    List<GalleryDownloadedData> dbGallerys = await GalleryDao.selectGallerys();
+    List<GalleryDownloadedData> dbGallerys = results[1] as List<GalleryDownloadedData>;
 
     /// Only load cover indices (serialNo=0) at startup — full image indices
     /// lazy-load on first access to each gallery (detail/read/download).
-    Map<int, GalleryImageIndex> coverIndices = await GalleryImageDao.selectCoverIndices();
-    Map<int, int> downloadedCounts = await GalleryImageDao.selectDownloadedCountsByGid();
+    Map<int, GalleryImageIndex> coverIndices = results[2] as Map<int, GalleryImageIndex>;
+    Map<int, int> downloadedCounts = results[3] as Map<int, int>;
 
     for (GalleryDownloadedData gallery in dbGallerys) {
       /// Instantiate [Gallery] with an empty index list; we'll fill slot 0 below.
-      _initGalleryInfoInMemory(gallery, sort: false);
+      _initGalleryInfoInMemory(gallery);
 
       GalleryDownloadInfo info = galleryDownloadInfos[gallery.gid]!;
 
@@ -875,9 +896,6 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       GalleryImageIndex? cover = coverIndices[gallery.gid];
       if (cover != null) {
         info.imageIndices[0] = cover;
-        if (cover.downloadStatus == DownloadStatus.downloaded) {
-          /// Cover counts toward curCount only if it's downloaded.
-        }
       }
 
       /// Populate curCount: for fully-downloaded galleries, it equals pageCount;
@@ -894,8 +912,6 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         /// ensureImageIndicesLoaded() runs on first access.
       }
     }
-
-    // sort after instantiated
   }
 
   Future<GalleryDownloadedData?> _initGalleryInfo(GalleryDownloadedData gallery) async {
@@ -966,7 +982,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   // MEMORY
 
-  void _initGalleryInfoInMemory(GalleryDownloadedData gallery, {List<GalleryImageIndex?>? imageIndices, bool sort = true}) {
+  void _initGalleryInfoInMemory(GalleryDownloadedData gallery, {List<GalleryImageIndex?>? imageIndices}) {
     if (!allGroups.contains(gallery.groupName)) {
       allGroups.add(gallery.groupName);
     }
@@ -1001,9 +1017,6 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       imageIndices: imageIndices ?? List.generate(gallery.pageCount, (_) => null),
       onSpeedUpdate: () => update(['$galleryDownloadSpeedComputerId::${gallery.gid}']),
     );
-
-    if (sort) {
-    }
 
     update([galleryCountChangedId, '$galleryDownloadProgressId::${gallery.gid}']);
   }
@@ -1202,6 +1215,13 @@ class GalleryDownloadRequest {
   /// Set when this request is a gallery update from an older version.
   final String? oldVersionGalleryUrl;
 
+  /// Optional overrides for service-owned fields. Null = service picks defaults
+  /// (sortOrder=0, priority=[defaultDownloadGalleryPriority]). Used by
+  /// [reDownloadGallery] to preserve user-assigned sort/priority across
+  /// re-downloads.
+  final int? sortOrder;
+  final int? priority;
+
   const GalleryDownloadRequest({
     required this.gid,
     required this.token,
@@ -1216,6 +1236,8 @@ class GalleryDownloadRequest {
     this.uploader,
     this.tagRefreshTime,
     this.oldVersionGalleryUrl,
+    this.sortOrder,
+    this.priority,
   });
 }
 
@@ -1232,6 +1254,12 @@ class GalleryDownloadInfo implements Comparable<GalleryDownloadInfo> {
   final String insertTime;
   final String? oldVersionGalleryUrl;
   final String? sanitizedTitle;
+
+  /// Pre-parsed `MMddHHmmss` of [insertTime]. Cached at construction so
+  /// [_computeGalleryTaskPriority] avoids `DateFormat.parse` on every image
+  /// task submit.
+  late final int _insertTimePriority = _parseInsertTimePriority();
+  int get insertTimePriority => _insertTimePriority;
 
   // === Mutable config (user-changeable) ===
   int priority;
@@ -1357,6 +1385,8 @@ class GalleryDownloadInfo implements Comparable<GalleryDownloadInfo> {
         tags: tags,
         tagRefreshTime: tagRefreshTime,
         oldVersionGalleryUrl: oldVersionGalleryUrl,
+        sortOrder: sortOrder,
+        priority: priority,
       );
 
   /// 'default' group always sorts last regardless of locale.
@@ -1381,6 +1411,15 @@ class GalleryDownloadInfo implements Comparable<GalleryDownloadInfo> {
     }
 
     return other.insertTime.compareTo(insertTime);
+  }
+
+  int _parseInsertTimePriority() {
+    try {
+      final dt = DateFormat('yyyy-MM-dd HH:mm:ss').parse(insertTime);
+      return int.parse(DateFormat('MMddHHmmss').format(dt));
+    } catch (_) {
+      return 0;
+    }
   }
 }
 
