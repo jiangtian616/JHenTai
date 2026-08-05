@@ -1061,17 +1061,11 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   /// indices** — e.g. restored from disk metadata, or imported from a
   /// folder of existing image files. curCount and hasDownloaded are derived
   /// from the indices.
-  void _initGalleryInfoInMemoryWithIndices(
-    GalleryDownloadedData gallery,
-    List<GalleryImageIndex?> imageIndices,
-  ) {
+  void _initGalleryInfoInMemoryWithIndices(GalleryDownloadedData gallery, List<GalleryImageIndex?> imageIndices) {
     _buildGalleryInfoInMemory(gallery, imageIndices: imageIndices);
   }
 
-  void _buildGalleryInfoInMemory(
-    GalleryDownloadedData gallery, {
-    required List<GalleryImageIndex?>? imageIndices,
-  }) {
+  void _buildGalleryInfoInMemory(GalleryDownloadedData gallery, {required List<GalleryImageIndex?>? imageIndices}) {
     if (!allGroups.contains(gallery.groupName)) {
       allGroups.add(gallery.groupName);
     }
