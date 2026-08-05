@@ -25,14 +25,23 @@ class GalleryImageDao {
     return {for (final d in rows) d.gid: GalleryImageIndex.fromImageData(d)};
   }
 
-  /// Returns downloaded-image counts per gid in one query.
-  /// Used at startup to populate [GalleryDownloadProgress.curCount] without
-  /// loading every image row into memory.
+  /// Returns downloaded-image counts per gid, **only for galleries whose own
+  /// status is not `downloaded`**. Fully-downloaded galleries are skipped
+  /// because [_instantiateFromDB] uses [GalleryDownloadedData.pageCount]
+  /// directly for them — counting their image rows would be wasted work.
+  /// For a library where most galleries are downloaded, this can cut the
+  /// scanned row count by an order of magnitude at startup.
   static Future<Map<int, int>> selectDownloadedCountsByGid() async {
     final countExp = appDb.image.serialNo.count();
     final query = appDb.selectOnly(appDb.image)
+      ..join([
+        innerJoin(appDb.galleryDownloaded, appDb.galleryDownloaded.gid.equalsExp(appDb.image.gid)),
+      ])
       ..addColumns([appDb.image.gid, countExp])
-      ..where(appDb.image.downloadStatusIndex.equals(4))
+      ..where(
+        appDb.image.downloadStatusIndex.equals(4) &
+            appDb.galleryDownloaded.downloadStatusIndex.isNotIn([4]),
+      )
       ..groupBy([appDb.image.gid]);
     final rows = await query.get();
     return {
