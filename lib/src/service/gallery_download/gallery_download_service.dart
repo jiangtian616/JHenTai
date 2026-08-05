@@ -159,11 +159,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     GalleryDownloadedData gallery = _toGalleryDownloadedData(request, DownloadStatus.downloading);
 
-    GalleryDownloadedData? galleryWithSanitizedTitle = await _initGalleryInfo(gallery);
-    if (galleryWithSanitizedTitle == null) {
+    if (!await _initGalleryInfo(gallery)) {
       return;
     }
-    gallery = galleryWithSanitizedTitle;
 
     _generateComicInfoInDisk(galleryDownloadInfos[gallery.gid]!);
 
@@ -195,6 +193,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   /// persistence. Status, sortOrder, insertTime, and priority are service-
   /// owned — callers cannot set them.
   GalleryDownloadedData _toGalleryDownloadedData(GalleryDownloadRequest request, DownloadStatus status) {
+    /// Compute sanitizedTitle up-front so the row is born with the path that
+    /// will be frozen for the lifetime of this download task.
+    final int reservedBytes = utf8.encode('${request.gid} - ').length;
     return GalleryDownloadedData(
       gid: request.gid,
       token: request.token,
@@ -213,6 +214,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       groupName: request.group,
       tags: request.tags,
       tagRefreshTime: request.tagRefreshTime,
+      sanitizedTitle: DownloadPathResolver.computeSanitizedGalleryTitle(request.title, reservedBytes),
     );
   }
 
@@ -1036,21 +1038,16 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     }
   }
 
-  Future<GalleryDownloadedData?> _initGalleryInfo(GalleryDownloadedData gallery) async {
-    /// Compute and attach the sanitized title before the first DB write so the
-    /// path is frozen for the lifetime of this download task.
-    final int reservedBytes = utf8.encode('${gallery.gid} - ').length;
-    gallery = gallery.copyWith(sanitizedTitle: Value(DownloadPathResolver.computeSanitizedGalleryTitle(gallery.title, reservedBytes)));
-
+  Future<bool> _initGalleryInfo(GalleryDownloadedData gallery) async {
     if (!await _saveGalleryInfoAndGroupInDB(gallery)) {
-      return null;
+      return false;
     }
 
     _initGalleryInfoInMemory(gallery);
 
     _saveGalleryMetadataInDisk(galleryDownloadInfos[gallery.gid]!);
 
-    return gallery;
+    return true;
   }
 
   Future<void> _updateGalleryDownloadStatus(GalleryDownloadInfo gallery, DownloadStatus downloadStatus) async {

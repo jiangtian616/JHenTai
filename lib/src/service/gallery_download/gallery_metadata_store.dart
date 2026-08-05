@@ -11,48 +11,86 @@ import 'download_path_resolver.dart';
 import 'gallery_download_service.dart';
 import '../log.dart';
 
-/// Owns gallery metadata JSON persistence: debounced writes, immediate flush,
+/// Owns gallery metadata JSON persistence: throttled writes, immediate flush,
 /// and disk reads for restore. The in-memory state lives in
 /// [GalleryDownloadService.galleryDownloadInfos]; this class only handles
 /// serializing that state to/from `metadata` files on disk.
 class GalleryMetadataStore {
   static const String metadataFileName = 'metadata';
-  static const Duration _metadataDebounce = Duration(milliseconds: 500);
+
+  /// Throttle window. The first [save] after a gallery becomes dirty starts
+  /// a periodic timer; subsequent saves within the window just refresh the
+  /// dirty flag. The timer fires once per window, writes if dirty, and stops
+  /// itself once the gallery goes clean. This guarantees that even under
+  /// continuous `save` calls (e.g. an image-status change every 300ms) the
+  /// metadata file is written at most once per [_throttleInterval] — never
+  /// starved like a pure trailing debounce would be.
+  static const Duration _throttleInterval = Duration(milliseconds: 500);
 
   final GalleryDownloadService _service;
 
-  /// Per-gallery debounce timers for metadata writes. Each image-status change
-  /// schedules a write; rapid successive changes coalesce into one disk write.
+  /// Per-gallery periodic timers. Set on first dirty mark; cancelled once the
+  /// gallery goes clean (no writes pending, no new dirty marks since last flush).
   final Map<int, Timer> _metadataSaveTimers = {};
+
+  /// Per-gallery dirty flags. Set by [save], cleared by [_flushPendingWrite].
+  /// Only the latest state is read at write time (from
+  /// [GalleryDownloadService.galleryDownloadInfos]), so we don't need to
+  /// capture the gallery object here.
+  final Set<int> _dirty = {};
+
+  /// In-flight writes per gallery. [flush] awaits these before doing its own
+  /// write so the on-disk state never goes backwards.
   final Map<int, Future<void>> _metadataWrites = {};
 
   GalleryMetadataStore(this._service);
 
-  /// Schedule a debounced metadata write. Safe to call from sync contexts.
+  /// Mark [gallery] dirty and ensure a throttle timer is running. Safe to call
+  /// from sync contexts. The actual disk write happens at most once per
+  /// [_throttleInterval]; rapid successive calls coalesce.
   void save(GalleryDownloadInfo gallery) {
-    if (!_service.galleryDownloadInfos.containsKey(gallery.gid)) {
+    final int gid = gallery.gid;
+    if (!_service.galleryDownloadInfos.containsKey(gid)) {
       return;
     }
-    _metadataSaveTimers[gallery.gid]?.cancel();
-    _metadataSaveTimers[gallery.gid] = Timer(_metadataDebounce, () {
-      _metadataSaveTimers.remove(gallery.gid);
-      _metadataWrites[gallery.gid] = _write(gallery).whenComplete(() {
-        _metadataWrites.remove(gallery.gid);
-      });
+    _dirty.add(gid);
+    _metadataSaveTimers.putIfAbsent(gid, () {
+      return Timer.periodic(_throttleInterval, (_) => _flushPendingWrite(gid));
     });
   }
 
-  /// Cancel any pending debounced write and flush the latest state to disk now.
+  /// Drain the dirty flag for [gid] and write the current in-memory state.
+  /// Called by the periodic timer.
+  void _flushPendingWrite(int gid) {
+    if (!_dirty.remove(gid)) {
+      /// No changes since the last write — stop the timer so the gallery
+      /// doesn't keep getting polled.
+      _metadataSaveTimers.remove(gid)?.cancel();
+      return;
+    }
+    final GalleryDownloadInfo? info = _service.galleryDownloadInfos[gid];
+    if (info == null) {
+      _metadataSaveTimers.remove(gid)?.cancel();
+      return;
+    }
+    _metadataWrites[gid] = _write(info).whenComplete(() {
+      _metadataWrites.remove(gid);
+    });
+  }
+
+  /// Cancel any pending throttled write and flush the latest state to disk now.
   Future<void> flush(GalleryDownloadInfo gallery) async {
-    _metadataSaveTimers[gallery.gid]?.cancel();
-    _metadataSaveTimers.remove(gallery.gid);
-    await _metadataWrites[gallery.gid];
+    final int gid = gallery.gid;
+    _metadataSaveTimers.remove(gid)?.cancel();
+    _dirty.remove(gid);
+    await _metadataWrites[gid];
     await _write(gallery);
   }
 
   /// Cancel any pending writes for a gallery that's being deleted.
   void cancel(int gid) {
     _metadataSaveTimers.remove(gid)?.cancel();
+    _dirty.remove(gid);
   }
 
   Future<void> _write(GalleryDownloadInfo gallery) async {
