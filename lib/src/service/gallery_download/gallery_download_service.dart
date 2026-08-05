@@ -66,16 +66,37 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   List<String> allGroups = [];
   Map<int, GalleryDownloadInfo> galleryDownloadInfos = {};
 
+  /// Cached sorted snapshot of [galleryDownloadInfos]. Invalidated on any
+  /// mutation that affects order (add / delete / group rename / group change
+  /// / priority change). Re-sorted on next read. Avoids O(N log N) per UI
+  /// rebuild — critical for thousands-of-galleries scenarios.
+  List<GalleryDownloadInfo>? _gallerysCache;
+
   /// Sorted view synthesized from [galleryDownloadInfos]. Single source of
-  /// truth — the map holds the data; this getter returns a sorted snapshot.
+  /// truth — the map holds the data; this getter returns a cached sorted
+  /// snapshot, rebuilt only when the set or order-affecting fields change.
   List<GalleryDownloadInfo> get gallerys {
+    return _gallerysCache ??= _rebuildGallerysCache();
+  }
+
+  List<GalleryDownloadInfo> _rebuildGallerysCache() {
     final list = galleryDownloadInfos.values.toList();
     list.sort();
     return list;
   }
 
-  List<GalleryDownloadInfo> gallerysWithGroup(String group) =>
-      gallerys.where((g) => g.group == group).toList();
+  /// Invalidate the sorted cache. Call after any mutation that could affect
+  /// order or membership: add, delete, group change, group rename, priority
+  /// change. (sortOrder/insertTime are immutable post-creation.)
+  void _invalidateGallerysCache() {
+    _gallerysCache = null;
+  }
+
+  /// Filter galleries by group directly from the map — skips the sort that
+  /// [gallerys] would trigger. Caller sorts the (smaller) result if needed.
+  List<GalleryDownloadInfo> gallerysWithGroup(String group) {
+    return galleryDownloadInfos.values.where((g) => g.group == group).toList();
+  }
 
   static const int _maxRetryTimes = 3;
   static const int defaultDownloadGalleryPriority = 4;
@@ -194,7 +215,55 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   Future<void> pauseAllDownloadGallery() async {
-    await Future.wait(galleryDownloadInfos.values.map(pauseDownloadGallery).toList());
+    /// Snapshot the downloading galleries — pauseDownloadGallery mutates
+    /// `downloadProgress.downloadStatus` mid-iteration, so we can't filter
+    /// lazily against the live map.
+    final downloading = galleryDownloadInfos.values
+        .where((g) => g.downloadProgress.downloadStatus == DownloadStatus.downloading)
+        .toList();
+    if (downloading.isEmpty) return;
+
+    /// Single transaction: bulk gallery status + bulk image status.
+    /// Avoids N per-gallery DB round-trips (one UPDATE + one image-batch
+    /// UPDATE per gallery × thousands of galleries).
+    await appDb.transaction(() async {
+      await GalleryDao.batchUpdateGallery(
+        downloading
+            .map((g) => GalleryDownloadedCompanion(
+                  gid: Value(g.gid),
+                  downloadStatusIndex: Value(DownloadStatus.paused.index),
+                ))
+            .toList(),
+      );
+      await GalleryImageDao.updateImageStatusByGids(
+        downloading.map((g) => g.gid),
+        DownloadStatus.downloading.index,
+        DownloadStatus.paused.index,
+      );
+    });
+
+    /// In-memory + UI updates per gallery. No further DB writes here.
+    for (final gallery in downloading) {
+      final info = galleryDownloadInfos[gallery.gid]!;
+      info.downloadProgress.downloadStatus = DownloadStatus.paused;
+
+      for (AsyncTask task in info.tasks) {
+        executor.cancelTask(task);
+      }
+      info.tasks.clear();
+      info.cancelToken.cancel();
+      info.speedComputer.pause();
+
+      for (GalleryImageIndex? idx in info.imageIndices) {
+        if (idx?.downloadStatus == DownloadStatus.downloading) {
+          idx?.downloadStatus = DownloadStatus.paused;
+          update(['$downloadImageId::${gallery.gid}']);
+        }
+      }
+
+      await _flushMetadataSave(gallery);
+      update(['$galleryDownloadProgressId::${gallery.gid}']);
+    }
   }
 
   GalleryDownloadInfo? _findGalleryByGid(int gid) => galleryDownloadInfos[gid];
@@ -253,7 +322,53 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   Future<void> resumeAllDownloadGallery() async {
-    await Future.wait(galleryDownloadInfos.values.map(resumeDownloadGallery).toList());
+    final paused = galleryDownloadInfos.values
+        .where((g) => g.downloadProgress.downloadStatus == DownloadStatus.paused)
+        .toList();
+    if (paused.isEmpty) return;
+
+    /// Single transaction: bulk gallery status + bulk image status.
+    await appDb.transaction(() async {
+      await GalleryDao.batchUpdateGallery(
+        paused
+            .map((g) => GalleryDownloadedCompanion(
+                  gid: Value(g.gid),
+                  downloadStatusIndex: Value(DownloadStatus.downloading.index),
+                ))
+            .toList(),
+      );
+      await GalleryImageDao.updateImageStatusByGids(
+        paused.map((g) => g.gid),
+        DownloadStatus.paused.index,
+        DownloadStatus.downloading.index,
+      );
+    });
+
+    for (final gallery in paused) {
+      final info = galleryDownloadInfos[gallery.gid]!;
+      info.downloadProgress.downloadStatus = DownloadStatus.downloading;
+
+      /// can't reuse cancelToken across pause/resume
+      info.cancelToken = CancelToken();
+      info.speedComputer.start();
+
+      for (GalleryImageIndex? idx in info.imageIndices) {
+        if (idx?.downloadStatus == DownloadStatus.paused) {
+          idx?.downloadStatus = DownloadStatus.downloading;
+          update(['$downloadImageId::${gallery.gid}']);
+        }
+      }
+
+      _saveGalleryMetadataInDisk(gallery);
+      update(['$galleryDownloadProgressId::${gallery.gid}']);
+
+      /// Re-submit the gallery task — single-launch, no per-image await needed.
+      _submitTask(
+        gid: info.gid,
+        priority: _computeGalleryTaskPriority(info),
+        task: GalleryDownloadTaskRunner(this, info).downloadGalleryTask(),
+      );
+    }
   }
 
   Future<void> resumeDownloadGalleryByGid(int gid) async {
@@ -486,6 +601,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     galleryDownloadInfos[gallery.gid]!.priority = priority;
+    _invalidateGallerysCache();
 
     if (galleryDownloadInfos[gallery.gid]?.downloadProgress.downloadStatus == DownloadStatus.downloading) {
       await pauseDownloadGallery(gallery);
@@ -519,13 +635,14 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     galleryDownloadInfos[gallery.gid]?.group = group;
+    _invalidateGallerysCache();
     _saveGalleryMetadataInDisk(gallery);
 
     return true;
   }
 
   Future<void> renameGroup(String oldGroup, String newGroup) async {
-    List<GalleryDownloadInfo> gallerysInGroup = gallerys.where((g) => g.group == oldGroup).toList();
+    List<GalleryDownloadInfo> gallerysInGroup = gallerysWithGroup(oldGroup);
 
     await appDb.transaction(() async {
       if (!allGroups.contains(newGroup) && !await _addGroup(newGroup)) {
@@ -543,6 +660,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       await _deleteGroup(oldGroup);
     });
 
+    _invalidateGallerysCache();
   }
 
   Future<void> deleteGroup(String group) {
@@ -558,6 +676,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       }
     });
 
+    _invalidateGallerysCache();
 
     for (GalleryDownloadInfo gallery in gallerys) {
       _saveGalleryMetadataInDisk(gallery);
@@ -1018,6 +1137,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       onSpeedUpdate: () => update(['$galleryDownloadSpeedComputerId::${gallery.gid}']),
     );
 
+    _invalidateGallerysCache();
     update([galleryCountChangedId, '$galleryDownloadProgressId::${gallery.gid}']);
   }
 
@@ -1026,6 +1146,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     GalleryDownloadInfo? galleryDownloadInfo = galleryDownloadInfos.remove(gallery.gid);
     galleryDownloadInfo?._speedComputer?.dispose();
 
+    _invalidateGallerysCache();
     update([galleryCountChangedId, '$galleryDownloadProgressId::${gallery.gid}']);
   }
 

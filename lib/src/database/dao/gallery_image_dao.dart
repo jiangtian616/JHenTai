@@ -70,6 +70,17 @@ class GalleryImageDao {
         .write(ImageCompanion(downloadStatusIndex: Value(toStatusIndex)));
   }
 
+  /// Batch-update image status across multiple galleries: all images whose
+  /// status matches [from] AND whose gid is in [gids] are updated to [to].
+  /// Used by pauseAll/resumeAll to avoid N per-gallery DB round-trips.
+  static Future<int> updateImageStatusByGids(Iterable<int> gids, int fromStatusIndex, int toStatusIndex) {
+    final gidList = gids.toList();
+    if (gidList.isEmpty) return Future.value(0);
+    return (appDb.update(appDb.image)
+          ..where((tbl) => tbl.downloadStatusIndex.equals(fromStatusIndex) & tbl.gid.isIn(gidList)))
+        .write(ImageCompanion(downloadStatusIndex: Value(toStatusIndex)));
+  }
+
   static Future<int> resetImageUrl(int gid, int imageIndex) {
     return (appDb.update(appDb.image)..where((tbl) => tbl.gid.equals(gid) & tbl.serialNo.equals(imageIndex))).write(const ImageCompanion(url: Value.absent()));
   }
