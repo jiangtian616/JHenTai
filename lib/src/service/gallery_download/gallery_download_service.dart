@@ -92,10 +92,11 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     _gallerysCache = null;
   }
 
-  /// Filter galleries by group directly from the map — skips the sort that
-  /// [gallerys] would trigger. Caller sorts the (smaller) result if needed.
+  /// Filter galleries by group from the cached sorted [gallerys] list —
+  /// result preserves the canonical sort order. O(N) walk of the cache,
+  /// no extra sort.
   List<GalleryDownloadInfo> gallerysWithGroup(String group) {
-    return galleryDownloadInfos.values.where((g) => g.group == group).toList();
+    return gallerys.where((g) => g.group == group).toList();
   }
 
   static const int _maxRetryTimes = 3;

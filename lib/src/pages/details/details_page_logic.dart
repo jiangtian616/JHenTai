@@ -347,7 +347,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   Future<void> handleTapDownload() async {
-    GalleryDownloadInfo? galleryDownloadedData = galleryDownloadService.gallerys.singleWhereOrNull((g) => g.gid == state.galleryUrl.gid);
+    GalleryDownloadInfo? galleryDownloadedData = galleryDownloadService.galleryDownloadInfos[state.galleryUrl.gid];
     GalleryDownloadProgress? downloadProgress = galleryDownloadService.galleryDownloadInfos[state.galleryUrl.gid]?.downloadProgress;
 
     /// new download
@@ -1026,7 +1026,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
 
     /// use GalleryDownloadedData's title
-    GalleryDownloadInfo gallery = galleryDownloadService.gallerys.firstWhere((g) => g.gid == state.galleryUrl.gid);
+    GalleryDownloadInfo gallery = galleryDownloadService.galleryDownloadInfos[state.galleryUrl.gid]!;
 
     if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
       openThirdPartyViewer(DownloadPathResolver.computeGalleryDownloadAbsolutePath(gallery.toGalleryDownloadedData()));

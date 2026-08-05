@@ -250,7 +250,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
     }
 
     if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
-      GalleryDownloadInfo galleryData = galleryDownloadService.gallerys.firstWhere((g) => g.gid == gallery.gid);
+      GalleryDownloadInfo galleryData = galleryDownloadService.galleryDownloadInfos[gallery.gid]!;
       openThirdPartyViewer(DownloadPathResolver.computeGalleryDownloadAbsolutePath(galleryData.toGalleryDownloadedData()));
     } else {
       String? string = await localConfigService.read(configKey: ConfigEnum.readIndexRecord, subConfigKey: gallery.gid.toString());

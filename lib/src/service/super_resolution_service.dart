@@ -256,7 +256,7 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
 
     String dirPath;
     if (type == SuperResolutionType.gallery) {
-      GalleryDownloadInfo? gallery = galleryDownloadService.gallerys.firstWhereOrNull((g) => g.gid == gid);
+      GalleryDownloadInfo? gallery = galleryDownloadService.galleryDownloadInfos[gid];
       if (gallery == null) {
         return;
       }
