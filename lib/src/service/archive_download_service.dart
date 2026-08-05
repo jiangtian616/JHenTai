@@ -259,43 +259,6 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     }
   }
 
-  Future<void> migrate2Gallery(int gid) async {
-    ArchiveDownloadedData? archive = archives.firstWhereOrNull((archive) => archive.gid == gid);
-    if (archive == null) {
-      log.error('Archive not found: $gid');
-      return;
-    }
-
-    ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadInfos[archive.gid]!;
-    if (archiveDownloadInfo.archiveStatus != ArchiveStatus.completed) {
-      log.error('Archive not completed: $gid');
-      return;
-    }
-
-    GalleryDownloadRequest galleryDownloadRequest = GalleryDownloadRequest(
-      gid: archive.gid,
-      token: archive.token,
-      title: archive.title,
-      category: archive.category,
-      pageCount: archive.pageCount,
-      galleryUrl: archive.galleryUrl,
-      uploader: archive.uploader,
-      publishTime: archive.publishTime,
-      downloadOriginalImage: archive.isOriginal,
-      group: archiveDownloadInfo.group,
-      tags: archive.tags,
-      tagRefreshTime: archive.tagRefreshTime,
-    );
-    List<GalleryImage> images = await getUnpackedImages(gid);
-
-    if (images.length != archive.pageCount) {
-      log.error('Unpacked images count not equal to page count: ${images.length} != ${archive.pageCount}');
-      return;
-    }
-
-    return galleryDownloadService.importGallery(galleryDownloadRequest, images);
-  }
-
   Future<bool> updateArchiveGroup(int gid, String group) async {
     ArchiveDownloadInfo? archiveDownloadInfo = archiveDownloadInfos[gid];
     if (archiveDownloadInfo == null) {

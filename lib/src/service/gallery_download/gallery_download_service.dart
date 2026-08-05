@@ -485,61 +485,6 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     downloadGallery(newGalleryRequest);
   }
 
-  Future<void> importGallery(GalleryDownloadRequest request, List<GalleryImage> images) async {
-    if (containGallery(request.gid)) {
-      return;
-    }
-
-    log.info('Import gallery: ${request.title}');
-
-    _ensureDownloadDirExists();
-
-    GalleryDownloadedData gallery = _toGalleryDownloadedData(request, DownloadStatus.downloaded);
-
-    io.Directory galleryDir = io.Directory(DownloadPathResolver.computeGalleryDownloadAbsolutePath(gallery));
-    if (!galleryDir.existsSync()) {
-      galleryDir.createSync(recursive: true);
-    }
-
-    List<Future> futures = [];
-    List<GalleryImage> copiedImages = [];
-    for (int i = 0; i < images.length; i++) {
-      GalleryImage image = images[i];
-      String oldPath = DownloadPathResolver.computeImageDownloadAbsolutePathFromRelativePath(image.path!);
-      String newPath = DownloadPathResolver.computeImageDownloadAbsolutePath(gallery, image.url, i);
-      futures.add(io.File(oldPath).copy(newPath));
-
-      copiedImages.add(image.copyWith(path: DownloadPathResolver.computeImageDownloadRelativePath(gallery, image.url, i)));
-    }
-
-    await Future.wait(futures);
-
-    if (!await _restoreInfoInDatabase(gallery, copiedImages)) {
-      log.error('Import gallery failed: ${gallery.title}');
-      _clearGalleryDownloadInfoInDatabase(gallery.gid);
-      return;
-    }
-
-    _initGalleryInfoInMemoryWithIndices(
-      gallery,
-      copiedImages
-          .asMap()
-          .map((i, img) => MapEntry(
-              i,
-              GalleryImageIndex(
-                serialNo: i,
-                url: img.url,
-                path: img.path,
-                downloadStatus: img.downloadStatus,
-                imageHash: img.imageHash,
-              )))
-          .values
-          .toList(),
-    );
-
-    _saveGalleryMetadataInDisk(galleryDownloadInfos[gallery.gid]!);
-  }
-
   Future<void> reDownloadGalleryByGid(int gid) async {
     GalleryDownloadInfo? gallery = _findGalleryByGid(gid);
     if (gallery != null) {
