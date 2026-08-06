@@ -134,7 +134,7 @@ class ArchiveGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
             (archive) => GetBuilder<ArchiveDownloadService>(
               id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
               builder: (_) {
-                Widget cover = buildGroupInnerImage(GalleryImage(serialNo: 0, url: archive.coverUrl));
+                Widget cover = buildGroupInnerImage(GalleryImage(url: archive.coverUrl));
 
                 if (archiveDownloadService.archiveDownloadInfos[archive.gid]?.archiveStatus == ArchiveStatus.completed) {
                   return cover;
@@ -172,7 +172,7 @@ class ArchiveGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
           return GetBuilder<ArchiveDownloadService>(
             id: '${ArchiveDownloadService.archiveStatusId}::${archive.gid}',
             builder: (_) {
-              Widget cover = buildGalleryImage(GalleryImage(serialNo: 0, url: archive.coverUrl));
+              Widget cover = buildGalleryImage(GalleryImage(url: archive.coverUrl));
 
               if (archiveDownloadService.archiveDownloadInfos[archive.gid]?.archiveStatus == ArchiveStatus.completed) {
                 if (state.selectedGids.contains(archive.gid)) {

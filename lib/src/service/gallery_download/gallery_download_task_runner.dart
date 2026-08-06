@@ -248,7 +248,6 @@ class GalleryDownloadTaskRunner {
       /// gallery's `downloadOriginalImage` flag. The parser fills both `url`
       /// (regular) and `originalImageUrl` (original); the model itself has no
       /// opinion about which one to use.
-      image.serialNo = serialNo;
       final String downloadUrl = image.downloadUrlFor(gallery.downloadOriginalImage);
       image.path = DownloadPathResolver.computeImageDownloadRelativePath(gallery.toGalleryDownloadedData(), downloadUrl, serialNo);
       image.downloadStatus = DownloadStatus.downloading;

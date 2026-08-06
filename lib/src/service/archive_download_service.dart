@@ -453,7 +453,6 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       return imageFiles
           .map(
             (file) => GalleryImage(
-              serialNo: 0,
               url: '',
               path: relative(file.path, from: pathService.getVisibleDir().path),
               downloadStatus: DownloadStatus.downloaded,

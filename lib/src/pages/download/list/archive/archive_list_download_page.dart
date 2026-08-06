@@ -250,7 +250,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
         arguments: DetailsPageArgument(galleryUrl: GalleryUrl.parse(archive.galleryUrl)),
       ),
       child: EHImage(
-        galleryImage: GalleryImage(serialNo: 0, url: archive.coverUrl),
+        galleryImage: GalleryImage(url: archive.coverUrl),
         containerWidth: UIConfig.downloadPageCoverWidth,
         containerHeight: UIConfig.downloadPageCoverHeight,
         borderRadius: BorderRadius.circular(UIConfig.downloadPageCardBorderRadius),

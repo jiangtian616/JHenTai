@@ -754,7 +754,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       for (int serialNo = 0; serialNo < images.length && serialNo < gallery.pageCount; serialNo++) {
         final GalleryImage? img = images[serialNo];
         if (img != null) {
-          restoredImages[serialNo] = img.copyWith(serialNo: serialNo);
+          restoredImages[serialNo] = img;
         }
       }
 
@@ -1484,7 +1484,7 @@ class GalleryDownloadInfo implements Comparable<GalleryDownloadInfo> {
     required VoidCallback onSpeedUpdate,
   })  : _onSpeedUpdate = onSpeedUpdate,
         images = images,
-        coverImage = coverImage ?? images?.firstWhereOrNull((e) => e?.serialNo == 0);
+        coverImage = coverImage ?? (images == null || images.isEmpty ? null : images[0]);
 
   /// Lazy-load the full [images] list from DB. Idempotent + concurrent-safe:
   /// concurrent callers share the same [_imagesLoadingFuture]. After evict
@@ -1502,7 +1502,6 @@ class GalleryDownloadInfo implements Comparable<GalleryDownloadInfo> {
     for (final d in rows) {
       if (d.serialNo < pageCount) {
         loaded[d.serialNo] = GalleryImage(
-          serialNo: d.serialNo,
           url: d.url,
           originalImageUrl: d.originalImageUrl,
           path: d.path,

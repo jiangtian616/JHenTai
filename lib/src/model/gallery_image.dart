@@ -2,9 +2,6 @@ import '../database/database.dart';
 import '../service/gallery_download/gallery_download_service.dart';
 
 class GalleryImage {
-  /// Mutable so callers (parsers, migrators) can set it after construction
-  /// when the serialNo isn't known at parse time.
-  int serialNo;
   String url;
   double? height;
   double? width;
@@ -21,7 +18,6 @@ class GalleryImage {
   DownloadStatus downloadStatus;
 
   GalleryImage({
-    required this.serialNo,
     required this.url,
     this.height,
     this.width,
@@ -36,7 +32,6 @@ class GalleryImage {
 
   Map<String, dynamic> toJson() {
     return {
-      "serialNo": serialNo,
       "url": url,
       "height": height,
       "width": width,
@@ -52,7 +47,6 @@ class GalleryImage {
 
   factory GalleryImage.fromJson(Map<String, dynamic> json) {
     return GalleryImage(
-      serialNo: json["serialNo"] ?? 0,
       url: json["url"],
       height: json["height"],
       width: json["width"],
@@ -70,7 +64,6 @@ class GalleryImage {
   /// and on first gallery access to lazy-load the full image list.
   factory GalleryImage.fromImageData(ImageData d) {
     return GalleryImage(
-      serialNo: d.serialNo,
       url: d.url,
       originalImageUrl: d.originalImageUrl,
       path: d.path,
@@ -80,7 +73,6 @@ class GalleryImage {
   }
 
   GalleryImage copyWith({
-    int? serialNo,
     String? url,
     double? height,
     double? width,
@@ -92,7 +84,6 @@ class GalleryImage {
     DownloadStatus? downloadStatus,
   }) {
     return GalleryImage(
-      serialNo: serialNo ?? this.serialNo,
       url: url ?? this.url,
       height: height ?? this.height,
       width: width ?? this.width,
@@ -118,6 +109,6 @@ class GalleryImage {
 
   @override
   String toString() {
-    return 'GalleryImage{serialNo: $serialNo, url: $url, height: $height, width: $width, originalImageUrl: $originalImageUrl, originalImageHeight: $originalImageHeight, originalImageWidth: $originalImageWidth, reloadKey: $reloadKey, path: $path, imageHash: $imageHash, downloadStatus: $downloadStatus}';
+    return 'GalleryImage{url: $url, height: $height, width: $width, originalImageUrl: $originalImageUrl, originalImageHeight: $originalImageHeight, originalImageWidth: $originalImageWidth, reloadKey: $reloadKey, path: $path, imageHash: $imageHash, downloadStatus: $downloadStatus}';
   }
 }

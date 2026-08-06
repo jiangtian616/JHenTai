@@ -60,7 +60,6 @@ class GalleryUpgradeMigrator {
       /// gallery so the extension matches.
       final String oldDownloadUrl = oldImage.downloadUrlFor(oldGallery.downloadOriginalImage);
       GalleryImage newImage = oldImage.copyWith(
-        serialNo: serialNo,
         path: DownloadPathResolver.computeImageDownloadRelativePath(newGallery.toGalleryDownloadedData(), oldDownloadUrl, serialNo),
         downloadStatus: DownloadStatus.downloaded,
       );
@@ -149,7 +148,6 @@ class GalleryUpgradeMigrator {
     if (preSaveNewImage) {
       final String oldDownloadUrl = oldImage.downloadUrlFor(oldGallery.downloadOriginalImage);
       GalleryImage newImage = oldImage.copyWith(
-        serialNo: newImageSerialNo,
         path: DownloadPathResolver.computeImageDownloadRelativePath(newGallery.toGalleryDownloadedData(), oldDownloadUrl, newImageSerialNo),
         downloadStatus: newImageDownloadStatus!,
       );

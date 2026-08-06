@@ -412,7 +412,7 @@ class DownloadSearchPage extends StatelessWidget {
         arguments: DetailsPageArgument(galleryUrl: GalleryUrl.parse(archive.galleryUrl)),
       ),
       child: EHImage(
-        galleryImage: GalleryImage(serialNo: 0, url: archive.coverUrl),
+        galleryImage: GalleryImage(url: archive.coverUrl),
         containerWidth: UIConfig.downloadSearchPageCoverWidth,
         containerHeight: UIConfig.downloadSearchPageCoverHeight,
         containerColor: UIConfig.galleryCardBackGroundColor(context),
