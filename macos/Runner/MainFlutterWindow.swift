@@ -1,21 +1,25 @@
 import Cocoa
 import FlutterMacOS
+import macos_window_utils
 import window_manager
 
 class MainFlutterWindow: NSWindow {
   override func awakeFromNib() {
-    let flutterViewController = FlutterViewController.init()
     let windowFrame = self.frame
-    self.contentViewController = flutterViewController
+    let macOSWindowUtilsViewController = MacOSWindowUtilsViewController()
+    self.contentViewController = macOSWindowUtilsViewController
     self.setFrame(windowFrame, display: true)
 
-    RegisterGeneratedPlugins(registry: flutterViewController)
+    /* Initialize the macos_window_utils plugin */
+    MainFlutterWindowManipulator.start(mainFlutterWindow: self)
+
+    RegisterGeneratedPlugins(registry: macOSWindowUtilsViewController.flutterViewController)
 
     super.awakeFromNib()
   }
-  
+
   override public func order(_ place: NSWindow.OrderingMode, relativeTo otherWin: Int) {
-      super.order(place, relativeTo: otherWin)
-      hiddenWindowAtLaunch()
-   }
+    super.order(place, relativeTo: otherWin)
+    hiddenWindowAtLaunch()
+  }
 }

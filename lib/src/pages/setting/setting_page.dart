@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import '../../config/ui_config.dart';
 import '../../setting/user_setting.dart';
+import '../../utils/app_icons.dart';
 import '../../utils/route_util.dart';
 import '../layout/mobile_v2/notification/tap_menu_button_notification.dart';
 
@@ -17,12 +19,12 @@ class SettingPage extends StatelessWidget {
         centerTitle: true,
         title: Text('setting'.tr),
         leading: showMenuButton
-            ? IconButton(icon: Icon(Icons.menu, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context))
+            ? IconButton(icon: Icon(AppIcons.menu, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context))
             : null,
       ),
       body: Obx(
         () => ListView(
-          padding: const EdgeInsets.only(top: 12),
+          padding: EdgeInsets.only(top: 12, bottom: UIConfig.liquidGlassNavContentInset(context)),
           children: [
             ListTile(
               leading: const Icon(Icons.account_circle),

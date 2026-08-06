@@ -322,6 +322,7 @@ class zh_CN {
       'light': '明亮',
       'followSystem': '跟随系统',
       'themeColor': '主题颜色',
+      'themeColorFixedOnApple': 'macOS / iOS 使用固定强调色',
       'listStyle': '画廊列表样式(全局)',
       'flat': '平坦',
       'flatWithoutTags': '平坦 - 无标签',

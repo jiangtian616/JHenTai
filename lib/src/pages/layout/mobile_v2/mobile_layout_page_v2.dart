@@ -3,6 +3,7 @@ import 'package:collection/collection.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2_logic.dart';
@@ -13,8 +14,11 @@ import 'package:jhentai/src/pages/setting/setting_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/quick_search_service.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
+import 'package:jhentai/src/utils/app_icons.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/widget/will_pop_interceptor.dart';
+
+import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 
 import '../../../network/eh_request.dart';
 import '../../../setting/preference_setting.dart';
@@ -38,8 +42,18 @@ class MobileLayoutPageV2 extends StatelessWidget {
           drawerEnableOpenDragGesture: preferenceSetting.enableLeftMenuDrawerGesture.isTrue,
           endDrawer: buildRightDrawer(),
           endDrawerEnableOpenDragGesture: preferenceSetting.enableQuickSearchDrawerGesture.isTrue,
-          body: buildBody(),
-          bottomNavigationBar: preferenceSetting.hideBottomBar.isTrue ? null : buildBottomNavigationBar(context),
+          body: ThemeConfig.isApple
+              ? Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    buildBody(),
+                    if (!preferenceSetting.hideBottomBar.value) buildLiquidGlassBottomNavigationBar(context),
+                  ],
+                )
+              : buildBody(),
+          bottomNavigationBar: ThemeConfig.isApple
+              ? null
+              : (preferenceSetting.hideBottomBar.isTrue ? null : buildBottomNavigationBar(context)),
         ),
       ),
     );
@@ -100,6 +114,30 @@ class MobileLayoutPageV2 extends StatelessWidget {
             NavigationDestination(icon: const Icon(Icons.home), label: 'home'.tr),
             NavigationDestination(icon: const Icon(Icons.download), label: 'download'.tr),
             NavigationDestination(icon: const Icon(Icons.settings), label: 'setting'.tr),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildLiquidGlassBottomNavigationBar(BuildContext context) {
+    return GetBuilder<MobileLayoutPageV2Logic>(
+      id: logic.bottomNavigationBarId,
+      builder: (_) => LayoutBuilder(
+        builder: (context, constraints) => LiquidGlassBottomNavBar.withImpeller(
+          selectedIndex: state.selectedNavigationIndex,
+          onChanged: logic.handleTapNavigationBarButton,
+          width: (constraints.maxWidth - 32).clamp(0, 420),
+          height: UIConfig.liquidGlassNavBarHeight,
+          margin: EdgeInsets.only(bottom: UIConfig.liquidGlassNavBarMarginBottom),
+          style: LiquidGlassStyle(
+            appearance: const LiquidGlassAppearance(color: Colors.transparent),
+            refraction: const LiquidGlassRefraction(distortion: 0.02, chromaticAberration: 0.0),
+          ),
+          items: [
+            LiquidGlassTabBarItem(icon: AppIcons.home, selectedIcon: AppIcons.homeFill, label: 'home'.tr),
+            LiquidGlassTabBarItem(icon: AppIcons.download, selectedIcon: AppIcons.downloadFill, label: 'download'.tr),
+            LiquidGlassTabBarItem(icon: AppIcons.settings, selectedIcon: AppIcons.settingsFill, label: 'setting'.tr),
           ],
         ),
       ),

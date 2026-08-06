@@ -48,7 +48,11 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       appBar: buildAppBar(context),
       body: buildBody(context),
       floatingActionButton: buildFloatingActionButton(),
-      bottomNavigationBar: buildBottomAppBar(),
+      floatingActionButtonLocation: GlassAwareFloatingActionButtonLocation(UIConfig.liquidGlassNavBarRaise(context)),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.only(bottom: UIConfig.liquidGlassNavContentInset(context)),
+        child: buildBottomAppBar(),
+      ),
     );
   }
 
@@ -147,6 +151,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                     maxGalleryNum4Animation: performanceSetting.maxGalleryNum4Animation.value,
                     scrollController: state.scrollController,
                     controller: state.groupedListController,
+                    bottomPadding: UIConfig.liquidGlassNavContentInset(context),
                     groups: Map.fromEntries(archiveDownloadService.allGroups.map((e) => MapEntry(e, state.displayGroups.contains(e)))),
                     elements: archiveDownloadService.archives,
                     elementGroup: (ArchiveDownloadedData archive) => archiveDownloadService.archiveDownloadInfos[archive.gid]!.group,

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/service/log.dart';
+import 'package:jhentai/src/utils/app_icons.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
 import '../../config/ui_config.dart';
@@ -69,7 +70,7 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
 
   Widget buildAppBarMenuButton(BuildContext context) {
     return IconButton(
-      icon: Icon(Icons.menu, size: 20),
+      icon: Icon(AppIcons.menu, size: 20),
       onPressed: () => TapMenuButtonNotification().dispatch(context),
     );
   }
@@ -77,8 +78,8 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
   List<Widget> buildAppBarActions() {
     return [
       if (showJumpButton && state.gallerys.isNotEmpty)
-        IconButton(icon: Icon(Icons.send, size: 20), onPressed: logic.handleTapJumpButton),
-      if (showFilterButton) IconButton(icon: const Icon(Icons.filter_alt_outlined, size: 28), onPressed: logic.handleTapFilterButton),
+        IconButton(icon: Icon(AppIcons.jump, size: 20), onPressed: logic.handleTapJumpButton),
+      if (showFilterButton) IconButton(icon: Icon(AppIcons.filter, size: 28), onPressed: logic.handleTapFilterButton),
     ];
   }
 
@@ -105,7 +106,7 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
                   slivers: <Widget>[
                     buildPullDownIndicator(),
                     buildGalleryCollection(context),
-                    buildLoadMoreIndicator(),
+                    buildLoadMoreIndicator(context),
                   ],
                 ),
               ),
@@ -141,9 +142,9 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
     );
   }
 
-  Widget buildLoadMoreIndicator() {
+  Widget buildLoadMoreIndicator(BuildContext context) {
     return SliverPadding(
-      padding: const EdgeInsets.only(top: 16, bottom: 40),
+      padding: EdgeInsets.only(top: 16, bottom: 40 + UIConfig.liquidGlassNavContentInset(context)),
       sliver: SliverToBoxAdapter(
         child: GetBuilder<L>(
           id: logic.loadingStateId,

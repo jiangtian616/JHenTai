@@ -323,6 +323,7 @@ class en_US {
       'light': 'Light',
       'followSystem': 'Follow System',
       'themeColor': 'Theme Color',
+      'themeColorFixedOnApple': 'Fixed accent on macOS / iOS',
       'listStyle': 'Gallery List Style (Global)',
       'flat': 'Flat',
       'flatWithoutTags': 'Flat(Without Tags)',

@@ -324,6 +324,7 @@ class pt_BR {
       'light': 'Claro',
       'followSystem': 'Seguir o sistema',
       'themeColor': 'Theme Color',
+      'themeColorFixedOnApple': 'Cor de destaque fixa no macOS / iOS',
       'listStyle': 'Estilo da lista da galeria',
       'flat': 'Reto',
       'flatWithoutTags': 'Reto(Sem tags)',

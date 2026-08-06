@@ -55,7 +55,11 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       appBar: buildAppBar(context),
       body: buildBody(context),
       floatingActionButton: buildFloatingActionButton(),
-      bottomNavigationBar: buildBottomAppBar(),
+      floatingActionButtonLocation: GlassAwareFloatingActionButtonLocation(UIConfig.liquidGlassNavBarRaise(context)),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.only(bottom: UIConfig.liquidGlassNavContentInset(context)),
+        child: buildBottomAppBar(),
+      ),
     );
   }
 
@@ -154,6 +158,7 @@ class GalleryListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
                     maxGalleryNum4Animation: performanceSetting.maxGalleryNum4Animation.value,
                     scrollController: state.scrollController,
                     controller: state.groupedListController,
+                    bottomPadding: UIConfig.liquidGlassNavContentInset(context),
                     groups: Map.fromEntries(logic.downloadService.allGroups.map((e) => MapEntry(e, state.displayGroups.contains(e)))),
                     elements: logic.downloadService.gallerys,
                     elementGroup: (GalleryDownloadedData gallery) => logic.downloadService.galleryDownloadInfos[gallery.gid]!.group,

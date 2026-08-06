@@ -327,6 +327,7 @@ class ru_RU {
       'light': 'Светлая',
       'followSystem': 'Как в системе',
       'themeColor': 'Цвет темы',
+      'themeColorFixedOnApple': 'Фиксированный акцентный цвет на macOS / iOS',
       'listStyle': 'Стиль списка галерей (Глобально)',
       'flat': 'Плоский',
       'flatWithoutTags': 'Плоский (Без тегов)',

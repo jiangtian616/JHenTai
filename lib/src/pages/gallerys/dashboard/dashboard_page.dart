@@ -70,7 +70,7 @@ class DashboardPage extends BasePage {
               _buildPopular(),
               _buildGalleryDesc(context),
               _buildGalleryBody(context),
-              super.buildLoadMoreIndicator(),
+              super.buildLoadMoreIndicator(context),
             ],
           ),
         ),

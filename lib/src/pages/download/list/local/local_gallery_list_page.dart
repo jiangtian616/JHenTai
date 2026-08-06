@@ -33,8 +33,9 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(context),
-      body: buildBody(),
+      body: buildBody(context),
       floatingActionButton: buildFloatingActionButton(),
+      floatingActionButtonLocation: GlassAwareFloatingActionButtonLocation(UIConfig.liquidGlassNavBarRaise(context)),
     );
   }
 
@@ -80,7 +81,7 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  Widget buildBody() {
+  Widget buildBody(BuildContext context) {
     return GetBuilder<LocalGalleryService>(
       id: localGalleryService.galleryCountChangedId,
       builder: (_) => GetBuilder<LocalGalleryListPageLogic>(
@@ -93,7 +94,7 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
               controller: state.scrollController,
               child: ListView.builder(
                 controller: state.scrollController,
-                padding: const EdgeInsets.only(bottom: 80),
+                padding: EdgeInsets.only(bottom: 80 + UIConfig.liquidGlassNavContentInset(context)),
                 itemCount: logic.computeItemCount(),
                 itemBuilder: (context, index) {
                   if (logic.isAtRootPath) {

@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:jhentai/src/config/theme_config.dart';
+import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
@@ -43,6 +45,25 @@ class UIConfig {
   
   static const Color defaultLightThemeColor = Color(0xFF6750A4);
   static const Color defaultDarkThemeColor = Color(0xFFD0BCFF);
+
+  /// Liquid Glass bottom bar geometry (kept in sync with the bar in mobile_layout_page_v2.dart).
+  static const double liquidGlassNavBarHeight = 64;
+  static const double liquidGlassNavBarMarginBottom = 24;
+
+  /// The floating glass capsule's footprint above the safe-area inset
+  /// (bar height + bottom margin). 0 on desktop and non-Apple platforms.
+  static double liquidGlassNavBarRaise(BuildContext context) {
+    if (!ThemeConfig.isApple || styleSetting.isInDesktopLayout || preferenceSetting.hideBottomBar.value) {
+      return 0;
+    }
+    return liquidGlassNavBarHeight + liquidGlassNavBarMarginBottom;
+  }
+
+  /// Bottom content inset so a scrollable's last row clears the floating Liquid Glass
+  /// bar. Non-zero only on Apple mobile/tablet layouts where the bar overlays content;
+  /// 0 on desktop and non-Apple platforms.
+  static double liquidGlassNavContentInset(BuildContext context) =>
+      liquidGlassNavBarRaise(context) + MediaQuery.of(context).padding.bottom;
 
   static const Map<String, Color> galleryCategoryColor = {
     'Doujinshi': Color(0xfffc4e4e),
@@ -163,6 +184,13 @@ class UIConfig {
   static Color layoutDividerColor(BuildContext context) => Theme.of(context).colorScheme.surfaceContainerHighest;
 
   static Color desktopLeftTabIconColor(BuildContext context) => Theme.of(context).colorScheme.onSurface;
+
+  /// macOS sidebar background (light / dark).
+  static const Color desktopSideBarColorLight = Color(0xFFECECEC);
+  static const Color desktopSideBarColorDark = Color(0xFF2A2A2A);
+
+  static Color desktopSideBarColor(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark ? desktopSideBarColorDark : desktopSideBarColorLight;
   static const double desktopTitleBarHeight = 32;
   static const double desktopFullScreenTopPadding = 12;
   static const double desktopLeftTabBarWidth = 56;
@@ -656,6 +684,25 @@ class UIConfig {
 
   /// blocking rule page
   static Color blockingRulePageHelpTextColor(BuildContext context) => Colors.grey.shade600;
+}
+
+/// Positions the [FloatingActionButton] above the floating Liquid Glass bar
+/// (Apple mobile/tablet layouts), keeping the default endFloat geometry otherwise.
+class GlassAwareFloatingActionButtonLocation extends FloatingActionButtonLocation {
+  final double glassRaise;
+
+  const GlassAwareFloatingActionButtonLocation(this.glassRaise);
+
+  @override
+  Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry) {
+    final double fabX = scaffoldGeometry.scaffoldSize.width - scaffoldGeometry.floatingActionButtonSize.width - 16;
+    final double fabY = scaffoldGeometry.scaffoldSize.height -
+        scaffoldGeometry.floatingActionButtonSize.height -
+        scaffoldGeometry.minInsets.bottom -
+        16 -
+        glassRaise;
+    return Offset(fabX, fabY);
+  }
 }
 
 class EHScrollBehaviourWithScrollBar extends MaterialScrollBehavior {

@@ -27,6 +27,9 @@ class GroupedList<G, E> extends StatefulWidget {
 
   final GroupedListController? controller;
 
+  /// Extra trailing scroll extent (e.g. to clear a floating bottom bar).
+  final double bottomPadding;
+
   const GroupedList({
     Key? key,
     required this.groups,
@@ -39,6 +42,7 @@ class GroupedList<G, E> extends StatefulWidget {
     required this.maxGalleryNum4Animation,
     this.scrollController,
     this.controller,
+    this.bottomPadding = 0,
   }) : super(key: key);
 
   @override
@@ -149,7 +153,11 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
       child: CustomScrollView(
         controller: scrollController,
         scrollCacheExtent: ScrollCacheExtent.pixels(200),
-        slivers: _buildSlivers(context),
+        slivers: [
+          ..._buildSlivers(context),
+          if (widget.bottomPadding > 0)
+            SliverPadding(padding: EdgeInsets.only(bottom: widget.bottomPadding)),
+        ],
       ),
     );
   }

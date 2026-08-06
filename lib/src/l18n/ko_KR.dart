@@ -323,6 +323,7 @@ class ko_KR {
       'light': '밝은 모드',
       'followSystem': '시스템에 따라',
       'themeColor': '테마 색상',
+      'themeColorFixedOnApple': 'macOS / iOS에서 고정 강조색 사용',
       'listStyle': '갤러리 리스트 스타일 (기본값)',
       'flat': '플랫',
       'flatWithoutTags': '플랫(태그 없음)',

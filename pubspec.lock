@@ -958,6 +958,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
+  liquid_glass_easy:
+    dependency: "direct main"
+    description:
+      name: liquid_glass_easy
+      sha256: "7b5980233a8502bc655225c666ae7bebed1b2e0217460167f8a4ab32f78fb69f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.5.0"
   loading_animation_widget:
     dependency: "direct main"
     description:
@@ -1022,6 +1030,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.0"
+  macos_window_utils:
+    dependency: "direct main"
+    description:
+      name: macos_window_utils
+      sha256: cb918e1ff0b31fdaa5cd8631eded7c24bd72e1025cf1f95c819e483f0057c652
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.9.1"
   matcher:
     dependency: "direct overridden"
     description:

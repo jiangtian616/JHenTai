@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_resizable_container/flutter_resizable_container.dart';
 import 'package:get/get.dart';
+import 'package:macos_window_utils/widgets/transparent_macos_sidebar.dart';
 import 'package:jhentai/src/pages/home_page.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_home_page.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_state.dart';
 
+import '../../../config/theme_config.dart';
 import '../../../config/ui_config.dart';
 import '../../../routes/routes.dart';
 import '../../../service/windows_service.dart';
@@ -23,7 +25,10 @@ class DesktopLayoutPage extends StatelessWidget {
     return Row(
       children: [
         _leftTabBar(context),
-        VerticalDivider(width: 1, color: UIConfig.layoutDividerColor(context)),
+        VerticalDivider(
+          width: 1,
+          color: ThemeConfig.isApple ? Theme.of(context).colorScheme.outline : UIConfig.layoutDividerColor(context),
+        ),
         Expanded(
           child: _buildDoubleColumn(context),
         ),
@@ -32,10 +37,14 @@ class DesktopLayoutPage extends StatelessWidget {
   }
 
   Widget _leftTabBar(BuildContext context) {
-    return Material(
+    final bool isMacOS = GetPlatform.isMacOS;
+    Widget bar = Material(
+      color: isMacOS ? Colors.transparent : null,
       child: Container(
         width: UIConfig.desktopLeftTabBarWidth,
-        color: UIConfig.backGroundColor(context),
+        color: isMacOS
+            ? UIConfig.desktopSideBarColor(context).withValues(alpha: 0.55)
+            : (ThemeConfig.isApple ? UIConfig.desktopSideBarColor(context) : UIConfig.backGroundColor(context)),
         child: GetBuilder<DesktopLayoutPageLogic>(
           id: logic.tabBarId,
           builder: (_) => ScrollConfiguration(
@@ -50,6 +59,13 @@ class DesktopLayoutPage extends StatelessWidget {
         ),
       ),
     );
+
+    if (isMacOS) {
+      /// Native macOS translucent sidebar (NSVisualEffectView .sidebar material),
+      /// showing the desktop through a frosted surface.
+      bar = TransparentMacOSSidebar(child: bar);
+    }
+    return bar;
   }
 
   Widget _tabBarIcon(BuildContext context, int index) {
@@ -61,16 +77,33 @@ class DesktopLayoutPage extends StatelessWidget {
         children: [
           Expanded(
             child: Center(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  border: state.selectedTabIndex == index ? Border(left: BorderSide(width: 3, color: UIConfig.desktopLeftTabIconColor(context))) : null,
-                ),
-                child: IconButton(
-                  onPressed: () => logic.handleTapTabBarButton(index),
-                  icon: state.selectedTabIndex == index ? state.icons[index].selectedIcon : state.icons[index].unselectedIcon,
-                  color: UIConfig.desktopLeftTabIconColor(context),
-                ),
-              ),
+              child: ThemeConfig.isApple
+                  ? Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 5),
+                      decoration: BoxDecoration(
+                        color: state.selectedTabIndex == index
+                            ? Theme.of(context).colorScheme.primary
+                            : (state.hoveringTabIndex == index ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.transparent),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: IconButton(
+                        onPressed: () => logic.handleTapTabBarButton(index),
+                        icon: state.selectedTabIndex == index ? state.icons[index].selectedIcon : state.icons[index].unselectedIcon,
+                        color: state.selectedTabIndex == index ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    )
+                  : DecoratedBox(
+                      decoration: BoxDecoration(
+                        border: state.selectedTabIndex == index
+                            ? Border(left: BorderSide(width: 3, color: UIConfig.desktopLeftTabIconColor(context)))
+                            : null,
+                      ),
+                      child: IconButton(
+                        onPressed: () => logic.handleTapTabBarButton(index),
+                        icon: state.selectedTabIndex == index ? state.icons[index].selectedIcon : state.icons[index].unselectedIcon,
+                        color: UIConfig.desktopLeftTabIconColor(context),
+                      ),
+                    ),
             ),
           ),
           SizedBox(

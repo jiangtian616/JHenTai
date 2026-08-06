@@ -39,7 +39,11 @@ mixin GridBasePage on StatelessWidget implements Scroll2TopPageMixin {
       appBar: buildAppBar(context),
       body: buildBody(context),
       floatingActionButton: buildFloatingActionButton(),
-      bottomNavigationBar: buildGridBottomAppBar(context),
+      floatingActionButtonLocation: GlassAwareFloatingActionButtonLocation(UIConfig.liquidGlassNavBarRaise(context)),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.only(bottom: UIConfig.liquidGlassNavContentInset(context)),
+        child: buildGridBottomAppBar(context),
+      ),
     );
   }
 
@@ -81,7 +85,7 @@ mixin GridBasePage on StatelessWidget implements Scroll2TopPageMixin {
               () => DraggableGridViewBuilder(
                 key: PageStorageKey(state.currentGroup),
                 controller: state.scrollController,
-                padding: const EdgeInsets.only(left: 12, right: 16, bottom: 24),
+                padding: EdgeInsets.only(left: 12, right: 16, bottom: 24 + UIConfig.liquidGlassNavContentInset(context)),
                 children: getChildren(context),
                 dragFeedback: (List<DraggableGridItem> list, int index) {
                   return SizedBox(

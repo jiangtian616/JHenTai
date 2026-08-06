@@ -322,6 +322,7 @@ class zh_TW {
       'light': '明亮',
       'followSystem': '跟隨系統',
       'themeColor': '主題顏色',
+      'themeColorFixedOnApple': 'macOS / iOS 使用固定強調色',
       'listStyle': '畫廊列表樣式(全域)',
       'flat': '平坦',
       'flatWithoutTags': '平坦 - 無標籤',

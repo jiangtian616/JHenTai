@@ -7,6 +7,7 @@ import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/utils/screen_size_util.dart';
 import 'package:throttling/throttling.dart';
+import 'package:macos_window_utils/macos_window_utils.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../setting/preference_setting.dart';
@@ -57,6 +58,12 @@ class WindowService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean 
       windowManager.waitUntilReadyToShow(windowOptions, () async {
         await windowManager.show();
         await windowManager.focus();
+        if (GetPlatform.isMacOS) {
+          /// Let the app draw a theme-colored strip under the native traffic
+          /// lights (native translucent sidebar + frosted window).
+          await WindowManipulator.makeTitlebarTransparent();
+          await WindowManipulator.enableFullSizeContentView();
+        }
         if (preferenceSetting.launchInFullScreen.isTrue) {
           await windowManager.setFullScreen(true);
         }

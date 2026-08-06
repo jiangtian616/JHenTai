@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:jhentai/src/utils/app_icons.dart';
 
 import '../../../model/jh_layout.dart';
 import '../../../routes/routes.dart';
@@ -53,9 +55,16 @@ class SettingStylePage extends StatelessWidget {
   }
 
   Widget _buildThemeColor() {
+    if (ThemeConfig.isApple) {
+      return ListTile(
+        title: Text('themeColor'.tr),
+        subtitle: Text('themeColorFixedOnApple'.tr),
+        enabled: false,
+      );
+    }
     return ListTile(
       title: Text('themeColor'.tr),
-      trailing: const Icon(Icons.keyboard_arrow_right),
+      trailing: Icon(AppIcons.chevronRight),
       onTap: () => toRoute(Routes.themeColor),
     );
   }
