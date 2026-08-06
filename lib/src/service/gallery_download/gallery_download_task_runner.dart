@@ -18,7 +18,6 @@ import 'package:jhentai/src/network/jh_request.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
-import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/jh_response_parser.dart';
 import 'package:retry/retry.dart';
 
@@ -220,7 +219,7 @@ class GalleryDownloadTaskRunner {
             reloadKey: reloadKey,
             cancelToken: galleryDownloadInfo.cancelToken,
             useCacheIfAvailable: !reParse,
-            parser: gallery.downloadOriginalImage && userSetting.hasLoggedIn() ? EHSpiderParser.imagePage2OriginalGalleryImage : EHSpiderParser.imagePage2GalleryImage,
+            parser: EHSpiderParser.imagePage2GalleryImage,
           ),
           retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
           onRetry: (e) => log.download('Parse image url failed, retry. Reason: ${(e as DioException).errorMsg}'),
@@ -245,14 +244,19 @@ class GalleryDownloadTaskRunner {
         return;
       }
 
-      image.path = DownloadPathResolver.computeImageDownloadRelativePath(gallery.toGalleryDownloadedData(), image.url, serialNo);
+      /// Business layer: pick which URL to actually download from based on the
+      /// gallery's `downloadOriginalImage` flag. The parser fills both `url`
+      /// (regular) and `originalImageUrl` (original); the model itself has no
+      /// opinion about which one to use.
+      final String downloadUrl = image.downloadUrlFor(gallery.downloadOriginalImage);
+      image.path = DownloadPathResolver.computeImageDownloadRelativePath(gallery.toGalleryDownloadedData(), downloadUrl, serialNo);
       image.downloadStatus = DownloadStatus.downloading;
 
       await _service.saveNewImageInfoInDatabase(image, serialNo, gallery.gid);
 
       galleryDownloadInfo.upsertImage(serialNo, image);
 
-      log.download('Parse image url success, index: $serialNo, url: ${image.url}');
+      log.download('Parse image url success, index: $serialNo, url: $downloadUrl');
 
       /// Next step: download image
       return _service.submitImageTask(gallery, serialNo, () => downloadImageTask(serialNo));
@@ -279,9 +283,10 @@ class GalleryDownloadTaskRunner {
         }
       }
 
-      String path = DownloadPathResolver.computeImageDownloadAbsolutePath(gallery.toGalleryDownloadedData(), image.url, serialNo);
+      final String downloadUrl = image.downloadUrlFor(gallery.downloadOriginalImage);
+      String path = DownloadPathResolver.computeImageDownloadAbsolutePath(gallery.toGalleryDownloadedData(), downloadUrl, serialNo);
 
-      await tryLoadFromCacheInsteadDownload(image, serialNo, path);
+      await tryLoadFromCacheInsteadDownload(image, downloadUrl, serialNo, path);
       if (image.downloadStatus == DownloadStatus.downloaded) {
         return;
       }
@@ -290,7 +295,7 @@ class GalleryDownloadTaskRunner {
       try {
         response = await retry(
           () => ehRequest.download(
-            url: image.url,
+            url: downloadUrl,
             path: path,
             receiveTimeout: 3 * 60 * 1000,
             cancelToken: galleryDownloadInfo.cancelToken,
@@ -306,7 +311,7 @@ class GalleryDownloadTaskRunner {
               (e.response == null || e.response!.statusCode != 403) &&
               galleryDownloadInfo.speedComputer.getImageDownloadedBytes(serialNo) > 0,
           onRetry: (e) {
-            log.download('Download ${gallery.title} image: $serialNo failed, retry. Reason: ${(e as DioException).errorMsg}. Url:${image.url}');
+            log.download('Download ${gallery.title} image: $serialNo failed, retry. Reason: ${(e as DioException).errorMsg}. Url:$downloadUrl');
             galleryDownloadInfo.speedComputer.resetProgress(serialNo);
           },
         );
@@ -314,7 +319,7 @@ class GalleryDownloadTaskRunner {
         if (e.type == DioExceptionType.cancel) {
           return;
         }
-        log.download('Download ${gallery.title} image: $serialNo failed, try re-parse. Reason: ${e.errorMsg}. Url:${image.url}');
+        log.download('Download ${gallery.title} image: $serialNo failed, try re-parse. Reason: ${e.errorMsg}. Url:$downloadUrl');
         return reParseImageUrlAndDownload(serialNo);
       } on EHSiteException catch (e) {
         log.download('Download Error, reason: ${e.message}');
@@ -371,8 +376,8 @@ class GalleryDownloadTaskRunner {
     return _service.submitImageTask(gallery, serialNo, () => parseImageHrefTask(serialNo));
   }
 
-  Future<void> tryLoadFromCacheInsteadDownload(GalleryImage image, int serialNo, String path) async {
-    io.File? cachedImageFile = await getCachedImageFile(image.url);
+  Future<void> tryLoadFromCacheInsteadDownload(GalleryImage image, String downloadUrl, int serialNo, String path) async {
+    io.File? cachedImageFile = await getCachedImageFile(downloadUrl);
     if (cachedImageFile != null && cachedImageFile.existsSync()) {
       log.debug('download image from cache, gallery: ${gallery.gid}, serialNo:$serialNo');
       await cachedImageFile.copy(path);

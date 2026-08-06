@@ -66,7 +66,7 @@ class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 24;
+  int get schemaVersion => 25;
 
   @override
   MigrationStrategy get migration {
@@ -165,6 +165,16 @@ class AppDb extends _$AppDb {
               await m.alterTable(TableMigration(archiveDownloaded, newColumns: [archiveDownloaded.sanitizedTitle]));
               await m.alterTable(TableMigration(galleryDownloaded, newColumns: [galleryDownloaded.sanitizedTitle]));
               await _backfillSanitizedTitles();
+            }
+            if (from < 25) {
+              /// Add `originalImageUrl` column to the `image` table. The DB
+              /// `url` column previously stored whichever URL was actually
+              /// downloaded (regular or original); new rows store the regular
+              /// URL in `url` and the original URL here. Old rows keep `url`
+              /// as-is (may be original URL for download-original galleries)
+              /// and `originalImageUrl` stays null — runtime fallback
+              /// (`originalImageUrl ?? url`) handles this transparently.
+              await m.addColumn(image, image.originalImageUrl);
             }
           });
         } on Exception catch (e) {

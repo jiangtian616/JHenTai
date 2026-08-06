@@ -9,6 +9,12 @@ class Image extends Table {
 
   TextColumn get url => text()();
 
+  /// Original (full-size) image URL. Null for galleries downloaded without
+  /// `downloadOriginalImage`, or for legacy rows written before this column
+  /// existed — runtime falls back to `url` via
+  /// `GalleryImageIndex.downloadUrlFor`.
+  TextColumn get originalImageUrl => text().nullable().named('originalImageUrl')();
+
   IntColumn get serialNo => integer().named('serialNo')();
 
   TextColumn get path => text()();

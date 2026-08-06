@@ -608,46 +608,6 @@ class EHSpiderParser {
     );
   }
 
-  static GalleryImage imagePage2OriginalGalleryImage(Headers headers, dynamic data) {
-    Document document = parse(data as String);
-    Element? img = document.querySelector('#img');
-    if (img == null && document.querySelector('#pane_images') != null) {
-      throw EHParseException(type: EHParseExceptionType.unsupportedImagePageStyle, message: 'unsupportedImagePageStyle'.tr);
-    }
-
-    /// height: 1600px; width: 1124px;
-    String style = img!.attributes['style']!;
-    String url = img.attributes['src']!;
-    if (url == EHConsts.EH509ImageUrl || url == EHConsts.EX509ImageUrl) {
-      throw EHParseException(type: EHParseExceptionType.exceedLimit, message: 'exceedImageLimits'.tr);
-    }
-    double height = double.parse(RegExp(r'height:(\d+)px').firstMatch(style)!.group(1)!);
-    double width = double.parse(RegExp(r'width:(\d+)px').firstMatch(style)!.group(1)!);
-
-    Element hashElement = document.querySelector('#i6 div a')!;
-    String imageHash = RegExp(r'f_shash=(\w+)').firstMatch(hashElement.attributes['href']!)!.group(1)!;
-
-    Element? originalImg = document.querySelector('#i6 a[id]')?.parent?.nextElementSibling?.querySelector('a');
-    String? originalImgHref = originalImg?.attributes['href'];
-    RegExpMatch? originalImgWidthAndHeight = RegExp(r'(\d+) x (\d+)').firstMatch(originalImg?.text ?? '');
-    double? originalImgWidth = double.tryParse(originalImgWidthAndHeight?.group(1) ?? '');
-    double? originalImgHeight = double.tryParse(originalImgWidthAndHeight?.group(2) ?? '');
-
-    /// return nl('WZG-474997')
-    Element reloadKeyElement = document.querySelector('#loadfail')!;
-    String reloadKey = RegExp(r"return nl\('(.*)'\)").firstMatch(reloadKeyElement.attributes['onclick']!)!.group(1)!;
-
-    return GalleryImage(
-      url: originalImgHref ?? url,
-      height: originalImgHeight ?? height,
-      width: originalImgWidth ?? width,
-
-      /// reload is not available for original image
-      reloadKey: originalImgHref == null ? reloadKey : null,
-      imageHash: imageHash,
-    );
-  }
-
   static String? sendComment2ErrorMsg(Headers headers, dynamic data) {
     if (data?.isEmpty ?? true) {
       return null;

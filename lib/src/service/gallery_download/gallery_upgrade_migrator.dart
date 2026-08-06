@@ -55,8 +55,13 @@ class GalleryUpgradeMigrator {
       }
       GalleryImage oldImage = oldIdx.toGalleryImage();
 
+      /// Path extension depends on the actual download URL. Old gallery may
+      /// have `downloadOriginalImage=true` and stored `fullimg.php`→`jpg` on
+      /// disk; we must use the same URL when recomputing the path for the new
+      /// gallery so the extension matches.
+      final String oldDownloadUrl = oldIdx.downloadUrlFor(oldGallery.downloadOriginalImage);
       GalleryImage newImage = oldImage.copyWith(
-        path: DownloadPathResolver.computeImageDownloadRelativePath(newGallery.toGalleryDownloadedData(), oldImage.url, serialNo),
+        path: DownloadPathResolver.computeImageDownloadRelativePath(newGallery.toGalleryDownloadedData(), oldDownloadUrl, serialNo),
         downloadStatus: DownloadStatus.downloaded,
       );
 
@@ -143,8 +148,9 @@ class GalleryUpgradeMigrator {
     GalleryImage oldImage = oldIdx.toGalleryImage();
 
     if (preSaveNewImage) {
+      final String oldDownloadUrl = oldIdx.downloadUrlFor(oldGallery.downloadOriginalImage);
       GalleryImage newImage = oldImage.copyWith(
-        path: DownloadPathResolver.computeImageDownloadRelativePath(newGallery.toGalleryDownloadedData(), oldImage.url, newImageSerialNo),
+        path: DownloadPathResolver.computeImageDownloadRelativePath(newGallery.toGalleryDownloadedData(), oldDownloadUrl, newImageSerialNo),
         downloadStatus: newImageDownloadStatus!,
       );
       await _service.saveNewImageInfoInDatabase(newImage, newImageSerialNo, newGallery.gid);

@@ -4827,6 +4827,12 @@ class $ImageTable extends Image with TableInfo<$ImageTable, ImageData> {
   late final GeneratedColumn<String> url = GeneratedColumn<String>(
       'url', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _originalImageUrlMeta =
+      const VerificationMeta('originalImageUrl');
+  @override
+  late final GeneratedColumn<String> originalImageUrl = GeneratedColumn<String>(
+      'originalImageUrl', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _serialNoMeta =
       const VerificationMeta('serialNo');
   @override
@@ -4851,8 +4857,15 @@ class $ImageTable extends Image with TableInfo<$ImageTable, ImageData> {
       'downloadStatusIndex', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns =>
-      [gid, url, serialNo, path, imageHash, downloadStatusIndex];
+  List<GeneratedColumn> get $columns => [
+        gid,
+        url,
+        originalImageUrl,
+        serialNo,
+        path,
+        imageHash,
+        downloadStatusIndex
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -4874,6 +4887,12 @@ class $ImageTable extends Image with TableInfo<$ImageTable, ImageData> {
           _urlMeta, url.isAcceptableOrUnknown(data['url']!, _urlMeta));
     } else if (isInserting) {
       context.missing(_urlMeta);
+    }
+    if (data.containsKey('originalImageUrl')) {
+      context.handle(
+          _originalImageUrlMeta,
+          originalImageUrl.isAcceptableOrUnknown(
+              data['originalImageUrl']!, _originalImageUrlMeta));
     }
     if (data.containsKey('serialNo')) {
       context.handle(_serialNoMeta,
@@ -4914,6 +4933,8 @@ class $ImageTable extends Image with TableInfo<$ImageTable, ImageData> {
           .read(DriftSqlType.int, data['${effectivePrefix}gid'])!,
       url: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}url'])!,
+      originalImageUrl: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}originalImageUrl']),
       serialNo: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}serialNo'])!,
       path: attachedDatabase.typeMapping
@@ -4934,6 +4955,12 @@ class $ImageTable extends Image with TableInfo<$ImageTable, ImageData> {
 class ImageData extends DataClass implements Insertable<ImageData> {
   final int gid;
   final String url;
+
+  /// Original (full-size) image URL. Null for galleries downloaded without
+  /// `downloadOriginalImage`, or for legacy rows written before this column
+  /// existed — runtime falls back to `url` via
+  /// `GalleryImageIndex.downloadUrlFor`.
+  final String? originalImageUrl;
   final int serialNo;
   final String path;
   final String imageHash;
@@ -4941,6 +4968,7 @@ class ImageData extends DataClass implements Insertable<ImageData> {
   const ImageData(
       {required this.gid,
       required this.url,
+      this.originalImageUrl,
       required this.serialNo,
       required this.path,
       required this.imageHash,
@@ -4950,6 +4978,9 @@ class ImageData extends DataClass implements Insertable<ImageData> {
     final map = <String, Expression>{};
     map['gid'] = Variable<int>(gid);
     map['url'] = Variable<String>(url);
+    if (!nullToAbsent || originalImageUrl != null) {
+      map['originalImageUrl'] = Variable<String>(originalImageUrl);
+    }
     map['serialNo'] = Variable<int>(serialNo);
     map['path'] = Variable<String>(path);
     map['imageHash'] = Variable<String>(imageHash);
@@ -4961,6 +4992,9 @@ class ImageData extends DataClass implements Insertable<ImageData> {
     return ImageCompanion(
       gid: Value(gid),
       url: Value(url),
+      originalImageUrl: originalImageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalImageUrl),
       serialNo: Value(serialNo),
       path: Value(path),
       imageHash: Value(imageHash),
@@ -4974,6 +5008,7 @@ class ImageData extends DataClass implements Insertable<ImageData> {
     return ImageData(
       gid: serializer.fromJson<int>(json['gid']),
       url: serializer.fromJson<String>(json['url']),
+      originalImageUrl: serializer.fromJson<String?>(json['originalImageUrl']),
       serialNo: serializer.fromJson<int>(json['serialNo']),
       path: serializer.fromJson<String>(json['path']),
       imageHash: serializer.fromJson<String>(json['imageHash']),
@@ -4987,6 +5022,7 @@ class ImageData extends DataClass implements Insertable<ImageData> {
     return <String, dynamic>{
       'gid': serializer.toJson<int>(gid),
       'url': serializer.toJson<String>(url),
+      'originalImageUrl': serializer.toJson<String?>(originalImageUrl),
       'serialNo': serializer.toJson<int>(serialNo),
       'path': serializer.toJson<String>(path),
       'imageHash': serializer.toJson<String>(imageHash),
@@ -4997,6 +5033,7 @@ class ImageData extends DataClass implements Insertable<ImageData> {
   ImageData copyWith(
           {int? gid,
           String? url,
+          Value<String?> originalImageUrl = const Value.absent(),
           int? serialNo,
           String? path,
           String? imageHash,
@@ -5004,6 +5041,9 @@ class ImageData extends DataClass implements Insertable<ImageData> {
       ImageData(
         gid: gid ?? this.gid,
         url: url ?? this.url,
+        originalImageUrl: originalImageUrl.present
+            ? originalImageUrl.value
+            : this.originalImageUrl,
         serialNo: serialNo ?? this.serialNo,
         path: path ?? this.path,
         imageHash: imageHash ?? this.imageHash,
@@ -5013,6 +5053,9 @@ class ImageData extends DataClass implements Insertable<ImageData> {
     return ImageData(
       gid: data.gid.present ? data.gid.value : this.gid,
       url: data.url.present ? data.url.value : this.url,
+      originalImageUrl: data.originalImageUrl.present
+          ? data.originalImageUrl.value
+          : this.originalImageUrl,
       serialNo: data.serialNo.present ? data.serialNo.value : this.serialNo,
       path: data.path.present ? data.path.value : this.path,
       imageHash: data.imageHash.present ? data.imageHash.value : this.imageHash,
@@ -5027,6 +5070,7 @@ class ImageData extends DataClass implements Insertable<ImageData> {
     return (StringBuffer('ImageData(')
           ..write('gid: $gid, ')
           ..write('url: $url, ')
+          ..write('originalImageUrl: $originalImageUrl, ')
           ..write('serialNo: $serialNo, ')
           ..write('path: $path, ')
           ..write('imageHash: $imageHash, ')
@@ -5036,14 +5080,15 @@ class ImageData extends DataClass implements Insertable<ImageData> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(gid, url, serialNo, path, imageHash, downloadStatusIndex);
+  int get hashCode => Object.hash(gid, url, originalImageUrl, serialNo, path,
+      imageHash, downloadStatusIndex);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ImageData &&
           other.gid == this.gid &&
           other.url == this.url &&
+          other.originalImageUrl == this.originalImageUrl &&
           other.serialNo == this.serialNo &&
           other.path == this.path &&
           other.imageHash == this.imageHash &&
@@ -5053,6 +5098,7 @@ class ImageData extends DataClass implements Insertable<ImageData> {
 class ImageCompanion extends UpdateCompanion<ImageData> {
   final Value<int> gid;
   final Value<String> url;
+  final Value<String?> originalImageUrl;
   final Value<int> serialNo;
   final Value<String> path;
   final Value<String> imageHash;
@@ -5061,6 +5107,7 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
   const ImageCompanion({
     this.gid = const Value.absent(),
     this.url = const Value.absent(),
+    this.originalImageUrl = const Value.absent(),
     this.serialNo = const Value.absent(),
     this.path = const Value.absent(),
     this.imageHash = const Value.absent(),
@@ -5070,6 +5117,7 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
   ImageCompanion.insert({
     required int gid,
     required String url,
+    this.originalImageUrl = const Value.absent(),
     required int serialNo,
     required String path,
     required String imageHash,
@@ -5084,6 +5132,7 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
   static Insertable<ImageData> custom({
     Expression<int>? gid,
     Expression<String>? url,
+    Expression<String>? originalImageUrl,
     Expression<int>? serialNo,
     Expression<String>? path,
     Expression<String>? imageHash,
@@ -5093,6 +5142,7 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
     return RawValuesInsertable({
       if (gid != null) 'gid': gid,
       if (url != null) 'url': url,
+      if (originalImageUrl != null) 'originalImageUrl': originalImageUrl,
       if (serialNo != null) 'serialNo': serialNo,
       if (path != null) 'path': path,
       if (imageHash != null) 'imageHash': imageHash,
@@ -5105,6 +5155,7 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
   ImageCompanion copyWith(
       {Value<int>? gid,
       Value<String>? url,
+      Value<String?>? originalImageUrl,
       Value<int>? serialNo,
       Value<String>? path,
       Value<String>? imageHash,
@@ -5113,6 +5164,7 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
     return ImageCompanion(
       gid: gid ?? this.gid,
       url: url ?? this.url,
+      originalImageUrl: originalImageUrl ?? this.originalImageUrl,
       serialNo: serialNo ?? this.serialNo,
       path: path ?? this.path,
       imageHash: imageHash ?? this.imageHash,
@@ -5129,6 +5181,9 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
     }
     if (url.present) {
       map['url'] = Variable<String>(url.value);
+    }
+    if (originalImageUrl.present) {
+      map['originalImageUrl'] = Variable<String>(originalImageUrl.value);
     }
     if (serialNo.present) {
       map['serialNo'] = Variable<int>(serialNo.value);
@@ -5153,6 +5208,7 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
     return (StringBuffer('ImageCompanion(')
           ..write('gid: $gid, ')
           ..write('url: $url, ')
+          ..write('originalImageUrl: $originalImageUrl, ')
           ..write('serialNo: $serialNo, ')
           ..write('path: $path, ')
           ..write('imageHash: $imageHash, ')
@@ -9204,6 +9260,7 @@ typedef $$GalleryGroupTableProcessedTableManager = ProcessedTableManager<
 typedef $$ImageTableCreateCompanionBuilder = ImageCompanion Function({
   required int gid,
   required String url,
+  Value<String?> originalImageUrl,
   required int serialNo,
   required String path,
   required String imageHash,
@@ -9213,6 +9270,7 @@ typedef $$ImageTableCreateCompanionBuilder = ImageCompanion Function({
 typedef $$ImageTableUpdateCompanionBuilder = ImageCompanion Function({
   Value<int> gid,
   Value<String> url,
+  Value<String?> originalImageUrl,
   Value<int> serialNo,
   Value<String> path,
   Value<String> imageHash,
@@ -9250,6 +9308,10 @@ class $$ImageTableFilterComposer extends Composer<_$AppDb, $ImageTable> {
   });
   ColumnFilters<String> get url => $composableBuilder(
       column: $table.url, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get originalImageUrl => $composableBuilder(
+      column: $table.originalImageUrl,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get serialNo => $composableBuilder(
       column: $table.serialNo, builder: (column) => ColumnFilters(column));
@@ -9296,6 +9358,10 @@ class $$ImageTableOrderingComposer extends Composer<_$AppDb, $ImageTable> {
   ColumnOrderings<String> get url => $composableBuilder(
       column: $table.url, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get originalImageUrl => $composableBuilder(
+      column: $table.originalImageUrl,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<int> get serialNo => $composableBuilder(
       column: $table.serialNo, builder: (column) => ColumnOrderings(column));
 
@@ -9340,6 +9406,9 @@ class $$ImageTableAnnotationComposer extends Composer<_$AppDb, $ImageTable> {
   });
   GeneratedColumn<String> get url =>
       $composableBuilder(column: $table.url, builder: (column) => column);
+
+  GeneratedColumn<String> get originalImageUrl => $composableBuilder(
+      column: $table.originalImageUrl, builder: (column) => column);
 
   GeneratedColumn<int> get serialNo =>
       $composableBuilder(column: $table.serialNo, builder: (column) => column);
@@ -9400,6 +9469,7 @@ class $$ImageTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<int> gid = const Value.absent(),
             Value<String> url = const Value.absent(),
+            Value<String?> originalImageUrl = const Value.absent(),
             Value<int> serialNo = const Value.absent(),
             Value<String> path = const Value.absent(),
             Value<String> imageHash = const Value.absent(),
@@ -9409,6 +9479,7 @@ class $$ImageTableTableManager extends RootTableManager<
               ImageCompanion(
             gid: gid,
             url: url,
+            originalImageUrl: originalImageUrl,
             serialNo: serialNo,
             path: path,
             imageHash: imageHash,
@@ -9418,6 +9489,7 @@ class $$ImageTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required int gid,
             required String url,
+            Value<String?> originalImageUrl = const Value.absent(),
             required int serialNo,
             required String path,
             required String imageHash,
@@ -9427,6 +9499,7 @@ class $$ImageTableTableManager extends RootTableManager<
               ImageCompanion.insert(
             gid: gid,
             url: url,
+            originalImageUrl: originalImageUrl,
             serialNo: serialNo,
             path: path,
             imageHash: imageHash,

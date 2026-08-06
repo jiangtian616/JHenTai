@@ -6,10 +6,11 @@ import 'gallery_download_service.dart';
 /// Per-gallery image index + full-data cache. Owns the two-tier lazy-loading
 /// lifecycle:
 ///   - **Index** (always resident): `List<GalleryImageIndex?>` mirroring DB
-///     rows. Slot 0 (cover) loaded at startup; full index lazy-loads on first
-///     access to the gallery.
-///   - **Cache** (lazy + evictable): `Map<int, GalleryImage>` with runtime
-///     fields (reloadKey, originalImageUrl, dimensions). Pre-loaded when a
+///     rows (url / originalImageUrl / reloadKey / path / downloadStatus /
+///     imageHash). Slot 0 (cover) loaded at startup; full index lazy-loads on
+///     first access to the gallery.
+///   - **Cache** (lazy + evictable): `Map<int, GalleryImage>` adding dimensions
+///     (height/width/originalImageHeight/originalImageWidth). Pre-loaded when a
 ///     download starts; evicted when the gallery reaches `downloaded`.
 ///
 /// External callers should prefer the typed accessors ([indexAt], [imageAt])
@@ -29,12 +30,13 @@ class GalleryImageCache {
   /// Lightweight index per serialNo. Always resident. slot=null = no DB row.
   List<GalleryImageIndex?> imageIndices;
 
-  /// Full GalleryImage data (url/reloadKey/originalImageUrl/dimensions). Lazy-loaded.
+  /// Full GalleryImage data (dimensions only — index already holds
+  /// url/originalImageUrl/reloadKey/path/downloadStatus/imageHash). Lazy-loaded.
   Map<int, GalleryImage>? imagesCache;
   Future<void>? _imagesCacheLoadingFuture;
   bool _imageIndicesLoaded = false;
 
-  /// Synchronous index read (path, downloadStatus, imageHash, url). O(1).
+  /// Synchronous index read. O(1).
   GalleryImageIndex? indexAt(int serialNo) {
     return serialNo >= 0 && serialNo < imageIndices.length ? imageIndices[serialNo] : null;
   }
@@ -75,6 +77,8 @@ class GalleryImageCache {
       for (final d in rows)
         d.serialNo: GalleryImage(
           url: d.url,
+          originalImageUrl: d.originalImageUrl,
+          reloadKey: imageIndices[d.serialNo]?.reloadKey,
           path: d.path,
           imageHash: d.imageHash.isEmpty ? null : d.imageHash,
           downloadStatus: DownloadStatus.values[d.downloadStatusIndex],
@@ -104,6 +108,8 @@ class GalleryImageCache {
     imageIndices[serialNo] = GalleryImageIndex(
       serialNo: serialNo,
       url: image.url,
+      originalImageUrl: image.originalImageUrl,
+      reloadKey: image.reloadKey,
       path: image.path,
       downloadStatus: image.downloadStatus,
       imageHash: image.imageHash,

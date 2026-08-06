@@ -85,19 +85,31 @@ class GalleryImage {
     );
   }
 
+  /// Pick the URL to actually download from, given the gallery's
+  /// `downloadOriginalImage` flag. Mirrors
+  /// [GalleryImageIndex.downloadUrlFor] — kept in sync so business-layer code
+  /// can call `downloadUrlFor` on whichever shape it has on hand.
+  String downloadUrlFor(bool downloadOriginal) {
+    return downloadOriginal ? (originalImageUrl ?? url) : url;
+  }
+
   @override
   String toString() {
     return 'GalleryImage{url: $url, height: $height, width: $width, originalImageUrl: $originalImageUrl, originalImageHeight: $originalImageHeight, originalImageWidth: $originalImageWidth, reloadKey: $reloadKey, path: $path, imageHash: $imageHash, downloadStatus: $downloadStatus}';
   }
 }
 
-/// Lightweight index of a [GalleryImage], mirroring the DB columns of the `image` table.
-/// Always resident in memory for every gallery that has DB rows; the full [GalleryImage]
-/// (with runtime-only fields like `reloadKey`, `originalImageUrl`, dimensions) is lazy-loaded
-/// into [GalleryDownloadInfo.imagesCache] only when needed.
+/// Lightweight index of a [GalleryImage], mirroring the DB columns of the `image` table
+/// plus the runtime-only fields that need to survive metadata JSON serialization
+/// (`reloadKey`, `originalImageUrl`). Dimensions (`height`/`width`/etc.) are NOT here —
+/// they're re-parsed from the image page on demand after a restore, or recomputed from
+/// the disk file. Always resident in memory; the full [GalleryImage] (with dimensions)
+/// is lazy-loaded into [GalleryDownloadInfo.imagesCache] only when needed.
 class GalleryImageIndex {
   final int serialNo;
   final String url;
+  final String? originalImageUrl;
+  String? reloadKey;
   String? path;
   DownloadStatus downloadStatus;
   String? imageHash;
@@ -105,6 +117,8 @@ class GalleryImageIndex {
   GalleryImageIndex({
     required this.serialNo,
     required this.url,
+    this.originalImageUrl,
+    this.reloadKey,
     this.path,
     required this.downloadStatus,
     this.imageHash,
@@ -114,15 +128,28 @@ class GalleryImageIndex {
     return GalleryImageIndex(
       serialNo: d.serialNo,
       url: d.url,
+      originalImageUrl: d.originalImageUrl,
       path: d.path,
       downloadStatus: DownloadStatus.values[d.downloadStatusIndex],
       imageHash: d.imageHash.isEmpty ? null : d.imageHash,
     );
   }
 
+  /// Pick the URL to actually download from, given the gallery's
+  /// `downloadOriginalImage` flag. For download-original galleries, prefer
+  /// `originalImageUrl` and fall back to `url` if the original URL is missing
+  /// (e.g. legacy rows written before the `originalImageUrl` column existed,
+  /// where `url` itself stores the original URL). For regular galleries,
+  /// always use `url`.
+  String downloadUrlFor(bool downloadOriginal) {
+    return downloadOriginal ? (originalImageUrl ?? url) : url;
+  }
+
   GalleryImage toGalleryImage() {
     return GalleryImage(
       url: url,
+      originalImageUrl: originalImageUrl,
+      reloadKey: reloadKey,
       path: path,
       imageHash: imageHash,
       downloadStatus: downloadStatus,

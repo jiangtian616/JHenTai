@@ -757,6 +757,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
           restoredIndices[serialNo] = GalleryImageIndex(
             serialNo: serialNo,
             url: img.url,
+            originalImageUrl: img.originalImageUrl,
+            reloadKey: img.reloadKey,
             path: img.path,
             downloadStatus: img.downloadStatus,
             imageHash: img.imageHash,
@@ -783,7 +785,11 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
             continue;
           }
 
-          String newPath = DownloadPathResolver.computeImageDownloadRelativePath(gallery.toGalleryDownloadedData(), idx.url, serialNo);
+          String newPath = DownloadPathResolver.computeImageDownloadRelativePath(
+            gallery.toGalleryDownloadedData(),
+            idx.downloadUrlFor(gallery.downloadOriginalImage),
+            serialNo,
+          );
 
           if (!await _updateImageInDatabase(
             ImageCompanion(gid: Value(gallery.gid), serialNo: Value(serialNo), path: Value(newPath)),
@@ -1205,6 +1211,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
             gid: gid,
             serialNo: serialNo,
             url: image.url,
+            originalImageUrl: image.originalImageUrl,
             path: image.path!,
             imageHash: image.imageHash ?? '',
             downloadStatusIndex: image.downloadStatus.index,
@@ -1250,6 +1257,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
           gid: gallery.gid,
           serialNo: serialNo,
           url: image.url,
+          originalImageUrl: image.originalImageUrl,
           path: image.path!,
           imageHash: image.imageHash ?? '',
           downloadStatusIndex: image.downloadStatus.index,
