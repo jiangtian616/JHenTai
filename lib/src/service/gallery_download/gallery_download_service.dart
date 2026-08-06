@@ -37,7 +37,6 @@ import '../../database/dao/gallery_image_dao.dart';
 import '../../exception/cancel_exception.dart';
 import '../../exception/eh_site_exception.dart';
 import 'download_path_resolver.dart';
-import 'gallery_image_cache.dart';
 import 'gallery_metadata_store.dart';
 import 'gallery_download_task_runner.dart';
 import 'gallery_upgrade_migrator.dart';
@@ -178,9 +177,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   Future<void> _startDownloadTask(GalleryDownloadInfo info) async {
     info.speedComputer.start();
 
-    /// Pre-load full imagesCache so synchronous reads during download (e.g.
+    /// Pre-load full images so synchronous reads during download (e.g.
     /// `_downloadImageTask` reading `image.url`) work without per-call awaits.
-    await info.ensureImagesCacheLoaded();
+    await info.ensureImagesLoaded();
 
     _submitTask(
       gid: info.gid,
@@ -258,9 +257,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       info.cancelToken.cancel();
       info.speedComputer.pause();
 
-      for (GalleryImageIndex? idx in info.imageIndices) {
-        if (idx?.downloadStatus == DownloadStatus.downloading) {
-          idx?.downloadStatus = DownloadStatus.paused;
+      for (GalleryImage? img in info.images ?? <GalleryImage?>[]) {
+        if (img?.downloadStatus == DownloadStatus.downloading) {
+          img?.downloadStatus = DownloadStatus.paused;
           update(['$downloadImageId::${gallery.gid}']);
         }
       }
@@ -313,9 +312,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       DownloadStatus.paused.index,
     );
 
-    for (GalleryImageIndex? idx in galleryDownloadInfo.imageIndices) {
-      if (idx?.downloadStatus == DownloadStatus.downloading) {
-        idx?.downloadStatus = DownloadStatus.paused;
+    for (GalleryImage? img in galleryDownloadInfo.images ?? <GalleryImage?>[]) {
+      if (img?.downloadStatus == DownloadStatus.downloading) {
+        img?.downloadStatus = DownloadStatus.paused;
         update(['$downloadImageId::${gallery.gid}']);
       }
     }
@@ -356,9 +355,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       info.cancelToken = CancelToken();
       info.speedComputer.start();
 
-      for (GalleryImageIndex? idx in info.imageIndices) {
-        if (idx?.downloadStatus == DownloadStatus.paused) {
-          idx?.downloadStatus = DownloadStatus.downloading;
+      for (GalleryImage? img in info.images ?? <GalleryImage?>[]) {
+        if (img?.downloadStatus == DownloadStatus.paused) {
+          img?.downloadStatus = DownloadStatus.downloading;
           update(['$downloadImageId::${gallery.gid}']);
         }
       }
@@ -411,9 +410,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       DownloadStatus.downloading.index,
     );
 
-    for (GalleryImageIndex? idx in galleryDownloadInfo.imageIndices) {
-      if (idx?.downloadStatus == DownloadStatus.paused) {
-        idx?.downloadStatus = DownloadStatus.downloading;
+    for (GalleryImage? img in galleryDownloadInfo.images ?? <GalleryImage?>[]) {
+      if (img?.downloadStatus == DownloadStatus.paused) {
+        img?.downloadStatus = DownloadStatus.downloading;
         update(['$downloadImageId::${gallery.gid}']);
       }
     }
@@ -508,11 +507,11 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     GalleryDownloadInfo? gallery = _findGalleryByGid(gid);
     GalleryDownloadInfo? galleryDownloadInfo = galleryDownloadInfos[gid];
 
-    if (gallery == null || galleryDownloadInfo == null || galleryDownloadInfo.indexAt(serialNo) == null) {
+    if (gallery == null || galleryDownloadInfo == null) {
       return;
     }
 
-    await galleryDownloadInfo.ensureImagesCacheLoaded();
+    await galleryDownloadInfo.ensureImagesLoaded();
     GalleryImage? image = galleryDownloadInfo.imageAtSync(serialNo);
 
     if (image == null) {
@@ -749,24 +748,17 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         continue;
       }
 
-      /// Build imageIndices from the restored images (index fields only).
-      List<GalleryImageIndex?> restoredIndices = List.generate(gallery.pageCount, (_) => null);
+      /// Restore images directly into the in-memory [GalleryDownloadInfo.images]
+      /// list. The restored list is sized to pageCount; missing slots stay null.
+      List<GalleryImage?> restoredImages = List.generate(gallery.pageCount, (_) => null);
       for (int serialNo = 0; serialNo < images.length && serialNo < gallery.pageCount; serialNo++) {
         final GalleryImage? img = images[serialNo];
         if (img != null) {
-          restoredIndices[serialNo] = GalleryImageIndex(
-            serialNo: serialNo,
-            url: img.url,
-            originalImageUrl: img.originalImageUrl,
-            reloadKey: img.reloadKey,
-            path: img.path,
-            downloadStatus: img.downloadStatus,
-            imageHash: img.imageHash,
-          );
+          restoredImages[serialNo] = img.copyWith(serialNo: serialNo);
         }
       }
 
-      _initGalleryInfoInMemoryWithIndices(gallery, restoredIndices);
+      _initGalleryInfoInMemoryWithImages(gallery, restoredImages);
 
       restoredCount++;
     }
@@ -774,34 +766,59 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     return restoredCount;
   }
 
+  /// Re-compute every image's on-disk path after the user changes the download
+  /// root directory. Processes galleries in batches of [_pathUpdateBatchSize]
+  /// inside separate transactions: each batch loads images into memory, updates
+  /// DB rows + in-memory paths, then evicts completed galleries to bound peak
+  /// memory. Avoids holding all galleries' images resident simultaneously.
+  static const int _pathUpdateBatchSize = 200;
+
   Future<void> updateImagePathAfterDownloadPathChanged() async {
-    await appDb.transaction(() async {
-      for (GalleryDownloadInfo gallery in gallerys) {
-        await gallery.ensureImageIndicesLoaded();
+    final List<GalleryDownloadInfo> allGallerys = gallerys.toList();
 
-        for (int serialNo = 0; serialNo < gallery.imageIndices.length; serialNo++) {
-          GalleryImageIndex? idx = gallery.indexAt(serialNo);
-          if (idx == null) {
-            continue;
+    for (int i = 0; i < allGallerys.length; i += _pathUpdateBatchSize) {
+      final List<GalleryDownloadInfo> batch = allGallerys.skip(i).take(_pathUpdateBatchSize).toList();
+
+      await appDb.transaction(() async {
+        for (final GalleryDownloadInfo info in batch) {
+          await info.ensureImagesLoaded();
+
+          for (int serialNo = 0; serialNo < info.pageCount; serialNo++) {
+            final GalleryImage? img = info.imageAtSync(serialNo);
+            if (img == null) {
+              continue;
+            }
+
+            final String newPath = DownloadPathResolver.computeImageDownloadRelativePath(
+              info.toGalleryDownloadedData(),
+              img.downloadUrlFor(info.downloadOriginalImage),
+              serialNo,
+            );
+
+            if (img.path == newPath) {
+              continue;
+            }
+
+            if (!await _updateImageInDatabase(
+              ImageCompanion(gid: Value(info.gid), serialNo: Value(serialNo), path: Value(newPath)),
+            )) {
+              log.error('Update image path after download path changed failed');
+            }
+            info.updateImagePath(serialNo, newPath);
+
+            update(['$downloadImageId::${info.gid}::$serialNo', '$downloadImageUrlId::${info.gid}::$serialNo']);
           }
+        }
+      });
 
-          String newPath = DownloadPathResolver.computeImageDownloadRelativePath(
-            gallery.toGalleryDownloadedData(),
-            idx.downloadUrlFor(gallery.downloadOriginalImage),
-            serialNo,
-          );
-
-          if (!await _updateImageInDatabase(
-            ImageCompanion(gid: Value(gallery.gid), serialNo: Value(serialNo), path: Value(newPath)),
-          )) {
-            log.error('Update image path after download path changed failed');
-          }
-          gallery.updateImagePath(serialNo, newPath);
-
-          update(['$downloadImageId::${gallery.gid}::$serialNo', '$downloadImageUrlId::${gallery.gid}::$serialNo']);
+      /// Evict completed galleries after each batch to release memory. In-
+      /// complete galleries keep their images resident for the download loop.
+      for (final GalleryDownloadInfo info in batch) {
+        if (info.downloadProgress.downloadStatus == DownloadStatus.downloaded) {
+          info.evictImages();
         }
       }
-    });
+    }
   }
 
   Future<void> _generateComicInfoInDisk(GalleryDownloadInfo gallery) async {
@@ -984,9 +1001,10 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       await _updateGalleryDownloadStatus(gallery, DownloadStatus.downloaded);
       galleryDownloadInfos[gallery.gid]!.speedComputer.dispose();
 
-      /// All images downloaded — evict the full-data cache. Index is retained
-      /// for cover/list/detail access; full data re-loads on next read page open.
-      galleryDownloadInfos[gallery.gid]!.evictImagesCache();
+      /// All images downloaded — evict the full image list. Cover image is
+      /// retained for list/grid cover display; full list re-loads on next
+      /// read page / detail page open.
+      galleryDownloadInfos[gallery.gid]!.evictImages();
       update(['$galleryDownloadSuccessId::${gallery.gid}']);
     }
 
@@ -1002,7 +1020,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     final List<Object> results = await Future.wait([
       GalleryGroupDao.selectGalleryGroups(),
       GalleryDao.selectGallerys(),
-      GalleryImageDao.selectCoverIndices(),
+      GalleryImageDao.selectCoverImages(),
       GalleryImageDao.selectDownloadedCountsByGid(),
     ]);
     allGroups = (results[0] as List<GalleryGroupData>).map((e) => e.groupName).toList();
@@ -1011,35 +1029,28 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     /// Get download info from database
     List<GalleryDownloadedData> dbGallerys = results[1] as List<GalleryDownloadedData>;
 
-    /// Only load cover indices (serialNo=0) at startup — full image indices
+    /// Only load cover images (serialNo=0) at startup — full image lists
     /// lazy-load on first access to each gallery (detail/read/download).
-    Map<int, GalleryImageIndex> coverIndices = results[2] as Map<int, GalleryImageIndex>;
+    Map<int, GalleryImage> covers = results[2] as Map<int, GalleryImage>;
     Map<int, int> downloadedCounts = results[3] as Map<int, int>;
 
     for (GalleryDownloadedData gallery in dbGallerys) {
-      /// Instantiate [Gallery] with an empty index list; we'll fill slot 0 below.
       _initGalleryInfoInMemory(gallery);
 
       GalleryDownloadInfo info = galleryDownloadInfos[gallery.gid]!;
 
-      /// Populate cover index (slot 0) if a DB row exists.
-      GalleryImageIndex? cover = coverIndices[gallery.gid];
-      if (cover != null) {
-        info.imageIndices[0] = cover;
-      }
+      /// Populate cover image (slot 0) if a DB row exists.
+      info.coverImage = covers[gallery.gid];
 
       /// Populate curCount: for fully-downloaded galleries, it equals pageCount;
-      /// otherwise use the precise count from DB. hasDownloaded stays all-false
-      /// (lazy-loaded with full indices on first access).
+      /// otherwise use the precise count from DB. hasDownloaded defers to the
+      /// getter for completed galleries and syncs from [images] on first
+      /// load for incomplete ones.
       int downloadedCount = downloadedCounts[gallery.gid] ?? 0;
       if (info.downloadProgress.downloadStatus == DownloadStatus.downloaded) {
         info.downloadProgress.curCount = gallery.pageCount;
-        info.downloadProgress.hasDownloaded = List.generate(gallery.pageCount, (_) => true);
       } else {
         info.downloadProgress.curCount = downloadedCount;
-
-        /// hasDownloaded stays default (all false) — will be synced when
-        /// ensureImageIndicesLoaded() runs on first access.
       }
     }
   }
@@ -1107,24 +1118,24 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   // MEMORY
 
-  /// Initialize in-memory state for a gallery that has **no image indices
-  /// available yet** — e.g. just downloaded fresh, or loaded from DB at
-  /// startup where indices lazy-load on first access. The
-  /// [GalleryDownloadInfo.imageIndices] list starts all-null; curCount and
-  /// hasDownloaded default to zero / all-false.
+  /// Initialize in-memory state for a gallery that has **no image data
+  /// resident** — e.g. just downloaded fresh, or loaded from DB at startup
+  /// where [images] lazy-loads on first access. [coverImage] is populated
+  /// separately by the caller (e.g. from [GalleryImageDao.selectCoverImages]);
+  /// curCount and hasDownloaded default to zero / all-false.
   void _initGalleryInfoInMemory(GalleryDownloadedData gallery) {
-    _buildGalleryInfoInMemory(gallery, imageIndices: null);
+    _buildGalleryInfoInMemory(gallery, images: null);
   }
 
-  /// Initialize in-memory state for a gallery with **already-known image
-  /// indices** — e.g. restored from disk metadata, or imported from a
-  /// folder of existing image files. curCount and hasDownloaded are derived
-  /// from the indices.
-  void _initGalleryInfoInMemoryWithIndices(GalleryDownloadedData gallery, List<GalleryImageIndex?> imageIndices) {
-    _buildGalleryInfoInMemory(gallery, imageIndices: imageIndices);
+  /// Initialize in-memory state for a gallery with **already-known images**
+  /// — e.g. restored from disk metadata, or imported from a folder of
+  /// existing image files. curCount and hasDownloaded are derived from the
+  /// images list.
+  void _initGalleryInfoInMemoryWithImages(GalleryDownloadedData gallery, List<GalleryImage?> images) {
+    _buildGalleryInfoInMemory(gallery, images: images);
   }
 
-  void _buildGalleryInfoInMemory(GalleryDownloadedData gallery, {required List<GalleryImageIndex?>? imageIndices}) {
+  void _buildGalleryInfoInMemory(GalleryDownloadedData gallery, {required List<GalleryImage?>? images}) {
     if (!allGroups.contains(gallery.groupName)) {
       allGroups.add(gallery.groupName);
     }
@@ -1150,13 +1161,13 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       tasks: [],
       cancelToken: CancelToken(),
       downloadProgress: GalleryDownloadProgress(
-        curCount: imageIndices?.fold<int>(0, (total, idx) => total + (idx?.downloadStatus == DownloadStatus.downloaded ? 1 : 0)) ?? 0,
+        curCount: images?.fold<int>(0, (total, img) => total + (img?.downloadStatus == DownloadStatus.downloaded ? 1 : 0)) ?? 0,
         totalCount: gallery.pageCount,
         downloadStatus: DownloadStatus.values[gallery.downloadStatusIndex],
-        hasDownloaded: imageIndices?.map((idx) => idx?.downloadStatus == DownloadStatus.downloaded).toList() ?? List.generate(gallery.pageCount, (_) => false),
+        hasDownloaded: images?.map((img) => img?.downloadStatus == DownloadStatus.downloaded).toList(),
       ),
       imageHrefs: List.generate(gallery.pageCount, (_) => null),
-      imageIndices: imageIndices ?? List.generate(gallery.pageCount, (_) => null),
+      images: images,
       onSpeedUpdate: () => update(['$galleryDownloadSpeedComputerId::${gallery.gid}']),
     );
 
@@ -1423,8 +1434,20 @@ class GalleryDownloadInfo implements Comparable<GalleryDownloadInfo> {
   CancelToken cancelToken;
   List<GalleryThumbnail?> imageHrefs;
 
-  /// Two-tier image data: always-resident index + lazy-evictable full-data cache.
-  late final GalleryImageCache imageCache;
+  /// Cover image (serialNo == 0), always resident. Loaded at startup from
+  /// DB; used by list/grid/search pages. Other serialNos go through
+  /// [ensureImagesLoaded] / [imageAtSync].
+  GalleryImage? coverImage;
+
+  /// Full image list, `null` when not resident in memory.
+  /// - Startup: `null` (only [coverImage] loaded)
+  /// - Download start: [ensureImagesLoaded] pulls from DB (or new empty list)
+  /// - Download complete: [evictImages] → `null`
+  /// - Read page open: [ensureImagesLoaded] pulls from DB
+  /// - Read page close: if gallery is downloaded → [evictImages] → `null`
+  List<GalleryImage?>? images;
+
+  Future<void>? _imagesLoadingFuture;
 
   /// Lazily allocated so completed/restored galleries don't pay the cost of
   /// per-image byte-tracking lists until a download actually (re)starts.
@@ -1445,7 +1468,8 @@ class GalleryDownloadInfo implements Comparable<GalleryDownloadInfo> {
     required this.cancelToken,
     required this.downloadProgress,
     required this.imageHrefs,
-    List<GalleryImageIndex?>? imageIndices,
+    List<GalleryImage?>? images,
+    GalleryImage? coverImage,
     required this.priority,
     required this.sortOrder,
     required this.group,
@@ -1458,37 +1482,90 @@ class GalleryDownloadInfo implements Comparable<GalleryDownloadInfo> {
     this.oldVersionGalleryUrl,
     this.sanitizedTitle,
     required VoidCallback onSpeedUpdate,
-  }) : _onSpeedUpdate = onSpeedUpdate {
-    imageCache = GalleryImageCache(
-      gid: gid,
-      pageCount: pageCount,
-      downloadProgress: downloadProgress,
-      initialIndices: imageIndices,
-    );
+  })  : _onSpeedUpdate = onSpeedUpdate,
+        images = images,
+        coverImage = coverImage ?? images?.firstWhereOrNull((e) => e?.serialNo == 0);
+
+  /// Lazy-load the full [images] list from DB. Idempotent + concurrent-safe:
+  /// concurrent callers share the same [_imagesLoadingFuture]. After evict
+  /// ([images] == null), re-calling reloads from DB.
+  Future<void> ensureImagesLoaded() async {
+    if (images != null) return;
+    if (_imagesLoadingFuture != null) return _imagesLoadingFuture!;
+    _imagesLoadingFuture = _loadImages().whenComplete(() => _imagesLoadingFuture = null);
+    return _imagesLoadingFuture!;
   }
 
-  // === Image access delegates to [imageCache] ===
-  List<GalleryImageIndex?> get imageIndices => imageCache.imageIndices;
+  Future<void> _loadImages() async {
+    final List<ImageData> rows = await GalleryImageDao.selectImagesByGalleryId(gid);
+    final List<GalleryImage?> loaded = List.generate(pageCount, (_) => null);
+    for (final d in rows) {
+      if (d.serialNo < pageCount) {
+        loaded[d.serialNo] = GalleryImage(
+          serialNo: d.serialNo,
+          url: d.url,
+          originalImageUrl: d.originalImageUrl,
+          path: d.path,
+          imageHash: d.imageHash.isEmpty ? null : d.imageHash,
+          downloadStatus: DownloadStatus.values[d.downloadStatusIndex],
+        );
+      }
+    }
+    images = loaded;
+    if (coverImage == null && loaded[0] != null) {
+      coverImage = loaded[0];
+    }
 
-  GalleryImageIndex? indexAt(int serialNo) => imageCache.indexAt(serialNo);
+    /// Sync [GalleryDownloadProgress.hasDownloaded] for incomplete galleries.
+    /// Completed galleries derive hasDownloaded on demand (see getter).
+    if (downloadProgress.downloadStatus != DownloadStatus.downloaded) {
+      final List<bool>? has = downloadProgress._hasDownloaded;
+      if (has != null) {
+        for (int i = 0; i < pageCount; i++) {
+          has[i] = loaded[i]?.downloadStatus == DownloadStatus.downloaded;
+        }
+      }
+    }
+  }
 
-  Future<void> ensureImageIndicesLoaded() => imageCache.ensureImageIndicesLoaded();
+  /// Release [images] from memory. [coverImage] is retained for list/grid
+  /// cover display. Called on download complete and on read page close
+  /// (when the gallery is fully downloaded).
+  void evictImages() {
+    images = null;
+  }
 
-  Future<void> ensureImagesCacheLoaded() => imageCache.ensureImagesCacheLoaded();
+  /// Synchronous read — returns null if [images] is not currently resident.
+  GalleryImage? imageAtSync(int serialNo) => images?[serialNo];
 
-  void evictImagesCache() => imageCache.evictImagesCache();
+  /// Async read — triggers [ensureImagesLoaded] if needed.
+  Future<GalleryImage?> imageAt(int serialNo) async {
+    await ensureImagesLoaded();
+    return images?[serialNo];
+  }
 
-  Future<GalleryImage?> imageAt(int serialNo) => imageCache.imageAt(serialNo);
+  /// Write a freshly parsed/created [GalleryImage] at [serialNo]: updates
+  /// [images] (if resident) and [coverImage] (if serialNo == 0).
+  void upsertImage(int serialNo, GalleryImage image) {
+    images ??= List.generate(pageCount, (_) => null);
+    images![serialNo] = image;
+    if (serialNo == 0) coverImage = image;
+  }
 
-  GalleryImage? imageAtSync(int serialNo) => imageCache.imageAtSync(serialNo);
+  void updateImageStatus(int serialNo, DownloadStatus status) {
+    images?[serialNo]?.downloadStatus = status;
+    if (serialNo == 0) coverImage?.downloadStatus = status;
+  }
 
-  void upsertImage(int serialNo, GalleryImage image) => imageCache.upsertImage(serialNo, image);
+  void updateImagePath(int serialNo, String? newPath) {
+    images?[serialNo]?.path = newPath;
+    if (serialNo == 0) coverImage?.path = newPath;
+  }
 
-  void updateImageStatus(int serialNo, DownloadStatus status) => imageCache.updateImageStatus(serialNo, status);
-
-  void updateImagePath(int serialNo, String? newPath) => imageCache.updateImagePath(serialNo, newPath);
-
-  void clearImage(int serialNo) => imageCache.clearImage(serialNo);
+  void clearImage(int serialNo) {
+    images?[serialNo] = null;
+    if (serialNo == 0) coverImage = null;
+  }
 
   /// Synthesize a [GalleryDownloadedData] view from the absorbed fields.
   /// Used where external code / DB layer still expects the DataClass shape.
@@ -1577,14 +1654,27 @@ class GalleryDownloadProgress {
 
   DownloadStatus downloadStatus;
 
-  List<bool> hasDownloaded;
+  /// Per-image downloaded flags. Only populated for incomplete galleries
+  /// (downloadStatus != downloaded). For completed galleries, the getter
+  /// returns a synthesized all-true list on demand — avoids holding a
+  /// pageCount-sized List<bool> for every finished gallery in the library.
+  List<bool>? _hasDownloaded;
 
   GalleryDownloadProgress({
     required this.curCount,
     required this.totalCount,
     required this.downloadStatus,
-    required this.hasDownloaded,
-  });
+    List<bool>? hasDownloaded,
+  }) : _hasDownloaded = hasDownloaded;
+
+  List<bool> get hasDownloaded {
+    if (downloadStatus == DownloadStatus.downloaded) {
+      return List.filled(totalCount, true);
+    }
+    return _hasDownloaded ??= List.filled(totalCount, false);
+  }
+
+  set hasDownloaded(List<bool> value) => _hasDownloaded = value;
 
   Map<String, dynamic> toJson() {
     return {

@@ -155,6 +155,12 @@ mixin GalleryDownloadPageLogicMixin on GetxController
     } else {
       int readIndexRecord = await readProgressService.getReadProgress(gallery.gid);
 
+      /// Ensure the gallery's image list is resident before entering read
+      /// page — ReadPageState's constructor reads [imageAtSync] synchronously
+      /// to build the initial snapshot. If images has been evicted (gallery
+      /// was fully downloaded), this reloads from DB.
+      await galleryDownloadService.galleryDownloadInfos[gallery.gid]!.ensureImagesLoaded();
+
       toRoute(
         Routes.read,
         arguments: ReadPageInfo(

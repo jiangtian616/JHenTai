@@ -96,14 +96,18 @@ class GalleryMetadataStore {
   Future<void> _write(GalleryDownloadInfo gallery) async {
     final GalleryDownloadInfo info = gallery;
 
-    /// Serialize from imageIndices (always resident) — full-data cache may be
-    /// evicted, but index mirrors the DB columns (url/path/hash/status) which
-    /// is everything metadata JSON needs to restore. Runtime-only fields
-    /// (reloadKey, originalImageUrl, dimensions) are intentionally dropped;
-    /// they're re-parsed on demand after restore.
-    final List<Map<String, dynamic>?> imagesJson = info.imageIndices
-        .map((idx) => idx?.toGalleryImage().toJson())
-        .toList();
+    /// Serialize from [info.images]. If images has been evicted (gallery fully
+    /// downloaded and not currently being read), reload from DB so the on-disk
+    /// metadata stays complete. This is rare for completed galleries — save
+    /// is triggered by image-status or config changes, which don't fire on
+    /// evicted galleries except for rare events like group/priority change.
+    await info.ensureImagesLoaded();
+
+    final List<GalleryImage?>? images = info.images;
+    final List<Map<String, dynamic>?> imagesJson = images
+        ?.map((img) => img?.toJson())
+        .toList() ??
+        <Map<String, dynamic>?>[];
 
     Map<String, Object> metadata = {
       'gallery': gallery

@@ -53,6 +53,7 @@ Gallery galleryHistoryModel2Gallery(GalleryHistoryModel model) {
     title: model.title,
     category: model.category,
     cover: GalleryImage(
+      serialNo: 0,
       url: model.coverUrl,
       width: double.tryParse(match?.group(1) ?? ''),
       height: double.tryParse(match?.group(2) ?? ''),

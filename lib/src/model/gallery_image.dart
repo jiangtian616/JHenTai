@@ -2,6 +2,9 @@ import '../database/database.dart';
 import '../service/gallery_download/gallery_download_service.dart';
 
 class GalleryImage {
+  /// Mutable so callers (parsers, migrators) can set it after construction
+  /// when the serialNo isn't known at parse time.
+  int serialNo;
   String url;
   double? height;
   double? width;
@@ -18,6 +21,7 @@ class GalleryImage {
   DownloadStatus downloadStatus;
 
   GalleryImage({
+    required this.serialNo,
     required this.url,
     this.height,
     this.width,
@@ -32,6 +36,7 @@ class GalleryImage {
 
   Map<String, dynamic> toJson() {
     return {
+      "serialNo": serialNo,
       "url": url,
       "height": height,
       "width": width,
@@ -47,6 +52,7 @@ class GalleryImage {
 
   factory GalleryImage.fromJson(Map<String, dynamic> json) {
     return GalleryImage(
+      serialNo: json["serialNo"] ?? 0,
       url: json["url"],
       height: json["height"],
       width: json["width"],
@@ -60,7 +66,21 @@ class GalleryImage {
     );
   }
 
+  /// Construct from a Drift [ImageData] row. Used at startup to load covers
+  /// and on first gallery access to lazy-load the full image list.
+  factory GalleryImage.fromImageData(ImageData d) {
+    return GalleryImage(
+      serialNo: d.serialNo,
+      url: d.url,
+      originalImageUrl: d.originalImageUrl,
+      path: d.path,
+      imageHash: d.imageHash.isEmpty ? null : d.imageHash,
+      downloadStatus: DownloadStatus.values[d.downloadStatusIndex],
+    );
+  }
+
   GalleryImage copyWith({
+    int? serialNo,
     String? url,
     double? height,
     double? width,
@@ -72,6 +92,7 @@ class GalleryImage {
     DownloadStatus? downloadStatus,
   }) {
     return GalleryImage(
+      serialNo: serialNo ?? this.serialNo,
       url: url ?? this.url,
       height: height ?? this.height,
       width: width ?? this.width,
@@ -86,56 +107,6 @@ class GalleryImage {
   }
 
   /// Pick the URL to actually download from, given the gallery's
-  /// `downloadOriginalImage` flag. Mirrors
-  /// [GalleryImageIndex.downloadUrlFor] — kept in sync so business-layer code
-  /// can call `downloadUrlFor` on whichever shape it has on hand.
-  String downloadUrlFor(bool downloadOriginal) {
-    return downloadOriginal ? (originalImageUrl ?? url) : url;
-  }
-
-  @override
-  String toString() {
-    return 'GalleryImage{url: $url, height: $height, width: $width, originalImageUrl: $originalImageUrl, originalImageHeight: $originalImageHeight, originalImageWidth: $originalImageWidth, reloadKey: $reloadKey, path: $path, imageHash: $imageHash, downloadStatus: $downloadStatus}';
-  }
-}
-
-/// Lightweight index of a [GalleryImage], mirroring the DB columns of the `image` table
-/// plus the runtime-only fields that need to survive metadata JSON serialization
-/// (`reloadKey`, `originalImageUrl`). Dimensions (`height`/`width`/etc.) are NOT here —
-/// they're re-parsed from the image page on demand after a restore, or recomputed from
-/// the disk file. Always resident in memory; the full [GalleryImage] (with dimensions)
-/// is lazy-loaded into [GalleryDownloadInfo.imagesCache] only when needed.
-class GalleryImageIndex {
-  final int serialNo;
-  final String url;
-  final String? originalImageUrl;
-  String? reloadKey;
-  String? path;
-  DownloadStatus downloadStatus;
-  String? imageHash;
-
-  GalleryImageIndex({
-    required this.serialNo,
-    required this.url,
-    this.originalImageUrl,
-    this.reloadKey,
-    this.path,
-    required this.downloadStatus,
-    this.imageHash,
-  });
-
-  factory GalleryImageIndex.fromImageData(ImageData d) {
-    return GalleryImageIndex(
-      serialNo: d.serialNo,
-      url: d.url,
-      originalImageUrl: d.originalImageUrl,
-      path: d.path,
-      downloadStatus: DownloadStatus.values[d.downloadStatusIndex],
-      imageHash: d.imageHash.isEmpty ? null : d.imageHash,
-    );
-  }
-
-  /// Pick the URL to actually download from, given the gallery's
   /// `downloadOriginalImage` flag. For download-original galleries, prefer
   /// `originalImageUrl` and fall back to `url` if the original URL is missing
   /// (e.g. legacy rows written before the `originalImageUrl` column existed,
@@ -145,14 +116,8 @@ class GalleryImageIndex {
     return downloadOriginal ? (originalImageUrl ?? url) : url;
   }
 
-  GalleryImage toGalleryImage() {
-    return GalleryImage(
-      url: url,
-      originalImageUrl: originalImageUrl,
-      reloadKey: reloadKey,
-      path: path,
-      imageHash: imageHash,
-      downloadStatus: downloadStatus,
-    );
+  @override
+  String toString() {
+    return 'GalleryImage{serialNo: $serialNo, url: $url, height: $height, width: $width, originalImageUrl: $originalImageUrl, originalImageHeight: $originalImageHeight, originalImageWidth: $originalImageWidth, reloadKey: $reloadKey, path: $path, imageHash: $imageHash, downloadStatus: $downloadStatus}';
   }
 }

@@ -256,6 +256,9 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
       String? string = await localConfigService.read(configKey: ConfigEnum.readIndexRecord, subConfigKey: gallery.gid.toString());
       int readIndexRecord = (string == null ? 0 : (int.tryParse(string) ?? 0));
 
+      /// Ensure image list is resident before entering read page.
+      await galleryDownloadService.galleryDownloadInfos[gallery.gid]!.ensureImagesLoaded();
+
       toRoute(
         Routes.read,
         arguments: ReadPageInfo(

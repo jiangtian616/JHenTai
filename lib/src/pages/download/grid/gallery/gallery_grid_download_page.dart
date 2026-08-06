@@ -143,7 +143,7 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
               builder: (_) => GetBuilder<GalleryDownloadService>(
                 id: '${logic.downloadService.downloadImageUrlId}::${gallery.gid}::0',
                 builder: (_) {
-                  GalleryImage? image = logic.downloadService.galleryDownloadInfos[gallery.gid]?.indexAt(0)?.toGalleryImage();
+                  GalleryImage? image = logic.downloadService.galleryDownloadInfos[gallery.gid]?.coverImage;
 
                   if (image == null) {
                     return Center(
@@ -236,7 +236,7 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
     return GetBuilder<GalleryDownloadService>(
       id: '${logic.downloadService.downloadImageUrlId}::${gallery.gid}::0',
       builder: (_) {
-        GalleryImage? image = logic.downloadService.galleryDownloadInfos[gallery.gid]?.indexAt(0)?.toGalleryImage();
+        GalleryImage? image = logic.downloadService.galleryDownloadInfos[gallery.gid]?.coverImage;
 
         if (image?.downloadStatus == DownloadStatus.downloaded) {
           return buildGalleryImage(image!);

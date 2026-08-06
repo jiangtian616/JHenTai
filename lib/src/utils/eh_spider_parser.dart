@@ -264,6 +264,7 @@ class EHSpiderParser {
     String coverStyle = document.querySelector('#gd1 > div')?.attributes['style'] ?? '';
     RegExpMatch coverMatch = RegExp(r'width:(\d+)px.*height:(\d+)px.*url\((.*)\)').firstMatch(coverStyle)!;
     GalleryImage cover = GalleryImage(
+      serialNo: 0,
       url: coverMatch.group(3)!,
       height: double.parse(coverMatch.group(2)!),
       width: double.parse(coverMatch.group(1)!),
@@ -435,7 +436,7 @@ class EHSpiderParser {
       title: map['title'],
       japaneseTitle: map['title_jpn'],
       category: map['category'],
-      cover: GalleryImage(url: map['thumb']),
+      cover: GalleryImage(serialNo: 0, url: map['thumb']),
       pageCount: int.parse(map['filecount']),
       rating: double.parse(map['rating']),
       language: language ?? 'Japanese',
@@ -471,7 +472,7 @@ class EHSpiderParser {
         title: item['title'],
         japaneseTitle: item['title_jpn'],
         category: item['category'],
-        cover: GalleryImage(url: item['thumb']),
+        cover: GalleryImage(serialNo: 0, url: item['thumb']),
         pageCount: int.parse(item['filecount']),
         rating: double.parse(item['rating']),
         language: language ?? 'Japanese',
@@ -597,6 +598,7 @@ class EHSpiderParser {
     String reloadKey = RegExp(r"return nl\('(.*)'\)").firstMatch(reloadKeyElement.attributes['onclick']!)!.group(1)!;
 
     return GalleryImage(
+      serialNo: 0,
       url: url,
       height: height,
       width: width,
@@ -1156,6 +1158,7 @@ class EHSpiderParser {
       return null;
     }
     return GalleryImage(
+      serialNo: 0,
       url: coverUrl,
       height: double.parse(height),
       width: double.parse(width),
@@ -1183,6 +1186,7 @@ class EHSpiderParser {
       return null;
     }
     return GalleryImage(
+      serialNo: 0,
       url: coverUrl,
       height: double.parse(height),
       width: double.parse(width),
@@ -1210,6 +1214,7 @@ class EHSpiderParser {
       return null;
     }
     return GalleryImage(
+      serialNo: 0,
       url: coverUrl,
       height: double.parse(height),
       width: double.parse(width),
@@ -1237,6 +1242,7 @@ class EHSpiderParser {
       return null;
     }
     return GalleryImage(
+      serialNo: 0,
       url: coverUrl,
       height: double.parse(height),
       width: double.parse(width),

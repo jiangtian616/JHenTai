@@ -72,6 +72,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin, 
     return imageFiles
         .map(
           (file) => GalleryImage(
+            serialNo: 0,
             url: '',
             path: relative(file.path, from: pathService.getVisibleDir().path),
             downloadStatus: DownloadStatus.downloaded,
@@ -205,6 +206,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin, 
       title: basename(galleryDir.path),
       path: galleryDir.path,
       cover: GalleryImage(
+        serialNo: 0,
         url: '',
         path: relative(coverImage.path, from: pathService.getVisibleDir().path),
         downloadStatus: DownloadStatus.downloaded,

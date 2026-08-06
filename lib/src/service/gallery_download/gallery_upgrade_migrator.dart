@@ -40,27 +40,27 @@ class GalleryUpgradeMigrator {
         break;
       }
 
-      if (newGallery.indexAt(serialNo)?.downloadStatus == DownloadStatus.downloaded) {
+      if (newGallery.imageAtSync(serialNo)?.downloadStatus == DownloadStatus.downloaded) {
         continue;
       }
 
-      int? oldImageSerialNo = oldGallery.imageIndices.firstIndexWhereOrNull((e) => e?.imageHash == imageHashes[serialNo]);
+      int? oldImageSerialNo = oldGallery.images?.firstIndexWhereOrNull((e) => e?.imageHash == imageHashes[serialNo]);
       if (oldImageSerialNo == null) {
         continue;
       }
 
-      GalleryImageIndex? oldIdx = oldGallery.indexAt(oldImageSerialNo);
-      if (oldIdx == null) {
+      GalleryImage? oldImage = oldGallery.imageAtSync(oldImageSerialNo);
+      if (oldImage == null) {
         continue;
       }
-      GalleryImage oldImage = oldIdx.toGalleryImage();
 
       /// Path extension depends on the actual download URL. Old gallery may
       /// have `downloadOriginalImage=true` and stored `fullimg.php`→`jpg` on
       /// disk; we must use the same URL when recomputing the path for the new
       /// gallery so the extension matches.
-      final String oldDownloadUrl = oldIdx.downloadUrlFor(oldGallery.downloadOriginalImage);
+      final String oldDownloadUrl = oldImage.downloadUrlFor(oldGallery.downloadOriginalImage);
       GalleryImage newImage = oldImage.copyWith(
+        serialNo: serialNo,
         path: DownloadPathResolver.computeImageDownloadRelativePath(newGallery.toGalleryDownloadedData(), oldDownloadUrl, serialNo),
         downloadStatus: DownloadStatus.downloaded,
       );
@@ -69,7 +69,7 @@ class GalleryUpgradeMigrator {
       io.File oldFile = io.File(path.join(pathService.getVisibleDir().path, oldImage.path!));
       await oldFile.copy(path.join(pathService.getVisibleDir().path, newImage.path!));
 
-      if (newGallery.indexAt(serialNo) == null) {
+      if (newGallery.imageAtSync(serialNo) == null) {
         await _service.saveNewImageInfoInDatabase(newImage, serialNo, newGallery.gid);
         newGallery.upsertImage(serialNo, newImage);
       } else {
@@ -103,7 +103,7 @@ class GalleryUpgradeMigrator {
   /// Called from [_downloadImageTask] after parsing the image URL — if the
   /// old gallery has a matching image, we skip the download entirely.
   Future<void> tryCopyImageInfoFromImage(String oldVersionGalleryUrl, GalleryDownloadInfo newGallery, int newImageSerialNo) {
-    final String? hash = newGallery.indexAt(newImageSerialNo)?.imageHash;
+    final String? hash = newGallery.imageAtSync(newImageSerialNo)?.imageHash;
     if (hash == null) {
       return Future.value();
     }
@@ -136,20 +136,20 @@ class GalleryUpgradeMigrator {
       return;
     }
 
-    int? oldImageSerialNo = oldGallery.imageIndices.firstIndexWhereOrNull((e) => e?.imageHash == newImageHash);
+    int? oldImageSerialNo = oldGallery.images?.firstIndexWhereOrNull((e) => e?.imageHash == newImageHash);
     if (oldImageSerialNo == null) {
       return;
     }
 
-    GalleryImageIndex? oldIdx = oldGallery.indexAt(oldImageSerialNo);
-    if (oldIdx == null) {
+    GalleryImage? oldImage = oldGallery.imageAtSync(oldImageSerialNo);
+    if (oldImage == null) {
       return;
     }
-    GalleryImage oldImage = oldIdx.toGalleryImage();
 
     if (preSaveNewImage) {
-      final String oldDownloadUrl = oldIdx.downloadUrlFor(oldGallery.downloadOriginalImage);
+      final String oldDownloadUrl = oldImage.downloadUrlFor(oldGallery.downloadOriginalImage);
       GalleryImage newImage = oldImage.copyWith(
+        serialNo: newImageSerialNo,
         path: DownloadPathResolver.computeImageDownloadRelativePath(newGallery.toGalleryDownloadedData(), oldDownloadUrl, newImageSerialNo),
         downloadStatus: newImageDownloadStatus!,
       );
@@ -164,7 +164,7 @@ class GalleryUpgradeMigrator {
   Future<void> _copyImageInfo(GalleryImage oldImage, GalleryDownloadInfo newGallery, int newImageSerialNo) async {
     log.download('Copy old image, new serialNo: $newImageSerialNo');
 
-    GalleryImage newImage = newGallery.indexAt(newImageSerialNo)!.toGalleryImage();
+    GalleryImage newImage = newGallery.imageAtSync(newImageSerialNo)!;
 
     io.File oldFile = io.File(path.join(pathService.getVisibleDir().path, oldImage.path!));
     await oldFile.copy(path.join(pathService.getVisibleDir().path, newImage.path!));

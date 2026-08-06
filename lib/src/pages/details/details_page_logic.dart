@@ -145,6 +145,14 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   void onReady() async {
     super.onReady();
 
+    /// If this gallery is in the download list and its image list has been
+    /// evicted (fully downloaded earlier), reload so detail/thumbnails pages
+    /// can read image status synchronously.
+    final int gid = state.galleryUrl.gid;
+    if (galleryDownloadService.containGallery(gid)) {
+      await galleryDownloadService.galleryDownloadInfos[gid]!.ensureImagesLoaded();
+    }
+
     if (state.galleryDetails == null || state.apikey == null) {
       getDetails();
     }

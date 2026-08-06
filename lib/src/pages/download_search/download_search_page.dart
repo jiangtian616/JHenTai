@@ -103,7 +103,7 @@ class DownloadSearchPage extends StatelessWidget {
       child: GetBuilder<GalleryDownloadService>(
         id: '${galleryDownloadService.galleryDownloadProgressId}::${gallery.gid}',
         builder: (_) {
-          GalleryImage? cover = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.indexAt(0)?.toGalleryImage();
+          GalleryImage? cover = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.coverImage;
           GalleryDownloadProgress? downloadProgress = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress;
           String? groupName = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.group;
 
@@ -184,7 +184,7 @@ class DownloadSearchPage extends StatelessWidget {
       child: GetBuilder<GalleryDownloadService>(
         id: '${galleryDownloadService.downloadImageUrlId}::${gallery.gid}::0',
         builder: (_) {
-          GalleryImage? image = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.indexAt(0)?.toGalleryImage();
+          GalleryImage? image = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.coverImage;
 
           /// cover is the first image, if we haven't downloaded first image, then return a [UIConfig.loadingAnimation]
           if (image?.downloadStatus != DownloadStatus.downloaded) {
@@ -412,7 +412,7 @@ class DownloadSearchPage extends StatelessWidget {
         arguments: DetailsPageArgument(galleryUrl: GalleryUrl.parse(archive.galleryUrl)),
       ),
       child: EHImage(
-        galleryImage: GalleryImage(url: archive.coverUrl),
+        galleryImage: GalleryImage(serialNo: 0, url: archive.coverUrl),
         containerWidth: UIConfig.downloadSearchPageCoverWidth,
         containerHeight: UIConfig.downloadSearchPageCoverHeight,
         containerColor: UIConfig.galleryCardBackGroundColor(context),

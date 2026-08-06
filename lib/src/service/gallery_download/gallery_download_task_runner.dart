@@ -119,12 +119,12 @@ class GalleryDownloadTaskRunner {
     GalleryDownloadInfo galleryDownloadInfo = _service.galleryDownloadInfos[gallery.gid]!;
 
     /// has downloaded this image => nothing to do
-    if (galleryDownloadInfo.indexAt(serialNo)?.downloadStatus == DownloadStatus.downloaded) {
+    if (galleryDownloadInfo.imageAtSync(serialNo)?.downloadStatus == DownloadStatus.downloaded) {
       return;
     }
 
     /// url has been parsed (DB row exists) => download directly
-    if (galleryDownloadInfo.indexAt(serialNo) != null) {
+    if (galleryDownloadInfo.imageAtSync(serialNo) != null) {
       return _service.submitImageTask(gallery, serialNo, () => downloadImageTask(serialNo));
     }
 
@@ -206,7 +206,7 @@ class GalleryDownloadTaskRunner {
       if (gallery.oldVersionGalleryUrl != null) {
         await _service.tryCopyImageInfoFromHref(gallery.oldVersionGalleryUrl!, gallery, serialNo);
 
-        if (galleryDownloadInfo.indexAt(serialNo) != null) {
+        if (galleryDownloadInfo.imageAtSync(serialNo) != null) {
           return;
         }
       }
@@ -248,6 +248,7 @@ class GalleryDownloadTaskRunner {
       /// gallery's `downloadOriginalImage` flag. The parser fills both `url`
       /// (regular) and `originalImageUrl` (original); the model itself has no
       /// opinion about which one to use.
+      image.serialNo = serialNo;
       final String downloadUrl = image.downloadUrlFor(gallery.downloadOriginalImage);
       image.path = DownloadPathResolver.computeImageDownloadRelativePath(gallery.toGalleryDownloadedData(), downloadUrl, serialNo);
       image.downloadStatus = DownloadStatus.downloading;

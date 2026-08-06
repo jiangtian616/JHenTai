@@ -34,6 +34,7 @@ import '../../model/read_page_info.dart';
 import '../../network/eh_request.dart';
 import '../../routes/routes.dart';
 import '../../service/log.dart';
+import '../../service/gallery_download/gallery_download_service.dart';
 import '../../service/read_progress_service.dart';
 import '../../setting/preference_setting.dart';
 import '../../setting/read_setting.dart';
@@ -268,6 +269,17 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
 
     if (readSetting.enableCustomReadBrightness.isTrue) {
       resetBrightness();
+    }
+
+    /// Release the gallery's image list if it's fully downloaded. The read
+    /// page kept it resident for synchronous access; now that we're closing,
+    /// evict to bound memory. Incomplete galleries keep their list — the
+    /// download loop is still using it.
+    if (state.readPageInfo.mode == ReadMode.downloaded) {
+      final GalleryDownloadInfo? info = galleryDownloadService.galleryDownloadInfos[state.readPageInfo.gid];
+      if (info != null && info.downloadProgress.downloadStatus == DownloadStatus.downloaded) {
+        info.evictImages();
+      }
     }
 
     Get.delete<VerticalListLayoutLogic>(force: true);
