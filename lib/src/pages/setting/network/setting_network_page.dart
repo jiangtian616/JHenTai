@@ -46,14 +46,8 @@ class SettingNetworkPage extends StatelessWidget {
                 _buildEnableDomainFronting(),
                 _buildProxyAddress(),
                 _buildSmartCache(),
-                if (networkSetting.enableSmartCache.isTrue) ...[
-                  _buildSmartCacheRetention(),
-                  const _CacheSizeTile(),
-                ],
-                if (networkSetting.enableSmartCache.isFalse) ...[
-                  _buildPageCacheMaxAge(),
-                  _buildCacheImageExpireDuration(),
-                ],
+                _buildSmartCacheRetention(),
+                const _CacheSizeTile(),
                 _buildConnectTimeout(context),
                 _buildReceiveTimeout(context),
               ],
@@ -107,62 +101,6 @@ class SettingNetworkPage extends StatelessWidget {
               child: Text('3d'.tr), value: const Duration(days: 3)),
           DropdownMenuItem(
               child: Text('7d'.tr), value: const Duration(days: 7)),
-          DropdownMenuItem(
-              child: Text('30d'.tr), value: const Duration(days: 30)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPageCacheMaxAge() {
-    return ListTile(
-      title: Text('pageCacheMaxAge'.tr),
-      subtitle: Text('pageCacheMaxAgeHint'.tr),
-      trailing: EHCodexStyleDropdown<Duration>(
-        value: networkSetting.pageCacheMaxAge.value,
-        elevation: 4,
-        alignment: AlignmentDirectional.centerEnd,
-        onChanged: (Duration? newValue) =>
-            networkSetting.savePageCacheMaxAge(newValue!),
-        items: [
-          DropdownMenuItem(
-              child: Text('1m'.tr), value: const Duration(minutes: 1)),
-          DropdownMenuItem(
-              child: Text('10m'.tr), value: const Duration(minutes: 10)),
-          DropdownMenuItem(
-              child: Text('1h'.tr), value: const Duration(hours: 1)),
-          DropdownMenuItem(
-              child: Text('1d'.tr), value: const Duration(days: 1)),
-          DropdownMenuItem(
-              child: Text('3d'.tr), value: const Duration(days: 3)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCacheImageExpireDuration() {
-    return ListTile(
-      title: Text('cacheImageExpireDuration'.tr),
-      subtitle: Text('cacheImageExpireDurationHint'.tr),
-      trailing: EHCodexStyleDropdown<Duration>(
-        value: networkSetting.cacheImageExpireDuration.value,
-        elevation: 4,
-        alignment: AlignmentDirectional.centerEnd,
-        onChanged: (Duration? newValue) =>
-            networkSetting.saveCacheImageExpireDuration(newValue!),
-        items: [
-          DropdownMenuItem(
-              child: Text('1d'.tr), value: const Duration(days: 1)),
-          DropdownMenuItem(
-              child: Text('2d'.tr), value: const Duration(days: 2)),
-          DropdownMenuItem(
-              child: Text('3d'.tr), value: const Duration(days: 3)),
-          DropdownMenuItem(
-              child: Text('5d'.tr), value: const Duration(days: 5)),
-          DropdownMenuItem(
-              child: Text('7d'.tr), value: const Duration(days: 7)),
-          DropdownMenuItem(
-              child: Text('14d'.tr), value: const Duration(days: 14)),
           DropdownMenuItem(
               child: Text('30d'.tr), value: const Duration(days: 30)),
         ],

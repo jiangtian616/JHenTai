@@ -3,11 +3,12 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/service/image_translation_service.dart';
 import 'package:jhentai/src/setting/image_translation_setting.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
+import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
+import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
 
 class _OcrModel {
   const _OcrModel(this.code, this.label);
@@ -25,6 +26,24 @@ const List<_OcrModel> _ocrModels = [
   _OcrModel('kor', '韩语'),
 ];
 
+const List<_OcrModel> _paddleLanguageOptions = [
+  _OcrModel('japan', '日本語'),
+  _OcrModel('ch', '简体中文'),
+  _OcrModel('chinese_cht', '繁體中文'),
+  _OcrModel('en', 'English'),
+  _OcrModel('korean', '한국어'),
+];
+
+const List<String> _targetLanguageOptions = [
+  '简体中文',
+  '繁體中文',
+  'English',
+  '日本語',
+  '한국어',
+  'Português',
+  'Русский',
+];
+
 class SettingImageTranslationPage extends StatefulWidget {
   const SettingImageTranslationPage({super.key});
 
@@ -37,11 +56,11 @@ class _SettingImageTranslationPageState
     extends State<SettingImageTranslationPage> {
   late final TextEditingController _ocrExecutableController;
   late final TextEditingController _paddleExecutableController;
-  late final TextEditingController _paddleLanguageController;
   late final TextEditingController _ocrDirectoryController;
   late final TextEditingController _endpointController;
   late final TextEditingController _apiKeyController;
-  late final TextEditingController _targetLanguageController;
+  late String _paddleLanguage;
+  late String _targetLanguage;
   late ImageTranslationProvider _provider;
   late OcrModelSource _ocrSource;
   late ImageOcrEngine _ocrEngine;
@@ -61,16 +80,14 @@ class _SettingImageTranslationPageState
         text: imageTranslationSetting.ocrExecutable.value);
     _paddleExecutableController = TextEditingController(
         text: imageTranslationSetting.paddleOcrExecutable.value);
-    _paddleLanguageController = TextEditingController(
-        text: imageTranslationSetting.paddleOcrLanguage.value);
     _ocrDirectoryController = TextEditingController(
         text: imageTranslationSetting.ocrDataDirectory.value ?? '');
     _endpointController = TextEditingController(
         text: imageTranslationSetting.translatorEndpoint.value ?? '');
     _apiKeyController = TextEditingController(
         text: imageTranslationSetting.translatorApiKey.value ?? '');
-    _targetLanguageController = TextEditingController(
-        text: imageTranslationSetting.targetLanguage.value);
+    _paddleLanguage = imageTranslationSetting.paddleOcrLanguage.value;
+    _targetLanguage = imageTranslationSetting.targetLanguage.value;
     _provider = imageTranslationSetting.translatorProvider.value;
     _ocrSource = imageTranslationSetting.ocrModelSource.value;
     _ocrEngine = imageTranslationSetting.ocrEngine.value;
@@ -87,11 +104,9 @@ class _SettingImageTranslationPageState
   void dispose() {
     _ocrExecutableController.dispose();
     _paddleExecutableController.dispose();
-    _paddleLanguageController.dispose();
     _ocrDirectoryController.dispose();
     _endpointController.dispose();
     _apiKeyController.dispose();
-    _targetLanguageController.dispose();
     super.dispose();
   }
 
@@ -103,233 +118,330 @@ class _SettingImageTranslationPageState
         title: Text('imageTextTranslation'.tr),
         actions: [TextButton(onPressed: _save, child: Text('saveSetting'.tr))],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Text('imageTranslationTranslatorSection'.tr,
-              style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          Text('imageTranslationApiTestHint'.tr,
-              style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: 12),
-          DropdownButtonFormField<ImageTranslationProvider>(
-            value: _provider,
-            decoration: InputDecoration(
-                labelText: 'imageTranslationProvider'.tr,
-                border: const OutlineInputBorder()),
-            items: [
-              DropdownMenuItem(
-                  value: ImageTranslationProvider.openAICompatible,
-                  child: Text('imageTranslationOpenAICompatible'.tr)),
-              DropdownMenuItem(
-                  value: ImageTranslationProvider.anthropic,
-                  child: const Text('Anthropic Messages API')),
+      body: EHAppleSettingsListView(
+        safeArea: true,
+        groups: [
+          EHAppleSettingsGroup(
+            title: 'imageTranslationTranslatorSection'.tr,
+            children: [
+              _buildProvider(),
+              _buildEndpoint(),
+              _buildApiKey(),
+              _buildFetchModels(),
+              _buildModel(),
+              _buildTargetLanguage(),
             ],
-            onChanged: (value) => setState(() {
-              _provider = value!;
-              _availableModels = [];
-              _endpointController.text =
-                  _provider == ImageTranslationProvider.anthropic
-                      ? 'https://api.anthropic.com/v1'
-                      : 'https://api.openai.com/v1';
-            }),
           ),
-          const SizedBox(height: 16),
-          _field(
-              controller: _endpointController,
-              label: 'imageTranslationApiBaseUrl'.tr,
-              hint: _provider == ImageTranslationProvider.anthropic
-                  ? 'https://api.anthropic.com/v1'
-                  : 'https://api.openai.com/v1',
-              keyboardType: TextInputType.url),
-          _field(
-              controller: _apiKeyController,
-              label: 'apiKey'.tr,
-              obscureText: true),
-          FilledButton.icon(
-            onPressed: _fetchingModels ? null : _fetchModels,
-            icon: _fetchingModels
-                ? const SizedBox(
-                    height: 16,
-                    width: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.cloud_sync_outlined),
-            label: Text('imageTranslationTestAndFetchModels'.tr),
-          ),
-          const SizedBox(height: 16),
-          DropdownButtonFormField<String>(
-            value: _availableModels
-                    .contains(imageTranslationSetting.translatorModel.value)
-                ? imageTranslationSetting.translatorModel.value
-                : null,
-            isExpanded: true,
-            decoration: InputDecoration(
-                labelText: 'imageTranslationModel'.tr,
-                hintText: 'imageTranslationFetchModelsFirst'.tr,
-                border: const OutlineInputBorder()),
-            items: _availableModels
-                .map((model) =>
-                    DropdownMenuItem(value: model, child: Text(model)))
-                .toList(),
-            onChanged: _availableModels.isEmpty
-                ? null
-                : (model) => setState(() =>
-                    imageTranslationSetting.translatorModel.value = model!),
-          ),
-          const SizedBox(height: 16),
-          _field(
-              controller: _targetLanguageController,
-              label: 'imageTranslationTargetLanguage'.tr),
-          const SizedBox(height: 28),
-          Text('imageTranslationOcrSection'.tr,
-              style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          Text('imageTranslationOcrDownloadHint'.tr,
-              style: Theme.of(context).textTheme.bodySmall),
-          const SizedBox(height: 12),
-          DropdownButtonFormField<ImageOcrEngine>(
-            value: _ocrEngine,
-            decoration: InputDecoration(
-                labelText: 'imageTranslationOcrEngine'.tr,
-                border: const OutlineInputBorder()),
-            items: [
-              DropdownMenuItem(
-                  value: ImageOcrEngine.tesseract,
-                  child: const Text('Tesseract')),
-              DropdownMenuItem(
-                  value: ImageOcrEngine.paddleOcr,
-                  child: const Text('PaddleOCR (PP-OCRv6)')),
-              DropdownMenuItem(
-                  value: ImageOcrEngine.paddleOcrVl16,
-                  child: const Text('PaddleOCR-VL-1.6')),
-            ],
-            onChanged: (engine) => setState(() => _ocrEngine = engine!),
-          ),
-          const SizedBox(height: 16),
-          if (_ocrEngine != ImageOcrEngine.tesseract) ...[
-            Text('imageTranslationPaddleHint'.tr,
-                style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: 12),
-            _field(
-                controller: _paddleLanguageController,
-                label: 'imageTranslationPaddleLanguage'.tr,
-                hint: 'japan / ch / en / korean'),
-            Text(
-                '${'imageTranslationPaddleRuntimePath'.tr}: ${imageTranslationService.paddleRuntimePath()}',
-                style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: 8),
-            FilledButton.icon(
-                onPressed: _preparingPaddle ? null : _preparePaddle,
-                icon: _preparingPaddle
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Icon(Icons.download_for_offline_outlined),
-                label:
-                    Text(_paddleStage ?? 'imageTranslationPreparePaddle'.tr)),
-          ] else ...[
-            _field(
-                controller: _ocrExecutableController,
-                label: 'imageTranslationOcrExecutable'.tr,
-                hint: 'tesseract'),
-            Row(children: [
-              Expanded(
-                  child: _field(
-                      controller: _ocrDirectoryController,
-                      label: 'imageTranslationOcrDataDirectory'.tr,
-                      hint: '…/tessdata')),
-              const SizedBox(width: 8),
-              IconButton(
-                  tooltip: 'imageTranslationChooseDirectory'.tr,
-                  onPressed: _chooseDirectory,
-                  icon: const Icon(Icons.folder_open_outlined)),
-            ]),
-            OutlinedButton.icon(
-                onPressed: _detectingOcr ? null : _detectOcr,
-                icon: const Icon(Icons.manage_search_outlined),
-                label: Text('imageTranslationDetectOcr'.tr)),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<OcrModelSource>(
-              value: _ocrSource,
-              decoration: InputDecoration(
-                  labelText: 'imageTranslationOcrModelSource'.tr,
-                  border: const OutlineInputBorder()),
-              items: [
-                DropdownMenuItem(
-                    value: OcrModelSource.giteeMirror,
-                    child: Text('imageTranslationGiteeMirror'.tr)),
-                DropdownMenuItem(
-                    value: OcrModelSource.githubOfficial,
-                    child: Text('imageTranslationGithubOfficial'.tr)),
+          EHAppleSettingsGroup(
+            title: 'imageTranslationOcrSection'.tr,
+            children: [
+              _buildOcrEngine(),
+              if (_ocrEngine != ImageOcrEngine.tesseract) ...[
+                _buildPaddleLanguage(),
+                _buildPaddleRuntime(),
+              ] else ...[
+                _buildOcrExecutable(),
+                _buildOcrDirectory(),
+                _buildDetectOcr(),
+                _buildOcrModelSource(),
+                ..._ocrModels.map(_ocrModelTile),
               ],
-              onChanged: (value) => setState(() => _ocrSource = value!),
-            ),
-            const SizedBox(height: 12),
-            ..._ocrModels.map(_ocrModelTile),
-          ],
+            ],
+          ),
         ],
-      ).withListTileTheme(context),
+      ),
+    );
+  }
+
+  Widget _buildProvider() {
+    return ListTile(
+      title: Text('imageTranslationProvider'.tr),
+      trailing: EHCodexStyleDropdown<ImageTranslationProvider>(
+        value: _provider,
+        elevation: 4,
+        alignment: AlignmentDirectional.centerEnd,
+        onChanged: (value) => setState(() {
+          _provider = value!;
+          _availableModels = [];
+          _endpointController.text =
+              _provider == ImageTranslationProvider.anthropic
+                  ? 'https://api.anthropic.com/v1'
+                  : 'https://api.openai.com/v1';
+        }),
+        items: [
+          DropdownMenuItem(
+              value: ImageTranslationProvider.openAICompatible,
+              child: Text('imageTranslationOpenAICompatible'.tr)),
+          const DropdownMenuItem(
+              value: ImageTranslationProvider.anthropic,
+              child: Text('Anthropic Messages API')),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEndpoint() {
+    return ListTile(
+      title: Text('imageTranslationApiBaseUrl'.tr),
+      trailing: SizedBox(
+        width: 240,
+        child: EHAppleTextField(
+          controller: _endpointController,
+          keyboardType: TextInputType.url,
+          autocorrect: false,
+          enableSuggestions: false,
+          decoration: const InputDecoration(
+              isDense: true, labelStyle: TextStyle(fontSize: 12)),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildApiKey() {
+    return ListTile(
+      title: Text('apiKey'.tr),
+      trailing: SizedBox(
+        width: 180,
+        child: EHAppleTextField(
+          controller: _apiKeyController,
+          obscureText: true,
+          autocorrect: false,
+          enableSuggestions: false,
+          decoration: const InputDecoration(
+              isDense: true, labelStyle: TextStyle(fontSize: 12)),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFetchModels() {
+    return ListTile(
+      title: Text('imageTranslationTestAndFetchModels'.tr),
+      subtitle: Text('imageTranslationApiTestHint'.tr,
+          style: const TextStyle(fontSize: 12)),
+      trailing: _fetchingModels
+          ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2))
+          : const Icon(Icons.cloud_sync_outlined),
+      onTap: _fetchingModels ? null : _fetchModels,
+    );
+  }
+
+  Widget _buildModel() {
+    final List<String> models = _availableModels.isEmpty
+        ? [imageTranslationSetting.translatorModel.value]
+        : _availableModels;
+    return ListTile(
+      title: Text('imageTranslationModel'.tr),
+      subtitle: _availableModels.isEmpty
+          ? Text('imageTranslationFetchModelsFirst'.tr,
+              style: const TextStyle(fontSize: 12))
+          : null,
+      trailing: EHCodexStyleDropdown<String>(
+        value: models.contains(imageTranslationSetting.translatorModel.value)
+            ? imageTranslationSetting.translatorModel.value
+            : models.first,
+        elevation: 4,
+        alignment: AlignmentDirectional.centerEnd,
+        onChanged: (model) => setState(
+            () => imageTranslationSetting.translatorModel.value = model!),
+        items: models
+            .map((model) => DropdownMenuItem(value: model, child: Text(model)))
+            .toList(),
+      ),
+    );
+  }
+
+  Widget _buildTargetLanguage() {
+    final List<String> options =
+        _targetLanguageOptions.contains(_targetLanguage)
+            ? _targetLanguageOptions
+            : [..._targetLanguageOptions, _targetLanguage];
+    return ListTile(
+      title: Text('imageTranslationTargetLanguage'.tr),
+      trailing: EHCodexStyleDropdown<String>(
+        value: _targetLanguage,
+        elevation: 4,
+        alignment: AlignmentDirectional.centerEnd,
+        onChanged: (value) => setState(() => _targetLanguage = value!),
+        items: options
+            .map((language) =>
+                DropdownMenuItem(value: language, child: Text(language)))
+            .toList(),
+      ),
+    );
+  }
+
+  Widget _buildOcrEngine() {
+    return ListTile(
+      title: Text('imageTranslationOcrEngine'.tr),
+      subtitle: Text('imageTranslationOcrDownloadHint'.tr,
+          style: const TextStyle(fontSize: 12)),
+      trailing: EHCodexStyleDropdown<ImageOcrEngine>(
+        value: _ocrEngine,
+        elevation: 4,
+        alignment: AlignmentDirectional.centerEnd,
+        onChanged: (engine) => setState(() => _ocrEngine = engine!),
+        items: const [
+          DropdownMenuItem(
+              value: ImageOcrEngine.tesseract, child: Text('Tesseract')),
+          DropdownMenuItem(
+              value: ImageOcrEngine.paddleOcr,
+              child: Text('PaddleOCR (PP-OCRv6)')),
+          DropdownMenuItem(
+              value: ImageOcrEngine.paddleOcrVl16,
+              child: Text('PaddleOCR-VL-1.6')),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPaddleLanguage() {
+    final List<_OcrModel> options =
+        _paddleLanguageOptions.any((option) => option.code == _paddleLanguage)
+            ? _paddleLanguageOptions
+            : [
+                ..._paddleLanguageOptions,
+                _OcrModel(_paddleLanguage, _paddleLanguage)
+              ];
+    return ListTile(
+      title: Text('imageTranslationPaddleLanguage'.tr),
+      trailing: EHCodexStyleDropdown<String>(
+        value: _paddleLanguage,
+        elevation: 4,
+        alignment: AlignmentDirectional.centerEnd,
+        onChanged: (value) => setState(() => _paddleLanguage = value!),
+        items: options
+            .map((option) =>
+                DropdownMenuItem(value: option.code, child: Text(option.label)))
+            .toList(),
+      ),
+    );
+  }
+
+  Widget _buildPaddleRuntime() {
+    return ListTile(
+      title: Text(_paddleStage ?? 'imageTranslationPreparePaddle'.tr),
+      subtitle: Text(
+          '${'imageTranslationPaddleRuntimePath'.tr}: ${imageTranslationService.paddleRuntimePath()}',
+          style: const TextStyle(fontSize: 12)),
+      trailing: _preparingPaddle
+          ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2))
+          : const Icon(Icons.download_for_offline_outlined),
+      onTap: _preparingPaddle ? null : _preparePaddle,
+    );
+  }
+
+  Widget _buildOcrExecutable() {
+    return ListTile(
+      title: Text('imageTranslationOcrExecutable'.tr),
+      trailing: SizedBox(
+        width: 160,
+        child: EHAppleTextField(
+          controller: _ocrExecutableController,
+          autocorrect: false,
+          decoration: const InputDecoration(
+              isDense: true, labelStyle: TextStyle(fontSize: 12)),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOcrDirectory() {
+    return ListTile(
+      title: Text('imageTranslationOcrDataDirectory'.tr),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 180,
+            child: EHAppleTextField(
+              controller: _ocrDirectoryController,
+              autocorrect: false,
+              decoration: const InputDecoration(
+                  isDense: true, labelStyle: TextStyle(fontSize: 12)),
+            ),
+          ),
+          IconButton(
+              tooltip: 'imageTranslationChooseDirectory'.tr,
+              onPressed: _chooseDirectory,
+              icon: const Icon(Icons.folder_open_outlined)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetectOcr() {
+    return ListTile(
+      title: Text('imageTranslationDetectOcr'.tr),
+      trailing: _detectingOcr
+          ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2))
+          : const Icon(Icons.manage_search_outlined),
+      onTap: _detectingOcr ? null : _detectOcr,
+    );
+  }
+
+  Widget _buildOcrModelSource() {
+    return ListTile(
+      title: Text('imageTranslationOcrModelSource'.tr),
+      trailing: EHCodexStyleDropdown<OcrModelSource>(
+        value: _ocrSource,
+        elevation: 4,
+        alignment: AlignmentDirectional.centerEnd,
+        onChanged: (value) => setState(() => _ocrSource = value!),
+        items: [
+          DropdownMenuItem(
+              value: OcrModelSource.giteeMirror,
+              child: Text('imageTranslationGiteeMirror'.tr)),
+          DropdownMenuItem(
+              value: OcrModelSource.githubOfficial,
+              child: Text('imageTranslationGithubOfficial'.tr)),
+        ],
+      ),
     );
   }
 
   Widget _ocrModelTile(_OcrModel model) {
     final bool downloading = _downloadProgress.containsKey(model.code);
     final bool installed = _installedLanguages.contains(model.code);
-    return Card(
-      child: ListTile(
-        title: Text(model.label),
-        subtitle: downloading
-            ? Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: LinearProgressIndicator(
-                    value: _downloadProgress[model.code]))
-            : Text(installed
-                ? 'imageTranslationOcrInstalled'.tr
-                : 'imageTranslationOcrNotInstalled'.tr),
-        leading: Checkbox(
-          value: _selectedLanguages.contains(model.code),
-          onChanged: (value) => setState(() {
-            value == true
-                ? _selectedLanguages.add(model.code)
-                : _selectedLanguages.remove(model.code);
-          }),
-        ),
-        trailing: downloading
-            ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2))
-            : IconButton(
-                tooltip: 'download'.tr,
-                onPressed: () => _downloadModel(model),
-                icon: Icon(
-                    installed ? Icons.download_done : Icons.download_outlined)),
+    return ListTile(
+      title: Text(model.label),
+      subtitle: downloading
+          ? Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child:
+                  LinearProgressIndicator(value: _downloadProgress[model.code]))
+          : Text(installed
+              ? 'imageTranslationOcrInstalled'.tr
+              : 'imageTranslationOcrNotInstalled'.tr),
+      leading: Checkbox(
+        value: _selectedLanguages.contains(model.code),
+        onChanged: (value) => setState(() {
+          value == true
+              ? _selectedLanguages.add(model.code)
+              : _selectedLanguages.remove(model.code);
+        }),
       ),
+      trailing: downloading
+          ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2))
+          : IconButton(
+              tooltip: 'download'.tr,
+              onPressed: () => _downloadModel(model),
+              icon: Icon(
+                  installed ? Icons.download_done : Icons.download_outlined)),
     );
   }
-
-  Widget _field({
-    required TextEditingController controller,
-    required String label,
-    String? hint,
-    bool obscureText = false,
-    TextInputType? keyboardType,
-  }) =>
-      Padding(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: EHAppleTextField(
-          controller: controller,
-          obscureText: obscureText,
-          keyboardType: keyboardType,
-          autocorrect: false,
-          enableSuggestions: !obscureText,
-          decoration: InputDecoration(
-              labelText: label,
-              hintText: hint,
-              border: const OutlineInputBorder()),
-        ),
-      );
 
   Future<void> _fetchModels() async {
     setState(() => _fetchingModels = true);
@@ -458,7 +570,7 @@ class _SettingImageTranslationPageState
       ocrExecutable: _ocrExecutableController.text,
       ocrEngine: _ocrEngine,
       paddleOcrExecutable: _paddleExecutableController.text,
-      paddleOcrLanguage: _paddleLanguageController.text,
+      paddleOcrLanguage: _paddleLanguage,
       ocrLanguage: _selectedLanguages.join('+'),
       ocrDataDirectory: _ocrDirectoryController.text,
       ocrModelSource: _ocrSource,
@@ -466,7 +578,7 @@ class _SettingImageTranslationPageState
       translatorEndpoint: _endpointController.text,
       translatorApiKey: _apiKeyController.text,
       translatorModel: imageTranslationSetting.translatorModel.value,
-      targetLanguage: _targetLanguageController.text,
+      targetLanguage: _targetLanguage,
     );
     if (mounted) toast('success'.tr);
   }

@@ -440,18 +440,13 @@ class en_US {
       'updateSuccess': 'Update success',
       'connectTimeout': 'Connect Timeout',
       'receiveTimeout': 'Receive Data Timeout',
-      'pageCacheMaxAge': 'Page Cache Expiration Time',
-      'pageCacheMaxAgeHint': 'You can update cache by refresh page',
-      'cacheImageExpireDuration': 'Image Cache Expiration Time',
       'enableSmartCache': "Smart Cache",
       'enableSmartCacheHint':
-          "Cache the pages and images you viewed so they open instantly next time",
+          "Keep viewed pages and images for the retention period; turn off to keep only a short-lived cache",
       'smartCacheRetention': "Cache Retention",
       'smartCacheRetentionHint':
           "Cache older than this is cleared automatically",
       'cacheSize': "Current Cache Size",
-      'cacheImageExpireDurationHint':
-          'Remove image cache automatically after launching app',
       'oneMinute': '1 Minute',
       'tenMinute': '10 Minute',
       'oneHour': '1 Hour',
@@ -461,11 +456,9 @@ class en_US {
       'enableVerboseLogging': 'Enable Verbose Logging',
       'openLog': 'Open Log',
       'clearLogs': 'Clear Logs',
-      'clearImagesCache': 'Clear Images Cache',
       'longPress2Clear': 'Long press to clear',
       'checkUpdateAfterLaunchingApp': 'Check update after launching app',
       'checkClipboard': 'Check Gallery URL in Clipboard',
-      'clearPageCache': 'Clear Page Cache',
       'clearSuccess': 'Clear Success',
       'superResolution': 'Image Super Resolution',
       'stopSuperResolution': 'Stop Super Resolution',
@@ -983,6 +976,8 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationInvalidResponse':
           'The translation provider returned an invalid result.',
       'imageTranslationFailed': 'Image text translation failed.',
+      'imageTranslationPaddleNotReady':
+          'PaddleOCR runtime is not installed. Install it in Advanced settings first.',
       'imageTranslationSourceUnavailable': 'The current image is unavailable.',
       'imageTranslationSettingHint': 'Configure OCR and translation provider',
       'imageTranslationOcrSection': 'Text recognition',

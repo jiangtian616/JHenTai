@@ -43,6 +43,8 @@ class ImageTranslationResult {
   final List<RecognizedTextBlock> blocks;
   final String? errorMessage;
   final bool needsConfiguration;
+  final int? imageWidth;
+  final int? imageHeight;
 
   const ImageTranslationResult({
     required this.status,
@@ -51,6 +53,8 @@ class ImageTranslationResult {
     this.blocks = const [],
     this.errorMessage,
     this.needsConfiguration = false,
+    this.imageWidth,
+    this.imageHeight,
   });
 
   const ImageTranslationResult.idle()
@@ -63,6 +67,8 @@ class ImageTranslationResult {
     List<RecognizedTextBlock>? blocks,
     String? errorMessage,
     bool? needsConfiguration,
+    int? imageWidth,
+    int? imageHeight,
   }) {
     return ImageTranslationResult(
       status: status ?? this.status,
@@ -71,6 +77,8 @@ class ImageTranslationResult {
       blocks: blocks ?? this.blocks,
       errorMessage: errorMessage,
       needsConfiguration: needsConfiguration ?? this.needsConfiguration,
+      imageWidth: imageWidth ?? this.imageWidth,
+      imageHeight: imageHeight ?? this.imageHeight,
     );
   }
 
@@ -78,6 +86,8 @@ class ImageTranslationResult {
         'sourceText': sourceText,
         'translatedText': translatedText,
         'blocks': blocks.map((block) => block.toJson()).toList(),
+        if (imageWidth != null) 'imageWidth': imageWidth,
+        if (imageHeight != null) 'imageHeight': imageHeight,
       };
 
   factory ImageTranslationResult.successFromJson(Map<String, dynamic> json) =>
@@ -89,7 +99,9 @@ class ImageTranslationResult {
               .whereType<Map>()
               .map((block) => RecognizedTextBlock.fromJson(
                   Map<String, dynamic>.from(block)))
-              .toList());
+              .toList(),
+          imageWidth: (json['imageWidth'] as num?)?.toInt(),
+          imageHeight: (json['imageHeight'] as num?)?.toInt());
 }
 
 class ImageTranslationRequest {

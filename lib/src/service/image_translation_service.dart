@@ -101,6 +101,16 @@ class ImageTranslationService extends GetxController
         return;
       }
 
+      final Uint8List sourceBytes = request.imageBytes == null
+          ? await File(imagePath).readAsBytes()
+          : Uint8List.fromList(request.imageBytes!);
+      final ui.Codec codec = await ui.instantiateImageCodec(sourceBytes);
+      final ui.FrameInfo frame = await codec.getNextFrame();
+      final int imageWidth = frame.image.width;
+      final int imageHeight = frame.image.height;
+      frame.image.dispose();
+      codec.dispose();
+
       final List<RecognizedTextBlock> blocks = await _recognize(imagePath);
       final String sourceText = blocks
           .map((block) => block.text)
@@ -119,6 +129,8 @@ class ImageTranslationService extends GetxController
             blocks: blocks,
             errorMessage: 'TRANSLATOR_NOT_CONFIGURED',
             needsConfiguration: true,
+            imageWidth: imageWidth,
+            imageHeight: imageHeight,
           ),
         );
         return;
@@ -129,7 +141,9 @@ class ImageTranslationService extends GetxController
         ImageTranslationResult(
             status: ImageTranslationStatus.translating,
             sourceText: sourceText,
-            blocks: blocks),
+            blocks: blocks,
+            imageWidth: imageWidth,
+            imageHeight: imageHeight),
       );
       await _writePersistentResult(persistentKey, resultFor(request.cacheKey));
       final String translatedText = await _translate(sourceText);
@@ -139,7 +153,9 @@ class ImageTranslationService extends GetxController
             status: ImageTranslationStatus.success,
             sourceText: sourceText,
             translatedText: translatedText,
-            blocks: blocks),
+            blocks: blocks,
+            imageWidth: imageWidth,
+            imageHeight: imageHeight),
       );
     } on ImageTranslationException catch (e, stack) {
       log.warning('Image translation failed: ${e.code}');

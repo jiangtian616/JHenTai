@@ -19,6 +19,7 @@ import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
+import 'package:jhentai/src/service/image_translation_service.dart';
 import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
@@ -40,7 +41,6 @@ import '../../../../service/log.dart';
 import '../../../../setting/read_setting.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../utils/screen_size_util.dart';
-import '../../../../widget/image_translation_bottom_sheet.dart';
 import '../../read_page_logic.dart';
 import '../../read_page_state.dart';
 
@@ -312,15 +312,10 @@ abstract class BaseLayoutLogic extends GetxController
       return;
     }
 
-    if (!context.mounted) {
-      return;
-    }
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (_) => ImageTranslationBottomSheet(request: request),
-    );
+    readPageState.imageTranslationRequests[index] = request;
+    updateSafely([BaseLayoutLogic.pageId]);
+    await imageTranslationService.translate(request);
+    updateSafely([BaseLayoutLogic.pageId]);
   }
 
   /// Unified entry point for local image context menus.

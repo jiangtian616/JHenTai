@@ -43,8 +43,10 @@ import '../../utils/route_util.dart';
 import '../../utils/toast_util.dart';
 import '../../widget/auto_mode_interval_dialog.dart';
 import '../../widget/eh_image.dart';
+import '../../widget/image_translation_config_sheet.dart';
 import '../../widget/loading_state_indicator.dart';
 import '../home_page.dart';
+import '../setting/advanced/image_translation/setting_image_translation_page.dart';
 import '../setting/keyboard_shortcuts/setting_keyboard_shortcuts_page.dart';
 import '../setting/read/setting_read_page.dart';
 
@@ -905,6 +907,95 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     } else {
       await _pushReadSettingPage();
     }
+  }
+
+  Future<void> openImageTranslationConfig(BuildContext context) async {
+    restoreImmersiveMode();
+    if (styleSetting.isInDesktopLayout || styleSetting.isInTabletLayout) {
+      await _showImageTranslationDrawer(context);
+    } else {
+      await showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        builder: (sheetContext) => FractionallySizedBox(
+          heightFactor: 0.92,
+          child: ImageTranslationConfigSheet(
+            onTranslateCurrentImage: () => _translateCurrentImage(context),
+          ),
+        ),
+      );
+    }
+    applyCurrentImmersiveMode();
+    state.focusNode.requestFocus();
+  }
+
+  Future<void> _showImageTranslationDrawer(BuildContext context) async {
+    final GlobalKey<NavigatorState> configNavigatorKey =
+        GlobalKey<NavigatorState>();
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withValues(alpha: 0.4),
+      builder: (dialogContext) {
+        double width = MediaQuery.of(context).size.width * 0.55;
+        if (width < 360) {
+          width = 360;
+        }
+        if (width > 600) {
+          width = 600;
+        }
+        final Widget content = Navigator(
+          key: configNavigatorKey,
+          initialRoute: '/',
+          onGenerateRoute: (settings) {
+            if (settings.name == '/') {
+              return _buildDrawerRoute(
+                settings: settings,
+                useCupertino: preferenceSetting.enableSwipeBackGesture.isTrue,
+                builder: (_) => ImageTranslationConfigSheet(
+                  onTranslateCurrentImage: () {
+                    Navigator.of(dialogContext).pop();
+                    _translateCurrentImage(context);
+                  },
+                  onClose: () => Navigator.of(dialogContext).pop(),
+                  onOpenAdvancedSettings: () =>
+                      configNavigatorKey.currentState?.pushNamed('/advanced'),
+                ),
+              );
+            }
+            if (settings.name == '/advanced') {
+              return _buildDrawerRoute(
+                settings: settings,
+                useCupertino: preferenceSetting.enableSwipeBackGesture.isTrue,
+                builder: (_) => const SettingImageTranslationPage(),
+              );
+            }
+            return null;
+          },
+        );
+        return Align(
+          alignment: Alignment.centerRight,
+          child: SizedBox(
+            width: width,
+            height: double.infinity,
+            child: Material(
+              color: Theme.of(dialogContext).colorScheme.surface,
+              elevation: 16,
+              borderRadius:
+                  const BorderRadius.horizontal(left: Radius.circular(18)),
+              clipBehavior: Clip.antiAlias,
+              child: content,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _translateCurrentImage(BuildContext context) async {
+    await layoutLogic.translateImage(
+        state.readPageInfo.currentImageIndex, context);
   }
 
   Future<void> _pushReadSettingPage() async {

@@ -2,30 +2,23 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:android_intent_plus/android_intent.dart';
-import 'package:extended_image/extended_image.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/config.dart';
-import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/cloud_service.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
-import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/utils/app_icons.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
-import 'package:path/path.dart';
 
 import '../../../config/ui_config.dart';
 import '../../../enum/config_type_enum.dart';
 import '../../../routes/routes.dart';
 import '../../../service/isolate_service.dart';
-import '../../../utils/byte_util.dart';
-import '../../../utils/permission_util.dart';
 import '../../../utils/route_util.dart';
 import '../../../widget/eh_config_type_select_dialog.dart';
 import '../../../widget/eh_apple_settings_list_view.dart';
@@ -42,9 +35,6 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   LoadingState _logLoadingState = LoadingState.idle;
   String _logSize = '...';
 
-  LoadingState _imageCacheLoadingState = LoadingState.idle;
-  String _imageCacheSize = '...';
-
   LoadingState _exportDataLoadingState = LoadingState.idle;
   LoadingState _importDataLoadingState = LoadingState.idle;
 
@@ -53,7 +43,6 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     super.initState();
 
     _loadingLogSize();
-    _getImagesCacheSize();
   }
 
   @override
@@ -70,8 +59,6 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
                   _buildRecordAllLogs().fadeIn(),
                 _buildOpenLogs(),
                 _buildClearLogs(context),
-                _buildClearImageCache(context),
-                _buildClearNetworkCache(),
                 if (GetPlatform.isDesktop) _buildSuperResolution(),
                 _buildImageTranslation(),
                 _buildCheckUpdate(),
@@ -136,41 +123,6 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
         ],
       ),
       onLongPress: _clearAndLoadingLogSize,
-    );
-  }
-
-  Widget _buildClearImageCache(BuildContext context) {
-    return ListTile(
-      title: Text('clearImagesCache'.tr),
-      subtitle: Text('longPress2Clear'.tr),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          LoadingStateIndicator(
-            loadingState: _imageCacheLoadingState,
-            useCupertinoIndicator: true,
-            successWidgetBuilder: () => Text(
-              _imageCacheSize,
-              style: TextStyle(
-                  color: UIConfig.resumePauseButtonColor(context),
-                  fontWeight: FontWeight.w500),
-            ),
-            errorTapCallback: _getImagesCacheSize,
-          ).marginOnly(right: 8)
-        ],
-      ),
-      onLongPress: _clearAndLoadingImageCacheSize,
-    );
-  }
-
-  Widget _buildClearNetworkCache() {
-    return ListTile(
-      title: Text('clearPageCache'.tr),
-      subtitle: Text('longPress2Clear'.tr),
-      onLongPress: () async {
-        await ehRequest.removeAllCache();
-        toast('clearSuccess'.tr, isCenter: false);
-      },
     );
   }
 
@@ -285,7 +237,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     } catch (e) {
       log.error('loading log size error', e);
       _logSize = '-1B';
-      setStateSafely(() => _imageCacheLoadingState = LoadingState.error);
+      setStateSafely(() => _logLoadingState = LoadingState.error);
       return;
     }
 
@@ -299,53 +251,6 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
 
     await log.clear();
     await _loadingLogSize();
-
-    toast('clearSuccess'.tr, isCenter: false);
-  }
-
-  Future<void> _getImagesCacheSize() async {
-    if (_imageCacheLoadingState == LoadingState.loading) {
-      return;
-    }
-
-    setStateSafely(() => _imageCacheLoadingState = LoadingState.loading);
-
-    try {
-      _imageCacheSize = await compute(
-        (dirPath) {
-          Directory cacheImagesDirectory = Directory(dirPath);
-
-          int totalBytes;
-          if (!cacheImagesDirectory.existsSync()) {
-            totalBytes = 0;
-          } else {
-            totalBytes = cacheImagesDirectory.listSync().fold<int>(
-                0,
-                (previousValue, element) =>
-                    previousValue += (element as File).lengthSync());
-          }
-
-          return byte2String(totalBytes.toDouble());
-        },
-        join(pathService.tempDir.path, cacheImageFolderName),
-      );
-    } catch (e) {
-      log.error(e);
-      _imageCacheSize = '-1B';
-      setStateSafely(() => _imageCacheLoadingState = LoadingState.error);
-      return;
-    }
-
-    setStateSafely(() => _imageCacheLoadingState = LoadingState.success);
-  }
-
-  Future<void> _clearAndLoadingImageCacheSize() async {
-    if (_imageCacheLoadingState == LoadingState.loading) {
-      return;
-    }
-
-    await clearDiskCachedImages();
-    await _getImagesCacheSize();
 
     toast('clearSuccess'.tr, isCenter: false);
   }

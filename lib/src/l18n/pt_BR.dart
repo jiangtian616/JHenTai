@@ -449,18 +449,13 @@ class pt_BR {
       'updateSuccess': 'Atualizado com sucesso',
       'connectTimeout': 'Tempo limite de conexão',
       'receiveTimeout': 'Tempo limite de recebimento de dados',
-      'pageCacheMaxAge': 'Idade máxima do cache de página',
-      'pageCacheMaxAgeHint': 'Você pode atualizar o cache atualizando a página',
-      'cacheImageExpireDuration': 'Image Cache Expiration Time',
       'enableSmartCache': "Cache Inteligente",
       'enableSmartCacheHint':
-          "Armazena as páginas e imagens que você viu para abrir instantaneamente na próxima vez",
+          "Quando ativado, mantém as páginas e imagens vistas pelo período definido; desativado mantém apenas um cache de curta duração",
       'smartCacheRetention': "Retenção do cache",
       'smartCacheRetentionHint':
           "Caches mais antigos que isso são limpos automaticamente",
       'cacheSize': "Tamanho atual do cache",
-      'cacheImageExpireDurationHint':
-          'Remove image cache automatically after launching app',
       'oneMinute': '1 Minuto',
       'tenMinute': '10 Minutos',
       'oneHour': '1 Hora',
@@ -470,12 +465,10 @@ class pt_BR {
       'enableVerboseLogging': 'Ativar registro(log) detalhado',
       'openLog': 'Abrir registro(log)',
       'clearLogs': 'Limpar registros(logs)',
-      'clearImagesCache': 'Limpar cache de imagens',
       'longPress2Clear': 'Pressione e segure para limpar',
       'checkUpdateAfterLaunchingApp': 'Buscar atualizações após abrir o app',
       'checkClipboard':
           'Verificar se há URL de Galeria na área de transferência',
-      'clearPageCache': 'Limpar cache de página',
       'clearSuccess': 'Limpado com Sucesso',
       'superResolution': 'Image Super Resolution',
       'stopSuperResolution': 'Stop Super Resolution',
@@ -1004,6 +997,8 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationInvalidResponse':
           'O provedor de tradução retornou um resultado inválido.',
       'imageTranslationFailed': 'A tradução de texto da imagem falhou.',
+      'imageTranslationPaddleNotReady':
+          'O ambiente de execução do PaddleOCR não está instalado. Instale-o nas configurações avançadas primeiro.',
       'imageTranslationSourceUnavailable':
           'A imagem atual não está disponível.',
       'imageTranslationSettingHint': 'Configurar OCR e provedor de tradução',

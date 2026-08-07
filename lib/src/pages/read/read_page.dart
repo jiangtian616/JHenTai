@@ -373,6 +373,22 @@ class _ReadPageState extends State<ReadPage>
                   ),
                 ),
               ),
+              Tooltip(
+                message: 'imageTextTranslation'.tr,
+                child: ElevatedButton(
+                  child: const Icon(Icons.translate,
+                      size: 24, color: UIConfig.readPageButtonColor),
+                  onPressed: () => logic.openImageTranslationConfig(context),
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    padding: const EdgeInsets.all(0),
+                    surfaceTintColor: Colors.transparent,
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    minimumSize: const Size(56, 56),
+                  ),
+                ),
+              ),
               if (readSetting.enableBottomMenu.isFalse)
                 ElevatedButton(
                   child: const Icon(Icons.settings,
