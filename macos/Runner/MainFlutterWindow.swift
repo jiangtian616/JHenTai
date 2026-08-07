@@ -5,6 +5,9 @@ import window_manager
 
 class MainFlutterWindow: NSWindow {
   override func awakeFromNib() {
+    titleVisibility = .visible
+    titlebarAppearsTransparent = false
+
     let windowFrame = self.frame
     let macOSWindowUtilsViewController = MacOSWindowUtilsViewController()
     self.contentViewController = macOSWindowUtilsViewController

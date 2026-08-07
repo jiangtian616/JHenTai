@@ -137,18 +137,9 @@ mixin WindowWidgetMixin<T extends StatefulWidget> on State<T>, WindowListener {
   }
 
   Widget buildMaxOSTitle(Widget child) {
-    return Column(
-      children: [
-        /// Theme-colored translucent strip under the native traffic lights
-        /// (full-size content view), matching the sidebar's frosted look —
-        /// the frosted window shows through the semi-transparent tint.
-        Container(
-          height: UIConfig.desktopTitleBarHeight,
-          color: (titleBarColor ?? UIConfig.backGroundColor(context)).withValues(alpha: 0.55),
-        ),
-        Expanded(child: child),
-      ],
-    );
+    /// The macOS full-size content view is intentionally allowed to reach the
+    /// top edge. The desktop sidebar reserves the traffic-light area itself.
+    return child;
   }
 
   Future<void> toggleFullScreen() async {

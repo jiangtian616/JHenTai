@@ -90,8 +90,10 @@ class zh_CN {
       'refreshIgneousFailed': '刷新Igneous失败',
 
       /// request
-      'sadPanda': 'Sad Panda(无响应数据). 解决参考Github Wiki: https://github.com/jiangtian616/JHenTai/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98',
-      'sadPandaReferLink': 'https://github.com/jiangtian616/JHenTai/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98',
+      'sadPanda':
+          'Sad Panda(无响应数据). 解决参考Github Wiki: https://github.com/jiangtian616/JHenTai/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98',
+      'sadPandaReferLink':
+          'https://github.com/jiangtian616/JHenTai/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98',
 
       /// gallery card
       'filtered': '已过滤',
@@ -164,7 +166,8 @@ class zh_CN {
       'score': '分数',
       'NotOnTheList': '未上榜',
       'getGalleryArchiveFailed': '获取归档数据失败',
-      'parseGalleryArchiveFailed': '解析错误，确保你e站的[Archiver Settings]设置的是[Manual Select, Manual Start (Default)]',
+      'parseGalleryArchiveFailed':
+          '解析错误，确保你e站的[Archiver Settings]设置的是[Manual Select, Manual Start (Default)]',
       'original': '原图',
       'resample': '压缩',
       'beginToDownloadArchive': '开始下载归档',
@@ -221,7 +224,8 @@ class zh_CN {
       'paused': '已暂停',
       'exceedImageLimits': "超出图片配额限制",
       'ehServerError': 'E站服务器发生错误，请稍后重试',
-      'unsupportedImagePageStyle': "JHenTai当前不支持Multi-Page Viewer(MPV)多页查看，请在e-hentai.org更换为默认风格",
+      'unsupportedImagePageStyle':
+          "JHenTai当前不支持Multi-Page Viewer(MPV)多页查看，请在e-hentai.org更换为默认风格",
       'toNext': '下一页',
       'toPrev': '上一页',
       'back': '返回',
@@ -323,6 +327,8 @@ class zh_CN {
       'followSystem': '跟随系统',
       'themeColor': '主题颜色',
       'themeColorFixedOnApple': 'macOS / iOS 使用固定强调色',
+      'appleVisualStyle': 'Apple 视觉样式',
+      'appleVisualStyleHint': '启用 macOS / iOS 的重设计界面',
       'listStyle': '画廊列表样式(全局)',
       'flat': '平坦',
       'flatWithoutTags': '平坦 - 无标签',
@@ -431,7 +437,8 @@ class zh_CN {
       'deleteSuperResolvedImage': '删除图片超分辨率后的图片',
       'superResolveOriginalImageHint': '处理原图会耗费更多的时间、空间和性能，确定继续？',
       'verityAppLinks4Android12': '验证应用链接（安卓12+）',
-      'verityAppLinks4Android12Hint': '对于Android 12+，您需要手动添加链接到已验证链接才能在其他应用中唤起JHenTai',
+      'verityAppLinks4Android12Hint':
+          '对于Android 12+，您需要手动添加链接到已验证链接才能在其他应用中唤起JHenTai',
       'noImageMode': '无图模式',
       'exportData': '导出数据',
       'exportDataHint': '导出配置、屏蔽规则与历史记录',
@@ -502,7 +509,8 @@ class zh_CN {
       'left2rightList': '从左至右(连续)',
       'right2leftList': '从右至左(连续)',
       'enablePageTurnByVolumeKeys': '使用音量键翻页',
-      'enablePageTurnByVolumeKeysHint': 'iOS 上，若音量为 0 或 100%，进入阅读页时音量将被自动调整以支持翻页，退出后恢复',
+      'enablePageTurnByVolumeKeysHint':
+          'iOS 上，若音量为 0 或 100%，进入阅读页时音量将被自动调整以支持翻页，退出后恢复',
       'enablePageTurnAnime': '开启翻页动画',
       'enableDoubleTapToScaleUp': '允许双击放大图片',
       'enableTapDragToScaleUp': '允许单击后拖拽放大图片',
@@ -522,6 +530,11 @@ class zh_CN {
       'ScreenHeight': '屏幕',
       'preloadPageCount': '预载图片数量(在线模式)',
       'preloadPageCountInLocalMode': '预载图片数量(本地模式)',
+      'failedImageRetryScope': "失败图片重试范围",
+      'failedImageRetryScopeHint': "点击加载失败的在线图片进行重试时，一次重试的范围",
+      'retrySingleImage': "仅当前图片",
+      'retryCurrentPageAndAfter': "当前图片及之后",
+      'retryAllFailedImages': "全部失败图片",
       'continuousScroll': '连续滚动',
       'continuousScrollHint': '拼接多个图片',
       'doubleColumn': '双列模式',
@@ -588,8 +601,10 @@ class zh_CN {
       'reUnlock': '重新解锁',
       'reUnlockHint': '注意！重新解锁需要重新购买此归档！',
       'downloadHelpInfo': '如果发现无法下载，在日志中发现了数据库表不存在等问题，卸载当前app重装即可。',
-      'localGalleryHelpInfo': '加载那些不是由JHenTai下载的画廊(当做本地阅览器)。在下载设置-额外的画廊扫描路径中配置，之后刷新即可',
-      'localGalleryHelpInfo4iOSAndMacOS': '加载那些不是由JHenTai下载的画廊(当做本地阅览器)。将你的画廊放在默认下载路径下，之后刷新即可',
+      'localGalleryHelpInfo':
+          '加载那些不是由JHenTai下载的画廊(当做本地阅览器)。在下载设置-额外的画廊扫描路径中配置，之后刷新即可',
+      'localGalleryHelpInfo4iOSAndMacOS':
+          '加载那些不是由JHenTai下载的画廊(当做本地阅览器)。将你的画廊放在默认下载路径下，之后刷新即可',
       'deleteLocalGalleryHint': '删除您的本地文件',
       'priority': '优先级',
       'highest': '最高',
@@ -620,7 +635,8 @@ class zh_CN {
       'peakHoursHint': '高峰段下载原图需要耗费GP，由于你的GP不足，下载已自动停止。',
       'oldGalleryHint': '部分画廊下载原图需要耗费GP，由于你的GP不足，下载已自动停止。',
       'exceedLimitHint': '图片配额已耗尽，由于你的GP不足，下载已自动停止。',
-      'deleteUpdatingDependentHint': '有其他画廊的更新依赖当前画廊，此时删除会影响其他画廊的更新速度，推荐在更新完毕后再执行删除操作。',
+      'deleteUpdatingDependentHint':
+          '有其他画廊的更新依赖当前画廊，此时删除会影响其他画廊的更新速度，推荐在更新完毕后再执行删除操作。',
       'migrateToDownload': '迁移至「下载」',
       'refresh': '刷新',
 
@@ -661,7 +677,8 @@ class zh_CN {
       'pageAtLeast': '页数至少',
       'pageAtMost': '页数最多',
       'pagesBetween': '页数范围',
-      'pageRangeSelectHint': 'min <= 1000, max >= 10\nmin/max <= 0.8, max-min >= 20',
+      'pageRangeSelectHint':
+          'min <= 1000, max >= 10\nmin/max <= 0.8, max-min >= 20',
       'to': '到',
       'minimumRating': '最低评分',
       'disableFilterForLanguage': '禁用语言过滤',
@@ -710,7 +727,8 @@ favnote：匹配收藏备注
 
       /// download setting page
       'downloadPath': '下载路径',
-      'changeDownloadPathHint': '长按来改变下载路径(请不要使用SD卡或系统路径)。会自动复制已下载的画廊到新路径，并保留原文件。如果你遇到相关错误，请尝试重置路径',
+      'changeDownloadPathHint':
+          '长按来改变下载路径(请不要使用SD卡或系统路径)。会自动复制已下载的画廊到新路径，并保留原文件。如果你遇到相关错误，请尝试重置路径',
       'resetDownloadPath': '重置下载路径',
       'singleImageSavePath': '单张图片保存路径',
       'extraGalleryScanPath': '额外的画廊扫描路径',
@@ -736,7 +754,8 @@ favnote：匹配收藏备注
       'per': '每',
       'images': '图片',
       'downloadAllGallerysOfSamePriority': '同一优先级下同时下载所有画廊',
-      'downloadAllGallerysOfSamePriorityHint': '默认情况下逐优先级下载画廊，且每个优先级下只会同时下载一个画廊',
+      'downloadAllGallerysOfSamePriorityHint':
+          '默认情况下逐优先级下载画廊，且每个优先级下只会同时下载一个画廊',
       'alwaysUseDefaultGroup': '总是使用默认分组',
       'restoreDownloadTasks': '恢复下载任务',
       'enableStoreMetadataForRestore': '允许储存下载元数据用来恢复下载记录',

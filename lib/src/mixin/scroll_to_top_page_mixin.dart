@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get_state_manager/src/simple/get_state.dart';
+import 'package:get/get.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_logic_mixin.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_state_mixin.dart';
 
@@ -14,15 +15,23 @@ mixin Scroll2TopPageMixin on Widget {
       global: false,
       init: scroll2TopLogic,
       builder: (_) {
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
-          child: scroll2TopLogic.shouldDisplayFAB
-              ? FloatingActionButton(
-                  child: const Icon(Icons.arrow_upward),
-                  heroTag: null,
-                  onPressed: scroll2TopLogic.scroll2Top,
-                )
-              : null,
+        final appContext = Get.context;
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: appContext == null
+                ? 0
+                : UIConfig.liquidGlassNavBarRaise(appContext),
+          ),
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            child: scroll2TopLogic.shouldDisplayFAB
+                ? FloatingActionButton(
+                    child: const Icon(Icons.arrow_upward),
+                    heroTag: null,
+                    onPressed: scroll2TopLogic.scroll2Top,
+                  )
+                : null,
+          ),
         );
       },
     );

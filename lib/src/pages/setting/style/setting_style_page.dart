@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/app_icons.dart';
@@ -23,13 +23,16 @@ class SettingStylePage extends StatelessWidget {
           children: [
             _buildBrightness(),
             _buildThemeColor(),
+            if (ThemeConfig.isApplePlatform) _buildAppleVisualStyle(),
             _buildListMode(),
-            if (styleSetting.isInWaterFlowListMode) _buildCrossAxisCountInWaterFallFlow().fadeIn(),
+            if (styleSetting.isInWaterFlowListMode)
+              _buildCrossAxisCountInWaterFallFlow().fadeIn(),
             _buildPageListMode(),
             _buildCrossAxisCountInGridDownloadPageForGroup(),
             _buildCrossAxisCountInGridDownloadPageForGallery(),
             _buildCrossAxisCountInDetailPage(),
-            if (!styleSetting.isInWaterFlowListMode) _buildMoveCover2RightSide().fadeIn(),
+            if (!styleSetting.isInWaterFlowListMode)
+              _buildMoveCover2RightSide().fadeIn(),
             _buildLayout(context),
           ],
         ).withListTileTheme(context),
@@ -44,28 +47,36 @@ class SettingStylePage extends StatelessWidget {
         value: styleSetting.themeMode.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (ThemeMode? newValue) => styleSetting.saveThemeMode(newValue!),
+        onChanged: (ThemeMode? newValue) =>
+            styleSetting.saveThemeMode(newValue!),
         items: [
           DropdownMenuItem(child: Text('light'.tr), value: ThemeMode.light),
           DropdownMenuItem(child: Text('dark'.tr), value: ThemeMode.dark),
-          DropdownMenuItem(child: Text('followSystem'.tr), value: ThemeMode.system),
+          DropdownMenuItem(
+              child: Text('followSystem'.tr), value: ThemeMode.system),
         ],
       ),
     );
   }
 
   Widget _buildThemeColor() {
-    if (ThemeConfig.isApple) {
-      return ListTile(
-        title: Text('themeColor'.tr),
-        subtitle: Text('themeColorFixedOnApple'.tr),
-        enabled: false,
-      );
-    }
     return ListTile(
       title: Text('themeColor'.tr),
       trailing: Icon(AppIcons.chevronRight),
       onTap: () => toRoute(Routes.themeColor),
+    );
+  }
+
+  Widget _buildAppleVisualStyle() {
+    return ListTile(
+      title: Text('appleVisualStyle'.tr),
+      subtitle: Text('appleVisualStyleHint'.tr),
+      trailing: Switch(
+        value: styleSetting.appleVisualStyle.value,
+        onChanged: styleSetting.saveAppleVisualStyle,
+      ),
+      onTap: () => styleSetting
+          .saveAppleVisualStyle(!styleSetting.appleVisualStyle.value),
     );
   }
 
@@ -79,12 +90,23 @@ class SettingStylePage extends StatelessWidget {
         onChanged: (ListMode? newValue) => styleSetting.saveListMode(newValue!),
         items: [
           DropdownMenuItem(child: Text('flat'.tr), value: ListMode.flat),
-          DropdownMenuItem(child: Text('flatWithoutTags'.tr), value: ListMode.flatWithoutTags),
-          DropdownMenuItem(child: Text('listWithTags'.tr), value: ListMode.listWithTags),
-          DropdownMenuItem(child: Text('listWithoutTags'.tr), value: ListMode.listWithoutTags),
-          DropdownMenuItem(child: Text('waterfallFlowSmall'.tr), value: ListMode.waterfallFlowSmall),
-          DropdownMenuItem(child: Text('waterfallFlowMedium'.tr), value: ListMode.waterfallFlowMedium),
-          DropdownMenuItem(child: Text('waterfallFlowBig'.tr), value: ListMode.waterfallFlowBig),
+          DropdownMenuItem(
+              child: Text('flatWithoutTags'.tr),
+              value: ListMode.flatWithoutTags),
+          DropdownMenuItem(
+              child: Text('listWithTags'.tr), value: ListMode.listWithTags),
+          DropdownMenuItem(
+              child: Text('listWithoutTags'.tr),
+              value: ListMode.listWithoutTags),
+          DropdownMenuItem(
+              child: Text('waterfallFlowSmall'.tr),
+              value: ListMode.waterfallFlowSmall),
+          DropdownMenuItem(
+              child: Text('waterfallFlowMedium'.tr),
+              value: ListMode.waterfallFlowMedium),
+          DropdownMenuItem(
+              child: Text('waterfallFlowBig'.tr),
+              value: ListMode.waterfallFlowBig),
         ],
       ),
     );
@@ -190,16 +212,25 @@ class SettingStylePage extends StatelessWidget {
   Widget _buildLayout(BuildContext context) {
     return ListTile(
       title: Text('layoutMode'.tr),
-      subtitle: Text(JHLayout.allLayouts.firstWhere((e) => e.mode == styleSetting.layout.value).desc),
+      subtitle: Text(JHLayout.allLayouts
+          .firstWhere((e) => e.mode == styleSetting.layout.value)
+          .desc),
       trailing: DropdownButton<LayoutMode>(
         value: styleSetting.actualLayout,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (LayoutMode? newValue) => styleSetting.saveLayoutMode(newValue!),
+        onChanged: (LayoutMode? newValue) =>
+            styleSetting.saveLayoutMode(newValue!),
         items: JHLayout.allLayouts
             .map((e) => DropdownMenuItem(
                   enabled: e.isSupported(),
-                  child: Text(e.name, style: e.isSupported() ? null : TextStyle(color: UIConfig.settingPageLayoutSelectorUnSupportColor(context))),
+                  child: Text(e.name,
+                      style: e.isSupported()
+                          ? null
+                          : TextStyle(
+                              color: UIConfig
+                                  .settingPageLayoutSelectorUnSupportColor(
+                                      context))),
                   value: e.mode,
                 ))
             .toList(),

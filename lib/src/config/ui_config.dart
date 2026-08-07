@@ -48,7 +48,7 @@ class UIConfig {
 
   /// Liquid Glass bottom bar geometry (kept in sync with the bar in mobile_layout_page_v2.dart).
   static const double liquidGlassNavBarHeight = 64;
-  static const double liquidGlassNavBarMarginBottom = 24;
+  static const double liquidGlassNavBarMarginBottom = 8;
 
   /// The floating glass capsule's footprint above the safe-area inset
   /// (bar height + bottom margin). 0 on desktop and non-Apple platforms.
@@ -194,6 +194,7 @@ class UIConfig {
   static const double desktopTitleBarHeight = 32;
   static const double desktopFullScreenTopPadding = 12;
   static const double desktopLeftTabBarWidth = 56;
+  static const double desktopMacOSLeftTabBarWidth = 72;
   static const double desktopLeftTabBarItemHeight = 60;
   static const double desktopLeftTabBarTextHeight = 18;
 

@@ -37,23 +37,27 @@ class DesktopLayoutPage extends StatelessWidget {
   }
 
   Widget _leftTabBar(BuildContext context) {
-    final bool isMacOS = GetPlatform.isMacOS;
+    final bool isMacOS = GetPlatform.isMacOS && ThemeConfig.isApple;
+    final double width = isMacOS ? UIConfig.desktopMacOSLeftTabBarWidth : UIConfig.desktopLeftTabBarWidth;
     Widget bar = Material(
       color: isMacOS ? Colors.transparent : null,
       child: Container(
-        width: UIConfig.desktopLeftTabBarWidth,
+        width: width,
         color: isMacOS
             ? UIConfig.desktopSideBarColor(context).withValues(alpha: 0.55)
             : (ThemeConfig.isApple ? UIConfig.desktopSideBarColor(context) : UIConfig.backGroundColor(context)),
         child: GetBuilder<DesktopLayoutPageLogic>(
           id: logic.tabBarId,
-          builder: (_) => ScrollConfiguration(
-            behavior: UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
-            child: ListView.builder(
-              controller: state.leftTabBarScrollController,
-              itemCount: state.icons.length,
-              itemExtent: UIConfig.desktopLeftTabBarItemHeight,
-              itemBuilder: _tabBarIcon,
+          builder: (_) => Padding(
+            padding: EdgeInsets.only(top: isMacOS ? UIConfig.desktopTitleBarHeight : 0),
+            child: ScrollConfiguration(
+              behavior: UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
+              child: ListView.builder(
+                controller: state.leftTabBarScrollController,
+                itemCount: state.icons.length,
+                itemExtent: UIConfig.desktopLeftTabBarItemHeight,
+                itemBuilder: _tabBarIcon,
+              ),
             ),
           ),
         ),
@@ -78,7 +82,9 @@ class DesktopLayoutPage extends StatelessWidget {
           Expanded(
             child: Center(
               child: ThemeConfig.isApple
-                  ? Container(
+                  ? AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      curve: Curves.easeOutCubic,
                       margin: const EdgeInsets.symmetric(horizontal: 5),
                       decoration: BoxDecoration(
                         color: state.selectedTabIndex == index
@@ -162,7 +168,7 @@ class DesktopLayoutPage extends StatelessWidget {
       onGenerateInitialRoutes: (_, __) => [
         GetPageRoute(
           settings: const RouteSettings(name: Routes.desktopHome),
-          page: () => DesktopHomePage(),
+          page: DesktopHomePage.new,
           popGesture: false,
           transition: Transition.fadeIn,
           showCupertinoParallax: false,
