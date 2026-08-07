@@ -79,6 +79,7 @@ class SettingReadPage extends StatelessWidget {
               if (readSetting.isInListReadDirection) _buildPreloadDistanceInLocalMode(context).fadeIn(const Key('preloadDistanceInLocalMode')).center(),
               if (!readSetting.isEveryInListReadDirection) _buildPreloadPageCount().fadeIn(const Key('preloadPageCount')).center(),
               if (!readSetting.isEveryInListReadDirection) _buildPreloadPageCountInLocalMode().fadeIn(const Key('preloadPageCountInLocalMode')).center(),
+              _buildFailedImageRetryScope().center(),
               if (GetPlatform.isMobile && readSetting.enableOrientationSpecificReadDirection.isTrue) ...[
                 if (readSetting.portraitReadDirection.value == ReadDirection.left2rightDoubleColumn ||
                     readSetting.portraitReadDirection.value == ReadDirection.right2leftDoubleColumn)
@@ -361,6 +362,19 @@ class SettingReadPage extends StatelessWidget {
         elevation: 4,
         onChanged: (ReadDirection? newValue) => readSetting.saveReadDirection(newValue!),
         items: ReadDirection.values.map((e) => DropdownMenuItem(child: Text(e.name.tr), value: e)).toList(),
+      ).marginOnly(right: 12),
+    );
+  }
+
+  Widget _buildFailedImageRetryScope() {
+    return ListTile(
+      title: Text('failedImageRetryScope'.tr),
+      subtitle: Text('failedImageRetryScopeHint'.tr),
+      trailing: DropdownButton<FailedImageRetryScope>(
+        value: readSetting.failedImageRetryScope.value,
+        elevation: 4,
+        onChanged: (FailedImageRetryScope? newValue) => readSetting.saveFailedImageRetryScope(newValue!),
+        items: FailedImageRetryScope.values.map((e) => DropdownMenuItem(child: Text(e.name.tr), value: e)).toList(),
       ).marginOnly(right: 12),
     );
   }

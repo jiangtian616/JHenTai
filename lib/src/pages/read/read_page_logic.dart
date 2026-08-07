@@ -406,8 +406,38 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
       clearDiskCachedImage(state.images[index]!.url);
     }
     state.images[index] = null;
+    state.failedOnlineImageIndices.remove(index);
     beginToParseImageUrl(index, true, reloadKey: reloadKey);
     updateSafely(['$onlineImageId::$index']);
+  }
+
+  /// Retry loading failed online images, covering a scope decided by
+  /// [readSetting.failedImageRetryScope]. [fromIndex] is the image the user
+  /// tapped; with the "current page and after" scope it also reloads every
+  /// failed image at or after that index, and with "all" every failed image.
+  void retryFailedImages({required int fromIndex}) {
+    final FailedImageRetryScope scope = readSetting.failedImageRetryScope.value;
+
+    if (scope == FailedImageRetryScope.retrySingleImage) {
+      reloadImage(fromIndex);
+      return;
+    }
+
+    final List<int> targets = [];
+    for (int i = 0; i < state.readPageInfo.pageCount; i++) {
+      if (scope == FailedImageRetryScope.retryCurrentPageAndAfter && i < fromIndex) {
+        continue;
+      }
+      final bool isFailed = state.parseImageUrlStates[i] == LoadingState.error || state.failedOnlineImageIndices.contains(i);
+      if (i == fromIndex || isFailed) {
+        targets.add(i);
+      }
+    }
+
+    log.info('Retry failed images, scope: $scope, targets: $targets');
+    for (int index in targets) {
+      reloadImage(index);
+    }
   }
 
   void listen2VolumeKeys() {

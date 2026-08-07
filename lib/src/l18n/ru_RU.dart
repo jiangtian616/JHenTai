@@ -453,6 +453,11 @@ class ru_RU {
       'pageCacheMaxAge': 'Время жизни кэша страниц',
       'pageCacheMaxAgeHint': 'Вы можете обновить кэш, обновив страницу',
       'cacheImageExpireDuration': 'Время жизни кэша изображений',
+      'enableSmartCache': "Умный кэш",
+      'enableSmartCacheHint': "Кэширует просмотренные страницы и изображения, чтобы они открывались мгновенно",
+      'smartCacheRetention': "Срок хранения кэша",
+      'smartCacheRetentionHint': "Кэш старше этого срока очищается автоматически",
+      'cacheSize': "Текущий размер кэша",
       'cacheImageExpireDurationHint':
           'Автоматически удалять кэш изображений после запуска приложения',
       'oneMinute': '1 минута',

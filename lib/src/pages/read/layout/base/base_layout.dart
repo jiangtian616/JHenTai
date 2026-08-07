@@ -129,7 +129,7 @@ abstract class BaseLayout extends StatelessWidget {
     Size placeHolderSize = logic.getPlaceHolderSize(index);
 
     return GestureDetector(
-      onTap: () => readPageLogic.beginToParseImageUrl(index, true),
+      onTap: () => readPageLogic.retryFailedImages(fromIndex: index),
       child: SizedBox(
         height: placeHolderSize.height,
         width: placeHolderSize.width,
@@ -188,13 +188,16 @@ abstract class BaseLayout extends StatelessWidget {
   Widget _failedWidgetBuilder(int index, ExtendedImageState state) {
     log.warning('online image widget build failed', state.lastException);
 
+    /// remember the failure so a batch retry knows this image needs reloading
+    readPageState.failedOnlineImageIndices.add(index);
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconTextButton(
           icon: const Icon(Icons.error, color: UIConfig.readPageButtonColor),
           text: Text('networkError'.tr, style: const TextStyle(color: UIConfig.readPageButtonColor)),
-          onPressed: () => logic.readPageLogic.reloadImage(index),
+          onPressed: () => logic.readPageLogic.retryFailedImages(fromIndex: index),
         ),
         Text((index + 1).toString()),
       ],
@@ -203,6 +206,9 @@ abstract class BaseLayout extends StatelessWidget {
 
   /// completed for online mode
   Widget? completedWidgetBuilderCallBack(int index, ExtendedImageState state) {
+    /// a previously failed image has loaded, so it no longer needs a retry
+    readPageState.failedOnlineImageIndices.remove(index);
+
     if (state.extendedImageInfo == null || logic.readPageState.imageContainerSizes[index] != null) {
       return null;
     }

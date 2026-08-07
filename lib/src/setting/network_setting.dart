@@ -13,6 +13,17 @@ NetworkSetting networkSetting = NetworkSetting();
 class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
   Rx<Duration> pageCacheMaxAge = const Duration(hours: 1).obs;
   Rx<Duration> cacheImageExpireDuration = const Duration(days: 7).obs;
+
+  /// Smart cache: when enabled, pages and images you viewed are kept for
+  /// [smartCacheRetention] so revisiting them doesn't re-download.
+  RxBool enableSmartCache = false.obs;
+  Rx<Duration> smartCacheRetention = const Duration(days: 7).obs;
+
+  /// The retention actually in effect. When smart cache is on it governs both
+  /// the page cache and the image cache; otherwise the individual settings are
+  /// used.
+  Duration get effectivePageCacheMaxAge => enableSmartCache.isTrue ? smartCacheRetention.value : pageCacheMaxAge.value;
+  Duration get effectiveCacheImageExpireDuration => enableSmartCache.isTrue ? smartCacheRetention.value : cacheImageExpireDuration.value;
   RxBool enableDomainFronting = false.obs;
   Rx<JProxyType> proxyType = JProxyType.system.obs;
   RxString proxyAddress = 'localhost:1080'.obs;
@@ -55,6 +66,8 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
 
     pageCacheMaxAge.value = Duration(milliseconds: map['pageCacheMaxAge'] ?? pageCacheMaxAge.value.inMilliseconds);
     cacheImageExpireDuration.value = Duration(milliseconds: map['cacheImageExpireDuration'] ?? cacheImageExpireDuration.value.inMilliseconds);
+    enableSmartCache.value = map['enableSmartCache'] ?? enableSmartCache.value;
+    smartCacheRetention.value = Duration(milliseconds: map['smartCacheRetention'] ?? smartCacheRetention.value.inMilliseconds);
     enableDomainFronting.value = map['enableDomainFronting'] ?? enableDomainFronting.value;
     proxyType.value = JProxyType.values[map['proxyType'] ?? proxyType.value.index];
     proxyAddress.value = map['proxyAddress'] ?? proxyAddress.value;
@@ -69,6 +82,8 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
     return jsonEncode({
       'pageCacheMaxAge': pageCacheMaxAge.value.inMilliseconds,
       'cacheImageExpireDuration': cacheImageExpireDuration.value.inMilliseconds,
+      'enableSmartCache': enableSmartCache.value,
+      'smartCacheRetention': smartCacheRetention.value.inMilliseconds,
       'enableDomainFronting': enableDomainFronting.value,
       'proxyType': proxyType.value.index,
       'proxyAddress': proxyAddress.value,
@@ -94,6 +109,18 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
   Future<void> saveCacheImageExpireDuration(Duration cacheImageExpireDuration) async {
     log.debug('saveCacheImageExpireDuration:$cacheImageExpireDuration');
     this.cacheImageExpireDuration.value = cacheImageExpireDuration;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveEnableSmartCache(bool value) async {
+    log.debug('saveEnableSmartCache:$value');
+    enableSmartCache.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveSmartCacheRetention(Duration value) async {
+    log.debug('saveSmartCacheRetention:$value');
+    smartCacheRetention.value = value;
     await saveBeanConfig();
   }
 

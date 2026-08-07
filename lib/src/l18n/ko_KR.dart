@@ -434,6 +434,11 @@ class ko_KR {
       'pageCacheMaxAge': '페이지 캐시의 수명 최대 시간',
       'pageCacheMaxAgeHint': '새로고침 페이지 별로 캐시를 업데이트할 수 있습니다.',
       'cacheImageExpireDuration': 'Image Cache Expiration Time',
+      'enableSmartCache': "스마트 캐시",
+      'enableSmartCacheHint': "본 페이지와 이미지를 캐시하여 다음에 바로 열립니다",
+      'smartCacheRetention': "캐시 보존 기간",
+      'smartCacheRetentionHint': "이 기간보다 오래된 캐시는 자동으로 삭제됩니다",
+      'cacheSize': "현재 캐시 크기",
       'cacheImageExpireDurationHint':
           'Remove image cache automatically after launching app',
       'oneMinute': '1분',

@@ -29,6 +29,10 @@ class ReadPageState with ScrollStatusListerState {
   String? parseImageHrefErrorMsg;
   late List<String?> parseImageUrlErrorMsg;
 
+  /// online mode: image indices whose bytes failed to load. Used by the batch
+  /// retry feature to know which images actually need reloading.
+  final Set<int> failedOnlineImageIndices = <int>{};
+
   bool autoMode = false;
   bool isMenuOpen = false;
   Battery battery = Battery();

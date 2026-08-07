@@ -161,6 +161,23 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
       return;
     }
 
+    /// `extractArchiveToDisk` does not preserve the zip's Unix executable bit,
+    /// so the ncnn-vulkan binary comes out non-executable and the shell would
+    /// refuse to run it (exit code 126). Make it executable right away.
+    if (!GetPlatform.isWindows) {
+      final String executableName = GetPlatform.isMacOS ? model.macOSExecutableName : model.linuxExecutableName;
+      final String executablePath = join(dirPath, executableName);
+      try {
+        if (File(executablePath).existsSync()) {
+          await Process.run('chmod', ['+x', executablePath]);
+        } else {
+          log.warning('Super-resolution executable not found after extraction: $executablePath');
+        }
+      } on Exception catch (e) {
+        log.error('Failed to make super-resolution executable runnable', e);
+      }
+    }
+
     superResolutionSetting.saveModelDirectoryPath(dirPath);
 
     downloadState = LoadingState.success;
@@ -178,7 +195,7 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
       ArchiveDownloadInfo? archiveDownloadInfo = archiveDownloadService.archiveDownloadInfos[gid];
       if (archiveDownloadInfo?.archiveStatus != ArchiveStatus.completed) {
         toast('requireDownloadComplete'.tr);
-        return true;
+        return false;
       }
     }
 
@@ -198,6 +215,12 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
         rawImages = await archiveDownloadService.getUnpackedImages(gid);
       }
 
+      if (rawImages.isEmpty) {
+        log.error('super resolve failed: no images to process, gid: $gid, type: $type');
+        toast('failed'.tr);
+        return false;
+      }
+
       superResolutionInfo = SuperResolutionInfo(
         type,
         SuperResolutionStatus.running,
@@ -208,6 +231,15 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
 
       Directory(dirname(computeImageOutputAbsolutePath(rawImages[0].path!))).createSync(recursive: true);
 
+      updateSafely(['$superResolutionId::$gid']);
+    }
+
+    /// resuming is an explicit user action: flip the entry back to running now
+    /// so the worker (which may start later on the single-connection executor)
+    /// doesn't mistake it for a still-paused task
+    if (superResolutionInfo.status == SuperResolutionStatus.paused) {
+      superResolutionInfo.status = SuperResolutionStatus.running;
+      await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
       updateSafely(['$superResolutionId::$gid']);
     }
 
@@ -229,9 +261,13 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
     log.info('pause super resolution: $gid $success');
 
     superResolutionInfo.status = SuperResolutionStatus.paused;
-    for (SuperResolutionStatus status in superResolutionInfo.imageStatuses) {
-      if (status == SuperResolutionStatus.running) {
-        status = SuperResolutionStatus.paused;
+
+    /// mark every still-running image as paused too, so the per-image status
+    /// matches the overall state (previously the loop only reassigned the
+    /// iteration copy and never modified the list)
+    for (int i = 0; i < superResolutionInfo.imageStatuses.length; i++) {
+      if (superResolutionInfo.imageStatuses[i] == SuperResolutionStatus.running) {
+        superResolutionInfo.imageStatuses[i] = SuperResolutionStatus.paused;
       }
     }
     await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
@@ -282,10 +318,24 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
     }
 
     SuperResolutionInfo superResolutionInfo = get(gid, type)!;
+
+    /// a paused entry must stay paused: this worker runs on a single-connection
+    /// executor, so it may start long after the user paused the task while it
+    /// was queued behind another one. Only [superResolve] (an explicit user
+    /// action) may flip it back to running.
+    if (superResolutionInfo.status == SuperResolutionStatus.paused) {
+      return;
+    }
     if (superResolutionInfo.status != SuperResolutionStatus.running) {
       superResolutionInfo.status = SuperResolutionStatus.running;
       await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
       updateSafely(['$superResolutionId::$gid']);
+    }
+
+    if (!await _ensureExecutableRunnable()) {
+      toast('${'internalError'.tr}: super resolution executable unavailable', isShort: false);
+      pauseSuperResolve(gid, type);
+      return;
     }
 
     for (int i = 0; i < rawImages.length; i++) {
@@ -389,6 +439,45 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
     }
 
     return true;
+  }
+
+  /// `extractArchiveToDisk` does not preserve the zip's Unix executable bit, so
+  /// the ncnn-vulkan binary arrives non-executable and the shell refuses to run
+  /// it with exit code 126. Ensure the binary is runnable once per task; this
+  /// also repairs models extracted before this fix.
+  Future<bool> _ensureExecutableRunnable() async {
+    if (GetPlatform.isWindows) {
+      return true;
+    }
+
+    final String? modelDir = superResolutionSetting.modelDirectoryPath.value;
+    final ModelType modelType = superResolutionSetting.model.value;
+    if (modelDir == null) {
+      return false;
+    }
+
+    final String executablePath = join(
+      modelDir,
+      GetPlatform.isMacOS ? modelType.macOSExecutableName : modelType.linuxExecutableName,
+    );
+
+    try {
+      final File executable = File(executablePath);
+      if (!executable.existsSync()) {
+        log.error('Super-resolution executable not found: $executablePath');
+        return false;
+      }
+
+      // owner-execute bit (S_IXUSR)
+      if ((executable.statSync().mode & 0x40) == 0) {
+        log.info('Super-resolution executable missing +x, fixing: $executablePath');
+        await Process.run('chmod', ['+x', executablePath]);
+      }
+      return true;
+    } on Exception catch (e) {
+      log.error('Failed to prepare super-resolution executable', e);
+      return false;
+    }
   }
 
   Future<Process> _callProcess(GalleryImage rawImage) {

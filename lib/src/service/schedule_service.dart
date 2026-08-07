@@ -170,7 +170,7 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
 
     int count = 0;
     cacheImageDirectory.list().forEach((FileSystemEntity entity) {
-      if (entity is File && DateTime.now().difference(entity.lastAccessedSync()) > networkSetting.cacheImageExpireDuration.value) {
+      if (entity is File && DateTime.now().difference(entity.lastAccessedSync()) > networkSetting.effectiveCacheImageExpireDuration) {
         entity.delete();
         count++;
       }

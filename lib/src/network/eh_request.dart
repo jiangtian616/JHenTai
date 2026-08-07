@@ -105,7 +105,7 @@ class EHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     _cacheManager = EHCacheManager(
       options: CacheOptions(
         policy: CachePolicy.disable,
-        expire: networkSetting.pageCacheMaxAge.value,
+        expire: networkSetting.effectivePageCacheMaxAge,
         store: SqliteCacheStore(appDb: appDb),
       ),
     );
@@ -334,6 +334,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     String? nextGid,
     DateTime? seek,
     SearchConfig? searchConfig,
+    bool useCacheIfAvailable = true,
     required HtmlParser<T> parser,
   }) async {
     Response response = await _getWithErrorHandler(
@@ -344,6 +345,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         if (seek != null) 'seek': DateFormat('yyyy-MM-dd').format(seek),
         ...?searchConfig?.toQueryParameters(),
       },
+      options: useCacheIfAvailable ? CacheOptions.cacheOptions.toOptions() : CacheOptions.noCacheOptions.toOptions(),
     );
     return _parseResponse(response, parser);
   }

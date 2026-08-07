@@ -54,7 +54,11 @@ class EHCacheManager extends Interceptor {
       }
 
       log.trace('cache hit: ${options.uri.toString()}');
-      cacheResponse = await _updateCacheResponse(cacheResponse, cacheOptions);
+      // Only extend the sliding expiry when the entry is close to expiring;
+      // otherwise a hot page would turn every read into a DB write.
+      if (cacheResponse.willExpireSoon(cacheOptions.expire)) {
+        cacheResponse = await _updateCacheResponse(cacheResponse, cacheOptions);
+      }
       return handler.resolve(cacheResponse.toResponse(options), true);
     }
     handler.next(options);
@@ -190,13 +194,13 @@ class CacheOptions {
 
   static const _extraKey = '@cache_options@';
 
-  static get noCacheOptions => CacheOptions(policy: CachePolicy.noCache, expire: networkSetting.pageCacheMaxAge.value);
+  static get noCacheOptions => CacheOptions(policy: CachePolicy.noCache, expire: networkSetting.effectivePageCacheMaxAge);
 
-  static get noCacheOptionsIgnoreParams => CacheOptions(policy: CachePolicy.noCache, expire: networkSetting.pageCacheMaxAge.value, ignoreParams: true);
+  static get noCacheOptionsIgnoreParams => CacheOptions(policy: CachePolicy.noCache, expire: networkSetting.effectivePageCacheMaxAge, ignoreParams: true);
 
-  static get cacheOptions => CacheOptions(policy: CachePolicy.cache, expire: networkSetting.pageCacheMaxAge.value);
+  static get cacheOptions => CacheOptions(policy: CachePolicy.cache, expire: networkSetting.effectivePageCacheMaxAge);
 
-  static get cacheOptionsIgnoreParams => CacheOptions(policy: CachePolicy.cache, expire: networkSetting.pageCacheMaxAge.value, ignoreParams: true);
+  static get cacheOptionsIgnoreParams => CacheOptions(policy: CachePolicy.cache, expire: networkSetting.effectivePageCacheMaxAge, ignoreParams: true);
 
   const CacheOptions({this.policy = CachePolicy.cache, required this.expire, this.store, this.ignoreParams = false});
 
@@ -258,6 +262,16 @@ class CacheResponse {
 
   bool expired() {
     return DateTime.now().isAfter(expireDate);
+  }
+
+  /// Whether the entry is close to expiring (within the last 10% of its TTL).
+  /// Used to avoid rewriting the sliding expiry on every cache hit.
+  bool willExpireSoon(Duration expire) {
+    if (expire <= Duration.zero) {
+      return false;
+    }
+    final Duration remaining = expireDate.difference(DateTime.now());
+    return remaining.isNegative || remaining < expire * 0.1;
   }
 
   Headers _getHeaders() {

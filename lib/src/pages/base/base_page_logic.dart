@@ -103,7 +103,9 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     GalleryPageInfo galleryPage;
     try {
-      galleryPage = await getGalleryPage();
+      // explicit refresh must bypass the cache; the fresh response is still
+      // written back so subsequent opens read the updated copy
+      galleryPage = await getGalleryPage(useCacheIfAvailable: false);
     } on DioException catch (e) {
       log.error('refreshGalleryFailed'.tr, e.errorMsg);
       snack('refreshGalleryFailed'.tr, e.errorMsg ?? '', isShort: true);
@@ -174,7 +176,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     updateSafely();
 
-    return loadMore(checkLoadingState: false);
+    return loadMore(checkLoadingState: false, useCacheIfAvailable: false);
   }
 
   /// pull-down to load page before(after jumping to a certain page), after load, we must restore [state.downloadState]
@@ -228,7 +230,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
   }
 
   /// has scrolled to bottom, so need to load more data.
-  Future<void> loadMore({bool checkLoadingState = true}) async {
+  Future<void> loadMore({bool checkLoadingState = true, bool useCacheIfAvailable = true}) async {
     if (checkLoadingState && state.loadingState == LoadingState.loading) {
       return;
     }
@@ -238,7 +240,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     GalleryPageInfo galleryPage;
     try {
-      galleryPage = await getGalleryPage(nextGid: state.nextGid);
+      galleryPage = await getGalleryPage(nextGid: state.nextGid, useCacheIfAvailable: useCacheIfAvailable);
     } on DioException catch (e) {
       log.error('getGallerysFailed'.tr, e.errorMsg);
       snack('getGallerysFailed'.tr, e.errorMsg ?? '', isShort: true);
@@ -392,7 +394,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
   void handleSecondaryTapCard(BuildContext context, Gallery gallery, {Offset? position}) async {}
 
-  Future<GalleryPageInfo> getGalleryPage({String? prevGid, String? nextGid, DateTime? seek}) async {
+  Future<GalleryPageInfo> getGalleryPage({String? prevGid, String? nextGid, DateTime? seek, bool useCacheIfAvailable = true}) async {
     log.info('$runtimeType get data, prevGid:$prevGid, nextGid:$nextGid');
 
     await state.searchConfigInitCompleter.future;
@@ -402,6 +404,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       nextGid: nextGid,
       seek: seek,
       searchConfig: state.searchConfig,
+      useCacheIfAvailable: useCacheIfAvailable,
       parser: EHSpiderParser.galleryPage2GalleryPageInfo,
     );
   }

@@ -49,7 +49,7 @@ AppUpdateService appUpdateService = AppUpdateService();
 class AppUpdateService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late File file;
   int? fromVersion;
-  static const int toVersion = 12;
+  static const int toVersion = 13;
 
   List<UpdateHandler> updateHandlers = [
     FirstOpenHandler(),
@@ -59,6 +59,7 @@ class AppUpdateService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBe
     UpdateReadDirectionHandler(),
     MigrateSearchConfigHandler(),
     ClearSuperResolutionSettingHandler(),
+    UpdateOnlinePreloadHandler(),
     MigrateCookieHandler(),
     MigrateLocalFilterTagsHandler(),
     MigrateGalleryHistoryHandler(),
@@ -270,6 +271,35 @@ class UpdateReadDirectionHandler implements UpdateHandler {
       readSetting.saveReadDirection(ReadDirection.right2leftDoubleColumn);
     } else if (readSetting.readDirection.value == ReadDirection.right2leftSinglePageFitWidth) {
       readSetting.saveReadDirection(ReadDirection.right2leftList);
+    }
+  }
+}
+
+class UpdateOnlinePreloadHandler implements UpdateHandler {
+  @override
+  List<JHLifeCircleBean> get initDependencies => [readSetting];
+
+  @override
+  Future<bool> match(int? fromVersion, int toVersion) async {
+    // one-time: every existing install upgrading to v13 picks up the new default
+    return fromVersion != null && fromVersion <= 12;
+  }
+
+  @override
+  Future<void> onInit() async {}
+
+  @override
+  Future<void> onReady() async {
+    log.info('UpdateOnlinePreloadHandler onReady');
+
+    // The online preload defaults moved from 1 to 2 screens/pages. Only bump
+    // installs still sitting on the old default so users who deliberately
+    // picked another value are left alone.
+    if (readSetting.preloadDistance.value == 1) {
+      await readSetting.savePreloadDistance(2);
+    }
+    if (readSetting.preloadPageCount.value == 1) {
+      await readSetting.savePreloadPageCount(2);
     }
   }
 }

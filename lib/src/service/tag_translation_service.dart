@@ -159,6 +159,9 @@ class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCir
       }
     });
 
+    /// the `tag` table was replaced, so stale in-memory lookups must go
+    _translationCache.clear();
+
     timeStamp.value = newTimeStamp;
     loadingState.value = LoadingState.success;
 
@@ -198,9 +201,32 @@ class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCir
     return translatedTagDatas.toList();
   }
 
+  /// In-memory cache of translation lookups. The `tag` table only changes when
+  /// a fresh EhTagTranslation database is applied in [fetchDataFromGithub], so
+  /// the cache only needs invalidating there. Without it, every gallery list
+  /// page issues hundreds of point SELECTs (one per tag) against the DB.
+  final LinkedHashMap<String, TagData?> _translationCache = LinkedHashMap();
+
+  static const int _translationCacheCapacity = 10000;
+
   Future<TagData?> getTagTranslation(String namespace, String key) async {
+    // NUL can never appear in a tag namespace/key, so it is a safe separator.
+    final String cacheKey = '$namespace\u0000$key';
+    final TagData? cached = _translationCache[cacheKey];
+    if (cached != null || _translationCache.containsKey(cacheKey)) {
+      // re-insert to keep the entry hot in the LRU eviction order
+      _translationCache.remove(cacheKey);
+      _translationCache[cacheKey] = cached;
+      return cached;
+    }
+
     List<TagData> list = await TagDao.selectTagByNamespaceAndKey(namespace, key);
-    return list.isNotEmpty ? list.first : null;
+    TagData? value = list.isNotEmpty ? list.first : null;
+    _translationCache[cacheKey] = value;
+    if (_translationCache.length > _translationCacheCapacity) {
+      _translationCache.remove(_translationCache.keys.first);
+    }
+    return value;
   }
 
   Future<List<TagAutoCompletionMatch>> searchTags(String searchText, {int? limit}) async {

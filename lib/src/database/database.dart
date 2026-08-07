@@ -431,13 +431,27 @@ LazyDatabase _openConnection() {
   return LazyDatabase(() async {
     final file = io.File(join(pathService.getVisibleDir().path, 'db.sqlite'));
 
-    if (Platform.isAndroid) {
-      await applyWorkaroundToOpenSqlite3OnOldAndroidVersions();
-    }
+    // Resolve on the main isolate: `isolateSetup` is sent to the spawned
+    // database isolate, so it may only capture sendable values.
+    final String tempDir = pathService.tempDir.path;
 
-    sqlite3.tempDirectory = pathService.tempDir.path;
-
-    return NativeDatabase(file);
+    /// Run all SQLite work on a background isolate so heavy queries (dio-cache
+    /// lookups, tag translation, history, etc.) never block the UI isolate.
+    /// `cachePreparedStatements` avoids re-parsing the frequently-issued
+    /// statements, and WAL makes the frequent dio-cache upserts cheaper.
+    return NativeDatabase.createInBackground(
+      file,
+      cachePreparedStatements: true,
+      setup: (db) {
+        db.execute('pragma journal_mode = WAL;');
+      },
+      isolateSetup: () async {
+        if (Platform.isAndroid) {
+          await applyWorkaroundToOpenSqlite3OnOldAndroidVersions();
+        }
+        sqlite3.tempDirectory = tempDir;
+      },
+    );
   });
 }
 

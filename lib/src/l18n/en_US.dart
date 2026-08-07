@@ -444,6 +444,11 @@ class en_US {
       'pageCacheMaxAge': 'Page Cache Expiration Time',
       'pageCacheMaxAgeHint': 'You can update cache by refresh page',
       'cacheImageExpireDuration': 'Image Cache Expiration Time',
+      'enableSmartCache': "Smart Cache",
+      'enableSmartCacheHint': "Cache the pages and images you viewed so they open instantly next time",
+      'smartCacheRetention': "Cache Retention",
+      'smartCacheRetentionHint': "Cache older than this is cleared automatically",
+      'cacheSize': "Current Cache Size",
       'cacheImageExpireDurationHint':
           'Remove image cache automatically after launching app',
       'oneMinute': '1 Minute',

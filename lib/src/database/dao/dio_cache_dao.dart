@@ -29,4 +29,12 @@ class DioCacheDao {
   static Future<int> deleteAllCache() {
     return appDb.delete(appDb.dioCache).go();
   }
+
+  /// Total bytes occupied by the cached page bodies and headers.
+  static Future<int> getTotalSize() {
+    return appDb
+        .customSelect('SELECT COALESCE(SUM(LENGTH(content) + LENGTH(headers)), 0) AS total FROM dio_cache')
+        .getSingle()
+        .then((row) => row.read<int>('total'));
+  }
 }

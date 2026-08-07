@@ -452,6 +452,11 @@ class pt_BR {
       'pageCacheMaxAge': 'Idade máxima do cache de página',
       'pageCacheMaxAgeHint': 'Você pode atualizar o cache atualizando a página',
       'cacheImageExpireDuration': 'Image Cache Expiration Time',
+      'enableSmartCache': "Cache Inteligente",
+      'enableSmartCacheHint': "Armazena as páginas e imagens que você viu para abrir instantaneamente na próxima vez",
+      'smartCacheRetention': "Retenção do cache",
+      'smartCacheRetentionHint': "Caches mais antigos que isso são limpos automaticamente",
+      'cacheSize': "Tamanho atual do cache",
       'cacheImageExpireDurationHint':
           'Remove image cache automatically after launching app',
       'oneMinute': '1 Minuto',

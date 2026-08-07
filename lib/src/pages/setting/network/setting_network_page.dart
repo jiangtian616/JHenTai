@@ -1,11 +1,22 @@
+import 'dart:io';
+
+import 'package:extended_image/extended_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/database/dao/dio_cache_dao.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
+import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/service/log.dart';
+import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
+import 'package:path/path.dart';
+import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../../routes/routes.dart';
+import '../../../utils/byte_util.dart';
 import '../../../utils/route_util.dart';
 import '../../../utils/text_input_formatter.dart';
 import '../../../utils/toast_util.dart';
@@ -27,8 +38,15 @@ class SettingNetworkPage extends StatelessWidget {
           children: [
             _buildEnableDomainFronting(),
             _buildProxyAddress(),
-            _buildPageCacheMaxAge(),
-            _buildCacheImageExpireDuration(),
+            _buildSmartCache(),
+            if (networkSetting.enableSmartCache.isTrue) ...[
+              _buildSmartCacheRetention(),
+              const _CacheSizeTile(),
+            ],
+            if (networkSetting.enableSmartCache.isFalse) ...[
+              _buildPageCacheMaxAge(),
+              _buildCacheImageExpireDuration(),
+            ],
             _buildConnectTimeout(context),
             _buildReceiveTimeout(context),
           ],
@@ -51,6 +69,34 @@ class SettingNetworkPage extends StatelessWidget {
       title: Text('proxyAddress'.tr),
       trailing: const Icon(Icons.keyboard_arrow_right).marginOnly(right: 4),
       onTap: () => toRoute(Routes.proxy),
+    );
+  }
+
+  Widget _buildSmartCache() {
+    return SwitchListTile(
+      title: Text('enableSmartCache'.tr),
+      subtitle: Text('enableSmartCacheHint'.tr),
+      value: networkSetting.enableSmartCache.value,
+      onChanged: networkSetting.saveEnableSmartCache,
+    );
+  }
+
+  Widget _buildSmartCacheRetention() {
+    return ListTile(
+      title: Text('smartCacheRetention'.tr),
+      subtitle: Text('smartCacheRetentionHint'.tr),
+      trailing: DropdownButton<Duration>(
+        value: networkSetting.smartCacheRetention.value,
+        elevation: 4,
+        alignment: AlignmentDirectional.centerEnd,
+        onChanged: (Duration? newValue) => networkSetting.saveSmartCacheRetention(newValue!),
+        items: [
+          DropdownMenuItem(child: Text('1d'.tr), value: const Duration(days: 1)),
+          DropdownMenuItem(child: Text('3d'.tr), value: const Duration(days: 3)),
+          DropdownMenuItem(child: Text('7d'.tr), value: const Duration(days: 7)),
+          DropdownMenuItem(child: Text('30d'.tr), value: const Duration(days: 30)),
+        ],
+      ),
     );
   }
 
@@ -166,4 +212,97 @@ class SettingNetworkPage extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Shows the total size of the page cache (dio_cache) plus the image cache
+/// (cacheimage/), with refresh and clear actions.
+class _CacheSizeTile extends StatefulWidget {
+  const _CacheSizeTile({Key? key}) : super(key: key);
+
+  @override
+  State<_CacheSizeTile> createState() => _CacheSizeTileState();
+}
+
+class _CacheSizeTileState extends State<_CacheSizeTile> {
+  LoadingState loadingState = LoadingState.idle;
+  String sizeText = '';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
+  }
+
+  Future<void> _load() async {
+    if (loadingState == LoadingState.loading) {
+      return;
+    }
+
+    setState(() => loadingState = LoadingState.loading);
+
+    try {
+      final int totalBytes = await _getTotalCacheSize();
+      sizeText = byte2String(totalBytes.toDouble());
+      if (!mounted) {
+        return;
+      }
+      setState(() => loadingState = LoadingState.success);
+    } catch (e) {
+      log.error('Get cache size failed', e);
+      sizeText = '-1B';
+      if (!mounted) {
+        return;
+      }
+      setState(() => loadingState = LoadingState.error);
+    }
+  }
+
+  Future<void> _clear() async {
+    if (loadingState == LoadingState.loading) {
+      return;
+    }
+
+    await ehRequest.removeAllCache();
+    await clearDiskCachedImages();
+    toast('clearSuccess'.tr, isCenter: false);
+    _load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text('cacheSize'.tr),
+      subtitle: Text(loadingState == LoadingState.loading || sizeText.isEmpty ? 'loading'.tr : sizeText),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            onPressed: _load,
+            icon: const Icon(Icons.refresh),
+          ),
+          IconButton(
+            onPressed: _clear,
+            icon: const Icon(Icons.delete_outline),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+Future<int> _getTotalCacheSize() async {
+  final int pageBytes = await DioCacheDao.getTotalSize();
+  final int imageBytes = await compute(
+    _computeImageCacheSize,
+    join(pathService.tempDir.path, cacheImageFolderName),
+  );
+  return pageBytes + imageBytes;
+}
+
+int _computeImageCacheSize(String dirPath) {
+  Directory dir = Directory(dirPath);
+  if (!dir.existsSync()) {
+    return 0;
+  }
+  return dir.listSync().fold<int>(0, (previousValue, element) => previousValue + (element as File).lengthSync());
 }
