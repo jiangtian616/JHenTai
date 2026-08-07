@@ -16,7 +16,7 @@ class ThemeConfig {
 
   static ThemeData theme(Color color, Brightness brightness) {
     if (isApple) {
-      return _buildAppleTheme(color, brightness);
+      return _buildAppleTheme(brightness);
     }
     return _buildMaterialTheme(color, brightness);
   }
@@ -62,9 +62,12 @@ class ThemeConfig {
     );
   }
 
-  /// macOS / iOS look: neutral gray surfaces with a user-selectable accent.
-  static ThemeData _buildAppleTheme(Color accent, Brightness brightness) {
+  /// macOS / iOS look: neutral gray surfaces with a monochrome accent.
+  /// The user's regular accent is preserved for Material mode and restored
+  /// automatically when the Apple visual style is turned off.
+  static ThemeData _buildAppleTheme(Brightness brightness) {
     final bool isDark = brightness == Brightness.dark;
+    final Color appleAccent = isDark ? Colors.white : Colors.black;
 
     final Color window = isDark
         ? const Color(0xFF1E1E1E)
@@ -87,13 +90,13 @@ class ThemeConfig {
     );
 
     final ColorScheme scheme =
-        ColorScheme.fromSeed(seedColor: accent, brightness: brightness)
+        ColorScheme.fromSeed(seedColor: appleAccent, brightness: brightness)
             .copyWith(
-      primary: accent,
-      onPrimary: Colors.white,
-      primaryContainer: accent.withValues(alpha: 0.2),
+      primary: appleAccent,
+      onPrimary: isDark ? Colors.black : Colors.white,
+      primaryContainer: appleAccent.withValues(alpha: 0.2),
       onPrimaryContainer: onSurface,
-      secondaryContainer: accent.withValues(alpha: 0.12),
+      secondaryContainer: appleAccent.withValues(alpha: 0.12),
       onSecondaryContainer: onSurface,
       surface: window,
       onSurface: onSurface,
@@ -140,12 +143,12 @@ class ThemeConfig {
         border: inputBorder,
         enabledBorder: inputBorder,
         focusedBorder: inputBorder.copyWith(
-            borderSide: BorderSide(color: accent, width: 1.5)),
+            borderSide: BorderSide(color: appleAccent, width: 1.5)),
       ),
       textSelectionTheme: TextSelectionThemeData(
-        selectionColor: accent.withValues(alpha: 0.2),
-        cursorColor: accent,
-        selectionHandleColor: accent,
+        selectionColor: appleAccent.withValues(alpha: 0.2),
+        cursorColor: appleAccent,
+        selectionHandleColor: appleAccent,
       ),
       dividerTheme: DividerThemeData(color: separator),
       textButtonTheme: const TextButtonThemeData(
