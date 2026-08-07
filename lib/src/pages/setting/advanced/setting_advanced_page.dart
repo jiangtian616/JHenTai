@@ -23,6 +23,7 @@ import '../../../utils/route_util.dart';
 import '../../../widget/eh_config_type_select_dialog.dart';
 import '../../../widget/eh_apple_settings_list_view.dart';
 import '../../../widget/eh_apple_controls.dart';
+import '../../../widget/eh_apple_expandable_switch_list_tile.dart';
 
 class SettingAdvancedPage extends StatefulWidget {
   const SettingAdvancedPage({Key? key}) : super(key: key);
@@ -54,9 +55,13 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
           groups: [
             EHAppleSettingsGroup(
               children: [
-                _buildEnableLogging(),
-                if (advancedSetting.enableLogging.isTrue)
-                  _buildRecordAllLogs().fadeIn(),
+                EHAppleExpandableSwitchListTile(
+                  title: Text('enableLogging'.tr),
+                  subtitle: Text('needRestart'.tr),
+                  value: advancedSetting.enableLogging.value,
+                  onChanged: advancedSetting.saveEnableLogging,
+                  children: [_buildRecordAllLogs()],
+                ),
                 _buildOpenLogs(),
                 _buildClearLogs(context),
                 if (GetPlatform.isDesktop) _buildSuperResolution(),
@@ -72,16 +77,6 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildEnableLogging() {
-    return ListTile(
-      title: Text('enableLogging'.tr),
-      subtitle: Text('needRestart'.tr),
-      trailing: EHAppleSwitch(
-          value: advancedSetting.enableLogging.value,
-          onChanged: advancedSetting.saveEnableLogging),
     );
   }
 

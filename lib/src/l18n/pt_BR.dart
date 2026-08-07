@@ -455,6 +455,15 @@ class pt_BR {
       'smartCacheRetention': "Retenção do cache",
       'smartCacheRetentionHint':
           "Caches mais antigos que isso são limpos automaticamente",
+      'smartCacheMaxSize': "Limite de espaço do cache",
+      'smartCacheMaxSizeHint':
+          "O cache é limpo automaticamente ao exceder este limite",
+      'smartCacheEvictPolicy': "Política de limpeza",
+      'smartCacheEvictPolicyHint':
+          "Quais entradas são removidas primeiro ao atingir o limite",
+      'smartCacheEvictByAddedDate': "Por data de adição",
+      'smartCacheEvictByUsageFrequency': "Por frequência de uso",
+      'unlimited': "Ilimitado",
       'cacheSize': "Tamanho atual do cache",
       'oneMinute': '1 Minuto',
       'tenMinute': '10 Minutos',
@@ -999,6 +1008,26 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationFailed': 'A tradução de texto da imagem falhou.',
       'imageTranslationPaddleNotReady':
           'O ambiente de execução do PaddleOCR não está instalado. Instale-o nas configurações avançadas primeiro.',
+      'imageTranslationDeletePaddleRuntime':
+          'Excluir ambiente de execução do PaddleOCR',
+      'imageTranslationDeletePaddleHint':
+          'Remove o ambiente virtual e os modelos baixados.',
+      'imageTranslationDeletePaddleConfirm':
+          'Excluir o ambiente de execução do PaddleOCR?',
+      'imageTranslationEnableThinking': 'Usar raciocínio',
+      'imageTranslationEnableThinkingHint':
+          'Desativado traduz mais rápido; ativado raciocina mais profundamente.',
+      'imageTranslationTranslateScope': 'Escopo da tradução',
+      'imageTranslationScopeCurrent': 'Apenas a página atual',
+      'imageTranslationScopeSubsequent': 'Página atual e seguintes',
+      'imageTranslationCachedRetranslate': 'Em cache · Retraduzir',
+      'translationProgress': 'Traduzindo @current/@total · @stage',
+      'translationStageIdle': 'Preparando',
+      'translationStageRecognizing': 'Reconhecendo',
+      'translationStageTranslating': 'Traduzindo',
+      'translationStageMasking': 'Mascarando',
+      'translationStageEmbedding': 'Inserindo texto',
+      'translationStageDone': 'Concluído',
       'imageTranslationSourceUnavailable':
           'A imagem atual não está disponível.',
       'imageTranslationSettingHint': 'Configurar OCR e provedor de tradução',

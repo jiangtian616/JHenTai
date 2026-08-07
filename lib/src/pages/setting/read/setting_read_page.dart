@@ -17,6 +17,7 @@ import '../../../utils/toast_util.dart';
 import '../../../utils/app_icons.dart';
 import '../../../widget/eh_apple_settings_list_view.dart';
 import '../../../widget/eh_apple_controls.dart';
+import '../../../widget/eh_apple_expandable_switch_list_tile.dart';
 import '../../../widget/eh_codex_style_dropdown.dart';
 import '../../home_page.dart';
 
@@ -53,8 +54,12 @@ class SettingReadPage extends StatelessWidget {
                   _buildEnableImmersiveMode().center(),
                 _buildKeepScreenAwake().center(),
                 if (GetPlatform.isMobile)
-                  _buildEnableCustomReadBrightness().center(),
-                if (GetPlatform.isMobile) _buildCustomReadBrightness().center(),
+                  EHAppleExpandableSwitchListTile(
+                    title: Text('enableCustomReadBrightness'.tr),
+                    value: readSetting.enableCustomReadBrightness.value,
+                    onChanged: readSetting.saveEnableCustomReadBrightness,
+                    children: [_buildCustomReadBrightness()],
+                  ).center(),
                 _buildShowThumbnails().center(),
                 _buildShowScrollBar().center(),
                 _buildShowStatusInfo().center(),
@@ -66,30 +71,43 @@ class SettingReadPage extends StatelessWidget {
                 _buildEnableBottomMenu().center(),
                 _buildReverseTurnPageDirection().center(),
                 _buildDisableTurnPageOnTap().center(),
-                _buildEnableImageMaxKilobytes().center(),
-                if (readSetting.enableMaxImageKilobyte.isTrue)
-                  _buildImageMaxKilobytes(context)
-                      .fadeIn(const Key('imageMaxKilobytes'))
-                      .center(),
+                EHAppleExpandableSwitchListTile(
+                  title: Text('enableImageMaxKilobytes'.tr),
+                  value: readSetting.enableMaxImageKilobyte.value,
+                  onChanged: readSetting.saveEnableMaxImageKilobyte,
+                  children: [_buildImageMaxKilobytes(context)],
+                ).center(),
                 _buildGestureRegionWidthRatio(context).center(),
-                if (GetPlatform.isDesktop) _buildUseThirdPartyViewer().center(),
                 if (GetPlatform.isDesktop)
-                  _buildThirdPartyViewerPath().center(),
+                  EHAppleExpandableSwitchListTile(
+                    title: Text('useThirdPartyViewer'.tr),
+                    value: readSetting.useThirdPartyViewer.value,
+                    onChanged: readSetting.saveUseThirdPartyViewer,
+                    children: [_buildThirdPartyViewerPath()],
+                  ).center(),
                 if (GetPlatform.isDesktop)
                   _buildKeyboardShortcuts(context).center(),
                 if (GetPlatform.isMobile) _buildDeviceDirection().center(),
                 if (GetPlatform.isMobile)
-                  _buildEnableOrientationSpecificReadDirection().center(),
-                if (GetPlatform.isMobile &&
-                    readSetting.enableOrientationSpecificReadDirection.isTrue)
-                  _buildPortraitReadDirection()
-                      .fadeIn(const Key('portraitReadDirection'))
-                      .center(),
-                if (GetPlatform.isMobile &&
-                    readSetting.enableOrientationSpecificReadDirection.isTrue)
-                  _buildLandscapeReadDirection()
-                      .fadeIn(const Key('landscapeReadDirection'))
-                      .center(),
+                  EHAppleExpandableSwitchListTile(
+                    title: Text('enableOrientationSpecificReadDirection'.tr),
+                    subtitle:
+                        Text('enableOrientationSpecificReadDirectionHint'.tr),
+                    value:
+                        readSetting.enableOrientationSpecificReadDirection.value,
+                    onChanged:
+                        readSetting.saveEnableOrientationSpecificReadDirection,
+                    children: [
+                      _buildPortraitReadDirection(),
+                      _buildLandscapeReadDirection(),
+                      if (readSetting.portraitReadDirection.value ==
+                          ReadDirection.top2bottomList)
+                        _buildPortraitImageRegionWidthRatio(context),
+                      if (readSetting.landscapeReadDirection.value ==
+                          ReadDirection.top2bottomList)
+                        _buildLandscapeImageRegionWidthRatio(context),
+                    ],
+                  ).center(),
                 if (!GetPlatform.isMobile ||
                     readSetting.enableOrientationSpecificReadDirection.isFalse)
                   _buildReadDirection().center(),
@@ -103,20 +121,6 @@ class SettingReadPage extends StatelessWidget {
                     : readSetting.readDirection.value ==
                         ReadDirection.top2bottomList)
                   _buildNotchOptimization().center(),
-                if (GetPlatform.isMobile &&
-                    readSetting
-                        .enableOrientationSpecificReadDirection.isTrue) ...[
-                  if (readSetting.portraitReadDirection.value ==
-                      ReadDirection.top2bottomList)
-                    _buildPortraitImageRegionWidthRatio(context)
-                        .fadeIn(const Key('portraitImageRegionWidthRatio'))
-                        .center(),
-                  if (readSetting.landscapeReadDirection.value ==
-                      ReadDirection.top2bottomList)
-                    _buildLandscapeImageRegionWidthRatio(context)
-                        .fadeIn(const Key('landscapeImageRegionWidthRatio'))
-                        .center(),
-                ],
                 if (!GetPlatform.isMobile ||
                     readSetting.enableOrientationSpecificReadDirection.isFalse)
                   if (readSetting.readDirection.value ==
@@ -196,14 +200,6 @@ class SettingReadPage extends StatelessWidget {
       title: Text('keepScreenAwakeWhenReading'.tr),
       value: readSetting.keepScreenAwakeWhenReading.value,
       onChanged: readSetting.saveKeepScreenAwakeWhenReading,
-    );
-  }
-
-  Widget _buildEnableCustomReadBrightness() {
-    return EHAppleSwitchListTile(
-      title: Text('enableCustomReadBrightness'.tr),
-      value: readSetting.enableCustomReadBrightness.value,
-      onChanged: readSetting.saveEnableCustomReadBrightness,
     );
   }
 
@@ -349,14 +345,6 @@ class SettingReadPage extends StatelessWidget {
     );
   }
 
-  Widget _buildEnableImageMaxKilobytes() {
-    return EHAppleSwitchListTile(
-      title: Text('enableImageMaxKilobytes'.tr),
-      value: readSetting.enableMaxImageKilobyte.value,
-      onChanged: readSetting.saveEnableMaxImageKilobyte,
-    );
-  }
-
   Widget _buildImageMaxKilobytes(BuildContext context) {
     return ListTile(
       title: Text('imageMaxKilobytes'.tr),
@@ -413,15 +401,6 @@ class SettingReadPage extends StatelessWidget {
               child: Text('portrait'.tr), value: DeviceDirection.portrait),
         ],
       ).marginOnly(right: 12),
-    );
-  }
-
-  Widget _buildEnableOrientationSpecificReadDirection() {
-    return EHAppleSwitchListTile(
-      title: Text('enableOrientationSpecificReadDirection'.tr),
-      subtitle: Text('enableOrientationSpecificReadDirectionHint'.tr),
-      value: readSetting.enableOrientationSpecificReadDirection.value,
-      onChanged: readSetting.saveEnableOrientationSpecificReadDirection,
     );
   }
 
@@ -672,14 +651,6 @@ class SettingReadPage extends StatelessWidget {
 
     readSetting.saveGestureRegionWidthRatio(value);
     toast('saveSuccess'.tr);
-  }
-
-  Widget _buildUseThirdPartyViewer() {
-    return EHAppleSwitchListTile(
-      title: Text('useThirdPartyViewer'.tr),
-      value: readSetting.useThirdPartyViewer.value,
-      onChanged: readSetting.saveUseThirdPartyViewer,
-    );
   }
 
   Widget _buildThirdPartyViewerPath() {

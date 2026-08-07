@@ -456,6 +456,15 @@ class ru_RU {
       'smartCacheRetention': "Срок хранения кэша",
       'smartCacheRetentionHint':
           "Кэш старше этого срока очищается автоматически",
+      'smartCacheMaxSize': "Максимальный размер кэша",
+      'smartCacheMaxSizeHint':
+          "Превышение лимита приводит к автоматической очистке кэша",
+      'smartCacheEvictPolicy': "Политика очистки",
+      'smartCacheEvictPolicyHint':
+          "Какие записи удаляются первыми при достижении лимита",
+      'smartCacheEvictByAddedDate': "По дате добавления",
+      'smartCacheEvictByUsageFrequency': "По частоте использования",
+      'unlimited': "Без ограничений",
       'cacheSize': "Текущий размер кэша",
       'oneMinute': '1 минута',
       'tenMinute': '10 минут',
@@ -1005,6 +1014,26 @@ class ru_RU {
       'imageTranslationFailed': 'Не удалось перевести текст на изображении.',
       'imageTranslationPaddleNotReady':
           'Среда выполнения PaddleOCR не установлена. Сначала установите её в расширенных настройках.',
+      'imageTranslationDeletePaddleRuntime':
+          'Удалить среду выполнения PaddleOCR',
+      'imageTranslationDeletePaddleHint':
+          'Удаляет виртуальную среду и скачанные модели.',
+      'imageTranslationDeletePaddleConfirm':
+          'Удалить среду выполнения PaddleOCR?',
+      'imageTranslationEnableThinking': 'Использовать рассуждения',
+      'imageTranslationEnableThinkingHint':
+          'Выкл — быстрее перевод, вкл — глубже рассуждения.',
+      'imageTranslationTranslateScope': 'Область перевода',
+      'imageTranslationScopeCurrent': 'Только текущая страница',
+      'imageTranslationScopeSubsequent': 'Текущая и следующие страницы',
+      'imageTranslationCachedRetranslate': 'Из кэша · Перевести заново',
+      'translationProgress': 'Перевод @current/@total · @stage',
+      'translationStageIdle': 'Подготовка',
+      'translationStageRecognizing': 'Распознавание',
+      'translationStageTranslating': 'Перевод',
+      'translationStageMasking': 'Маскирование',
+      'translationStageEmbedding': 'Вставка текста',
+      'translationStageDone': 'Готово',
       'imageTranslationSourceUnavailable': 'Текущее изображение недоступно.',
       'imageTranslationSettingHint': 'Настроить OCR и переводчик',
       'imageTranslationOcrSection': 'Распознавание текста',

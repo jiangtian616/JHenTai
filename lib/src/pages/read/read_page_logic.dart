@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -19,6 +20,7 @@ import 'package:jhentai/src/pages/read/layout/horizontal_page/horizontal_page_la
 import 'package:jhentai/src/pages/read/layout/vertical_list/vertical_list_layout_logic.dart';
 import 'package:jhentai/src/pages/read/read_page_state.dart';
 import 'package:jhentai/src/config/theme_config.dart';
+import 'package:jhentai/src/service/image_translation_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/service/volume_service.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
@@ -31,11 +33,13 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../model/detail_page_info.dart';
 import '../../model/gallery_image.dart';
+import '../../model/gallery_thumbnail.dart';
 import '../../model/read_page_info.dart';
 import '../../network/eh_request.dart';
 import '../../routes/routes.dart';
 import '../../service/log.dart';
 import '../../service/read_progress_service.dart';
+import '../../setting/image_translation_setting.dart';
 import '../../setting/preference_setting.dart';
 import '../../setting/read_setting.dart';
 import '../../utils/eh_spider_parser.dart';
@@ -106,6 +110,22 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     concurrency: 100,
     rate: const Rate(10, Duration(milliseconds: 1000)),
   );
+
+  /// Parses requests that are already cached without the network rate limit.
+  final EHExecutor cacheExecutor = EHExecutor(concurrency: 20);
+
+  /// Thumbnail pages that already have a parse task scheduled/running.
+  final Set<int> _parsingHrefPages = <int>{};
+
+  /// Online images that already had one automatic retry after a load failure.
+  final Set<int> _autoRetriedImageIndices = <int>{};
+
+  /// Session-level parsed results for online galleries, so re-entering the
+  /// same gallery reuses already parsed links instead of re-parsing from DB.
+  static const int maxSessionCachedGalleries = 20;
+  static final Map<String, _SessionParseCache> _sessionParseCache =
+      LinkedHashMap<String, _SessionParseCache>();
+
   final Throttling _thr =
       Throttling(duration: const Duration(milliseconds: 200));
 
@@ -113,6 +133,47 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
 
   bool inited = false;
   Completer<void> delayInitCompleter = Completer<void>();
+
+  @override
+  void onInit() {
+    super.onInit();
+    _restoreSessionCache();
+  }
+
+  void _restoreSessionCache() {
+    final String? galleryUrl = state.readPageInfo.galleryUrl;
+    if (state.readPageInfo.mode != ReadMode.online || galleryUrl == null) {
+      return;
+    }
+
+    final _SessionParseCache? cached = _sessionParseCache[galleryUrl];
+    if (cached == null ||
+        cached.thumbnails.length != state.thumbnails.length ||
+        cached.images.length != state.images.length) {
+      return;
+    }
+
+    state.thumbnails = List.of(cached.thumbnails);
+    state.images = List.of(cached.images);
+    state.thumbnailsCountPerPage = cached.thumbnailsCountPerPage;
+    log.debug('Restore read page session cache for $galleryUrl');
+  }
+
+  void _saveSessionCache() {
+    final String? galleryUrl = state.readPageInfo.galleryUrl;
+    if (state.readPageInfo.mode != ReadMode.online || galleryUrl == null) {
+      return;
+    }
+
+    _sessionParseCache[galleryUrl] = _SessionParseCache(
+      thumbnails: List.of(state.thumbnails),
+      images: List.of(state.images),
+      thumbnailsCountPerPage: state.thumbnailsCountPerPage,
+    );
+    if (_sessionParseCache.length > maxSessionCachedGalleries) {
+      _sessionParseCache.remove(_sessionParseCache.keys.first);
+    }
+  }
 
   @override
   void onReady() {
@@ -269,6 +330,8 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   void onClose() {
     super.onClose();
 
+    _saveSessionCache();
+
     WidgetsBinding.instance.removeObserver(this);
 
     state.focusNode.dispose();
@@ -309,6 +372,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     Get.delete<HorizontalDoubleColumnLayoutLogic>(force: true);
 
     executor.close();
+    cacheExecutor.close();
 
     WakelockPlus.disable();
 
@@ -316,18 +380,64 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   }
 
   void beginToParseImageHref(int index) {
+    if (state.thumbnails[index] != null) {
+      return;
+    }
     if (state.parseImageHrefsStates[index] == LoadingState.loading) {
+      return;
+    }
+
+    final int requestPageIndex = index ~/ state.thumbnailsCountPerPage;
+    if (_parsingHrefPages.contains(requestPageIndex)) {
       return;
     }
 
     state.parseImageHrefsStates[index] = LoadingState.loading;
     updateSafely(['$parseImageHrefsStateId::$index']);
+    _parsingHrefPages.add(requestPageIndex);
 
-    /// limit the rate of parsing to decrease the lagging of build
-    executor.scheduleTask(normalPriority, () => parseImageHref(index));
+    _scheduleHrefParse(index, requestPageIndex);
+  }
+
+  Future<void> _scheduleHrefParse(int index, int requestPageIndex) async {
+    bool cached = false;
+    try {
+      cached = await ehRequest.hasCachedDetailPage(
+        state.readPageInfo.galleryUrl!,
+        requestPageIndex,
+      );
+    } catch (e) {
+      log.warning('Check detail page cache failed, use rate limited parse', e);
+      cached = false;
+    }
+
+    final Future<void> Function() task = () async {
+      try {
+        await parseImageHref(index);
+      } finally {
+        _parsingHrefPages.remove(requestPageIndex);
+      }
+    };
+
+    try {
+      if (cached) {
+        await cacheExecutor.scheduleTask(normalPriority, task);
+      } else {
+        /// limit the rate of parsing to decrease the lagging of build
+        await executor.scheduleTask(normalPriority, task);
+      }
+    } catch (e) {
+      _parsingHrefPages.remove(requestPageIndex);
+    }
   }
 
   Future<void> parseImageHref(int index) async {
+    if (state.thumbnails[index] != null) {
+      state.parseImageHrefsStates[index] = LoadingState.idle;
+      updateSafely(['$onlineImageId::$index']);
+      return;
+    }
+
     log.trace(
         'Begin to load Thumbnail $index with page size: ${state.thumbnailsCountPerPage}');
 
@@ -347,14 +457,10 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
             log.error('Get thumbnails error!', (e as DioException).errorMsg),
       );
     } on DioException catch (_) {
-      state.parseImageHrefErrorMsg = 'parsePageFailed'.tr;
-      state.parseImageHrefsStates[index] = LoadingState.error;
-      update(['$parseImageHrefsStateId::$index']);
+      _markHrefPageError(requestPageIndex, 'parsePageFailed'.tr);
       return;
     } on EHSiteException catch (e) {
-      state.parseImageHrefErrorMsg = e.message;
-      state.parseImageHrefsStates[index] = LoadingState.error;
-      update(['$parseImageHrefsStateId::$index']);
+      _markHrefPageError(requestPageIndex, e.message);
       return;
     }
 
@@ -380,10 +486,38 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
       );
       await ehRequest.removeCacheByGalleryUrlAndPage(
           state.readPageInfo.galleryUrl!, requestPageIndex);
+      _parsingHrefPages.remove(requestPageIndex);
       return beginToParseImageHref(index);
     }
 
-    updateSafely(['$onlineImageId::$index']);
+    updateSafely([
+      for (int i = detailPageInfo.imageNoFrom;
+          i <= detailPageInfo.imageNoTo;
+          i++)
+        '$onlineImageId::$i',
+    ]);
+    _saveSessionCache();
+  }
+
+  void _markHrefPageError(int requestPageIndex, String message) {
+    state.parseImageHrefErrorMsg = message;
+    final int pageStart = requestPageIndex * state.thumbnailsCountPerPage;
+    final int pageEnd = min(
+      pageStart + state.thumbnailsCountPerPage - 1,
+      state.readPageInfo.pageCount - 1,
+    );
+
+    final List<String> ids = [];
+    for (int i = pageStart; i <= pageEnd; i++) {
+      if (state.thumbnails[i] != null) {
+        continue;
+      }
+      state.parseImageHrefsStates[i] = LoadingState.error;
+      ids.add('$parseImageHrefsStateId::$i');
+    }
+    if (ids.isNotEmpty) {
+      update(ids);
+    }
   }
 
   void beginToParseImageUrl(int index, bool reParse, {String? reloadKey}) {
@@ -394,8 +528,35 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     state.parseImageUrlStates[index] = LoadingState.loading;
     updateSafely(['$parseImageUrlStateId::$index']);
 
-    executor.scheduleTask(
-        normalPriority, () => parseImageUrl(index, reParse, reloadKey));
+    _scheduleUrlParse(index, reParse, reloadKey);
+  }
+
+  Future<void> _scheduleUrlParse(
+      int index, bool reParse, String? reloadKey) async {
+    if (reParse) {
+      await executor.scheduleTask(
+          normalPriority, () => parseImageUrl(index, reParse, reloadKey));
+      return;
+    }
+
+    bool cached = false;
+    final String? href = state.thumbnails[index]?.replacedMPVHref(index + 1);
+    if (href != null) {
+      try {
+        cached = await ehRequest.hasCachedImagePage(href, reloadKey: reloadKey);
+      } catch (e) {
+        log.warning('Check image page cache failed, use rate limited parse', e);
+        cached = false;
+      }
+    }
+
+    final Future<void> Function() task =
+        () => parseImageUrl(index, reParse, reloadKey);
+    if (cached) {
+      await cacheExecutor.scheduleTask(normalPriority, task);
+    } else {
+      await executor.scheduleTask(normalPriority, task);
+    }
   }
 
   Future<void> parseImageUrl(int index, bool reParse, String? reloadKey) async {
@@ -451,6 +612,29 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     state.failedOnlineImageIndices.remove(index);
     beginToParseImageUrl(index, true, reloadKey: reloadKey);
     updateSafely(['$onlineImageId::$index']);
+  }
+
+  /// Automatically reload an online image once after its first load failure.
+  /// The retry re-parses the image page so a fresh image URL is used.
+  void autoRetryFailedImage(int index) {
+    if (_autoRetriedImageIndices.contains(index)) {
+      return;
+    }
+    _autoRetriedImageIndices.add(index);
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (isClosed) {
+        return;
+      }
+      log.info('Auto retry failed online image, index: $index');
+      reloadImage(index);
+    });
+  }
+
+  /// Called when image bytes finish loading, so a later failure of the same
+  /// image can trigger one automatic retry again.
+  void markOnlineImageLoaded(int index) {
+    _autoRetriedImageIndices.remove(index);
   }
 
   /// Retry loading failed online images, covering a scope decided by
@@ -994,8 +1178,31 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   }
 
   Future<void> _translateCurrentImage(BuildContext context) async {
-    await layoutLogic.translateImage(
-        state.readPageInfo.currentImageIndex, context);
+    final int startIndex = state.readPageInfo.currentImageIndex;
+    final int total = imageTranslationSetting.translateSubsequentPages.value
+        ? state.readPageInfo.pageCount - startIndex
+        : 1;
+    imageTranslationService.beginBatch(total);
+    try {
+      await layoutLogic.translateImage(startIndex, context);
+      imageTranslationService.batchCompleted = 1;
+      imageTranslationService.update([ImageTranslationService.batchProgressId]);
+      if (imageTranslationSetting.translateSubsequentPages.value) {
+        for (int index = startIndex + 1;
+            index < state.readPageInfo.pageCount;
+            index++) {
+          if (imageTranslationService.isCancelRequested) {
+            break;
+          }
+          await layoutLogic.translateImage(index, context);
+          imageTranslationService.batchCompleted = index - startIndex + 1;
+          imageTranslationService
+              .update([ImageTranslationService.batchProgressId]);
+        }
+      }
+    } finally {
+      imageTranslationService.endBatch();
+    }
   }
 
   Future<void> _pushReadSettingPage() async {
@@ -1112,4 +1319,16 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
       settings: settings,
     );
   }
+}
+
+class _SessionParseCache {
+  final List<GalleryThumbnail?> thumbnails;
+  final List<GalleryImage?> images;
+  final int thumbnailsCountPerPage;
+
+  _SessionParseCache({
+    required this.thumbnails,
+    required this.images,
+    required this.thumbnailsCountPerPage,
+  });
 }

@@ -8,12 +8,14 @@ import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/mixin/scroll_status_listener.dart';
 import 'package:jhentai/src/mixin/scroll_status_listener_state.dart';
 import 'package:jhentai/src/mixin/window_widget_mixin.dart';
+import 'package:jhentai/src/model/image_translation.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_list/horizontal_list_layout.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_page/horizontal_page_layout.dart';
 import 'package:jhentai/src/pages/read/read_page_logic.dart';
 import 'package:jhentai/src/pages/read/read_page_state.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
+import 'package:jhentai/src/service/image_translation_service.dart';
 import 'package:jhentai/src/widget/eh_mouse_button_listener.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:window_manager/window_manager.dart';
@@ -114,6 +116,7 @@ class _ReadPageState extends State<ReadPage>
                     ),
                     buildRightBottomInfo(context),
                     buildTopMenu(context),
+                    buildTranslationProgress(context),
                     buildBottomMenu(context),
                   ],
                 ),
@@ -408,6 +411,79 @@ class _ReadPageState extends State<ReadPage>
         );
       },
     );
+  }
+
+  /// Floating progress banner shown while batch translation runs.
+  Widget buildTranslationProgress(BuildContext context) {
+    return Positioned(
+      top: MediaQuery.of(context).padding.top + 8,
+      left: 0,
+      right: 0,
+      child: Center(
+        child: GetBuilder<ImageTranslationService>(
+          id: ImageTranslationService.batchProgressId,
+          builder: (_) {
+            if (!imageTranslationService.isBatchTranslating) {
+              return const SizedBox.shrink();
+            }
+            return Material(
+              color: Colors.black87,
+              borderRadius: BorderRadius.circular(18),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(
+                        width: 12,
+                        height: 12,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white)),
+                    const SizedBox(width: 8),
+                    Text(
+                      'translationProgress'.trParams({
+                        'current': '${imageTranslationService.batchCompleted}',
+                        'total': '${imageTranslationService.batchTotal}',
+                        'stage': _translationStageLabel(
+                            imageTranslationService.currentStage),
+                      }),
+                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                    ),
+                    const SizedBox(width: 4),
+                    InkWell(
+                      onTap: imageTranslationService.cancelBatch,
+                      borderRadius: BorderRadius.circular(12),
+                      child: const Padding(
+                        padding: EdgeInsets.all(2),
+                        child: Icon(Icons.close, color: Colors.white, size: 16),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  String _translationStageLabel(ImageTranslationStage stage) {
+    switch (stage) {
+      case ImageTranslationStage.idle:
+        return 'translationStageIdle'.tr;
+      case ImageTranslationStage.recognizing:
+        return 'translationStageRecognizing'.tr;
+      case ImageTranslationStage.translating:
+        return 'translationStageTranslating'.tr;
+      case ImageTranslationStage.masking:
+        return 'translationStageMasking'.tr;
+      case ImageTranslationStage.embedding:
+        return 'translationStageEmbedding'.tr;
+      case ImageTranslationStage.done:
+        return 'translationStageDone'.tr;
+    }
   }
 
   /// bottom menu

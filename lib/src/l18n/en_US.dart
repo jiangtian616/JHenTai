@@ -446,6 +446,15 @@ class en_US {
       'smartCacheRetention': "Cache Retention",
       'smartCacheRetentionHint':
           "Cache older than this is cleared automatically",
+      'smartCacheMaxSize': "Max Cache Size",
+      'smartCacheMaxSizeHint':
+          "Cache is automatically trimmed when it exceeds this limit",
+      'smartCacheEvictPolicy': "Eviction Policy",
+      'smartCacheEvictPolicyHint':
+          "Which cache entries are removed first when the limit is reached",
+      'smartCacheEvictByAddedDate': "By added date",
+      'smartCacheEvictByUsageFrequency': "By usage frequency",
+      'unlimited': "Unlimited",
       'cacheSize': "Current Cache Size",
       'oneMinute': '1 Minute',
       'tenMinute': '10 Minute',
@@ -978,6 +987,24 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationFailed': 'Image text translation failed.',
       'imageTranslationPaddleNotReady':
           'PaddleOCR runtime is not installed. Install it in Advanced settings first.',
+      'imageTranslationDeletePaddleRuntime': 'Delete PaddleOCR Runtime',
+      'imageTranslationDeletePaddleHint':
+          'Remove the virtual environment and downloaded models.',
+      'imageTranslationDeletePaddleConfirm': 'Delete the PaddleOCR runtime?',
+      'imageTranslationEnableThinking': 'Enable Thinking',
+      'imageTranslationEnableThinkingHint':
+          'Off for faster translation; on for deeper reasoning.',
+      'imageTranslationTranslateScope': 'Translate Scope',
+      'imageTranslationScopeCurrent': 'Current page only',
+      'imageTranslationScopeSubsequent': 'Current and following pages',
+      'imageTranslationCachedRetranslate': 'Cached · Retranslate',
+      'translationProgress': 'Translating @current/@total · @stage',
+      'translationStageIdle': 'Preparing',
+      'translationStageRecognizing': 'Recognizing',
+      'translationStageTranslating': 'Translating',
+      'translationStageMasking': 'Masking',
+      'translationStageEmbedding': 'Embedding text',
+      'translationStageDone': 'Done',
       'imageTranslationSourceUnavailable': 'The current image is unavailable.',
       'imageTranslationSettingHint': 'Configure OCR and translation provider',
       'imageTranslationOcrSection': 'Text recognition',

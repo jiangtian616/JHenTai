@@ -220,6 +220,7 @@ abstract class BaseLayout extends StatelessWidget {
 
     /// remember the failure so a batch retry knows this image needs reloading
     readPageState.failedOnlineImageIndices.add(index);
+    logic.readPageLogic.autoRetryFailedImage(index);
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -240,6 +241,7 @@ abstract class BaseLayout extends StatelessWidget {
   Widget? completedWidgetBuilderCallBack(int index, ExtendedImageState state) {
     /// a previously failed image has loaded, so it no longer needs a retry
     readPageState.failedOnlineImageIndices.remove(index);
+    logic.readPageLogic.markOnlineImageLoaded(index);
 
     if (state.extendedImageInfo == null ||
         logic.readPageState.imageContainerSizes[index] != null) {

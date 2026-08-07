@@ -21,6 +21,7 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
             imageTranslationService.resultFor(request.cacheKey);
         switch (result.status) {
           case ImageTranslationStatus.idle:
+            return const SizedBox.shrink();
           case ImageTranslationStatus.recognizing:
           case ImageTranslationStatus.translating:
             return _buildStatusChip(context, result);
@@ -37,10 +38,10 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
     final String label = result.status == ImageTranslationStatus.recognizing
         ? 'recognizingImageText'.tr
         : 'translatingImageText'.tr;
-    return IgnorePointer(
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: Padding(
+    return Stack(
+      alignment: Alignment.topCenter,
+      children: [
+        Padding(
           padding: const EdgeInsets.all(8),
           child: Material(
             color: Colors.black54,
@@ -59,12 +60,21 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
                   Text(label,
                       style:
                           const TextStyle(color: Colors.white, fontSize: 12)),
+                  const SizedBox(width: 4),
+                  InkWell(
+                    onTap: imageTranslationService.cancelBatch,
+                    borderRadius: BorderRadius.circular(12),
+                    child: const Padding(
+                      padding: EdgeInsets.all(2),
+                      child: Icon(Icons.close, color: Colors.white, size: 16),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
         ),
-      ),
+      ],
     );
   }
 
@@ -119,14 +129,46 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
         result.imageHeight == null) {
       return const SizedBox.shrink();
     }
-    return IgnorePointer(
-      child: LayoutBuilder(
-        builder: (context, constraints) => CustomPaint(
-          size: constraints.biggest,
-          painter: _ImageTranslationOverlayPainter(
-              result: result, textDirection: Directionality.of(context)),
+    return Stack(
+      children: [
+        IgnorePointer(
+          child: LayoutBuilder(
+            builder: (context, constraints) => CustomPaint(
+              size: constraints.biggest,
+              painter: _ImageTranslationOverlayPainter(
+                  result: result, textDirection: Directionality.of(context)),
+            ),
+          ),
         ),
-      ),
+        if (result.fromCache)
+          Positioned(
+            top: 8,
+            right: 8,
+            child: Material(
+              color: Colors.black87,
+              borderRadius: BorderRadius.circular(16),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: () =>
+                    imageTranslationService.translate(request, force: true),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.refresh, color: Colors.white, size: 14),
+                      const SizedBox(width: 5),
+                      Text('imageTranslationCachedRetranslate'.tr,
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 12)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 

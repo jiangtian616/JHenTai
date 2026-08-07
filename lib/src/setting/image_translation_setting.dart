@@ -30,6 +30,8 @@ class ImageTranslationSetting
   final RxnString translatorApiKey = RxnString();
   final RxString translatorModel = 'gpt-4.1-mini'.obs;
   final RxString targetLanguage = '简体中文'.obs;
+  final RxBool enableThinking = false.obs;
+  final RxBool translateSubsequentPages = false.obs;
 
   bool get isTranslatorConfigured =>
       translatorEndpoint.value?.trim().isNotEmpty == true &&
@@ -62,6 +64,9 @@ class ImageTranslationSetting
     translatorApiKey.value = config['translatorApiKey'];
     translatorModel.value = config['translatorModel'] ?? translatorModel.value;
     targetLanguage.value = config['targetLanguage'] ?? targetLanguage.value;
+    enableThinking.value = config['enableThinking'] ?? enableThinking.value;
+    translateSubsequentPages.value =
+        config['translateSubsequentPages'] ?? translateSubsequentPages.value;
   }
 
   @override
@@ -78,6 +83,8 @@ class ImageTranslationSetting
         'translatorApiKey': translatorApiKey.value,
         'translatorModel': translatorModel.value,
         'targetLanguage': targetLanguage.value,
+        'enableThinking': enableThinking.value,
+        'translateSubsequentPages': translateSubsequentPages.value,
       });
 
   @override
@@ -99,6 +106,8 @@ class ImageTranslationSetting
     required String translatorApiKey,
     required String translatorModel,
     required String targetLanguage,
+    bool? enableThinking,
+    bool? translateSubsequentPages,
   }) async {
     log.debug('Save image translation settings');
     this.ocrExecutable.value =
@@ -122,6 +131,48 @@ class ImageTranslationSetting
     this.translatorModel.value = translatorModel.trim();
     this.targetLanguage.value =
         targetLanguage.trim().isEmpty ? '简体中文' : targetLanguage.trim();
+    if (enableThinking != null) {
+      this.enableThinking.value = enableThinking;
+    }
+    if (translateSubsequentPages != null) {
+      this.translateSubsequentPages.value = translateSubsequentPages;
+    }
+    await saveBeanConfig();
+  }
+
+  Future<void> saveEnableThinking(bool value) async {
+    enableThinking.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveTranslateSubsequentPages(bool value) async {
+    translateSubsequentPages.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveTranslatorModel(String value) async {
+    translatorModel.value =
+        value.trim().isEmpty ? 'gpt-4.1-mini' : value.trim();
+    await saveBeanConfig();
+  }
+
+  Future<void> saveTargetLanguage(String value) async {
+    targetLanguage.value = value.trim().isEmpty ? '简体中文' : value.trim();
+    await saveBeanConfig();
+  }
+
+  Future<void> saveOcrLanguage(String value) async {
+    ocrLanguage.value = value.trim().isEmpty ? 'jpn+eng' : value.trim();
+    await saveBeanConfig();
+  }
+
+  Future<void> savePaddleOcrLanguage(String value) async {
+    paddleOcrLanguage.value = value.trim().isEmpty ? 'japan' : value.trim();
+    await saveBeanConfig();
+  }
+
+  Future<void> saveOcrEngine(ImageOcrEngine value) async {
+    ocrEngine.value = value;
     await saveBeanConfig();
   }
 }

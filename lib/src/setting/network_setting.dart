@@ -13,8 +13,9 @@ class NetworkSetting
     with JHLifeCircleBeanWithConfigStorage
     implements JHLifeCircleBean {
   /// Cache config version. v2 merged the separate page/image cache durations
-  /// into the smart cache switch and its retention period.
-  static const int cacheConfigVersion = 2;
+  /// into the smart cache switch and its retention period. v3 adds the
+  /// optional space limit and eviction policy.
+  static const int cacheConfigVersion = 3;
 
   /// Fallback retention when smart cache is off: pages stay for a short time,
   /// images keep the previous default. Users no longer configure these.
@@ -25,6 +26,11 @@ class NetworkSetting
   /// [smartCacheRetention] so revisiting them doesn't re-download.
   RxBool enableSmartCache = true.obs;
   Rx<Duration> smartCacheRetention = const Duration(days: 7).obs;
+
+  /// 0 means no space limit.
+  RxInt smartCacheMaxSizeMB = 0.obs;
+  Rx<SmartCacheEvictPolicy> smartCacheEvictPolicy =
+      SmartCacheEvictPolicy.addedDate.obs;
 
   /// The retention actually in effect. When smart cache is on it governs both
   /// the page cache and the image cache; otherwise fixed short-lived defaults
@@ -88,6 +94,14 @@ class NetworkSetting
     smartCacheRetention.value = Duration(
         milliseconds: map['smartCacheRetention'] ??
             smartCacheRetention.value.inMilliseconds);
+    smartCacheMaxSizeMB.value = version < cacheConfigVersion
+        ? 0
+        : (map['smartCacheMaxSizeMB'] ?? smartCacheMaxSizeMB.value);
+    smartCacheEvictPolicy.value = version < cacheConfigVersion
+        ? SmartCacheEvictPolicy.addedDate
+        : SmartCacheEvictPolicy.values[
+            map['smartCacheEvictPolicy'] ??
+                smartCacheEvictPolicy.value.index];
     enableDomainFronting.value =
         map['enableDomainFronting'] ?? enableDomainFronting.value;
     proxyType.value =
@@ -105,6 +119,8 @@ class NetworkSetting
       'cacheConfigVersion': cacheConfigVersion,
       'enableSmartCache': enableSmartCache.value,
       'smartCacheRetention': smartCacheRetention.value.inMilliseconds,
+      'smartCacheMaxSizeMB': smartCacheMaxSizeMB.value,
+      'smartCacheEvictPolicy': smartCacheEvictPolicy.value.index,
       'enableDomainFronting': enableDomainFronting.value,
       'proxyType': proxyType.value.index,
       'proxyAddress': proxyAddress.value,
@@ -130,6 +146,18 @@ class NetworkSetting
   Future<void> saveSmartCacheRetention(Duration value) async {
     log.debug('saveSmartCacheRetention:$value');
     smartCacheRetention.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveSmartCacheMaxSizeMB(int value) async {
+    log.debug('saveSmartCacheMaxSizeMB:$value');
+    smartCacheMaxSizeMB.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveSmartCacheEvictPolicy(SmartCacheEvictPolicy value) async {
+    log.debug('saveSmartCacheEvictPolicy:$value');
+    smartCacheEvictPolicy.value = value;
     await saveBeanConfig();
   }
 
@@ -164,3 +192,5 @@ class NetworkSetting
 }
 
 enum JProxyType { system, http, socks5, socks4, direct }
+
+enum SmartCacheEvictPolicy { addedDate, usageFrequency }

@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:get/get.dart';
-import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/service/log.dart';
@@ -13,7 +12,9 @@ import '../utils/toast_util.dart';
 
 DownloadSetting downloadSetting = DownloadSetting();
 
-class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
+class DownloadSetting
+    with JHLifeCircleBeanWithConfigStorage
+    implements JHLifeCircleBean {
   late String defaultDownloadPath;
   late RxString downloadPath;
   RxBool downloadOriginalImageByDefault = false.obs;
@@ -44,31 +45,45 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
 
     if (!GetPlatform.isIOS) {
       downloadPath.value = map['downloadPath'] ?? downloadPath.value;
-      singleImageSavePath.value = map['singleImageSavePath'] ?? singleImageSavePath.value;
+      singleImageSavePath.value =
+          map['singleImageSavePath'] ?? singleImageSavePath.value;
     }
     if (map['extraGalleryScanPath'] != null) {
       extraGalleryScanPath.addAll(map['extraGalleryScanPath'].cast<String>());
       extraGalleryScanPath.value = extraGalleryScanPath.toSet().toList();
     }
-    downloadOriginalImageByDefault.value = map['downloadOriginalImageByDefault'] ?? downloadOriginalImageByDefault.value;
+    downloadOriginalImageByDefault.value =
+        map['downloadOriginalImageByDefault'] ??
+            downloadOriginalImageByDefault.value;
     defaultGalleryGroup.value = map['defaultGalleryGroup'];
     defaultArchiveGroup.value = map['defaultArchiveGroup'];
-    prioritizeRecentGalleryGroups.value = map['prioritizeRecentGalleryGroups'] ?? prioritizeRecentGalleryGroups.value;
+    prioritizeRecentGalleryGroups.value =
+        map['prioritizeRecentGalleryGroups'] ??
+            prioritizeRecentGalleryGroups.value;
     if (map['recentGalleryGroups'] != null) {
       recentGalleryGroups = map['recentGalleryGroups'].cast<String>();
     }
     downloadTaskConcurrency.value = map['downloadTaskConcurrency'];
     maximum.value = map['maximum'];
     period.value = Duration(milliseconds: map['period']);
-    downloadAllGallerysOfSamePriority.value = map['downloadAllGallerysOfSamePriority'] ?? downloadAllGallerysOfSamePriority.value;
-    useJH2UpdateGallery.value = map['useJH2UpdateGallery'] ?? useJH2UpdateGallery.value;
-    archiveDownloadIsolateCount.value = map['archiveDownloadIsolateCount'] ?? archiveDownloadIsolateCount.value;
+    downloadAllGallerysOfSamePriority.value =
+        map['downloadAllGallerysOfSamePriority'] ??
+            downloadAllGallerysOfSamePriority.value;
+    useJH2UpdateGallery.value =
+        map['useJH2UpdateGallery'] ?? useJH2UpdateGallery.value;
+    archiveDownloadIsolateCount.value =
+        map['archiveDownloadIsolateCount'] ?? archiveDownloadIsolateCount.value;
     if (archiveDownloadIsolateCount.value > 10) {
       archiveDownloadIsolateCount.value = 10;
     }
-    manageArchiveDownloadConcurrency.value = map['manageArchiveDownloadConcurrency'] ?? manageArchiveDownloadConcurrency.value;
-    deleteArchiveFileAfterDownload.value = map['deleteArchiveFileAfterDownload'] ?? deleteArchiveFileAfterDownload.value;
-    restoreTasksAutomatically.value = map['restoreTasksAutomatically'] ?? restoreTasksAutomatically.value;
+    manageArchiveDownloadConcurrency.value =
+        map['manageArchiveDownloadConcurrency'] ??
+            manageArchiveDownloadConcurrency.value;
+    deleteArchiveFileAfterDownload.value =
+        map['deleteArchiveFileAfterDownload'] ??
+            deleteArchiveFileAfterDownload.value;
+    restoreTasksAutomatically.value =
+        map['restoreTasksAutomatically'] ?? restoreTasksAutomatically.value;
   }
 
   @override
@@ -85,10 +100,12 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
       'downloadTaskConcurrency': downloadTaskConcurrency.value,
       'maximum': maximum.value,
       'period': period.value.inMilliseconds,
-      'downloadAllGallerysOfSamePriority': downloadAllGallerysOfSamePriority.value,
+      'downloadAllGallerysOfSamePriority':
+          downloadAllGallerysOfSamePriority.value,
       'useJH2UpdateGallery': useJH2UpdateGallery.value,
       'archiveDownloadIsolateCount': archiveDownloadIsolateCount.value,
-      'manageArchiveDownloadConcurrency': manageArchiveDownloadConcurrency.value,
+      'manageArchiveDownloadConcurrency':
+          manageArchiveDownloadConcurrency.value,
       'deleteArchiveFileAfterDownload': deleteArchiveFileAfterDownload.value,
       'restoreTasksAutomatically': restoreTasksAutomatically.value,
     });
@@ -96,12 +113,13 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
 
   @override
   Future<void> doInitBean() async {
-    defaultDownloadPath = join(pathService.getVisibleDir().path, 'download');
+    defaultDownloadPath = pathService.jhDownloadDir.path;
     downloadPath = defaultDownloadPath.obs;
-    defaultExtraGalleryScanPath = join(pathService.getVisibleDir().path, 'local_gallery');
+    defaultExtraGalleryScanPath =
+        join(pathService.jhDataDir.path, 'local_gallery');
     extraGalleryScanPath = <String>[defaultExtraGalleryScanPath].obs;
-    singleImageSavePath = join(pathService.getVisibleDir().path, 'save').obs;
-    tempDownloadPath = join(pathService.tempDir.path, EHConsts.appName).obs;
+    singleImageSavePath = join(pathService.jhDataDir.path, 'save').obs;
+    tempDownloadPath = pathService.tempDir.path.obs;
 
     await _ensureDownloadDirExists();
     await _clearTempDownloadPath();
@@ -158,7 +176,8 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     await saveBeanConfig();
   }
 
-  List<String> get preferredGalleryGroups => prioritizeRecentGalleryGroups.isTrue ? recentGalleryGroups : const [];
+  List<String> get preferredGalleryGroups =>
+      prioritizeRecentGalleryGroups.isTrue ? recentGalleryGroups : const [];
 
   Future<void> saveRecentGalleryGroup(String group) async {
     log.debug('saveRecentGalleryGroup:$group');
@@ -193,7 +212,7 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     downloadAllGallerysOfSamePriority.value = value;
     await saveBeanConfig();
   }
-  
+
   Future<void> saveUseJH2UpdateGallery(bool value) async {
     log.debug('saveUseJH2UpdateGallery:$value');
     useJH2UpdateGallery.value = value;
@@ -247,9 +266,12 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     try {
       Directory directory = Directory(tempDownloadPath.value);
       if (await directory.exists()) {
-        await directory.delete(recursive: true);
+        await for (final FileSystemEntity entity in directory.list()) {
+          if (entity is File) {
+            await entity.delete();
+          }
+        }
       }
-      await Directory(tempDownloadPath.value).create();
     } on Exception catch (e) {
       log.error(e);
     }

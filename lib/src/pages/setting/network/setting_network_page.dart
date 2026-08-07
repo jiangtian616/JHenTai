@@ -14,6 +14,7 @@ import 'package:jhentai/src/setting/network_setting.dart';
 import 'package:jhentai/src/utils/app_icons.dart';
 import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
+import 'package:jhentai/src/widget/eh_apple_expandable_switch_list_tile.dart';
 import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
 import 'package:path/path.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
@@ -45,9 +46,18 @@ class SettingNetworkPage extends StatelessWidget {
               children: [
                 _buildEnableDomainFronting(),
                 _buildProxyAddress(),
-                _buildSmartCache(),
-                _buildSmartCacheRetention(),
-                const _CacheSizeTile(),
+                EHAppleExpandableSwitchListTile(
+                  title: Text('enableSmartCache'.tr),
+                  subtitle: Text('enableSmartCacheHint'.tr),
+                  value: networkSetting.enableSmartCache.value,
+                  onChanged: networkSetting.saveEnableSmartCache,
+                  children: [
+                    _buildSmartCacheRetention(),
+                    _buildSmartCacheMaxSize(),
+                    _buildSmartCacheEvictPolicy(),
+                    const _CacheSizeTile(),
+                  ],
+                ),
                 _buildConnectTimeout(context),
                 _buildReceiveTimeout(context),
               ],
@@ -75,15 +85,6 @@ class SettingNetworkPage extends StatelessWidget {
     );
   }
 
-  Widget _buildSmartCache() {
-    return EHAppleSwitchListTile(
-      title: Text('enableSmartCache'.tr),
-      subtitle: Text('enableSmartCacheHint'.tr),
-      value: networkSetting.enableSmartCache.value,
-      onChanged: networkSetting.saveEnableSmartCache,
-    );
-  }
-
   Widget _buildSmartCacheRetention() {
     return ListTile(
       title: Text('smartCacheRetention'.tr),
@@ -103,6 +104,53 @@ class SettingNetworkPage extends StatelessWidget {
               child: Text('7d'.tr), value: const Duration(days: 7)),
           DropdownMenuItem(
               child: Text('30d'.tr), value: const Duration(days: 30)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSmartCacheMaxSize() {
+    return ListTile(
+      title: Text('smartCacheMaxSize'.tr),
+      subtitle: Text('smartCacheMaxSizeHint'.tr),
+      trailing: EHCodexStyleDropdown<int>(
+        value: networkSetting.smartCacheMaxSizeMB.value,
+        elevation: 4,
+        alignment: AlignmentDirectional.centerEnd,
+        onChanged: (int? newValue) =>
+            networkSetting.saveSmartCacheMaxSizeMB(newValue ?? 0),
+        items: [
+          DropdownMenuItem(child: Text('unlimited'.tr), value: 0),
+          DropdownMenuItem(child: Text('512MB'), value: 512),
+          DropdownMenuItem(child: Text('1GB'), value: 1024),
+          DropdownMenuItem(child: Text('2GB'), value: 2048),
+          DropdownMenuItem(child: Text('5GB'), value: 5120),
+          DropdownMenuItem(child: Text('10GB'), value: 10240),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSmartCacheEvictPolicy() {
+    return ListTile(
+      title: Text('smartCacheEvictPolicy'.tr),
+      subtitle: Text('smartCacheEvictPolicyHint'.tr),
+      trailing: EHCodexStyleDropdown<SmartCacheEvictPolicy>(
+        value: networkSetting.smartCacheEvictPolicy.value,
+        elevation: 4,
+        alignment: AlignmentDirectional.centerEnd,
+        onChanged: (SmartCacheEvictPolicy? newValue) =>
+            networkSetting.saveSmartCacheEvictPolicy(
+                newValue ?? SmartCacheEvictPolicy.addedDate),
+        items: [
+          DropdownMenuItem(
+            child: Text('smartCacheEvictByAddedDate'.tr),
+            value: SmartCacheEvictPolicy.addedDate,
+          ),
+          DropdownMenuItem(
+            child: Text('smartCacheEvictByUsageFrequency'.tr),
+            value: SmartCacheEvictPolicy.usageFrequency,
+          ),
         ],
       ),
     );
@@ -268,7 +316,7 @@ Future<int> _getTotalCacheSize() async {
   final int pageBytes = await DioCacheDao.getTotalSize();
   final int imageBytes = await compute(
     _computeImageCacheSize,
-    join(pathService.tempDir.path, cacheImageFolderName),
+    join(pathService.tempDir.path, PathService.smartCacheFolderName),
   );
   return pageBytes + imageBytes;
 }

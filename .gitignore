@@ -47,3 +47,7 @@ app.*.map.json
 
 /lib/src/firebase_options.dart
 /assets/sentry_dsn
+
+# Local tooling / build artifacts not intended for the repo
+.claude/worktrees/
+*.dmg

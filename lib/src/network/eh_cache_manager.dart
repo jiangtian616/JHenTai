@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:jhentai/src/database/dao/dio_cache_dao.dart';
+import 'package:jhentai/src/database/dao/smart_cache_stat_dao.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
 import 'package:jhentai/src/service/log.dart';
 
@@ -54,6 +56,13 @@ class EHCacheManager extends Interceptor {
       }
 
       log.trace('cache hit: ${options.uri.toString()}');
+      unawaited(SmartCacheStatDao.recordHit(
+        cacheResponse.cacheKey,
+        kind: 'page',
+        url: cacheResponse.url,
+        sizeBytes:
+            cacheResponse.content.length + cacheResponse.headers.length,
+      ));
       // Only extend the sliding expiry when the entry is close to expiring;
       // otherwise a hot page would turn every read into a DB write.
       if (cacheResponse.willExpireSoon(cacheOptions.expire)) {
@@ -83,15 +92,38 @@ class EHCacheManager extends Interceptor {
 
   Future<void> removeCacheByUrl(String url) {
     String cacheKey = CacheOptions.defaultCacheKeyBuilder(RequestOptions(extra: {EHCacheManager.realUriExtraKey: url}));
-    return _store.delete(cacheKey);
+    return _store.delete(cacheKey).then((_) => SmartCacheStatDao.deleteByKey(cacheKey));
   }
 
   Future<void> removeCacheByUrlPrefix(String url) {
-    return _store.deleteWithUrlPrefix(url);
+    return _store
+        .deleteWithUrlPrefix(url)
+        .then((_) => SmartCacheStatDao.deleteLikeUrl(url));
   }
 
   Future<void> removeAllCache() {
-    return _store.cleanAll();
+    return _store.cleanAll().then((_) => SmartCacheStatDao.deleteAll());
+  }
+
+  /// Whether a non-expired cache entry exists for the given request,
+  /// mirroring the hit conditions used in [onRequest].
+  Future<bool> hasCache({
+    required String url,
+    Map<String, dynamic>? queryParameters,
+    CacheOptions? options,
+  }) async {
+    final CacheOptions cacheOptions = options ?? _options;
+    final RequestOptions request = RequestOptions(
+      path: url,
+      queryParameters: queryParameters ?? const {},
+    );
+    request.extra[realUriExtraKey] = _computeCachedUrl(request, cacheOptions);
+
+    final CacheResponse? cacheResponse = await _getCacheStore(cacheOptions)
+        .get(CacheOptions.defaultCacheKeyBuilder(request));
+    return cacheResponse != null &&
+        cacheResponse.url == request.uri.toString() &&
+        !cacheResponse.expired();
   }
 
   CacheOptions _getCacheOptions(RequestOptions request) {
@@ -159,6 +191,12 @@ class EHCacheManager extends Interceptor {
     await _getCacheStore(cacheOptions).upsertCache(cacheResponse);
 
     response.extra[CacheResponse.extraKey] = cacheResponse.cacheKey;
+    unawaited(SmartCacheStatDao.recordWritten(
+      cacheResponse.cacheKey,
+      kind: 'page',
+      url: cacheResponse.url,
+      sizeBytes: cacheResponse.content.length + cacheResponse.headers.length,
+    ));
   }
 
   Future<CacheResponse> _updateCacheResponse(CacheResponse cacheResponse, CacheOptions cacheOptions) async {

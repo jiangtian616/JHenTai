@@ -6,7 +6,9 @@ import 'package:jhentai/src/config/theme_config.dart';
 
 /// A dropdown trigger that keeps the normal Material [DropdownButton] when the
 /// Apple visual style is off, and opens a frosted-glass Apple-style rounded
-/// rectangle menu expanding downward from the control when it is on.
+/// rectangle menu when it is on. The menu expands downward when it fits below
+/// the control, and flips upward when it would otherwise be clipped by the
+/// window edge.
 class EHCodexStyleDropdown<T> extends StatefulWidget {
   const EHCodexStyleDropdown({
     super.key,
@@ -133,15 +135,6 @@ class _EHCodexStyleDropdownState<T> extends State<EHCodexStyleDropdown<T>> {
         ? triggerSize.width
         : math.max(triggerSize.width, 220).clamp(0.0, maxMenuWidth).toDouble();
 
-    final double rawX = _isEndAligned
-        ? triggerOrigin.dx + triggerSize.width - menuWidth
-        : triggerOrigin.dx;
-    final double x = rawX
-        .clamp(8.0, math.max(8.0, overlaySize.width - menuWidth - 8.0))
-        .toDouble();
-    final double y = triggerOrigin.dy + triggerSize.height + 4;
-    final Matrix4 transform = Matrix4.identity()..translateByDouble(x, y, 0, 1);
-
     return Stack(
       children: [
         Positioned.fill(
@@ -150,10 +143,16 @@ class _EHCodexStyleDropdownState<T> extends State<EHCodexStyleDropdown<T>> {
             onTap: _controller.hide,
           ),
         ),
-        Transform(
-          transform: transform,
-          child: Align(
-            alignment: Alignment.topLeft,
+        Positioned.fill(
+          child: CustomSingleChildLayout(
+            delegate: _DropdownPositionDelegate(
+              triggerRect: Rect.fromLTWH(triggerOrigin.dx, triggerOrigin.dy,
+                  triggerSize.width, triggerSize.height),
+              menuWidth: menuWidth,
+              menuMaxHeight: widget.menuMaxHeight ?? 320,
+              isEndAligned: _isEndAligned,
+              overlaySize: overlaySize,
+            ),
             child: SizedBox(
               width: menuWidth,
               child: _buildMenu(context),
@@ -266,4 +265,66 @@ class _EHCodexStyleDropdownState<T> extends State<EHCodexStyleDropdown<T>> {
       ),
     );
   }
+}
+
+class _DropdownPositionDelegate extends SingleChildLayoutDelegate {
+  _DropdownPositionDelegate({
+    required this.triggerRect,
+    required this.menuWidth,
+    required this.menuMaxHeight,
+    required this.isEndAligned,
+    required this.overlaySize,
+  });
+
+  final Rect triggerRect;
+  final double menuWidth;
+  final double menuMaxHeight;
+  final bool isEndAligned;
+  final Size overlaySize;
+
+  static const double _gap = 4;
+  static const double _margin = 8;
+
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) =>
+      BoxConstraints(maxWidth: menuWidth, maxHeight: menuMaxHeight);
+
+  @override
+  Offset getPositionForChild(Size size, Size childSize) {
+    final double rawX =
+        isEndAligned ? triggerRect.right - menuWidth : triggerRect.left;
+    final double x = rawX
+        .clamp(
+            _margin, math.max(_margin, overlaySize.width - menuWidth - _margin))
+        .toDouble();
+
+    final double belowY = triggerRect.bottom + _gap;
+    final double aboveY = triggerRect.top - childSize.height - _gap;
+    final double spaceBelow = size.height - belowY;
+    final double spaceAbove = triggerRect.top - _gap;
+
+    final double y;
+    if (childSize.height <= spaceBelow) {
+      y = belowY;
+    } else if (childSize.height <= spaceAbove) {
+      y = aboveY;
+    } else if (spaceBelow >= spaceAbove) {
+      y = belowY;
+    } else {
+      y = aboveY;
+    }
+
+    return Offset(
+      x,
+      y.clamp(0.0, math.max(0.0, size.height - childSize.height)).toDouble(),
+    );
+  }
+
+  @override
+  bool shouldRelayout(covariant _DropdownPositionDelegate oldDelegate) =>
+      oldDelegate.triggerRect != triggerRect ||
+      oldDelegate.menuWidth != menuWidth ||
+      oldDelegate.menuMaxHeight != menuMaxHeight ||
+      oldDelegate.isEndAligned != isEndAligned ||
+      oldDelegate.overlaySize != overlaySize;
 }

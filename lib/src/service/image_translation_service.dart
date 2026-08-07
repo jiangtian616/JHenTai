@@ -21,14 +21,99 @@ class ImageTranslationService extends GetxController
     with JHLifeCircleBeanErrorCatch
     implements JHLifeCircleBean {
   static const String taskIdPrefix = 'imageTranslation';
+  static const String paddlePrepareId = 'paddlePrepare';
+  static const String ocrModelDownloadIdPrefix = 'ocrModelDownload';
+  static const String batchProgressId = 'imageTranslationBatchProgress';
 
   final Map<String, ImageTranslationResult> _results = {};
+  final Set<String> _downloadingOcrModels = {};
+  final Map<String, double?> _ocrModelDownloadProgress = {};
   static const String paddleOcrVlRepo = 'PaddlePaddle/PaddleOCR-VL-1.6';
 
-  Directory get _paddleRoot => Directory(join(
-      (pathService.appSupportDir ?? pathService.getVisibleDir()).path,
-      'image_translation',
-      'paddleocr'));
+  /// Paddle runtime preparation state, kept in the service so it survives
+  /// leaving the settings page.
+  bool preparingPaddle = false;
+  String? paddleStage;
+  final List<String> _paddleOutput = [];
+
+  List<String> get paddleOutput => List.unmodifiable(_paddleOutput);
+
+  /// Batch translation progress shown by the read-page top banner.
+  bool isBatchTranslating = false;
+  int batchTotal = 0;
+  int batchCompleted = 0;
+  ImageTranslationStage currentStage = ImageTranslationStage.idle;
+  bool _cancelRequested = false;
+  Process? _activeProcess;
+  CancelToken? _activeCancelToken;
+
+  void beginBatch(int total) {
+    _cancelRequested = false;
+    isBatchTranslating = true;
+    batchTotal = total;
+    batchCompleted = 0;
+    currentStage = ImageTranslationStage.idle;
+    update([batchProgressId]);
+  }
+
+  void endBatch() {
+    isBatchTranslating = false;
+    batchCompleted = batchTotal;
+    currentStage = ImageTranslationStage.done;
+    _cancelRequested = false;
+    update([batchProgressId]);
+  }
+
+  void cancelBatch() {
+    _cancelRequested = true;
+    _activeProcess?.kill();
+    _activeProcess = null;
+    _activeCancelToken?.cancel();
+    _activeCancelToken = null;
+    update([batchProgressId]);
+  }
+
+  bool get isCancelRequested => _cancelRequested;
+
+  void _setStage(ImageTranslationStage stage) {
+    currentStage = stage;
+    update([batchProgressId]);
+  }
+
+  /// Whether the PaddleOCR venv has the paddleocr package installed.
+  bool get isPaddleRuntimeInstalled {
+    if (!File(_paddlePython).existsSync()) {
+      return false;
+    }
+    final Directory libDir = Directory(join(_paddleVenv.path, 'lib'));
+    if (!libDir.existsSync()) {
+      return false;
+    }
+    for (final FileSystemEntity entity in libDir.listSync()) {
+      if (entity is! Directory) {
+        continue;
+      }
+      final File marker =
+          File(join(entity.path, 'site-packages', 'paddleocr', '__init__.py'));
+      if (marker.existsSync()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  Future<void> deletePaddleRuntime() async {
+    if (_paddleRoot.existsSync()) {
+      await _paddleRoot.delete(recursive: true);
+    }
+    preparingPaddle = false;
+    paddleStage = null;
+    _paddleOutput.clear();
+    update([paddlePrepareId]);
+  }
+
+  Directory get _paddleRoot =>
+      Directory(join(pathService.jhOcrModelDir.path, 'paddleocr'));
 
   Directory get _paddleVenv => Directory(join(_paddleRoot.path, 'venv'));
 
@@ -41,10 +126,17 @@ class ImageTranslationService extends GetxController
 
   String taskId(String cacheKey) => '$taskIdPrefix::$cacheKey';
 
-  Directory get _translationCacheDirectory => Directory(join(
-      (pathService.appSupportDir ?? pathService.getVisibleDir()).path,
-      'image_translation',
-      'cache'));
+  String ocrModelDownloadId(String languageCode) =>
+      '$ocrModelDownloadIdPrefix::$languageCode';
+
+  bool isDownloadingOcrModel(String languageCode) =>
+      _downloadingOcrModels.contains(languageCode);
+
+  double? ocrModelDownloadProgress(String languageCode) =>
+      _ocrModelDownloadProgress[languageCode];
+
+  Directory get _translationCacheDirectory =>
+      Directory(join(pathService.jhOcrModelDir.path, 'cache'));
 
   ImageTranslationResult resultFor(String cacheKey) =>
       _results[cacheKey] ?? const ImageTranslationResult.idle();
@@ -75,9 +167,14 @@ class ImageTranslationService extends GetxController
         request.cacheKey,
         const ImageTranslationResult(
             status: ImageTranslationStatus.recognizing));
+    _setStage(ImageTranslationStage.recognizing);
 
     String? temporaryPath;
     try {
+      if (_cancelRequested) {
+        _removeResult(request.cacheKey);
+        return;
+      }
       final String imagePath;
       if (request.imagePath != null) {
         imagePath = request.imagePath!;
@@ -97,7 +194,7 @@ class ImageTranslationService extends GetxController
       final ImageTranslationResult? cached =
           await _readPersistentResult(persistentKey);
       if (!force && cached != null) {
-        _set(request.cacheKey, cached);
+        _set(request.cacheKey, cached.copyWith(fromCache: true));
         return;
       }
 
@@ -112,6 +209,10 @@ class ImageTranslationService extends GetxController
       codec.dispose();
 
       final List<RecognizedTextBlock> blocks = await _recognize(imagePath);
+      if (_cancelRequested) {
+        _removeResult(request.cacheKey);
+        return;
+      }
       final String sourceText = blocks
           .map((block) => block.text)
           .where((text) => text.isNotEmpty)
@@ -146,7 +247,16 @@ class ImageTranslationService extends GetxController
             imageHeight: imageHeight),
       );
       await _writePersistentResult(persistentKey, resultFor(request.cacheKey));
+      _setStage(ImageTranslationStage.translating);
       final String translatedText = await _translate(sourceText);
+      if (_cancelRequested) {
+        _removeResult(request.cacheKey);
+        return;
+      }
+      _setStage(ImageTranslationStage.masking);
+      await Future.delayed(const Duration(milliseconds: 80));
+      _setStage(ImageTranslationStage.embedding);
+      await Future.delayed(const Duration(milliseconds: 80));
       _set(
         request.cacheKey,
         ImageTranslationResult(
@@ -157,7 +267,13 @@ class ImageTranslationService extends GetxController
             imageWidth: imageWidth,
             imageHeight: imageHeight),
       );
+      await _writePersistentResult(persistentKey, resultFor(request.cacheKey));
+      _setStage(ImageTranslationStage.done);
     } on ImageTranslationException catch (e, stack) {
+      if (_cancelRequested) {
+        _removeResult(request.cacheKey);
+        return;
+      }
       log.warning('Image translation failed: ${e.code}');
       _set(
           request.cacheKey,
@@ -165,6 +281,10 @@ class ImageTranslationService extends GetxController
               status: ImageTranslationStatus.failed, errorMessage: e.code));
       log.trace(stack);
     } on ProcessException catch (e, stack) {
+      if (_cancelRequested) {
+        _removeResult(request.cacheKey);
+        return;
+      }
       log.warning('Image OCR executable is unavailable: ${e.executable}');
       _set(
           request.cacheKey,
@@ -173,6 +293,10 @@ class ImageTranslationService extends GetxController
               errorMessage: 'OCR_UNAVAILABLE'));
       log.trace(stack);
     } on DioException catch (e, stack) {
+      if (_cancelRequested) {
+        _removeResult(request.cacheKey);
+        return;
+      }
       log.warning('Image translation request failed: ${e.message}');
       _set(
           request.cacheKey,
@@ -181,6 +305,10 @@ class ImageTranslationService extends GetxController
               errorMessage: 'TRANSLATION_REQUEST_FAILED'));
       log.trace(stack);
     } catch (e, stack) {
+      if (_cancelRequested) {
+        _removeResult(request.cacheKey);
+        return;
+      }
       log.error('Image translation failed', e, stack);
       _set(
           request.cacheKey,
@@ -192,6 +320,11 @@ class ImageTranslationService extends GetxController
         File(temporaryPath).delete().ignore();
       }
     }
+  }
+
+  void _removeResult(String cacheKey) {
+    _results.remove(cacheKey);
+    update([taskId(cacheKey)]);
   }
 
   Future<String> _persistentCacheKey(
@@ -224,7 +357,8 @@ class ImageTranslationService extends GetxController
       final ImageTranslationResult result =
           ImageTranslationResult.successFromJson(
               Map<String, dynamic>.from(content));
-      return result.translatedText.isEmpty ? null : result;
+      final String cleaned = _stripReasoning(result.translatedText);
+      return cleaned.isEmpty ? null : result.copyWith(translatedText: cleaned);
     } catch (_) {
       return null;
     }
@@ -254,7 +388,7 @@ class ImageTranslationService extends GetxController
     if (dataDirectory != null && dataDirectory.isNotEmpty) {
       environment['TESSDATA_PREFIX'] = dataDirectory;
     }
-    final ProcessResult process = await Process.run(
+    final Process process = await Process.start(
       imageTranslationSetting.ocrExecutable.value,
       [
         imagePath,
@@ -265,15 +399,22 @@ class ImageTranslationService extends GetxController
       ],
       environment: environment.isEmpty ? null : environment,
     );
-    if (process.exitCode != 0) {
-      log.warning(
-          'Tesseract exited with ${process.exitCode}: ${process.stderr}');
+    _activeProcess = process;
+    final List<String> outputs = await Future.wait([
+      process.stdout.transform(utf8.decoder).join(),
+      process.stderr.transform(utf8.decoder).join(),
+    ]);
+    final String stdout = outputs[0];
+    final String stderr = outputs[1];
+    final int exitCode = await process.exitCode;
+    _activeProcess = null;
+    if (exitCode != 0) {
+      log.warning('Tesseract exited with $exitCode: $stderr');
       throw const ImageTranslationException('OCR_FAILED');
     }
 
     final Map<String, _TesseractLine> lines = {};
-    for (final String rawLine
-        in const LineSplitter().convert(process.stdout.toString())) {
+    for (final String rawLine in const LineSplitter().convert(stdout)) {
       final List<String> fields = rawLine.split('\t');
       if (fields.length != 12 ||
           fields.first == 'level' ||
@@ -328,7 +469,7 @@ pipeline = PaddleOCR(
 for result in pipeline.predict(r'''$imagePath'''):
  print(json.dumps(result.json, ensure_ascii=False))
 """;
-    final ProcessResult process = await Process.run(_paddlePython, [
+    final Process process = await Process.start(_paddlePython, [
       '-c',
       script
     ], environment: {
@@ -340,13 +481,20 @@ for result in pipeline.predict(r'''$imagePath'''):
       // The normal HTTP path is more reliable for an in-app model download.
       'HF_HUB_DISABLE_XET': '1',
     });
-    if (process.exitCode != 0) {
-      log.warning(
-          'PaddleOCR exited with ${process.exitCode}: ${process.stderr}');
+    _activeProcess = process;
+    final List<String> outputs = await Future.wait([
+      process.stdout.transform(utf8.decoder).join(),
+      process.stderr.transform(utf8.decoder).join(),
+    ]);
+    final String stdout = outputs[0];
+    final String stderr = outputs[1];
+    final int exitCode = await process.exitCode;
+    _activeProcess = null;
+    if (exitCode != 0) {
+      log.warning('PaddleOCR exited with $exitCode: $stderr');
       throw const ImageTranslationException('OCR_FAILED');
     }
-    final List<RecognizedTextBlock> blocks =
-        _paddleBlocks(process.stdout.toString());
+    final List<RecognizedTextBlock> blocks = _paddleBlocks(stdout);
     if (blocks.isEmpty) throw const ImageTranslationException('NO_TEXT');
     return blocks;
   }
@@ -446,8 +594,8 @@ for result in pipeline.predict(r'''$imagePath'''):
     image.dispose();
     if (data == null)
       throw const ImageTranslationException('OVERLAY_ENCODE_FAILED');
-    final Directory directory = Directory(join(
-        pathService.getVisibleDir().path, 'image_translation', 'overlays'));
+    final Directory directory =
+        Directory(join(pathService.jhOcrModelDir.path, 'overlays'));
     await directory.create(recursive: true);
     final File output = File(join(directory.path,
         'translation_${sha256.convert(source).toString().substring(0, 16)}.png'));
@@ -479,64 +627,156 @@ for result in pipeline.predict(r'''$imagePath'''):
   }
 
   Future<String> _translate(String sourceText) async {
+    final List<String> sourceLines = const LineSplitter().convert(sourceText);
+    final String numberedSource = sourceLines
+        .asMap()
+        .entries
+        .map((entry) => '${entry.key + 1}: ${entry.value}')
+        .join('\n');
     final Dio dio = Dio(BaseOptions(
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 90)));
+    final CancelToken cancelToken = CancelToken();
+    _activeCancelToken = cancelToken;
     final ImageTranslationProvider provider =
         imageTranslationSetting.translatorProvider.value;
     final String endpoint = _translationEndpoint(
         imageTranslationSetting.translatorEndpoint.value!, provider);
     final String instruction =
-        'You translate comic dialogue accurately. Preserve line order, names, punctuation, and sound effects. Return exactly one output line for every input line, in the same order. Do not add headings, labels, or numbering.';
+        'You translate comic dialogue accurately. Preserve line order, names, punctuation, and sound effects. '
+        'Return exactly one translated line per input line, numbered the same as the input (e.g. "1: ..."). '
+        'Do not add headings, labels, numbering, or reasoning/think blocks.';
     final String prompt =
-        'Translate the following comic text into ${imageTranslationSetting.targetLanguage.value}:\n\n$sourceText';
-    if (provider == ImageTranslationProvider.anthropic) {
-      final Response<dynamic> response = await dio.post(endpoint,
-          options: Options(
-              headers: _anthropicHeaders(
-                  imageTranslationSetting.translatorApiKey.value!)),
-          data: {
-            'model': imageTranslationSetting.translatorModel.value,
-            'max_tokens': 2048,
-            'system': instruction,
-            'messages': [
-              {'role': 'user', 'content': prompt}
-            ],
-          });
-      final dynamic blocks =
-          response.data is Map ? response.data['content'] : null;
-      if (blocks is List) {
-        final String content = blocks
-            .whereType<Map>()
-            .map((block) => block['text'])
-            .whereType<String>()
-            .join('\n')
-            .trim();
-        if (content.isNotEmpty) return content;
+        'Translate the following comic text into ${imageTranslationSetting.targetLanguage.value}. '
+        'Keep the same line numbers:\n\n$numberedSource';
+    try {
+      if (provider == ImageTranslationProvider.anthropic) {
+        final Response<dynamic> response = await dio.post(endpoint,
+            options: Options(
+                headers: _anthropicHeaders(
+                    imageTranslationSetting.translatorApiKey.value!)),
+            cancelToken: cancelToken,
+            data: {
+              'model': imageTranslationSetting.translatorModel.value,
+              'max_tokens': 2048,
+              'system': instruction,
+              'messages': [
+                {'role': 'user', 'content': prompt}
+              ],
+              ...?_thinkingParam(),
+            });
+        final dynamic blocks =
+            response.data is Map ? response.data['content'] : null;
+        if (blocks is List) {
+          final String content = blocks
+              .whereType<Map>()
+              .map((block) => block['text'])
+              .whereType<String>()
+              .join('\n')
+              .trim();
+          if (content.isNotEmpty) {
+            return _parseNumberedTranslations(
+                    _stripReasoning(content), sourceLines.length)
+                .join('\n');
+          }
+        }
+      } else {
+        final Response<dynamic> response = await dio.post(endpoint,
+            options: Options(
+                headers: _openAIHeaders(
+                    imageTranslationSetting.translatorApiKey.value!)),
+            cancelToken: cancelToken,
+            data: {
+              'model': imageTranslationSetting.translatorModel.value,
+              'temperature': 0.2,
+              'messages': [
+                {'role': 'system', 'content': instruction},
+                {'role': 'user', 'content': prompt},
+              ],
+              ...?_thinkingParam(),
+            });
+        final dynamic choices =
+            response.data is Map ? response.data['choices'] : null;
+        if (choices is List && choices.isNotEmpty && choices.first is Map) {
+          final dynamic message = choices.first['message'];
+          final dynamic content = message is Map ? message['content'] : null;
+          if (content is String && content.trim().isNotEmpty) {
+            return _parseNumberedTranslations(
+                    _stripReasoning(content.trim()), sourceLines.length)
+                .join('\n');
+          }
+        }
       }
-    } else {
-      final Response<dynamic> response = await dio.post(endpoint,
-          options: Options(
-              headers: _openAIHeaders(
-                  imageTranslationSetting.translatorApiKey.value!)),
-          data: {
-            'model': imageTranslationSetting.translatorModel.value,
-            'temperature': 0.2,
-            'messages': [
-              {'role': 'system', 'content': instruction},
-              {'role': 'user', 'content': prompt},
-            ],
-          });
-      final dynamic choices =
-          response.data is Map ? response.data['choices'] : null;
-      if (choices is List && choices.isNotEmpty && choices.first is Map) {
-        final dynamic message = choices.first['message'];
-        final dynamic content = message is Map ? message['content'] : null;
-        if (content is String && content.trim().isNotEmpty)
-          return content.trim();
+      throw const ImageTranslationException('TRANSLATION_INVALID_RESPONSE');
+    } finally {
+      _activeCancelToken = null;
+    }
+  }
+
+  /// Parses numbered model output back into source-line order. Lines that
+  /// cannot be parsed fall back to sequential order, which prevents a model
+  /// reordering or skipping a line from shifting every later bubble.
+  List<String> _parseNumberedTranslations(String text, int lineCount) {
+    final List<String?> result = List.filled(lineCount, null);
+    int fallbackIndex = 0;
+    for (final String rawLine in const LineSplitter().convert(text)) {
+      final String line = rawLine.trim();
+      if (line.isEmpty) {
+        continue;
+      }
+      final RegExpMatch? match =
+          RegExp(r'^\s*(\d+)\s*[:：.]?\s*(.*)$').firstMatch(line);
+      if (match != null) {
+        final int? index = int.tryParse(match.group(1)!);
+        if (index != null && index >= 1 && index <= lineCount) {
+          result[index - 1] = match.group(2)!.trim();
+          continue;
+        }
+      }
+      while (fallbackIndex < lineCount && result[fallbackIndex] != null) {
+        fallbackIndex++;
+      }
+      if (fallbackIndex < lineCount) {
+        result[fallbackIndex] = line;
+        fallbackIndex++;
       }
     }
-    throw const ImageTranslationException('TRANSLATION_INVALID_RESPONSE');
+    return result.map((line) => line ?? '').toList();
+  }
+
+  /// Removes model reasoning artifacts such as <think>...</think> so only the
+  /// actual translation is embedded onto the image.
+  String _stripReasoning(String text) {
+    String result = text.replaceAllMapped(
+      RegExp(r'<think>[\s\S]*?</think>', caseSensitive: false),
+      (_) => '',
+    );
+    result = result.replaceAllMapped(
+      RegExp(r'<thinking>[\s\S]*?</thinking>', caseSensitive: false),
+      (_) => '',
+    );
+    result = result.replaceAllMapped(
+      RegExp(r'\[/?reasoning\]', caseSensitive: false),
+      (_) => '',
+    );
+    return result.replaceAll(RegExp(r'\n\s*\n+'), '\n').trim();
+  }
+
+  /// MiniMax-M3 accepts thinking.type adaptive/disabled; other models keep
+  /// their default behavior.
+  Map<String, dynamic>? _thinkingParam() {
+    final String model =
+        imageTranslationSetting.translatorModel.value.toLowerCase();
+    if (!model.contains('minimax') && !model.contains('m3')) {
+      return null;
+    }
+    return {
+      'thinking': {
+        'type': imageTranslationSetting.enableThinking.value
+            ? 'adaptive'
+            : 'disabled',
+      },
+    };
   }
 
   Future<List<String>> fetchModels({
@@ -617,50 +857,136 @@ for result in pipeline.predict(r'''$imagePath'''):
     if (!Platform.isWindows && !Platform.isMacOS && !Platform.isLinux) {
       throw const ImageTranslationException('OCR_UNSUPPORTED_PLATFORM');
     }
-    await _paddleRoot.create(recursive: true);
-    if (!await File(_paddlePython).exists()) {
-      onStage?.call('Creating Python environment');
-      final String? bootstrap = await _findCompatiblePython();
-      if (bootstrap == null) {
-        throw const ImageTranslationException('PADDLE_PYTHON_UNSUPPORTED');
+    preparingPaddle = true;
+    paddleStage = null;
+    _paddleOutput.clear();
+    update([paddlePrepareId]);
+    try {
+      await _paddleRoot.create(recursive: true);
+      if (!await File(_paddlePython).exists()) {
+        _setPaddleStage('Creating Python environment', onStage);
+        final String? bootstrap = await _findCompatiblePython();
+        if (bootstrap == null) {
+          throw const ImageTranslationException('PADDLE_PYTHON_UNSUPPORTED');
+        }
+        final ProcessResult create =
+            await Process.run(bootstrap, ['-m', 'venv', _paddleVenv.path]);
+        if (create.exitCode != 0) {
+          throw const ImageTranslationException('PADDLE_VENV_CREATE_FAILED');
+        }
       }
-      final ProcessResult create =
-          await Process.run(bootstrap, ['-m', 'venv', _paddleVenv.path]);
-      if (create.exitCode != 0) {
-        throw const ImageTranslationException('PADDLE_VENV_CREATE_FAILED');
+      _setPaddleStage('Installing PaddleOCR runtime', onStage);
+      final Process installProcess = await Process.start(_paddlePython, [
+        '-m',
+        'pip',
+        'install',
+        '--upgrade',
+        'paddleocr==3.7.0',
+        'paddlepaddle',
+        'huggingface_hub',
+      ]);
+      await _streamProcessOutput(installProcess);
+      if (await installProcess.exitCode != 0) {
+        throw const ImageTranslationException('PADDLE_RUNTIME_INSTALL_FAILED');
       }
-    }
-    onStage?.call('Installing PaddleOCR runtime');
-    final ProcessResult install = await Process.run(_paddlePython, [
-      '-m',
-      'pip',
-      'install',
-      '--upgrade',
-      'paddleocr==3.7.0',
-      'paddlepaddle',
-      'huggingface_hub',
-    ]);
-    if (install.exitCode != 0) {
-      throw const ImageTranslationException('PADDLE_RUNTIME_INSTALL_FAILED');
-    }
-    if (downloadVl16) {
-      onStage?.call('Downloading PaddleOCR-VL-1.6 from Hugging Face');
-      final String downloadScript =
-          """from huggingface_hub import snapshot_download
+      if (downloadVl16) {
+        _setPaddleStage(
+            'Downloading PaddleOCR-VL-1.6 from Hugging Face', onStage);
+        final String downloadScript =
+            """from huggingface_hub import snapshot_download
 snapshot_download(repo_id='$paddleOcrVlRepo', cache_dir=r'''${_paddleHuggingFaceCache.path}''')
 """;
-      final ProcessResult download = await Process.run(_paddlePython, [
-        '-c',
-        downloadScript
-      ], environment: {
-        'HF_HOME': _paddleHuggingFaceCache.path,
-        'PADDLEX_HOME': _paddleRoot.path,
-        'PADDLE_PDX_MODEL_SOURCE': 'huggingface',
-        'HF_HUB_DISABLE_XET': '1',
-      });
-      if (download.exitCode != 0) {
-        throw const ImageTranslationException('PADDLE_VL_DOWNLOAD_FAILED');
+        final Process downloadProcess = await Process.start(_paddlePython, [
+          '-c',
+          downloadScript
+        ], environment: {
+          'HF_HOME': _paddleHuggingFaceCache.path,
+          'PADDLEX_HOME': _paddleRoot.path,
+          'PADDLE_PDX_MODEL_SOURCE': 'huggingface',
+          'HF_HUB_DISABLE_XET': '1',
+        });
+        await _streamProcessOutput(downloadProcess);
+        if (await downloadProcess.exitCode != 0) {
+          throw const ImageTranslationException('PADDLE_VL_DOWNLOAD_FAILED');
+        }
+      } else {
+        _setPaddleStage('Downloading PP-OCRv6 models', onStage);
+        final String language = imageTranslationSetting.paddleOcrLanguage.value;
+        final String preloadScript = """
+import numpy as np
+from paddleocr import PaddleOCR
+language = '$language'
+pipeline = PaddleOCR(
+    lang=language,
+    use_doc_orientation_classify=False,
+    use_doc_unwarping=False,
+    use_textline_orientation=language in ('japan', 'chinese_cht', 'korean'),
+)
+try:
+    pipeline.predict(np.zeros((64, 64, 3), dtype=np.uint8))
+except Exception:
+    pass
+""";
+        final Process preloadProcess = await Process.start(_paddlePython, [
+          '-c',
+          preloadScript
+        ], environment: {
+          'HF_HOME': _paddleHuggingFaceCache.path,
+          'PADDLEX_HOME': _paddleRoot.path,
+          'PADDLE_PDX_MODEL_SOURCE': 'huggingface',
+          'HF_HUB_DISABLE_XET': '1',
+        });
+        await _streamProcessOutput(preloadProcess);
+        if (await preloadProcess.exitCode != 0) {
+          throw const ImageTranslationException('PADDLE_MODEL_DOWNLOAD_FAILED');
+        }
       }
+    } finally {
+      preparingPaddle = false;
+      paddleStage = null;
+      update([paddlePrepareId]);
+    }
+  }
+
+  void _setPaddleStage(String stage, void Function(String stage)? onStage) {
+    paddleStage = stage;
+    update([paddlePrepareId]);
+    onStage?.call(stage);
+  }
+
+  void _appendPaddleOutput(String line) {
+    if (_paddleOutput.length >= 300) {
+      _paddleOutput.removeAt(0);
+    }
+    _paddleOutput.add(line);
+    update([paddlePrepareId]);
+  }
+
+  Future<void> _streamProcessOutput(Process process) async {
+    await Future.wait([
+      _readProcessStream(process.stdout),
+      _readProcessStream(process.stderr),
+    ]);
+  }
+
+  Future<void> _readProcessStream(Stream<List<int>> stream) async {
+    final StringBuffer buffer = StringBuffer();
+    await for (final List<int> chunk in stream) {
+      buffer.write(utf8.decode(chunk, allowMalformed: true));
+      final String text = buffer.toString();
+      final List<String> lines = text.split(RegExp(r'[\r\n]+'));
+      buffer.clear();
+      buffer.write(lines.removeLast());
+      for (final String line in lines) {
+        final String trimmed = line.trim();
+        if (trimmed.isNotEmpty) {
+          _appendPaddleOutput(trimmed);
+        }
+      }
+    }
+    final String rest = buffer.toString().trim();
+    if (rest.isNotEmpty) {
+      _appendPaddleOutput(rest);
     }
   }
 
@@ -696,18 +1022,37 @@ snapshot_download(repo_id='$paddleOcrVlRepo', cache_dir=r'''${_paddleHuggingFace
     required String dataDirectory,
     void Function(int received, int total)? onProgress,
   }) async {
+    _downloadingOcrModels.add(languageCode);
+    _ocrModelDownloadProgress[languageCode] = null;
+    update([ocrModelDownloadId(languageCode)]);
     final Directory directory = Directory(dataDirectory);
     if (!await directory.exists()) await directory.create(recursive: true);
     final String url = _ocrModelUrl(languageCode, source);
     final File target = File(join(directory.path, '$languageCode.traineddata'));
     final File partial = File('${target.path}.download');
-    await Dio().download(url, partial.path, onReceiveProgress: onProgress);
-    if (await partial.length() == 0) {
-      await partial.delete();
-      throw const ImageTranslationException('OCR_MODEL_DOWNLOAD_FAILED');
+    try {
+      await Dio().download(
+        url,
+        partial.path,
+        onReceiveProgress: (received, total) {
+          if (total > 0) {
+            _ocrModelDownloadProgress[languageCode] = received / total;
+            update([ocrModelDownloadId(languageCode)]);
+          }
+          onProgress?.call(received, total);
+        },
+      );
+      if (await partial.length() == 0) {
+        await partial.delete();
+        throw const ImageTranslationException('OCR_MODEL_DOWNLOAD_FAILED');
+      }
+      if (await target.exists()) await target.delete();
+      await partial.rename(target.path);
+    } finally {
+      _downloadingOcrModels.remove(languageCode);
+      _ocrModelDownloadProgress.remove(languageCode);
+      update([ocrModelDownloadId(languageCode)]);
     }
-    if (await target.exists()) await target.delete();
-    await partial.rename(target.path);
   }
 
   String _modelsEndpoint(String baseUrl, ImageTranslationProvider provider) =>

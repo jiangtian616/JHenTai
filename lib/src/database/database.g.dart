@@ -6727,6 +6727,400 @@ class LocalConfigCompanion extends UpdateCompanion<LocalConfigData> {
   }
 }
 
+class $SmartCacheStatTable extends SmartCacheStat
+    with TableInfo<$SmartCacheStatTable, SmartCacheStatData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SmartCacheStatTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _cacheKeyMeta =
+      const VerificationMeta('cacheKey');
+  @override
+  late final GeneratedColumn<String> cacheKey = GeneratedColumn<String>(
+      'cacheKey', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+      'kind', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _urlMeta = const VerificationMeta('url');
+  @override
+  late final GeneratedColumn<String> url = GeneratedColumn<String>(
+      'url', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _addedAtMeta =
+      const VerificationMeta('addedAt');
+  @override
+  late final GeneratedColumn<DateTime> addedAt = GeneratedColumn<DateTime>(
+      'addedAt', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _lastAccessAtMeta =
+      const VerificationMeta('lastAccessAt');
+  @override
+  late final GeneratedColumn<DateTime> lastAccessAt = GeneratedColumn<DateTime>(
+      'lastAccessAt', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _accessCountMeta =
+      const VerificationMeta('accessCount');
+  @override
+  late final GeneratedColumn<int> accessCount = GeneratedColumn<int>(
+      'accessCount', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _sizeBytesMeta =
+      const VerificationMeta('sizeBytes');
+  @override
+  late final GeneratedColumn<int> sizeBytes = GeneratedColumn<int>(
+      'sizeBytes', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [cacheKey, kind, url, addedAt, lastAccessAt, accessCount, sizeBytes];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'smart_cache_stat';
+  @override
+  VerificationContext validateIntegrity(Insertable<SmartCacheStatData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('cacheKey')) {
+      context.handle(_cacheKeyMeta,
+          cacheKey.isAcceptableOrUnknown(data['cacheKey']!, _cacheKeyMeta));
+    } else if (isInserting) {
+      context.missing(_cacheKeyMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+          _kindMeta, kind.isAcceptableOrUnknown(data['kind']!, _kindMeta));
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('url')) {
+      context.handle(
+          _urlMeta, url.isAcceptableOrUnknown(data['url']!, _urlMeta));
+    } else if (isInserting) {
+      context.missing(_urlMeta);
+    }
+    if (data.containsKey('addedAt')) {
+      context.handle(_addedAtMeta,
+          addedAt.isAcceptableOrUnknown(data['addedAt']!, _addedAtMeta));
+    } else if (isInserting) {
+      context.missing(_addedAtMeta);
+    }
+    if (data.containsKey('lastAccessAt')) {
+      context.handle(
+          _lastAccessAtMeta,
+          lastAccessAt.isAcceptableOrUnknown(
+              data['lastAccessAt']!, _lastAccessAtMeta));
+    } else if (isInserting) {
+      context.missing(_lastAccessAtMeta);
+    }
+    if (data.containsKey('accessCount')) {
+      context.handle(
+          _accessCountMeta,
+          accessCount.isAcceptableOrUnknown(
+              data['accessCount']!, _accessCountMeta));
+    } else if (isInserting) {
+      context.missing(_accessCountMeta);
+    }
+    if (data.containsKey('sizeBytes')) {
+      context.handle(_sizeBytesMeta,
+          sizeBytes.isAcceptableOrUnknown(data['sizeBytes']!, _sizeBytesMeta));
+    } else if (isInserting) {
+      context.missing(_sizeBytesMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {cacheKey};
+  @override
+  SmartCacheStatData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SmartCacheStatData(
+      cacheKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cacheKey'])!,
+      kind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
+      url: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}url'])!,
+      addedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}addedAt'])!,
+      lastAccessAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}lastAccessAt'])!,
+      accessCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}accessCount'])!,
+      sizeBytes: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sizeBytes'])!,
+    );
+  }
+
+  @override
+  $SmartCacheStatTable createAlias(String alias) {
+    return $SmartCacheStatTable(attachedDatabase, alias);
+  }
+}
+
+class SmartCacheStatData extends DataClass
+    implements Insertable<SmartCacheStatData> {
+  final String cacheKey;
+
+  /// 'page' or 'image'
+  final String kind;
+  final String url;
+  final DateTime addedAt;
+  final DateTime lastAccessAt;
+  final int accessCount;
+  final int sizeBytes;
+  const SmartCacheStatData(
+      {required this.cacheKey,
+      required this.kind,
+      required this.url,
+      required this.addedAt,
+      required this.lastAccessAt,
+      required this.accessCount,
+      required this.sizeBytes});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['cacheKey'] = Variable<String>(cacheKey);
+    map['kind'] = Variable<String>(kind);
+    map['url'] = Variable<String>(url);
+    map['addedAt'] = Variable<DateTime>(addedAt);
+    map['lastAccessAt'] = Variable<DateTime>(lastAccessAt);
+    map['accessCount'] = Variable<int>(accessCount);
+    map['sizeBytes'] = Variable<int>(sizeBytes);
+    return map;
+  }
+
+  SmartCacheStatCompanion toCompanion(bool nullToAbsent) {
+    return SmartCacheStatCompanion(
+      cacheKey: Value(cacheKey),
+      kind: Value(kind),
+      url: Value(url),
+      addedAt: Value(addedAt),
+      lastAccessAt: Value(lastAccessAt),
+      accessCount: Value(accessCount),
+      sizeBytes: Value(sizeBytes),
+    );
+  }
+
+  factory SmartCacheStatData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SmartCacheStatData(
+      cacheKey: serializer.fromJson<String>(json['cacheKey']),
+      kind: serializer.fromJson<String>(json['kind']),
+      url: serializer.fromJson<String>(json['url']),
+      addedAt: serializer.fromJson<DateTime>(json['addedAt']),
+      lastAccessAt: serializer.fromJson<DateTime>(json['lastAccessAt']),
+      accessCount: serializer.fromJson<int>(json['accessCount']),
+      sizeBytes: serializer.fromJson<int>(json['sizeBytes']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'cacheKey': serializer.toJson<String>(cacheKey),
+      'kind': serializer.toJson<String>(kind),
+      'url': serializer.toJson<String>(url),
+      'addedAt': serializer.toJson<DateTime>(addedAt),
+      'lastAccessAt': serializer.toJson<DateTime>(lastAccessAt),
+      'accessCount': serializer.toJson<int>(accessCount),
+      'sizeBytes': serializer.toJson<int>(sizeBytes),
+    };
+  }
+
+  SmartCacheStatData copyWith(
+          {String? cacheKey,
+          String? kind,
+          String? url,
+          DateTime? addedAt,
+          DateTime? lastAccessAt,
+          int? accessCount,
+          int? sizeBytes}) =>
+      SmartCacheStatData(
+        cacheKey: cacheKey ?? this.cacheKey,
+        kind: kind ?? this.kind,
+        url: url ?? this.url,
+        addedAt: addedAt ?? this.addedAt,
+        lastAccessAt: lastAccessAt ?? this.lastAccessAt,
+        accessCount: accessCount ?? this.accessCount,
+        sizeBytes: sizeBytes ?? this.sizeBytes,
+      );
+  SmartCacheStatData copyWithCompanion(SmartCacheStatCompanion data) {
+    return SmartCacheStatData(
+      cacheKey: data.cacheKey.present ? data.cacheKey.value : this.cacheKey,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      url: data.url.present ? data.url.value : this.url,
+      addedAt: data.addedAt.present ? data.addedAt.value : this.addedAt,
+      lastAccessAt: data.lastAccessAt.present
+          ? data.lastAccessAt.value
+          : this.lastAccessAt,
+      accessCount:
+          data.accessCount.present ? data.accessCount.value : this.accessCount,
+      sizeBytes: data.sizeBytes.present ? data.sizeBytes.value : this.sizeBytes,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SmartCacheStatData(')
+          ..write('cacheKey: $cacheKey, ')
+          ..write('kind: $kind, ')
+          ..write('url: $url, ')
+          ..write('addedAt: $addedAt, ')
+          ..write('lastAccessAt: $lastAccessAt, ')
+          ..write('accessCount: $accessCount, ')
+          ..write('sizeBytes: $sizeBytes')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      cacheKey, kind, url, addedAt, lastAccessAt, accessCount, sizeBytes);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SmartCacheStatData &&
+          other.cacheKey == this.cacheKey &&
+          other.kind == this.kind &&
+          other.url == this.url &&
+          other.addedAt == this.addedAt &&
+          other.lastAccessAt == this.lastAccessAt &&
+          other.accessCount == this.accessCount &&
+          other.sizeBytes == this.sizeBytes);
+}
+
+class SmartCacheStatCompanion extends UpdateCompanion<SmartCacheStatData> {
+  final Value<String> cacheKey;
+  final Value<String> kind;
+  final Value<String> url;
+  final Value<DateTime> addedAt;
+  final Value<DateTime> lastAccessAt;
+  final Value<int> accessCount;
+  final Value<int> sizeBytes;
+  final Value<int> rowid;
+  const SmartCacheStatCompanion({
+    this.cacheKey = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.url = const Value.absent(),
+    this.addedAt = const Value.absent(),
+    this.lastAccessAt = const Value.absent(),
+    this.accessCount = const Value.absent(),
+    this.sizeBytes = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SmartCacheStatCompanion.insert({
+    required String cacheKey,
+    required String kind,
+    required String url,
+    required DateTime addedAt,
+    required DateTime lastAccessAt,
+    required int accessCount,
+    required int sizeBytes,
+    this.rowid = const Value.absent(),
+  })  : cacheKey = Value(cacheKey),
+        kind = Value(kind),
+        url = Value(url),
+        addedAt = Value(addedAt),
+        lastAccessAt = Value(lastAccessAt),
+        accessCount = Value(accessCount),
+        sizeBytes = Value(sizeBytes);
+  static Insertable<SmartCacheStatData> custom({
+    Expression<String>? cacheKey,
+    Expression<String>? kind,
+    Expression<String>? url,
+    Expression<DateTime>? addedAt,
+    Expression<DateTime>? lastAccessAt,
+    Expression<int>? accessCount,
+    Expression<int>? sizeBytes,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (cacheKey != null) 'cacheKey': cacheKey,
+      if (kind != null) 'kind': kind,
+      if (url != null) 'url': url,
+      if (addedAt != null) 'addedAt': addedAt,
+      if (lastAccessAt != null) 'lastAccessAt': lastAccessAt,
+      if (accessCount != null) 'accessCount': accessCount,
+      if (sizeBytes != null) 'sizeBytes': sizeBytes,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SmartCacheStatCompanion copyWith(
+      {Value<String>? cacheKey,
+      Value<String>? kind,
+      Value<String>? url,
+      Value<DateTime>? addedAt,
+      Value<DateTime>? lastAccessAt,
+      Value<int>? accessCount,
+      Value<int>? sizeBytes,
+      Value<int>? rowid}) {
+    return SmartCacheStatCompanion(
+      cacheKey: cacheKey ?? this.cacheKey,
+      kind: kind ?? this.kind,
+      url: url ?? this.url,
+      addedAt: addedAt ?? this.addedAt,
+      lastAccessAt: lastAccessAt ?? this.lastAccessAt,
+      accessCount: accessCount ?? this.accessCount,
+      sizeBytes: sizeBytes ?? this.sizeBytes,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (cacheKey.present) {
+      map['cacheKey'] = Variable<String>(cacheKey.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (url.present) {
+      map['url'] = Variable<String>(url.value);
+    }
+    if (addedAt.present) {
+      map['addedAt'] = Variable<DateTime>(addedAt.value);
+    }
+    if (lastAccessAt.present) {
+      map['lastAccessAt'] = Variable<DateTime>(lastAccessAt.value);
+    }
+    if (accessCount.present) {
+      map['accessCount'] = Variable<int>(accessCount.value);
+    }
+    if (sizeBytes.present) {
+      map['sizeBytes'] = Variable<int>(sizeBytes.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SmartCacheStatCompanion(')
+          ..write('cacheKey: $cacheKey, ')
+          ..write('kind: $kind, ')
+          ..write('url: $url, ')
+          ..write('addedAt: $addedAt, ')
+          ..write('lastAccessAt: $lastAccessAt, ')
+          ..write('accessCount: $accessCount, ')
+          ..write('sizeBytes: $sizeBytes, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDb extends GeneratedDatabase {
   _$AppDb(QueryExecutor e) : super(e);
   $AppDbManager get managers => $AppDbManager(this);
@@ -6753,6 +7147,7 @@ abstract class _$AppDb extends GeneratedDatabase {
   late final $DioCacheTable dioCache = $DioCacheTable(this);
   late final $BlockRuleTable blockRule = $BlockRuleTable(this);
   late final $LocalConfigTable localConfig = $LocalConfigTable(this);
+  late final $SmartCacheStatTable smartCacheStat = $SmartCacheStatTable(this);
   late final Index idxKey =
       Index('idx_key', 'CREATE INDEX idx_key ON tag (_key)');
   late final Index idxTagName =
@@ -6808,6 +7203,7 @@ abstract class _$AppDb extends GeneratedDatabase {
         dioCache,
         blockRule,
         localConfig,
+        smartCacheStat,
         idxKey,
         idxTagName,
         aIdxInsertTime,
@@ -10379,6 +10775,210 @@ typedef $$LocalConfigTableProcessedTableManager = ProcessedTableManager<
     ),
     LocalConfigData,
     PrefetchHooks Function()>;
+typedef $$SmartCacheStatTableCreateCompanionBuilder = SmartCacheStatCompanion
+    Function({
+  required String cacheKey,
+  required String kind,
+  required String url,
+  required DateTime addedAt,
+  required DateTime lastAccessAt,
+  required int accessCount,
+  required int sizeBytes,
+  Value<int> rowid,
+});
+typedef $$SmartCacheStatTableUpdateCompanionBuilder = SmartCacheStatCompanion
+    Function({
+  Value<String> cacheKey,
+  Value<String> kind,
+  Value<String> url,
+  Value<DateTime> addedAt,
+  Value<DateTime> lastAccessAt,
+  Value<int> accessCount,
+  Value<int> sizeBytes,
+  Value<int> rowid,
+});
+
+class $$SmartCacheStatTableFilterComposer
+    extends Composer<_$AppDb, $SmartCacheStatTable> {
+  $$SmartCacheStatTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get cacheKey => $composableBuilder(
+      column: $table.cacheKey, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get url => $composableBuilder(
+      column: $table.url, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get addedAt => $composableBuilder(
+      column: $table.addedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastAccessAt => $composableBuilder(
+      column: $table.lastAccessAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get accessCount => $composableBuilder(
+      column: $table.accessCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sizeBytes => $composableBuilder(
+      column: $table.sizeBytes, builder: (column) => ColumnFilters(column));
+}
+
+class $$SmartCacheStatTableOrderingComposer
+    extends Composer<_$AppDb, $SmartCacheStatTable> {
+  $$SmartCacheStatTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get cacheKey => $composableBuilder(
+      column: $table.cacheKey, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get url => $composableBuilder(
+      column: $table.url, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get addedAt => $composableBuilder(
+      column: $table.addedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastAccessAt => $composableBuilder(
+      column: $table.lastAccessAt,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get accessCount => $composableBuilder(
+      column: $table.accessCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sizeBytes => $composableBuilder(
+      column: $table.sizeBytes, builder: (column) => ColumnOrderings(column));
+}
+
+class $$SmartCacheStatTableAnnotationComposer
+    extends Composer<_$AppDb, $SmartCacheStatTable> {
+  $$SmartCacheStatTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get cacheKey =>
+      $composableBuilder(column: $table.cacheKey, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get url =>
+      $composableBuilder(column: $table.url, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get addedAt =>
+      $composableBuilder(column: $table.addedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastAccessAt => $composableBuilder(
+      column: $table.lastAccessAt, builder: (column) => column);
+
+  GeneratedColumn<int> get accessCount => $composableBuilder(
+      column: $table.accessCount, builder: (column) => column);
+
+  GeneratedColumn<int> get sizeBytes =>
+      $composableBuilder(column: $table.sizeBytes, builder: (column) => column);
+}
+
+class $$SmartCacheStatTableTableManager extends RootTableManager<
+    _$AppDb,
+    $SmartCacheStatTable,
+    SmartCacheStatData,
+    $$SmartCacheStatTableFilterComposer,
+    $$SmartCacheStatTableOrderingComposer,
+    $$SmartCacheStatTableAnnotationComposer,
+    $$SmartCacheStatTableCreateCompanionBuilder,
+    $$SmartCacheStatTableUpdateCompanionBuilder,
+    (
+      SmartCacheStatData,
+      BaseReferences<_$AppDb, $SmartCacheStatTable, SmartCacheStatData>
+    ),
+    SmartCacheStatData,
+    PrefetchHooks Function()> {
+  $$SmartCacheStatTableTableManager(_$AppDb db, $SmartCacheStatTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SmartCacheStatTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SmartCacheStatTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SmartCacheStatTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> cacheKey = const Value.absent(),
+            Value<String> kind = const Value.absent(),
+            Value<String> url = const Value.absent(),
+            Value<DateTime> addedAt = const Value.absent(),
+            Value<DateTime> lastAccessAt = const Value.absent(),
+            Value<int> accessCount = const Value.absent(),
+            Value<int> sizeBytes = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SmartCacheStatCompanion(
+            cacheKey: cacheKey,
+            kind: kind,
+            url: url,
+            addedAt: addedAt,
+            lastAccessAt: lastAccessAt,
+            accessCount: accessCount,
+            sizeBytes: sizeBytes,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String cacheKey,
+            required String kind,
+            required String url,
+            required DateTime addedAt,
+            required DateTime lastAccessAt,
+            required int accessCount,
+            required int sizeBytes,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SmartCacheStatCompanion.insert(
+            cacheKey: cacheKey,
+            kind: kind,
+            url: url,
+            addedAt: addedAt,
+            lastAccessAt: lastAccessAt,
+            accessCount: accessCount,
+            sizeBytes: sizeBytes,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$SmartCacheStatTableProcessedTableManager = ProcessedTableManager<
+    _$AppDb,
+    $SmartCacheStatTable,
+    SmartCacheStatData,
+    $$SmartCacheStatTableFilterComposer,
+    $$SmartCacheStatTableOrderingComposer,
+    $$SmartCacheStatTableAnnotationComposer,
+    $$SmartCacheStatTableCreateCompanionBuilder,
+    $$SmartCacheStatTableUpdateCompanionBuilder,
+    (
+      SmartCacheStatData,
+      BaseReferences<_$AppDb, $SmartCacheStatTable, SmartCacheStatData>
+    ),
+    SmartCacheStatData,
+    PrefetchHooks Function()>;
 
 class $AppDbManager {
   final _$AppDb _db;
@@ -10415,4 +11015,6 @@ class $AppDbManager {
       $$BlockRuleTableTableManager(_db, _db.blockRule);
   $$LocalConfigTableTableManager get localConfig =>
       $$LocalConfigTableTableManager(_db, _db.localConfig);
+  $$SmartCacheStatTableTableManager get smartCacheStat =>
+      $$SmartCacheStatTableTableManager(_db, _db.smartCacheStat);
 }

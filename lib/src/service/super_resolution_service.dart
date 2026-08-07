@@ -30,7 +30,9 @@ import 'gallery_download_service.dart';
 
 SuperResolutionService superResolutionService = SuperResolutionService();
 
-class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
+class SuperResolutionService extends GetxController
+    with JHLifeCircleBeanErrorCatch
+    implements JHLifeCircleBean {
   static const String downloadId = 'downloadId';
   static const String superResolutionId = 'superResolutionId';
   static const String superResolutionImageId = 'superResolutionImageId';
@@ -40,7 +42,8 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
 
   EHExecutor executor = EHExecutor(concurrency: 1);
 
-  util.Table<int, SuperResolutionType, SuperResolutionInfo> superResolutionInfoTable = util.Table();
+  util.Table<int, SuperResolutionType, SuperResolutionInfo>
+      superResolutionInfoTable = util.Table();
 
   static const String imageDirName = 'super_resolution';
 
@@ -60,7 +63,8 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
       return;
     }
 
-    List<SuperResolutionInfoData> superResolutionInfoDatas = await _selectAllSuperResolutionInfo();
+    List<SuperResolutionInfoData> superResolutionInfoDatas =
+        await _selectAllSuperResolutionInfo();
     for (SuperResolutionInfoData data in superResolutionInfoDatas) {
       superResolutionInfoTable.put(
         data.gid,
@@ -82,7 +86,8 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
     Future.wait(superResolutionInfoTable
         .entries()
         .where((e) => e.value.status == SuperResolutionStatus.running)
-        .map((e) => executor.scheduleTask(0, () => _doSuperResolve(e.key1, e.key2)))
+        .map((e) =>
+            executor.scheduleTask(0, () => _doSuperResolve(e.key1, e.key2)))
         .toList());
     super.onInit();
   }
@@ -90,7 +95,8 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
   @override
   Future<void> doAfterBeanReady() async {}
 
-  SuperResolutionInfo? get(int gid, SuperResolutionType type) => superResolutionInfoTable.get(gid, type);
+  SuperResolutionInfo? get(int gid, SuperResolutionType type) =>
+      superResolutionInfoTable.get(gid, type);
 
   Future<void> downloadModelFile(ModelType model) async {
     String downloadUrl;
@@ -110,8 +116,10 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
     downloadState = LoadingState.loading;
     updateSafely([downloadId]);
 
-    final String modelDownloadPath = join(pathService.getVisibleDir().path, '${model.type}.zip');
-    final String extractPath = join(pathService.getVisibleDir().path, model.type);
+    await pathService.jhSrModelDir.create(recursive: true);
+    final String modelDownloadPath =
+        join(pathService.jhSrModelDir.path, '${model.type}.zip');
+    final String extractPath = join(pathService.jhSrModelDir.path, model.type);
 
     try {
       await retry(
@@ -125,10 +133,12 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
           },
         ),
         maxAttempts: 5,
-        onRetry: (error) => log.warning('Download super-resolution model failed, retry.'),
+        onRetry: (error) =>
+            log.warning('Download super-resolution model failed, retry.'),
       );
     } on DioException catch (e) {
-      log.error('Download super-resolution model failed after 5 times', e.errorMsg);
+      log.error(
+          'Download super-resolution model failed after 5 times', e.errorMsg);
       downloadState = LoadingState.error;
       updateSafely([downloadId]);
       return;
@@ -165,13 +175,16 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
     /// so the ncnn-vulkan binary comes out non-executable and the shell would
     /// refuse to run it (exit code 126). Make it executable right away.
     if (!GetPlatform.isWindows) {
-      final String executableName = GetPlatform.isMacOS ? model.macOSExecutableName : model.linuxExecutableName;
+      final String executableName = GetPlatform.isMacOS
+          ? model.macOSExecutableName
+          : model.linuxExecutableName;
       final String executablePath = join(dirPath, executableName);
       try {
         if (File(executablePath).existsSync()) {
           await Process.run('chmod', ['+x', executablePath]);
         } else {
-          log.warning('Super-resolution executable not found after extraction: $executablePath');
+          log.warning(
+              'Super-resolution executable not found after extraction: $executablePath');
         }
       } on Exception catch (e) {
         log.error('Failed to make super-resolution executable runnable', e);
@@ -186,13 +199,16 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
 
   Future<bool> superResolve(int gid, SuperResolutionType type) async {
     if (type == SuperResolutionType.gallery) {
-      GalleryDownloadInfo? galleryDownloadInfo = galleryDownloadService.galleryDownloadInfos[gid];
-      if (galleryDownloadInfo?.downloadProgress.downloadStatus != DownloadStatus.downloaded) {
+      GalleryDownloadInfo? galleryDownloadInfo =
+          galleryDownloadService.galleryDownloadInfos[gid];
+      if (galleryDownloadInfo?.downloadProgress.downloadStatus !=
+          DownloadStatus.downloaded) {
         toast('requireDownloadComplete'.tr);
         return false;
       }
     } else {
-      ArchiveDownloadInfo? archiveDownloadInfo = archiveDownloadService.archiveDownloadInfos[gid];
+      ArchiveDownloadInfo? archiveDownloadInfo =
+          archiveDownloadService.archiveDownloadInfos[gid];
       if (archiveDownloadInfo?.archiveStatus != ArchiveStatus.completed) {
         toast('requireDownloadComplete'.tr);
         return false;
@@ -210,13 +226,15 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
     if (superResolutionInfo == null) {
       List<GalleryImage> rawImages;
       if (type == SuperResolutionType.gallery) {
-        rawImages = galleryDownloadService.galleryDownloadInfos[gid]!.images.cast();
+        rawImages =
+            galleryDownloadService.galleryDownloadInfos[gid]!.images.cast();
       } else {
         rawImages = await archiveDownloadService.getUnpackedImages(gid);
       }
 
       if (rawImages.isEmpty) {
-        log.error('super resolve failed: no images to process, gid: $gid, type: $type');
+        log.error(
+            'super resolve failed: no images to process, gid: $gid, type: $type');
         toast('failed'.tr);
         return false;
       }
@@ -229,7 +247,8 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
       superResolutionInfoTable.put(gid, type, superResolutionInfo);
       await _insertSuperResolutionInfo(gid, superResolutionInfo);
 
-      Directory(dirname(computeImageOutputAbsolutePath(rawImages[0].path!))).createSync(recursive: true);
+      Directory(dirname(computeImageOutputAbsolutePath(rawImages[0].path!)))
+          .createSync(recursive: true);
 
       updateSafely(['$superResolutionId::$gid']);
     }
@@ -266,7 +285,8 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
     /// matches the overall state (previously the loop only reassigned the
     /// iteration copy and never modified the list)
     for (int i = 0; i < superResolutionInfo.imageStatuses.length; i++) {
-      if (superResolutionInfo.imageStatuses[i] == SuperResolutionStatus.running) {
+      if (superResolutionInfo.imageStatuses[i] ==
+          SuperResolutionStatus.running) {
         superResolutionInfo.imageStatuses[i] = SuperResolutionStatus.paused;
       }
     }
@@ -288,17 +308,23 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
 
     String dirPath;
     if (type == SuperResolutionType.gallery) {
-      GalleryDownloadedData? gallery = galleryDownloadService.gallerys.firstWhereOrNull((g) => g.gid == gid);
+      GalleryDownloadedData? gallery =
+          galleryDownloadService.gallerys.firstWhereOrNull((g) => g.gid == gid);
       if (gallery == null) {
         return;
       }
-      dirPath = join(galleryDownloadService.computeGalleryDownloadAbsolutePath(gallery), imageDirName);
+      dirPath = join(
+          galleryDownloadService.computeGalleryDownloadAbsolutePath(gallery),
+          imageDirName);
     } else {
-      ArchiveDownloadedData? archive = archiveDownloadService.archives.firstWhereOrNull((a) => a.gid == gid);
+      ArchiveDownloadedData? archive =
+          archiveDownloadService.archives.firstWhereOrNull((a) => a.gid == gid);
       if (archive == null) {
         return;
       }
-      dirPath = join(archiveDownloadService.computeArchiveUnpackingPath(archive), imageDirName);
+      dirPath = join(
+          archiveDownloadService.computeArchiveUnpackingPath(archive),
+          imageDirName);
     }
 
     Directory directory = Directory(dirPath);
@@ -312,7 +338,8 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
   Future<void> _doSuperResolve(int gid, SuperResolutionType type) async {
     List<GalleryImage> rawImages;
     if (type == SuperResolutionType.gallery) {
-      rawImages = galleryDownloadService.galleryDownloadInfos[gid]!.images.cast();
+      rawImages =
+          galleryDownloadService.galleryDownloadInfos[gid]!.images.cast();
     } else {
       rawImages = await archiveDownloadService.getUnpackedImages(gid);
     }
@@ -333,7 +360,8 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
     }
 
     if (!await _ensureExecutableRunnable()) {
-      toast('${'internalError'.tr}: super resolution executable unavailable', isShort: false);
+      toast('${'internalError'.tr}: super resolution executable unavailable',
+          isShort: false);
       pauseSuperResolve(gid, type);
       return;
     }
@@ -348,7 +376,8 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
         return;
       }
 
-      if (superResolutionInfo.imageStatuses[i] == SuperResolutionStatus.success) {
+      if (superResolutionInfo.imageStatuses[i] ==
+          SuperResolutionStatus.success) {
         continue;
       }
 
@@ -373,10 +402,13 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
       if (get(gid, type) != null) {
         await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
       }
-      updateSafely(['$superResolutionId::$gid', '$superResolutionImageId::$gid::$i']);
+      updateSafely(
+          ['$superResolutionId::$gid', '$superResolutionImageId::$gid::$i']);
     }
 
-    if (get(gid, type) != null && superResolutionInfo.imageStatuses.every((status) => status == SuperResolutionStatus.success)) {
+    if (get(gid, type) != null &&
+        superResolutionInfo.imageStatuses
+            .every((status) => status == SuperResolutionStatus.success)) {
       superResolutionInfo.status = SuperResolutionStatus.success;
       await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
       updateSafely(['$superResolutionId::$gid']);
@@ -384,10 +416,13 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
     }
   }
 
-  Future<bool> _handleImage(GalleryImage rawImage, SuperResolutionInfo superResolutionInfo) async {
+  Future<bool> _handleImage(
+      GalleryImage rawImage, SuperResolutionInfo superResolutionInfo) async {
     if (extension(rawImage.path!) == '.gif') {
-      String inputAbsolutePath = GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(rawImage.path!);
-      String outputAbsolutePath = computeImageOutputAbsolutePath(rawImage.path!);
+      String inputAbsolutePath = GalleryDownloadService
+          .computeImageDownloadAbsolutePathFromRelativePath(rawImage.path!);
+      String outputAbsolutePath =
+          computeImageOutputAbsolutePath(rawImage.path!);
       try {
         File(inputAbsolutePath).copySync(outputAbsolutePath);
       } catch (e, s) {
@@ -458,7 +493,9 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
 
     final String executablePath = join(
       modelDir,
-      GetPlatform.isMacOS ? modelType.macOSExecutableName : modelType.linuxExecutableName,
+      GetPlatform.isMacOS
+          ? modelType.macOSExecutableName
+          : modelType.linuxExecutableName,
     );
 
     try {
@@ -470,7 +507,8 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
 
       // owner-execute bit (S_IXUSR)
       if ((executable.statSync().mode & 0x40) == 0) {
-        log.info('Super-resolution executable missing +x, fixing: $executablePath');
+        log.info(
+            'Super-resolution executable missing +x, fixing: $executablePath');
         await Process.run('chmod', ['+x', executablePath]);
       }
       return true;
@@ -529,7 +567,8 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
         '-g',
         superResolutionSetting.gpuId.value.toString(),
         '-m',
-        join(superResolutionSetting.modelDirectoryPath.value!, modelType.modelRelativePath),
+        join(superResolutionSetting.modelDirectoryPath.value!,
+            modelType.modelRelativePath),
       ],
       workingDirectory: pathService.getVisibleDir().path,
       runInShell: true,
@@ -537,21 +576,27 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
   }
 
   void _checkInfoSourceExists() {
-    List<TableEntry<int, SuperResolutionType, SuperResolutionInfo>> targetEntries = [];
+    List<TableEntry<int, SuperResolutionType, SuperResolutionInfo>>
+        targetEntries = [];
 
-    for (TableEntry<int, SuperResolutionType, SuperResolutionInfo> entry in superResolutionInfoTable.entries()) {
-      if (entry.key2 == SuperResolutionType.gallery && galleryDownloadService.galleryDownloadInfos.containsKey(entry.key1)) {
+    for (TableEntry<int, SuperResolutionType, SuperResolutionInfo> entry
+        in superResolutionInfoTable.entries()) {
+      if (entry.key2 == SuperResolutionType.gallery &&
+          galleryDownloadService.galleryDownloadInfos.containsKey(entry.key1)) {
         continue;
       }
-      if (entry.key2 == SuperResolutionType.archive && archiveDownloadService.archiveDownloadInfos.containsKey(entry.key1)) {
+      if (entry.key2 == SuperResolutionType.archive &&
+          archiveDownloadService.archiveDownloadInfos.containsKey(entry.key1)) {
         continue;
       }
 
-      log.error('Try to init super-resolution info but image source not exists: $entry');
+      log.error(
+          'Try to init super-resolution info but image source not exists: $entry');
       targetEntries.add(entry);
     }
 
-    for (TableEntry<int, SuperResolutionType, SuperResolutionInfo> entry in targetEntries) {
+    for (TableEntry<int, SuperResolutionType, SuperResolutionInfo> entry
+        in targetEntries) {
       deleteSuperResolve(entry.key1, entry.key2);
     }
   }
@@ -561,25 +606,31 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
     return SuperResolutionInfoDao.selectAllSuperResolutionInfo();
   }
 
-  Future<bool> _insertSuperResolutionInfo(int gid, SuperResolutionInfo superResolutionInfo) async {
+  Future<bool> _insertSuperResolutionInfo(
+      int gid, SuperResolutionInfo superResolutionInfo) async {
     return await SuperResolutionInfoDao.insertSuperResolutionInfo(
           SuperResolutionInfoData(
             gid: gid,
             type: superResolutionInfo.type.index,
             status: superResolutionInfo.status.index,
-            imageStatuses: superResolutionInfo.imageStatuses.map((status) => status.index).join(SuperResolutionInfo.imageStatusesSeparator),
+            imageStatuses: superResolutionInfo.imageStatuses
+                .map((status) => status.index)
+                .join(SuperResolutionInfo.imageStatusesSeparator),
           ),
         ) >
         0;
   }
 
-  Future<bool> _updateSuperResolutionInfoStatus(int gid, SuperResolutionInfo superResolutionInfo) async {
+  Future<bool> _updateSuperResolutionInfoStatus(
+      int gid, SuperResolutionInfo superResolutionInfo) async {
     return await SuperResolutionInfoDao.updateSuperResolutionInfo(
           SuperResolutionInfoCompanion(
             gid: Value(gid),
             type: Value(superResolutionInfo.type.index),
             status: Value(superResolutionInfo.status.index),
-            imageStatuses: Value(superResolutionInfo.imageStatuses.map((status) => status.index).join(SuperResolutionInfo.imageStatusesSeparator)),
+            imageStatuses: Value(superResolutionInfo.imageStatuses
+                .map((status) => status.index)
+                .join(SuperResolutionInfo.imageStatusesSeparator)),
           ),
         ) >
         0;
@@ -588,30 +639,45 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
   // disk
 
   /// when we update a gallery, if this gallery is in super-resolution process, we need to copy current product
-  Future<void> copyImageInfo(GalleryDownloadedData oldGallery, GalleryDownloadedData newGallery, int oldImageSerialNo, int newImageSerialNo) async {
-    SuperResolutionInfo? oldGallerySuperResolutionInfo = get(oldGallery.gid, SuperResolutionType.gallery);
+  Future<void> copyImageInfo(
+      GalleryDownloadedData oldGallery,
+      GalleryDownloadedData newGallery,
+      int oldImageSerialNo,
+      int newImageSerialNo) async {
+    SuperResolutionInfo? oldGallerySuperResolutionInfo =
+        get(oldGallery.gid, SuperResolutionType.gallery);
     if (oldGallerySuperResolutionInfo == null) {
       return;
     }
 
-    if (oldGallerySuperResolutionInfo.imageStatuses[oldImageSerialNo] != SuperResolutionStatus.success) {
+    if (oldGallerySuperResolutionInfo.imageStatuses[oldImageSerialNo] !=
+        SuperResolutionStatus.success) {
       return;
     }
 
-    log.debug('copy old super resolution image to new gallery, old: ${oldGallery.gid} $oldImageSerialNo, new: ${newGallery.gid} $newImageSerialNo');
+    log.debug(
+        'copy old super resolution image to new gallery, old: ${oldGallery.gid} $oldImageSerialNo, new: ${newGallery.gid} $newImageSerialNo');
 
-    SuperResolutionInfo? newGallerySuperResolutionInfo = get(newGallery.gid, SuperResolutionType.gallery);
-    String oldPath = computeImageOutputAbsolutePath(galleryDownloadService.galleryDownloadInfos[oldGallery.gid]!.images[oldImageSerialNo]!.path!);
-    String newPath = computeImageOutputAbsolutePath(galleryDownloadService.galleryDownloadInfos[newGallery.gid]!.images[newImageSerialNo]!.path!);
+    SuperResolutionInfo? newGallerySuperResolutionInfo =
+        get(newGallery.gid, SuperResolutionType.gallery);
+    String oldPath = computeImageOutputAbsolutePath(galleryDownloadService
+        .galleryDownloadInfos[oldGallery.gid]!.images[oldImageSerialNo]!.path!);
+    String newPath = computeImageOutputAbsolutePath(galleryDownloadService
+        .galleryDownloadInfos[newGallery.gid]!.images[newImageSerialNo]!.path!);
 
     if (newGallerySuperResolutionInfo == null) {
       newGallerySuperResolutionInfo = SuperResolutionInfo(
         SuperResolutionType.gallery,
         SuperResolutionStatus.paused,
-        List.generate(galleryDownloadService.galleryDownloadInfos[newGallery.gid]!.images.length, (_) => SuperResolutionStatus.running),
+        List.generate(
+            galleryDownloadService
+                .galleryDownloadInfos[newGallery.gid]!.images.length,
+            (_) => SuperResolutionStatus.running),
       );
-      superResolutionInfoTable.put(newGallery.gid, SuperResolutionType.gallery, newGallerySuperResolutionInfo);
-      await _insertSuperResolutionInfo(newGallery.gid, newGallerySuperResolutionInfo);
+      superResolutionInfoTable.put(newGallery.gid, SuperResolutionType.gallery,
+          newGallerySuperResolutionInfo);
+      await _insertSuperResolutionInfo(
+          newGallery.gid, newGallerySuperResolutionInfo);
       File(newPath).parent.createSync(recursive: true);
       updateSafely(['$superResolutionId::${newGallery.gid}']);
     }
@@ -624,17 +690,26 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
       log.uploadError(e);
     }
 
-    newGallerySuperResolutionInfo.imageStatuses[newImageSerialNo] = SuperResolutionStatus.success;
-    await _updateSuperResolutionInfoStatus(newGallery.gid, newGallerySuperResolutionInfo);
-    updateSafely(['$superResolutionId::${newGallery.gid}', '$superResolutionImageId::${newGallery.gid}::$newImageSerialNo']);
+    newGallerySuperResolutionInfo.imageStatuses[newImageSerialNo] =
+        SuperResolutionStatus.success;
+    await _updateSuperResolutionInfoStatus(
+        newGallery.gid, newGallerySuperResolutionInfo);
+    updateSafely([
+      '$superResolutionId::${newGallery.gid}',
+      '$superResolutionImageId::${newGallery.gid}::$newImageSerialNo'
+    ]);
   }
 
   String computeImageOutputAbsolutePath(String rawImagePath) {
-    return join(pathService.getVisibleDir().path, computeImageOutputRelativePath(rawImagePath));
+    return join(pathService.getVisibleDir().path,
+        computeImageOutputRelativePath(rawImagePath));
   }
 
   String computeImageOutputRelativePath(String rawImagePath) {
-    return join(computeImageOutputDirPath(rawImagePath), basenameWithoutExtension(rawImagePath) + (extension(rawImagePath) == '.gif' ? '.gif' : '.png'));
+    return join(
+        computeImageOutputDirPath(rawImagePath),
+        basenameWithoutExtension(rawImagePath) +
+            (extension(rawImagePath) == '.gif' ? '.gif' : '.png'));
   }
 
   String computeImageOutputDirPath(String rawImagePath) {

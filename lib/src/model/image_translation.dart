@@ -1,5 +1,14 @@
 enum ImageTranslationStatus { idle, recognizing, translating, success, failed }
 
+enum ImageTranslationStage {
+  idle,
+  recognizing,
+  translating,
+  masking,
+  embedding,
+  done
+}
+
 class RecognizedTextBlock {
   final String text;
   final double confidence;
@@ -45,6 +54,7 @@ class ImageTranslationResult {
   final bool needsConfiguration;
   final int? imageWidth;
   final int? imageHeight;
+  final bool fromCache;
 
   const ImageTranslationResult({
     required this.status,
@@ -55,6 +65,7 @@ class ImageTranslationResult {
     this.needsConfiguration = false,
     this.imageWidth,
     this.imageHeight,
+    this.fromCache = false,
   });
 
   const ImageTranslationResult.idle()
@@ -69,6 +80,7 @@ class ImageTranslationResult {
     bool? needsConfiguration,
     int? imageWidth,
     int? imageHeight,
+    bool? fromCache,
   }) {
     return ImageTranslationResult(
       status: status ?? this.status,
@@ -79,6 +91,7 @@ class ImageTranslationResult {
       needsConfiguration: needsConfiguration ?? this.needsConfiguration,
       imageWidth: imageWidth ?? this.imageWidth,
       imageHeight: imageHeight ?? this.imageHeight,
+      fromCache: fromCache ?? this.fromCache,
     );
   }
 

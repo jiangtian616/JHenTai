@@ -230,6 +230,28 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     return _cacheManager.removeAllCache();
   }
 
+  /// Whether the gallery thumbnails page is available in the page cache.
+  Future<bool> hasCachedDetailPage(
+      String galleryUrl, int thumbnailsPageIndex) {
+    return _cacheManager.hasCache(
+      url: galleryUrl,
+      queryParameters: {
+        'p': thumbnailsPageIndex,
+        'hc': preferenceSetting.showAllComments.isTrue ? 1 : 0,
+      },
+      options: CacheOptions.cacheOptions,
+    );
+  }
+
+  /// Whether the image page is available in the page cache.
+  Future<bool> hasCachedImagePage(String href, {String? reloadKey}) {
+    return _cacheManager.hasCache(
+      url: href,
+      queryParameters: {if (reloadKey != null) 'nl': reloadKey},
+      options: CacheOptions.cacheOptionsIgnoreParams,
+    );
+  }
+
   ProxyConfig? currentProxyConfig() {
     switch (networkSetting.proxyType.value) {
       case JProxyType.system:

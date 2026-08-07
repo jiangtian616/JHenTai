@@ -9,6 +9,7 @@ import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
 import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
+import 'package:jhentai/src/widget/paddle_cli_output.dart';
 
 class _OcrModel {
   const _OcrModel(this.code, this.label);
@@ -67,11 +68,8 @@ class _SettingImageTranslationPageState
   late Set<String> _selectedLanguages;
   List<String> _availableModels = [];
   Set<String> _installedLanguages = {};
-  final Map<String, double?> _downloadProgress = {};
   bool _fetchingModels = false;
   bool _detectingOcr = false;
-  bool _preparingPaddle = false;
-  String? _paddleStage;
 
   @override
   void initState() {
@@ -130,6 +128,7 @@ class _SettingImageTranslationPageState
               _buildFetchModels(),
               _buildModel(),
               _buildTargetLanguage(),
+              _buildEnableThinking(),
             ],
           ),
           EHAppleSettingsGroup(
@@ -274,6 +273,18 @@ class _SettingImageTranslationPageState
     );
   }
 
+  Widget _buildEnableThinking() {
+    return Obx(
+      () => EHAppleSwitchListTile(
+        title: Text('imageTranslationEnableThinking'.tr),
+        subtitle: Text('imageTranslationEnableThinkingHint'.tr,
+            style: const TextStyle(fontSize: 12)),
+        value: imageTranslationSetting.enableThinking.value,
+        onChanged: imageTranslationSetting.saveEnableThinking,
+      ),
+    );
+  }
+
   Widget _buildOcrEngine() {
     return ListTile(
       title: Text('imageTranslationOcrEngine'.tr),
@@ -322,18 +333,41 @@ class _SettingImageTranslationPageState
   }
 
   Widget _buildPaddleRuntime() {
-    return ListTile(
-      title: Text(_paddleStage ?? 'imageTranslationPreparePaddle'.tr),
-      subtitle: Text(
-          '${'imageTranslationPaddleRuntimePath'.tr}: ${imageTranslationService.paddleRuntimePath()}',
-          style: const TextStyle(fontSize: 12)),
-      trailing: _preparingPaddle
-          ? const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2))
-          : const Icon(Icons.download_for_offline_outlined),
-      onTap: _preparingPaddle ? null : _preparePaddle,
+    return GetBuilder<ImageTranslationService>(
+      id: ImageTranslationService.paddlePrepareId,
+      builder: (_) {
+        final bool installed = imageTranslationService.isPaddleRuntimeInstalled;
+        return Column(
+          children: [
+            if (installed)
+              ListTile(
+                title: Text('imageTranslationDeletePaddleRuntime'.tr),
+                subtitle: Text('imageTranslationDeletePaddleHint'.tr,
+                    style: const TextStyle(fontSize: 12)),
+                trailing: const Icon(Icons.delete_outline),
+                onTap: _confirmDeletePaddle,
+              )
+            else
+              ListTile(
+                title: Text(imageTranslationService.paddleStage ??
+                    'imageTranslationPreparePaddle'.tr),
+                subtitle: Text(
+                    '${'imageTranslationPaddleRuntimePath'.tr}: ${imageTranslationService.paddleRuntimePath()}',
+                    style: const TextStyle(fontSize: 12)),
+                trailing: imageTranslationService.preparingPaddle
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Icon(Icons.download_for_offline_outlined),
+                onTap: imageTranslationService.preparingPaddle
+                    ? null
+                    : _preparePaddle,
+              ),
+            PaddleCliOutput(lines: imageTranslationService.paddleOutput),
+          ],
+        );
+      },
     );
   }
 
@@ -410,36 +444,44 @@ class _SettingImageTranslationPageState
   }
 
   Widget _ocrModelTile(_OcrModel model) {
-    final bool downloading = _downloadProgress.containsKey(model.code);
-    final bool installed = _installedLanguages.contains(model.code);
-    return ListTile(
-      title: Text(model.label),
-      subtitle: downloading
-          ? Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child:
-                  LinearProgressIndicator(value: _downloadProgress[model.code]))
-          : Text(installed
-              ? 'imageTranslationOcrInstalled'.tr
-              : 'imageTranslationOcrNotInstalled'.tr),
-      leading: Checkbox(
-        value: _selectedLanguages.contains(model.code),
-        onChanged: (value) => setState(() {
-          value == true
-              ? _selectedLanguages.add(model.code)
-              : _selectedLanguages.remove(model.code);
-        }),
-      ),
-      trailing: downloading
-          ? const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2))
-          : IconButton(
-              tooltip: 'download'.tr,
-              onPressed: () => _downloadModel(model),
-              icon: Icon(
-                  installed ? Icons.download_done : Icons.download_outlined)),
+    return GetBuilder<ImageTranslationService>(
+      id: imageTranslationService.ocrModelDownloadId(model.code),
+      builder: (_) {
+        final bool downloading =
+            imageTranslationService.isDownloadingOcrModel(model.code);
+        final bool installed = _installedLanguages.contains(model.code);
+        return ListTile(
+          title: Text(model.label),
+          subtitle: downloading
+              ? Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: LinearProgressIndicator(
+                      value: imageTranslationService
+                          .ocrModelDownloadProgress(model.code)))
+              : Text(installed
+                  ? 'imageTranslationOcrInstalled'.tr
+                  : 'imageTranslationOcrNotInstalled'.tr),
+          leading: Checkbox(
+            value: _selectedLanguages.contains(model.code),
+            onChanged: (value) => setState(() {
+              value == true
+                  ? _selectedLanguages.add(model.code)
+                  : _selectedLanguages.remove(model.code);
+            }),
+          ),
+          trailing: downloading
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2))
+              : IconButton(
+                  tooltip: 'download'.tr,
+                  onPressed: () => _downloadModel(model),
+                  icon: Icon(installed
+                      ? Icons.download_done
+                      : Icons.download_outlined)),
+        );
+      },
     );
   }
 
@@ -503,25 +545,37 @@ class _SettingImageTranslationPageState
   }
 
   Future<void> _preparePaddle() async {
-    setState(() => _preparingPaddle = true);
     try {
       await imageTranslationService.preparePaddleRuntime(
         downloadVl16: _ocrEngine == ImageOcrEngine.paddleOcrVl16,
-        onStage: (stage) {
-          if (mounted) setState(() => _paddleStage = stage);
-        },
       );
       if (mounted) toast('imageTranslationPaddleReady'.tr);
     } on ImageTranslationException catch (error) {
-      if (mounted)
+      if (mounted) {
         toast('imageTranslationPaddlePrepareFailed'
             .trParams({'error': error.code}));
-    } finally {
-      if (mounted)
-        setState(() {
-          _preparingPaddle = false;
-          _paddleStage = null;
-        });
+      }
+    }
+  }
+
+  Future<void> _confirmDeletePaddle() async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('imageTranslationDeletePaddleRuntime'.tr),
+        content: Text('imageTranslationDeletePaddleConfirm'.tr),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text('cancel'.tr)),
+          TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text('OK'.tr)),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await imageTranslationService.deletePaddleRuntime();
     }
   }
 
@@ -536,17 +590,11 @@ class _SettingImageTranslationPageState
       toast('imageTranslationOcrDirectoryRequired'.tr);
       return;
     }
-    setState(() => _downloadProgress[model.code] = null);
     try {
       await imageTranslationService.downloadOcrModel(
         languageCode: model.code,
         source: _ocrSource,
         dataDirectory: directory,
-        onProgress: (received, total) {
-          if (mounted && total > 0) {
-            setState(() => _downloadProgress[model.code] = received / total);
-          }
-        },
       );
       if (!mounted) return;
       setState(() {
@@ -556,8 +604,6 @@ class _SettingImageTranslationPageState
       toast('imageTranslationOcrDownloadSuccess'.tr);
     } catch (_) {
       if (mounted) toast('imageTranslationOcrDownloadFailed'.tr);
-    } finally {
-      if (mounted) setState(() => _downloadProgress.remove(model.code));
     }
   }
 
@@ -579,6 +625,9 @@ class _SettingImageTranslationPageState
       translatorApiKey: _apiKeyController.text,
       translatorModel: imageTranslationSetting.translatorModel.value,
       targetLanguage: _targetLanguage,
+      enableThinking: imageTranslationSetting.enableThinking.value,
+      translateSubsequentPages:
+          imageTranslationSetting.translateSubsequentPages.value,
     );
     if (mounted) toast('success'.tr);
   }

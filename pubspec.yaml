@@ -142,6 +142,8 @@ dependency_overrides:
   chewie: 1.7.0
   http: 1.1.0
   cached_network_image: 3.3.0
+  extended_image_library:
+    path: third_party/extended_image_library
   dio:
     git:
       url: https://github.com/jiangtian616/dio

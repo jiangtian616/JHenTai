@@ -37,4 +37,38 @@ class DioCacheDao {
         .getSingle()
         .then((row) => row.read<int>('total'));
   }
+
+  /// Lightweight page-cache listing for eviction: keys, URLs, expiry and
+  /// sizes without loading the stored bodies.
+  static Future<List<DioCachePageInfo>> selectAllWithSize() {
+    return appDb
+        .customSelect(
+          'SELECT cacheKey, url, expireDate, '
+          'LENGTH(content) + LENGTH(headers) AS sizeBytes FROM dio_cache',
+        )
+        .get()
+        .then((rows) => rows
+            .map((row) => DioCachePageInfo(
+                  cacheKey: row.read<String>('cacheKey'),
+                  url: row.read<String>('url'),
+                  expireDate: DateTime.fromMillisecondsSinceEpoch(
+                      row.read<int>('expireDate') * 1000),
+                  sizeBytes: row.read<int>('sizeBytes'),
+                ))
+            .toList());
+  }
+}
+
+class DioCachePageInfo {
+  final String cacheKey;
+  final String url;
+  final DateTime expireDate;
+  final int sizeBytes;
+
+  const DioCachePageInfo({
+    required this.cacheKey,
+    required this.url,
+    required this.expireDate,
+    required this.sizeBytes,
+  });
 }

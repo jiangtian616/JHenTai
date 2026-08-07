@@ -1,0 +1,22 @@
+name: extended_image_library
+description: JHenTai local patch of extended_image_library with a configurable disk cache directory.
+version: 3.6.0+1
+homepage: https://github.com/fluttercandies/extended_image_library
+
+environment:
+  sdk: '>=2.19.0 <4.0.0'
+  flutter: '>=3.13.0'
+
+dependencies:
+  crypto: ^3.0.0
+  flutter:
+    sdk: flutter
+
+  http_client_helper: ^3.0.0
+  js: ^0.6.7
+  path: ^1.7.0  
+  path_provider: ^2.0.1
+
+
+
+
