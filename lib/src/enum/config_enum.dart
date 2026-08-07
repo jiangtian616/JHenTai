@@ -19,6 +19,7 @@ enum ConfigEnum {
   siteSetting('siteSetting'),
   styleSetting('styleSetting'),
   superResolutionSetting('SuperResolutionSetting'),
+  imageTranslationSetting('ImageTranslationSetting'),
   userSetting('userSetting'),
   archiveBotSetting('archiveBotSetting'),
   keyboardShortcutSetting('keyboardShortcutSetting'),
@@ -48,7 +49,8 @@ enum ConfigEnum {
   tagTranslationServiceLoadingState('TagTranslationServiceLoadingState'),
   tagTranslationServiceTimestamp('TagTranslationServiceTimestamp'),
   tagSearchOrderOptimizationServiceVersion('TagTranslationServiceVersion'),
-  tagSearchOrderOptimizationServiceLoadingState('TagSearchOrderOptimizationServiceLoadingState'),
+  tagSearchOrderOptimizationServiceLoadingState(
+      'TagSearchOrderOptimizationServiceLoadingState'),
   displayBlockingRulesGroup('displayBlockingRulesGroup'),
 
   /// cache

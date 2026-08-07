@@ -33,6 +33,7 @@ import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/service/tag_search_order_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
+import 'package:jhentai/src/service/image_translation_service.dart';
 import 'package:jhentai/src/service/volume_service.dart';
 import 'package:jhentai/src/service/windows_service.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
@@ -51,6 +52,7 @@ import 'package:jhentai/src/setting/security_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/setting/super_resolution_setting.dart';
+import 'package:jhentai/src/setting/image_translation_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/widget/app_manager.dart';
 
@@ -79,6 +81,7 @@ List<JHLifeCircleBean> lifeCircleBeans = [
   searchHistoryService,
   storageService,
   superResolutionService,
+  imageTranslationService,
   tagTranslationService,
   tagSearchOrderOptimizationService,
   volumeService,
@@ -98,6 +101,7 @@ List<JHLifeCircleBean> lifeCircleBeans = [
   siteSetting,
   styleSetting,
   superResolutionSetting,
+  imageTranslationSetting,
   userSetting,
   keyboardShortcutSetting,
   builtInBlockedUserService,
@@ -136,8 +140,10 @@ class MyApp extends StatelessWidget {
     Widget app = GetMaterialApp(
       title: 'JHenTai',
       themeMode: styleSetting.themeMode.value,
-      theme: ThemeConfig.theme(styleSetting.lightThemeColor.value, Brightness.light),
-      darkTheme: ThemeConfig.theme(styleSetting.darkThemeColor.value, Brightness.dark),
+      theme: ThemeConfig.theme(
+          styleSetting.lightThemeColor.value, Brightness.light),
+      darkTheme:
+          ThemeConfig.theme(styleSetting.darkThemeColor.value, Brightness.dark),
 
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
@@ -156,7 +162,10 @@ class MyApp extends StatelessWidget {
       translations: LocaleText(),
 
       getPages: Routes.pages,
-      initialRoute: securitySetting.enablePasswordAuth.isTrue || securitySetting.enableBiometricAuth.isTrue ? Routes.lock : Routes.home,
+      initialRoute: securitySetting.enablePasswordAuth.isTrue ||
+              securitySetting.enableBiometricAuth.isTrue
+          ? Routes.lock
+          : Routes.home,
       navigatorObservers: [GetXRouterObserver()],
       builder: (context, child) => AppManager(child: child!),
 

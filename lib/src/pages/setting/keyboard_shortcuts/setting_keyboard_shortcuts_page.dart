@@ -2,19 +2,21 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/read_action.dart';
 import 'package:jhentai/src/setting/keyboard_shortcut_setting.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
 
 class SettingKeyboardShortcutsPage extends StatefulWidget {
   const SettingKeyboardShortcutsPage({Key? key}) : super(key: key);
 
   @override
-  State<SettingKeyboardShortcutsPage> createState() => _SettingKeyboardShortcutsPageState();
+  State<SettingKeyboardShortcutsPage> createState() =>
+      _SettingKeyboardShortcutsPageState();
 }
 
-class _SettingKeyboardShortcutsPageState extends State<SettingKeyboardShortcutsPage> {
+class _SettingKeyboardShortcutsPageState
+    extends State<SettingKeyboardShortcutsPage> {
   ReadAction? _capturingAction;
   int _capturingSlot = 0;
   final FocusNode _captureFocusNode = FocusNode();
@@ -22,10 +24,12 @@ class _SettingKeyboardShortcutsPageState extends State<SettingKeyboardShortcutsP
   static const double _keyChipWidth = 120.0;
   static const double _actionButtonWidth = 28.0;
   static const double _slotGap = 4.0;
-  static const double _slotWidth = _keyChipWidth + _slotGap + _actionButtonWidth;
+  static const double _slotWidth =
+      _keyChipWidth + _slotGap + _actionButtonWidth;
 
   bool _isSlotFixed(ReadAction action, int slot) {
-    return slot == 0 && (action == ReadAction.back || action == ReadAction.toggleFullScreen);
+    return slot == 0 &&
+        (action == ReadAction.back || action == ReadAction.toggleFullScreen);
   }
 
   String _fixedSlotLabel(ReadAction action) {
@@ -59,7 +63,8 @@ class _SettingKeyboardShortcutsPageState extends State<SettingKeyboardShortcutsP
             actions: [
               TextButton(
                 onPressed: _resetAll,
-                child: Text('resetAll'.tr, style: const TextStyle(fontSize: 14)),
+                child:
+                    Text('resetAll'.tr, style: const TextStyle(fontSize: 14)),
               ),
             ],
           ),
@@ -67,10 +72,14 @@ class _SettingKeyboardShortcutsPageState extends State<SettingKeyboardShortcutsP
             () => Focus(
               focusNode: _captureFocusNode,
               onKeyEvent: _onCaptureKeyEvent,
-              child: ListView(
+              child: EHAppleSettingsListView(
                 padding: const EdgeInsets.symmetric(vertical: 8),
-                children: ReadAction.values.map(_buildActionTile).toList(),
-              ).withListTileTheme(context),
+                groups: [
+                  EHAppleSettingsGroup(
+                    children: ReadAction.values.map(_buildActionTile).toList(),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -85,7 +94,8 @@ class _SettingKeyboardShortcutsPageState extends State<SettingKeyboardShortcutsP
   Widget _buildActionTile(ReadAction action) {
     final bool isCapturing = _capturingAction == action;
     final int capturingSlot = _capturingSlot;
-    final List<ReadActionBinding?> bindings = keyboardShortcutSetting.bindingsFor(action);
+    final List<ReadActionBinding?> bindings =
+        keyboardShortcutSetting.bindingsFor(action);
 
     return ListTile(
       title: Text(_actionLabel(action)),
@@ -100,7 +110,8 @@ class _SettingKeyboardShortcutsPageState extends State<SettingKeyboardShortcutsP
         children: [
           SizedBox(
             width: _slotWidth,
-            child: _buildSlotChip(action, 0, bindings[0], isCapturing && capturingSlot == 0),
+            child: _buildSlotChip(
+                action, 0, bindings[0], isCapturing && capturingSlot == 0),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -112,7 +123,8 @@ class _SettingKeyboardShortcutsPageState extends State<SettingKeyboardShortcutsP
           ),
           SizedBox(
             width: _slotWidth,
-            child: _buildSlotChip(action, 1, bindings[1], isCapturing && capturingSlot == 1),
+            child: _buildSlotChip(
+                action, 1, bindings[1], isCapturing && capturingSlot == 1),
           ),
         ],
       ),
@@ -123,7 +135,8 @@ class _SettingKeyboardShortcutsPageState extends State<SettingKeyboardShortcutsP
   // Slot chip
   // ---------------------------------------------------------------------------
 
-  Widget _buildSlotChip(ReadAction action, int slot, ReadActionBinding? binding, bool isCapturing) {
+  Widget _buildSlotChip(ReadAction action, int slot, ReadActionBinding? binding,
+      bool isCapturing) {
     final bool isFixed = _isSlotFixed(action, slot);
 
     Widget keyContent;
@@ -131,7 +144,10 @@ class _SettingKeyboardShortcutsPageState extends State<SettingKeyboardShortcutsP
 
     if (isFixed) {
       keyContent = _buildKeyChip(_fixedSlotLabel(action), dimmed: true);
-      actionContent = Icon(Icons.lock_outline, size: 16, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4));
+      actionContent = Icon(Icons.lock_outline,
+          size: 16,
+          color:
+              Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4));
     } else if (isCapturing) {
       keyContent = _buildCapturingChip();
       actionContent = const SizedBox.shrink();
@@ -164,7 +180,10 @@ class _SettingKeyboardShortcutsPageState extends State<SettingKeyboardShortcutsP
       children: [
         SizedBox(width: _keyChipWidth, child: keyContent),
         const SizedBox(width: _slotGap),
-        SizedBox(width: _actionButtonWidth, height: 24, child: Center(child: actionContent)),
+        SizedBox(
+            width: _actionButtonWidth,
+            height: 24,
+            child: Center(child: actionContent)),
       ],
     );
   }
@@ -174,13 +193,15 @@ class _SettingKeyboardShortcutsPageState extends State<SettingKeyboardShortcutsP
       width: _keyChipWidth,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
+        border:
+            Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
         'pressAnyKey'.tr,
         textAlign: TextAlign.center,
-        style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 12),
+        style: TextStyle(
+            color: Theme.of(context).colorScheme.primary, fontSize: 12),
       ),
     );
   }
@@ -194,7 +215,12 @@ class _SettingKeyboardShortcutsPageState extends State<SettingKeyboardShortcutsP
       width: _keyChipWidth,
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       decoration: BoxDecoration(
-        color: dimmed ? Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5) : Theme.of(context).colorScheme.surfaceContainerHighest,
+        color: dimmed
+            ? Theme.of(context)
+                .colorScheme
+                .surfaceContainerHighest
+                .withValues(alpha: 0.5)
+            : Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
@@ -204,7 +230,9 @@ class _SettingKeyboardShortcutsPageState extends State<SettingKeyboardShortcutsP
         maxLines: 1,
         style: TextStyle(
           fontSize: 13,
-          color: dimmed ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.45) : null,
+          color: dimmed
+              ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.45)
+              : null,
         ),
       ),
     );
@@ -277,8 +305,10 @@ class _SettingKeyboardShortcutsPageState extends State<SettingKeyboardShortcutsP
     });
 
     final ReadActionBinding newBinding = ReadActionBinding.keyboard(key.keyId);
-    if (keyboardShortcutSetting.isBindingConflictingWithSlot(newBinding, action, slot)) {
-      final ReadAction? conflicting = keyboardShortcutSetting.getActionForBinding(newBinding, action);
+    if (keyboardShortcutSetting.isBindingConflictingWithSlot(
+        newBinding, action, slot)) {
+      final ReadAction? conflicting =
+          keyboardShortcutSetting.getActionForBinding(newBinding, action);
       toast(
         '${'keyConflict'.tr}: ${key.debugName} → ${conflicting != null ? _actionLabel(conflicting) : ''}',
         isShort: false,
@@ -301,8 +331,10 @@ class _SettingKeyboardShortcutsPageState extends State<SettingKeyboardShortcutsP
       _capturingAction = null;
     });
 
-    if (keyboardShortcutSetting.isBindingConflictingWithSlot(mouseBinding, action, slot)) {
-      final ReadAction? conflicting = keyboardShortcutSetting.getActionForBinding(mouseBinding, action);
+    if (keyboardShortcutSetting.isBindingConflictingWithSlot(
+        mouseBinding, action, slot)) {
+      final ReadAction? conflicting =
+          keyboardShortcutSetting.getActionForBinding(mouseBinding, action);
       toast(
         '${'keyConflict'.tr}: ${_bindingLabel(mouseBinding)} → ${conflicting != null ? _actionLabel(conflicting) : ''}',
         isShort: false,

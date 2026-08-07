@@ -353,7 +353,7 @@ class ru_RU {
       'themeColor': 'Цвет темы',
       'themeColorFixedOnApple': 'Фиксированный акцентный цвет на macOS / iOS',
       'appleVisualStyle': 'Визуальный стиль Apple',
-      'appleVisualStyleHint': 'Включить обновленный интерфейс на macOS и iOS',
+      'appleVisualStyleHint': 'Включить обновленный интерфейс в стиле Apple',
       'listStyle': 'Стиль списка галерей (Глобально)',
       'flat': 'Плоский',
       'flatWithoutTags': 'Плоский (Без тегов)',
@@ -454,9 +454,11 @@ class ru_RU {
       'pageCacheMaxAgeHint': 'Вы можете обновить кэш, обновив страницу',
       'cacheImageExpireDuration': 'Время жизни кэша изображений',
       'enableSmartCache': "Умный кэш",
-      'enableSmartCacheHint': "Кэширует просмотренные страницы и изображения, чтобы они открывались мгновенно",
+      'enableSmartCacheHint':
+          "Кэширует просмотренные страницы и изображения, чтобы они открывались мгновенно",
       'smartCacheRetention': "Срок хранения кэша",
-      'smartCacheRetentionHint': "Кэш старше этого срока очищается автоматически",
+      'smartCacheRetentionHint':
+          "Кэш старше этого срока очищается автоматически",
       'cacheSize': "Текущий размер кэша",
       'cacheImageExpireDurationHint':
           'Автоматически удалять кэш изображений после запуска приложения',
@@ -982,6 +984,72 @@ class ru_RU {
       'reclass': 'Переклассификация',
       'temp': 'Временный',
       'other': 'Другое',
+
+      /// image text translation
+      'imageTextTranslation': 'Перевод текста на изображении',
+      'translateImageText': 'Распознать и перевести страницу',
+      'recognizingImageText': 'Распознавание текста…',
+      'translatingImageText': 'Перевод текста…',
+      'showTranslation': 'Показать перевод',
+      'showOriginal': 'Показать оригинал',
+      'copy': 'Копировать',
+      'retry': 'Повторить',
+      'configure': 'Настроить',
+      'saveSetting': 'Сохранить',
+      'imageTranslationNoResult': 'Нет результата для отображения',
+      'imageTranslationConfigureHint':
+          'Оригинальный текст распознан. Сначала настройте переводчик в расширенных настройках.',
+      'imageTranslationUnsupportedPlatform':
+          'OCR для изображений пока недоступен на этой платформе.',
+      'imageTranslationOcrUnavailable':
+          'Не найден OCR. Установите или настройте Tesseract на ПК.',
+      'imageTranslationOcrFailed':
+          'Не удалось распознать текст. Проверьте языковые пакеты OCR и формат изображения.',
+      'imageTranslationNoText': 'На изображении не найден текст.',
+      'imageTranslationRequestFailed':
+          'Ошибка запроса перевода. Проверьте адрес, ключ и сеть.',
+      'imageTranslationInvalidResponse': 'Переводчик вернул неверный ответ.',
+      'imageTranslationFailed': 'Не удалось перевести текст на изображении.',
+      'imageTranslationSourceUnavailable': 'Текущее изображение недоступно.',
+      'imageTranslationSettingHint': 'Настроить OCR и переводчик',
+      'imageTranslationOcrSection': 'Распознавание текста',
+      'imageTranslationOcrHint':
+          'На ПК по умолчанию используется локальный Tesseract. Установите нужные языковые пакеты.',
+      'imageTranslationOcrExecutable': 'Исполняемый файл OCR',
+      'imageTranslationOcrLanguage': 'Языки OCR',
+      'imageTranslationTranslatorSection': 'Переводчик',
+      'imageTranslationTranslatorHint':
+          'Используется OpenAI-compatible Chat Completions. Ключ хранится только на этом устройстве.',
+      'imageTranslationEndpoint': 'Адрес',
+      'imageTranslationModel': 'Модель',
+      'imageTranslationTargetLanguage': 'Целевой язык',
+      'imageTranslationApiTestHint':
+          'Введите базовый URL API и ключ, затем проверьте и загрузите доступные модели.',
+      'imageTranslationProvider': 'Формат API',
+      'imageTranslationOpenAICompatible': 'Совместимый с OpenAI',
+      'imageTranslationApiBaseUrl': 'Базовый URL API',
+      'imageTranslationTestAndFetchModels': 'Проверить и получить модели',
+      'imageTranslationFetchModelsFirst':
+          'Сначала проверьте API и получите модели',
+      'imageTranslationApiTestSuccess': 'Подключение успешно; моделей: @count',
+      'imageTranslationApiTestFailed': 'Ошибка проверки API: @error',
+      'imageTranslationOcrDownloadHint':
+          'Загрузите языковые модели tessdata_fast в каталог данных Tesseract.',
+      'imageTranslationOcrDataDirectory': 'Каталог данных OCR',
+      'imageTranslationChooseDirectory': 'Выбрать каталог данных',
+      'imageTranslationDetectOcr': 'Найти локальный OCR',
+      'imageTranslationOcrModelSource': 'Источник OCR-моделей',
+      'imageTranslationGiteeMirror': 'Зеркало сообщества Gitee (Китай)',
+      'imageTranslationGithubOfficial': 'Официальный GitHub',
+      'imageTranslationOcrInstalled': 'Установлено',
+      'imageTranslationOcrNotInstalled': 'Не установлено',
+      'imageTranslationOcrDetectFailed':
+          'Не удалось найти OCR. Проверьте путь к программе.',
+      'imageTranslationOcrDirectoryRequired':
+          'Сначала выберите или найдите каталог данных OCR.',
+      'imageTranslationOcrDownloadSuccess': 'Модель OCR загружена.',
+      'imageTranslationOcrDownloadFailed':
+          'Не удалось загрузить OCR-модель. Попробуйте другой источник.',
     };
   }
 }

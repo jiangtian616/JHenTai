@@ -204,7 +204,9 @@ class UIConfig {
 
   /// macOS sidebar background (light / dark).
   static const Color desktopSideBarColorLight = Color(0xFFECECEC);
-  static const Color desktopSideBarColorDark = Color(0xFF2A2A2A);
+  static const Color desktopSideBarColorDark = Color(0xFF1E1E1E);
+  static const double desktopMacOSSideBarLightAlpha = 0.55;
+  static const double desktopMacOSSideBarDarkAlpha = 1.0;
 
   static Color desktopSideBarColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark

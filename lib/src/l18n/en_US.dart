@@ -345,8 +345,7 @@ class en_US {
       'themeColor': 'Theme Color',
       'themeColorFixedOnApple': 'Fixed accent on macOS / iOS',
       'appleVisualStyle': 'Apple visual style',
-      'appleVisualStyleHint':
-          'Enable the redesigned interface on macOS and iOS',
+      'appleVisualStyleHint': 'Enable the redesigned Apple-style interface',
       'listStyle': 'Gallery List Style (Global)',
       'flat': 'Flat',
       'flatWithoutTags': 'Flat(Without Tags)',
@@ -445,9 +444,11 @@ class en_US {
       'pageCacheMaxAgeHint': 'You can update cache by refresh page',
       'cacheImageExpireDuration': 'Image Cache Expiration Time',
       'enableSmartCache': "Smart Cache",
-      'enableSmartCacheHint': "Cache the pages and images you viewed so they open instantly next time",
+      'enableSmartCacheHint':
+          "Cache the pages and images you viewed so they open instantly next time",
       'smartCacheRetention': "Cache Retention",
-      'smartCacheRetentionHint': "Cache older than this is cleared automatically",
+      'smartCacheRetentionHint':
+          "Cache older than this is cleared automatically",
       'cacheSize': "Current Cache Size",
       'cacheImageExpireDurationHint':
           'Remove image cache automatically after launching app',
@@ -955,6 +956,87 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'reclass': 'Reclass',
       'temp': 'Temp',
       'other': 'Other',
+
+      /// image text translation
+      'imageTextTranslation': 'Image Text Translation',
+      'translateImageText': 'Recognize and Translate This Page',
+      'recognizingImageText': 'Recognizing image text…',
+      'translatingImageText': 'Translating image text…',
+      'showTranslation': 'Show Translation',
+      'showOriginal': 'Show Original',
+      'copy': 'Copy',
+      'retry': 'Retry',
+      'configure': 'Configure',
+      'saveSetting': 'Save',
+      'imageTranslationNoResult': 'No result to display',
+      'imageTranslationConfigureHint':
+          'Original text was recognized. Configure a translation provider in Advanced settings first.',
+      'imageTranslationUnsupportedPlatform':
+          'Image OCR is not available on this platform yet.',
+      'imageTranslationOcrUnavailable':
+          'OCR executable was not found. Install or configure Tesseract on desktop.',
+      'imageTranslationOcrFailed':
+          'Text recognition failed. Check the OCR language packs and image format.',
+      'imageTranslationNoText': 'No text was recognized in this image.',
+      'imageTranslationRequestFailed':
+          'Translation request failed. Check the endpoint, key, and network.',
+      'imageTranslationInvalidResponse':
+          'The translation provider returned an invalid result.',
+      'imageTranslationFailed': 'Image text translation failed.',
+      'imageTranslationSourceUnavailable': 'The current image is unavailable.',
+      'imageTranslationSettingHint': 'Configure OCR and translation provider',
+      'imageTranslationOcrSection': 'Text recognition',
+      'imageTranslationOcrHint':
+          'Desktop uses local Tesseract by default. Install the required language packs.',
+      'imageTranslationOcrExecutable': 'OCR executable',
+      'imageTranslationOcrLanguage': 'OCR languages',
+      'imageTranslationTranslatorSection': 'Translation provider',
+      'imageTranslationTranslatorHint':
+          'Uses an OpenAI-compatible Chat Completions endpoint. The key stays on this device.',
+      'imageTranslationEndpoint': 'Endpoint',
+      'imageTranslationModel': 'Model',
+      'imageTranslationTargetLanguage': 'Target language',
+      'imageTranslationApiTestHint':
+          'Enter an API base URL and key, then test it to load its available models. The key stays on this device.',
+      'imageTranslationProvider': 'API format',
+      'imageTranslationOpenAICompatible': 'OpenAI-compatible',
+      'imageTranslationApiBaseUrl': 'API base URL',
+      'imageTranslationTestAndFetchModels': 'Test and fetch models',
+      'imageTranslationFetchModelsFirst': 'Test the API and fetch models first',
+      'imageTranslationApiTestSuccess':
+          'Connection succeeded; @count models found',
+      'imageTranslationApiTestFailed': 'API test failed: @error',
+      'imageTranslationOcrDownloadHint':
+          'Download tessdata_fast language models into the local Tesseract data directory. Choose a China mirror or the official source.',
+      'imageTranslationOcrDataDirectory': 'OCR data directory',
+      'imageTranslationChooseDirectory': 'Choose data directory',
+      'imageTranslationDetectOcr': 'Detect local OCR',
+      'imageTranslationOcrModelSource': 'OCR model source',
+      'imageTranslationGiteeMirror': 'Gitee community mirror (China)',
+      'imageTranslationGithubOfficial': 'Official GitHub source',
+      'imageTranslationOcrInstalled': 'Installed',
+      'imageTranslationOcrNotInstalled': 'Not installed',
+      'imageTranslationOcrDetectFailed':
+          'OCR detection failed. Check the executable path.',
+      'imageTranslationOcrDirectoryRequired':
+          'Choose or detect the OCR data directory first.',
+      'imageTranslationOcrDownloadSuccess': 'OCR model downloaded.',
+      'imageTranslationOcrDownloadFailed':
+          'OCR model download failed. Try another source.',
+      'imageTranslationOcrEngine': 'OCR engine',
+      'imageTranslationPaddleHint':
+          'The app creates an isolated Python environment in its data directory. PaddleOCR-VL-1.6 is downloaded from Hugging Face and may take some time.',
+      'imageTranslationPaddleLanguage': 'PaddleOCR language',
+      'imageTranslationPaddleRuntimePath': 'Paddle runtime',
+      'imageTranslationPreparePaddle': 'Install runtime and download model',
+      'imageTranslationPaddleReady': 'PaddleOCR runtime is ready.',
+      'imageTranslationPaddlePrepareFailed': 'PaddleOCR setup failed: @error',
+      'imageTranslationExportOverlay': 'Create translated overlay',
+      'imageTranslationExporting': 'Creating…',
+      'imageTranslationOverlaySaved': 'Translated overlay saved: @path',
+      'imageTranslationOverlayUnavailable':
+          'The translated lines do not match the text regions, so an overlay cannot be generated safely.',
+      'imageTranslationOverlayFailed': 'Failed to create translated overlay.',
     };
   }
 }

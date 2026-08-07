@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/routes/routes.dart';
@@ -82,22 +83,48 @@ class SettingPage extends StatelessWidget {
       );
 
   List<ListTile> _settingTiles({required bool appleStyle}) => [
-        _settingTile(Icons.account_circle, 'account', 'account', appleStyle),
+        _settingTile(
+            _settingIcon(
+                Icons.account_circle, CupertinoIcons.person_crop_circle),
+            'account',
+            'account',
+            appleStyle),
         if (userSetting.hasLoggedIn())
-          _settingTile(Icons.mood, 'EH', 'EH', appleStyle),
-        _settingTile(Icons.style, 'style', 'style', appleStyle),
-        _settingTile(Icons.local_library, 'read', 'read', appleStyle),
-        _settingTile(Icons.stars, 'preference', 'preference', appleStyle),
-        _settingTile(Icons.wifi, 'network', 'network', appleStyle),
-        _settingTile(Icons.download, 'download', 'download', appleStyle),
+          _settingTile(_settingIcon(Icons.mood, CupertinoIcons.smiley), 'EH',
+              'EH', appleStyle),
+        _settingTile(_settingIcon(Icons.style, CupertinoIcons.paintbrush),
+            'style', 'style', appleStyle),
+        _settingTile(_settingIcon(Icons.local_library, CupertinoIcons.book),
+            'read', 'read', appleStyle),
+        _settingTile(_settingIcon(Icons.stars, CupertinoIcons.star),
+            'preference', 'preference', appleStyle),
+        _settingTile(_settingIcon(Icons.wifi, CupertinoIcons.wifi), 'network',
+            'network', appleStyle),
         _settingTile(
-            Icons.electric_bolt, 'performance', 'performance', appleStyle),
-        _settingTile(Icons.mouse, 'mouseWheel', 'mouse_wheel', appleStyle),
+            _settingIcon(Icons.download, CupertinoIcons.cloud_download),
+            'download',
+            'download',
+            appleStyle),
+        _settingTile(_settingIcon(Icons.electric_bolt, CupertinoIcons.bolt),
+            'performance', 'performance', appleStyle),
         _settingTile(
-            Icons.settings_suggest, 'advanced', 'advanced', appleStyle),
-        _settingTile(Icons.security, 'security', 'security', appleStyle),
-        _settingTile(Icons.info, 'about', 'about', appleStyle),
+            _settingIcon(Icons.mouse, CupertinoIcons.slider_horizontal_3),
+            'mouseWheel',
+            'mouse_wheel',
+            appleStyle),
+        _settingTile(
+            _settingIcon(Icons.settings_suggest, CupertinoIcons.settings),
+            'advanced',
+            'advanced',
+            appleStyle),
+        _settingTile(_settingIcon(Icons.security, CupertinoIcons.lock_shield),
+            'security', 'security', appleStyle),
+        _settingTile(_settingIcon(Icons.info, CupertinoIcons.info), 'about',
+            'about', appleStyle),
       ];
+
+  IconData _settingIcon(IconData materialIcon, IconData appleIcon) =>
+      ThemeConfig.isApple ? appleIcon : materialIcon;
 
   ListTile _settingTile(
           IconData icon, String label, String route, bool appleStyle) =>

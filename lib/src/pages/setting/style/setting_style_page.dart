@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
-import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/app_icons.dart';
+import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
+import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
 
 import '../../../model/jh_layout.dart';
 import '../../../routes/routes.dart';
@@ -18,24 +20,27 @@ class SettingStylePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(centerTitle: true, title: Text('styleSetting'.tr)),
       body: Obx(
-        () => ListView(
-          padding: const EdgeInsets.only(top: 16),
-          children: [
-            _buildBrightness(),
-            _buildThemeColor(),
-            if (ThemeConfig.isApplePlatform) _buildAppleVisualStyle(),
-            _buildListMode(),
-            if (styleSetting.isInWaterFlowListMode)
-              _buildCrossAxisCountInWaterFallFlow().fadeIn(),
-            _buildPageListMode(),
-            _buildCrossAxisCountInGridDownloadPageForGroup(),
-            _buildCrossAxisCountInGridDownloadPageForGallery(),
-            _buildCrossAxisCountInDetailPage(),
-            if (!styleSetting.isInWaterFlowListMode)
-              _buildMoveCover2RightSide().fadeIn(),
-            _buildLayout(context),
+        () => EHAppleSettingsListView(
+          groups: [
+            EHAppleSettingsGroup(
+              children: [
+                _buildBrightness(),
+                _buildThemeColor(),
+                _buildAppleVisualStyle(),
+                _buildListMode(),
+                if (styleSetting.isInWaterFlowListMode)
+                  _buildCrossAxisCountInWaterFallFlow().fadeIn(),
+                _buildPageListMode(),
+                _buildCrossAxisCountInGridDownloadPageForGroup(),
+                _buildCrossAxisCountInGridDownloadPageForGallery(),
+                _buildCrossAxisCountInDetailPage(),
+                if (!styleSetting.isInWaterFlowListMode)
+                  _buildMoveCover2RightSide().fadeIn(),
+                _buildLayout(context),
+              ],
+            ),
           ],
-        ).withListTileTheme(context),
+        ),
       ),
     );
   }
@@ -43,7 +48,7 @@ class SettingStylePage extends StatelessWidget {
   Widget _buildBrightness() {
     return ListTile(
       title: Text('themeMode'.tr),
-      trailing: DropdownButton<ThemeMode>(
+      trailing: EHCodexStyleDropdown<ThemeMode>(
         value: styleSetting.themeMode.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
@@ -71,7 +76,7 @@ class SettingStylePage extends StatelessWidget {
     return ListTile(
       title: Text('appleVisualStyle'.tr),
       subtitle: Text('appleVisualStyleHint'.tr),
-      trailing: Switch(
+      trailing: EHAppleSwitch(
         value: styleSetting.appleVisualStyle.value,
         onChanged: styleSetting.saveAppleVisualStyle,
       ),
@@ -83,7 +88,7 @@ class SettingStylePage extends StatelessWidget {
   Widget _buildListMode() {
     return ListTile(
       title: Text('listStyle'.tr),
-      trailing: DropdownButton<ListMode>(
+      trailing: EHCodexStyleDropdown<ListMode>(
         value: styleSetting.listMode.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
@@ -115,7 +120,7 @@ class SettingStylePage extends StatelessWidget {
   Widget _buildCrossAxisCountInWaterFallFlow() {
     return ListTile(
       title: Text('crossAxisCountInWaterFallFlow'.tr),
-      trailing: DropdownButton<int?>(
+      trailing: EHCodexStyleDropdown<int?>(
         value: styleSetting.crossAxisCountInWaterFallFlow.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
@@ -135,7 +140,7 @@ class SettingStylePage extends StatelessWidget {
   Widget _buildCrossAxisCountInGridDownloadPageForGroup() {
     return ListTile(
       title: Text('crossAxisCountInGridDownloadPageForGroup'.tr),
-      trailing: DropdownButton<int?>(
+      trailing: EHCodexStyleDropdown<int?>(
         value: styleSetting.crossAxisCountInGridDownloadPageForGroup.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
@@ -155,7 +160,7 @@ class SettingStylePage extends StatelessWidget {
   Widget _buildCrossAxisCountInGridDownloadPageForGallery() {
     return ListTile(
       title: Text('crossAxisCountInGridDownloadPageForGallery'.tr),
-      trailing: DropdownButton<int?>(
+      trailing: EHCodexStyleDropdown<int?>(
         value: styleSetting.crossAxisCountInGridDownloadPageForGallery.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
@@ -175,7 +180,7 @@ class SettingStylePage extends StatelessWidget {
   Widget _buildCrossAxisCountInDetailPage() {
     return ListTile(
       title: Text('crossAxisCountInDetailPage'.tr),
-      trailing: DropdownButton<int?>(
+      trailing: EHCodexStyleDropdown<int?>(
         value: styleSetting.crossAxisCountInDetailPage.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
@@ -195,13 +200,13 @@ class SettingStylePage extends StatelessWidget {
   Widget _buildPageListMode() {
     return ListTile(
       title: Text('pageListStyle'.tr),
-      trailing: const Icon(Icons.keyboard_arrow_right),
+      trailing: Icon(AppIcons.chevronRight),
       onTap: () => toRoute(Routes.pageListStyle),
     );
   }
 
   Widget _buildMoveCover2RightSide() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('moveCover2RightSide'.tr),
       subtitle: Text('needRestart'.tr),
       value: styleSetting.moveCover2RightSide.value,
@@ -215,7 +220,7 @@ class SettingStylePage extends StatelessWidget {
       subtitle: Text(JHLayout.allLayouts
           .firstWhere((e) => e.mode == styleSetting.layout.value)
           .desc),
-      trailing: DropdownButton<LayoutMode>(
+      trailing: EHCodexStyleDropdown<LayoutMode>(
         value: styleSetting.actualLayout,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,

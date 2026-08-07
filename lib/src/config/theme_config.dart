@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ThemeConfig {
-  /// The Apple visual overhaul is opt-in, even on Apple platforms.
+  /// The Apple visual overhaul is opt-in on every platform.
   static bool appleVisualStyleEnabled = false;
 
   /// Since Flutter 3.35, Material buttons default to the basic arrow cursor on desktop; restore the hand cursor.
@@ -11,8 +11,9 @@ class ThemeConfig {
 
   static bool get isApplePlatform => GetPlatform.isIOS || GetPlatform.isMacOS;
 
-  /// iOS/macOS only, and only after the user enables it in Style settings.
-  static bool get isApple => isApplePlatform && appleVisualStyleEnabled;
+  /// Apple visual style takes effect after the user enables it in Style
+  /// settings, on every platform.
+  static bool get isApple => appleVisualStyleEnabled;
 
   static ThemeData theme(Color color, Brightness brightness) {
     if (isApple) {

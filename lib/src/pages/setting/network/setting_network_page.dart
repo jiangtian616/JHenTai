@@ -7,11 +7,14 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/database/dao/dio_cache_dao.dart';
-import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
+import 'package:jhentai/src/utils/app_icons.dart';
+import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
+import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
 import 'package:path/path.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
@@ -22,9 +25,12 @@ import '../../../utils/text_input_formatter.dart';
 import '../../../utils/toast_util.dart';
 
 class SettingNetworkPage extends StatelessWidget {
-  final TextEditingController proxyAddressController = TextEditingController(text: networkSetting.proxyAddress.value);
-  final TextEditingController connectTimeoutController = TextEditingController(text: networkSetting.connectTimeout.value.toString());
-  final TextEditingController receiveTimeoutController = TextEditingController(text: networkSetting.receiveTimeout.value.toString());
+  final TextEditingController proxyAddressController =
+      TextEditingController(text: networkSetting.proxyAddress.value);
+  final TextEditingController connectTimeoutController = TextEditingController(
+      text: networkSetting.connectTimeout.value.toString());
+  final TextEditingController receiveTimeoutController = TextEditingController(
+      text: networkSetting.receiveTimeout.value.toString());
 
   SettingNetworkPage({Key? key}) : super(key: key);
 
@@ -33,30 +39,33 @@ class SettingNetworkPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(centerTitle: true, title: Text('networkSetting'.tr)),
       body: Obx(
-        () => ListView(
-          padding: const EdgeInsets.only(top: 16),
-          children: [
-            _buildEnableDomainFronting(),
-            _buildProxyAddress(),
-            _buildSmartCache(),
-            if (networkSetting.enableSmartCache.isTrue) ...[
-              _buildSmartCacheRetention(),
-              const _CacheSizeTile(),
-            ],
-            if (networkSetting.enableSmartCache.isFalse) ...[
-              _buildPageCacheMaxAge(),
-              _buildCacheImageExpireDuration(),
-            ],
-            _buildConnectTimeout(context),
-            _buildReceiveTimeout(context),
+        () => EHAppleSettingsListView(
+          groups: [
+            EHAppleSettingsGroup(
+              children: [
+                _buildEnableDomainFronting(),
+                _buildProxyAddress(),
+                _buildSmartCache(),
+                if (networkSetting.enableSmartCache.isTrue) ...[
+                  _buildSmartCacheRetention(),
+                  const _CacheSizeTile(),
+                ],
+                if (networkSetting.enableSmartCache.isFalse) ...[
+                  _buildPageCacheMaxAge(),
+                  _buildCacheImageExpireDuration(),
+                ],
+                _buildConnectTimeout(context),
+                _buildReceiveTimeout(context),
+              ],
+            ),
           ],
-        ).withListTileTheme(context),
+        ),
       ),
     );
   }
 
   Widget _buildEnableDomainFronting() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('enableDomainFronting'.tr),
       subtitle: Text('bypassSNIBlocking'.tr),
       value: networkSetting.enableDomainFronting.value,
@@ -67,13 +76,13 @@ class SettingNetworkPage extends StatelessWidget {
   Widget _buildProxyAddress() {
     return ListTile(
       title: Text('proxyAddress'.tr),
-      trailing: const Icon(Icons.keyboard_arrow_right).marginOnly(right: 4),
+      trailing: Icon(AppIcons.chevronRight).marginOnly(right: 4),
       onTap: () => toRoute(Routes.proxy),
     );
   }
 
   Widget _buildSmartCache() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('enableSmartCache'.tr),
       subtitle: Text('enableSmartCacheHint'.tr),
       value: networkSetting.enableSmartCache.value,
@@ -85,16 +94,21 @@ class SettingNetworkPage extends StatelessWidget {
     return ListTile(
       title: Text('smartCacheRetention'.tr),
       subtitle: Text('smartCacheRetentionHint'.tr),
-      trailing: DropdownButton<Duration>(
+      trailing: EHCodexStyleDropdown<Duration>(
         value: networkSetting.smartCacheRetention.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (Duration? newValue) => networkSetting.saveSmartCacheRetention(newValue!),
+        onChanged: (Duration? newValue) =>
+            networkSetting.saveSmartCacheRetention(newValue!),
         items: [
-          DropdownMenuItem(child: Text('1d'.tr), value: const Duration(days: 1)),
-          DropdownMenuItem(child: Text('3d'.tr), value: const Duration(days: 3)),
-          DropdownMenuItem(child: Text('7d'.tr), value: const Duration(days: 7)),
-          DropdownMenuItem(child: Text('30d'.tr), value: const Duration(days: 30)),
+          DropdownMenuItem(
+              child: Text('1d'.tr), value: const Duration(days: 1)),
+          DropdownMenuItem(
+              child: Text('3d'.tr), value: const Duration(days: 3)),
+          DropdownMenuItem(
+              child: Text('7d'.tr), value: const Duration(days: 7)),
+          DropdownMenuItem(
+              child: Text('30d'.tr), value: const Duration(days: 30)),
         ],
       ),
     );
@@ -104,17 +118,23 @@ class SettingNetworkPage extends StatelessWidget {
     return ListTile(
       title: Text('pageCacheMaxAge'.tr),
       subtitle: Text('pageCacheMaxAgeHint'.tr),
-      trailing: DropdownButton<Duration>(
+      trailing: EHCodexStyleDropdown<Duration>(
         value: networkSetting.pageCacheMaxAge.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (Duration? newValue) => networkSetting.savePageCacheMaxAge(newValue!),
+        onChanged: (Duration? newValue) =>
+            networkSetting.savePageCacheMaxAge(newValue!),
         items: [
-          DropdownMenuItem(child: Text('1m'.tr), value: const Duration(minutes: 1)),
-          DropdownMenuItem(child: Text('10m'.tr), value: const Duration(minutes: 10)),
-          DropdownMenuItem(child: Text('1h'.tr), value: const Duration(hours: 1)),
-          DropdownMenuItem(child: Text('1d'.tr), value: const Duration(days: 1)),
-          DropdownMenuItem(child: Text('3d'.tr), value: const Duration(days: 3)),
+          DropdownMenuItem(
+              child: Text('1m'.tr), value: const Duration(minutes: 1)),
+          DropdownMenuItem(
+              child: Text('10m'.tr), value: const Duration(minutes: 10)),
+          DropdownMenuItem(
+              child: Text('1h'.tr), value: const Duration(hours: 1)),
+          DropdownMenuItem(
+              child: Text('1d'.tr), value: const Duration(days: 1)),
+          DropdownMenuItem(
+              child: Text('3d'.tr), value: const Duration(days: 3)),
         ],
       ),
     );
@@ -124,19 +144,27 @@ class SettingNetworkPage extends StatelessWidget {
     return ListTile(
       title: Text('cacheImageExpireDuration'.tr),
       subtitle: Text('cacheImageExpireDurationHint'.tr),
-      trailing: DropdownButton<Duration>(
+      trailing: EHCodexStyleDropdown<Duration>(
         value: networkSetting.cacheImageExpireDuration.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (Duration? newValue) => networkSetting.saveCacheImageExpireDuration(newValue!),
+        onChanged: (Duration? newValue) =>
+            networkSetting.saveCacheImageExpireDuration(newValue!),
         items: [
-          DropdownMenuItem(child: Text('1d'.tr), value: const Duration(days: 1)),
-          DropdownMenuItem(child: Text('2d'.tr), value: const Duration(days: 2)),
-          DropdownMenuItem(child: Text('3d'.tr), value: const Duration(days: 3)),
-          DropdownMenuItem(child: Text('5d'.tr), value: const Duration(days: 5)),
-          DropdownMenuItem(child: Text('7d'.tr), value: const Duration(days: 7)),
-          DropdownMenuItem(child: Text('14d'.tr), value: const Duration(days: 14)),
-          DropdownMenuItem(child: Text('30d'.tr), value: const Duration(days: 30)),
+          DropdownMenuItem(
+              child: Text('1d'.tr), value: const Duration(days: 1)),
+          DropdownMenuItem(
+              child: Text('2d'.tr), value: const Duration(days: 2)),
+          DropdownMenuItem(
+              child: Text('3d'.tr), value: const Duration(days: 3)),
+          DropdownMenuItem(
+              child: Text('5d'.tr), value: const Duration(days: 5)),
+          DropdownMenuItem(
+              child: Text('7d'.tr), value: const Duration(days: 7)),
+          DropdownMenuItem(
+              child: Text('14d'.tr), value: const Duration(days: 14)),
+          DropdownMenuItem(
+              child: Text('30d'.tr), value: const Duration(days: 30)),
         ],
       ),
     );
@@ -150,10 +178,11 @@ class SettingNetworkPage extends StatelessWidget {
         children: [
           SizedBox(
             width: 50,
-            child: TextField(
+            child: EHAppleTextField(
               controller: connectTimeoutController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
+              decoration: const InputDecoration(
+                  isDense: true, labelStyle: TextStyle(fontSize: 12)),
               textAlign: TextAlign.center,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
@@ -161,7 +190,8 @@ class SettingNetworkPage extends StatelessWidget {
               ],
             ),
           ),
-          Text('ms', style: UIConfig.settingPageListTileTrailingTextStyle(context)),
+          Text('ms',
+              style: UIConfig.settingPageListTileTrailingTextStyle(context)),
           IconButton(
             onPressed: () {
               int? value = int.tryParse(connectTimeoutController.value.text);
@@ -171,7 +201,8 @@ class SettingNetworkPage extends StatelessWidget {
               networkSetting.saveConnectTimeout(value);
               toast('saveSuccess'.tr);
             },
-            icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),
+            icon: Icon(Icons.check,
+                color: UIConfig.resumePauseButtonColor(context)),
           ),
         ],
       ),
@@ -186,9 +217,10 @@ class SettingNetworkPage extends StatelessWidget {
         children: [
           SizedBox(
             width: 50,
-            child: TextField(
+            child: EHAppleTextField(
               controller: receiveTimeoutController,
-              decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
+              decoration: const InputDecoration(
+                  isDense: true, labelStyle: TextStyle(fontSize: 12)),
               textAlign: TextAlign.center,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
@@ -196,7 +228,8 @@ class SettingNetworkPage extends StatelessWidget {
               ],
             ),
           ),
-          Text('ms', style: UIConfig.settingPageListTileTrailingTextStyle(context)),
+          Text('ms',
+              style: UIConfig.settingPageListTileTrailingTextStyle(context)),
           IconButton(
             onPressed: () {
               int? value = int.tryParse(receiveTimeoutController.value.text);
@@ -206,7 +239,8 @@ class SettingNetworkPage extends StatelessWidget {
               networkSetting.saveReceiveTimeout(value);
               toast('saveSuccess'.tr);
             },
-            icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),
+            icon: Icon(Icons.check,
+                color: UIConfig.resumePauseButtonColor(context)),
           ),
         ],
       ),
@@ -272,7 +306,9 @@ class _CacheSizeTileState extends State<_CacheSizeTile> {
   Widget build(BuildContext context) {
     return ListTile(
       title: Text('cacheSize'.tr),
-      subtitle: Text(loadingState == LoadingState.loading || sizeText.isEmpty ? 'loading'.tr : sizeText),
+      subtitle: Text(loadingState == LoadingState.loading || sizeText.isEmpty
+          ? 'loading'.tr
+          : sizeText),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -304,5 +340,8 @@ int _computeImageCacheSize(String dirPath) {
   if (!dir.existsSync()) {
     return 0;
   }
-  return dir.listSync().fold<int>(0, (previousValue, element) => previousValue + (element as File).lengthSync());
+  return dir.listSync().fold<int>(
+      0,
+      (previousValue, element) =>
+          previousValue + (element as File).lengthSync());
 }

@@ -15,7 +15,8 @@ import '../../blank_page.dart';
 import 'desktop_layout_page_logic.dart';
 
 class DesktopLayoutPage extends StatelessWidget {
-  final DesktopLayoutPageLogic logic = Get.put(DesktopLayoutPageLogic(), permanent: true);
+  final DesktopLayoutPageLogic logic =
+      Get.put(DesktopLayoutPageLogic(), permanent: true);
   final DesktopLayoutPageState state = Get.find<DesktopLayoutPageLogic>().state;
 
   DesktopLayoutPage({Key? key}) : super(key: key);
@@ -27,7 +28,9 @@ class DesktopLayoutPage extends StatelessWidget {
         _leftTabBar(context),
         VerticalDivider(
           width: 1,
-          color: ThemeConfig.isApple ? Theme.of(context).colorScheme.outline : UIConfig.layoutDividerColor(context),
+          color: ThemeConfig.isApple
+              ? Theme.of(context).colorScheme.outline
+              : UIConfig.layoutDividerColor(context),
         ),
         Expanded(
           child: _buildDoubleColumn(context),
@@ -38,18 +41,27 @@ class DesktopLayoutPage extends StatelessWidget {
 
   Widget _leftTabBar(BuildContext context) {
     final bool isMacOS = GetPlatform.isMacOS && ThemeConfig.isApple;
-    final double width = isMacOS ? UIConfig.desktopMacOSLeftTabBarWidth : UIConfig.desktopLeftTabBarWidth;
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final double width = isMacOS
+        ? UIConfig.desktopMacOSLeftTabBarWidth
+        : UIConfig.desktopLeftTabBarWidth;
     Widget bar = Material(
       color: isMacOS ? Colors.transparent : null,
       child: Container(
         width: width,
         color: isMacOS
-            ? UIConfig.desktopSideBarColor(context).withValues(alpha: 0.55)
-            : (ThemeConfig.isApple ? UIConfig.desktopSideBarColor(context) : UIConfig.backGroundColor(context)),
+            ? UIConfig.desktopSideBarColor(context).withValues(
+                alpha: isDark
+                    ? UIConfig.desktopMacOSSideBarDarkAlpha
+                    : UIConfig.desktopMacOSSideBarLightAlpha)
+            : (ThemeConfig.isApple
+                ? UIConfig.desktopSideBarColor(context)
+                : UIConfig.backGroundColor(context)),
         child: GetBuilder<DesktopLayoutPageLogic>(
           id: logic.tabBarId,
           builder: (_) => Padding(
-            padding: EdgeInsets.only(top: isMacOS ? UIConfig.desktopTitleBarHeight : 0),
+            padding: EdgeInsets.only(
+                top: isMacOS ? UIConfig.desktopTitleBarHeight : 0),
             child: ScrollConfiguration(
               behavior: UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
               child: ListView.builder(
@@ -89,24 +101,38 @@ class DesktopLayoutPage extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: state.selectedTabIndex == index
                             ? Theme.of(context).colorScheme.primary
-                            : (state.hoveringTabIndex == index ? Theme.of(context).colorScheme.surfaceContainerHighest : Colors.transparent),
+                            : (state.hoveringTabIndex == index
+                                ? Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerHighest
+                                : Colors.transparent),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: IconButton(
                         onPressed: () => logic.handleTapTabBarButton(index),
-                        icon: state.selectedTabIndex == index ? state.icons[index].selectedIcon : state.icons[index].unselectedIcon,
-                        color: state.selectedTabIndex == index ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
+                        icon: state.selectedTabIndex == index
+                            ? state.icons[index].selectedIcon
+                            : state.icons[index].unselectedIcon,
+                        color: state.selectedTabIndex == index
+                            ? Theme.of(context).colorScheme.onPrimary
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     )
                   : DecoratedBox(
                       decoration: BoxDecoration(
                         border: state.selectedTabIndex == index
-                            ? Border(left: BorderSide(width: 3, color: UIConfig.desktopLeftTabIconColor(context)))
+                            ? Border(
+                                left: BorderSide(
+                                    width: 3,
+                                    color: UIConfig.desktopLeftTabIconColor(
+                                        context)))
                             : null,
                       ),
                       child: IconButton(
                         onPressed: () => logic.handleTapTabBarButton(index),
-                        icon: state.selectedTabIndex == index ? state.icons[index].selectedIcon : state.icons[index].unselectedIcon,
+                        icon: state.selectedTabIndex == index
+                            ? state.icons[index].selectedIcon
+                            : state.icons[index].unselectedIcon,
                         color: UIConfig.desktopLeftTabIconColor(context),
                       ),
                     ),
@@ -117,7 +143,8 @@ class DesktopLayoutPage extends StatelessWidget {
             child: Center(
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
-                transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
+                transitionBuilder: (child, animation) =>
+                    FadeTransition(opacity: animation, child: child),
                 child: state.hoveringTabIndex != index
                     ? null
                     : Text(
@@ -181,7 +208,9 @@ class DesktopLayoutPage extends StatelessWidget {
           settings: settings,
 
           /// setting name may include path params
-          page: Routes.pages.firstWhere((page) => settings.name!.split('?')[0] == page.name).page,
+          page: Routes.pages
+              .firstWhere((page) => settings.name!.split('?')[0] == page.name)
+              .page,
 
           popGesture: preferenceSetting.enableSwipeBackGesture.isTrue,
           transition: Transition.fadeIn,
@@ -211,7 +240,9 @@ class DesktopLayoutPage extends StatelessWidget {
           settings: settings,
 
           /// setting name may include path params
-          page: Routes.pages.firstWhere((page) => settings.name!.split('?')[0] == page.name).page,
+          page: Routes.pages
+              .firstWhere((page) => settings.name!.split('?')[0] == page.name)
+              .page,
 
           /// do not use swipe back in tablet layout!
           popGesture: false,

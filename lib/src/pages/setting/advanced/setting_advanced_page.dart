@@ -16,6 +16,7 @@ import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/utils/app_icons.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:path/path.dart';
 
@@ -27,6 +28,8 @@ import '../../../utils/byte_util.dart';
 import '../../../utils/permission_util.dart';
 import '../../../utils/route_util.dart';
 import '../../../widget/eh_config_type_select_dialog.dart';
+import '../../../widget/eh_apple_settings_list_view.dart';
+import '../../../widget/eh_apple_controls.dart';
 
 class SettingAdvancedPage extends StatefulWidget {
   const SettingAdvancedPage({Key? key}) : super(key: key);
@@ -58,24 +61,29 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     return Scaffold(
       appBar: AppBar(centerTitle: true, title: Text('advancedSetting'.tr)),
       body: Obx(
-        () => ListView(
-          padding: const EdgeInsets.only(top: 16),
-          children: [
-            _buildEnableLogging(),
-            if (advancedSetting.enableLogging.isTrue) _buildRecordAllLogs().fadeIn(),
-            _buildOpenLogs(),
-            _buildClearLogs(context),
-            _buildClearImageCache(context),
-            _buildClearNetworkCache(),
-            if (GetPlatform.isDesktop) _buildSuperResolution(),
-            _buildCheckUpdate(),
-            _buildCheckClipboard(),
-            if (GetPlatform.isAndroid) _buildVerifyAppLinks(),
-            _buildInNoImageMode(),
-            _buildImportData(context),
-            _buildExportData(context),
+        () => EHAppleSettingsListView(
+          groups: [
+            EHAppleSettingsGroup(
+              children: [
+                _buildEnableLogging(),
+                if (advancedSetting.enableLogging.isTrue)
+                  _buildRecordAllLogs().fadeIn(),
+                _buildOpenLogs(),
+                _buildClearLogs(context),
+                _buildClearImageCache(context),
+                _buildClearNetworkCache(),
+                if (GetPlatform.isDesktop) _buildSuperResolution(),
+                _buildImageTranslation(),
+                _buildCheckUpdate(),
+                _buildCheckClipboard(),
+                if (GetPlatform.isAndroid) _buildVerifyAppLinks(),
+                _buildInNoImageMode(),
+                _buildImportData(context),
+                _buildExportData(context),
+              ],
+            ),
           ],
-        ).withListTileTheme(context),
+        ),
       ),
     );
   }
@@ -84,12 +92,14 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     return ListTile(
       title: Text('enableLogging'.tr),
       subtitle: Text('needRestart'.tr),
-      trailing: Switch(value: advancedSetting.enableLogging.value, onChanged: advancedSetting.saveEnableLogging),
+      trailing: EHAppleSwitch(
+          value: advancedSetting.enableLogging.value,
+          onChanged: advancedSetting.saveEnableLogging),
     );
   }
 
   Widget _buildRecordAllLogs() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('enableVerboseLogging'.tr),
       subtitle: Text('needRestart'.tr),
       value: advancedSetting.enableVerboseLogging.value,
@@ -100,7 +110,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   Widget _buildOpenLogs() {
     return ListTile(
       title: Text('openLog'.tr),
-      trailing: const Icon(Icons.keyboard_arrow_right).marginOnly(right: 4),
+      trailing: Icon(AppIcons.chevronRight).marginOnly(right: 4),
       onTap: () => toRoute(Routes.logList),
     );
   }
@@ -117,7 +127,9 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
             useCupertinoIndicator: true,
             successWidgetBuilder: () => Text(
               _logSize,
-              style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.w500),
+              style: TextStyle(
+                  color: UIConfig.resumePauseButtonColor(context),
+                  fontWeight: FontWeight.w500),
             ),
             errorTapCallback: _loadingLogSize,
           ).marginOnly(right: 8)
@@ -139,7 +151,9 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
             useCupertinoIndicator: true,
             successWidgetBuilder: () => Text(
               _imageCacheSize,
-              style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.w500),
+              style: TextStyle(
+                  color: UIConfig.resumePauseButtonColor(context),
+                  fontWeight: FontWeight.w500),
             ),
             errorTapCallback: _getImagesCacheSize,
           ).marginOnly(right: 8)
@@ -163,13 +177,22 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   Widget _buildSuperResolution() {
     return ListTile(
       title: Text('superResolution'.tr),
-      trailing: const Icon(Icons.keyboard_arrow_right).marginOnly(right: 4),
+      trailing: Icon(AppIcons.chevronRight).marginOnly(right: 4),
       onTap: () => toRoute(Routes.superResolution),
     );
   }
 
+  Widget _buildImageTranslation() {
+    return ListTile(
+      title: Text('imageTextTranslation'.tr),
+      subtitle: Text('imageTranslationSettingHint'.tr),
+      trailing: Icon(AppIcons.chevronRight).marginOnly(right: 4),
+      onTap: () => toRoute(Routes.imageTranslation),
+    );
+  }
+
   Widget _buildCheckUpdate() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('checkUpdateAfterLaunchingApp'.tr),
       value: advancedSetting.enableCheckUpdate.value,
       onChanged: advancedSetting.saveEnableCheckUpdate,
@@ -177,7 +200,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   }
 
   Widget _buildCheckClipboard() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('checkClipboard'.tr),
       value: advancedSetting.enableCheckClipboard.value,
       onChanged: advancedSetting.saveEnableCheckClipboard,
@@ -188,7 +211,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     return ListTile(
       title: Text('verityAppLinks4Android12'.tr),
       subtitle: Text('verityAppLinks4Android12Hint'.tr),
-      trailing: const Icon(Icons.keyboard_arrow_right).marginOnly(right: 4),
+      trailing: Icon(AppIcons.chevronRight).marginOnly(right: 4),
       onTap: () async {
         try {
           await const AndroidIntent(
@@ -205,7 +228,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   }
 
   Widget _buildInNoImageMode() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('noImageMode'.tr),
       value: advancedSetting.inNoImageMode.value,
       onChanged: advancedSetting.saveInNoImageMode,
@@ -220,7 +243,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
         children: [
           LoadingStateIndicator(
             loadingState: _importDataLoadingState,
-            idleWidgetBuilder: () => const Icon(Icons.keyboard_arrow_right),
+            idleWidgetBuilder: () => Icon(AppIcons.chevronRight),
             successWidgetSameWithIdle: true,
             useCupertinoIndicator: true,
             errorWidgetSameWithIdle: true,
@@ -239,7 +262,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
         children: [
           LoadingStateIndicator(
             loadingState: _exportDataLoadingState,
-            idleWidgetBuilder: () => const Icon(Icons.keyboard_arrow_right),
+            idleWidgetBuilder: () => Icon(AppIcons.chevronRight),
             successWidgetSameWithIdle: true,
             useCupertinoIndicator: true,
             errorWidgetSameWithIdle: true,
@@ -296,7 +319,10 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
           if (!cacheImagesDirectory.existsSync()) {
             totalBytes = 0;
           } else {
-            totalBytes = cacheImagesDirectory.listSync().fold<int>(0, (previousValue, element) => previousValue += (element as File).lengthSync());
+            totalBytes = cacheImagesDirectory.listSync().fold<int>(
+                0,
+                (previousValue, element) =>
+                    previousValue += (element as File).lengthSync());
           }
 
           return byte2String(totalBytes.toDouble());
@@ -354,7 +380,8 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
 
     try {
       List list = await isolateService.jsonDecodeAsync(string);
-      List<CloudConfig> configs = list.map((e) => CloudConfig.fromJson(e)).toList();
+      List<CloudConfig> configs =
+          list.map((e) => CloudConfig.fromJson(e)).toList();
       for (CloudConfig config in configs) {
         await cloudConfigService.importConfig(config);
       }
@@ -378,7 +405,8 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
       return;
     }
 
-    String fileName = '${CloudConfigService.configFileName}-${DateFormat('yyyyMMddHHmmss').format(DateTime.now())}.json';
+    String fileName =
+        '${CloudConfigService.configFileName}-${DateFormat('yyyyMMddHHmmss').format(DateTime.now())}.json';
     if (GetPlatform.isMobile) {
       return _exportDataMobile(fileName, result);
     } else {
@@ -386,7 +414,8 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     }
   }
 
-  Future<void> _exportDataMobile(String fileName, List<CloudConfigTypeEnum>? result) async {
+  Future<void> _exportDataMobile(
+      String fileName, List<CloudConfigTypeEnum>? result) async {
     if (_exportDataLoadingState == LoadingState.loading) {
       return;
     }
@@ -420,7 +449,8 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     }
   }
 
-  Future<void> _exportDataDesktop(String fileName, List<CloudConfigTypeEnum>? result) async {
+  Future<void> _exportDataDesktop(
+      String fileName, List<CloudConfigTypeEnum>? result) async {
     if (_exportDataLoadingState == LoadingState.loading) {
       return;
     }
@@ -458,7 +488,8 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
       if (await file.exists()) {
         await file.create(recursive: true);
       }
-      await file.writeAsString(await isolateService.jsonEncodeAsync(uploadConfigs));
+      await file
+          .writeAsString(await isolateService.jsonEncodeAsync(uploadConfigs));
       log.info('Export data to $savedPath success');
       toast('success'.tr);
       setStateSafely(() => _exportDataLoadingState = LoadingState.success);

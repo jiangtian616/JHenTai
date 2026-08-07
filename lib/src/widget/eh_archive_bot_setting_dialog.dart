@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/archive_bot_setting.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -20,7 +21,8 @@ class EHArchiveBotSettingDialog extends StatefulWidget {
   });
 
   @override
-  State<EHArchiveBotSettingDialog> createState() => _EHArchiveBotSettingDialogState();
+  State<EHArchiveBotSettingDialog> createState() =>
+      _EHArchiveBotSettingDialogState();
 }
 
 class _EHArchiveBotSettingDialogState extends State<EHArchiveBotSettingDialog> {
@@ -32,7 +34,8 @@ class _EHArchiveBotSettingDialogState extends State<EHArchiveBotSettingDialog> {
   void initState() {
     super.initState();
     _botType = widget.botType;
-    _apiAddressController = TextEditingController(text: widget.apiAddress ?? widget.botType.defaultServerAddress);
+    _apiAddressController = TextEditingController(
+        text: widget.apiAddress ?? widget.botType.defaultServerAddress);
     _apiKeyController = TextEditingController(text: widget.apiKey ?? '');
   }
 
@@ -62,7 +65,8 @@ class _EHArchiveBotSettingDialogState extends State<EHArchiveBotSettingDialog> {
           ),
         ],
       ),
-      contentPadding: const EdgeInsets.only(left: 8.0, top: 16.0, right: 0, bottom: 24.0),
+      contentPadding:
+          const EdgeInsets.only(left: 8.0, top: 16.0, right: 0, bottom: 24.0),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -84,8 +88,9 @@ class _EHArchiveBotSettingDialogState extends State<EHArchiveBotSettingDialog> {
   Widget _buildBotTypeSelector() {
     return ListTile(
       minLeadingWidth: 40,
-      leading: Text('archiveBotProtocol'.tr, style: const TextStyle(fontSize: 14)),
-      title: DropdownButton<ArchiveBotType>(
+      leading:
+          Text('archiveBotProtocol'.tr, style: const TextStyle(fontSize: 14)),
+      title: EHCodexStyleDropdown<ArchiveBotType>(
         isExpanded: true,
         value: _botType,
         items: const [
@@ -168,8 +173,10 @@ class _EHArchiveBotSettingDialogState extends State<EHArchiveBotSettingDialog> {
   }
 
   void _onConfirm() {
-    final String? address = _apiAddressController.text.isBlank! ? null : _apiAddressController.text;
-    final String? key = _apiKeyController.text.isBlank! ? null : _apiKeyController.text;
+    final String? address =
+        _apiAddressController.text.isBlank! ? null : _apiAddressController.text;
+    final String? key =
+        _apiKeyController.text.isBlank! ? null : _apiKeyController.text;
 
     archiveBotSetting.saveConfig(
       type: _botType,

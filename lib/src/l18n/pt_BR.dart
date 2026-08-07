@@ -352,7 +352,7 @@ class pt_BR {
       'themeColor': 'Theme Color',
       'themeColorFixedOnApple': 'Cor de destaque fixa no macOS / iOS',
       'appleVisualStyle': 'Estilo visual Apple',
-      'appleVisualStyleHint': 'Ativar a interface redesenhada no macOS e iOS',
+      'appleVisualStyleHint': 'Ativar a interface redesenhada no estilo Apple',
       'listStyle': 'Estilo da lista da galeria',
       'flat': 'Reto',
       'flatWithoutTags': 'Reto(Sem tags)',
@@ -453,9 +453,11 @@ class pt_BR {
       'pageCacheMaxAgeHint': 'Você pode atualizar o cache atualizando a página',
       'cacheImageExpireDuration': 'Image Cache Expiration Time',
       'enableSmartCache': "Cache Inteligente",
-      'enableSmartCacheHint': "Armazena as páginas e imagens que você viu para abrir instantaneamente na próxima vez",
+      'enableSmartCacheHint':
+          "Armazena as páginas e imagens que você viu para abrir instantaneamente na próxima vez",
       'smartCacheRetention': "Retenção do cache",
-      'smartCacheRetentionHint': "Caches mais antigos que isso são limpos automaticamente",
+      'smartCacheRetentionHint':
+          "Caches mais antigos que isso são limpos automaticamente",
       'cacheSize': "Tamanho atual do cache",
       'cacheImageExpireDurationHint':
           'Remove image cache automatically after launching app',
@@ -975,6 +977,75 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'reclass': 'Reclassificar',
       'temp': 'Temporário',
       'other': 'Outro',
+
+      /// image text translation
+      'imageTextTranslation': 'Tradução de texto da imagem',
+      'translateImageText': 'Reconhecer e traduzir esta página',
+      'recognizingImageText': 'Reconhecendo texto da imagem…',
+      'translatingImageText': 'Traduzindo texto da imagem…',
+      'showTranslation': 'Mostrar tradução',
+      'showOriginal': 'Mostrar original',
+      'copy': 'Copiar',
+      'retry': 'Tentar novamente',
+      'configure': 'Configurar',
+      'saveSetting': 'Salvar',
+      'imageTranslationNoResult': 'Nenhum resultado para exibir',
+      'imageTranslationConfigureHint':
+          'O texto original foi reconhecido. Primeiro configure um provedor de tradução nas configurações avançadas.',
+      'imageTranslationUnsupportedPlatform':
+          'OCR de imagem ainda não está disponível nesta plataforma.',
+      'imageTranslationOcrUnavailable':
+          'Executável OCR não encontrado. Instale ou configure o Tesseract no desktop.',
+      'imageTranslationOcrFailed':
+          'O reconhecimento de texto falhou. Verifique os pacotes de idioma do OCR e o formato da imagem.',
+      'imageTranslationNoText': 'Nenhum texto foi reconhecido nesta imagem.',
+      'imageTranslationRequestFailed':
+          'A solicitação de tradução falhou. Verifique o endpoint, a chave e a rede.',
+      'imageTranslationInvalidResponse':
+          'O provedor de tradução retornou um resultado inválido.',
+      'imageTranslationFailed': 'A tradução de texto da imagem falhou.',
+      'imageTranslationSourceUnavailable':
+          'A imagem atual não está disponível.',
+      'imageTranslationSettingHint': 'Configurar OCR e provedor de tradução',
+      'imageTranslationOcrSection': 'Reconhecimento de texto',
+      'imageTranslationOcrHint':
+          'No desktop, o Tesseract local é usado por padrão. Instale os pacotes de idioma necessários.',
+      'imageTranslationOcrExecutable': 'Executável OCR',
+      'imageTranslationOcrLanguage': 'Idiomas OCR',
+      'imageTranslationTranslatorSection': 'Provedor de tradução',
+      'imageTranslationTranslatorHint':
+          'Usa um endpoint OpenAI-compatible Chat Completions. A chave fica somente neste dispositivo.',
+      'imageTranslationEndpoint': 'Endpoint',
+      'imageTranslationModel': 'Modelo',
+      'imageTranslationTargetLanguage': 'Idioma de destino',
+      'imageTranslationApiTestHint':
+          'Informe a URL base e a chave da API e teste para carregar os modelos disponíveis.',
+      'imageTranslationProvider': 'Formato da API',
+      'imageTranslationOpenAICompatible': 'Compatível com OpenAI',
+      'imageTranslationApiBaseUrl': 'URL base da API',
+      'imageTranslationTestAndFetchModels': 'Testar e buscar modelos',
+      'imageTranslationFetchModelsFirst':
+          'Teste a API e busque os modelos primeiro',
+      'imageTranslationApiTestSuccess':
+          'Conexão bem-sucedida; @count modelos encontrados',
+      'imageTranslationApiTestFailed': 'Falha no teste da API: @error',
+      'imageTranslationOcrDownloadHint':
+          'Baixe modelos de idioma tessdata_fast para o diretório de dados do Tesseract.',
+      'imageTranslationOcrDataDirectory': 'Diretório de dados OCR',
+      'imageTranslationChooseDirectory': 'Escolher diretório de dados',
+      'imageTranslationDetectOcr': 'Detectar OCR local',
+      'imageTranslationOcrModelSource': 'Fonte do modelo OCR',
+      'imageTranslationGiteeMirror': 'Espelho comunitário Gitee (China)',
+      'imageTranslationGithubOfficial': 'Fonte oficial do GitHub',
+      'imageTranslationOcrInstalled': 'Instalado',
+      'imageTranslationOcrNotInstalled': 'Não instalado',
+      'imageTranslationOcrDetectFailed':
+          'Falha ao detectar OCR. Verifique o caminho do executável.',
+      'imageTranslationOcrDirectoryRequired':
+          'Escolha ou detecte o diretório de dados OCR primeiro.',
+      'imageTranslationOcrDownloadSuccess': 'Modelo OCR baixado.',
+      'imageTranslationOcrDownloadFailed':
+          'Falha ao baixar o modelo OCR. Tente outra fonte.',
     };
   }
 }

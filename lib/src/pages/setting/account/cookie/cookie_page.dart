@@ -14,6 +14,7 @@ import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/cookie_util.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../../../exception/eh_site_exception.dart';
@@ -43,33 +44,41 @@ class _CookiePageState extends State<CookiePage> {
           IconButton(icon: const Icon(Icons.copy), onPressed: _copyCookies),
         ],
       ),
-      body: ListView(
+      body: EHAppleSettingsListView(
         padding: const EdgeInsets.only(top: 12),
-        children: ehRequest.cookies
-            .map(
-              (cookie) => ListTile(
-                title: Text(cookie.name),
-                subtitle: Text(cookie.value),
-                trailing: cookie.name == EHConsts.igneousCookieName
-                    ? Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          LoadingStateIndicator(
-                            loadingState: _refreshIgneousState,
-                            loadingWidgetBuilder: () => const CupertinoActivityIndicator().marginOnly(right: 10),
-                            idleWidgetBuilder: () => IconButton(icon: const Icon(Icons.refresh), onPressed: _refreshIgneousCookie),
-                            successWidgetSameWithIdle: true,
-                            errorWidgetSameWithIdle: true,
+        groups: [
+          EHAppleSettingsGroup(
+            children: ehRequest.cookies
+                .map(
+                  (cookie) => ListTile(
+                    title: Text(cookie.name),
+                    subtitle: Text(cookie.value),
+                    trailing: cookie.name == EHConsts.igneousCookieName
+                        ? Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              LoadingStateIndicator(
+                                loadingState: _refreshIgneousState,
+                                loadingWidgetBuilder: () =>
+                                    const CupertinoActivityIndicator()
+                                        .marginOnly(right: 10),
+                                idleWidgetBuilder: () => IconButton(
+                                    icon: const Icon(Icons.refresh),
+                                    onPressed: _refreshIgneousCookie),
+                                successWidgetSameWithIdle: true,
+                                errorWidgetSameWithIdle: true,
+                              )
+                            ],
                           )
-                        ],
-                      )
-                    : null,
-                onTap: () => _copyCookie(cookie),
-                dense: true,
-              ),
-            )
-            .toList(),
-      ).withListTileTheme(context),
+                        : null,
+                    onTap: () => _copyCookie(cookie),
+                    dense: true,
+                  ),
+                )
+                .toList(),
+          ),
+        ],
+      ),
     );
   }
 
@@ -83,7 +92,10 @@ class _CookiePageState extends State<CookiePage> {
       CookieUtil.parse2String(
         ehRequest.cookies
             .where(
-              (cookie) => cookie.name == 'ipb_member_id' || cookie.name == 'ipb_pass_hash' || cookie.name == 'igneous',
+              (cookie) =>
+                  cookie.name == 'ipb_member_id' ||
+                  cookie.name == 'ipb_pass_hash' ||
+                  cookie.name == 'igneous',
             )
             .toList(),
       ),
@@ -119,9 +131,11 @@ class _CookiePageState extends State<CookiePage> {
         }),
       );
 
-      log.info('Refresh igneous cookie, set-cookie: ${response.headers.value('set-cookie')}');
+      log.info(
+          'Refresh igneous cookie, set-cookie: ${response.headers.value('set-cookie')}');
 
-      List<String>? cookiePairs = response.headers.value('set-cookie')?.split(';');
+      List<String>? cookiePairs =
+          response.headers.value('set-cookie')?.split(';');
       if (cookiePairs == null) {
         snack('refreshIgneousFailed'.tr, 'Sad panda');
         setStateSafely(() {
@@ -188,8 +202,10 @@ class _CookiePageState extends State<CookiePage> {
     }
 
     _dio = Dio(BaseOptions(
-      connectTimeout: Duration(milliseconds: networkSetting.connectTimeout.value),
-      receiveTimeout: Duration(milliseconds: networkSetting.receiveTimeout.value),
+      connectTimeout:
+          Duration(milliseconds: networkSetting.connectTimeout.value),
+      receiveTimeout:
+          Duration(milliseconds: networkSetting.receiveTimeout.value),
     ));
 
     EHIpProvider _ehIpProvider = RoundRobinIpProvider(NetworkSetting.host2IPs);
@@ -212,18 +228,24 @@ class _CookiePageState extends State<CookiePage> {
         handler.next(options.copyWith(
           path: rawPath.replaceFirst(host, ip),
           headers: {...options.headers, 'host': host},
-          extra: options.extra..[EHRequest.domainFrontingExtraKey] = {'host': host, 'ip': ip},
+          extra: options.extra
+            ..[EHRequest.domainFrontingExtraKey] = {'host': host, 'ip': ip},
         ));
       },
       onError: (DioException e, ErrorInterceptorHandler handler) {
-        if (!e.requestOptions.extra.containsKey(EHRequest.domainFrontingExtraKey)) {
+        if (!e.requestOptions.extra
+            .containsKey(EHRequest.domainFrontingExtraKey)) {
           handler.next(e);
           return;
         }
 
-        if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.badResponse || e.type == DioExceptionType.connectionError) {
-          String host = e.requestOptions.extra[EHRequest.domainFrontingExtraKey]['host'];
-          String ip = e.requestOptions.extra[EHRequest.domainFrontingExtraKey]['ip'];
+        if (e.type == DioExceptionType.connectionTimeout ||
+            e.type == DioExceptionType.badResponse ||
+            e.type == DioExceptionType.connectionError) {
+          String host =
+              e.requestOptions.extra[EHRequest.domainFrontingExtraKey]['host'];
+          String ip =
+              e.requestOptions.extra[EHRequest.domainFrontingExtraKey]['ip'];
           _ehIpProvider.addUnavailableIp(host, ip);
           log.info('Refresh igneous, add unavailable host-ip: $host-$ip');
         }

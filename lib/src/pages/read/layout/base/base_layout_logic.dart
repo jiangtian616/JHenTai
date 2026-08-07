@@ -34,15 +34,18 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../../exception/eh_image_exception.dart';
 import '../../../../model/gallery_image.dart';
+import '../../../../model/image_translation.dart';
 import '../../../../model/read_page_info.dart';
 import '../../../../service/log.dart';
 import '../../../../setting/read_setting.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../utils/screen_size_util.dart';
+import '../../../../widget/image_translation_bottom_sheet.dart';
 import '../../read_page_logic.dart';
 import '../../read_page_state.dart';
 
-abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStateMixin {
+abstract class BaseLayoutLogic extends GetxController
+    with GetTickerProviderStateMixin {
   static const String pageId = 'pageId';
 
   final ReadPageLogic readPageLogic = Get.find<ReadPageLogic>();
@@ -55,9 +58,13 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
 
   @override
   void onInit() {
-    doubleTapGestureSwitcherListener = ever(readSetting.enableDoubleTapToScaleUp, (value) => updateSafely([pageId]));
-    tapDragGestureSwitcherListener = ever(readSetting.enableTapDragToScaleUp, (value) => updateSafely([pageId]));
-    showScrollBarListener = ever(readSetting.showScrollBar, (value) => updateSafely([pageId]));
+    doubleTapGestureSwitcherListener = ever(
+        readSetting.enableDoubleTapToScaleUp,
+        (value) => updateSafely([pageId]));
+    tapDragGestureSwitcherListener = ever(
+        readSetting.enableTapDragToScaleUp, (value) => updateSafely([pageId]));
+    showScrollBarListener =
+        ever(readSetting.showScrollBar, (value) => updateSafely([pageId]));
     super.onInit();
   }
 
@@ -120,12 +127,14 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   }
 
   void onPointerScroll(PointerScrollEvent value) {
-    final ctrlPressed = HardwareKeyboard.instance.logicalKeysPressed
-        .any((key) => key == LogicalKeyboardKey.controlLeft || key == LogicalKeyboardKey.controlRight);
+    final ctrlPressed = HardwareKeyboard.instance.logicalKeysPressed.any(
+        (key) =>
+            key == LogicalKeyboardKey.controlLeft ||
+            key == LogicalKeyboardKey.controlRight);
     if (ctrlPressed) {
       return;
     }
-    
+
     if (value.scrollDelta.dy > 0) {
       toNext();
     } else if (value.scrollDelta.dy < 0) {
@@ -135,27 +144,40 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
 
   /// Unified entry point for online image context menus.
   /// Dispatches to [showOnlineDesktopContextMenu] on desktop or [showOnlineMobileBottomMenu] on mobile.
-  void showOnlineImageContextMenu(int index, BuildContext context, {Offset? position}) {
+  void showOnlineImageContextMenu(int index, BuildContext context,
+      {Offset? position}) {
     if (styleSetting.isInDesktopLayout && position != null) {
-      showOnlineDesktopContextMenu(index: index, context: context, position: position);
+      showOnlineDesktopContextMenu(
+          index: index, context: context, position: position);
     } else {
       showOnlineMobileBottomMenu(index, context);
     }
   }
 
   /// Desktop right-click context menu for online images.
-  Future<void> showOnlineDesktopContextMenu({required int index, required BuildContext context, required Offset position}) async {
+  Future<void> showOnlineDesktopContextMenu(
+      {required int index,
+      required BuildContext context,
+      required Offset position}) async {
     final selected = await showMenu<String>(
       context: context,
       popUpAnimationStyle: AnimationStyle.noAnimation,
-      position: RelativeRect.fromLTRB(position.dx, position.dy, position.dx, position.dy),
+      position: RelativeRect.fromLTRB(
+          position.dx, position.dy, position.dx, position.dy),
       items: [
         PopupMenuItem(value: 'reload', child: Text('reload'.tr)),
         PopupMenuItem(value: 'copyImage', child: Text('copyImage'.tr)),
-        PopupMenuItem(value: 'copy_eh_page_url', child: Text('copyEHPageUrl'.tr)),
-        PopupMenuItem(value: 'save', child: Text('${'save'.tr}(${'resampleImage'.tr})')),
-        if (readPageState.images[index]!.originalImageUrl != null && userSetting.hasLoggedIn())
-          PopupMenuItem(value: 'save_original', child: Text('${'save'.tr}(${'originalImage'.tr})')),
+        PopupMenuItem(
+            value: 'copy_eh_page_url', child: Text('copyEHPageUrl'.tr)),
+        PopupMenuItem(
+            value: 'translate_image', child: Text('translateImageText'.tr)),
+        PopupMenuItem(
+            value: 'save', child: Text('${'save'.tr}(${'resampleImage'.tr})')),
+        if (readPageState.images[index]!.originalImageUrl != null &&
+            userSetting.hasLoggedIn())
+          PopupMenuItem(
+              value: 'save_original',
+              child: Text('${'save'.tr}(${'originalImage'.tr})')),
         PopupMenuItem(value: 'open_read_setting', child: Text('setting'.tr)),
       ],
     );
@@ -169,6 +191,9 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
         break;
       case 'copy_eh_page_url':
         copyEHPageUrl(index);
+        break;
+      case 'translate_image':
+        translateImage(index, context);
         break;
       case 'save':
         await saveOnlineImage(index);
@@ -217,13 +242,21 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
             },
           ),
           CupertinoActionSheetAction(
+            child: ehActionSheetText('translateImageText'.tr),
+            onPressed: () {
+              backRoute();
+              translateImage(index, context);
+            },
+          ),
+          CupertinoActionSheetAction(
             child: ehActionSheetText('${'save'.tr}(${'resampleImage'.tr})'),
             onPressed: () async {
               backRoute();
               saveOnlineImage(index);
             },
           ),
-          if (readPageState.images[index]!.originalImageUrl != null && userSetting.hasLoggedIn())
+          if (readPageState.images[index]!.originalImageUrl != null &&
+              userSetting.hasLoggedIn())
             CupertinoActionSheetAction(
               child: ehActionSheetText('${'save'.tr}(${'originalImage'.tr})'),
               onPressed: () async {
@@ -232,26 +265,70 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
               },
             ),
         ],
-        cancelButton: CupertinoActionSheetAction(child: ehActionSheetText('cancel'.tr), onPressed: backRoute),
+        cancelButton: CupertinoActionSheetAction(
+            child: ehActionSheetText('cancel'.tr), onPressed: backRoute),
       ),
     );
   }
 
   String _getDownloadedImageAbsolutePath(int index) {
-    return GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
+    return GalleryDownloadService
+        .computeImageDownloadAbsolutePathFromRelativePath(
       readPageState.images[index]!.path!,
     );
   }
 
   String _getArchiveImageAbsolutePath(int index) {
-    return join(pathService.getVisibleDir().path, readPageState.images[index]!.path!);
+    return join(
+        pathService.getVisibleDir().path, readPageState.images[index]!.path!);
+  }
+
+  Future<void> translateImage(int index, BuildContext context) async {
+    final GalleryImage? image = readPageState.images[index];
+    if (image == null) {
+      return;
+    }
+
+    final ReadMode mode = readPageState.readPageInfo.mode;
+    ImageTranslationRequest request;
+    if (mode == ReadMode.online) {
+      final Uint8List? bytes = await getNetworkImageData(image.url);
+      if (bytes == null) {
+        toast('imageTranslationSourceUnavailable'.tr);
+        return;
+      }
+      request = ImageTranslationRequest(
+          cacheKey: 'online:${image.url}', imageBytes: bytes);
+    } else if (mode == ReadMode.downloaded && image.path != null) {
+      request = ImageTranslationRequest(
+          cacheKey: 'downloaded:${image.path}',
+          imagePath: _getDownloadedImageAbsolutePath(index));
+    } else if (mode == ReadMode.archive && image.path != null) {
+      request = ImageTranslationRequest(
+          cacheKey: 'archive:${image.path}',
+          imagePath: _getArchiveImageAbsolutePath(index));
+    } else {
+      toast('imageTranslationSourceUnavailable'.tr);
+      return;
+    }
+
+    if (!context.mounted) {
+      return;
+    }
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (_) => ImageTranslationBottomSheet(request: request),
+    );
   }
 
   /// Unified entry point for local image context menus.
   /// Handles [ReadMode.downloaded] and [ReadMode.archive].
   /// Dispatches to desktop context menus or mobile bottom sheets based on current layout.
   /// [ReadMode.online] images use [showOnlineImageContextMenu] instead.
-  void showLocalImageContextMenu(int index, BuildContext context, {Offset? position}) {
+  void showLocalImageContextMenu(int index, BuildContext context,
+      {Offset? position}) {
     final mode = readPageState.readPageInfo.mode;
     if (mode == ReadMode.online || mode == ReadMode.local) {
       return;
@@ -261,9 +338,11 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
 
     if (styleSetting.isInDesktopLayout && position != null) {
       if (showDownloadedMenu) {
-        showDownloadedDesktopContextMenu(index: index, context: context, position: position);
+        showDownloadedDesktopContextMenu(
+            index: index, context: context, position: position);
       } else {
-        showArchiveDesktopContextMenu(index: index, context: context, position: position);
+        showArchiveDesktopContextMenu(
+            index: index, context: context, position: position);
       }
     } else {
       if (showDownloadedMenu) {
@@ -276,7 +355,11 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
 
   /// Mobile bottom action sheet for downloaded-mode images.
   void showDownloadedMobileBottomMenu(int index, BuildContext context) {
-    if (galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]?.images[index]?.downloadStatus != DownloadStatus.downloaded) {
+    if (galleryDownloadService
+            .galleryDownloadInfos[readPageState.readPageInfo.gid]
+            ?.images[index]
+            ?.downloadStatus !=
+        DownloadStatus.downloaded) {
       return;
     }
 
@@ -306,6 +389,13 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
             },
           ),
           CupertinoActionSheetAction(
+            child: ehActionSheetText('translateImageText'.tr),
+            onPressed: () {
+              backRoute();
+              translateImage(index, context);
+            },
+          ),
+          CupertinoActionSheetAction(
             child: ehActionSheetText('save'.tr),
             onPressed: () {
               backRoute();
@@ -316,11 +406,13 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
             child: ehActionSheetText('reDownload'.tr),
             onPressed: () {
               backRoute();
-              galleryDownloadService.reDownloadImage(readPageState.readPageInfo.gid!, index);
+              galleryDownloadService.reDownloadImage(
+                  readPageState.readPageInfo.gid!, index);
             },
           ),
         ],
-        cancelButton: CupertinoActionSheetAction(child: ehActionSheetText('cancel'.tr), onPressed: backRoute),
+        cancelButton: CupertinoActionSheetAction(
+            child: ehActionSheetText('cancel'.tr), onPressed: backRoute),
       ),
     );
   }
@@ -350,6 +442,13 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
             },
           ),
           CupertinoActionSheetAction(
+            child: ehActionSheetText('translateImageText'.tr),
+            onPressed: () {
+              backRoute();
+              translateImage(index, context);
+            },
+          ),
+          CupertinoActionSheetAction(
             child: ehActionSheetText('save'.tr),
             onPressed: () {
               backRoute();
@@ -357,7 +456,8 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
             },
           ),
         ],
-        cancelButton: CupertinoActionSheetAction(child: ehActionSheetText('cancel'.tr), onPressed: backRoute),
+        cancelButton: CupertinoActionSheetAction(
+            child: ehActionSheetText('cancel'.tr), onPressed: backRoute),
       ),
     );
   }
@@ -368,17 +468,25 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     required BuildContext context,
     required Offset position,
   }) async {
-    if (galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]?.images[index]?.downloadStatus != DownloadStatus.downloaded) {
+    if (galleryDownloadService
+            .galleryDownloadInfos[readPageState.readPageInfo.gid]
+            ?.images[index]
+            ?.downloadStatus !=
+        DownloadStatus.downloaded) {
       return;
     }
 
     final selected = await showMenu<String>(
       context: context,
       popUpAnimationStyle: AnimationStyle.noAnimation,
-      position: RelativeRect.fromLTRB(position.dx, position.dy, position.dx, position.dy),
+      position: RelativeRect.fromLTRB(
+          position.dx, position.dy, position.dx, position.dy),
       items: [
         PopupMenuItem(value: 'copyImage', child: Text('copyImage'.tr)),
-        PopupMenuItem(value: 'copy_eh_page_url', child: Text('copyEHPageUrl'.tr)),
+        PopupMenuItem(
+            value: 'copy_eh_page_url', child: Text('copyEHPageUrl'.tr)),
+        PopupMenuItem(
+            value: 'translate_image', child: Text('translateImageText'.tr)),
         PopupMenuItem(value: 'save', child: Text('save'.tr)),
         PopupMenuItem(value: 'redownload', child: Text('reDownload'.tr)),
         PopupMenuItem(value: 'open_read_setting', child: Text('setting'.tr)),
@@ -392,11 +500,15 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       case 'copy_eh_page_url':
         copyEHPageUrl(index);
         break;
+      case 'translate_image':
+        translateImage(index, context);
+        break;
       case 'save':
         saveDownloadedImageFile(index);
         break;
       case 'redownload':
-        galleryDownloadService.reDownloadImage(readPageState.readPageInfo.gid!, index);
+        galleryDownloadService.reDownloadImage(
+            readPageState.readPageInfo.gid!, index);
         break;
       case 'open_read_setting':
         readPageLogic.openReadSetting(context);
@@ -417,9 +529,12 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     final selected = await showMenu<String>(
       context: context,
       popUpAnimationStyle: AnimationStyle.noAnimation,
-      position: RelativeRect.fromLTRB(position.dx, position.dy, position.dx, position.dy),
+      position: RelativeRect.fromLTRB(
+          position.dx, position.dy, position.dx, position.dy),
       items: [
         PopupMenuItem(value: 'copyImage', child: Text('copyImage'.tr)),
+        PopupMenuItem(
+            value: 'translate_image', child: Text('translateImageText'.tr)),
         PopupMenuItem(value: 'save', child: Text('save'.tr)),
         PopupMenuItem(value: 'open_read_setting', child: Text('setting'.tr)),
       ],
@@ -428,6 +543,9 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     switch (selected) {
       case 'copyImage':
         copyArchiveImageFile(index);
+        break;
+      case 'translate_image':
+        translateImage(index, context);
         break;
       case 'save':
         saveArchiveImageFile(index);
@@ -444,7 +562,8 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       return;
     }
 
-    Uint8List? data = await getNetworkImageData(readPageState.images[index]!.url);
+    Uint8List? data =
+        await getNetworkImageData(readPageState.images[index]!.url);
     if (data == null) {
       return;
     }
@@ -454,11 +573,13 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       ext = basename(readPageState.images[index]!.url);
     }
 
-    String fileName = '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index$ext';
+    String fileName =
+        '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index$ext';
 
     Share.shareXFiles(
       [XFile.fromData(data)],
-      sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, readPageState.displayRegionSize.height * 2 / 3),
+      sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth,
+          readPageState.displayRegionSize.height * 2 / 3),
       fileNameOverrides: [fileName],
     );
   }
@@ -467,7 +588,8 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   void shareDownloadedImageFile(int index) {
     Share.shareXFiles(
       [XFile(_getDownloadedImageAbsolutePath(index))],
-      sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, readPageState.displayRegionSize.height * 2 / 3),
+      sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth,
+          readPageState.displayRegionSize.height * 2 / 3),
     );
   }
 
@@ -475,7 +597,8 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   void shareArchiveImageFile(int index) {
     Share.shareXFiles(
       [XFile(_getArchiveImageAbsolutePath(index))],
-      sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth, readPageState.displayRegionSize.height * 2 / 3),
+      sharePositionOrigin: Rect.fromLTWH(0, 0, fullScreenWidth,
+          readPageState.displayRegionSize.height * 2 / 3),
     );
   }
 
@@ -487,7 +610,8 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       return;
     }
 
-    Uint8List? data = await getNetworkImageData(readPageState.images[index]!.url);
+    Uint8List? data =
+        await getNetworkImageData(readPageState.images[index]!.url);
     if (data == null) {
       return;
     }
@@ -497,7 +621,8 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       if (isEmptyOrNull(ext)) {
         ext = basename(readPageState.images[index]!.url);
       }
-      String fileName = '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index$ext';
+      String fileName =
+          '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index$ext';
       String filePath = join(downloadSetting.tempDownloadPath.value, fileName);
       File file = File(filePath);
       try {
@@ -519,18 +644,24 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   /// Copy a downloaded-mode image file to clipboard.
   void copyDownloadedImageFile(int index) {
     if (GetPlatform.isDesktop) {
-      Pasteboard.writeFiles([_getDownloadedImageAbsolutePath(index)]).then((_) => toast('hasCopiedToClipboard'.tr));
+      Pasteboard.writeFiles([_getDownloadedImageAbsolutePath(index)])
+          .then((_) => toast('hasCopiedToClipboard'.tr));
     } else {
-      Pasteboard.writeImage(File(_getDownloadedImageAbsolutePath(index)).readAsBytesSync()).then((_) => toast('hasCopiedToClipboard'.tr));
+      Pasteboard.writeImage(
+              File(_getDownloadedImageAbsolutePath(index)).readAsBytesSync())
+          .then((_) => toast('hasCopiedToClipboard'.tr));
     }
   }
 
   /// Copy an archive-mode image file to clipboard.
   void copyArchiveImageFile(int index) {
     if (GetPlatform.isDesktop) {
-      Pasteboard.writeFiles([_getArchiveImageAbsolutePath(index)]).then((_) => toast('hasCopiedToClipboard'.tr));
+      Pasteboard.writeFiles([_getArchiveImageAbsolutePath(index)])
+          .then((_) => toast('hasCopiedToClipboard'.tr));
     } else {
-      Pasteboard.writeImage(File(_getArchiveImageAbsolutePath(index)).readAsBytesSync()).then((_) => toast('hasCopiedToClipboard'.tr));
+      Pasteboard.writeImage(
+              File(_getArchiveImageAbsolutePath(index)).readAsBytesSync())
+          .then((_) => toast('hasCopiedToClipboard'.tr));
     }
   }
 
@@ -539,7 +670,8 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       return;
     }
 
-    Uint8List? data = await getNetworkImageData(readPageState.images[index]!.url);
+    Uint8List? data =
+        await getNetworkImageData(readPageState.images[index]!.url);
     if (data == null) {
       return;
     }
@@ -550,10 +682,12 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       ext = basename(readPageState.images[index]!.url);
     }
 
-    String fileName = '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index$ext';
+    String fileName =
+        '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index$ext';
 
     if (GetPlatform.isDesktop) {
-      File file = File(join(downloadSetting.singleImageSavePath.value, fileName));
+      File file =
+          File(join(downloadSetting.singleImageSavePath.value, fileName));
       try {
         await file.create(recursive: true);
         await file.writeAsBytes(data);
@@ -585,7 +719,8 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       return;
     }
 
-    if (readPageState.images[index]!.originalImageUrl == null || !userSetting.hasLoggedIn()) {
+    if (readPageState.images[index]!.originalImageUrl == null ||
+        !userSetting.hasLoggedIn()) {
       return saveOnlineImage(index);
     }
 
@@ -595,30 +730,41 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       ext = basename(readPageState.images[index]!.originalImageUrl!);
     }
 
-    String fileName = '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_${index}_original$ext';
-    String downloadPath = join(downloadSetting.tempDownloadPath.value, fileName);
+    String fileName =
+        '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_${index}_original$ext';
+    String downloadPath =
+        join(downloadSetting.tempDownloadPath.value, fileName);
     File file = File(downloadPath);
 
     toast('downloading'.tr);
-    Response response = await ehRequest.download(url: readPageState.images[index]!.originalImageUrl!, path: downloadPath);
+    Response response = await ehRequest.download(
+        url: readPageState.images[index]!.originalImageUrl!,
+        path: downloadPath);
 
     /// what we downloaded is not an image
-    if (!response.isRedirect && (response.headers[Headers.contentTypeHeader]?.contains("text/html; charset=UTF-8") ?? false)) {
+    if (!response.isRedirect &&
+        (response.headers[Headers.contentTypeHeader]
+                ?.contains("text/html; charset=UTF-8") ??
+            false)) {
       File file = File(downloadPath);
       String data = file.readAsStringSync();
       file.delete().ignore();
 
-      EHImageException? exception = GalleryDownloadService.imageData2Exception(data);
-      log.error('Save ${readPageState.readPageInfo.galleryTitle} image: $index failed, invalid reason: $exception');
+      EHImageException? exception =
+          GalleryDownloadService.imageData2Exception(data);
+      log.error(
+          'Save ${readPageState.readPageInfo.galleryTitle} image: $index failed, invalid reason: $exception');
 
       if (exception != null) {
         if (exception.operation == EHImageExceptionAfterOperation.pause) {
           toast(exception.message, isShort: false);
           return;
-        } else if (exception.operation == EHImageExceptionAfterOperation.pauseAll) {
+        } else if (exception.operation ==
+            EHImageExceptionAfterOperation.pauseAll) {
           toast(exception.message, isShort: false);
           return;
-        } else if (exception.operation == EHImageExceptionAfterOperation.reParse) {
+        } else if (exception.operation ==
+            EHImageExceptionAfterOperation.reParse) {
           GalleryImage image;
           try {
             image = await readPageLogic.requestImage(index, true, null);
@@ -628,7 +774,8 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
             return;
           }
 
-          readPageState.images[index]!.originalImageUrl = image.originalImageUrl;
+          readPageState.images[index]!.originalImageUrl =
+              image.originalImageUrl;
 
           return saveOriginalOnlineImage(index);
         }
@@ -640,7 +787,8 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
 
     try {
       if (GetPlatform.isDesktop) {
-        await file.copy(join(downloadSetting.singleImageSavePath.value, fileName));
+        await file
+            .copy(join(downloadSetting.singleImageSavePath.value, fileName));
         toast('saveSuccess'.tr);
       } else {
         bool success = await _saveFile2Album(downloadPath, fileName);
@@ -660,12 +808,16 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     File image = File(filePath);
 
     String fileName = basename(image.path);
-    if (readPageState.readPageInfo.gid != null && readPageState.readPageInfo.token != null) {
-      fileName = '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index${extension(image.path)}';
+    if (readPageState.readPageInfo.gid != null &&
+        readPageState.readPageInfo.token != null) {
+      fileName =
+          '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index${extension(image.path)}';
     }
 
     if (GetPlatform.isDesktop) {
-      image.copy(join(downloadSetting.singleImageSavePath.value, fileName)).then((_) => toast('success'.tr));
+      image
+          .copy(join(downloadSetting.singleImageSavePath.value, fileName))
+          .then((_) => toast('success'.tr));
     } else {
       _saveFile2Album(filePath, fileName).then((_) => toast('success'.tr));
     }
@@ -677,12 +829,16 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     File image = File(filePath);
 
     String fileName = basename(image.path);
-    if (readPageState.readPageInfo.gid != null && readPageState.readPageInfo.token != null) {
-      fileName = '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index${extension(image.path)}';
+    if (readPageState.readPageInfo.gid != null &&
+        readPageState.readPageInfo.token != null) {
+      fileName =
+          '${readPageState.readPageInfo.gid!}_${readPageState.readPageInfo.token!}_$index${extension(image.path)}';
     }
 
     if (GetPlatform.isDesktop) {
-      image.copy(join(downloadSetting.singleImageSavePath.value, fileName)).then((_) => toast('success'.tr));
+      image
+          .copy(join(downloadSetting.singleImageSavePath.value, fileName))
+          .then((_) => toast('success'.tr));
     } else {
       _saveFile2Album(filePath, fileName).then((_) => toast('success'.tr));
     }
@@ -695,9 +851,14 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       pageUrl = readPageState.thumbnails[index]!.replacedMPVHref(index + 1);
     }
 
-    if (pageUrl == null && readPageState.images[index]?.imageHash != null && readPageState.readPageInfo.gid != null) {
-      bool isEX = readPageState.readPageInfo.galleryUrl?.contains(EHConsts.EXIndex) == true;
-      pageUrl = (isEX ? EHConsts.EXIndex : EHConsts.EHIndex) + '/s/${readPageState.images[index]!.imageHash}/${readPageState.readPageInfo.gid}-${index + 1}';
+    if (pageUrl == null &&
+        readPageState.images[index]?.imageHash != null &&
+        readPageState.readPageInfo.gid != null) {
+      bool isEX =
+          readPageState.readPageInfo.galleryUrl?.contains(EHConsts.EXIndex) ==
+              true;
+      pageUrl = (isEX ? EHConsts.EXIndex : EHConsts.EHIndex) +
+          '/s/${readPageState.images[index]!.imageHash}/${readPageState.readPageInfo.gid}-${index + 1}';
     }
 
     if (pageUrl == null) {
@@ -705,7 +866,8 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       return;
     }
 
-    FlutterClipboard.copy(pageUrl).then((_) => toast('hasCopiedToClipboard'.tr));
+    FlutterClipboard.copy(pageUrl)
+        .then((_) => toast('hasCopiedToClipboard'.tr));
   }
 
   /// Compute image container size when we haven't parsed image's size
@@ -726,7 +888,8 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   }
 
   Alignment _computeAlignmentByTapOffset(Offset offset) {
-    return Alignment((offset.dx - Get.size.width / 2) / (Get.size.width / 2), (offset.dy - Get.size.height / 2) / (Get.size.height / 2));
+    return Alignment((offset.dx - Get.size.width / 2) / (Get.size.width / 2),
+        (offset.dy - Get.size.height / 2) / (Get.size.height / 2));
   }
 
   Future<bool> _saveImage2Album(Uint8List imageData, String fileName) async {
