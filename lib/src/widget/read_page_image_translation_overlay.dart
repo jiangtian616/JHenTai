@@ -191,7 +191,10 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
       case 'TRANSLATION_UNAVAILABLE':
         return 'imageTranslationTranslationUnavailable'.tr;
       case 'TRANSLATION_NOT_INSTALLED':
-        return 'imageTranslationTranslationNotInstalled'.tr;
+        return (GetPlatform.isIOS
+                ? 'imageTranslationTranslationNotInstalledIos'
+                : 'imageTranslationTranslationNotInstalled')
+            .tr;
       case 'TRANSLATION_FAILED':
         return 'imageTranslationTranslationFailed'.tr;
       case 'PADDLE_RUNTIME_NOT_READY':

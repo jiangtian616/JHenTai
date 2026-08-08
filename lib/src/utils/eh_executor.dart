@@ -251,7 +251,7 @@ class _EHExecutor implements EHExecutor {
         while (_started.isNotEmpty && _started.first.isBefore(limitStart)) {
           _started.removeFirst();
         }
-        if (_started.isNotEmpty) {
+        if (_started.isNotEmpty && rate.maximum > 0) {
           final gap = rate.period ~/ rate.maximum;
           final last = now.difference(_started.last);
           if (gap > last) {

@@ -1098,8 +1098,12 @@ class ru_RU {
       'imageTranslationShow': 'Показать перевод',
       'imageTranslationHide': 'Скрыть перевод',
       'imageTranslationRetranslate': 'Перевести заново',
+      'imageTranslationStart': 'Начать перевод',
+      'imageTranslationSettings': 'Настройки перевода',
       'imageTranslationTranslationNotInstalled':
           'Языковые пакеты встроенного перевода Apple не установлены. Установите их в Системных настройках → Основные → Язык и регион → Языки перевода, или включите «Использовать сторонний API для перевода».',
+      'imageTranslationTranslationNotInstalledIos':
+          'Языковые пакеты встроенного перевода Apple не установлены. Установите их в Настройках → Перевод → Загруженные языки, или включите «Использовать сторонний API для перевода».',
     };
   }
 }

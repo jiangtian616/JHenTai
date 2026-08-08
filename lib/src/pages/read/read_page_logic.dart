@@ -1356,6 +1356,11 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
         force: true);
   }
 
+  /// Starts the translation flow for the current page (honouring the
+  /// translate-subsequent-pages scope setting).
+  Future<void> startImageTranslation(BuildContext context) =>
+      _translateCurrentImage(context);
+
   Future<void> _pushReadSettingPage() async {
     restoreImmersiveMode();
     toRoute(Routes.settingRead, id: fullScreen)?.then((_) {

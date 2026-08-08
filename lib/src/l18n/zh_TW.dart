@@ -999,8 +999,12 @@ favnote：配對收藏備註
       'imageTranslationShow': '顯示翻譯',
       'imageTranslationHide': '隱藏翻譯',
       'imageTranslationRetranslate': '重新翻譯',
+      'imageTranslationStart': '開始翻譯',
+      'imageTranslationSettings': '翻譯設定',
       'imageTranslationTranslationNotInstalled':
           'Apple 端側翻譯語言包尚未安裝。請在系統設定 → 一般 → 語言與地區 → 翻譯語言 中下載，或開啟「使用第三方 API 翻譯」。',
+      'imageTranslationTranslationNotInstalledIos':
+          'Apple 端側翻譯語言包尚未安裝。請在 設定 → 翻譯 → 已下載語言 中下載，或開啟「使用第三方 API 翻譯」。',
     };
   }
 }

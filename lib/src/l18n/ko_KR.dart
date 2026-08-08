@@ -1034,8 +1034,12 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationShow': '번역 표시',
       'imageTranslationHide': '번역 숨기기',
       'imageTranslationRetranslate': '다시 번역',
+      'imageTranslationStart': '번역 시작',
+      'imageTranslationSettings': '번역 설정',
       'imageTranslationTranslationNotInstalled':
           'Apple 온디바이스 번역 언어 팩이 설치되어 있지 않습니다. 시스템 설정 → 일반 → 언어 및 지역 → 번역 언어에서 설치하거나 "타사 API로 번역"을 켜세요.',
+      'imageTranslationTranslationNotInstalledIos':
+          'Apple 온디바이스 번역 언어 팩이 설치되어 있지 않습니다. 설정 → 번역 → 다운로드한 언어에서 설치하거나 "타사 API로 번역"을 켜세요.',
     };
   }
 }

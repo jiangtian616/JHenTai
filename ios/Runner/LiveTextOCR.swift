@@ -187,8 +187,9 @@ enum LiveTextOCR {
       }
       // The pair must be installed for on-device translation. `supported` but
       // not `installed` means the user has to install the language pack first
-      // (macOS: System Settings > General > Language & Region > Translation
-      // Languages); apps cannot always trigger that download themselves.
+      // (iPhone: Settings > Translate > Downloaded Languages; macOS: System
+      // Settings > General > Language & Region > Translation Languages);
+      // apps cannot always trigger that download themselves.
       let availability = LanguageAvailability()
       let status = await availability.status(from: source, to: target)
       switch status {

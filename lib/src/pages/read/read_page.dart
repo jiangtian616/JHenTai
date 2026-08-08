@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -25,6 +26,7 @@ import '../../config/theme_config.dart';
 import '../../service/gallery_download_service.dart';
 import '../../setting/keyboard_shortcut_setting.dart';
 import '../../setting/read_setting.dart';
+import '../../setting/style_setting.dart';
 import '../../utils/route_util.dart';
 import '../../utils/screen_size_util.dart';
 import '../../widget/eh_image.dart';
@@ -376,37 +378,14 @@ class _ReadPageState extends State<ReadPage>
                   ),
                 ),
               ),
-              Tooltip(
-                message: 'imageTextTranslation'.tr,
-                child: ElevatedButton(
-                  child: const Icon(Icons.translate,
-                      size: 24, color: UIConfig.readPageButtonColor),
-                  onPressed: () => logic.openImageTranslationConfig(context),
-                  style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    padding: const EdgeInsets.all(0),
-                    surfaceTintColor: Colors.transparent,
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    minimumSize: const Size(56, 56),
-                  ),
-                ),
-              ),
               GetBuilder<ReadPageLogic>(
                 id: logic.translationMenuId,
                 builder: (_) => Tooltip(
-                  message: state.showImageTranslationOverlay
-                      ? 'imageTranslationHide'.tr
-                      : 'imageTranslationShow'.tr,
+                  message: 'imageTextTranslation'.tr,
                   child: ElevatedButton(
-                    child: Icon(
-                      state.showImageTranslationOverlay
-                          ? Icons.visibility_off
-                          : Icons.visibility,
-                      size: 24,
-                      color: UIConfig.readPageButtonColor,
-                    ),
-                    onPressed: logic.toggleImageTranslationOverlay,
+                    child: const Icon(Icons.translate,
+                        size: 24, color: UIConfig.readPageButtonColor),
+                    onPressed: () => _showImageTranslationMenu(context),
                     style: ElevatedButton.styleFrom(
                       elevation: 0,
                       padding: const EdgeInsets.all(0),
@@ -415,22 +394,6 @@ class _ReadPageState extends State<ReadPage>
                       shadowColor: Colors.transparent,
                       minimumSize: const Size(56, 56),
                     ),
-                  ),
-                ),
-              ),
-              Tooltip(
-                message: 'imageTranslationRetranslate'.tr,
-                child: ElevatedButton(
-                  child: const Icon(Icons.refresh,
-                      size: 24, color: UIConfig.readPageButtonColor),
-                  onPressed: () => logic.retranslateCurrentImage(context),
-                  style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    padding: const EdgeInsets.all(0),
-                    surfaceTintColor: Colors.transparent,
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    minimumSize: const Size(56, 56),
                   ),
                 ),
               ),
@@ -452,6 +415,95 @@ class _ReadPageState extends State<ReadPage>
           ),
         );
       },
+    );
+  }
+
+  /// Single translation entry point: expands a small action window with the
+  /// frequently used translation actions. Renders as an Apple action sheet or a
+  /// Material bottom sheet depending on the Apple visual style toggle.
+  void _showImageTranslationMenu(BuildContext context) {
+    final bool apple = styleSetting.appleVisualStyle.value;
+    final bool overlayVisible = state.showImageTranslationOverlay;
+
+    void run(BuildContext sheetContext, VoidCallback action) {
+      Navigator.of(sheetContext).pop();
+      action();
+    }
+
+    if (apple) {
+      showCupertinoModalPopup<void>(
+        context: context,
+        builder: (sheetContext) => CupertinoActionSheet(
+          title: Text('imageTextTranslation'.tr),
+          actions: [
+            CupertinoActionSheetAction(
+              onPressed: () =>
+                  run(sheetContext, () => logic.startImageTranslation(context)),
+              child: Text('imageTranslationStart'.tr),
+            ),
+            CupertinoActionSheetAction(
+              onPressed: () =>
+                  run(sheetContext, () => logic.retranslateCurrentImage(context)),
+              child: Text('imageTranslationRetranslate'.tr),
+            ),
+            CupertinoActionSheetAction(
+              onPressed: () =>
+                  run(sheetContext, () => logic.openImageTranslationConfig(context)),
+              child: Text('imageTranslationSettings'.tr),
+            ),
+            CupertinoActionSheetAction(
+              onPressed: () => run(sheetContext, logic.toggleImageTranslationOverlay),
+              child: Text(overlayVisible
+                  ? 'imageTranslationHide'.tr
+                  : 'imageTranslationShow'.tr),
+            ),
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.of(sheetContext).pop(),
+            child: Text('cancel'.tr),
+          ),
+        ),
+      );
+    } else {
+      showModalBottomSheet<void>(
+        context: context,
+        builder: (sheetContext) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _translationMenuTile(
+                Icons.play_arrow,
+                'imageTranslationStart'.tr,
+                () => run(sheetContext, () => logic.startImageTranslation(context)),
+              ),
+              _translationMenuTile(
+                Icons.refresh,
+                'imageTranslationRetranslate'.tr,
+                () => run(sheetContext, () => logic.retranslateCurrentImage(context)),
+              ),
+              _translationMenuTile(
+                Icons.settings,
+                'imageTranslationSettings'.tr,
+                () => run(sheetContext, () => logic.openImageTranslationConfig(context)),
+              ),
+              _translationMenuTile(
+                overlayVisible ? Icons.visibility_off : Icons.visibility,
+                overlayVisible ? 'imageTranslationHide'.tr : 'imageTranslationShow'.tr,
+                () => run(sheetContext, logic.toggleImageTranslationOverlay),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+  }
+
+  Widget _translationMenuTile(IconData icon, String label, VoidCallback onTap) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(label),
+      onTap: onTap,
     );
   }
 

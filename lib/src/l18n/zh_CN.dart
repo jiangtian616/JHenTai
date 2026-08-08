@@ -1002,8 +1002,12 @@ favnote：匹配收藏备注
       'imageTranslationShow': '显示翻译',
       'imageTranslationHide': '隐藏翻译',
       'imageTranslationRetranslate': '重新翻译',
+      'imageTranslationStart': '开始翻译',
+      'imageTranslationSettings': '翻译设置',
       'imageTranslationTranslationNotInstalled':
           'Apple 端侧翻译语言包尚未安装。请在系统设置 → 通用 → 语言与地区 → 翻译语言 中下载，或开启「使用第三方 API 翻译」。',
+      'imageTranslationTranslationNotInstalledIos':
+          'Apple 端侧翻译语言包尚未安装。请在 设置 → 翻译 → 已下载语言 中下载，或开启「使用第三方 API 翻译」。',
       'imageTranslationPaddleRuntimePath': 'Paddle 运行环境',
       'imageTranslationPreparePaddle': '安装运行环境并下载模型',
       'imageTranslationPaddleReady': 'PaddleOCR 运行环境已准备完成。',

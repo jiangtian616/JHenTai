@@ -94,19 +94,26 @@ class _EHAppleSettingsCard extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(10),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (var index = 0; index < children.length; index++) ...[
-              children[index],
-              if (index < children.length - 1)
-                Divider(
-                  height: 0.5,
-                  indent: 56,
-                  color: Theme.of(context).dividerColor.withValues(alpha: 0.7),
-                ),
+        child: Material(
+          // Give the ListTiles a Material ancestor under the DecoratedBox so
+          // their ink splash/background paints on it instead of being hidden,
+          // which also silences the repeated "ListTile background color or ink
+          // splashes may be invisible" global error.
+          type: MaterialType.transparency,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (var index = 0; index < children.length; index++) ...[
+                children[index],
+                if (index < children.length - 1)
+                  Divider(
+                    height: 0.5,
+                    indent: 56,
+                    color: Theme.of(context).dividerColor.withValues(alpha: 0.7),
+                  ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

@@ -1094,8 +1094,12 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationShow': 'Mostrar tradução',
       'imageTranslationHide': 'Ocultar tradução',
       'imageTranslationRetranslate': 'Retraduzir',
+      'imageTranslationStart': 'Iniciar tradução',
+      'imageTranslationSettings': 'Configurações de tradução',
       'imageTranslationTranslationNotInstalled':
           'Os pacotes de idiomas da tradução no dispositivo da Apple não estão instalados. Instale-os em Ajustes do Sistema → Geral → Idioma e Região → Idiomas de Tradução, ou ative "Usar API de terceiros para tradução".',
+      'imageTranslationTranslationNotInstalledIos':
+          'Os pacotes de idiomas da tradução no dispositivo da Apple não estão instalados. Instale-os em Ajustes → Traduzir → Idiomas Baixados, ou ative "Usar API de terceiros para tradução".',
     };
   }
 }

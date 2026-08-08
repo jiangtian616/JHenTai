@@ -81,6 +81,13 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     log.debug('Archive download tasks count: ${archives.length}');
 
     for (ArchiveDownloadedData archive in archives) {
+      // A process restart resets the isolate budget, so archives that were
+      // queued behind it (waitingIsolate) must be promoted back to
+      // "downloading" to resume; otherwise the resume gates never match and the
+      // archive stays stuck forever.
+      if (archive.archiveStatusCode == ArchiveStatus.waitingIsolate.code) {
+        await _updateArchiveStatus(archive.gid, ArchiveStatus.downloading);
+      }
       if (archive.archiveStatusCode >= ArchiveStatus.unlocking.code && archive.archiveStatusCode <= ArchiveStatus.unpacking.code) {
         downloadArchive(archive, resume: true);
       }
@@ -185,7 +192,10 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       archiveDownloadInfo.cancelToken.cancel();
       archiveDownloadInfo.cancelToken = CancelToken();
       await archiveDownloadInfo.downloadTask?.pause();
-      archiveDownloadInfo.downloadCompleter?.completeError(CancelException());
+      final Completer? completer = archiveDownloadInfo.downloadCompleter;
+      if (completer != null && !completer.isCompleted) {
+        completer.completeError(CancelException());
+      }
       archiveDownloadInfo.speedComputer.pause();
 
       await _updateArchiveStatus(gid, needReUnlock ? ArchiveStatus.needReUnlock : ArchiveStatus.paused);
@@ -228,11 +238,17 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       archiveDownloadInfo.archiveStatus = ArchiveStatus.unlocking;
       archiveDownloadInfo.downloadPageUrl = null;
       archiveDownloadInfo.downloadUrl = null;
-      archiveDownloadInfo.downloadTask = null;
       archiveDownloadInfo.cancelToken.cancel();
       archiveDownloadInfo.cancelToken = CancelToken();
+      // Pause the in-flight j_downloader task BEFORE dropping the reference, so
+      // the download actually stops and does not keep writing an orphaned
+      // .jdtemp file in the background.
       await archiveDownloadInfo.downloadTask?.pause();
-      archiveDownloadInfo.downloadCompleter?.completeError(CancelException());
+      archiveDownloadInfo.downloadTask = null;
+      final Completer? completer = archiveDownloadInfo.downloadCompleter;
+      if (completer != null && !completer.isCompleted) {
+        completer.completeError(CancelException());
+      }
 
       await _updateArchiveInDatabase(archive.gid);
       update(['$archiveStatusId::${archive.gid}']);
@@ -1029,6 +1045,11 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
         archiveDownloadInfo.downloadCompleter = Completer();
         await archiveDownloadInfo.downloadCompleter!.future;
+        // The download finished; drop the completed completer so a later
+        // pause/cancel (e.g. a failed move or unpack) cannot call completeError
+        // on an already-completed completer, which would throw StateError and
+        // permanently wedge the archive in a "downloading" state.
+        archiveDownloadInfo.downloadCompleter = null;
       } on CancelException catch (_) {
         archiveDownloadInfo.downloadCompleter = null;
         return;
@@ -1296,7 +1317,14 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   Future<void> _deletePackingFileInDisk(ArchiveDownloadedData archive) async {
-    for (final String filePath in [computePackingFileDownloadPath(archive), '${computePackingFileDownloadPath(archive)}.download']) {
+    for (final String filePath in [
+      computePackingFileDownloadPath(archive),
+      '${computePackingFileDownloadPath(archive)}.download',
+      // j_downloader's in-progress / copy temp files can be large; clean them
+      // too so a cancelled archive does not leak hundreds of MB on disk.
+      '${computePackingFileDownloadPath(archive)}.download.jdtemp',
+      '${computePackingFileDownloadPath(archive)}.download.jdcopy',
+    ]) {
       File file = File(filePath);
       if (await file.exists()) {
         await file.delete();

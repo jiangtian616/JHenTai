@@ -14,6 +14,7 @@ import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:jhentai/src/utils/image_cache_util.dart';
 import 'dart:io' as io;
 
 import 'dart:ui' as ui;
@@ -230,6 +231,10 @@ class _EHImageState extends State<EHImage> {
             ? _GateExtendedNetworkImageProvider(url,
                 cache: true,
                 printError: kDebugMode,
+                // Key the disk cache by the stable image identity so it
+                // survives EH's rotating keystamp token (and can be reused by
+                // the downloader later).
+                cacheKey: normalizedImageCacheKey(url),
                 timeLimit: timeLimit == null
                     ? null
                     : Duration(milliseconds: timeLimit),
@@ -237,6 +242,7 @@ class _EHImageState extends State<EHImage> {
             : ExtendedNetworkImageProvider(url,
                 cache: true,
                 printError: kDebugMode,
+                cacheKey: normalizedImageCacheKey(url),
                 timeLimit: timeLimit == null
                     ? null
                     : Duration(milliseconds: timeLimit)),
@@ -566,7 +572,7 @@ class _GateExtendedFileImageProvider extends ExtendedFileImageProvider {
 
 class _GateExtendedNetworkImageProvider extends network_image_io.ExtendedNetworkImageProvider {
   _GateExtendedNetworkImageProvider(super.url,
-      {super.cache, super.printError, super.timeLimit, required this.gate});
+      {super.cache, super.printError, super.timeLimit, super.cacheKey, required this.gate});
 
   final EHImageAnimationGate gate;
 

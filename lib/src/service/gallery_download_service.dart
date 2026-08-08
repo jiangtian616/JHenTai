@@ -37,6 +37,7 @@ import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/convert_util.dart';
+import 'package:jhentai/src/utils/image_cache_util.dart';
 import 'package:jhentai/src/utils/jh_response_parser.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
@@ -81,6 +82,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   static const int _maxRetryTimes = 3;
   static const int _maxRetryTimes4FetchImageHashes = 1;
+  static const int _maxConsecutiveNetworkFailures = 3;
   static const String metadataFileName = 'metadata';
   static const int defaultDownloadGalleryPriority = 4;
   static const int _priorityBase = 100000000;
@@ -545,7 +547,15 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         continue;
       }
 
-      Map metadata = jsonDecode(metadataFile.readAsStringSync());
+      Map metadata;
+      try {
+        metadata = jsonDecode(metadataFile.readAsStringSync()) as Map;
+      } catch (e, st) {
+        // A metadata file truncated by a crash mid-write must not abort the
+        // whole restore (and every later launch); skip it and continue.
+        log.warning('Skip corrupted gallery metadata file: ${metadataFile.path}', e, true);
+        continue;
+      }
 
       /// compatible with new field
       (metadata['gallery'] as Map).putIfAbsent('downloadOriginalImage', () => false);
@@ -912,7 +922,14 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         List<String> imageHashes = await _fetchImageHashesFromJHenTaiServer(gallery);
 
         if (imageHashes.length == gallery.pageCount) {
-          await _tryCopyImageInfosFromImageHashes(gallery, imageHashes);
+          try {
+            await _tryCopyImageInfosFromImageHashes(gallery, imageHashes);
+          } catch (e, st) {
+            // Copying from the old gallery is a best-effort optimization; if it
+            // fails (e.g. old image files deleted from disk) just download the
+            // images normally instead of aborting the whole gallery task.
+            log.warning('Copy image infos from hashes failed, gid: ${gallery.gid}', e, true);
+          }
         } else {
           log.error('Image hashes count mismatch, gid: ${gallery.gid}, expected: ${gallery.pageCount}, actual: ${imageHashes.length}');
         }
@@ -979,8 +996,15 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       return;
     }
 
-    /// url has been parsed => download directly
+    /// url has been parsed => serve from cache if possible, else download
     if (galleryDownloadInfo.images[serialNo]?.url != null) {
+      final GalleryImage image = galleryDownloadInfo.images[serialNo]!;
+      // Cache-served images are copied directly here, outside the executor's
+      // rate-limited queue, so a gallery that was read before copies its cached
+      // pages instantly instead of waiting on the per-second task pacing.
+      if (await _tryCopyCachedImage(gallery, image, serialNo)) {
+        return;
+      }
       return _submitImageTask(gallery, serialNo, () => _downloadImageTask(gallery, serialNo));
     }
 
@@ -1018,6 +1042,11 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         );
       } on DioException catch (e) {
         if (e.type == DioExceptionType.cancel) {
+          return;
+        }
+        if (_recordNetworkFailure(gallery)) {
+          await _pauseOnSiteError(
+              gallery: gallery, pauseAll: false, message: 'networkError'.tr);
           return;
         }
         return _submitImageTask(gallery, serialNo, () => _parseImageHrefTask(gallery, serialNo));
@@ -1061,7 +1090,11 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
       /// If this is a update from old gallery, try to copy from existing old image first
       if (gallery.oldVersionGalleryUrl != null) {
-        await _tryCopyImageInfoFromHref(gallery.oldVersionGalleryUrl!, gallery, serialNo);
+        try {
+          await _tryCopyImageInfoFromHref(gallery.oldVersionGalleryUrl!, gallery, serialNo);
+        } catch (e, st) {
+          log.warning('Copy old image href failed, will re-parse, gid: ${gallery.gid}, serialNo: $serialNo', e, true);
+        }
 
         if (galleryDownloadInfo.images[serialNo] != null) {
           return;
@@ -1089,6 +1122,11 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         if (e.type == DioExceptionType.cancel) {
           return;
         }
+        if (_recordNetworkFailure(gallery)) {
+          await _pauseOnSiteError(
+              gallery: gallery, pauseAll: false, message: 'networkError'.tr);
+          return;
+        }
         return _submitImageTask(gallery, serialNo, () => _parseImageUrlTask(gallery, serialNo, reParse: true));
       } on EHParseException catch (e) {
         log.download('Parse image url error, reason: ${e.message.tr}');
@@ -1110,10 +1148,15 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       await _saveNewImageInfoInDatabase(image, serialNo, gallery.gid);
 
       galleryDownloadInfo.images[serialNo] = image;
+      _resetNetworkFailures(gallery.gid);
 
       log.download('Parse image url success, index: $serialNo, url: ${image.url}');
 
-      /// Next step: download image
+      /// Next step: serve from cache if possible (copy directly, no extra
+      /// rate-limited download task), else download from the network.
+      if (await _tryCopyCachedImage(gallery, image, serialNo)) {
+        return;
+      }
       return _submitImageTask(gallery, serialNo, () => _downloadImageTask(gallery, serialNo));
     };
   }
@@ -1131,7 +1174,11 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
       /// If this is a update from old gallery, try to copy from existing old image first
       if (gallery.oldVersionGalleryUrl != null) {
-        await _tryCopyImageInfoFromImage(gallery.oldVersionGalleryUrl!, gallery, serialNo);
+        try {
+          await _tryCopyImageInfoFromImage(gallery.oldVersionGalleryUrl!, gallery, serialNo);
+        } catch (e, st) {
+          log.warning('Copy old image failed, will download, gid: ${gallery.gid}, serialNo: $serialNo', e, true);
+        }
 
         if (image.downloadStatus == DownloadStatus.downloaded) {
           return;
@@ -1178,6 +1225,11 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         }
         log.download('Download ${gallery.title} image: $serialNo failed, try re-parse. Reason: ${e.errorMsg}. Url:${image.url}');
         await _deleteTempImageFile(tempPath);
+        if (_recordNetworkFailure(gallery)) {
+          await _pauseOnSiteError(
+              gallery: gallery, pauseAll: false, message: 'networkError'.tr);
+          return;
+        }
         return _reParseImageUrlAndDownload(gallery, serialNo);
       } on EHSiteException catch (e) {
         log.download('Download Error, reason: ${e.message}');
@@ -1222,7 +1274,29 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       await _updateImageStatus(gallery, image, serialNo, DownloadStatus.downloaded);
 
       await _updateProgressAfterImageDownloaded(gallery, serialNo);
+      _resetNetworkFailures(gallery.gid);
     };
+  }
+
+  /// Records one network failure for [gallery] and returns true when the
+  /// consecutive-failure cap is reached (the gallery should pause instead of
+  /// re-parsing forever). Callers that end up parsing/downloading successfully
+  /// must call [_resetNetworkFailures].
+  bool _recordNetworkFailure(GalleryDownloadedData gallery) {
+    GalleryDownloadInfo? info = galleryDownloadInfos[gallery.gid];
+    if (info == null) {
+      return true;
+    }
+    info.consecutiveNetworkFailures++;
+    if (info.consecutiveNetworkFailures >= _maxConsecutiveNetworkFailures) {
+      info.consecutiveNetworkFailures = 0;
+      return true;
+    }
+    return false;
+  }
+
+  void _resetNetworkFailures(int gid) {
+    galleryDownloadInfos[gid]?.consecutiveNetworkFailures = 0;
   }
 
   /// the image's url may be invalid, try re-parse and then download
@@ -1371,12 +1445,69 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   Future<void> _tryLoadFromCacheInsteadDownload(GalleryDownloadedData gallery, GalleryImage image, int serialNo, String path) async {
-    io.File? cachedImageFile = await getCachedImageFile(image.url);
-    if (cachedImageFile != null && cachedImageFile.existsSync()) {
-      log.debug('download image from cache, gallery: ${gallery.gid}, serialNo:$serialNo');
-      await cachedImageFile.copy(path);
+    await _tryCopyCachedImage(gallery, image, serialNo);
+  }
+
+  /// Looks up [image] in the extended_image disk cache (by its stable
+  /// image-identity key) and, on a hit, copies it to the download folder.
+  /// Returns true when served from cache, false when it must be downloaded.
+  ///
+  /// Safe to call from anywhere: a failure just falls through to the network
+  /// download. The copied bytes are counted into the speed/progress display so
+  /// cache-served images do not show 0 B/s.
+  Future<bool> _tryCopyCachedImage(
+      GalleryDownloadedData gallery, GalleryImage image, int serialNo) async {
+    try {
+      // Try the display URL first, then the original URL as a fallback.
+      final List<String> candidateUrls = [
+        image.url,
+        if (image.originalImageUrl != null &&
+            image.originalImageUrl != image.url)
+          image.originalImageUrl!,
+      ];
+
+      io.File? cachedImageFile;
+      for (final String candidate in candidateUrls) {
+        // Use the stable image-identity key (ignores EH's rotating keystamp,
+        // the H@H node and the /h/ vs /om/ URL formats), matching the key
+        // EHImage writes the read cache under.
+        cachedImageFile = await getCachedImageFile(candidate,
+            cacheKey: normalizedImageCacheKey(candidate));
+        if (cachedImageFile != null && cachedImageFile.existsSync()) {
+          log.debug(
+              'Download image from cache, gid: ${gallery.gid}, serialNo: $serialNo, url: $candidate');
+          break;
+        }
+      }
+
+      if (cachedImageFile == null || !cachedImageFile.existsSync()) {
+        // Diagnostic: a miss here means the cache was not populated for this
+        // URL (or was evicted) — see the download log for the URL.
+        log.download(
+            'No cached image for download, fetching from network. gid: ${gallery.gid}, serialNo: $serialNo, url: ${image.url}');
+        return false;
+      }
+
+      final String path =
+          _computeImageDownloadAbsolutePath(gallery, image.url, serialNo);
+      // Count the copied bytes as download progress so the speed/progress
+      // display reflects cache-served images too; otherwise they show 0 B/s.
+      final int cacheSize = await cachedImageFile.length();
+      galleryDownloadInfos[gallery.gid]!.speedComputer
+          .updateProgress(cacheSize, cacheSize, serialNo);
+      // Copy through the temp path and atomically move it into place so a
+      // failed/interrupted copy never leaves a partial file at the final path.
+      final String tempPath = '$path.download';
+      await cachedImageFile.copy(tempPath);
+      await FileUtil.moveFileAtomic(tempPath, path);
       await _updateImageStatus(gallery, image, serialNo, DownloadStatus.downloaded);
       await _updateProgressAfterImageDownloaded(gallery, serialNo);
+      return true;
+    } on Exception catch (e, st) {
+      // A cache hiccup must not kill the task or leave the image stuck; fall
+      // through to the normal network download.
+      log.warning('Load image from cache failed, will download, gid: ${gallery.gid}, serialNo: $serialNo', e, true);
+      return false;
     }
   }
 
@@ -1386,6 +1517,14 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     GalleryDownloadProgress downloadProgress = galleryDownloadInfos[gallery.gid]!.downloadProgress;
+
+    /// Guard against a stale in-flight task completing twice for the same image
+    /// (e.g. after a re-download or pause/resume), which would inflate curCount
+    /// past totalCount and leave the gallery stuck in "downloading" forever.
+    if (downloadProgress.hasDownloaded[serialNo]) {
+      return;
+    }
+
     downloadProgress.curCount++;
     downloadProgress.hasDownloaded[serialNo] = true;
 
@@ -1703,11 +1842,13 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     try {
-      io.File file = io.File(path.join(computeGalleryDownloadAbsolutePath(gallery), metadataFileName));
-      if (!await file.exists()) {
-        await file.create(recursive: true);
-      }
-      await file.writeAsString(metadataJson);
+      final String metadataPath =
+          path.join(computeGalleryDownloadAbsolutePath(gallery), metadataFileName);
+      // Write atomically (temp + rename) so a crash mid-write cannot leave a
+      // truncated metadata file that breaks restoreTasks on every launch.
+      final io.File tempFile = io.File('$metadataPath.tmp');
+      await tempFile.writeAsString(metadataJson, flush: true);
+      await tempFile.rename(metadataPath);
     } catch (e, st) {
       log.error('Save gallery metadata failed, gid: ${gallery.gid}', e, st);
     }
@@ -1723,7 +1864,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   void _deleteImageInDisk(GalleryImage image) {
     try {
-      io.File file = io.File(image.path!);
+      // image.path is stored relative to the visible dir; resolve it here so
+      // re-download deletes the actual file instead of a CWD-relative one.
+      io.File file = io.File(path.join(pathService.getVisibleDir().path, image.path!));
       if (!file.existsSync()) {
         return;
       }
@@ -1803,6 +1946,11 @@ class GalleryDownloadInfo {
   int sortOrder;
 
   String group;
+
+  /// Consecutive network failures that triggered a re-parse for this gallery.
+  /// Resets on any successful parse/download; caps the parse→download→re-parse
+  /// loop so a dead connection pauses the gallery instead of retrying forever.
+  int consecutiveNetworkFailures = 0;
 
   GalleryDownloadInfo({
     required this.thumbnailsCountPerPage,

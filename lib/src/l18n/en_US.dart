@@ -1073,8 +1073,12 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationShow': 'Show translation',
       'imageTranslationHide': 'Hide translation',
       'imageTranslationRetranslate': 'Re-translate',
+      'imageTranslationStart': 'Start translation',
+      'imageTranslationSettings': 'Translation settings',
       'imageTranslationTranslationNotInstalled':
           'Apple on-device translation languages are not installed. Install them in System Settings → General → Language & Region → Translation Languages, or turn on "Use third-party API".',
+      'imageTranslationTranslationNotInstalledIos':
+          'Apple on-device translation languages are not installed. Install them in Settings → Translate → Downloaded Languages, or turn on "Use third-party API".',
       'imageTranslationPaddleRuntimePath': 'Paddle runtime',
       'imageTranslationPreparePaddle': 'Install runtime and download model',
       'imageTranslationPaddleReady': 'PaddleOCR runtime is ready.',
