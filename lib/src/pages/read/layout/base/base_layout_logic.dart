@@ -293,9 +293,16 @@ abstract class BaseLayoutLogic extends GetxController
     final ReadMode mode = readPageState.readPageInfo.mode;
     ImageTranslationRequest request;
     if (mode == ReadMode.online) {
-      final Uint8List? bytes = await getNetworkImageData(image.url);
+      // Images that have not been loaded/cached yet can take a long time to
+      // fetch. Do not let one slow image stall a batch translation: give the
+      // fetch a short timeout and skip the page when it is not available in
+      // time. A single-page translate still reports the failure.
+      final Uint8List? bytes = await getNetworkImageData(image.url)
+          .timeout(const Duration(seconds: 5), onTimeout: () => null);
       if (bytes == null) {
-        toast('imageTranslationSourceUnavailable'.tr);
+        if (!imageTranslationService.isBatchTranslating) {
+          toast('imageTranslationSourceUnavailable'.tr);
+        }
         return;
       }
       request = ImageTranslationRequest(

@@ -333,6 +333,10 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   void onClose() {
     super.onClose();
 
+    // Leaving the gallery must stop any in-flight translation batch so the
+    // OCR/API work is not carried on in the background.
+    imageTranslationService.cancelBatch();
+
     _saveSessionCache();
 
     WidgetsBinding.instance.removeObserver(this);
@@ -1320,7 +1324,13 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
           if (imageTranslationService.isCancelRequested) {
             break;
           }
-          await layoutLogic.translateImage(index, context);
+          // A single slow/errored page must not abort the whole batch.
+          try {
+            await layoutLogic.translateImage(index, context);
+          } catch (e, stack) {
+            log.warning('Image translation failed for page $index: $e');
+            log.trace(stack);
+          }
           imageTranslationService.batchCompleted = index - startIndex + 1;
           imageTranslationService
               .update([ImageTranslationService.batchProgressId]);
