@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -26,7 +25,6 @@ import '../../config/theme_config.dart';
 import '../../service/gallery_download_service.dart';
 import '../../setting/keyboard_shortcut_setting.dart';
 import '../../setting/read_setting.dart';
-import '../../setting/style_setting.dart';
 import '../../utils/route_util.dart';
 import '../../utils/screen_size_util.dart';
 import '../../widget/eh_image.dart';
@@ -37,6 +35,9 @@ import '../../widget/eh_wheel_speed_controller_for_read_page.dart';
 import '../../widget/loading_state_indicator.dart';
 import 'layout/horizontal_double_column/horizontal_double_column_layout.dart';
 import 'layout/vertical_list/vertical_list_layout.dart';
+
+/// Actions offered by the read-page top-right translate button dropdown.
+enum _ImageTranslationMenuAction { start, retranslate, settings, toggleOverlay }
 
 class ReadPage extends StatefulWidget {
   const ReadPage({super.key});
@@ -49,6 +50,9 @@ class _ReadPageState extends State<ReadPage>
     with ScrollStatusListener, WindowListener, WindowWidgetMixin {
   final ReadPageLogic logic = Get.put<ReadPageLogic>(ReadPageLogic());
   final ReadPageState state = Get.find<ReadPageLogic>().state;
+
+  /// Anchors the image-translation dropdown menu below the top-right button.
+  final GlobalKey _imageTranslationMenuKey = GlobalKey();
 
   @override
   ScrollStatusListerState get scrollStatusListerState => state;
@@ -383,6 +387,7 @@ class _ReadPageState extends State<ReadPage>
                 builder: (_) => Tooltip(
                   message: 'imageTextTranslation'.tr,
                   child: ElevatedButton(
+                    key: _imageTranslationMenuKey,
                     child: const Icon(Icons.translate,
                         size: 24, color: UIConfig.readPageButtonColor),
                     onPressed: () => _showImageTranslationMenu(context),
@@ -418,92 +423,85 @@ class _ReadPageState extends State<ReadPage>
     );
   }
 
-  /// Single translation entry point: expands a small action window with the
-  /// frequently used translation actions. Renders as an Apple action sheet or a
-  /// Material bottom sheet depending on the Apple visual style toggle.
-  void _showImageTranslationMenu(BuildContext context) {
-    final bool apple = styleSetting.appleVisualStyle.value;
+  /// Single translation entry point: expands a small dropdown menu anchored
+  /// under the top-right translate button (same pattern as the settings-page
+  /// dropdowns). Rendered by the active theme's popup menu styling — with the
+  /// Apple visual style enabled the menu matches the settings-page dropdowns
+  /// (solid gray surface, 10dp radius). Uses the root navigator so the menu is
+  /// not misplaced when the read page sits in a nested Navigator (desktop
+  /// detail panel).
+  Future<void> _showImageTranslationMenu(BuildContext context) async {
+    final RenderBox buttonBox =
+        _imageTranslationMenuKey.currentContext!.findRenderObject()!
+            as RenderBox;
+    final Rect buttonRect =
+        buttonBox.localToGlobal(Offset.zero) & buttonBox.size;
     final bool overlayVisible = state.showImageTranslationOverlay;
 
-    void run(BuildContext sheetContext, VoidCallback action) {
-      Navigator.of(sheetContext).pop();
-      action();
+    final _ImageTranslationMenuAction? selected =
+        await showMenu<_ImageTranslationMenuAction>(
+      context: context,
+      useRootNavigator: true,
+      position: RelativeRect.fromRect(
+          buttonRect, Offset.zero & MediaQuery.sizeOf(context)),
+      items: [
+        _translationMenuItem(
+          _ImageTranslationMenuAction.start,
+          Icons.play_arrow,
+          'imageTranslationStart'.tr,
+        ),
+        _translationMenuItem(
+          _ImageTranslationMenuAction.retranslate,
+          Icons.refresh,
+          'imageTranslationRetranslate'.tr,
+        ),
+        _translationMenuItem(
+          _ImageTranslationMenuAction.settings,
+          Icons.settings,
+          'imageTranslationSettings'.tr,
+        ),
+        _translationMenuItem(
+          _ImageTranslationMenuAction.toggleOverlay,
+          overlayVisible ? Icons.visibility_off : Icons.visibility,
+          overlayVisible ? 'imageTranslationHide'.tr : 'imageTranslationShow'.tr,
+        ),
+      ],
+    );
+    if (selected == null) {
+      return;
     }
+    _handleImageTranslationMenuAction(context, selected);
+  }
 
-    if (apple) {
-      showCupertinoModalPopup<void>(
-        context: context,
-        builder: (sheetContext) => CupertinoActionSheet(
-          title: Text('imageTextTranslation'.tr),
-          actions: [
-            CupertinoActionSheetAction(
-              onPressed: () =>
-                  run(sheetContext, () => logic.startImageTranslation(context)),
-              child: Text('imageTranslationStart'.tr),
-            ),
-            CupertinoActionSheetAction(
-              onPressed: () =>
-                  run(sheetContext, () => logic.retranslateCurrentImage(context)),
-              child: Text('imageTranslationRetranslate'.tr),
-            ),
-            CupertinoActionSheetAction(
-              onPressed: () =>
-                  run(sheetContext, () => logic.openImageTranslationConfig(context)),
-              child: Text('imageTranslationSettings'.tr),
-            ),
-            CupertinoActionSheetAction(
-              onPressed: () => run(sheetContext, logic.toggleImageTranslationOverlay),
-              child: Text(overlayVisible
-                  ? 'imageTranslationHide'.tr
-                  : 'imageTranslationShow'.tr),
-            ),
-          ],
-          cancelButton: CupertinoActionSheetAction(
-            isDefaultAction: true,
-            onPressed: () => Navigator.of(sheetContext).pop(),
-            child: Text('cancel'.tr),
-          ),
-        ),
-      );
-    } else {
-      showModalBottomSheet<void>(
-        context: context,
-        builder: (sheetContext) => SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _translationMenuTile(
-                Icons.play_arrow,
-                'imageTranslationStart'.tr,
-                () => run(sheetContext, () => logic.startImageTranslation(context)),
-              ),
-              _translationMenuTile(
-                Icons.refresh,
-                'imageTranslationRetranslate'.tr,
-                () => run(sheetContext, () => logic.retranslateCurrentImage(context)),
-              ),
-              _translationMenuTile(
-                Icons.settings,
-                'imageTranslationSettings'.tr,
-                () => run(sheetContext, () => logic.openImageTranslationConfig(context)),
-              ),
-              _translationMenuTile(
-                overlayVisible ? Icons.visibility_off : Icons.visibility,
-                overlayVisible ? 'imageTranslationHide'.tr : 'imageTranslationShow'.tr,
-                () => run(sheetContext, logic.toggleImageTranslationOverlay),
-              ),
-            ],
-          ),
-        ),
-      );
+  void _handleImageTranslationMenuAction(
+      BuildContext context, _ImageTranslationMenuAction action) {
+    switch (action) {
+      case _ImageTranslationMenuAction.start:
+        logic.startImageTranslation(context);
+        break;
+      case _ImageTranslationMenuAction.retranslate:
+        logic.retranslateCurrentImage(context);
+        break;
+      case _ImageTranslationMenuAction.settings:
+        logic.openImageTranslationConfig(context);
+        break;
+      case _ImageTranslationMenuAction.toggleOverlay:
+        logic.toggleImageTranslationOverlay();
+        break;
     }
   }
 
-  Widget _translationMenuTile(IconData icon, String label, VoidCallback onTap) {
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(label),
-      onTap: onTap,
+  PopupMenuItem<_ImageTranslationMenuAction> _translationMenuItem(
+      _ImageTranslationMenuAction action, IconData icon, String label) {
+    return PopupMenuItem(
+      value: action,
+      child: Row(
+        children: [
+          Icon(icon, size: 20),
+          const SizedBox(width: 12),
+          Text(label),
+        ],
+      ),
     );
   }
 

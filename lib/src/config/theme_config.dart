@@ -90,6 +90,16 @@ class ThemeConfig {
       borderSide: BorderSide(color: separator.withValues(alpha: 0.85)),
     );
 
+    // fromSeed() with a neutral black/white seed does NOT produce a grayscale
+    // scheme: it derives pink/magenta tones for the roles not overridden below
+    // (secondary, tertiary, tertiaryContainer, …). That leaked as pink sidebars
+    // and pink translation UI on iOS. Override every tinted role with gray so
+    // the Apple style is truly monochrome on all platforms.
+    final Color tertiaryColor =
+        isDark ? const Color(0xFF9E9EA4) : const Color(0xFF6B6B70);
+    final Color tertiaryContainer =
+        isDark ? const Color(0xFF333336) : const Color(0xFFEDEDF0);
+
     final ColorScheme scheme =
         ColorScheme.fromSeed(seedColor: appleAccent, brightness: brightness)
             .copyWith(
@@ -97,14 +107,24 @@ class ThemeConfig {
       onPrimary: isDark ? Colors.black : Colors.white,
       primaryContainer: appleAccent.withValues(alpha: 0.2),
       onPrimaryContainer: onSurface,
+      secondary: secondary,
+      onSecondary: onSurface,
       secondaryContainer: appleAccent.withValues(alpha: 0.12),
       onSecondaryContainer: onSurface,
+      tertiary: tertiaryColor,
+      onTertiary: onSurface,
+      tertiaryContainer: tertiaryContainer,
+      onTertiaryContainer: onSurface,
+      inversePrimary: appleAccent,
+      inverseSurface: isDark ? const Color(0xFFF5F5F7) : const Color(0xFF1D1D1F),
+      onInverseSurface: onSurface,
       surface: window,
       onSurface: onSurface,
       onSurfaceVariant: secondary,
       surfaceContainerHighest:
           isDark ? const Color(0xFF2A2A2C) : const Color(0xFFE5E5EA),
       outline: separator,
+      surfaceTint: Colors.transparent,
       error: error,
     );
 
