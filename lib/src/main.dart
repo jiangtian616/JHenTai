@@ -127,11 +127,39 @@ void main(List<String> args) async {
   ));
 
   lifeCircleBeans = topologicalSort(lifeCircleBeans);
-  for (JHLifeCircleBean bean in lifeCircleBeans) {
-    await bean.initBean();
-  }
+  await _initBeansInParallel(lifeCircleBeans);
 
   runApp(const MyApp());
+}
+
+/// Initializes beans in dependency waves: beans whose declared
+/// [JHLifeCircleBean.initDependencies] are all initialized run concurrently in
+/// the same wave, while cross-wave ordering is preserved exactly as expressed
+/// by the dependency graph (identical semantics to the previous serial loop).
+Future<void> _initBeansInParallel(List<JHLifeCircleBean> sortedBeans) async {
+  final Set<JHLifeCircleBean> remaining = sortedBeans.toSet();
+  final Set<JHLifeCircleBean> initialized = <JHLifeCircleBean>{};
+
+  while (remaining.isNotEmpty) {
+    final List<JHLifeCircleBean> wave = remaining
+        .where((bean) => bean.initDependencies.every(initialized.contains))
+        .toList();
+
+    // topologicalSort visits every dependency before its dependents, so a
+    // ready wave always exists unless the graph has a cycle (which the sort
+    // already rejects). Guard anyway to never deadlock on a graph mutation.
+    if (wave.isEmpty) {
+      for (final JHLifeCircleBean bean in remaining) {
+        await bean.initBean();
+        initialized.add(bean);
+      }
+      break;
+    }
+
+    remaining.removeAll(wave);
+    await Future.wait(wave.map((bean) => bean.initBean()));
+    initialized.addAll(wave);
+  }
 }
 
 class MyApp extends StatelessWidget {

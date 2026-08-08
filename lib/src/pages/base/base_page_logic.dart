@@ -45,6 +45,31 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
   final String refreshStateId = 'refreshStateId';
   final String loadingStateId = 'loadingStateId';
 
+  /// Whether the gallery with [gid] is present in the currently loaded list.
+  /// Used by [UpdateGlobalGalleryStatusLogicMixin] to skip rebuilds of pages
+  /// that cannot be affected by a favorite/rating/download change.
+  bool containsGallery(int gid) =>
+      state.gallerys.any((gallery) => gallery.gid == gid);
+
+  /// Maximum number of gallery covers prefetched in parallel. A global limiter
+  /// is shared by every list page so opening/refreshing several lists at once
+  /// cannot spawn unbounded concurrent downloads.
+  static const int coverPreloadConcurrency = 6;
+
+  static final _CoverPreloadLimiter _coverPreloadLimiter =
+      _CoverPreloadLimiter(coverPreloadConcurrency);
+
+  Future<void> _preloadGalleryCover(Gallery gallery) async {
+    await _coverPreloadLimiter.acquire();
+    try {
+      await getNetworkImageData(gallery.cover.url, useCache: true);
+    } catch (e) {
+      log.warning('Preload gallery cover failed: ${gallery.cover.url}', e);
+    } finally {
+      _coverPreloadLimiter.release();
+    }
+  }
+
   bool get useSearchConfig;
 
   String get searchConfigKey => runtimeType.toString();
@@ -428,7 +453,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     if (preferenceSetting.preloadGalleryCover.isTrue) {
       for (Gallery gallery in gallerys) {
-        getNetworkImageData(gallery.cover.url, useCache: true);
+        unawaited(_preloadGalleryCover(gallery));
       }
     }
 
@@ -458,5 +483,31 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     await Future.wait(gallerys.map((gallery) {
       return tagTranslationService.translateTagsIfNeeded(gallery.tags);
     }).toList());
+  }
+}
+
+/// Simple counting semaphore that bounds how many cover prefetches run at once.
+class _CoverPreloadLimiter {
+  int _available;
+  final List<Completer<void>> _waiters = [];
+
+  _CoverPreloadLimiter(int permits) : _available = permits;
+
+  Future<void> acquire() async {
+    if (_available > 0) {
+      _available--;
+      return;
+    }
+    final Completer<void> completer = Completer<void>();
+    _waiters.add(completer);
+    await completer.future;
+  }
+
+  void release() {
+    if (_waiters.isNotEmpty) {
+      _waiters.removeAt(0).complete();
+    } else {
+      _available++;
+    }
   }
 }

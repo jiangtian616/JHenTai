@@ -234,7 +234,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
               parent: AlwaysScrollableScrollPhysics()),
           scrollBehavior: UIConfig.scrollBehaviourWithScrollBarWithMouse,
           controller: state.scrollController,
-          scrollCacheExtent: ScrollCacheExtent.pixels(5000),
+          scrollCacheExtent: ScrollCacheExtent.pixels(2000),
           slivers: [
             CupertinoSliverRefreshControl(onRefresh: logic.handleRefresh),
             if (preferenceSetting.showAllGalleryTitles.isTrue)

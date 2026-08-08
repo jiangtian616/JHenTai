@@ -5,7 +5,9 @@ import 'dart:ui' as ui;
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:path/path.dart';
 
@@ -17,6 +19,17 @@ import 'path_service.dart';
 
 ImageTranslationService imageTranslationService = ImageTranslationService();
 
+/// Result of the recognition step. `imageWidth`/`imageHeight` are the upright
+/// (orientation-applied) pixel dimensions for engines that provide them (Apple
+/// Live Text), so the overlay scales blocks in the same space the image is
+/// actually displayed in. Tesseract/Paddle return null and the caller falls
+/// back to its header-based dimension probe.
+typedef _RecognizeResult = ({
+  List<RecognizedTextBlock> blocks,
+  int? imageWidth,
+  int? imageHeight,
+});
+
 class ImageTranslationService extends GetxController
     with JHLifeCircleBeanErrorCatch
     implements JHLifeCircleBean {
@@ -24,6 +37,8 @@ class ImageTranslationService extends GetxController
   static const String paddlePrepareId = 'paddlePrepare';
   static const String ocrModelDownloadIdPrefix = 'ocrModelDownload';
   static const String batchProgressId = 'imageTranslationBatchProgress';
+  static const String liveTextOcrChannelName =
+      'top.jtmonster.jhentai.live_text_ocr';
 
   final Map<String, ImageTranslationResult> _results = {};
   final Set<String> _downloadingOcrModels = {};
@@ -46,6 +61,11 @@ class ImageTranslationService extends GetxController
   bool _cancelRequested = false;
   Process? _activeProcess;
   CancelToken? _activeCancelToken;
+
+  /// Apple Live Text OCR (Vision framework) is exposed over a platform channel
+  /// registered natively in ios/Runner and macos/Runner.
+  late final MethodChannel _liveTextChannel =
+      MethodChannel(liveTextOcrChannelName);
 
   void beginBatch(int total) {
     _cancelRequested = false;
@@ -175,22 +195,15 @@ class ImageTranslationService extends GetxController
         _removeResult(request.cacheKey);
         return;
       }
-      final String imagePath;
-      if (request.imagePath != null) {
-        imagePath = request.imagePath!;
-      } else {
-        final List<int> bytes = request.imageBytes!;
-        final String fileName =
-            'image_translation_${sha256.convert(bytes).toString()}.png';
-        final File temporaryFile =
-            File(join(pathService.tempDir.path, fileName));
-        await temporaryFile.writeAsBytes(bytes, flush: true);
-        temporaryPath = temporaryFile.path;
-        imagePath = temporaryFile.path;
-      }
+      // Read the image bytes exactly once: they feed the persistent-cache
+      // hash, the dimension probe and (for bytes-based requests) the OCR
+      // subprocess file. Previously the file was read again inside
+      // _persistentCacheKey and a just-written temporary file was read back.
+      final List<int> sourceBytes = request.imageBytes == null
+          ? await File(request.imagePath!).readAsBytes()
+          : request.imageBytes!;
 
-      final String persistentKey =
-          await _persistentCacheKey(request, imagePath);
+      final String persistentKey = _persistentCacheKey(request, sourceBytes);
       final ImageTranslationResult? cached =
           await _readPersistentResult(persistentKey);
       if (!force && cached != null) {
@@ -198,17 +211,39 @@ class ImageTranslationService extends GetxController
         return;
       }
 
-      final Uint8List sourceBytes = request.imageBytes == null
-          ? await File(imagePath).readAsBytes()
-          : Uint8List.fromList(request.imageBytes!);
-      final ui.Codec codec = await ui.instantiateImageCodec(sourceBytes);
-      final ui.FrameInfo frame = await codec.getNextFrame();
-      final int imageWidth = frame.image.width;
-      final int imageHeight = frame.image.height;
-      frame.image.dispose();
-      codec.dispose();
+      // The OCR subprocess needs a real file path; only bytes-based requests
+      // materialize one, and only once a translation is actually about to run.
+      final String imagePath;
+      if (request.imagePath != null) {
+        imagePath = request.imagePath!;
+      } else {
+        final String fileName =
+            'image_translation_${sha256.convert(sourceBytes).toString()}.png';
+        final File temporaryFile =
+            File(join(pathService.tempDir.path, fileName));
+        await temporaryFile.writeAsBytes(sourceBytes, flush: true);
+        temporaryPath = temporaryFile.path;
+        imagePath = temporaryFile.path;
+      }
 
-      final List<RecognizedTextBlock> blocks = await _recognize(imagePath);
+      // Probe the encoded dimensions from the image header only; the full
+      // pixel decode happens inside the OCR engine subprocess.
+      final ui.ImmutableBuffer buffer = await ui.ImmutableBuffer.fromUint8List(
+          Uint8List.fromList(sourceBytes));
+      final ui.ImageDescriptor descriptor =
+          await ui.ImageDescriptor.encoded(buffer);
+      final int probeWidth = descriptor.width;
+      final int probeHeight = descriptor.height;
+      descriptor.dispose();
+      buffer.dispose();
+
+      final _RecognizeResult recognized = await _recognize(imagePath);
+      final List<RecognizedTextBlock> blocks = recognized.blocks;
+      // Apple Live Text reports the upright (EXIF-applied) dimensions, which
+      // the header probe misses; use them so the overlay scales blocks in the
+      // same space the image is actually displayed in.
+      final int imageWidth = recognized.imageWidth ?? probeWidth;
+      final int imageHeight = recognized.imageHeight ?? probeHeight;
       if (_cancelRequested) {
         _removeResult(request.cacheKey);
         return;
@@ -221,7 +256,8 @@ class ImageTranslationService extends GetxController
         throw const ImageTranslationException('NO_TEXT');
       }
 
-      if (!imageTranslationSetting.isTranslatorConfigured) {
+      if (!imageTranslationSetting.usesAppleOnDeviceTranslation &&
+          !imageTranslationSetting.isTranslatorConfigured) {
         _set(
           request.cacheKey,
           ImageTranslationResult(
@@ -248,7 +284,10 @@ class ImageTranslationService extends GetxController
       );
       await _writePersistentResult(persistentKey, resultFor(request.cacheKey));
       _setStage(ImageTranslationStage.translating);
-      final String translatedText = await _translate(sourceText);
+      final String translatedText =
+          imageTranslationSetting.usesAppleOnDeviceTranslation
+              ? await _translateWithApple(sourceText)
+              : await _translate(sourceText);
       if (_cancelRequested) {
         _removeResult(request.cacheKey);
         return;
@@ -327,15 +366,15 @@ class ImageTranslationService extends GetxController
     update([taskId(cacheKey)]);
   }
 
-  Future<String> _persistentCacheKey(
-      ImageTranslationRequest request, String imagePath) async {
-    final List<int> imageBytes =
-        request.imageBytes ?? await File(imagePath).readAsBytes();
+  String _persistentCacheKey(
+      ImageTranslationRequest request, List<int> imageBytes) {
     final String imageHash = sha256.convert(imageBytes).toString();
     final String configFingerprint = jsonEncode({
       'ocrEngine': imageTranslationSetting.ocrEngine.value.name,
       'ocrLanguage': imageTranslationSetting.ocrLanguage.value,
       'paddleLanguage': imageTranslationSetting.paddleOcrLanguage.value,
+      'appleLanguage': imageTranslationSetting.appleLiveTextLanguage.value,
+      'appleUseApi': imageTranslationSetting.appleLiveTextUseThirdPartyApi.value,
       'provider': imageTranslationSetting.translatorProvider.value.name,
       'endpoint': imageTranslationSetting.translatorEndpoint.value,
       'model': imageTranslationSetting.translatorModel.value,
@@ -372,11 +411,17 @@ class ImageTranslationService extends GetxController
     await cacheFile.writeAsString(jsonEncode(result.toJson()), flush: true);
   }
 
-  Future<List<RecognizedTextBlock>> _recognize(String imagePath) async {
+  Future<_RecognizeResult> _recognize(String imagePath) async {
+    if (imageTranslationSetting.ocrEngine.value ==
+        ImageOcrEngine.appleLiveText) {
+      return _recognizeWithAppleLiveText(imagePath);
+    }
     if (imageTranslationSetting.ocrEngine.value == ImageOcrEngine.paddleOcr ||
         imageTranslationSetting.ocrEngine.value ==
             ImageOcrEngine.paddleOcrVl16) {
-      return _recognizeWithPaddleOcr(imagePath);
+      final List<RecognizedTextBlock> blocks =
+          await _recognizeWithPaddleOcr(imagePath);
+      return (blocks: blocks, imageWidth: null, imageHeight: null);
     }
     if (!Platform.isWindows && !Platform.isMacOS && !Platform.isLinux) {
       throw const ImageTranslationException('OCR_UNSUPPORTED_PLATFORM');
@@ -434,11 +479,92 @@ class ImageTranslationService extends GetxController
           double.tryParse(fields[8]) ?? 0,
           double.tryParse(fields[9]) ?? 0);
     }
-    return lines.values
-        .map((line) => line.toBlock())
-        .where((block) => block.text.isNotEmpty)
-        .toList();
+    return (
+      blocks: lines.values
+          .map((line) => line.toBlock())
+          .where((block) => block.text.isNotEmpty)
+          .toList(),
+      imageWidth: null,
+      imageHeight: null,
+    );
   }
+
+  /// On-device OCR through Apple's Vision framework (Live Text). The native
+  /// side runs VNRecognizeTextRequest off the main thread and returns text
+  /// lines as top-left-origin pixel rectangles in the original upright image
+  /// space, matching the [RecognizedTextBlock] convention. It also returns the
+  /// upright pixel dimensions, which the caller must use for overlay scaling:
+  /// the header-based dimension probe does not apply EXIF orientation, so on
+  /// rotated pages it disagrees with the block coordinate space.
+  Future<_RecognizeResult> _recognizeWithAppleLiveText(
+      String imagePath) async {
+    if (!Platform.isIOS && !Platform.isMacOS) {
+      throw const ImageTranslationException('OCR_UNSUPPORTED_PLATFORM');
+    }
+    try {
+      final Map<dynamic, dynamic>? response =
+          await _liveTextChannel.invokeMethod<Map<dynamic, dynamic>>(
+        'recognizeText',
+        {
+          'path': imagePath,
+          'languages': _appleLiveTextLanguages(),
+          'automaticallyDetectsLanguage':
+              imageTranslationSetting.appleLiveTextLanguage.value == 'auto',
+          'recognitionLevel': 'accurate',
+          'maxDimension': 2200,
+        },
+      );
+      if (response == null) {
+        throw const ImageTranslationException('OCR_FAILED');
+      }
+      final List<dynamic> rawLines =
+          response['lines'] as List<dynamic>? ?? const [];
+      final List<RecognizedTextBlock> blocks = rawLines
+          .whereType<Map>()
+          .map((raw) => _appleLiveTextBlock(Map<String, dynamic>.from(raw)))
+          .where((block) => block.text.trim().isNotEmpty)
+          .toList();
+      if (blocks.isEmpty) {
+        throw const ImageTranslationException('NO_TEXT');
+      }
+      return (
+        blocks: blocks,
+        imageWidth: (response['width'] as num?)?.toInt(),
+        imageHeight: (response['height'] as num?)?.toInt(),
+      );
+    } on ImageTranslationException {
+      rethrow;
+    } catch (e, stack) {
+      log.warning('Apple Live Text OCR failed: $e');
+      log.trace(stack);
+      throw const ImageTranslationException('OCR_FAILED');
+    }
+  }
+
+  /// Comma-separated BCP-47 codes from the Apple Live Text setting, or null to
+  /// let Vision auto-detect among its supported languages.
+  List<String>? _appleLiveTextLanguages() {
+    final String value = imageTranslationSetting.appleLiveTextLanguage.value;
+    if (value.trim().isEmpty || value.trim() == 'auto') {
+      return null;
+    }
+    final List<String> languages = value
+        .split(',')
+        .map((language) => language.trim())
+        .where((language) => language.isNotEmpty)
+        .toList();
+    return languages.isEmpty ? null : languages;
+  }
+
+  RecognizedTextBlock _appleLiveTextBlock(Map<String, dynamic> raw) =>
+      RecognizedTextBlock(
+        text: raw['text'] as String? ?? '',
+        confidence: (raw['confidence'] as num?)?.toDouble() ?? 0,
+        left: (raw['left'] as num?)?.toDouble() ?? 0,
+        top: (raw['top'] as num?)?.toDouble() ?? 0,
+        width: (raw['width'] as num?)?.toDouble() ?? 0,
+        height: (raw['height'] as num?)?.toDouble() ?? 0,
+      );
 
   Future<List<RecognizedTextBlock>> _recognizeWithPaddleOcr(
       String imagePath) async {
@@ -588,19 +714,91 @@ for result in pipeline.predict(r'''$imagePath'''):
     final ui.Image image = await recorder
         .endRecording()
         .toImage(frame.image.width, frame.image.height);
-    final ByteData? data =
-        await image.toByteData(format: ui.ImageByteFormat.png);
+    final int width = frame.image.width;
+    final int height = frame.image.height;
+    // ui.Image cannot cross isolate boundaries, so rasterization (drawImage +
+    // toImage, GPU-backed Canvas work) must stay on the UI isolate. The cheap
+    // raw-RGBA copy happens here as well; the expensive PNG compression runs
+    // on a background isolate so large exports don't jank the UI.
+    final ByteData? raw =
+        await image.toByteData(format: ui.ImageByteFormat.rawRgba);
     frame.image.dispose();
     image.dispose();
-    if (data == null)
+    if (raw == null)
       throw const ImageTranslationException('OVERLAY_ENCODE_FAILED');
+    final Uint8List pngBytes = await compute<
+        (Uint8List rgba, int width, int height),
+        Uint8List>(_encodePngOverlay,
+        (raw.buffer.asUint8List(raw.offsetInBytes, raw.lengthInBytes), width, height));
     final Directory directory =
         Directory(join(pathService.jhOcrModelDir.path, 'overlays'));
     await directory.create(recursive: true);
     final File output = File(join(directory.path,
         'translation_${sha256.convert(source).toString().substring(0, 16)}.png'));
-    await output.writeAsBytes(data.buffer.asUint8List(), flush: true);
+    await output.writeAsBytes(pngBytes, flush: true);
     return output;
+  }
+
+  /// PNG-encodes raw RGBA pixels on a background isolate (see [exportOverlay]).
+  /// The payload is a (rgba, width, height) record; input and output are plain
+  /// byte lists so they can cross the isolate boundary. Implements the minimal
+  /// PNG container by hand (signature + IHDR + zlib-compressed IDAT + IEND) to
+  /// avoid pulling a codec package into the dependency graph.
+  static Uint8List _encodePngOverlay(
+      (Uint8List rgba, int width, int height) payload) {
+    final (Uint8List rgba, int width, int height) = payload;
+    final BytesBuilder builder = BytesBuilder(copy: false);
+    builder.add(const [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
+    final ByteData ihdr = ByteData(13)
+      ..setUint32(0, width)
+      ..setUint32(4, height)
+      ..setUint8(8, 8) // bit depth
+      ..setUint8(9, 6) // color type: truecolor with alpha
+      ..setUint8(10, 0) // compression: deflate
+      ..setUint8(11, 0) // filter method
+      ..setUint8(12, 0); // interlace: none
+    _addPngChunk(builder, 'IHDR', ihdr.buffer.asUint8List());
+
+    // Each scanline is prefixed with filter type 0 (None) and the whole
+    // payload is zlib-compressed (the format PNG requires for IDAT).
+    final int stride = width * 4;
+    final Uint8List scanlines = Uint8List(rgba.length + height);
+    int src = 0;
+    int dst = 0;
+    for (int y = 0; y < height; y++) {
+      scanlines[dst++] = 0;
+      for (int x = 0; x < stride; x++) {
+        scanlines[dst++] = rgba[src++];
+      }
+    }
+    _addPngChunk(builder, 'IDAT', zlib.encode(scanlines));
+    _addPngChunk(builder, 'IEND', const []);
+    return builder.takeBytes();
+  }
+
+  static void _addPngChunk(
+      BytesBuilder builder, String type, List<int> data) {
+    final Uint8List typeBytes = ascii.encode(type);
+    final Uint8List chunk = Uint8List(typeBytes.length + data.length)
+      ..setRange(0, typeBytes.length, typeBytes)
+      ..setRange(typeBytes.length, typeBytes.length + data.length, data);
+    final ByteData length = ByteData(4)..setUint32(0, data.length);
+    final ByteData crc = ByteData(4)..setUint32(0, _pngCrc32(chunk));
+    builder.add(length.buffer.asUint8List());
+    builder.add(chunk);
+    builder.add(crc.buffer.asUint8List());
+  }
+
+  static int _pngCrc32(List<int> data) {
+    const int polynomial = 0xEDB88320;
+    int crc = 0xFFFFFFFF;
+    for (final int byte in data) {
+      crc ^= byte;
+      for (int bit = 0; bit < 8; bit++) {
+        crc = (crc & 1) != 0 ? (crc >> 1) ^ polynomial : crc >> 1;
+      }
+    }
+    return crc ^ 0xFFFFFFFF;
   }
 
   void _paintTranslation(
@@ -624,6 +822,89 @@ for result in pipeline.predict(r'''$imagePath'''):
       ..layout(maxWidth: rect.width - 4);
     painter.paint(
         canvas, Offset(rect.left + 2, rect.center.dy - painter.height / 2));
+  }
+
+  /// On-device translation through Apple's Translation framework. Only used in
+  /// Apple Live Text mode with the third-party API toggle off; on systems that
+  /// do not support it the native side reports TRANSLATION_UNAVAILABLE.
+  ///
+  /// The source text is split into its lines and translated one-for-one so the
+  /// read-page overlay keeps a 1:1 mapping between recognized blocks and
+  /// translated lines (translating the whole page as a single blob would merge
+  /// or drop lines, misaligning the boxes and losing dialogue).
+  Future<String> _translateWithApple(String sourceText) async {
+    try {
+      final List<String> sourceLines =
+          const LineSplitter().convert(sourceText);
+      final Map<dynamic, dynamic>? response =
+          await _liveTextChannel.invokeMethod<Map<dynamic, dynamic>>(
+        'translateText',
+        {
+          'lines': sourceLines,
+          'target': _appleTargetLanguage(),
+          'source': _appleSourceLanguage(),
+        },
+      );
+      final List<dynamic> rawLines =
+          response?['lines'] as List<dynamic>? ?? const [];
+      final List<String> translatedLines = rawLines
+          .map((line) => line?.toString() ?? '')
+          .toList();
+      if (translatedLines.join('\n').trim().isEmpty) {
+        throw const ImageTranslationException('TRANSLATION_FAILED');
+      }
+      return translatedLines.join('\n');
+    } on PlatformException catch (e) {
+      if (e.code == 'TRANSLATION_UNAVAILABLE') {
+        throw const ImageTranslationException('TRANSLATION_UNAVAILABLE');
+      }
+      if (e.code == 'TRANSLATION_NOT_INSTALLED') {
+        log.warning('Apple on-device translation language pack missing: ${e.details}');
+        throw const ImageTranslationException('TRANSLATION_NOT_INSTALLED');
+      }
+      log.warning('Apple on-device translation failed: ${e.code} ${e.message}');
+      throw const ImageTranslationException('TRANSLATION_FAILED');
+    } on ImageTranslationException {
+      rethrow;
+    } catch (e, stack) {
+      log.warning('Apple on-device translation failed: $e');
+      log.trace(stack);
+      throw const ImageTranslationException('TRANSLATION_FAILED');
+    }
+  }
+
+  /// Maps the [ImageTranslationSetting.targetLanguage] display string to a
+  /// BCP-47 language code understood by Apple's Translation framework.
+  String _appleTargetLanguage() {
+    switch (imageTranslationSetting.targetLanguage.value) {
+      case '简体中文':
+        return 'zh-Hans';
+      case '繁體中文':
+        return 'zh-Hant';
+      case 'English':
+        return 'en';
+      case '日本語':
+        return 'ja';
+      case '한국어':
+        return 'ko';
+      case 'Português':
+        return 'pt';
+      case 'Русский':
+        return 'ru';
+      default:
+        return 'zh-Hans';
+    }
+  }
+
+  /// Optional BCP-47 source language for Apple on-device translation, taken
+  /// from the Apple Live Text recognition language. Null lets the native side
+  /// auto-detect the source language.
+  String? _appleSourceLanguage() {
+    final String value = imageTranslationSetting.appleLiveTextLanguage.value;
+    if (value.trim().isEmpty || value.trim() == 'auto') {
+      return null;
+    }
+    return value.split(',').first.trim();
   }
 
   Future<String> _translate(String sourceText) async {
@@ -1097,8 +1378,25 @@ except Exception:
     }
   }
 
+  /// Upper bound on in-memory translation results. Batch-translating a long
+  /// gallery used to accumulate one entry per page forever; evicting the
+  /// least-recently-used entry keeps memory bounded. The on-disk persistent
+  /// cache is untouched, so an evicted page is re-read from disk on demand.
+  static const int maxCachedResults = 200;
+
   void _set(String cacheKey, ImageTranslationResult result) {
+    // Remove-then-reinsert so a re-used key counts as most-recently-used
+    // (Dart maps keep insertion order).
+    _results.remove(cacheKey);
     _results[cacheKey] = result;
+    if (_results.length > maxCachedResults) {
+      final String evicted = _results.keys.first;
+      _results.remove(evicted);
+      log.warning(
+          'Image translation result cache exceeded $maxCachedResults entries, '
+          'evicted oldest: $evicted');
+      update([taskId(evicted)]);
+    }
     update([taskId(cacheKey)]);
   }
 }

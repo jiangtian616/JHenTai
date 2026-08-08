@@ -432,6 +432,9 @@ class ru_RU {
           'Макс. кол-во галерей для анимации списка на стр. загрузок',
       'maxGalleryNum4AnimationHint':
           'Отключить анимацию для групп с большим кол-вом галерей (для стиля списка)',
+      'enableCoverDecodeOptimization': 'Оптимизация декодирования обложек',
+      'enableCoverDecodeOptimizationHint':
+          'Декодировать обложки в размере, близком к отображаемому, вместо полного разрешения. Снижает время декодирования и память при просмотре сеток, с небольшим ухудшением качества.',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': 'Скорость прокрутки колесом',
@@ -1074,6 +1077,29 @@ class ru_RU {
       'imageTranslationOcrDownloadSuccess': 'Модель OCR загружена.',
       'imageTranslationOcrDownloadFailed':
           'Не удалось загрузить OCR-модель. Попробуйте другой источник.',
+      'imageTranslationOcrEngineAppleLiveText': 'Apple Live Text',
+      'imageTranslationAppleLiveTextLanguage':
+          'Язык распознавания Apple Live Text',
+      'imageTranslationAppleLiveTextHint':
+          'Встроенное OCR на базе Apple Vision. Работает на iOS и macOS, модель скачивать не нужно.',
+      'imageTranslationAppleLiveTextUnavailable':
+          'Apple Live Text доступен только на iOS и macOS.',
+      'imageTranslationMethodSection': 'Способ перевода',
+      'imageTranslationMethodAppleLiveText': 'Apple Live Text',
+      'imageTranslationMethodCustom': 'Пользовательский',
+      'imageTranslationAppleLiveTextUseApi': 'Использовать сторонний API для перевода',
+      'imageTranslationAppleLiveTextUseApiHint':
+          'Используется тот же OpenAI-совместимый / Anthropic API, что и в пользовательском режиме, вместо встроенного перевода Apple.',
+      'imageTranslationAppleLiveTextOnDeviceHint':
+          'Распознавание и перевод выполняются на устройстве Apple. Встроенный перевод требует iOS 26 / macOS 26 или новее.',
+      'imageTranslationTranslationUnavailable':
+          'Встроенный перевод Apple требует iOS 26 / macOS 26 или новее. Включите «Использовать сторонний API для перевода» или обновите систему.',
+      'imageTranslationTranslationFailed': 'Не удалось выполнить встроенный перевод Apple.',
+      'imageTranslationShow': 'Показать перевод',
+      'imageTranslationHide': 'Скрыть перевод',
+      'imageTranslationRetranslate': 'Перевести заново',
+      'imageTranslationTranslationNotInstalled':
+          'Языковые пакеты встроенного перевода Apple не установлены. Установите их в Системных настройках → Основные → Язык и регион → Языки перевода, или включите «Использовать сторонний API для перевода».',
     };
   }
 }

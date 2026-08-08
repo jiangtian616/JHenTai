@@ -34,6 +34,16 @@ const List<_LanguageOption> _paddleLanguageOptions = [
   _LanguageOption('korean', '한국어'),
 ];
 
+const List<_LanguageOption> _appleLanguageOptions = [
+  _LanguageOption('auto', '自动检测 / Auto'),
+  _LanguageOption('ja-JP', '日本語'),
+  _LanguageOption('en-US', 'English'),
+  _LanguageOption('ja-JP,en-US', '日本語 + English'),
+  _LanguageOption('zh-Hans', '简体中文'),
+  _LanguageOption('zh-Hant', '繁體中文'),
+  _LanguageOption('ko-KR', '한국어'),
+];
+
 const List<String> _targetLanguageOptions = [
   '简体中文',
   '繁體中文',
@@ -69,6 +79,8 @@ class _ImageTranslationConfigSheetState
   late String _model;
   late String _ocrLanguage;
   late String _paddleLanguage;
+  late String _appleLiveTextLanguage;
+  late bool _appleLiveTextUseApi;
   late String _targetLanguage;
   late bool _enableThinking;
   late bool _translateSubsequentPages;
@@ -82,6 +94,10 @@ class _ImageTranslationConfigSheetState
     _model = imageTranslationSetting.translatorModel.value;
     _ocrLanguage = imageTranslationSetting.ocrLanguage.value;
     _paddleLanguage = imageTranslationSetting.paddleOcrLanguage.value;
+    _appleLiveTextLanguage =
+        imageTranslationSetting.appleLiveTextLanguage.value;
+    _appleLiveTextUseApi =
+        imageTranslationSetting.appleLiveTextUseThirdPartyApi.value;
     _targetLanguage = imageTranslationSetting.targetLanguage.value;
     _enableThinking = imageTranslationSetting.enableThinking.value;
     _translateSubsequentPages =
@@ -92,6 +108,7 @@ class _ImageTranslationConfigSheetState
 
   @override
   Widget build(BuildContext context) {
+    final bool appleMode = _ocrEngine == ImageOcrEngine.appleLiveText;
     return SafeArea(
       top: false,
       child: Column(
@@ -121,11 +138,19 @@ class _ImageTranslationConfigSheetState
               shrinkWrap: true,
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               children: [
-                _buildModel(),
-                _buildEnableThinking(),
-                _buildOcrEngine(),
+                if (!appleMode) ...[
+                  _buildModel(),
+                  _buildEnableThinking(),
+                  _buildOcrEngine(),
+                ] else if (_appleLiveTextUseApi) ...[
+                  _buildModel(),
+                  _buildEnableThinking(),
+                ],
                 _buildOcrLanguage(),
                 _buildTargetLanguage(),
+                if (appleMode) _buildAppleLiveTextUseApi(),
+                if (appleMode && !_appleLiveTextUseApi)
+                  _buildOnDeviceTranslationHint(),
                 _buildTranslateScope(),
               ],
             ),
@@ -195,49 +220,106 @@ class _ImageTranslationConfigSheetState
     );
   }
 
+  Widget _buildAppleLiveTextUseApi() {
+    return EHAppleSwitchListTile(
+      title: Text('imageTranslationAppleLiveTextUseApi'.tr),
+      subtitle: Text('imageTranslationAppleLiveTextUseApiHint'.tr,
+          style: const TextStyle(fontSize: 12)),
+      value: _appleLiveTextUseApi,
+      onChanged: (value) {
+        setState(() => _appleLiveTextUseApi = value);
+        imageTranslationSetting.saveAppleLiveTextUseThirdPartyApi(value);
+      },
+    );
+  }
+
+  Widget _buildOnDeviceTranslationHint() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.info_outline, size: 16),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text('imageTranslationAppleLiveTextOnDeviceHint'.tr,
+                style: const TextStyle(fontSize: 12)),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildOcrEngine() {
     return _dropdownRow(
       'imageTranslationOcrEngine'.tr,
       EHCodexStyleDropdown<ImageOcrEngine>(
         value: _ocrEngine,
         onChanged: (value) {
-          setState(() => _ocrEngine = value!);
-          imageTranslationSetting.saveOcrEngine(_ocrEngine);
+          final ImageOcrEngine next = value!;
+          final bool wasApple =
+              _ocrEngine == ImageOcrEngine.appleLiveText;
+          setState(() => _ocrEngine = next);
+          if (next == ImageOcrEngine.appleLiveText) {
+            imageTranslationSetting.switchToAppleLiveTextMode();
+          } else if (wasApple) {
+            imageTranslationSetting.switchToCustomMode();
+          } else {
+            imageTranslationSetting.saveOcrEngine(next);
+          }
         },
-        items: const [
-          DropdownMenuItem(
+        items: [
+          const DropdownMenuItem(
               value: ImageOcrEngine.tesseract, child: Text('Tesseract')),
-          DropdownMenuItem(
+          const DropdownMenuItem(
               value: ImageOcrEngine.paddleOcr,
               child: Text('PaddleOCR (PP-OCRv6)')),
-          DropdownMenuItem(
+          const DropdownMenuItem(
               value: ImageOcrEngine.paddleOcrVl16,
               child: Text('PaddleOCR-VL-1.6')),
+          DropdownMenuItem(
+              value: ImageOcrEngine.appleLiveText,
+              child: Text('imageTranslationOcrEngineAppleLiveText'.tr)),
         ],
       ),
     );
   }
 
   Widget _buildOcrLanguage() {
-    final bool paddle = _ocrEngine != ImageOcrEngine.tesseract;
-    final List<_LanguageOption> options =
-        paddle ? _paddleLanguageOptions : _ocrLanguageOptions;
-    final String current = paddle ? _paddleLanguage : _ocrLanguage;
+    final bool apple = _ocrEngine == ImageOcrEngine.appleLiveText;
+    final bool paddle = !apple && _ocrEngine != ImageOcrEngine.tesseract;
+    final List<_LanguageOption> options = apple
+        ? _appleLanguageOptions
+        : paddle
+            ? _paddleLanguageOptions
+            : _ocrLanguageOptions;
+    final String current = apple
+        ? _appleLiveTextLanguage
+        : paddle
+            ? _paddleLanguage
+            : _ocrLanguage;
     return _dropdownRow(
-      paddle
-          ? 'imageTranslationPaddleLanguage'.tr
-          : 'imageTranslationOcrLanguage'.tr,
+      apple
+          ? 'imageTranslationAppleLiveTextLanguage'.tr
+          : paddle
+              ? 'imageTranslationPaddleLanguage'.tr
+              : 'imageTranslationOcrLanguage'.tr,
       EHCodexStyleDropdown<String>(
         value: current,
         onChanged: (value) {
           setState(() {
-            if (paddle) {
+            if (apple) {
+              _appleLiveTextLanguage = value!;
+            } else if (paddle) {
               _paddleLanguage = value!;
             } else {
               _ocrLanguage = value!;
             }
           });
-          if (paddle) {
+          if (apple) {
+            imageTranslationSetting
+                .saveAppleLiveTextLanguage(_appleLiveTextLanguage);
+          } else if (paddle) {
             imageTranslationSetting.savePaddleOcrLanguage(_paddleLanguage);
           } else {
             imageTranslationSetting.saveOcrLanguage(_ocrLanguage);

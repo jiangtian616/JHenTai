@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:isolate';
 
 import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
@@ -42,6 +43,10 @@ ScheduleService scheduleService = ScheduleService();
 class ScheduleService
     with JHLifeCircleBeanErrorCatch
     implements JHLifeCircleBean {
+  /// Galleries/archives whose tags were refreshed within this window are
+  /// skipped by [refreshGalleryTags] / [refreshArchiveTags].
+  static const Duration _tagRefreshStaleThreshold = Duration(days: 7);
+
   @override
   Future<void> doInitBean() async {}
 
@@ -75,6 +80,7 @@ class ScheduleService
         () => ehRequest.get(
             url: url, parser: EHSpiderParser.githubReleasePage2LatestVersion),
         maxAttempts: 3,
+        delayFactor: const Duration(milliseconds: 500),
       ))
           .trim()
           .split('+')[0];
@@ -105,9 +111,11 @@ class ScheduleService
   }
 
   Future<void> refreshGalleryTags() async {
+    final DateTime threshold =
+        DateTime.now().subtract(_tagRefreshStaleThreshold);
     int pageNo = 1;
     List<GalleryDownloadedData> gallerys =
-        await GalleryDao.selectGallerysForTagRefresh(pageNo, 25);
+        await GalleryDao.selectGallerysForTagRefresh(pageNo, 25, threshold);
     while (gallerys.isNotEmpty) {
       try {
         List<GalleryMetadata> metadatas =
@@ -140,14 +148,16 @@ class ScheduleService
       }
 
       pageNo++;
-      gallerys = await GalleryDao.selectGallerysForTagRefresh(pageNo, 25);
+      gallerys = await GalleryDao.selectGallerysForTagRefresh(pageNo, 25, threshold);
     }
   }
 
   Future<void> refreshArchiveTags() async {
+    final DateTime threshold =
+        DateTime.now().subtract(_tagRefreshStaleThreshold);
     int pageNo = 1;
     List<ArchiveDownloadedData> archives =
-        await ArchiveDao.selectArchivesForTagRefresh(pageNo, 25);
+        await ArchiveDao.selectArchivesForTagRefresh(pageNo, 25, threshold);
     while (archives.isNotEmpty) {
       try {
         List<GalleryMetadata> metadatas =
@@ -177,28 +187,37 @@ class ScheduleService
       }
 
       pageNo++;
-      archives = await ArchiveDao.selectArchivesForTagRefresh(pageNo, 25);
+      archives = await ArchiveDao.selectArchivesForTagRefresh(pageNo, 25, threshold);
     }
   }
 
   Future<void> clearOutdatedImageCache() async {
-    Directory cacheImageDirectory = Directory(
-        join(pathService.tempDir.path, PathService.smartCacheFolderName));
+    /// Only sendable values may cross into the spawned isolate; directory IO
+    /// (stat + delete) is done there so the UI isolate never blocks on syscalls.
+    final String dirPath = join(
+        pathService.tempDir.path, PathService.smartCacheFolderName);
+    final Duration expireDuration =
+        networkSetting.effectiveCacheImageExpireDuration;
 
-    if (!cacheImageDirectory.existsSync()) {
-      return;
-    }
-
-    int count = 0;
-    cacheImageDirectory.list().forEach((FileSystemEntity entity) {
-      if (entity is File &&
-          DateTime.now().difference(entity.lastAccessedSync()) >
-              networkSetting.effectiveCacheImageExpireDuration) {
-        entity.delete();
-        count++;
+    final int count = await Isolate.run(() {
+      final Directory cacheImageDirectory = Directory(dirPath);
+      if (!cacheImageDirectory.existsSync()) {
+        return 0;
       }
-    }).then(
-        (_) => log.info('Clear outdated image cache success, count: $count'));
+
+      final DateTime now = DateTime.now();
+      int removed = 0;
+      for (final FileSystemEntity entity in cacheImageDirectory.listSync()) {
+        if (entity is File &&
+            now.difference(entity.lastAccessedSync()) > expireDuration) {
+          entity.deleteSync();
+          removed++;
+        }
+      }
+      return removed;
+    });
+
+    log.info('Clear outdated image cache success, count: $count');
   }
 
   Future<void> _clearOutdatedGalleryImageHashCache() async {
@@ -229,6 +248,7 @@ class ScheduleService
         () => ehRequest.requestNews(EHSpiderParser.newsPage2Event),
         retryIf: (e) => e is DioException,
         maxAttempts: 3,
+        delayFactor: const Duration(milliseconds: 500),
       );
     } catch (e) {
       log.warning('ScheduleService checkDawn failed', e);

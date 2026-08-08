@@ -7,8 +7,11 @@ class ArchiveDao {
     return (appDb.select(appDb.archiveDownloaded)..orderBy([(archive) => OrderingTerm(expression: archive.sortOrder)])).get();
   }
 
-  static Future<List<ArchiveDownloadedData>> selectArchivesForTagRefresh(int pageNo, int pageSize) {
+  static Future<List<ArchiveDownloadedData>> selectArchivesForTagRefresh(int pageNo, int pageSize, DateTime threshold) {
     return (appDb.select(appDb.archiveDownloaded)
+          ..where((archive) =>
+              archive.tagRefreshTime.isNull() |
+              archive.tagRefreshTime.isSmallerThanValue(threshold.toString()))
           ..orderBy([(archive) => OrderingTerm(expression: archive.tagRefreshTime)])
           ..limit(pageSize, offset: (pageNo - 1) * pageSize))
         .get();

@@ -133,6 +133,7 @@ class SuperResolutionService extends GetxController
           },
         ),
         maxAttempts: 5,
+        delayFactor: const Duration(milliseconds: 500),
         onRetry: (error) =>
             log.warning('Download super-resolution model failed, retry.'),
       );
@@ -366,6 +367,15 @@ class SuperResolutionService extends GetxController
       return;
     }
 
+    /// Persisting the entire imageStatuses list after every single image makes
+    /// a large gallery O(n^2): each write serializes the full status list.
+    /// Keep the in-memory statuses (the UI source) updated immediately, but
+    /// only flush the DB every [superResolutionStatusFlushInterval] images.
+    /// Pause, failure and completion still flush synchronously, so resuming
+    /// never redoes already-processed images.
+    const int superResolutionStatusFlushInterval = 20;
+    int statusChangesSinceFlush = 0;
+
     for (int i = 0; i < rawImages.length; i++) {
       /// cancelled
       if (get(gid, type) == null) {
@@ -386,11 +396,16 @@ class SuperResolutionService extends GetxController
       }
 
       superResolutionInfo.imageStatuses[i] = SuperResolutionStatus.running;
-      await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
+      statusChangesSinceFlush++;
+      if (statusChangesSinceFlush >= superResolutionStatusFlushInterval) {
+        await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
+        statusChangesSinceFlush = 0;
+      }
       updateSafely(['$superResolutionId::$gid']);
 
       bool success = await _handleImage(rawImages[i], superResolutionInfo);
       if (!success) {
+        /// pauseSuperResolve flushes the accumulated statuses to the DB
         pauseSuperResolve(gid, type);
         return;
       }
@@ -398,9 +413,12 @@ class SuperResolutionService extends GetxController
       superResolutionInfo.imageStatuses[i] = SuperResolutionStatus.success;
       log.download('super resolve image ${rawImages[i].path} success');
 
+      statusChangesSinceFlush++;
       /// we can't kill the process immediately on Windows
-      if (get(gid, type) != null) {
+      if (get(gid, type) != null &&
+          statusChangesSinceFlush >= superResolutionStatusFlushInterval) {
         await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
+        statusChangesSinceFlush = 0;
       }
       updateSafely(
           ['$superResolutionId::$gid', '$superResolutionImageId::$gid::$i']);

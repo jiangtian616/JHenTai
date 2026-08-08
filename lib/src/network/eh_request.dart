@@ -44,9 +44,29 @@ class EHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late final EHIpProvider _ehIpProvider;
   late final String systemProxyAddress;
 
+  /// Snapshot of the static host->IP table ([NetworkSetting.host2IPs]).
+  /// `networkSetting.allIPs` rebuilds a Set on every access; the underlying
+  /// table is `static const`, so it is safe to evaluate once at construction.
+  final Set<String> _allIPs = networkSetting.allIPs;
+
   List<Cookie> get cookies => List.unmodifiable(_cookieManager.cookies);
 
+  /// Builds the cache [Options] for a request, optionally tagging it as
+  /// already probed against the cache by the caller so [EHCacheManager] skips
+  /// the redundant SQLite lookup (see its `alreadyProbed` extra key).
+  Options _cacheOptions(CacheOptions cacheOptions, {bool alreadyProbed = false}) {
+    final Options options = cacheOptions.toOptions();
+    if (alreadyProbed) {
+      (options.extra ??= <String, dynamic>{})['alreadyProbed'] = true;
+    }
+    return options;
+  }
+
   static const String domainFrontingExtraKey = 'JHDF';
+
+  /// Marks a domain-fronted request that has already been retried once, so the
+  /// error interceptor never retries more than once.
+  static const String domainFrontingRetryExtraKey = 'jhRetried';
 
   @override
   List<JHLifeCircleBean> get initDependencies => super.initDependencies..addAll([networkSetting, ehSetting]);
@@ -89,7 +109,7 @@ class EHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   Future<void> _initProxy() async {
     SocksProxy.initProxy(
       onCreate: (client) => client.badCertificateCallback = (_, String host, __) {
-        return networkSetting.allIPs.contains(host);
+        return _allIPs.contains(host);
       },
       findProxy: await findProxySettingFunc(() => systemProxyAddress),
     );
@@ -135,7 +155,7 @@ class EHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
           extra: options.extra..[domainFrontingExtraKey] = {'host': host, 'ip': ip},
         ));
       },
-      onError: (DioException e, ErrorInterceptorHandler handler) {
+      onError: (DioException e, ErrorInterceptorHandler handler) async {
         if (!e.requestOptions.extra.containsKey(domainFrontingExtraKey)) {
           handler.next(e);
           return;
@@ -146,6 +166,41 @@ class EHRequest with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
           String ip = e.requestOptions.extra[domainFrontingExtraKey]['ip'];
           _ehIpProvider.addUnavailableIp(host, ip);
           log.info('Add unavailable host-ip: $host-$ip');
+
+          // Retry exactly once with the next healthy IP, only for plain GET
+          // requests. POSTs and downloads (stream responses) are skipped, and
+          // the 'jhRetried' marker prevents an endless loop.
+          if (e.requestOptions.extra[domainFrontingRetryExtraKey] == true ||
+              e.requestOptions.method.toUpperCase() != 'GET' ||
+              e.requestOptions.responseType == ResponseType.stream) {
+            handler.next(e);
+            return;
+          }
+
+          String newIp = _ehIpProvider.nextIP(host);
+          // copyWith replaces `extra` wholesale (it does not merge), so merge
+          // the original keys by hand, mirroring the onRequest style.
+          Map<String, dynamic> retryExtra = Map<String, dynamic>.from(e.requestOptions.extra)
+            ..[domainFrontingRetryExtraKey] = true
+            ..[domainFrontingExtraKey] = {'host': host, 'ip': newIp};
+          RequestOptions retryOptions = e.requestOptions.copyWith(
+            path: e.requestOptions.path.replaceFirst(ip, newIp),
+            headers: {...e.requestOptions.headers, 'host': host},
+            extra: retryExtra,
+          );
+          log.info('Retry domain-fronting GET with next IP: $host $ip -> $newIp');
+
+          // Re-enter the whole interceptor chain (fetch rebuilds the full
+          // pipeline: request interceptors -> dispatch -> response
+          // interceptors), so cookies and cache still apply to the retry.
+          try {
+            Response response = await _dio.fetch(retryOptions);
+            handler.resolve(response);
+            return;
+          } catch (retryError) {
+            handler.next(retryError is DioException ? retryError : DioException(requestOptions: e.requestOptions, error: retryError));
+            return;
+          }
         }
 
         handler.next(e);
@@ -377,6 +432,10 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     int thumbnailsPageIndex = 0,
     bool useCacheIfAvailable = true,
     CancelToken? cancelToken,
+
+    /// Set when the caller already probed this exact request against the cache
+    /// and it missed; the cache interceptor then skips the redundant lookup.
+    bool alreadyProbed = false,
     required HtmlParser<T> parser,
   }) async {
     Response response = await _getWithErrorHandler(
@@ -388,7 +447,10 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         'hc': preferenceSetting.showAllComments.isTrue ? 1 : 0,
       },
       cancelToken: cancelToken,
-      options: useCacheIfAvailable ? CacheOptions.cacheOptions.toOptions() : CacheOptions.noCacheOptions.toOptions(),
+      options: _cacheOptions(
+        useCacheIfAvailable ? CacheOptions.cacheOptions : CacheOptions.noCacheOptions,
+        alreadyProbed: alreadyProbed,
+      ),
     );
     return _parseResponse(response, parser);
   }
@@ -543,6 +605,10 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     String? reloadKey,
     CancelToken? cancelToken,
     bool useCacheIfAvailable = true,
+
+    /// Set when the caller already probed this exact request against the cache
+    /// and it missed; the cache interceptor then skips the redundant lookup.
+    bool alreadyProbed = false,
     required HtmlParser<T> parser,
   }) async {
     Response response = await _getWithErrorHandler(
@@ -551,7 +617,10 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
         if (reloadKey != null) 'nl': reloadKey,
       },
       cancelToken: cancelToken,
-      options: useCacheIfAvailable ? CacheOptions.cacheOptionsIgnoreParams.toOptions() : CacheOptions.noCacheOptionsIgnoreParams.toOptions(),
+      options: _cacheOptions(
+        useCacheIfAvailable ? CacheOptions.cacheOptionsIgnoreParams : CacheOptions.noCacheOptionsIgnoreParams,
+        alreadyProbed: alreadyProbed,
+      ),
     );
     return _parseResponse(response, parser);
   }

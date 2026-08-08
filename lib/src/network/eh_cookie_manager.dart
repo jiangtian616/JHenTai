@@ -8,6 +8,11 @@ import '../service/local_config_service.dart';
 import '../setting/network_setting.dart';
 import '../utils/cookie_util.dart';
 
+/// Snapshot of the static host/IP table. `NetworkSetting.allHostAndIPs`
+/// rebuilds a Set on every access; the underlying `host2IPs` table is
+/// `static const`, so evaluating it once here is safe and avoids the churn.
+final Set<String> cachedAllHostAndIPs = networkSetting.allHostAndIPs;
+
 class EHCookieManager extends Interceptor {
   final LocalConfigService localConfigService;
 
@@ -41,7 +46,7 @@ class EHCookieManager extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     try {
-      if (networkSetting.allHostAndIPs.contains(options.uri.host)) {
+      if (cachedAllHostAndIPs.contains(options.uri.host)) {
         options.headers[HttpHeaders.cookieHeader] = CookieUtil.parse2String(cookies);
       }
       handler.next(options);
@@ -81,7 +86,7 @@ class EHCookieManager extends Interceptor {
       return;
     }
 
-    if (networkSetting.allHostAndIPs.contains(response.requestOptions.uri.host)) {
+    if (cachedAllHostAndIPs.contains(response.requestOptions.uri.host)) {
       List<Cookie> cookies = cookieStrs.map(Cookie.fromSetCookieValue).map((cookie) => Cookie(cookie.name, cookie.value)).toList();
       await storeEHCookies(cookies);
     }

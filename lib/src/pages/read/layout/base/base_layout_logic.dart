@@ -283,7 +283,8 @@ abstract class BaseLayoutLogic extends GetxController
         pathService.getVisibleDir().path, readPageState.images[index]!.path!);
   }
 
-  Future<void> translateImage(int index, BuildContext context) async {
+  Future<void> translateImage(int index, BuildContext context,
+      {bool force = false}) async {
     final GalleryImage? image = readPageState.images[index];
     if (image == null) {
       return;
@@ -314,7 +315,7 @@ abstract class BaseLayoutLogic extends GetxController
 
     readPageState.imageTranslationRequests[index] = request;
     updateSafely([BaseLayoutLogic.pageId]);
-    await imageTranslationService.translate(request);
+    await imageTranslationService.translate(request, force: force);
     updateSafely([BaseLayoutLogic.pageId]);
   }
 

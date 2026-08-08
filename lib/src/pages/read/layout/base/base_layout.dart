@@ -439,7 +439,7 @@ abstract class BaseLayout extends StatelessWidget {
   Widget _wrapWithTranslationOverlay(Widget child, int index) {
     final ImageTranslationRequest? request =
         readPageState.imageTranslationRequests[index];
-    if (request == null) {
+    if (request == null || !readPageState.showImageTranslationOverlay) {
       return child;
     }
     return Stack(

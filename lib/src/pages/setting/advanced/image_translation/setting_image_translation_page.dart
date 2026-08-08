@@ -35,6 +35,16 @@ const List<_OcrModel> _paddleLanguageOptions = [
   _OcrModel('korean', '한국어'),
 ];
 
+const List<_OcrModel> _appleLanguageOptions = [
+  _OcrModel('auto', '自动检测 / Auto'),
+  _OcrModel('ja-JP', '日本語'),
+  _OcrModel('en-US', 'English'),
+  _OcrModel('ja-JP,en-US', '日本語 + English'),
+  _OcrModel('zh-Hans', '简体中文'),
+  _OcrModel('zh-Hant', '繁體中文'),
+  _OcrModel('ko-KR', '한국어'),
+];
+
 const List<String> _targetLanguageOptions = [
   '简体中文',
   '繁體中文',
@@ -61,6 +71,8 @@ class _SettingImageTranslationPageState
   late final TextEditingController _endpointController;
   late final TextEditingController _apiKeyController;
   late String _paddleLanguage;
+  late String _appleLiveTextLanguage;
+  late bool _appleLiveTextUseApi;
   late String _targetLanguage;
   late ImageTranslationProvider _provider;
   late OcrModelSource _ocrSource;
@@ -85,6 +97,9 @@ class _SettingImageTranslationPageState
     _apiKeyController = TextEditingController(
         text: imageTranslationSetting.translatorApiKey.value ?? '');
     _paddleLanguage = imageTranslationSetting.paddleOcrLanguage.value;
+    _appleLiveTextLanguage = imageTranslationSetting.appleLiveTextLanguage.value;
+    _appleLiveTextUseApi =
+        imageTranslationSetting.appleLiveTextUseThirdPartyApi.value;
     _targetLanguage = imageTranslationSetting.targetLanguage.value;
     _provider = imageTranslationSetting.translatorProvider.value;
     _ocrSource = imageTranslationSetting.ocrModelSource.value;
@@ -95,7 +110,9 @@ class _SettingImageTranslationPageState
         .toSet();
     final String savedModel = imageTranslationSetting.translatorModel.value;
     if (savedModel.isNotEmpty) _availableModels = [savedModel];
-    _detectOcr();
+    if (_ocrEngine != ImageOcrEngine.appleLiveText) {
+      _detectOcr();
+    }
   }
 
   @override
@@ -110,6 +127,7 @@ class _SettingImageTranslationPageState
 
   @override
   Widget build(BuildContext context) {
+    final bool appleMode = _ocrEngine == ImageOcrEngine.appleLiveText;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -120,33 +138,63 @@ class _SettingImageTranslationPageState
         safeArea: true,
         groups: [
           EHAppleSettingsGroup(
-            title: 'imageTranslationTranslatorSection'.tr,
-            children: [
-              _buildProvider(),
-              _buildEndpoint(),
-              _buildApiKey(),
-              _buildFetchModels(),
-              _buildModel(),
-              _buildTargetLanguage(),
-              _buildEnableThinking(),
-            ],
+            title: 'imageTranslationMethodSection'.tr,
+            children: [_buildMethodSwitch()],
           ),
-          EHAppleSettingsGroup(
-            title: 'imageTranslationOcrSection'.tr,
-            children: [
-              _buildOcrEngine(),
-              if (_ocrEngine != ImageOcrEngine.tesseract) ...[
-                _buildPaddleLanguage(),
-                _buildPaddleRuntime(),
-              ] else ...[
-                _buildOcrExecutable(),
-                _buildOcrDirectory(),
-                _buildDetectOcr(),
-                _buildOcrModelSource(),
-                ..._ocrModels.map(_ocrModelTile),
+          if (appleMode) ...[
+            EHAppleSettingsGroup(
+              title: 'imageTranslationOcrSection'.tr,
+              children: [
+                _buildAppleLiveTextLanguage(),
+                _buildAppleLiveTextAvailability(),
               ],
-            ],
-          ),
+            ),
+            EHAppleSettingsGroup(
+              title: 'imageTranslationTranslatorSection'.tr,
+              children: [
+                _buildTargetLanguage(),
+                _buildAppleLiveTextUseApi(),
+                if (_appleLiveTextUseApi) ...[
+                  _buildProvider(),
+                  _buildEndpoint(),
+                  _buildApiKey(),
+                  _buildFetchModels(),
+                  _buildModel(),
+                  _buildEnableThinking(),
+                ] else
+                  _buildOnDeviceTranslationHint(),
+              ],
+            ),
+          ] else ...[
+            EHAppleSettingsGroup(
+              title: 'imageTranslationTranslatorSection'.tr,
+              children: [
+                _buildProvider(),
+                _buildEndpoint(),
+                _buildApiKey(),
+                _buildFetchModels(),
+                _buildModel(),
+                _buildTargetLanguage(),
+                _buildEnableThinking(),
+              ],
+            ),
+            EHAppleSettingsGroup(
+              title: 'imageTranslationOcrSection'.tr,
+              children: [
+                _buildOcrEngine(),
+                if (_ocrEngine != ImageOcrEngine.tesseract) ...[
+                  _buildPaddleLanguage(),
+                  _buildPaddleRuntime(),
+                ] else ...[
+                  _buildOcrExecutable(),
+                  _buildOcrDirectory(),
+                  _buildDetectOcr(),
+                  _buildOcrModelSource(),
+                  ..._ocrModels.map(_ocrModelTile),
+                ],
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -306,6 +354,99 @@ class _SettingImageTranslationPageState
               child: Text('PaddleOCR-VL-1.6')),
         ],
       ),
+    );
+  }
+
+  Widget _buildAppleLiveTextLanguage() {
+    final List<_OcrModel> options =
+        _appleLanguageOptions.any((option) => option.code == _appleLiveTextLanguage)
+            ? _appleLanguageOptions
+            : [
+                ..._appleLanguageOptions,
+                _OcrModel(_appleLiveTextLanguage, _appleLiveTextLanguage)
+              ];
+    return ListTile(
+      title: Text('imageTranslationAppleLiveTextLanguage'.tr),
+      trailing: EHCodexStyleDropdown<String>(
+        value: _appleLiveTextLanguage,
+        elevation: 4,
+        alignment: AlignmentDirectional.centerEnd,
+        onChanged: (value) => setState(() => _appleLiveTextLanguage = value!),
+        items: options
+            .map((option) =>
+                DropdownMenuItem(value: option.code, child: Text(option.label)))
+            .toList(),
+      ),
+    );
+  }
+
+  Widget _buildAppleLiveTextAvailability() {
+    final bool available = Platform.isIOS || Platform.isMacOS;
+    return ListTile(
+      title: Text(available
+          ? 'imageTranslationAppleLiveTextHint'.tr
+          : 'imageTranslationAppleLiveTextUnavailable'.tr),
+      trailing: Icon(
+        available ? Icons.check_circle_outline : Icons.warning_amber_outlined,
+        color: available ? Colors.green : Colors.orange,
+      ),
+    );
+  }
+
+  Widget _buildMethodSwitch() {
+    final bool appleMode = _ocrEngine == ImageOcrEngine.appleLiveText;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: SegmentedButton<bool>(
+        showSelectedIcon: false,
+        segments: [
+          ButtonSegment(
+            value: true,
+            icon: const Icon(Icons.apple, size: 18),
+            label: Text('imageTranslationMethodAppleLiveText'.tr),
+          ),
+          ButtonSegment(
+            value: false,
+            icon: const Icon(Icons.tune, size: 18),
+            label: Text('imageTranslationMethodCustom'.tr),
+          ),
+        ],
+        selected: {appleMode},
+        onSelectionChanged: (selection) => _setMode(selection.first),
+      ),
+    );
+  }
+
+  Future<void> _setMode(bool apple) async {
+    if (apple) {
+      await imageTranslationSetting.switchToAppleLiveTextMode();
+    } else {
+      await imageTranslationSetting.switchToCustomMode();
+    }
+    if (!mounted) return;
+    setState(() {
+      _ocrEngine = imageTranslationSetting.ocrEngine.value;
+    });
+  }
+
+  Widget _buildAppleLiveTextUseApi() {
+    return EHAppleSwitchListTile(
+      title: Text('imageTranslationAppleLiveTextUseApi'.tr),
+      subtitle: Text('imageTranslationAppleLiveTextUseApiHint'.tr,
+          style: const TextStyle(fontSize: 12)),
+      value: _appleLiveTextUseApi,
+      onChanged: (value) {
+        setState(() => _appleLiveTextUseApi = value);
+        imageTranslationSetting.saveAppleLiveTextUseThirdPartyApi(value);
+      },
+    );
+  }
+
+  Widget _buildOnDeviceTranslationHint() {
+    return ListTile(
+      leading: const Icon(Icons.phonelink_erase, size: 20),
+      title: Text('imageTranslationAppleLiveTextOnDeviceHint'.tr,
+          style: const TextStyle(fontSize: 12)),
     );
   }
 
@@ -608,7 +749,9 @@ class _SettingImageTranslationPageState
   }
 
   Future<void> _save() async {
-    if (_availableModels.isEmpty) {
+    final bool appleMode = _ocrEngine == ImageOcrEngine.appleLiveText;
+    final bool needsApi = !appleMode || _appleLiveTextUseApi;
+    if (needsApi && _availableModels.isEmpty) {
       toast('imageTranslationFetchModelsFirst'.tr);
       return;
     }
@@ -617,6 +760,7 @@ class _SettingImageTranslationPageState
       ocrEngine: _ocrEngine,
       paddleOcrExecutable: _paddleExecutableController.text,
       paddleOcrLanguage: _paddleLanguage,
+      appleLiveTextLanguage: _appleLiveTextLanguage,
       ocrLanguage: _selectedLanguages.join('+'),
       ocrDataDirectory: _ocrDirectoryController.text,
       ocrModelSource: _ocrSource,

@@ -25,10 +25,23 @@ class SettingPerformancePage extends StatelessWidget {
           EHAppleSettingsGroup(
             children: [
               _buildMaxGalleryNum4Animation(context),
+              _buildCoverDecodeOptimization(context),
             ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildCoverDecodeOptimization(BuildContext context) {
+    return EHAppleSwitchListTile(
+      title: Text('enableCoverDecodeOptimization'.tr),
+      subtitle: Text('enableCoverDecodeOptimizationHint'.tr),
+      value: performanceSetting.enableCoverDecodeOptimization.value,
+      onChanged: (value) async {
+        await performanceSetting.setEnableCoverDecodeOptimization(value);
+        toast('saveSuccess'.tr);
+      },
     );
   }
 

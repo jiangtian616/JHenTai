@@ -392,6 +392,48 @@ class _ReadPageState extends State<ReadPage>
                   ),
                 ),
               ),
+              GetBuilder<ReadPageLogic>(
+                id: logic.translationMenuId,
+                builder: (_) => Tooltip(
+                  message: state.showImageTranslationOverlay
+                      ? 'imageTranslationHide'.tr
+                      : 'imageTranslationShow'.tr,
+                  child: ElevatedButton(
+                    child: Icon(
+                      state.showImageTranslationOverlay
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      size: 24,
+                      color: UIConfig.readPageButtonColor,
+                    ),
+                    onPressed: logic.toggleImageTranslationOverlay,
+                    style: ElevatedButton.styleFrom(
+                      elevation: 0,
+                      padding: const EdgeInsets.all(0),
+                      surfaceTintColor: Colors.transparent,
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      minimumSize: const Size(56, 56),
+                    ),
+                  ),
+                ),
+              ),
+              Tooltip(
+                message: 'imageTranslationRetranslate'.tr,
+                child: ElevatedButton(
+                  child: const Icon(Icons.refresh,
+                      size: 24, color: UIConfig.readPageButtonColor),
+                  onPressed: () => logic.retranslateCurrentImage(context),
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    padding: const EdgeInsets.all(0),
+                    surfaceTintColor: Colors.transparent,
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    minimumSize: const Size(56, 56),
+                  ),
+                ),
+              ),
               if (readSetting.enableBottomMenu.isFalse)
                 ElevatedButton(
                   child: const Icon(Icons.settings,

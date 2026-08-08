@@ -11,6 +11,7 @@ import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
+import 'package:jhentai/src/setting/performance_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
@@ -150,19 +151,41 @@ class EHGalleryListCard extends StatelessWidget {
   }
 
   Widget buildGalleryCardCover(BuildContext context) {
+    final double coverWidth = withTags
+        ? UIConfig.galleryCardCoverWidth
+        : UIConfig.galleryCardCoverWidthWithoutTags;
+    final double coverHeight = withTags
+        ? UIConfig.galleryCardHeight
+        : UIConfig.galleryCardHeightWithoutTags;
+
     return EHImage(
       galleryImage: gallery.cover,
       containerColor: UIConfig.galleryCardBackGroundColor(context),
-      containerHeight: withTags
-          ? UIConfig.galleryCardHeight
-          : UIConfig.galleryCardHeightWithoutTags,
-      containerWidth: withTags
-          ? UIConfig.galleryCardCoverWidth
-          : UIConfig.galleryCardCoverWidthWithoutTags,
+      containerHeight: coverHeight,
+      containerWidth: coverWidth,
+      cacheWidth: _coverCacheWidth(context, coverWidth),
+      cacheHeight: _coverCacheHeight(context, coverHeight),
       heroTag: gallery.blockedByLocalRules ? null : gallery.cover,
       fit: BoxFit.fitWidth,
     );
   }
+
+  /// When cover decode optimization is on, decode at ~2x the displayed size
+  /// (in physical pixels) instead of the native resolution. Both dimensions
+  /// are capped so extreme aspect ratios don't blow up memory.
+  int? _coverCacheWidth(BuildContext context, double logicalWidth) =>
+      performanceSetting.enableCoverDecodeOptimization.isTrue
+          ? (logicalWidth * MediaQuery.devicePixelRatioOf(context) * 2)
+              .round()
+              .clamp(1, 2048)
+          : null;
+
+  int? _coverCacheHeight(BuildContext context, double logicalHeight) =>
+      performanceSetting.enableCoverDecodeOptimization.isTrue
+          ? (logicalHeight * MediaQuery.devicePixelRatioOf(context) * 2)
+              .round()
+              .clamp(1, 2048)
+          : null;
 
   Widget buildGalleryCardInfo(BuildContext context) {
     return Column(
@@ -201,22 +224,6 @@ class EHGalleryListCard extends StatelessWidget {
   }
 
   Widget buildGalleryCardTagWaterFlow(BuildContext context) {
-    List<GalleryTag> mergedList = [];
-    gallery.tags.forEach((namespace, galleryTags) {
-      mergedList.addAll(galleryTags);
-    });
-    mergedList.sort((a, b) {
-      bool aWatched = a.backgroundColor != null;
-      bool bWatched = b.backgroundColor != null;
-      if (aWatched && !bWatched) {
-        return -1;
-      } else if (!aWatched && bWatched) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
-
     return SizedBox(
       height: UIConfig.galleryCardTagsHeight,
       child: WaterfallFlow.builder(
@@ -229,8 +236,8 @@ class EHGalleryListCard extends StatelessWidget {
           mainAxisSpacing: 4,
           crossAxisSpacing: 4,
         ),
-        itemCount: mergedList.length,
-        itemBuilder: (_, int index) => EHTag(tag: mergedList[index]),
+        itemCount: gallery.sortedTags.length,
+        itemBuilder: (_, int index) => EHTag(tag: gallery.sortedTags[index]),
       ).enableMouseDrag(withScrollBar: false),
     );
   }

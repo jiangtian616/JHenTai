@@ -431,6 +431,9 @@ class pt_BR {
           'Max Gallery Num For List Animation in Download page',
       'maxGalleryNum4AnimationHint':
           'Disable animation for groups which have more gallerys than this value(for list style)',
+      'enableCoverDecodeOptimization': 'Otimização de decodificação de capas',
+      'enableCoverDecodeOptimizationHint':
+          'Decodifica as capas em um tamanho próximo ao exibido, em vez da resolução nativa. Reduz tempo de decodificação e uso de memória ao navegar pelas grades, com pequena perda de qualidade.',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': 'Velocidade de rolagem',
@@ -1070,6 +1073,29 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationOcrDownloadSuccess': 'Modelo OCR baixado.',
       'imageTranslationOcrDownloadFailed':
           'Falha ao baixar o modelo OCR. Tente outra fonte.',
+      'imageTranslationOcrEngineAppleLiveText': 'Apple Live Text',
+      'imageTranslationAppleLiveTextLanguage':
+          'Idioma de reconhecimento do Apple Live Text',
+      'imageTranslationAppleLiveTextHint':
+          'OCR no dispositivo via Apple Vision. Disponível em iOS e macOS, sem download de modelo.',
+      'imageTranslationAppleLiveTextUnavailable':
+          'O Apple Live Text está disponível apenas em iOS e macOS.',
+      'imageTranslationMethodSection': 'Método de tradução',
+      'imageTranslationMethodAppleLiveText': 'Apple Live Text',
+      'imageTranslationMethodCustom': 'Personalizado',
+      'imageTranslationAppleLiveTextUseApi': 'Usar API de terceiros para tradução',
+      'imageTranslationAppleLiveTextUseApiHint':
+          'Reutiliza a mesma API compatível com OpenAI / Anthropic do modo personalizado em vez da tradução no dispositivo da Apple.',
+      'imageTranslationAppleLiveTextOnDeviceHint':
+          'O reconhecimento e a tradução são feitos no dispositivo pela Apple. A tradução no dispositivo exige iOS 26 / macOS 26 ou superior.',
+      'imageTranslationTranslationUnavailable':
+          'A tradução no dispositivo da Apple exige iOS 26 / macOS 26 ou superior. Ative "Usar API de terceiros para tradução" ou use um sistema mais recente.',
+      'imageTranslationTranslationFailed': 'Falha na tradução no dispositivo da Apple.',
+      'imageTranslationShow': 'Mostrar tradução',
+      'imageTranslationHide': 'Ocultar tradução',
+      'imageTranslationRetranslate': 'Retraduzir',
+      'imageTranslationTranslationNotInstalled':
+          'Os pacotes de idiomas da tradução no dispositivo da Apple não estão instalados. Instale-os em Ajustes do Sistema → Geral → Idioma e Região → Idiomas de Tradução, ou ative "Usar API de terceiros para tradução".',
     };
   }
 }

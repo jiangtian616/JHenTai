@@ -188,6 +188,12 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
         return 'imageTranslationRequestFailed'.tr;
       case 'TRANSLATION_INVALID_RESPONSE':
         return 'imageTranslationInvalidResponse'.tr;
+      case 'TRANSLATION_UNAVAILABLE':
+        return 'imageTranslationTranslationUnavailable'.tr;
+      case 'TRANSLATION_NOT_INSTALLED':
+        return 'imageTranslationTranslationNotInstalled'.tr;
+      case 'TRANSLATION_FAILED':
+        return 'imageTranslationTranslationFailed'.tr;
       case 'PADDLE_RUNTIME_NOT_READY':
         return 'imageTranslationPaddleNotReady'.tr;
       default:

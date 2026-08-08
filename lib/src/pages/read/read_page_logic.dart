@@ -61,6 +61,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   final String parseImageHrefsStateId = 'parseImageHrefsStateId';
   final String parseImageUrlStateId = 'parseImageUrlStateId';
   final String autoModeId = 'autoModeId';
+  final String translationMenuId = 'translationMenuId';
   final String batteryId = 'batteryId';
   final String currentTimeId = 'currentTimeId';
   final String topMenuId = 'topMenuId';
@@ -86,6 +87,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
 
   late Worker toggleTurnPageByVolumeKeyLister;
   late Worker toggleCurrentImmersiveModeLister;
+  late Worker showStatusInfoLister;
   late Worker toggleDeviceOrientationLister;
   late Worker readDirectionLister;
   late Worker imageSpaceLister;
@@ -116,6 +118,9 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
 
   /// Thumbnail pages that already have a parse task scheduled/running.
   final Set<int> _parsingHrefPages = <int>{};
+
+  /// Detail pages with an in-flight prefetch triggered by an explicit jump.
+  final Set<int> _prefetchingPages = <int>{};
 
   /// Online images that already had one automatic retry after a load failure.
   final Set<int> _autoRetriedImageIndices = <int>{};
@@ -267,19 +272,17 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
       state.battery.batteryLevel.then((value) => state.batteryLevel = value);
     }
 
-    /// refresh current time and battery level info
+    /// refresh current time and battery level info; the per-second timer is
+    /// only useful while the status info is shown in the read menu
     refreshCurrentTimeAndBatteryLevelTimer = Timer.periodic(
       const Duration(seconds: 1),
-      (_) {
-        if (!GetPlatform.isDesktop) {
-          state.battery.batteryLevel.then((value) {
-            state.batteryLevel = value;
-            update([batteryId]);
-          });
-        }
-        update([currentTimeId]);
-      },
+      (_) => _refreshCurrentTimeAndBatteryLevel(),
     );
+    showStatusInfoLister =
+        ever(readSetting.showStatusInfo, (_) => _syncStatusInfoTimer());
+    if (readSetting.showStatusInfo.isFalse) {
+      refreshCurrentTimeAndBatteryLevelTimer.cancel();
+    }
 
     flushReadProgressTimer =
         Timer.periodic(const Duration(seconds: 5), (_) => _flushReadProgress());
@@ -338,6 +341,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     refreshCurrentTimeAndBatteryLevelTimer.cancel();
     toggleTurnPageByVolumeKeyLister.dispose();
     toggleCurrentImmersiveModeLister.dispose();
+    showStatusInfoLister.dispose();
     readDirectionLister.dispose();
     imageSpaceLister.dispose();
     flushReadProgressTimer.cancel();
@@ -401,11 +405,13 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
 
   Future<void> _scheduleHrefParse(int index, int requestPageIndex) async {
     bool cached = false;
+    bool probed = false;
     try {
       cached = await ehRequest.hasCachedDetailPage(
         state.readPageInfo.galleryUrl!,
         requestPageIndex,
       );
+      probed = true;
     } catch (e) {
       log.warning('Check detail page cache failed, use rate limited parse', e);
       cached = false;
@@ -413,7 +419,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
 
     final Future<void> Function() task = () async {
       try {
-        await parseImageHref(index);
+        await parseImageHref(index, alreadyProbed: probed && !cached);
       } finally {
         _parsingHrefPages.remove(requestPageIndex);
       }
@@ -431,7 +437,69 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     }
   }
 
-  Future<void> parseImageHref(int index) async {
+  /// User explicitly jumped to [imageIndex]: warm the page cache for the
+  /// target detail page and the two pages on each side. Prefetches bypass the
+  /// rate-limited [executor] so the burst is not delayed by other parsing, and
+  /// simply fill the cache; the normal lazy parse still fills thumbnails when
+  /// the user reaches those pages (then served from cache).
+  void prefetchDetailPagesAround(int imageIndex) {
+    if (state.readPageInfo.mode != ReadMode.online ||
+        state.readPageInfo.galleryUrl == null) {
+      return;
+    }
+    final int pageCount = state.readPageInfo.pageCount;
+    final int thumbnailsCountPerPage = state.thumbnailsCountPerPage;
+    if (pageCount <= 0 || thumbnailsCountPerPage <= 0) {
+      return;
+    }
+    final int maxPageIndex = (pageCount - 1) ~/ thumbnailsCountPerPage;
+    final int targetPageIndex = imageIndex ~/ thumbnailsCountPerPage;
+    final int from = max(0, targetPageIndex - 2);
+    final int to = min(maxPageIndex, targetPageIndex + 2);
+    for (int pageIndex = from; pageIndex <= to; pageIndex++) {
+      _prefetchDetailPage(pageIndex);
+    }
+  }
+
+  void _prefetchDetailPage(int pageIndex) {
+    if (_prefetchingPages.contains(pageIndex) ||
+        _parsingHrefPages.contains(pageIndex) ||
+        _isDetailPageParsed(pageIndex)) {
+      return;
+    }
+    _prefetchingPages.add(pageIndex);
+    unawaited(_doPrefetchDetailPage(pageIndex));
+  }
+
+  bool _isDetailPageParsed(int pageIndex) {
+    final int start = pageIndex * state.thumbnailsCountPerPage;
+    final int end = min(
+      start + state.thumbnailsCountPerPage - 1,
+      state.readPageInfo.pageCount - 1,
+    );
+    for (int i = start; i <= end; i++) {
+      if (state.thumbnails[i] == null) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  Future<void> _doPrefetchDetailPage(int pageIndex) async {
+    try {
+      await ehRequest.requestDetailPage(
+        galleryUrl: state.readPageInfo.galleryUrl!,
+        thumbnailsPageIndex: pageIndex,
+        parser: EHSpiderParser.detailPage2RangeAndThumbnails,
+      );
+    } catch (e) {
+      log.warning('Prefetch detail page $pageIndex failed', e);
+    } finally {
+      _prefetchingPages.remove(pageIndex);
+    }
+  }
+
+  Future<void> parseImageHref(int index, {bool alreadyProbed = false}) async {
     if (state.thumbnails[index] != null) {
       state.parseImageHrefsStates[index] = LoadingState.idle;
       updateSafely(['$onlineImageId::$index']);
@@ -449,6 +517,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
         () => ehRequest.requestDetailPage(
           galleryUrl: state.readPageInfo.galleryUrl!,
           thumbnailsPageIndex: requestPageIndex,
+          alreadyProbed: alreadyProbed,
           parser: EHSpiderParser.detailPage2RangeAndThumbnails,
         ),
         maxAttempts: 3,
@@ -540,10 +609,12 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     }
 
     bool cached = false;
+    bool probed = false;
     final String? href = state.thumbnails[index]?.replacedMPVHref(index + 1);
     if (href != null) {
       try {
         cached = await ehRequest.hasCachedImagePage(href, reloadKey: reloadKey);
+        probed = true;
       } catch (e) {
         log.warning('Check image page cache failed, use rate limited parse', e);
         cached = false;
@@ -551,7 +622,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     }
 
     final Future<void> Function() task =
-        () => parseImageUrl(index, reParse, reloadKey);
+        () => parseImageUrl(index, reParse, reloadKey, alreadyProbed: probed && !cached);
     if (cached) {
       await cacheExecutor.scheduleTask(normalPriority, task);
     } else {
@@ -559,11 +630,12 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     }
   }
 
-  Future<void> parseImageUrl(int index, bool reParse, String? reloadKey) async {
+  Future<void> parseImageUrl(int index, bool reParse, String? reloadKey,
+      {bool alreadyProbed = false}) async {
     GalleryImage image;
     try {
       image = await retry(
-        () => requestImage(index, reParse, reloadKey),
+        () => requestImage(index, reParse, reloadKey, alreadyProbed: alreadyProbed),
         maxAttempts: 3,
         retryIf: (e) => e is DioException,
         onRetry: (e) => log.error(
@@ -593,10 +665,12 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   }
 
   Future<GalleryImage> requestImage(
-      int index, bool reParse, String? reloadKey) {
+      int index, bool reParse, String? reloadKey,
+      {bool alreadyProbed = false}) {
     return ehRequest.requestImagePage(
       state.thumbnails[index]!.replacedMPVHref(index + 1),
       reloadKey: reloadKey,
+      alreadyProbed: alreadyProbed,
       parser: EHSpiderParser.imagePage2GalleryImage,
       useCacheIfAvailable: !reParse,
     );
@@ -977,6 +1051,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
 
   void jump2ImageIndex(int pageIndex) {
     layoutLogic.jump2ImageIndex(pageIndex);
+    prefetchDetailPagesAround(pageIndex);
   }
 
   void handleSlide(double pageNo) {
@@ -1068,15 +1143,66 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     return positions;
   }
 
+  /// Tracks the last read index actually written, so the periodic flush and
+  /// the per-page-boundary flush only touch the storage when progress moved.
+  int _lastFlushedProgressIndex = -1;
+
   void recordReadProgress(int index) {
+    /// Only react when the visible page boundary changed; the listener can
+    /// fire every scroll frame with the same index.
+    if (state.readPageInfo.currentImageIndex == index) {
+      return;
+    }
     state.readPageInfo.currentImageIndex = index;
-    update([sliderId, pageNoId, thumbnailNoId]);
+
+    /// The thumbnail strip is only on screen while the menu is open; skip its
+    /// rebuild when the menu is closed.
+    if (state.isMenuOpen) {
+      update([sliderId, pageNoId, thumbnailNoId]);
+    } else {
+      update([sliderId, pageNoId]);
+    }
+
+    /// The index changed, so this is a page boundary: persist the progress now
+    /// instead of waiting for the periodic 5s flush.
+    unawaited(_flushReadProgress());
+  }
+
+  void _refreshCurrentTimeAndBatteryLevel() {
+    if (readSetting.showStatusInfo.isFalse) {
+      return;
+    }
+    if (!GetPlatform.isDesktop) {
+      state.battery.batteryLevel.then((value) {
+        state.batteryLevel = value;
+        update([batteryId]);
+      });
+    }
+    update([currentTimeId]);
+  }
+
+  /// Start or stop the per-second status info timer depending on whether the
+  /// status info (current time / battery level) is shown in the read menu.
+  void _syncStatusInfoTimer() {
+    refreshCurrentTimeAndBatteryLevelTimer.cancel();
+    if (readSetting.showStatusInfo.isFalse) {
+      return;
+    }
+    refreshCurrentTimeAndBatteryLevelTimer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) => _refreshCurrentTimeAndBatteryLevel(),
+    );
   }
 
   Future<void> _flushReadProgress() async {
+    final int index = state.readPageInfo.currentImageIndex;
+    if (index == _lastFlushedProgressIndex) {
+      return;
+    }
+    _lastFlushedProgressIndex = index;
     readProgressService.updateReadProgress(
       state.readPageInfo.readProgressRecordStorageKey,
-      state.readPageInfo.currentImageIndex,
+      index,
     );
   }
 
@@ -1203,6 +1329,21 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     } finally {
       imageTranslationService.endBatch();
     }
+  }
+
+  /// Toggles whether the inline translation overlay is drawn on the images.
+  void toggleImageTranslationOverlay() {
+    state.showImageTranslationOverlay = !state.showImageTranslationOverlay;
+    updateSafely([translationMenuId]);
+    layoutLogic.updateSafely([BaseLayoutLogic.pageId]);
+  }
+
+  /// Re-runs recognition and translation for the current page, bypassing the
+  /// persistent translation cache.
+  Future<void> retranslateCurrentImage(BuildContext context) async {
+    await layoutLogic.translateImage(
+        state.readPageInfo.currentImageIndex, context,
+        force: true);
   }
 
   Future<void> _pushReadSettingPage() async {

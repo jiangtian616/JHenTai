@@ -422,6 +422,9 @@ class en_US {
           'Max Gallery Num For List Animation in Download page',
       'maxGalleryNum4AnimationHint':
           'Disable animation for groups which have more gallerys than this value(for list style)',
+      'enableCoverDecodeOptimization': 'Cover Decode Optimization',
+      'enableCoverDecodeOptimizationHint':
+          'Decode gallery covers at a size closer to their displayed size instead of the full native resolution. Reduces decode time and memory usage when browsing grids, with a small quality tradeoff.',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': 'Wheel scroll speed',
@@ -1049,6 +1052,29 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationPaddleHint':
           'The app creates an isolated Python environment in its data directory. PaddleOCR-VL-1.6 is downloaded from Hugging Face and may take some time.',
       'imageTranslationPaddleLanguage': 'PaddleOCR language',
+      'imageTranslationOcrEngineAppleLiveText': 'Apple Live Text',
+      'imageTranslationAppleLiveTextLanguage':
+          'Apple Live Text recognition language',
+      'imageTranslationAppleLiveTextHint':
+          'On-device OCR via Apple Vision. Works on iOS and macOS, no model download needed.',
+      'imageTranslationAppleLiveTextUnavailable':
+          'Apple Live Text is only available on iOS and macOS.',
+      'imageTranslationMethodSection': 'Translation method',
+      'imageTranslationMethodAppleLiveText': 'Apple Live Text',
+      'imageTranslationMethodCustom': 'Custom',
+      'imageTranslationAppleLiveTextUseApi': 'Use third-party API for translation',
+      'imageTranslationAppleLiveTextUseApiHint':
+          'Reuse the same OpenAI-compatible / Anthropic API as the custom mode instead of Apple on-device translation.',
+      'imageTranslationAppleLiveTextOnDeviceHint':
+          'Recognition and translation both run on-device via Apple. On-device translation needs iOS 26 / macOS 26 or newer.',
+      'imageTranslationTranslationUnavailable':
+          'Apple on-device translation needs iOS 26 / macOS 26 or newer. Turn on "Use third-party API" to translate on this system.',
+      'imageTranslationTranslationFailed': 'Apple on-device translation failed.',
+      'imageTranslationShow': 'Show translation',
+      'imageTranslationHide': 'Hide translation',
+      'imageTranslationRetranslate': 'Re-translate',
+      'imageTranslationTranslationNotInstalled':
+          'Apple on-device translation languages are not installed. Install them in System Settings → General → Language & Region → Translation Languages, or turn on "Use third-party API".',
       'imageTranslationPaddleRuntimePath': 'Paddle runtime',
       'imageTranslationPreparePaddle': 'Install runtime and download model',
       'imageTranslationPaddleReady': 'PaddleOCR runtime is ready.',

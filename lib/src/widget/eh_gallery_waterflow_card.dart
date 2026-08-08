@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
+import 'package:jhentai/src/setting/performance_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
@@ -186,6 +187,20 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
           galleryImage: gallery.cover,
           containerHeight: fittedSizes.destination.height,
           containerWidth: fittedSizes.destination.width,
+          cacheWidth: performanceSetting.enableCoverDecodeOptimization.isTrue
+              ? (fittedSizes.destination.width *
+                      MediaQuery.devicePixelRatioOf(context) *
+                      2)
+                  .round()
+                  .clamp(1, 2048)
+              : null,
+          cacheHeight: performanceSetting.enableCoverDecodeOptimization.isTrue
+              ? (fittedSizes.destination.height *
+                      MediaQuery.devicePixelRatioOf(context) *
+                      2)
+                  .round()
+                  .clamp(1, 2048)
+              : null,
           containerColor: UIConfig.waterFallFlowCardBackGroundColor(context),
           heroTag: gallery.blockedByLocalRules ? null : gallery.cover,
           borderRadius: BorderRadius.only(

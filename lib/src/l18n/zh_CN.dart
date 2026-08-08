@@ -396,6 +396,8 @@ class zh_CN {
       /// performance setting page
       'maxGalleryNum4Animation': '下载页支持列表动画的最大画廊个数',
       'maxGalleryNum4AnimationHint': '列表模式下，拥有超过此配置个数画廊的分组在展开/收起时取消动画效果',
+      'enableCoverDecodeOptimization': '封面解码优化',
+      'enableCoverDecodeOptimizationHint': '按接近显示尺寸的大小解码画廊封面，而不是完整原始分辨率。浏览网格时降低解码耗时与内存占用，画质有轻微取舍',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': '鼠标滚轮速度',
@@ -980,6 +982,28 @@ favnote：匹配收藏备注
       'imageTranslationPaddleHint':
           '应用会在自己的数据目录创建独立 Python 环境。PaddleOCR-VL-1.6 会从 Hugging Face 下载模型，过程可能耗时较长。',
       'imageTranslationPaddleLanguage': 'PaddleOCR 语言',
+      'imageTranslationOcrEngineAppleLiveText': 'Apple Live Text',
+      'imageTranslationAppleLiveTextLanguage': 'Apple Live Text 识别语言',
+      'imageTranslationAppleLiveTextHint':
+          '使用 Apple Vision 进行端侧 OCR，支持 iOS 和 macOS，无需下载模型。',
+      'imageTranslationAppleLiveTextUnavailable':
+          'Apple Live Text 仅在 iOS 和 macOS 上可用。',
+      'imageTranslationMethodSection': '翻译方式',
+      'imageTranslationMethodAppleLiveText': 'Apple Live Text',
+      'imageTranslationMethodCustom': '自定义',
+      'imageTranslationAppleLiveTextUseApi': '使用第三方 API 翻译',
+      'imageTranslationAppleLiveTextUseApiHint':
+          '复用自定义模式的 OpenAI 兼容 / Anthropic API，而不是使用 Apple 端侧翻译。',
+      'imageTranslationAppleLiveTextOnDeviceHint':
+          '识别与翻译均由 Apple 在端侧完成。端侧翻译需要 iOS 26 / macOS 26 及以上系统。',
+      'imageTranslationTranslationUnavailable':
+          'Apple 端侧翻译需要 iOS 26 / macOS 26 及以上系统。请开启「使用第三方 API 翻译」或在更高版本系统上使用。',
+      'imageTranslationTranslationFailed': 'Apple 端侧翻译失败。',
+      'imageTranslationShow': '显示翻译',
+      'imageTranslationHide': '隐藏翻译',
+      'imageTranslationRetranslate': '重新翻译',
+      'imageTranslationTranslationNotInstalled':
+          'Apple 端侧翻译语言包尚未安装。请在系统设置 → 通用 → 语言与地区 → 翻译语言 中下载，或开启「使用第三方 API 翻译」。',
       'imageTranslationPaddleRuntimePath': 'Paddle 运行环境',
       'imageTranslationPreparePaddle': '安装运行环境并下载模型',
       'imageTranslationPaddleReady': 'PaddleOCR 运行环境已准备完成。',

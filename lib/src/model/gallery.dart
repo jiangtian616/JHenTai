@@ -40,6 +40,37 @@ class Gallery {
 
   bool get isFavorite => favoriteTagIndex != null || favoriteTagName != null;
 
+  /// Merged, watched-first-sorted tag list, memoized so list cards don't
+  /// re-merge and re-sort on every rebuild (rebuilds are frequent: scrolling,
+  /// favorite toggles, download progress). The cache is invalidated when the
+  /// [tags] map reference changes (new parse / copyWith with new tags).
+  List<GalleryTag>? _sortedTagsCache;
+  Object? _sortedTagsIdentity;
+
+  List<GalleryTag> get sortedTags {
+    if (_sortedTagsCache != null && identical(_sortedTagsIdentity, tags)) {
+      return _sortedTagsCache!;
+    }
+    final List<GalleryTag> mergedList = [];
+    tags.forEach((_, galleryTags) {
+      mergedList.addAll(galleryTags);
+    });
+    mergedList.sort((a, b) {
+      final bool aWatched = a.backgroundColor != null;
+      final bool bWatched = b.backgroundColor != null;
+      if (aWatched && !bWatched) {
+        return -1;
+      } else if (!aWatched && bWatched) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+    _sortedTagsCache = mergedList;
+    _sortedTagsIdentity = tags;
+    return mergedList;
+  }
+
   Gallery({
     required this.galleryUrl,
     required this.title,

@@ -35,6 +35,10 @@ class ReadPageState with ScrollStatusListerState {
   /// Image indices whose translation overlay is active in this reading session.
   final Map<int, ImageTranslationRequest> imageTranslationRequests = {};
 
+  /// Whether the inline translation overlay is currently visible for this
+  /// reading session (toggled from the read-page top menu).
+  bool showImageTranslationOverlay = true;
+
   bool autoMode = false;
   bool isMenuOpen = false;
   Battery battery = Battery();

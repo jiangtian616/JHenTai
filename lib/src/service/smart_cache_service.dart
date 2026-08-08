@@ -23,6 +23,15 @@ class SmartCacheService
     implements JHLifeCircleBean {
   Timer? _enforceTimer;
 
+  /// Flushes buffered image stats to the database. ExtendedImage fires one
+  /// cache event per image, so while scrolling the hit/written frequency is
+  /// far higher than what a per-event DB write justifies; aggregation batches
+  /// them into a single transaction per flush.
+  static const Duration _flushInterval = Duration(seconds: 5);
+  Timer? _flushTimer;
+  final Map<String, int> _imageHitCounts = {};
+  final Map<String, ({int count, int sizeBytes})> _imageWrittenCounts = {};
+
   @override
   List<JHLifeCircleBean> get initDependencies =>
       super.initDependencies..add(networkSetting);
@@ -33,15 +42,19 @@ class SmartCacheService
         (String key, ExtendedImageCacheEventType event) {
       switch (event) {
         case ExtendedImageCacheEventType.hit:
-          unawaited(SmartCacheStatDao.recordHit(key, kind: 'image'));
+          _recordImageHit(key);
           break;
         case ExtendedImageCacheEventType.written:
           unawaited(_onImageWritten(key));
           break;
         case ExtendedImageCacheEventType.deleted:
+          _imageHitCounts.remove(key);
+          _imageWrittenCounts.remove(key);
           unawaited(SmartCacheStatDao.deleteByKey(key));
           break;
         case ExtendedImageCacheEventType.cleared:
+          _imageHitCounts.clear();
+          _imageWrittenCounts.clear();
           unawaited(SmartCacheStatDao.deleteByKind('image'));
           break;
       }
@@ -63,6 +76,11 @@ class SmartCacheService
   @override
   Future<void> doAfterBeanReady() async {}
 
+  void _recordImageHit(String key) {
+    _imageHitCounts.update(key, (count) => count + 1, ifAbsent: () => 1);
+    _scheduleFlush();
+  }
+
   Future<void> _onImageWritten(String key) async {
     final File file = File(join(
       pathService.tempDir.path,
@@ -70,13 +88,62 @@ class SmartCacheService
       key,
     ));
     final int size = file.existsSync() ? file.lengthSync() : 0;
-    await SmartCacheStatDao.recordWritten(
+    _imageWrittenCounts.update(
       key,
-      kind: 'image',
-      url: key,
-      sizeBytes: size,
+      (value) => (count: value.count + 1, sizeBytes: size),
+      ifAbsent: () => (count: 1, sizeBytes: size),
     );
+    _scheduleFlush();
     _scheduleEnforceSpaceLimit();
+  }
+
+  /// Schedules a single flush [_flushInterval] after the first buffered event;
+  /// events arriving while a flush is pending are covered by the same run.
+  void _scheduleFlush() {
+    if (_flushTimer != null) {
+      return;
+    }
+    _flushTimer = Timer(_flushInterval, () {
+      _flushTimer = null;
+      unawaited(flushStats());
+    });
+  }
+
+  /// Flushes the buffered image stats to the database in one transaction.
+  /// Buffers are only drained after a successful write, so a failing flush
+  /// (e.g. database closed) neither crashes the app nor loses counts.
+  /// Public so tests can trigger a flush deterministically.
+  Future<void> flushStats() async {
+    final Map<String, int> hits = Map.of(_imageHitCounts);
+    final Map<String, ({int count, int sizeBytes})> writtens =
+        Map.of(_imageWrittenCounts);
+    if (hits.isEmpty && writtens.isEmpty) {
+      return;
+    }
+
+    try {
+      if (hits.isNotEmpty) {
+        await SmartCacheStatDao.batchRecordHits(hits);
+      }
+      if (writtens.isNotEmpty) {
+        await SmartCacheStatDao.batchRecordWrittens(writtens);
+      }
+      // Events arriving while the flush was in flight are kept for the next
+      // flush; only the snapshot that was written is drained.
+      _imageHitCounts.removeWhere((key, _) => hits.containsKey(key));
+      _imageWrittenCounts.removeWhere((key, _) => writtens.containsKey(key));
+    } on Exception catch (e) {
+      log.error('Flush smart cache stats failed', e);
+    }
+  }
+
+  /// Cancels pending timers so a flushed service never fires again. Called on
+  /// teardown (e.g. tests / app exit); the app itself keeps the service alive.
+  void dispose() {
+    _flushTimer?.cancel();
+    _flushTimer = null;
+    _enforceTimer?.cancel();
+    _enforceTimer = null;
   }
 
   void _scheduleEnforceSpaceLimit() {

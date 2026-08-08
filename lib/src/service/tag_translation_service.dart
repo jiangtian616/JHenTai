@@ -1,6 +1,5 @@
 import 'dart:io' as io;
 import 'dart:collection';
-import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
@@ -9,6 +8,7 @@ import 'package:jhentai/src/database/dao/tag_dao.dart';
 import 'package:jhentai/src/enum/eh_namespace.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/service/isolate_service.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/service/tag_search_order_service.dart';
 import 'package:jhentai/src/service/path_service.dart';
@@ -41,6 +41,8 @@ TagTranslationService tagTranslationService = TagTranslationService();
 class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   final String downloadUrl = 'https://fastly.jsdelivr.net/gh/EhTagTranslation/DatabaseReleases/db.html.json';
   late final String savePath;
+
+  static const int _importBatchSize = 500;
 
   Rx<LoadingState> loadingState = LoadingState.idle.obs;
   RxnString timeStamp = RxnString(null);
@@ -104,8 +106,8 @@ class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCir
     log.info('Tag translation data downloaded');
 
     /// format
-    String json = io.File(savePath).readAsStringSync();
-    Map dataMap = jsonDecode(json);
+    String json = await io.File(savePath).readAsString();
+    Map dataMap = await isolateService.jsonDecodeAsync(json);
     Map head = dataMap['head'] as Map;
     Map committer = head['committer'] as Map;
     String newTimeStamp = committer['when'] as String;
@@ -144,18 +146,13 @@ class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCir
     timeStamp.value = null;
     await appDb.transaction(() async {
       await TagDao.deleteAllTags();
-      for (TagData tag in tagList) {
-        await TagDao.insertTag(
-          TagData(
-            namespace: tag.namespace,
-            key: tag.key,
-            translatedNamespace: tag.translatedNamespace,
-            tagName: tag.tagName,
-            fullTagName: tag.fullTagName,
-            intro: tag.intro,
-            links: tag.links,
-          ),
-        );
+      for (int i = 0; i < tagList.length; i += _importBatchSize) {
+        await appDb.batch((batch) {
+          batch.insertAll(
+            appDb.tag,
+            tagList.skip(i).take(_importBatchSize).toList(),
+          );
+        });
       }
     });
 

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:get/get.dart';
 
@@ -12,7 +13,7 @@ enum ImageTranslationProvider { openAICompatible, anthropic }
 
 enum OcrModelSource { giteeMirror, githubOfficial }
 
-enum ImageOcrEngine { tesseract, paddleOcr, paddleOcrVl16 }
+enum ImageOcrEngine { tesseract, paddleOcr, paddleOcrVl16, appleLiveText }
 
 class ImageTranslationSetting
     with JHLifeCircleBeanWithConfigStorage
@@ -21,6 +22,20 @@ class ImageTranslationSetting
   final Rx<ImageOcrEngine> ocrEngine = ImageOcrEngine.tesseract.obs;
   final RxString paddleOcrExecutable = 'paddleocr'.obs;
   final RxString paddleOcrLanguage = 'japan'.obs;
+  /// Apple Live Text recognition languages, as a comma-separated list of
+  /// BCP-47 codes, or 'auto' for on-device auto detection (iOS 16 / macOS 13+).
+  final RxString appleLiveTextLanguage = 'auto'.obs;
+  /// True once the engine has been auto-switched to [ImageOcrEngine.appleLiveText]
+  /// on an Apple platform, so the one-time migration does not fight a later
+  /// manual engine choice.
+  final RxBool appleLiveTextAutoSelected = false.obs;
+  /// In Apple Live Text mode, whether to translate with the shared third-party
+  /// API (the same provider/endpoint/key/model as the custom mode) instead of
+  /// Apple's on-device translation.
+  final RxBool appleLiveTextUseThirdPartyApi = false.obs;
+  /// The OCR engine to restore when switching back from Apple Live Text mode to
+  /// the custom mode.
+  final Rx<ImageOcrEngine> lastCustomOcrEngine = ImageOcrEngine.tesseract.obs;
   final RxString ocrLanguage = 'jpn+eng'.obs;
   final RxnString ocrDataDirectory = RxnString();
   final Rx<OcrModelSource> ocrModelSource = OcrModelSource.giteeMirror.obs;
@@ -52,6 +67,16 @@ class ImageTranslationSetting
         config['paddleOcrExecutable'] ?? paddleOcrExecutable.value;
     paddleOcrLanguage.value =
         config['paddleOcrLanguage'] ?? paddleOcrLanguage.value;
+    appleLiveTextLanguage.value =
+        config['appleLiveTextLanguage'] ?? appleLiveTextLanguage.value;
+    appleLiveTextAutoSelected.value =
+        config['appleLiveTextAutoSelected'] ?? appleLiveTextAutoSelected.value;
+    appleLiveTextUseThirdPartyApi.value =
+        config['appleLiveTextUseThirdPartyApi'] ??
+            appleLiveTextUseThirdPartyApi.value;
+    lastCustomOcrEngine.value = ImageOcrEngine.values.firstWhere(
+        (engine) => engine.name == config['lastCustomOcrEngine'],
+        orElse: () => lastCustomOcrEngine.value);
     ocrLanguage.value = config['ocrLanguage'] ?? ocrLanguage.value;
     ocrDataDirectory.value = config['ocrDataDirectory'];
     ocrModelSource.value = OcrModelSource.values.firstWhere(
@@ -75,6 +100,10 @@ class ImageTranslationSetting
         'ocrEngine': ocrEngine.value.name,
         'paddleOcrExecutable': paddleOcrExecutable.value,
         'paddleOcrLanguage': paddleOcrLanguage.value,
+        'appleLiveTextLanguage': appleLiveTextLanguage.value,
+        'appleLiveTextAutoSelected': appleLiveTextAutoSelected.value,
+        'appleLiveTextUseThirdPartyApi': appleLiveTextUseThirdPartyApi.value,
+        'lastCustomOcrEngine': lastCustomOcrEngine.value.name,
         'ocrLanguage': ocrLanguage.value,
         'ocrDataDirectory': ocrDataDirectory.value,
         'ocrModelSource': ocrModelSource.value.name,
@@ -91,13 +120,61 @@ class ImageTranslationSetting
   Future<void> doInitBean() async {}
 
   @override
-  void doAfterBeanReady() {}
+  Future<void> doAfterBeanReady() async {
+    await _autoSelectAppleLiveTextIfNeeded();
+  }
+
+  /// On Apple platforms, switch the OCR engine to the on-device Apple Live Text
+  /// engine once (and only once) so image translation works out of the box.
+  /// A later manual engine choice is never overridden again.
+  Future<void> _autoSelectAppleLiveTextIfNeeded() async {
+    if (!Platform.isIOS && !Platform.isMacOS) {
+      return;
+    }
+    if (appleLiveTextAutoSelected.value) {
+      return;
+    }
+    if (ocrEngine.value != ImageOcrEngine.appleLiveText) {
+      lastCustomOcrEngine.value = ocrEngine.value;
+      ocrEngine.value = ImageOcrEngine.appleLiveText;
+    }
+    appleLiveTextAutoSelected.value = true;
+    await saveBeanConfig();
+  }
+
+  bool get isAppleLiveTextMode =>
+      ocrEngine.value == ImageOcrEngine.appleLiveText;
+
+  /// Whether translation runs entirely on-device in Apple Live Text mode:
+  /// recognition via Vision and translation via Apple's Translation framework,
+  /// with no third-party API involved.
+  bool get usesAppleOnDeviceTranslation =>
+      isAppleLiveTextMode && !appleLiveTextUseThirdPartyApi.value;
+
+  /// Switch to the self-contained Apple Live Text mode, remembering the current
+  /// custom engine so it can be restored later.
+  Future<void> switchToAppleLiveTextMode() async {
+    if (!isAppleLiveTextMode) {
+      lastCustomOcrEngine.value = ocrEngine.value;
+      ocrEngine.value = ImageOcrEngine.appleLiveText;
+      await saveBeanConfig();
+    }
+  }
+
+  /// Switch back to the custom mode (Tesseract / PaddleOCR + API).
+  Future<void> switchToCustomMode() async {
+    if (ocrEngine.value != lastCustomOcrEngine.value) {
+      ocrEngine.value = lastCustomOcrEngine.value;
+      await saveBeanConfig();
+    }
+  }
 
   Future<void> save({
     required String ocrExecutable,
     required ImageOcrEngine ocrEngine,
     required String paddleOcrExecutable,
     required String paddleOcrLanguage,
+    required String appleLiveTextLanguage,
     required String ocrLanguage,
     required String ocrDataDirectory,
     required OcrModelSource ocrModelSource,
@@ -118,6 +195,9 @@ class ImageTranslationSetting
         : paddleOcrExecutable.trim();
     this.paddleOcrLanguage.value =
         paddleOcrLanguage.trim().isEmpty ? 'japan' : paddleOcrLanguage.trim();
+    this.appleLiveTextLanguage.value = appleLiveTextLanguage.trim().isEmpty
+        ? 'auto'
+        : appleLiveTextLanguage.trim();
     this.ocrLanguage.value =
         ocrLanguage.trim().isEmpty ? 'jpn+eng' : ocrLanguage.trim();
     this.ocrDataDirectory.value =
@@ -168,6 +248,16 @@ class ImageTranslationSetting
 
   Future<void> savePaddleOcrLanguage(String value) async {
     paddleOcrLanguage.value = value.trim().isEmpty ? 'japan' : value.trim();
+    await saveBeanConfig();
+  }
+
+  Future<void> saveAppleLiveTextLanguage(String value) async {
+    appleLiveTextLanguage.value = value.trim().isEmpty ? 'auto' : value.trim();
+    await saveBeanConfig();
+  }
+
+  Future<void> saveAppleLiveTextUseThirdPartyApi(bool value) async {
+    appleLiveTextUseThirdPartyApi.value = value;
     await saveBeanConfig();
   }
 

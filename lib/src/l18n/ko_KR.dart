@@ -412,6 +412,9 @@ class ko_KR {
           'Max Gallery Num For List Animation in Download page',
       'maxGalleryNum4AnimationHint':
           'Disable animation for groups which have more gallerys than this value(for list style)',
+      'enableCoverDecodeOptimization': '커버 디코딩 최적화',
+      'enableCoverDecodeOptimizationHint':
+          '갤러리 커버를 원본 해상도 대신 표시 크기에 가깝게 디코딩합니다. 그리드 탐색 시 디코딩 시간과 메모리 사용량을 줄이며, 약간의 화질 손실이 있습니다.',
 
       /// mouse wheel setting page
       'themeColorSettingHint': '라이트 모드와 다크 모드 각각에 다른 색을 지정합니다',
@@ -1011,6 +1014,28 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationOcrDirectoryRequired': '먼저 OCR 데이터 디렉터리를 선택하거나 감지하세요.',
       'imageTranslationOcrDownloadSuccess': 'OCR 모델을 다운로드했습니다.',
       'imageTranslationOcrDownloadFailed': 'OCR 모델 다운로드 실패. 다른 소스를 시도하세요.',
+      'imageTranslationOcrEngineAppleLiveText': 'Apple Live Text',
+      'imageTranslationAppleLiveTextLanguage': 'Apple Live Text 인식 언어',
+      'imageTranslationAppleLiveTextHint':
+          'Apple Vision 기반 온디바이스 OCR입니다. iOS 및 macOS에서 사용할 수 있으며 모델 다운로드가 필요 없습니다.',
+      'imageTranslationAppleLiveTextUnavailable':
+          'Apple Live Text는 iOS 및 macOS에서만 사용할 수 있습니다.',
+      'imageTranslationMethodSection': '번역 방식',
+      'imageTranslationMethodAppleLiveText': 'Apple Live Text',
+      'imageTranslationMethodCustom': '사용자 정의',
+      'imageTranslationAppleLiveTextUseApi': '타사 API로 번역',
+      'imageTranslationAppleLiveTextUseApiHint':
+          'Apple 온디바이스 번역 대신 사용자 정의 모드와 동일한 OpenAI 호환 / Anthropic API를 사용합니다.',
+      'imageTranslationAppleLiveTextOnDeviceHint':
+          '인식과 번역이 모두 Apple 온디바이스로 실행됩니다. 온디바이스 번역은 iOS 26 / macOS 26 이상이 필요합니다.',
+      'imageTranslationTranslationUnavailable':
+          'Apple 온디바이스 번역은 iOS 26 / macOS 26 이상이 필요합니다. "타사 API로 번역"을 켜거나 최신 시스템에서 사용하세요.',
+      'imageTranslationTranslationFailed': 'Apple 온디바이스 번역에 실패했습니다.',
+      'imageTranslationShow': '번역 표시',
+      'imageTranslationHide': '번역 숨기기',
+      'imageTranslationRetranslate': '다시 번역',
+      'imageTranslationTranslationNotInstalled':
+          'Apple 온디바이스 번역 언어 팩이 설치되어 있지 않습니다. 시스템 설정 → 일반 → 언어 및 지역 → 번역 언어에서 설치하거나 "타사 API로 번역"을 켜세요.',
     };
   }
 }

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:extended_image/extended_image.dart'
     show extendedImageDiskCacheDirectory;
+import 'package:flutter/painting.dart' show PaintingBinding;
 import 'package:get/get.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -84,6 +85,18 @@ class PathService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
 
     extendedImageDiskCacheDirectory =
         join(tempDir.path, smartCacheFolderName);
+
+    _configureImageCacheBudget();
+  }
+
+  /// Bounds the global in-memory image cache. Without this, long reading
+  /// sessions can accumulate full-resolution decoded bitmaps until the OS
+  /// kills the app. A 1000-entry / 128MB cap keeps recently viewed pages
+  /// cached while preventing unbounded growth on memory-constrained devices.
+  void _configureImageCacheBudget() {
+    final PaintingBinding binding = PaintingBinding.instance;
+    binding.imageCache.maximumSize = 1000;
+    binding.imageCache.maximumSizeBytes = 128 * 1024 * 1024;
   }
 
   @override

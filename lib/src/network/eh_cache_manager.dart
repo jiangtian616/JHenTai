@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show compute;
 import 'package:jhentai/src/database/dao/dio_cache_dao.dart';
 import 'package:jhentai/src/database/dao/smart_cache_stat_dao.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
@@ -48,6 +50,13 @@ class EHCacheManager extends Interceptor {
       return;
     }
 
+    // The caller (read_page_logic) already probed this exact request against
+    // the cache explicitly and it missed; skip the redundant SQLite lookup.
+    if (options.extra['alreadyProbed'] == true) {
+      handler.next(options);
+      return;
+    }
+
     CacheResponse? cacheResponse = await _getCacheStore(cacheOptions).get(CacheOptions.defaultCacheKeyBuilder(options));
     if (cacheResponse != null && cacheResponse.url == options.uri.toString()) {
       if (cacheResponse.expired()) {
@@ -68,7 +77,10 @@ class EHCacheManager extends Interceptor {
       if (cacheResponse.willExpireSoon(cacheOptions.expire)) {
         cacheResponse = await _updateCacheResponse(cacheResponse, cacheOptions);
       }
-      return handler.resolve(cacheResponse.toResponse(options), true);
+      // Decompress off the UI isolate; [CacheResponse.toResponse] itself stays
+      // synchronous to keep the dio interceptor contract unchanged.
+      final Uint8List decompressed = await compute(CacheResponse._decompress, cacheResponse.content);
+      return handler.resolve(cacheResponse.toResponse(options, decompressedContent: decompressed), true);
     }
     handler.next(options);
   }
@@ -186,7 +198,7 @@ class EHCacheManager extends Interceptor {
   }
 
   Future<void> _saveResponse(Response response, CacheOptions cacheOptions) async {
-    CacheResponse cacheResponse = CacheResponse.fromResponse(response, cacheOptions);
+    CacheResponse cacheResponse = await CacheResponse.fromResponseAsync(response, cacheOptions);
 
     await _getCacheStore(cacheOptions).upsertCache(cacheResponse);
 
@@ -278,9 +290,13 @@ class CacheResponse {
 
   CacheResponse({required this.url, required this.cacheKey, required this.content, required this.headers, required this.expireDate});
 
-  static CacheResponse fromResponse(Response response, CacheOptions options) {
+  /// Like [fromResponse], but gzip-compresses the serialized content on a
+  /// background isolate via [compute] so the UI isolate isn't blocked.
+  static Future<CacheResponse> fromResponseAsync(Response response, CacheOptions options) async {
+    final Uint8List serialized = _serializeContent(response.requestOptions.responseType, response.data);
+    final Uint8List compressed = await compute(_compress, serialized);
     return CacheResponse(
-      content: _serializeContent(response.requestOptions.responseType, response.data),
+      content: compressed,
       expireDate: DateTime.now().add(options.expire),
       headers: utf8.encode(jsonEncode(response.headers.map)),
       cacheKey: CacheOptions.defaultCacheKeyBuilder(response.requestOptions),
@@ -288,9 +304,9 @@ class CacheResponse {
     );
   }
 
-  Response toResponse(RequestOptions options) {
+  Response toResponse(RequestOptions options, {Uint8List? decompressedContent}) {
     return Response(
-      data: _deserializeContent(options.responseType, content),
+      data: _deserializeContent(options.responseType, decompressedContent ?? _decompress(content)),
       extra: {extraKey: cacheKey},
       headers: _getHeaders(),
       statusCode: 304,
@@ -345,6 +361,21 @@ class CacheResponse {
         return (content != null) ? jsonDecode(utf8.decode(content)) : null;
       default:
         throw UnsupportedError('Response type not supported : $type.');
+    }
+  }
+
+  /// Compress content with gzip for storage.
+  static Uint8List _compress(Uint8List data) {
+    return Uint8List.fromList(gzip.encode(data));
+  }
+
+  /// Decompress gzip content; falls back to raw data for backward compatibility
+  /// with previously stored uncompressed entries.
+  static Uint8List _decompress(Uint8List data) {
+    try {
+      return Uint8List.fromList(gzip.decode(data));
+    } on FormatException {
+      return data;
     }
   }
 

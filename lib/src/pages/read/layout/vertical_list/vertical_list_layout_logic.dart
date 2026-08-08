@@ -47,6 +47,7 @@ class VerticalListLayoutLogic extends BaseLayoutLogic {
   void onClose() {
     super.onClose();
 
+    _readProgressThrottleTimer?.cancel();
     imageRegionWidthRatioListener.dispose();
     portraitImageRegionWidthRatioListener.dispose();
     landscapeImageRegionWidthRatioListener.dispose();
@@ -230,15 +231,41 @@ class VerticalListLayoutLogic extends BaseLayoutLogic {
     return readPageLogic.filterAndSortItems(state.itemPositionsListener.itemPositions.value);
   }
 
+  Timer? _readProgressThrottleTimer;
+  int? _pendingReadProgressIndex;
+
+  /// itemPositions fires on every scroll frame; throttle the progress
+  /// recording to at most once per 100ms, using a leading call plus a
+  /// trailing catch-up so the final index of a scroll burst is never dropped.
   void _readProgressListener() {
-    int? firstImageIndex = getCurrentVisibleItems().firstOrNull?.index;
+    final int? firstImageIndex = getCurrentVisibleItems().firstOrNull?.index;
 
     if (firstImageIndex == null) {
       return;
     }
 
-    readPageLogic.recordReadProgress(firstImageIndex);
-    readPageLogic.syncThumbnails(firstImageIndex);
+    if (_readProgressThrottleTimer != null) {
+      _pendingReadProgressIndex = firstImageIndex;
+      return;
+    }
+
+    _handleReadProgress(firstImageIndex);
+    _readProgressThrottleTimer = Timer(const Duration(milliseconds: 100), () {
+      _readProgressThrottleTimer = null;
+      final int? pending = _pendingReadProgressIndex;
+      _pendingReadProgressIndex = null;
+      if (pending != null) {
+        _handleReadProgress(pending);
+      }
+    });
+  }
+
+  void _handleReadProgress(int index) {
+    if (isClosed) {
+      return;
+    }
+    readPageLogic.recordReadProgress(index);
+    readPageLogic.syncThumbnails(index);
   }
 
   double _getVisibleHeight() {

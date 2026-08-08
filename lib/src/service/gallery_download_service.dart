@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
 import 'dart:io' as io;
+import 'dart:isolate';
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
@@ -284,6 +285,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         () => ehRequest.requestDetailPage(galleryUrl: newVersionGalleryUrl.url, parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey),
         retryIf: (e) => e is DioException,
         maxAttempts: _maxRetryTimes,
+        delayFactor: const Duration(milliseconds: 500),
       );
       newGalleryDetail = detailPageInfo.galleryDetails;
     } on DioException catch (e) {
@@ -678,6 +680,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         () => ehRequest.requestDetailPage(galleryUrl: gallery.galleryUrl, parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey),
         retryIf: (e) => e is DioException,
         maxAttempts: _maxRetryTimes,
+        delayFactor: const Duration(milliseconds: 500),
       );
       galleryDetail = detailPageInfo.galleryDetails;
     } catch (e) {
@@ -944,6 +947,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
         onRetry: (e) => log.download('Failed to fetch image hashes, retry. Reason: ${(e as DioException).message}'),
         maxAttempts: _maxRetryTimes4FetchImageHashes,
+        delayFactor: const Duration(milliseconds: 500),
       );
 
       log.debug('Fetch image hashes response: $response');
@@ -1010,6 +1014,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
           retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
           onRetry: (e) => log.download('Parse image hrefs failed, retry. Reason: ${(e as DioException).toString()}'),
           maxAttempts: _maxRetryTimes,
+          delayFactor: const Duration(milliseconds: 500),
         );
       } on DioException catch (e) {
         if (e.type == DioExceptionType.cancel) {
@@ -1078,6 +1083,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
           retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
           onRetry: (e) => log.download('Parse image url failed, retry. Reason: ${(e as DioException).errorMsg}'),
           maxAttempts: _maxRetryTimes,
+          delayFactor: const Duration(milliseconds: 500),
         );
       } on DioException catch (e) {
         if (e.type == DioExceptionType.cancel) {
@@ -1133,6 +1139,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       }
 
       String path = _computeImageDownloadAbsolutePath(gallery, image.url, serialNo);
+      String tempPath = '$path.download';
 
       await _tryLoadFromCacheInsteadDownload(gallery, image, serialNo, path);
       if (image.downloadStatus == DownloadStatus.downloaded) {
@@ -1144,12 +1151,13 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         response = await retry(
           () => ehRequest.download(
             url: image.url,
-            path: path,
+            path: tempPath,
             receiveTimeout: 3 * 60 * 1000,
             cancelToken: galleryDownloadInfo.cancelToken,
             onReceiveProgress: (int count, int total) => galleryDownloadInfo.speedComputer.updateProgress(count, total, serialNo),
           ),
           maxAttempts: _maxRetryTimes,
+          delayFactor: const Duration(milliseconds: 500),
 
           /// 403 is due to broken H@H node, we should re-parse
           /// If we have not downloaded any bytes, we should re-parse because we might encounter a death H@H node
@@ -1165,22 +1173,27 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         );
       } on DioException catch (e) {
         if (e.type == DioExceptionType.cancel) {
+          await _deleteTempImageFile(tempPath);
           return;
         }
         log.download('Download ${gallery.title} image: $serialNo failed, try re-parse. Reason: ${e.errorMsg}. Url:${image.url}');
+        await _deleteTempImageFile(tempPath);
         return _reParseImageUrlAndDownload(gallery, serialNo);
       } on EHSiteException catch (e) {
         log.download('Download Error, reason: ${e.message}');
+        await _deleteTempImageFile(tempPath);
         await _pauseOnSiteError(gallery: gallery, pauseAll: e.shouldPauseAllDownloadTasks, message: e.message);
         return;
       }
 
       /// what we downloaded is not an valid image
       if (!response.isRedirect && (response.headers[Headers.contentTypeHeader]?.contains("text/html; charset=UTF-8") ?? false)) {
-        String data = io.File(path).readAsStringSync();
+        String data = io.File(tempPath).readAsStringSync();
 
         EHImageException? exception = imageData2Exception(data);
         log.error('Download ${gallery.title} image: $serialNo failed: $exception');
+
+        await _deleteTempImageFile(tempPath);
 
         if (exception != null) {
           if (exception.operation == EHImageExceptionAfterOperation.reParse) {
@@ -1192,6 +1205,15 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
             message: exception.message,
           );
         }
+        return _pauseOnSiteError(gallery: gallery, pauseAll: false, message: 'downloadFailed'.tr);
+      }
+
+      /// atomically move the temp file to its final path
+      try {
+        await FileUtil.moveFileAtomic(tempPath, path);
+      } on Exception catch (e, st) {
+        log.error('Move downloaded image to final path failed, gid: ${gallery.gid}, serialNo: $serialNo', e, st);
+        await _deleteTempImageFile(tempPath);
         return _pauseOnSiteError(gallery: gallery, pauseAll: false, message: 'downloadFailed'.tr);
       }
 
@@ -1652,23 +1674,40 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     }
     GalleryDownloadInfo galleryDownloadInfo = galleryDownloadInfos[gallery.gid]!;
 
-    Map<String, Object> metadata = {
-      'gallery': gallery
-          .copyWith(
-            downloadStatusIndex: galleryDownloadInfo.downloadProgress.downloadStatus.index,
-            priority: galleryDownloadInfo.priority,
-            groupName: galleryDownloadInfo.group,
-          )
-          .toJson(),
-      'images': jsonEncode(galleryDownloadInfo.images),
-    };
+    /// Only sendable primitives (and the plain [GalleryImage] list) cross the
+    /// isolate boundary — never the [GalleryDownloadInfo] itself, which holds
+    /// cancel tokens and task closures.
+    final int downloadStatusIndex = galleryDownloadInfo.downloadProgress.downloadStatus.index;
+    final int priority = galleryDownloadInfo.priority;
+    final String group = galleryDownloadInfo.group;
+    final List<GalleryImage?> images = galleryDownloadInfo.images;
+
+    final String metadataJson;
+    try {
+      metadataJson = await Isolate.run(() {
+        Map<String, Object> metadata = {
+          'gallery': gallery
+              .copyWith(
+                downloadStatusIndex: downloadStatusIndex,
+                priority: priority,
+                groupName: group,
+              )
+              .toJson(),
+          'images': jsonEncode(images),
+        };
+        return jsonEncode(metadata);
+      });
+    } catch (e, st) {
+      log.error('Build gallery metadata failed, gid: ${gallery.gid}', e, st);
+      return;
+    }
 
     try {
       io.File file = io.File(path.join(computeGalleryDownloadAbsolutePath(gallery), metadataFileName));
       if (!await file.exists()) {
         await file.create(recursive: true);
       }
-      await file.writeAsString(jsonEncode(metadata));
+      await file.writeAsString(metadataJson);
     } catch (e, st) {
       log.error('Save gallery metadata failed, gid: ${gallery.gid}', e, st);
     }
@@ -1692,6 +1731,18 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     } on Exception catch (e) {
       log.error('Delete image in disk error', e);
       log.uploadError(e);
+    }
+  }
+
+  /// Delete a leftover '.download' temp image file, ignoring errors.
+  Future<void> _deleteTempImageFile(String tempPath) async {
+    try {
+      io.File tempFile = io.File(tempPath);
+      if (await tempFile.exists()) {
+        await tempFile.delete();
+      }
+    } on Exception catch (e) {
+      log.error('Delete temp image file failed', e);
     }
   }
 

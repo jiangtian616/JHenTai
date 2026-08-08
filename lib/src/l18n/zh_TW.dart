@@ -396,6 +396,8 @@ class zh_TW {
       /// performance setting page
       'maxGalleryNum4Animation': '下載頁支援列表動畫的最大畫廊個數',
       'maxGalleryNum4AnimationHint': '列表模式下，擁有超過此設定個數畫廊的分組在展開/收起時取消動畫效果',
+      'enableCoverDecodeOptimization': '封面解碼最佳化',
+      'enableCoverDecodeOptimizationHint': '按接近顯示尺寸的大小解碼畫廊封面，而非完整原始解析度。瀏覽網格時降低解碼耗時與記憶體占用，畫質有輕微取捨',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': '滑鼠滾輪速度',
@@ -977,6 +979,28 @@ favnote：配對收藏備註
       'imageTranslationOcrDirectoryRequired': '請先選擇或偵測 OCR 資料目錄。',
       'imageTranslationOcrDownloadSuccess': 'OCR 模型下載完成。',
       'imageTranslationOcrDownloadFailed': 'OCR 模型下載失敗，請切換來源後重試。',
+      'imageTranslationOcrEngineAppleLiveText': 'Apple Live Text',
+      'imageTranslationAppleLiveTextLanguage': 'Apple Live Text 辨識語言',
+      'imageTranslationAppleLiveTextHint':
+          '使用 Apple Vision 進行裝置端 OCR，支援 iOS 與 macOS，無需下載模型。',
+      'imageTranslationAppleLiveTextUnavailable':
+          'Apple Live Text 僅在 iOS 與 macOS 上可用。',
+      'imageTranslationMethodSection': '翻譯方式',
+      'imageTranslationMethodAppleLiveText': 'Apple Live Text',
+      'imageTranslationMethodCustom': '自訂',
+      'imageTranslationAppleLiveTextUseApi': '使用第三方 API 翻譯',
+      'imageTranslationAppleLiveTextUseApiHint':
+          '沿用自訂模式的 OpenAI 相容 / Anthropic API，而非 Apple 端側翻譯。',
+      'imageTranslationAppleLiveTextOnDeviceHint':
+          '辨識與翻譯皆由 Apple 於端側完成。端側翻譯需 iOS 26 / macOS 26 以上系統。',
+      'imageTranslationTranslationUnavailable':
+          'Apple 端側翻譯需 iOS 26 / macOS 26 以上系統。請開啟「使用第三方 API 翻譯」或於更高版本系統使用。',
+      'imageTranslationTranslationFailed': 'Apple 端側翻譯失敗。',
+      'imageTranslationShow': '顯示翻譯',
+      'imageTranslationHide': '隱藏翻譯',
+      'imageTranslationRetranslate': '重新翻譯',
+      'imageTranslationTranslationNotInstalled':
+          'Apple 端側翻譯語言包尚未安裝。請在系統設定 → 一般 → 語言與地區 → 翻譯語言 中下載，或開啟「使用第三方 API 翻譯」。',
     };
   }
 }
