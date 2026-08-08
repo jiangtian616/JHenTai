@@ -1,0 +1,13 @@
+{
+  "pins" : [
+    {
+      "identity" : "csqlite",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/simolus3/CSQLite.git",
+      "state" : {
+        "revision" : "a8d28afef08ad8faa4ee9ef7845f61c2e8ac5810"
+      }
+    }
+  ],
+  "version" : 2
+}

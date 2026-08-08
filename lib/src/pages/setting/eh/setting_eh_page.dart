@@ -11,7 +11,11 @@ import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/cookie_util.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
+import 'package:jhentai/src/utils/app_icons.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
+import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
+import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
 import 'package:retry/retry.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -64,18 +68,21 @@ class _SettingEHPageState extends State<SettingEHPage> {
     return Scaffold(
       appBar: AppBar(centerTitle: true, title: Text('ehSetting'.tr)),
       body: Obx(
-        () => ListView(
-          padding: const EdgeInsets.only(top: 16),
-          children: [
-            _buildSiteSegmentControl(),
-            _buildRedirect2EH(),
-            _buildProfile(),
-            _buildSiteSetting(),
-            _buildImageLimit(),
-            _buildAssets(),
-            _buildMyTags(),
+        () => EHAppleSettingsListView(
+          groups: [
+            EHAppleSettingsGroup(
+              children: [
+                _buildSiteSegmentControl(),
+                _buildRedirect2EH(),
+                _buildProfile(),
+                _buildSiteSetting(),
+                _buildImageLimit(),
+                _buildAssets(),
+                _buildMyTags(),
+              ],
+            ),
           ],
-        ).withListTileTheme(context),
+        ),
       ),
     );
   }
@@ -83,7 +90,8 @@ class _SettingEHPageState extends State<SettingEHPage> {
   Widget _buildSiteSegmentControl() {
     return ListTile(
       title: Text('site'.tr),
-      onTap: () => ehSetting.saveSite(ehSetting.site.value == 'EH' ? 'EX' : 'EH'),
+      onTap: () =>
+          ehSetting.saveSite(ehSetting.site.value == 'EH' ? 'EX' : 'EH'),
       trailing: CupertinoSlidingSegmentedControl<String>(
         groupValue: ehSetting.site.value,
         children: const {
@@ -103,7 +111,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
       return const SizedBox();
     }
 
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('redirect2Eh'.tr),
       subtitle: Text('redirect2EhHint'.tr),
       value: ehSetting.redirect2Eh.value,
@@ -127,23 +135,27 @@ class _SettingEHPageState extends State<SettingEHPage> {
             errorWidgetSameWithIdle: true,
             successWidgetBuilder: () {
               int number = profiles.firstWhere((p) => p.selected).number;
-              return DropdownButton<int>(
+              return EHCodexStyleDropdown<int>(
                 value: number,
                 elevation: 4,
                 alignment: AlignmentDirectional.centerEnd,
                 onChanged: (int? newValue) {
-                  ehRequest.storeEHCookies([Cookie('sp', newValue?.toString() ?? '1')]);
+                  ehRequest.storeEHCookies(
+                      [Cookie('sp', newValue?.toString() ?? '1')]);
                   setStateSafely(() {
                     for (Profile value in profiles) {
                       value.selected = value.number == newValue;
                     }
                   });
                 },
-                items: profiles.map((p) => DropdownMenuItem(child: Text(p.name), value: p.number)).toList(),
+                items: profiles
+                    .map((p) =>
+                        DropdownMenuItem(child: Text(p.name), value: p.number))
+                    .toList(),
               );
             },
           ).marginOnly(right: 4),
-          const Icon(Icons.keyboard_arrow_right),
+          Icon(AppIcons.chevronRight),
         ],
       ),
     );
@@ -153,7 +165,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
     return ListTile(
       title: Text('siteSetting'.tr),
       subtitle: Text('siteSettingHint'.tr),
-      trailing: const Icon(Icons.keyboard_arrow_right),
+      trailing: Icon(AppIcons.chevronRight),
       onTap: () async {
         if (GetPlatform.isDesktop) {
           launchUrlString(EHConsts.EUconfig);
@@ -184,7 +196,9 @@ class _SettingEHPageState extends State<SettingEHPage> {
           loadingWidgetBuilder: () => const Text(''),
           idleWidgetBuilder: () => const Text(''),
           errorWidgetSameWithIdle: true,
-          successWidgetBuilder: () => isDonator ? Text('${'resetCost'.tr} $resetCost GP').fadeIn() : Text('isNotDonator'.tr),
+          successWidgetBuilder: () => isDonator
+              ? Text('${'resetCost'.tr} $resetCost GP').fadeIn()
+              : Text('isNotDonator'.tr),
         ),
         onTap: fetchDataFromHomePage,
         trailing: Row(
@@ -196,9 +210,11 @@ class _SettingEHPageState extends State<SettingEHPage> {
               indicatorRadius: 10,
               idleWidgetBuilder: () => const SizedBox(),
               errorWidgetSameWithIdle: true,
-              successWidgetBuilder: () => isDonator ? Text('$currentConsumption / $totalLimit').fadeIn() : const Text(''),
+              successWidgetBuilder: () => isDonator
+                  ? Text('$currentConsumption / $totalLimit').fadeIn()
+                  : const Text(''),
             ).marginOnly(right: 4),
-            const Icon(Icons.keyboard_arrow_right),
+            Icon(AppIcons.chevronRight),
           ],
         ),
       ),
@@ -213,7 +229,8 @@ class _SettingEHPageState extends State<SettingEHPage> {
         loadingWidgetBuilder: () => const Text(''),
         idleWidgetBuilder: () => const Text(''),
         errorWidgetSameWithIdle: true,
-        successWidgetBuilder: () => Text('GP: $gp    Credits: $credit    Hath: $hath').fadeIn(),
+        successWidgetBuilder: () =>
+            Text('GP: $gp    Credits: $credit    Hath: $hath').fadeIn(),
       ),
       onTap: getAssets,
       trailing: Row(
@@ -226,7 +243,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
             idleWidgetBuilder: () => const SizedBox(),
             errorWidgetSameWithIdle: true,
           ).marginOnly(right: 4),
-          const Icon(Icons.keyboard_arrow_right),
+          Icon(AppIcons.chevronRight),
         ],
       ),
     );
@@ -236,7 +253,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
     return ListTile(
       title: Text('myTags'.tr),
       subtitle: Text('myTagsHint'.tr),
-      trailing: const Icon(Icons.keyboard_arrow_right),
+      trailing: Icon(AppIcons.chevronRight),
       onTap: () => toRoute(Routes.tagSets),
     );
   }
@@ -255,11 +272,17 @@ class _SettingEHPageState extends State<SettingEHPage> {
       imageLimitLoadingState = LoadingState.loading;
     });
 
-    ({bool isDonator, int? currentConsumption, int? totalLimit, int? resetCost}) result;
+    ({
+      bool isDonator,
+      int? currentConsumption,
+      int? totalLimit,
+      int? resetCost
+    }) result;
     try {
       result = await retry(
         () async {
-          return ehRequest.requestHomePage(parser: EHSpiderParser.homePage2ImageLimit);
+          return ehRequest.requestHomePage(
+              parser: EHSpiderParser.homePage2ImageLimit);
         },
         retryIf: (e) => e is DioException,
         maxAttempts: 3,
@@ -310,8 +333,10 @@ class _SettingEHPageState extends State<SettingEHPage> {
     log.debug('Get eh assets from exchange page');
 
     // Start both requests concurrently
-    Future<Map<String, String>> gpCreditFuture = ehRequest.requestExchangePage(parser: EHSpiderParser.exchangePage2Assets);
-    Future<String?> hathFuture = ehRequest.requestHathPage(parser: EHSpiderParser.hathPage2Hath);
+    Future<Map<String, String>> gpCreditFuture = ehRequest.requestExchangePage(
+        parser: EHSpiderParser.exchangePage2Assets);
+    Future<String?> hathFuture =
+        ehRequest.requestHathPage(parser: EHSpiderParser.hathPage2Hath);
 
     Map<String, String>? assets;
     try {
@@ -362,7 +387,8 @@ class _SettingEHPageState extends State<SettingEHPage> {
 
     try {
       var settings = await retry(
-        () => ehRequest.requestSettingPage(EHSpiderParser.settingPage2SiteSetting),
+        () => ehRequest
+            .requestSettingPage(EHSpiderParser.settingPage2SiteSetting),
         retryIf: (e) => e is DioException,
         maxAttempts: 3,
       );

@@ -27,6 +27,9 @@ class GroupedList<G, E> extends StatefulWidget {
 
   final GroupedListController? controller;
 
+  /// Extra trailing scroll extent (e.g. to clear a floating bottom bar).
+  final double bottomPadding;
+
   const GroupedList({
     Key? key,
     required this.groups,
@@ -39,6 +42,7 @@ class GroupedList<G, E> extends StatefulWidget {
     required this.maxGalleryNum4Animation,
     this.scrollController,
     this.controller,
+    this.bottomPadding = 0,
   }) : super(key: key);
 
   @override
@@ -56,6 +60,17 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
 
   final Map<G, bool> _groups = {};
   Map<G, List<E>> _group2Elements = {};
+
+  /// Inputs the cached grouping was computed from. The grouping is reused
+  /// while all of them keep their identity and length, so [groupListsBy] is
+  /// not re-run on every build. The [elementGroup] closure identity is part of
+  /// the key because callers may capture mutable state inside it (e.g. the
+  /// download page reads the group from a live service map).
+  List<E>? _cachedElements;
+  Map<G, bool>? _cachedGroups;
+  G Function(E)? _cachedElementGroup;
+  int _cachedElementsLength = 0;
+  int _cachedGroupsLength = 0;
 
   final Map<Object, Completer<void>> _deletingElements = {};
 
@@ -149,7 +164,11 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
       child: CustomScrollView(
         controller: scrollController,
         scrollCacheExtent: ScrollCacheExtent.pixels(200),
-        slivers: _buildSlivers(context),
+        slivers: [
+          ..._buildSlivers(context),
+          if (widget.bottomPadding > 0)
+            SliverPadding(padding: EdgeInsets.only(bottom: widget.bottomPadding)),
+        ],
       ),
     );
   }
@@ -157,7 +176,9 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
   List<Widget> _buildSlivers(BuildContext context) {
     List<Widget> slivers = [];
 
-    Map<G, List<E>> group2Elements = widget.elements.groupListsBy<G>((e) => widget.elementGroup(e));
+    // Grouping is computed in [_initGroupsAndElements] and cached across
+    // rebuilds; do not re-run [groupListsBy] on every build.
+    final Map<G, List<E>> group2Elements = _group2Elements;
 
     for (G group in _groups.keys) {
       slivers.add(_buildGroupSliver(context, group));
@@ -258,10 +279,23 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
 
   void _initGroupsAndElements(GroupedList<G, E> widget) {
     this._groups.clear();
-    this._group2Elements.clear();
-
     this._groups.addAll(widget.groups);
+
+    final bool inputsChanged = !identical(_cachedElements, widget.elements) ||
+        !identical(_cachedGroups, widget.groups) ||
+        !identical(_cachedElementGroup, widget.elementGroup) ||
+        _cachedElementsLength != widget.elements.length ||
+        _cachedGroupsLength != widget.groups.length;
+    if (!inputsChanged) {
+      return;
+    }
+
     this._group2Elements = widget.elements.groupListsBy<G>((e) => widget.elementGroup(e));
+    _cachedElements = widget.elements;
+    _cachedGroups = widget.groups;
+    _cachedElementGroup = widget.elementGroup;
+    _cachedElementsLength = widget.elements.length;
+    _cachedGroupsLength = widget.groups.length;
   }
 }
 

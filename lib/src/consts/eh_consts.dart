@@ -9,7 +9,8 @@ class EHConsts {
 
   static const String EXIndex = 'https://exhentai.org';
 
-  static String get EPopular => ehSetting.site.value == 'EH' ? EHPopular : EXPopular;
+  static String get EPopular =>
+      ehSetting.site.value == 'EH' ? EHPopular : EXPopular;
 
   static const String EHPopular = 'https://e-hentai.org/popular';
 
@@ -25,7 +26,8 @@ class EHConsts {
 
   static const String ERanklist = 'https://e-hentai.org/toplist.php';
 
-  static String get EWatched => ehSetting.site.value == 'EH' ? EHWatched : EXWatched;
+  static String get EWatched =>
+      ehSetting.site.value == 'EH' ? EHWatched : EXWatched;
 
   static const String EHWatched = 'https://e-hentai.org/watched';
 
@@ -35,25 +37,33 @@ class EHConsts {
 
   static const String EForums = 'https://forums.e-hentai.org/index.php';
 
-  static String get EPopup => ehSetting.site.value == 'EH' ? 'https://e-hentai.org/gallerypopups.php' : 'https://exhentai.org/gallerypopups.php';
+  static String get EPopup => ehSetting.site.value == 'EH'
+      ? 'https://e-hentai.org/gallerypopups.php'
+      : 'https://exhentai.org/gallerypopups.php';
 
-  static String get EFavorite => ehSetting.site.value == 'EH' ? 'https://e-hentai.org/favorites.php' : 'https://exhentai.org/favorites.php';
+  static String get EFavorite => ehSetting.site.value == 'EH'
+      ? 'https://e-hentai.org/favorites.php'
+      : 'https://exhentai.org/favorites.php';
 
-  static String get ETorrent => ehSetting.site.value == 'EH' ? EHTorrent : EXTorrent;
+  static String get ETorrent =>
+      ehSetting.site.value == 'EH' ? EHTorrent : EXTorrent;
 
   static const String EHTorrent = 'https://e-hentai.org/gallerytorrents.php';
 
   static const String EXTorrent = 'https://exhentai.org/gallerytorrents.php';
 
-  static String get EArchive => ehSetting.site.value == 'EH' ? EHArchive : EXArchive;
+  static String get EArchive =>
+      ehSetting.site.value == 'EH' ? EHArchive : EXArchive;
 
   static const String EHArchive = 'https://e-hentai.org/archiver.php';
 
   static const String EXArchive = 'https://exhentai.org/archiver.php';
 
-  static const String ELogin = 'https://forums.e-hentai.org/index.php?act=Login&CODE=00';
+  static const String ELogin =
+      'https://forums.e-hentai.org/index.php?act=Login&CODE=00';
 
-  static String get EUconfig => ehSetting.site.value == 'EH' ? EHUconfig : EXUconfig;
+  static String get EUconfig =>
+      ehSetting.site.value == 'EH' ? EHUconfig : EXUconfig;
 
   static const String EHUconfig = 'https://e-hentai.org/uconfig.php';
 
@@ -61,7 +71,8 @@ class EHConsts {
 
   static const String EStat = 'https://e-hentai.org/stats.php';
 
-  static String get ELookup => ehSetting.site.value == 'EH' ? EHLookup : EXLookup;
+  static String get ELookup =>
+      ehSetting.site.value == 'EH' ? EHLookup : EXLookup;
 
   static const String EHLookup = 'https://upld.e-hentai.org/image_lookup.php';
 
@@ -71,7 +82,8 @@ class EHConsts {
 
   static const String EExchange = 'https://e-hentai.org/exchange.php?t=gp';
 
-  static const String EHathExchange = 'https://e-hentai.org/exchange.php?t=hath';
+  static const String EHathExchange =
+      'https://e-hentai.org/exchange.php?t=hath';
 
   static const String EHathPerks = 'https://e-hentai.org/hathperks.php';
 
@@ -80,6 +92,6 @@ class EHConsts {
   static const String EX509ImageUrl = 'https://exhentai.org/img/509.gif';
 
   static const String desktopWebviewDirectoryName = 'EBWebView';
-  
+
   static const String igneousCookieName = 'igneous';
 }

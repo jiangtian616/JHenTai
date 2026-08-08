@@ -7,8 +7,11 @@ class GalleryDao {
     return appDb.select(appDb.galleryDownloaded).get();
   }
 
-  static Future<List<GalleryDownloadedData>> selectGallerysForTagRefresh(int pageNo, int pageSize) {
+  static Future<List<GalleryDownloadedData>> selectGallerysForTagRefresh(int pageNo, int pageSize, DateTime threshold) {
     return (appDb.select(appDb.galleryDownloaded)
+          ..where((gallery) =>
+              gallery.tagRefreshTime.isNull() |
+              gallery.tagRefreshTime.isSmallerThanValue(threshold.toString()))
           ..orderBy([(gallery) => OrderingTerm(expression: gallery.tagRefreshTime)])
           ..limit(pageSize, offset: (pageNo - 1) * pageSize))
         .get();

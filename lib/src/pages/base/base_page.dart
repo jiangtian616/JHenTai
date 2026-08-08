@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/notification/tap_menu_button_notification.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/service/log.dart';
+import 'package:jhentai/src/utils/app_icons.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
 import '../../config/ui_config.dart';
@@ -15,7 +17,8 @@ import '../../widget/loading_state_indicator.dart';
 import 'base_page_logic.dart';
 import 'base_page_state.dart';
 
-abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extends StatelessWidget with Scroll2TopPageMixin {
+abstract class BasePage<L extends BasePageLogic, S extends BasePageState>
+    extends StatelessWidget with Scroll2TopPageMixin {
   /// For mobile layout v2
   final bool showMenuButton;
   final bool showJumpButton;
@@ -51,9 +54,18 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
       init: logic,
       builder: (_) => Scaffold(
         backgroundColor: UIConfig.backGroundColor(context),
-        appBar: showFilterButton || showJumpButton || showMenuButton || showTitle ? buildAppBar(context) : null,
-        body: SafeArea(child: buildBody(context)),
-        floatingActionButton: showScroll2TopButton ? buildFloatingActionButton() : null,
+        appBar:
+            showFilterButton || showJumpButton || showMenuButton || showTitle
+                ? buildAppBar(context)
+                : null,
+        // Let Apple mobile content continue behind the floating bar instead
+        // of leaving a separately colored bottom safe-area strip.
+        body: SafeArea(
+          bottom: !(ThemeConfig.isApple && styleSetting.isInMobileLayout),
+          child: buildBody(context),
+        ),
+        floatingActionButton:
+            showScroll2TopButton ? buildFloatingActionButton() : null,
       ),
     );
   }
@@ -69,7 +81,7 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
 
   Widget buildAppBarMenuButton(BuildContext context) {
     return IconButton(
-      icon: Icon(Icons.menu, size: 20),
+      icon: Icon(AppIcons.menu, size: 20),
       onPressed: () => TapMenuButtonNotification().dispatch(context),
     );
   }
@@ -77,8 +89,13 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
   List<Widget> buildAppBarActions() {
     return [
       if (showJumpButton && state.gallerys.isNotEmpty)
-        IconButton(icon: Icon(Icons.send, size: 20), onPressed: logic.handleTapJumpButton),
-      if (showFilterButton) IconButton(icon: const Icon(Icons.filter_alt_outlined, size: 28), onPressed: logic.handleTapFilterButton),
+        IconButton(
+            icon: Icon(AppIcons.jump, size: 20),
+            onPressed: logic.handleTapJumpButton),
+      if (showFilterButton)
+        IconButton(
+            icon: Icon(AppIcons.filter, size: 28),
+            onPressed: logic.handleTapFilterButton),
     ];
   }
 
@@ -91,25 +108,28 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
       id: logic.bodyId,
       global: false,
       init: logic,
-      builder: (_) => state.gallerys.isEmpty && state.loadingState != LoadingState.idle
-          ? buildCenterStatusIndicator()
-          : NotificationListener<UserScrollNotification>(
-              onNotification: logic.onUserScroll,
-              child: EHWheelSpeedController(
-                controller: state.scrollController,
-                child: CustomScrollView(
-                  key: state.pageStorageKey,
-                  controller: state.scrollController,
-                  physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                  scrollBehavior: UIConfig.scrollBehaviourWithScrollBarWithMouse,
-                  slivers: <Widget>[
-                    buildPullDownIndicator(),
-                    buildGalleryCollection(context),
-                    buildLoadMoreIndicator(),
-                  ],
+      builder: (_) =>
+          state.gallerys.isEmpty && state.loadingState != LoadingState.idle
+              ? buildCenterStatusIndicator()
+              : NotificationListener<UserScrollNotification>(
+                  onNotification: logic.onUserScroll,
+                  child: EHWheelSpeedController(
+                    controller: state.scrollController,
+                    child: CustomScrollView(
+                      key: state.pageStorageKey,
+                      controller: state.scrollController,
+                      physics: const BouncingScrollPhysics(
+                          parent: AlwaysScrollableScrollPhysics()),
+                      scrollBehavior:
+                          UIConfig.scrollBehaviourWithScrollBarWithMouse,
+                      slivers: <Widget>[
+                        buildPullDownIndicator(),
+                        buildGalleryCollection(context),
+                        buildLoadMoreIndicator(context),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ),
     );
   }
 
@@ -141,9 +161,10 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
     );
   }
 
-  Widget buildLoadMoreIndicator() {
+  Widget buildLoadMoreIndicator(BuildContext context) {
     return SliverPadding(
-      padding: const EdgeInsets.only(top: 16, bottom: 40),
+      padding: EdgeInsets.only(
+          top: 16, bottom: 40 + UIConfig.liquidGlassNavContentInset(context)),
       sliver: SliverToBoxAdapter(
         child: GetBuilder<L>(
           id: logic.loadingStateId,
@@ -167,11 +188,14 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
         key: state.galleryCollectionKey,
         context: context,
         gallerys: state.gallerys,
-        listMode: styleSetting.pageListMode[state.route] ?? styleSetting.listMode.value,
+        listMode: styleSetting.pageListMode[state.route] ??
+            styleSetting.listMode.value,
         loadingState: state.loadingState,
         handleTapCard: logic.handleTapGalleryCard,
-        handleLongPressCard: (gallery, position) => logic.handleLongPressCard(context, gallery, position: position),
-        handleSecondaryTapCard: (gallery, position) => logic.handleSecondaryTapCard(context, gallery, position: position),
+        handleLongPressCard: (gallery, position) =>
+            logic.handleLongPressCard(context, gallery, position: position),
+        handleSecondaryTapCard: (gallery, position) =>
+            logic.handleSecondaryTapCard(context, gallery, position: position),
         handleLoadMore: logic.loadMore,
       ),
     );

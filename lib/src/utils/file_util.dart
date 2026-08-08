@@ -60,6 +60,18 @@ class FileUtil {
     });
   }
 
+  /// Atomically move [fromPath] to [toPath]: rename when both paths live on the
+  /// same filesystem, falling back to copy + delete for cross-device moves
+  /// (e.g. Android app-internal temp dir -> external download dir).
+  static Future<void> moveFileAtomic(String fromPath, String toPath) async {
+    try {
+      await File(fromPath).rename(toPath);
+    } on FileSystemException {
+      await File(fromPath).copy(toPath);
+      await File(fromPath).delete();
+    }
+  }
+
   /// Truncates [title] so that its UTF-8 encoded length does not exceed
   /// [maxBytes], always cutting at a code-point boundary so the result is
   /// always valid UTF-8. [maxBytes] covers the title portion only; the caller

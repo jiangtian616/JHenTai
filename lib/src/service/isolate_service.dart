@@ -7,12 +7,18 @@ import 'jh_service.dart';
 IsolateService isolateService = IsolateService();
 
 class IsolateService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
-  late final StatefulIsolate _isolate;
+  /// A small pool instead of a single FIFO lane: gallery-list, detail,
+  /// thumbnail and image-page HTML parses all funnel through here, and one
+  /// slow parse used to block every other parse. Round-robin across a few
+  /// isolates keeps parse throughput up without spawning one isolate per call.
+  static const int _poolSize = 3;
+  late final List<StatefulIsolate> _isolates;
+  int _roundRobinIndex = 0;
 
   @override
   Future<void> doInitBean() async {
-    _isolate = StatefulIsolate();
-    await _isolate.init();
+    _isolates = List.generate(_poolSize, (_) => StatefulIsolate());
+    await Future.wait(_isolates.map((isolate) => isolate.init()));
   }
 
   @override
@@ -27,6 +33,18 @@ class IsolateService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean
   }
 
   Future<R> run<Q, R>(IsolateCallback<Q, R> callback, Q message, {String? debugLabel}) {
-    return _isolate.isolate(callback, message, debugLabel: debugLabel);
+    // Round-robin dispatch; messages for a single callback stay ordered per
+    // isolate, which is the same guarantee the previous single-isolate FIFO
+    // gave per callback.
+    final StatefulIsolate isolate =
+        _isolates[_roundRobinIndex++ % _isolates.length];
+    return isolate.isolate(callback, message, debugLabel: debugLabel);
+  }
+
+  /// Releases all pooled isolates. Called on teardown (tests / app exit).
+  Future<void> dispose() async {
+    for (final StatefulIsolate isolate in _isolates) {
+      await isolate.dispose();
+    }
   }
 }

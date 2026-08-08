@@ -32,6 +32,7 @@ class IconTextButton extends StatelessWidget {
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
           hoverColor: Colors.transparent,
+          mouseCursor: SystemMouseCursors.basic,
           onPressed: onPressed,
           icon: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -137,12 +137,9 @@ mixin WindowWidgetMixin<T extends StatefulWidget> on State<T>, WindowListener {
   }
 
   Widget buildMaxOSTitle(Widget child) {
-    return Column(
-      children: [
-        Container(height: 8, color: titleBarColor ?? UIConfig.backGroundColor(context)),
-        Expanded(child: child),
-      ],
-    );
+    /// The macOS full-size content view is intentionally allowed to reach the
+    /// top edge. The desktop sidebar reserves the traffic-light area itself.
+    return child;
   }
 
   Future<void> toggleFullScreen() async {

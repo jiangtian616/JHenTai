@@ -4,6 +4,7 @@ import 'package:jhentai/src/database/dao/gallery_history_dao.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/model/gallery_history_model.dart';
+import 'package:jhentai/src/service/isolate_service.dart';
 import 'jh_service.dart';
 import 'log.dart';
 
@@ -27,7 +28,18 @@ class HistoryService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean
 
   Future<List<GalleryHistoryModel>> getByPageIndex(int pageIndex) async {
     List<GalleryHistoryV2Data> historys = await GalleryHistoryDao.selectByPageIndex(pageIndex, pageSize);
-    return historys.map<GalleryHistoryModel>((h) => GalleryHistoryModel.fromJson(jsonDecode(h.jsonBody))).toList();
+    if (historys.isEmpty) {
+      return [];
+    }
+
+    /// Each row's jsonBody is a JSON object, so joining them with commas yields
+    /// a valid JSON array that can be decoded with a single isolate call —
+    /// instead of decoding up to [pageSize] rows on the UI isolate.
+    final List<dynamic> decoded = await isolateService
+        .jsonDecodeAsync('[${historys.map((h) => h.jsonBody).join(',')}]');
+    return decoded
+        .map((json) => GalleryHistoryModel.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 
   Future<List<GalleryHistoryV2Data>> getLatest10000RawHistory() async {

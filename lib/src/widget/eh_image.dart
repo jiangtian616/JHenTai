@@ -14,6 +14,7 @@ import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:jhentai/src/utils/image_cache_util.dart';
 import 'dart:io' as io;
 
 import 'dart:ui' as ui;
@@ -41,6 +42,18 @@ class EHImage extends StatefulWidget {
   final List<BoxShadow>? shadows;
   final bool forceFadeIn;
   final int? maxBytes;
+
+  /// Optional decode-size bound for the cached image. When set, the image is
+  /// decoded at approximately this pixel width/height instead of its native
+  /// resolution, cutting decode time and memory-cache footprint. Only used by
+  /// the network/file providers; the original image is still available at
+  /// full size through [ExtendedImage]'s gestures.
+  final int? cacheWidth;
+  final int? cacheHeight;
+
+  /// Network timeout for the underlying image request (milliseconds). Null
+  /// keeps the library default (no timeout).
+  final int? timeLimit;
 
   final LoadingProgressWidgetBuilder? loadingProgressWidgetBuilder;
   final FailedWidgetBuilder? failedWidgetBuilder;
@@ -71,6 +84,9 @@ class EHImage extends StatefulWidget {
     this.shadows,
     this.forceFadeIn = false,
     this.maxBytes,
+    this.cacheWidth,
+    this.cacheHeight,
+    this.timeLimit,
     this.disableAnimation = false,
     this.animateOnlyWhenVisible = false,
     this.loadingProgressWidgetBuilder,
@@ -96,6 +112,9 @@ class EHImage extends StatefulWidget {
     this.shadows,
     this.forceFadeIn = false,
     this.maxBytes,
+    this.cacheWidth,
+    this.cacheHeight,
+    this.timeLimit,
     this.disableAnimation = false,
     this.animateOnlyWhenVisible = false,
     this.loadingProgressWidgetBuilder,
@@ -204,13 +223,32 @@ class _EHImageState extends State<EHImage> {
   Widget buildNetworkImage(BuildContext context) {
     final String url = _replaceEXUrl(widget.galleryImage.url);
     final bool useGate = widget.animateOnlyWhenVisible && !widget.disableAnimation;
+    final int? timeLimit = widget.timeLimit;
 
     return ExtendedImage(
       image: ExtendedResizeImage.resizeIfNeeded(
         provider: useGate
-            ? _GateExtendedNetworkImageProvider(url, cache: true, printError: kDebugMode, gate: _gate)
-            : ExtendedNetworkImageProvider(url, cache: true, printError: kDebugMode),
+            ? _GateExtendedNetworkImageProvider(url,
+                cache: true,
+                printError: kDebugMode,
+                // Key the disk cache by the stable image identity so it
+                // survives EH's rotating keystamp token (and can be reused by
+                // the downloader later).
+                cacheKey: normalizedImageCacheKey(url),
+                timeLimit: timeLimit == null
+                    ? null
+                    : Duration(milliseconds: timeLimit),
+                gate: _gate)
+            : ExtendedNetworkImageProvider(url,
+                cache: true,
+                printError: kDebugMode,
+                cacheKey: normalizedImageCacheKey(url),
+                timeLimit: timeLimit == null
+                    ? null
+                    : Duration(milliseconds: timeLimit)),
         maxBytes: widget.maxBytes,
+        cacheWidth: widget.cacheWidth,
+        cacheHeight: widget.cacheHeight,
       ),
       fit: widget.fit,
       height: widget.containerHeight,
@@ -279,7 +317,12 @@ class _EHImageState extends State<EHImage> {
     }
 
     return ExtendedImage(
-      image: ExtendedResizeImage.resizeIfNeeded(provider: provider, maxBytes: widget.maxBytes),
+      image: ExtendedResizeImage.resizeIfNeeded(
+        provider: provider,
+        maxBytes: widget.maxBytes,
+        cacheWidth: widget.cacheWidth,
+        cacheHeight: widget.cacheHeight,
+      ),
       fit: widget.fit,
       height: widget.containerHeight,
       width: widget.containerWidth,
@@ -528,7 +571,8 @@ class _GateExtendedFileImageProvider extends ExtendedFileImageProvider {
 }
 
 class _GateExtendedNetworkImageProvider extends network_image_io.ExtendedNetworkImageProvider {
-  _GateExtendedNetworkImageProvider(super.url, {super.cache, super.printError, required this.gate});
+  _GateExtendedNetworkImageProvider(super.url,
+      {super.cache, super.printError, super.timeLimit, super.cacheKey, required this.gate});
 
   final EHImageAnimationGate gate;
 

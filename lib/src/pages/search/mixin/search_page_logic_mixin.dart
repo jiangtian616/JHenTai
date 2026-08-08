@@ -263,9 +263,9 @@ mixin SearchPageLogicMixin on BasePageLogic {
   }
 
   @override
-  Future<GalleryPageInfo> getGalleryPage({String? prevGid, String? nextGid, DateTime? seek}) {
+  Future<GalleryPageInfo> getGalleryPage({String? prevGid, String? nextGid, DateTime? seek, bool useCacheIfAvailable = true}) {
     if (state.redirectUrl == null) {
-      return super.getGalleryPage(prevGid: prevGid, nextGid: nextGid, seek: seek);
+      return super.getGalleryPage(prevGid: prevGid, nextGid: nextGid, seek: seek, useCacheIfAvailable: useCacheIfAvailable);
     }
 
     log.info('Get gallerys data with file search, prevGid:$prevGid, nextGid:$nextGid');
@@ -274,6 +274,7 @@ mixin SearchPageLogicMixin on BasePageLogic {
       nextGid: nextGid,
       seek: seek,
       url: state.redirectUrl,
+      useCacheIfAvailable: useCacheIfAvailable,
       parser: EHSpiderParser.galleryPage2GalleryPageInfo,
     );
   }

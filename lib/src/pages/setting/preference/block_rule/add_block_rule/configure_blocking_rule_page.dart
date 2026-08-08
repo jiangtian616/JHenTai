@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
+import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
 
 import '../../../../../service/local_block_rule_service.dart';
 import '../../../../../widget/eh_wheel_speed_controller.dart';
@@ -10,8 +12,10 @@ import 'configure_blocking_rule_page_logic.dart';
 import 'configure_blocking_rule_page_state.dart';
 
 class ConfigureBlockingRulePage extends StatelessWidget {
-  final ConfigureBlockingRulePageLogic logic = Get.put<ConfigureBlockingRulePageLogic>(ConfigureBlockingRulePageLogic());
-  final ConfigureBlockingRulePageState state = Get.find<ConfigureBlockingRulePageLogic>().state;
+  final ConfigureBlockingRulePageLogic logic =
+      Get.put<ConfigureBlockingRulePageLogic>(ConfigureBlockingRulePageLogic());
+  final ConfigureBlockingRulePageState state =
+      Get.find<ConfigureBlockingRulePageLogic>().state;
 
   ConfigureBlockingRulePage({super.key});
 
@@ -22,7 +26,9 @@ class ConfigureBlockingRulePage extends StatelessWidget {
         centerTitle: true,
         title: Text('blockingRules'.tr),
         actions: [
-          TextButton(onPressed: logic.configureCurrentBlockRulesByGroup, child: Text('OK'.tr)),
+          TextButton(
+              onPressed: logic.configureCurrentBlockRulesByGroup,
+              child: Text('OK'.tr)),
         ],
       ),
       body: _buildBody(context),
@@ -38,13 +44,16 @@ class ConfigureBlockingRulePage extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 80, left: 8, right: 8),
           controller: state.scrollController,
           children: [
-            ...state.rules.map((rule) => _buildRuleForm(rule).marginOnly(bottom: 12)).toList(),
+            ...state.rules
+                .map((rule) => _buildRuleForm(rule).marginOnly(bottom: 12))
+                .toList(),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 OutlinedButton(
                   child: const Icon(Icons.add, size: 24),
-                  style: FilledButton.styleFrom(shape: const CircleBorder(), padding: EdgeInsets.zero),
+                  style: FilledButton.styleFrom(
+                      shape: const CircleBorder(), padding: EdgeInsets.zero),
                   onPressed: logic.addRuleForm,
                 ),
               ],
@@ -66,36 +75,49 @@ class ConfigureBlockingRulePage extends StatelessWidget {
               children: [
                 ListTile(
                   title: Text('blockingTarget'.tr),
-                  trailing: DropdownButton<LocalBlockTargetEnum>(
+                  trailing: EHCodexStyleDropdown<LocalBlockTargetEnum>(
                     value: rule.target,
                     alignment: Alignment.centerRight,
                     onChanged: (LocalBlockTargetEnum? newValue) {
                       rule.target = newValue!;
-                      rule.attribute = LocalBlockAttributeEnum.withTarget(rule.target).first;
-                      rule.pattern = LocalBlockPatternEnum.withAttribute(rule.attribute).first;
+                      rule.attribute =
+                          LocalBlockAttributeEnum.withTarget(rule.target).first;
+                      rule.pattern =
+                          LocalBlockPatternEnum.withAttribute(rule.attribute)
+                              .first;
                       logic.updateSafely([logic.bodyId]);
                     },
-                    items: LocalBlockTargetEnum.values.map((e) => DropdownMenuItem(child: Text(e.desc.tr), value: e, alignment: Alignment.center)).toList(),
+                    items: LocalBlockTargetEnum.values
+                        .map((e) => DropdownMenuItem(
+                            child: Text(e.desc.tr),
+                            value: e,
+                            alignment: Alignment.center))
+                        .toList(),
                   ),
                 ),
                 ListTile(
                   title: Text('blockingAttribute'.tr),
-                  trailing: DropdownButton<LocalBlockAttributeEnum>(
+                  trailing: EHCodexStyleDropdown<LocalBlockAttributeEnum>(
                     value: rule.attribute,
                     alignment: Alignment.centerRight,
                     onChanged: (LocalBlockAttributeEnum? newValue) {
                       rule.attribute = newValue!;
-                      rule.pattern = LocalBlockPatternEnum.withAttribute(rule.attribute).first;
+                      rule.pattern =
+                          LocalBlockPatternEnum.withAttribute(rule.attribute)
+                              .first;
                       logic.updateSafely([logic.bodyId]);
                     },
                     items: LocalBlockAttributeEnum.withTarget(rule.target)
-                        .map((e) => DropdownMenuItem(child: Text(e.desc.tr), value: e, alignment: Alignment.center))
+                        .map((e) => DropdownMenuItem(
+                            child: Text(e.desc.tr),
+                            value: e,
+                            alignment: Alignment.center))
                         .toList(),
                   ),
                 ),
                 ListTile(
                   title: Text('blockingPattern'.tr),
-                  trailing: DropdownButton<LocalBlockPatternEnum>(
+                  trailing: EHCodexStyleDropdown<LocalBlockPatternEnum>(
                     value: rule.pattern,
                     alignment: Alignment.centerRight,
                     onChanged: (LocalBlockPatternEnum? newValue) {
@@ -103,7 +125,10 @@ class ConfigureBlockingRulePage extends StatelessWidget {
                       logic.updateSafely([logic.bodyId]);
                     },
                     items: LocalBlockPatternEnum.withAttribute(rule.attribute)
-                        .map((e) => DropdownMenuItem(child: Text(e.desc.tr), value: e, alignment: Alignment.center))
+                        .map((e) => DropdownMenuItem(
+                            child: Text(e.desc.tr),
+                            value: e,
+                            alignment: Alignment.center))
                         .toList(),
                   ),
                 ),
@@ -111,7 +136,7 @@ class ConfigureBlockingRulePage extends StatelessWidget {
                   title: Text('blockingExpression'.tr),
                   trailing: ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 180),
-                    child: TextField(
+                    child: EHAppleTextField(
                       controller: TextEditingController(text: rule.expression),
                       textAlign: TextAlign.right,
                       decoration: const InputDecoration(isDense: true),
@@ -131,7 +156,8 @@ class ConfigureBlockingRulePage extends StatelessWidget {
           children: [
             OutlinedButton(
               child: const Icon(Icons.remove, size: 24),
-              style: FilledButton.styleFrom(shape: const CircleBorder(), padding: EdgeInsets.zero),
+              style: FilledButton.styleFrom(
+                  shape: const CircleBorder(), padding: EdgeInsets.zero),
               onPressed: () {
                 logic.removeRuleForm(rule);
               },

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/service/log.dart';
+import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:path/path.dart';
 
@@ -47,14 +48,20 @@ class _LogListPageState extends State<LogListPage> {
       appBar: AppBar(centerTitle: true, title: Text('logList'.tr)),
       body: EHWheelSpeedController(
         controller: scrollController,
-        child: ListView(
+        child: EHAppleSettingsListView(
           controller: scrollController,
-          children: logs
-              .map(
-                (log) => ListTile(title: Text(basename(log.path)), onTap: () => toRoute(Routes.log, arguments: log)),
-              )
-              .toList(),
-        ).withListTileTheme(context).enableMouseDrag(withScrollBar: true),
+          groups: [
+            EHAppleSettingsGroup(
+              children: logs
+                  .map(
+                    (log) => ListTile(
+                        title: Text(basename(log.path)),
+                        onTap: () => toRoute(Routes.log, arguments: log)),
+                  )
+                  .toList(),
+            ),
+          ],
+        ).enableMouseDrag(withScrollBar: true),
       ),
     );
   }

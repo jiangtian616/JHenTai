@@ -35,7 +35,8 @@ class ko_KR {
       'archiveError': 'Download Archive Error',
       'edit': 'Edit',
       'confirmDestructiveActions': '파괴적 작업 확인',
-      'confirmDestructiveActionsHint': '켜면 다운로드 페이지에서 작업 삭제, 다시 다운로드 등 파괴적 작업 전에 확인 대화상자가 표시됩니다',
+      'confirmDestructiveActionsHint':
+          '켜면 다운로드 페이지에서 작업 삭제, 다시 다운로드 등 파괴적 작업 전에 확인 대화상자가 표시됩니다',
 
       'home': "홈",
       'gallery': "갤러리",
@@ -90,8 +91,10 @@ class ko_KR {
       'refreshIgneousFailed': 'Refresh Igneous Failed',
 
       /// request
-      'sadPanda': 'Sad Panda(no data). Refer: https://github.com/jiangtian616/JHenTai/wiki/%EC%9E%90%EC%A3%BC-%ED%95%98%EB%8A%94-%EC%A7%88%EB%AC%B8',
-      'sadPandaReferLink': 'https://github.com/jiangtian616/JHenTai/wiki/%EC%9E%90%EC%A3%BC-%ED%95%98%EB%8A%94-%EC%A7%88%EB%AC%B8',
+      'sadPanda':
+          'Sad Panda(no data). Refer: https://github.com/jiangtian616/JHenTai/wiki/%EC%9E%90%EC%A3%BC-%ED%95%98%EB%8A%94-%EC%A7%88%EB%AC%B8',
+      'sadPandaReferLink':
+          'https://github.com/jiangtian616/JHenTai/wiki/%EC%9E%90%EC%A3%BC-%ED%95%98%EB%8A%94-%EC%A7%88%EB%AC%B8',
 
       /// gallery card
       'filtered': 'Filtered',
@@ -130,7 +133,8 @@ class ko_KR {
       'noComments': '댓글 없음',
       'lastEditedOn': '최근 수정일: ',
       'getGalleryDetailFailed': '갤러리 세부 정보 가져오기 실패',
-      'cloudflare403': 'You have been restricted by Cloudflare from making network requests. Please try switching networks or using another login method.',
+      'cloudflare403':
+          'You have been restricted by Cloudflare from making network requests. Please try switching networks or using another login method.',
       'invisible2User': '이 갤러리는 사용자에게 보이지 않습니다.',
       'invisibleHints': '이 갤러리는 삭제되었거나 사용할 수 없습니다.',
       'copyRightHints': '이 갤러리는 다음 저작권자로 인해 사용할 수 없음: ',
@@ -141,7 +145,8 @@ class ko_KR {
       'removeFavoriteSuccess': "Remove Favorite Success",
       'removeFavoriteFailed': "Remove Favorite Failed",
       'getGalleryFavoriteInfoFailed': 'Get gallery favorite info failed',
-      'favoriteNoteSlotFullHint': 'Favorite note slot is full, please delete some notes first',
+      'favoriteNoteSlotFullHint':
+          'Favorite note slot is full, please delete some notes first',
       'ratingSuccess': '평가 성공',
       'ratingFailed': '평가 실패',
       'voteTagFailed': '태그 투표 실패',
@@ -164,7 +169,8 @@ class ko_KR {
       'score': '점수',
       'NotOnTheList': '순위권 밖',
       'getGalleryArchiveFailed': '갤러리 아카이브 가져오기 실패',
-      'parseGalleryArchiveFailed': '설정 불러오기 실패, e-hentai에서 [Archiver Settings]가 [Manual Select, Manual Start (Default)]인지 확인하세요.',
+      'parseGalleryArchiveFailed':
+          '설정 불러오기 실패, e-hentai에서 [Archiver Settings]가 [Manual Select, Manual Start (Default)]인지 확인하세요.',
       'original': '원본',
       'resample': '압축',
       'beginToDownloadArchive': '아카이브 다운로드 시작',
@@ -176,8 +182,10 @@ class ko_KR {
       'failedToDealWith': '처리 실패',
       'hasDownloaded': '다운로드 완료',
       '410Hints': '이 아카이브에서 다운로드한 용량이 너무 많아서 다시 시작하려면 아카이브의 잠금을 다시 해제해야 합니다.',
-      '429Hints': 'Too many download requests! You\'d better decrease your archive download concurrency.',
-      'getUnpackedImagesFailedMsg': 'JHenTai에서 이 아카이브 이미지를 가져올 수 없습니다. 로컬 파일을 확인하세요.',
+      '429Hints':
+          'Too many download requests! You\'d better decrease your archive download concurrency.',
+      'getUnpackedImagesFailedMsg':
+          'JHenTai에서 이 아카이브 이미지를 가져올 수 없습니다. 로컬 파일을 확인하세요.',
       'getGalleryTorrentsFailed': '토렌트 불러오기 실패',
       'chooseArchive': '아카이브 선택',
       'tagSetExceedLimit': '저장된 태그 수가 최대치에 도달해서 더 추가할 수 없습니다.',
@@ -221,8 +229,10 @@ class ko_KR {
       'loading': "로딩",
       'paused': '일시 정지',
       'exceedImageLimits': "이미지 한도 초과",
-      'ehServerError': 'An error occurred due to EH\'s server, please try again later',
-      'unsupportedImagePageStyle': "JHenTai는 Multi-Page Viewer(MPV)를 지원하지 않습니다. e-hentai.org에서 기본값 스타일로 해주세요.",
+      'ehServerError':
+          'An error occurred due to EH\'s server, please try again later',
+      'unsupportedImagePageStyle':
+          "JHenTai는 Multi-Page Viewer(MPV)를 지원하지 않습니다. e-hentai.org에서 기본값 스타일로 해주세요.",
       'toNext': '다음',
       'toPrev': '이전',
       'back': '뒤로',
@@ -259,9 +269,11 @@ class ko_KR {
       /// eh setting page
       'site': '사이트',
       'redirect2Eh': '사용 가능하면 EH로 재요청',
-      'redirect2EhHint': 'Try to load gallery detail page from EH site first to get better network performance',
+      'redirect2EhHint':
+          'Try to load gallery detail page from EH site first to get better network performance',
       'redirectAllGallery': 'Redirect all gallery to EH',
-      'imDonorHint': 'If you are a donor, you can turn this on to help you access gallerys in EX site',
+      'imDonorHint':
+          'If you are a donor, you can turn this on to help you access gallerys in EX site',
       'profileSetting': 'Profile Setting',
       'chooseProfileHint': 'Choose profile used in JHenTai',
       'siteSetting': '사이트 내부 설정',
@@ -316,13 +328,18 @@ class ko_KR {
       'enableTagZHTranslation': '태그를 중국어로 변환',
       'version': '버전',
       'downloadTagTranslationHint': '데이터 다운로드 중...: ',
-      'zhTagSearchOrderOptimization': 'Chinese Tag Auto-Completion Ordering Rule',
-      'zhTagSearchOrderOptimizationHint': 'Intelligent sorting by default and sort by frequency if enabled',
+      'zhTagSearchOrderOptimization':
+          'Chinese Tag Auto-Completion Ordering Rule',
+      'zhTagSearchOrderOptimizationHint':
+          'Intelligent sorting by default and sort by frequency if enabled',
       'themeMode': '테마 모드',
       'dark': '어두운 모드',
       'light': '밝은 모드',
       'followSystem': '시스템에 따라',
       'themeColor': '테마 색상',
+      'themeColorFixedOnApple': 'macOS / iOS에서 고정 강조색 사용',
+      'appleVisualStyle': 'Apple 시각 스타일',
+      'appleVisualStyleHint': 'Apple 스타일의 새롭게 디자인된 인터페이스 사용',
       'listStyle': '갤러리 리스트 스타일 (기본값)',
       'flat': '플랫',
       'flatWithoutTags': '플랫(태그 없음)',
@@ -334,7 +351,8 @@ class ko_KR {
       'crossAxisCountInWaterFallFlow': '폭포의 세로줄 개수',
       'pageListStyle': '갤러리 리스트 스타일 (개별)',
       'crossAxisCountInGridDownloadPageForGroup': '다운로드 페이지 그리드 정렬 세로줄 개수(폴더)',
-      'crossAxisCountInGridDownloadPageForGallery': '다운로드 페이지 그리드 정렬 세로줄 개수(폴더 내부)',
+      'crossAxisCountInGridDownloadPageForGallery':
+          '다운로드 페이지 그리드 정렬 세로줄 개수(폴더 내부)',
       'crossAxisCountInDetailPage': 'Detail Page Thumbnail Column Count',
       'global': '기본값',
       'auto': '자동',
@@ -349,7 +367,8 @@ class ko_KR {
       'whenScrollUp': 'When Scroll Up',
       'whenScrollDown': 'When Scroll Down',
       'preloadGalleryCover': 'Preload gallery cover',
-      'preloadGalleryCoverHint': 'Preload the covers of galleries that are not yet displayed on the page',
+      'preloadGalleryCoverHint':
+          'Preload the covers of galleries that are not yet displayed on the page',
       'enableSwipeBackGesture': '스와이프 제스처로 뒤로 가기 활성화',
       'enableLeftMenuDrawerGesture': '좌측 서랍 메뉴 제스처로 열기 활성화',
       'enableQuickSearchDrawerGesture': '우측 빠른 검색 메뉴 제스처로 열기 활성화',
@@ -367,16 +386,20 @@ class ko_KR {
       'inheritAll': 'Inherit All',
       'inheritAllHint': 'Use last search options for next search',
       'inheritPartially': 'Inherit Partially',
-      'inheritPartiallyHint': 'Use last search options for next search(except language and category)',
+      'inheritPartiallyHint':
+          'Use last search options for next search(except language and category)',
       'none': 'None',
       'noneHint': 'Use default search options for next search',
       'showAllGalleryTitles': 'Show All Gallery Titles',
-      'showAllGalleryTitlesHint': 'Show both original and japanese titles if available',
+      'showAllGalleryTitlesHint':
+          'Show both original and japanese titles if available',
       'showGalleryTagVoteStatus': 'Show Gallery Tag Vote Status',
-      'showGalleryTagVoteStatusHint': 'Include confidence, skepticism and incorrect',
+      'showGalleryTagVoteStatusHint':
+          'Include confidence, skepticism and incorrect',
       'showComments': 'Show Comments',
       'showAllComments': 'Show All Comments',
-      'showAllCommentsHint': 'By default only the 45 highest scoring and 5 most recent comments will be shown',
+      'showAllCommentsHint':
+          'By default only the 45 highest scoring and 5 most recent comments will be shown',
       'addTag': 'Add Tag',
       'addTagHint': 'Enter new tags, separated with comma',
 
@@ -385,8 +408,13 @@ class ko_KR {
       'custom': '커스텀',
 
       /// performance setting page
-      'maxGalleryNum4Animation': 'Max Gallery Num For List Animation in Download page',
-      'maxGalleryNum4AnimationHint': 'Disable animation for groups which have more gallerys than this value(for list style)',
+      'maxGalleryNum4Animation':
+          'Max Gallery Num For List Animation in Download page',
+      'maxGalleryNum4AnimationHint':
+          'Disable animation for groups which have more gallerys than this value(for list style)',
+      'enableCoverDecodeOptimization': '커버 디코딩 최적화',
+      'enableCoverDecodeOptimizationHint':
+          '갤러리 커버를 원본 해상도 대신 표시 크기에 가깝게 디코딩합니다. 그리드 탐색 시 디코딩 시간과 메모리 사용량을 줄이며, 약간의 화질 손실이 있습니다.',
 
       /// mouse wheel setting page
       'themeColorSettingHint': '라이트 모드와 다크 모드 각각에 다른 색을 지정합니다',
@@ -406,10 +434,19 @@ class ko_KR {
       'updateSuccess': '수정 성공',
       'connectTimeout': '연결 시간 초과',
       'receiveTimeout': '수신 시간 초과',
-      'pageCacheMaxAge': '페이지 캐시의 수명 최대 시간',
-      'pageCacheMaxAgeHint': '새로고침 페이지 별로 캐시를 업데이트할 수 있습니다.',
-      'cacheImageExpireDuration': 'Image Cache Expiration Time',
-      'cacheImageExpireDurationHint': 'Remove image cache automatically after launching app',
+      'enableSmartCache': "스마트 캐시",
+      'enableSmartCacheHint':
+          "켜면 본 페이지와 이미지를 보존 기간 동안 오래 캐시하고, 끄면 단기 캐시만 유지합니다",
+      'smartCacheRetention': "캐시 보존 기간",
+      'smartCacheRetentionHint': "이 기간보다 오래된 캐시는 자동으로 삭제됩니다",
+      'smartCacheMaxSize': "캐시 공간 상한",
+      'smartCacheMaxSizeHint': "상한을 초과하면 캐시가 자동으로 정리됩니다",
+      'smartCacheEvictPolicy': "정리 정책",
+      'smartCacheEvictPolicyHint': "상한 도달 시 먼저 삭제할 캐시",
+      'smartCacheEvictByAddedDate': "추가 날짜순",
+      'smartCacheEvictByUsageFrequency': "사용 빈도순",
+      'unlimited': "무제한",
+      'cacheSize': "현재 캐시 크기",
       'oneMinute': '1분',
       'tenMinute': '10분',
       'oneHour': '1시간',
@@ -419,24 +456,25 @@ class ko_KR {
       'enableVerboseLogging': '상세 로깅 사용',
       'openLog': '로그 열기',
       'clearLogs': '로그 삭제',
-      'clearImagesCache': '이미지 캐시 삭제',
       'longPress2Clear': '길게 눌러 삭제하기',
       'checkUpdateAfterLaunchingApp': '앱 실행 후 업데이트 확인',
       'checkClipboard': '클립보드에서 갤러리 주소 검사',
-      'clearPageCache': '페이지 캐시 삭제',
       'clearSuccess': '삭제 완료',
       'superResolution': '초고해상도 이미지 생성',
       'stopSuperResolution': '초고해상도 이미지 생성 취소',
       'deleteSuperResolvedImage': '초고해상도 이미지 삭제',
-      'superResolveOriginalImageHint': '원본 이미지 처리는 더 많은 시간과 공간, 성능을 사용합니다. 계속하시겠습니까?',
+      'superResolveOriginalImageHint':
+          '원본 이미지 처리는 더 많은 시간과 공간, 성능을 사용합니다. 계속하시겠습니까?',
       'verityAppLinks4Android12': 'Verity App Links(Android 12+)',
-      'verityAppLinks4Android12Hint': 'For Android 12+, you need to manually add link to verified links in order to open JHenTai in 3-rd apps',
+      'verityAppLinks4Android12Hint':
+          'For Android 12+, you need to manually add link to verified links in order to open JHenTai in 3-rd apps',
       'noImageMode': 'No Image Mode',
       'exportData': 'Export Data',
       'exportDataHint': 'Export configs, block rules and history',
       'selectExportItems': 'Select Export Items',
       'importData': 'Import Data',
-      'importDataHint': 'App will shutdown automatically after importing to apply the latest configuration',
+      'importDataHint':
+          'App will shutdown automatically after importing to apply the latest configuration',
 
       /// host mapping page
       'hostDataSource': '기본적으로 변경할 필요는 없습니다.\n데이터 소스: https://dns.google/',
@@ -458,7 +496,8 @@ class ko_KR {
       'enableAuthOnResumeHints': '3초 후 인증 요구',
       'enableBlurBackgroundApp': '백그라운드로 전환할 때 페이지 블러 사용',
       'hideImagesInAlbum': 'Hide Images in Album',
-      'hideImagesInAlbumHints': 'If you changed default download path, you need to create .nomedia manually',
+      'hideImagesInAlbumHints':
+          'If you changed default download path, you need to create .nomedia manually',
 
       /// read setting page
       'enableImmersiveMode': '몰입형 모드 사용',
@@ -472,12 +511,14 @@ class ko_KR {
       'portrait': 'Portrait',
       'readDirection': '읽는 방향',
       'enableOrientationSpecificReadDirection': '화면 방향별 읽기 방향',
-      'enableOrientationSpecificReadDirectionHint': '세로 및 가로 화면에 대해 서로 다른 읽기 방향을 설정합니다',
+      'enableOrientationSpecificReadDirectionHint':
+          '세로 및 가로 화면에 대해 서로 다른 읽기 방향을 설정합니다',
       'portraitReadDirection': '세로 화면 읽기 방향',
       'landscapeReadDirection': '가로 화면 읽기 방향',
       'autoSwitchedReadDirection': '읽기 방향 자동 전환됨',
       'notchOptimization': 'Notch Optimization',
-      'notchOptimizationHint': 'Add padding before the first image to avoid the notch and status bar',
+      'notchOptimizationHint':
+          'Add padding before the first image to avoid the notch and status bar',
       'imageRegionWidthRatio': 'Image Region Width Ratio',
       'portraitImageRegionWidthRatio': 'Portrait Image Width Ratio',
       'landscapeImageRegionWidthRatio': 'Landscape Image Width Ratio',
@@ -501,7 +542,8 @@ class ko_KR {
       'left2rightList': 'Left to Right (Continuous)',
       'right2leftList': 'Right to Left (Continuous)',
       'enablePageTurnByVolumeKeys': 'Use volume key to turn page',
-      'enablePageTurnByVolumeKeysHint': 'iOS에서 볼륨이 0 또는 100%일 때 읽기 페이지에 들어가면 페이지 넘기기를 위해 볼륨이 자동으로 조정되고, 나가면 복원됩니다',
+      'enablePageTurnByVolumeKeysHint':
+          'iOS에서 볼륨이 0 또는 100%일 때 읽기 페이지에 들어가면 페이지 넘기기를 위해 볼륨이 자동으로 조정되고, 나가면 복원됩니다',
       'enablePageTurnAnime': '페이지 넘기기 애니메이션 사용',
       'enableDoubleTapToScaleUp': '두 번 터치해 확대 사용',
       'enableTapDragToScaleUp': 'Enable Tap Drag to Scale up',
@@ -513,7 +555,8 @@ class ko_KR {
       'turnPageModeHint': '화면 기준 혹은 이미지 기준',
       'enableImageMaxKilobytes': 'Enable Image Compression',
       'imageMaxKilobytes': 'Image Max Size',
-      'imageMaxKilobytesHint': 'Images larger than this size will be compressed',
+      'imageMaxKilobytesHint':
+          'Images larger than this size will be compressed',
       'image': '이미지 기준',
       'screen': '화면 기준',
       'preloadDistanceInOnlineMode': 'Preload Distance(Online)',
@@ -521,6 +564,11 @@ class ko_KR {
       'ScreenHeight': 'Screen',
       'preloadPageCount': 'Preload Page Count(Online)',
       'preloadPageCountInLocalMode': 'Preload Page Count(Local)',
+      'failedImageRetryScope': "실패 이미지 재시도 범위",
+      'failedImageRetryScopeHint': "온라인 이미지 로드 실패 시 탭하여 재시도할 때 적용되는 범위",
+      'retrySingleImage': "현재 이미지만",
+      'retryCurrentPageAndAfter': "현재 이미지 및 이후",
+      'retryAllFailedImages': "모든 실패 이미지",
       'continuousScroll': '길게 이어진 스크롤',
       'continuousScrollHint': '여러 이미지가 가로로 연결됨',
       'doubleColumn': '두 쪽으로 보기',
@@ -587,8 +635,10 @@ class ko_KR {
       'reUnlock': '다시 잠금 해제',
       'reUnlockHint': '주의! 다시 잠금 해제하려면 이 파일을 다시 구입해야 합니다.',
       'downloadHelpInfo': '다운로드 할 수 없고 로그에 DB 테이블이 없다면 앱을 삭제하고 다시 설치하세요.',
-      'localGalleryHelpInfo': 'JHenTai에서 다운로드하지 않은 갤러리를 불러옵니다. 다운로드 설정 → 추가 갤러리 스캔 경로를 추가하고 새로고침하세요.',
-      'localGalleryHelpInfo4iOSAndMacOS': 'Load gallerys which is not downloaded by JHenTai. Put your gallerys in default download path and then refresh',
+      'localGalleryHelpInfo':
+          'JHenTai에서 다운로드하지 않은 갤러리를 불러옵니다. 다운로드 설정 → 추가 갤러리 스캔 경로를 추가하고 새로고침하세요.',
+      'localGalleryHelpInfo4iOSAndMacOS':
+          'Load gallerys which is not downloaded by JHenTai. Put your gallerys in default download path and then refresh',
       'deleteLocalGalleryHint': '사용자의 로컬 파일을 삭제합니다.',
       'priority': '우선순위',
       'highest': '높음',
@@ -615,11 +665,16 @@ class ko_KR {
       'multiReDownloadHint': 'You will re-download all selected gallerys.',
       'multiChangeGroupHint': 'You will change group of all selected gallerys.',
       'multiDeleteHint': 'You will delete all selected gallerys.',
-      'blankImageHint': 'Downloading the image returned an empty result, trying to re-parse.',
-      'peakHoursHint': 'Downloading original files during peak hours requires GP, and you do not have enough, downloading is paused.',
-      'oldGalleryHint': 'Downloading original files of this gallery requires GP, and you do not have enough.',
-      'exceedLimitHint': 'You have reached the image limit, and do not have sufficient GP to buy a download quota.',
-      'deleteUpdatingDependentHint': 'Another gallery\'s update relies on current gallery, you\'d better delete after update has completed.',
+      'blankImageHint':
+          'Downloading the image returned an empty result, trying to re-parse.',
+      'peakHoursHint':
+          'Downloading original files during peak hours requires GP, and you do not have enough, downloading is paused.',
+      'oldGalleryHint':
+          'Downloading original files of this gallery requires GP, and you do not have enough.',
+      'exceedLimitHint':
+          'You have reached the image limit, and do not have sufficient GP to buy a download quota.',
+      'deleteUpdatingDependentHint':
+          'Another gallery\'s update relies on current gallery, you\'d better delete after update has completed.',
       'migrateToDownload': 'Migrate To 「Download」',
       'refresh': 'Refresh',
 
@@ -703,7 +758,8 @@ class ko_KR {
 
       /// download setting page
       'downloadPath': '다운로드 경로',
-      'changeDownloadPathHint': '길게 눌러 변경(SD 카드 또는 시스템 경로는 사용하지 마세요). 다운로드한 갤러리를 자동으로 복사하고 오래된 파일은 보관합니다. 오류가 발생하면 초기화해 보세요.',
+      'changeDownloadPathHint':
+          '길게 눌러 변경(SD 카드 또는 시스템 경로는 사용하지 마세요). 다운로드한 갤러리를 자동으로 복사하고 오래된 파일은 보관합니다. 오류가 발생하면 초기화해 보세요.',
       'resetDownloadPath': '다운로드 경로 초기화',
       'extraGalleryScanPath': '추가 갤러리 스캔 경로',
       'extraGalleryScanPathHint': '로컬 갤러리를 스캔하고 불러오기 위함',
@@ -728,15 +784,19 @@ class ko_KR {
       'per': '/ 시간: ',
       'images': '장 ',
       'downloadTimeout': '다운로드 시간 초과',
-      'downloadAllGallerysOfSamePriority': 'Download All Gallerys of Same Priority',
-      'downloadAllGallerysOfSamePriorityHint': 'Download only 1 gallery simultaneously in 1 group with highest priority by default',
+      'downloadAllGallerysOfSamePriority':
+          'Download All Gallerys of Same Priority',
+      'downloadAllGallerysOfSamePriorityHint':
+          'Download only 1 gallery simultaneously in 1 group with highest priority by default',
       'alwaysUseDefaultGroup': '항상 기본 그룹 사용',
       'enableStoreMetadataForRestore': '복원을 위한 저장소 메타데이터 사용',
       'enableStoreMetadataForRestoreHint': '사용하지 않으면 다운로드 작업을 복원할 수 없습니다.',
       'archiveDownloadIsolateCount': 'Archive Download Thread Count',
-      'archiveDownloadIsolateCountHint': 'Sum of threads for all tasks needs to be less than 10, otherwise the download will fail',
+      'archiveDownloadIsolateCountHint':
+          'Sum of threads for all tasks needs to be less than 10, otherwise the download will fail',
       'manageArchiveDownloadConcurrency': 'Manage Archive Download Concurrency',
-      'manageArchiveDownloadConcurrencyHint': 'Archive will wait until there are enough threads to download',
+      'manageArchiveDownloadConcurrencyHint':
+          'Archive will wait until there are enough threads to download',
       'deleteArchiveFileAfterDownload': '다운로드 완료 후 아카이브 .zip 파일 삭제',
       'restoreDownloadTasks': '다운로드 작업 복원',
       'restoreDownloadTasksHint': '메타데이터로 다운로드 작업 복원',
@@ -745,9 +805,11 @@ class ko_KR {
       'restoredGalleryCount': '복원된 갤러리 수',
       'restoredArchiveCount': '복원된 아카이브 수',
       'restoreTasksAutomatically': 'Restore Tasks Automatically',
-      'restoreTasksAutomaticallyHint': 'Restore tasks automatically when app launched',
+      'restoreTasksAutomaticallyHint':
+          'Restore tasks automatically when app launched',
       'brokenDownloadPathHint': '다운로드 경로가 손상된 것 같습니다. 다운로드 기능이 낮아질 수 있습니다.',
-      'brokenExtraScanPathHint': 'Seems your default local gallery path is broken, local gallery may be not recognized',
+      'brokenExtraScanPathHint':
+          'Seems your default local gallery path is broken, local gallery may be not recognized',
       'useJH2UpdateGallery': 'Use JH server to accelerate gallery updates',
 
       /// archive bot settings
@@ -764,7 +826,8 @@ class ko_KR {
       'checkInFailed': 'Check-in failed',
       'checkInSuccess': 'Check-in success',
       'checkInSuccessHint': 'Got GP: %s, current total GP: %s.',
-      'pauseDownloadByInvalidArchiveBotKey': 'Archive bot settings is invalid, download paused',
+      'pauseDownloadByInvalidArchiveBotKey':
+          'Archive bot settings is invalid, download paused',
       'chooseArchiveParseSource': 'Change Parse Source',
       'official': 'Official',
       'archiveBot': 'Archive Bot',
@@ -793,7 +856,8 @@ class ko_KR {
       'upload2cloud': 'Upload to Cloud',
       'upload2cloudHint': 'Upload your current local configuration',
       'tap2upload': 'Tap to upload',
-      'copyIdentificationCodeSuccess': 'Upload successfully. Identification code has been copied',
+      'copyIdentificationCodeSuccess':
+          'Upload successfully. Identification code has been copied',
       'copyShareCode': 'Copy Share Code',
       'import': 'Import',
       'save2Local': 'Save to Local',
@@ -809,9 +873,11 @@ class ko_KR {
       'inputNumberHint': 'Please input a correct number',
       'inputRegexHint': 'Please input a correct regex',
       'useBuiltInBlockedUsers': 'Enable Built-in User Blocklist',
-      'useBuiltInBlockedUsersHint': 'Filter out gallery comments from users on the blocklist',
+      'useBuiltInBlockedUsersHint':
+          'Filter out gallery comments from users on the blocklist',
       'blockingRules': 'Block Rules',
-      'blockingRulesHint': 'Additional blocking rules for gallerys and comments',
+      'blockingRulesHint':
+          'Additional blocking rules for gallerys and comments',
       'blockingTarget': 'Blocking Target',
       'blockingAttribute': 'Blocking Attribute',
       'blockingPattern': 'Blocking Pattern',
@@ -825,7 +891,8 @@ class ko_KR {
       'content': 'Content',
       'incompleteInformation': 'Incomplete information',
       'noBlockingRuleHint': 'Add at least 1 rule',
-      'notSameBlockingRuleTargetHint': 'All sub-rules should have the same blocking target',
+      'notSameBlockingRuleTargetHint':
+          'All sub-rules should have the same blocking target',
       'blockingRuleHelp': '''
 Blocking Target: Filter galleries on the list page or filter comments on the details page. All sub-rules under the same rule must have the same blocking target.
 Blocking Attribute: Specify the attribute of the target based on which the rule is written to block.
@@ -871,6 +938,108 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'reclass': '재분류',
       'temp': '임시',
       'other': '기타',
+
+      /// image text translation
+      'imageTextTranslation': '이미지 텍스트 번역',
+      'translateImageText': '이 페이지 인식 및 번역',
+      'recognizingImageText': '이미지 텍스트 인식 중…',
+      'translatingImageText': '이미지 텍스트 번역 중…',
+      'showTranslation': '번역 보기',
+      'showOriginal': '원문 보기',
+      'copy': '복사',
+      'retry': '다시 시도',
+      'configure': '설정',
+      'saveSetting': '저장',
+      'imageTranslationNoResult': '표시할 결과가 없습니다',
+      'imageTranslationConfigureHint': '원문을 인식했습니다. 먼저 고급 설정에서 번역 제공자를 설정하세요.',
+      'imageTranslationUnsupportedPlatform': '이 플랫폼에서는 아직 이미지 OCR을 사용할 수 없습니다.',
+      'imageTranslationOcrUnavailable':
+          'OCR 실행 파일을 찾을 수 없습니다. 데스크톱에서 Tesseract를 설치하거나 설정하세요.',
+      'imageTranslationOcrFailed': '텍스트 인식에 실패했습니다. OCR 언어 팩과 이미지 형식을 확인하세요.',
+      'imageTranslationNoText': '이미지에서 텍스트를 인식하지 못했습니다.',
+      'imageTranslationRequestFailed': '번역 요청에 실패했습니다. 엔드포인트, 키 및 네트워크를 확인하세요.',
+      'imageTranslationInvalidResponse': '번역 제공자가 잘못된 결과를 반환했습니다.',
+      'imageTranslationFailed': '이미지 텍스트 번역에 실패했습니다.',
+      'imageTranslationPaddleNotReady':
+          'PaddleOCR 실행 환경이 설치되지 않았습니다. 먼저 고급 설정에서 "실행 환경 설치 및 모델 다운로드"를 클릭하세요.',
+      'imageTranslationDeletePaddleRuntime': 'PaddleOCR 실행 환경 삭제',
+      'imageTranslationDeletePaddleHint': '가상 환경과 다운로드된 모델을 삭제합니다.',
+      'imageTranslationDeletePaddleConfirm': 'PaddleOCR 실행 환경을 삭제하시겠습니까?',
+      'imageTranslationEnableThinking': '추론 사용',
+      'imageTranslationEnableThinkingHint': '끄면 번역이 더 빠르고, 켜면 더 깊게 추론합니다.',
+      'imageTranslationTranslateScope': '번역 범위',
+      'imageTranslationScopeCurrent': '현재 페이지만',
+      'imageTranslationScopeSubsequent': '현재 및 이후 페이지',
+      'imageTranslationCachedRetranslate': '캐시 결과 · 다시 번역',
+      'translationProgress': '번역 중 @current/@total · @stage',
+      'translationStageIdle': '준비 중',
+      'translationStageRecognizing': '인식 중',
+      'translationStageTranslating': '번역 중',
+      'translationStageMasking': '마스킹 중',
+      'translationStageEmbedding': '텍스트 삽입 중',
+      'translationStageDone': '완료',
+      'imageTranslationSourceUnavailable': '현재 이미지를 가져올 수 없습니다.',
+      'imageTranslationSettingHint': 'OCR 및 번역 제공자 설정',
+      'imageTranslationOcrSection': '텍스트 인식',
+      'imageTranslationOcrHint':
+          '데스크톱은 기본적으로 로컬 Tesseract를 사용합니다. 필요한 언어 팩을 설치하세요.',
+      'imageTranslationOcrExecutable': 'OCR 실행 파일',
+      'imageTranslationOcrLanguage': 'OCR 언어',
+      'imageTranslationTranslatorSection': '번역 제공자',
+      'imageTranslationTranslatorHint':
+          'OpenAI 호환 Chat Completions 엔드포인트를 사용합니다. 키는 이 기기에만 저장됩니다.',
+      'imageTranslationEndpoint': '엔드포인트',
+      'imageTranslationModel': '모델',
+      'imageTranslationTargetLanguage': '대상 언어',
+      'imageTranslationApiTestHint':
+          'API 기본 URL과 키를 입력한 후 테스트하여 사용 가능한 모델을 불러옵니다.',
+      'imageTranslationProvider': 'API 형식',
+      'imageTranslationOpenAICompatible': 'OpenAI 호환 형식',
+      'imageTranslationApiBaseUrl': 'API 기본 URL',
+      'imageTranslationTestAndFetchModels': '테스트 및 모델 가져오기',
+      'imageTranslationFetchModelsFirst': '먼저 API를 테스트하고 모델을 가져오세요',
+      'imageTranslationApiTestSuccess': '연결 성공: 모델 @count개',
+      'imageTranslationApiTestFailed': 'API 테스트 실패: @error',
+      'imageTranslationOcrDownloadHint':
+          'tessdata_fast 언어 모델을 Tesseract 데이터 디렉터리에 다운로드합니다.',
+      'imageTranslationOcrDataDirectory': 'OCR 데이터 디렉터리',
+      'imageTranslationChooseDirectory': '데이터 디렉터리 선택',
+      'imageTranslationDetectOcr': '로컬 OCR 감지',
+      'imageTranslationOcrModelSource': 'OCR 모델 소스',
+      'imageTranslationGiteeMirror': 'Gitee 커뮤니티 미러 (중국)',
+      'imageTranslationGithubOfficial': 'GitHub 공식 소스',
+      'imageTranslationOcrInstalled': '설치됨',
+      'imageTranslationOcrNotInstalled': '설치되지 않음',
+      'imageTranslationOcrDetectFailed': 'OCR 감지 실패. 실행 파일 경로를 확인하세요.',
+      'imageTranslationOcrDirectoryRequired': '먼저 OCR 데이터 디렉터리를 선택하거나 감지하세요.',
+      'imageTranslationOcrDownloadSuccess': 'OCR 모델을 다운로드했습니다.',
+      'imageTranslationOcrDownloadFailed': 'OCR 모델 다운로드 실패. 다른 소스를 시도하세요.',
+      'imageTranslationOcrEngineAppleLiveText': 'Apple Live Text',
+      'imageTranslationAppleLiveTextLanguage': 'Apple Live Text 인식 언어',
+      'imageTranslationAppleLiveTextHint':
+          'Apple Vision 기반 온디바이스 OCR입니다. iOS 및 macOS에서 사용할 수 있으며 모델 다운로드가 필요 없습니다.',
+      'imageTranslationAppleLiveTextUnavailable':
+          'Apple Live Text는 iOS 및 macOS에서만 사용할 수 있습니다.',
+      'imageTranslationMethodSection': '번역 방식',
+      'imageTranslationMethodAppleLiveText': 'Apple Live Text',
+      'imageTranslationMethodCustom': '사용자 정의',
+      'imageTranslationAppleLiveTextUseApi': '타사 API로 번역',
+      'imageTranslationAppleLiveTextUseApiHint':
+          'Apple 온디바이스 번역 대신 사용자 정의 모드와 동일한 OpenAI 호환 / Anthropic API를 사용합니다.',
+      'imageTranslationAppleLiveTextOnDeviceHint':
+          '인식과 번역이 모두 Apple 온디바이스로 실행됩니다. 온디바이스 번역은 iOS 26 / macOS 26 이상이 필요합니다.',
+      'imageTranslationTranslationUnavailable':
+          'Apple 온디바이스 번역은 iOS 26 / macOS 26 이상이 필요합니다. "타사 API로 번역"을 켜거나 최신 시스템에서 사용하세요.',
+      'imageTranslationTranslationFailed': 'Apple 온디바이스 번역에 실패했습니다.',
+      'imageTranslationShow': '번역 표시',
+      'imageTranslationHide': '번역 숨기기',
+      'imageTranslationRetranslate': '다시 번역',
+      'imageTranslationStart': '번역 시작',
+      'imageTranslationSettings': '번역 설정',
+      'imageTranslationTranslationNotInstalled':
+          'Apple 온디바이스 번역 언어 팩이 설치되어 있지 않습니다. 시스템 설정 → 일반 → 언어 및 지역 → 번역 언어에서 설치하거나 "타사 API로 번역"을 켜세요.',
+      'imageTranslationTranslationNotInstalledIos':
+          'Apple 온디바이스 번역 언어 팩이 설치되어 있지 않습니다. 설정 → 번역 → 다운로드한 언어에서 설치하거나 "타사 API로 번역"을 켜세요.',
     };
   }
 }

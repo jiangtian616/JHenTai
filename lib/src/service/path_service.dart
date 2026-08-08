@@ -1,6 +1,10 @@
 import 'dart:io';
 
+import 'package:extended_image/extended_image.dart'
+    show extendedImageDiskCacheDirectory;
+import 'package:flutter/painting.dart' show PaintingBinding;
 import 'package:get/get.dart';
+import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'jh_service.dart';
@@ -8,8 +12,24 @@ import 'jh_service.dart';
 PathService pathService = PathService();
 
 class PathService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
-  /// visible for all
+  /// Smart cache (pages + images) lives in a dedicated folder inside temp.
+  static const String smartCacheFolderName = 'autotemp';
+
+  /// Unified data root inside the documents folder: Documents/JHTData.
+  late Directory jhDataDir;
+
+  /// Temporary/page cache directory: Documents/JHTData/temp.
   late Directory tempDir;
+
+  /// Super-resolution model directory: Documents/JHTData/SRmodel.
+  late Directory jhSrModelDir;
+
+  /// OCR / translation model & virtual environment directory:
+  /// Documents/JHTData/OCRmodel.
+  late Directory jhOcrModelDir;
+
+  /// Gallery download directory: Documents/JHTData/download.
+  late Directory jhDownloadDir;
 
   /// visible on ios&windows&macos
   Directory? appDocDir;
@@ -28,12 +48,55 @@ class PathService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   @override
   Future<void> doInitBean() async {
     await Future.wait([
-      getTemporaryDirectory().then((value) => tempDir = value),
-      getApplicationDocumentsDirectory().then((value) => appDocDir = value).catchError((error) => null),
-      getApplicationSupportDirectory().then((value) => appSupportDir = value).catchError((error) => null),
-      getExternalStorageDirectory().then((value) => externalStorageDir = value).catchError((error) => null),
-      getDownloadsDirectory().then((value) => systemDownloadDir = value).catchError((error) => null),
+      getApplicationDocumentsDirectory().then<Directory?>((value) {
+        appDocDir = value;
+        return value;
+      }).catchError((Object error) => null),
+      getApplicationSupportDirectory().then<Directory?>((value) {
+        appSupportDir = value;
+        return value;
+      }).catchError((Object error) => null),
+      getExternalStorageDirectory().then<Directory?>((value) {
+        externalStorageDir = value;
+        return value;
+      }).catchError((Object error) => null),
+      getDownloadsDirectory().then<Directory?>((value) {
+        systemDownloadDir = value;
+        return value;
+      }).catchError((Object error) => null),
     ]);
+
+    final Directory baseDir = appDocDir ?? getVisibleDir();
+    jhDataDir = Directory(join(baseDir.path, 'JHTData'));
+    tempDir = Directory(join(jhDataDir.path, 'temp'));
+    jhSrModelDir = Directory(join(jhDataDir.path, 'SRmodel'));
+    jhOcrModelDir = Directory(join(jhDataDir.path, 'OCRmodel'));
+    jhDownloadDir = Directory(join(jhDataDir.path, 'download'));
+
+    await Future.wait([
+      jhDataDir.create(recursive: true),
+      tempDir.create(recursive: true),
+      Directory(join(tempDir.path, smartCacheFolderName))
+          .create(recursive: true),
+      jhSrModelDir.create(recursive: true),
+      jhOcrModelDir.create(recursive: true),
+      jhDownloadDir.create(recursive: true),
+    ]);
+
+    extendedImageDiskCacheDirectory =
+        join(tempDir.path, smartCacheFolderName);
+
+    _configureImageCacheBudget();
+  }
+
+  /// Bounds the global in-memory image cache. Without this, long reading
+  /// sessions can accumulate full-resolution decoded bitmaps until the OS
+  /// kills the app. A 1000-entry / 128MB cap keeps recently viewed pages
+  /// cached while preventing unbounded growth on memory-constrained devices.
+  void _configureImageCacheBudget() {
+    final PaintingBinding binding = PaintingBinding.instance;
+    binding.imageCache.maximumSize = 1000;
+    binding.imageCache.maximumSizeBytes = 128 * 1024 * 1024;
   }
 
   @override

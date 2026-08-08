@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/l18n/locale_text.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/network/jh_request.dart';
+import 'package:macos_window_utils/macos_window_utils.dart';
 import 'package:jhentai/src/routes/getx_router_observer.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/app_update_service.dart';
@@ -28,10 +29,12 @@ import 'package:jhentai/src/service/quick_search_service.dart';
 import 'package:jhentai/src/service/read_progress_service.dart';
 import 'package:jhentai/src/service/schedule_service.dart';
 import 'package:jhentai/src/service/search_history_service.dart';
+import 'package:jhentai/src/service/smart_cache_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/service/tag_search_order_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
+import 'package:jhentai/src/service/image_translation_service.dart';
 import 'package:jhentai/src/service/volume_service.dart';
 import 'package:jhentai/src/service/windows_service.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
@@ -50,6 +53,7 @@ import 'package:jhentai/src/setting/security_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/setting/super_resolution_setting.dart';
+import 'package:jhentai/src/setting/image_translation_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/widget/app_manager.dart';
 
@@ -76,8 +80,10 @@ List<JHLifeCircleBean> lifeCircleBeans = [
   quickSearchService,
   scheduleService,
   searchHistoryService,
+  smartCacheService,
   storageService,
   superResolutionService,
+  imageTranslationService,
   tagTranslationService,
   tagSearchOrderOptimizationService,
   volumeService,
@@ -97,6 +103,7 @@ List<JHLifeCircleBean> lifeCircleBeans = [
   siteSetting,
   styleSetting,
   superResolutionSetting,
+  imageTranslationSetting,
   userSetting,
   keyboardShortcutSetting,
   builtInBlockedUserService,
@@ -109,6 +116,10 @@ void main(List<String> args) async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
+  if (GetPlatform.isMacOS) {
+    await WindowManipulator.initialize();
+  }
+
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.transparent,
     systemNavigationBarDividerColor: Colors.transparent,
@@ -116,11 +127,39 @@ void main(List<String> args) async {
   ));
 
   lifeCircleBeans = topologicalSort(lifeCircleBeans);
-  for (JHLifeCircleBean bean in lifeCircleBeans) {
-    await bean.initBean();
-  }
+  await _initBeansInParallel(lifeCircleBeans);
 
   runApp(const MyApp());
+}
+
+/// Initializes beans in dependency waves: beans whose declared
+/// [JHLifeCircleBean.initDependencies] are all initialized run concurrently in
+/// the same wave, while cross-wave ordering is preserved exactly as expressed
+/// by the dependency graph (identical semantics to the previous serial loop).
+Future<void> _initBeansInParallel(List<JHLifeCircleBean> sortedBeans) async {
+  final Set<JHLifeCircleBean> remaining = sortedBeans.toSet();
+  final Set<JHLifeCircleBean> initialized = <JHLifeCircleBean>{};
+
+  while (remaining.isNotEmpty) {
+    final List<JHLifeCircleBean> wave = remaining
+        .where((bean) => bean.initDependencies.every(initialized.contains))
+        .toList();
+
+    // topologicalSort visits every dependency before its dependents, so a
+    // ready wave always exists unless the graph has a cycle (which the sort
+    // already rejects). Guard anyway to never deadlock on a graph mutation.
+    if (wave.isEmpty) {
+      for (final JHLifeCircleBean bean in remaining) {
+        await bean.initBean();
+        initialized.add(bean);
+      }
+      break;
+    }
+
+    remaining.removeAll(wave);
+    await Future.wait(wave.map((bean) => bean.initBean()));
+    initialized.addAll(wave);
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -131,8 +170,10 @@ class MyApp extends StatelessWidget {
     Widget app = GetMaterialApp(
       title: 'JHenTai',
       themeMode: styleSetting.themeMode.value,
-      theme: ThemeConfig.theme(styleSetting.lightThemeColor.value, Brightness.light),
-      darkTheme: ThemeConfig.theme(styleSetting.darkThemeColor.value, Brightness.dark),
+      theme: ThemeConfig.theme(
+          styleSetting.lightThemeColor.value, Brightness.light),
+      darkTheme:
+          ThemeConfig.theme(styleSetting.darkThemeColor.value, Brightness.dark),
 
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
@@ -151,7 +192,10 @@ class MyApp extends StatelessWidget {
       translations: LocaleText(),
 
       getPages: Routes.pages,
-      initialRoute: securitySetting.enablePasswordAuth.isTrue || securitySetting.enableBiometricAuth.isTrue ? Routes.lock : Routes.home,
+      initialRoute: securitySetting.enablePasswordAuth.isTrue ||
+              securitySetting.enableBiometricAuth.isTrue
+          ? Routes.lock
+          : Routes.home,
       navigatorObservers: [GetXRouterObserver()],
       builder: (context, child) => AppManager(child: child!),
 

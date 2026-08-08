@@ -38,10 +38,16 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   RxDouble autoModeInterval = 2.0.obs;
   Rx<AutoModeStyle> autoModeStyle = AutoModeStyle.turnPage.obs;
   Rx<TurnPageMode> turnPageMode = TurnPageMode.adaptive.obs;
-  RxInt preloadDistance = 1.obs;
+  /// Online preloads default to 2 screens/pages ahead: enough for fast
+  /// flipping, but still conservative because E-Hentai rate-limits page
+  /// requests. The request *rate* stays bounded by the read page's executor
+  /// (10 image-page parses/sec); the preload distance only decides how far
+  /// ahead the queue is filled, not how fast requests are issued.
+  RxInt preloadDistance = 2.obs;
   RxInt preloadDistanceLocal = GetPlatform.isIOS ? 3.obs : 8.obs;
-  RxInt preloadPageCount = 1.obs;
+  RxInt preloadPageCount = 2.obs;
   RxInt preloadPageCountLocal = 3.obs;
+  Rx<FailedImageRetryScope> failedImageRetryScope = FailedImageRetryScope.retryCurrentPageAndAfter.obs;
   RxBool displayFirstPageAlone = true.obs;
   RxBool portraitDisplayFirstPageAlone = true.obs;
   RxBool landscapeDisplayFirstPageAlone = true.obs;
@@ -154,6 +160,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     preloadDistanceLocal.value = map['preloadDistanceLocal'] ?? preloadDistanceLocal.value;
     preloadPageCount.value = map['preloadPageCount'];
     preloadPageCountLocal.value = map['preloadPageCountLocal'] ?? preloadPageCountLocal.value;
+    failedImageRetryScope.value = FailedImageRetryScope.values[map['failedImageRetryScope'] ?? failedImageRetryScope.value.index];
     displayFirstPageAlone.value = map['displayFirstPageAlone'] ?? displayFirstPageAlone.value;
     portraitDisplayFirstPageAlone.value = map['portraitDisplayFirstPageAlone'] ?? map['displayFirstPageAlone'] ?? portraitDisplayFirstPageAlone.value;
     landscapeDisplayFirstPageAlone.value = map['landscapeDisplayFirstPageAlone'] ?? map['displayFirstPageAlone'] ?? landscapeDisplayFirstPageAlone.value;
@@ -199,6 +206,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
       'preloadDistanceLocal': preloadDistanceLocal.value,
       'preloadPageCount': preloadPageCount.value,
       'preloadPageCountLocal': preloadPageCountLocal.value,
+      'failedImageRetryScope': failedImageRetryScope.value.index,
       'displayFirstPageAlone': displayFirstPageAlone.value,
       'portraitDisplayFirstPageAlone': portraitDisplayFirstPageAlone.value,
       'landscapeDisplayFirstPageAlone': landscapeDisplayFirstPageAlone.value,
@@ -386,6 +394,12 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     await saveBeanConfig();
   }
 
+  Future<void> saveFailedImageRetryScope(FailedImageRetryScope value) async {
+    log.debug('saveFailedImageRetryScope:$value');
+    failedImageRetryScope.value = value;
+    await saveBeanConfig();
+  }
+
   Future<void> savePreloadPageCountLocal(int value) async {
     log.debug('savePreloadPageCountLocal:$value');
     preloadPageCountLocal.value = value;
@@ -479,4 +493,16 @@ enum TurnPageMode {
 enum AutoModeStyle {
   scroll,
   turnPage,
+}
+
+/// How wide a retry is when the user taps a failed online image to reload it.
+enum FailedImageRetryScope {
+  /// only the tapped image
+  retrySingleImage,
+
+  /// the tapped image and every failed image after it
+  retryCurrentPageAndAfter,
+
+  /// every failed image in the whole gallery
+  retryAllFailedImages,
 }

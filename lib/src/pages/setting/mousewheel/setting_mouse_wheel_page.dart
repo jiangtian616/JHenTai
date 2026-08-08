@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
-import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/mouse_setting.dart';
+import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 
 import '../../../utils/text_input_formatter.dart';
 import '../../../utils/toast_util.dart';
@@ -16,49 +17,62 @@ class SettingMouseWheelPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(centerTitle: true, title: Text('mouseWheelSetting'.tr)),
       body: Obx(() {
-        TextEditingController wheelScrollSpeedController = TextEditingController(text: mouseSetting.wheelScrollSpeed.value.toString());
+        TextEditingController wheelScrollSpeedController =
+            TextEditingController(
+                text: mouseSetting.wheelScrollSpeed.value.toString());
 
-        return ListView(
-          padding: const EdgeInsets.only(top: 16),
-          children: [
-            ListTile(
-              title: Text('wheelScrollSpeed'.tr),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    width: 50,
-                    child: TextField(
-                      controller: wheelScrollSpeedController,
-                      decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
-                      textAlign: TextAlign.center,
-                      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'\d|\.')), DoubleRangeTextInputFormatter(minValue: 0)],
-                      onSubmitted: (_) {
-                        double? value = double.tryParse(wheelScrollSpeedController.value.text);
-                        if (value == null) {
-                          return;
-                        }
-                        mouseSetting.saveWheelScrollSpeed(value);
-                        toast('saveSuccess'.tr);
-                      },
-                    ),
+        return EHAppleSettingsListView(
+          groups: [
+            EHAppleSettingsGroup(
+              children: [
+                ListTile(
+                  title: Text('wheelScrollSpeed'.tr),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 50,
+                        child: EHAppleTextField(
+                          controller: wheelScrollSpeedController,
+                          decoration: const InputDecoration(
+                              isDense: true,
+                              labelStyle: TextStyle(fontSize: 12)),
+                          textAlign: TextAlign.center,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(RegExp(r'\d|\.')),
+                            DoubleRangeTextInputFormatter(minValue: 0)
+                          ],
+                          onSubmitted: (_) {
+                            double? value = double.tryParse(
+                                wheelScrollSpeedController.value.text);
+                            if (value == null) {
+                              return;
+                            }
+                            mouseSetting.saveWheelScrollSpeed(value);
+                            toast('saveSuccess'.tr);
+                          },
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.check,
+                            color: UIConfig.resumePauseButtonColor(context)),
+                        onPressed: () {
+                          double? value = double.tryParse(
+                              wheelScrollSpeedController.value.text);
+                          if (value == null) {
+                            return;
+                          }
+                          mouseSetting.saveWheelScrollSpeed(value);
+                          toast('saveSuccess'.tr);
+                        },
+                      ),
+                    ],
                   ),
-                  IconButton(
-                    icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),
-                    onPressed: () {
-                      double? value = double.tryParse(wheelScrollSpeedController.value.text);
-                      if (value == null) {
-                        return;
-                      }
-                      mouseSetting.saveWheelScrollSpeed(value);
-                      toast('saveSuccess'.tr);
-                    },
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
-        ).withListTileTheme(context);
+        );
       }),
     );
   }

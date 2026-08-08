@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
+import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
 
 import '../../../../setting/network_setting.dart';
 
@@ -28,23 +30,27 @@ class _SettingProxyPageState extends State<SettingProxyPage> {
           IconButton(
             icon: const Icon(Icons.save),
             onPressed: () {
-              networkSetting.saveProxy(proxyType, proxyAddress, proxyUsername, proxyPassword);
+              networkSetting.saveProxy(
+                  proxyType, proxyAddress, proxyUsername, proxyPassword);
               toast('success'.tr);
             },
           ),
         ],
       ),
       body: Obx(
-        () => ListView(
-          padding: const EdgeInsets.only(top: 16),
-          children: [
-            _buildProxyType(),
-            _buildProxyAddress(),
-            _buildProxyUsername(),
-            _buildProxyPassword(),
+        () => EHAppleSettingsListView(
+          groups: [
+            EHAppleSettingsGroup(
+              children: [
+                _buildProxyType(),
+                _buildProxyAddress(),
+                _buildProxyUsername(),
+                _buildProxyPassword(),
+              ],
+            ),
           ],
         ),
-      ).withListTileTheme(context),
+      ),
     );
   }
 
@@ -52,19 +58,25 @@ class _SettingProxyPageState extends State<SettingProxyPage> {
     return ListTile(
       title: Text('proxyType'.tr),
       trailing: Obx(
-        () => DropdownButton<JProxyType>(
+        () => EHCodexStyleDropdown<JProxyType>(
           value: networkSetting.proxyType.value,
           alignment: Alignment.center,
           items: [
-            DropdownMenuItem(child: Text('systemProxy'.tr), value: JProxyType.system),
-            DropdownMenuItem(child: Text('httpProxy'.tr), value: JProxyType.http),
-            DropdownMenuItem(child: Text('socks5Proxy'.tr), value: JProxyType.socks5),
-            DropdownMenuItem(child: Text('socks4Proxy'.tr), value: JProxyType.socks4),
-            DropdownMenuItem(child: Text('directProxy'.tr), value: JProxyType.direct),
+            DropdownMenuItem(
+                child: Text('systemProxy'.tr), value: JProxyType.system),
+            DropdownMenuItem(
+                child: Text('httpProxy'.tr), value: JProxyType.http),
+            DropdownMenuItem(
+                child: Text('socks5Proxy'.tr), value: JProxyType.socks5),
+            DropdownMenuItem(
+                child: Text('socks4Proxy'.tr), value: JProxyType.socks4),
+            DropdownMenuItem(
+                child: Text('directProxy'.tr), value: JProxyType.direct),
           ],
           onChanged: (JProxyType? value) {
             proxyType = value!;
-            networkSetting.saveProxy(proxyType, proxyAddress, proxyUsername, proxyPassword);
+            networkSetting.saveProxy(
+                proxyType, proxyAddress, proxyUsername, proxyPassword);
           },
         ),
       ),
@@ -76,15 +88,19 @@ class _SettingProxyPageState extends State<SettingProxyPage> {
       title: Text('address'.tr),
       trailing: SizedBox(
         width: 150,
-        child: TextField(
-          controller: TextEditingController(text: networkSetting.proxyAddress.value),
-          decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
+        child: EHAppleTextField(
+          controller:
+              TextEditingController(text: networkSetting.proxyAddress.value),
+          decoration: const InputDecoration(
+              isDense: true, labelStyle: TextStyle(fontSize: 12)),
           textAlign: TextAlign.center,
           onChanged: (String value) => proxyAddress = value,
-          enabled: networkSetting.proxyType.value != JProxyType.system && networkSetting.proxyType.value != JProxyType.direct,
+          enabled: networkSetting.proxyType.value != JProxyType.system &&
+              networkSetting.proxyType.value != JProxyType.direct,
         ),
       ),
-      enabled: networkSetting.proxyType.value != JProxyType.system && networkSetting.proxyType.value != JProxyType.direct,
+      enabled: networkSetting.proxyType.value != JProxyType.system &&
+          networkSetting.proxyType.value != JProxyType.direct,
     );
   }
 
@@ -93,15 +109,19 @@ class _SettingProxyPageState extends State<SettingProxyPage> {
       title: Text('userName'.tr),
       trailing: SizedBox(
         width: 150,
-        child: TextField(
-          controller: TextEditingController(text: networkSetting.proxyUsername.value),
-          decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
+        child: EHAppleTextField(
+          controller:
+              TextEditingController(text: networkSetting.proxyUsername.value),
+          decoration: const InputDecoration(
+              isDense: true, labelStyle: TextStyle(fontSize: 12)),
           textAlign: TextAlign.center,
           onChanged: (String value) => proxyUsername = value,
-          enabled: networkSetting.proxyType.value != JProxyType.system && networkSetting.proxyType.value != JProxyType.direct,
+          enabled: networkSetting.proxyType.value != JProxyType.system &&
+              networkSetting.proxyType.value != JProxyType.direct,
         ),
       ),
-      enabled: networkSetting.proxyType.value != JProxyType.system && networkSetting.proxyType.value != JProxyType.direct,
+      enabled: networkSetting.proxyType.value != JProxyType.system &&
+          networkSetting.proxyType.value != JProxyType.direct,
     );
   }
 
@@ -110,16 +130,20 @@ class _SettingProxyPageState extends State<SettingProxyPage> {
       title: Text('password'.tr),
       trailing: SizedBox(
         width: 150,
-        child: TextField(
-          controller: TextEditingController(text: networkSetting.proxyPassword.value),
-          decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
+        child: EHAppleTextField(
+          controller:
+              TextEditingController(text: networkSetting.proxyPassword.value),
+          decoration: const InputDecoration(
+              isDense: true, labelStyle: TextStyle(fontSize: 12)),
           textAlign: TextAlign.center,
           onChanged: (String value) => proxyPassword = value,
           obscureText: true,
-          enabled: networkSetting.proxyType.value != JProxyType.system && networkSetting.proxyType.value != JProxyType.direct,
+          enabled: networkSetting.proxyType.value != JProxyType.system &&
+              networkSetting.proxyType.value != JProxyType.direct,
         ),
       ),
-      enabled: networkSetting.proxyType.value != JProxyType.system && networkSetting.proxyType.value != JProxyType.direct,
+      enabled: networkSetting.proxyType.value != JProxyType.system &&
+          networkSetting.proxyType.value != JProxyType.direct,
     );
   }
 }
