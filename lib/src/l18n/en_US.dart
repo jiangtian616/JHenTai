@@ -270,6 +270,7 @@ class en_US {
       'downloadSetting': 'Download Setting',
       'networkSetting': 'Network Setting',
       'performanceSetting': 'Performance Setting',
+      'inferenceSetting': 'Inference Settings',
       'mouseWheelSetting': 'Mouse Wheel Setting',
 
       /// eh setting page
@@ -431,6 +432,16 @@ class en_US {
       'ineffectiveInGalleryPage': 'Ineffective in gallery page now.',
 
       /// advanced setting page
+      'readerPerformanceExperiments': 'Reader Performance Experiments',
+      'readerEngine2': 'Reader Engine 2.0',
+      'readerEngine2Hint':
+          'Prioritize nearby page parsing from the visible viewport and reading direction.',
+      'performanceGovernor': 'Performance Governor',
+      'performanceGovernorHint':
+          'Monitor frame time and reduce prefetch and parsing concurrency during sustained jank.',
+      'progressiveImagePipeline': 'Progressive Image Pipeline',
+      'progressiveImagePipelineHint':
+          'Show the gallery thumbnail first, then replace it with the original image.',
       'enableDomainFronting': 'Enable Domain Fronting',
       'bypassSNIBlocking': 'Bypass SNI blocking',
       'hostMapping': 'Host Mapping',
@@ -473,6 +484,68 @@ class en_US {
       'checkClipboard': 'Check Gallery URL in Clipboard',
       'clearSuccess': 'Clear Success',
       'superResolution': 'Image Super Resolution',
+      'inferenceBackend': 'Inference Backend',
+      'inferenceRefresh': 'Refresh',
+      'inferenceModeSection': 'Mode',
+      'inferenceManualSection': 'Manual Backend',
+      'inferenceDetectionSection': 'Detection',
+      'inferenceModelSection': 'Model Integration',
+      'inferenceModeAuto': 'Auto',
+      'inferenceModeManual': 'Manual',
+      'inferenceModeCpu': 'CPU',
+      'inferencePreferredBackend': 'Preferred backend',
+      'inferenceDetectedDevice': 'Detected device',
+      'inferenceDeviceNotDetected':
+          'Not detected (filled after model integration)',
+      'inferenceDomainOcr': 'Image translation (OCR)',
+      'inferenceDomainSuperResolution': 'Super resolution',
+      'inferenceEnableNnapi': 'Enable NNAPI acceleration',
+      'inferenceEnableNnapiHint':
+          'Route to NPU/GPU/DSP on supported Android devices; falls back to CPU automatically.',
+      'inferenceEnableCpuFallback': 'CPU fallback',
+      'inferenceEnableCpuFallbackHint':
+          'Fall back to CPU when the selected backend is unavailable.',
+      'inferenceEngineOcr': 'Image/Text Translation',
+      'inferenceEngineSuperResolution': 'Image Upscaling',
+      'inferenceModelReady': 'Ready',
+      'inferenceModelNotIntegrated':
+          'Inference is not ready; see Inference Settings for details',
+      'inferenceOcrModel': 'PP-OCRv6 small multilingual OCR',
+      'inferenceOcrLanguageAuto':
+          'Automatically recognizes Chinese, Japanese, English, and 50 languages',
+      'inferenceSuperResolutionModel': 'Super resolution model (Real-ESRGAN)',
+      'inferenceModelNotDownloaded': 'Not downloaded',
+      'inferenceModelValidating': 'Validating model integrity',
+      'inferenceModelVerified': 'Downloaded and integrity verified',
+      'inferenceModelInvalid':
+          'Model is corrupt or failed verification; download it again',
+      'inferenceSessionStatus': 'Session status',
+      'inferenceSessionBackendUnavailable':
+          'The inference runtime or selected backend is unavailable',
+      'inferenceSessionWaitingForModel':
+          'Waiting for a downloaded and verified model',
+      'inferenceSessionNotTested':
+          'Not created yet; it will be verified on first inference',
+      'inferenceSessionReady': 'Created successfully and ready for inference',
+      'inferenceSessionFailed':
+          'The last creation failed; check logs or select another backend',
+      'inferenceFrameworkNote':
+          'Providers, model integrity, and session state are detected separately.',
+      'inferenceBackendAuto': 'Auto',
+      'inferenceBackendCpu': 'CPU',
+      'inferenceBackendDirectml': 'DirectML (GPU)',
+      'inferenceBackendCuda': 'CUDA (NVIDIA GPU)',
+      'inferenceBackendOpenvino': 'OpenVINO',
+      'inferenceBackendNnapi': 'NNAPI (Android)',
+      'inferenceBackendCoreml': 'CoreML (Apple)',
+      'inferenceBackendVulkan': 'Vulkan',
+      'inferenceBackendXnnpack': 'XNNPACK',
+      'imageTranslationOcrEngineOnnx': 'ONNX (on-device)',
+      'imageTranslationOcrNotConfigured':
+          'ONNX OCR engine is not configured yet. Integrate models in the inference backend.',
+      'superResolutionEngine': 'Engine',
+      'superResolutionEngineNcnnVulkan': 'ncnn-vulkan (external)',
+      'superResolutionEngineOnnx': 'ONNX (in-app)',
       'stopSuperResolution': 'Stop Super Resolution',
       'deleteSuperResolvedImage': 'Delete Super Resolved Image',
       'superResolveOriginalImageHint':
@@ -1062,16 +1135,19 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationMethodSection': 'Translation method',
       'imageTranslationMethodAppleLiveText': 'Apple Live Text',
       'imageTranslationMethodCustom': 'Custom',
-      'imageTranslationAppleLiveTextUseApi': 'Use third-party API for translation',
+      'imageTranslationAppleLiveTextUseApi':
+          'Use third-party API for translation',
       'imageTranslationAppleLiveTextUseApiHint':
           'Reuse the same OpenAI-compatible / Anthropic API as the custom mode instead of Apple on-device translation.',
       'imageTranslationAppleLiveTextOnDeviceHint':
           'Recognition and translation both run on-device via Apple. On-device translation needs iOS 26 / macOS 26 or newer.',
       'autoTranslateGalleryText': 'Auto-translate titles & comments',
-      'autoTranslateGalleryTextHint': 'Translate the gallery titles and comments you see on-device (requires Apple Live Text + Apple on-device translation).',
+      'autoTranslateGalleryTextHint':
+          'Translate the gallery titles and comments you see on-device (requires Apple Live Text + Apple on-device translation).',
       'imageTranslationTranslationUnavailable':
           'Apple on-device translation needs iOS 26 / macOS 26 or newer. Turn on "Use third-party API" to translate on this system.',
-      'imageTranslationTranslationFailed': 'Apple on-device translation failed.',
+      'imageTranslationTranslationFailed':
+          'Apple on-device translation failed.',
       'imageTranslationShow': 'Show translation',
       'imageTranslationHide': 'Hide translation',
       'imageTranslationRetranslate': 'Re-translate',

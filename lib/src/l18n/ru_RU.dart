@@ -277,6 +277,7 @@ class ru_RU {
       'downloadSetting': 'Настройки загрузки',
       'networkSetting': 'Настройки сети',
       'performanceSetting': 'Настройки производительности',
+      'inferenceSetting': 'Настройки инференса',
       'mouseWheelSetting': 'Настройка колеса мыши',
 
       /// eh setting page
@@ -441,6 +442,17 @@ class ru_RU {
       'ineffectiveInGalleryPage': 'Сейчас не действует на странице галереи.',
 
       /// advanced setting page
+      'readerPerformanceExperiments':
+          'Экспериментальная производительность чтения',
+      'readerEngine2': 'Reader Engine 2.0',
+      'readerEngine2Hint':
+          'Приоритетный разбор соседних страниц с учетом видимой области и направления чтения.',
+      'performanceGovernor': 'Performance Governor',
+      'performanceGovernorHint':
+          'Отслеживает время кадров и снижает предзагрузку и параллелизм при постоянных задержках.',
+      'progressiveImagePipeline': 'Прогрессивный конвейер изображений',
+      'progressiveImagePipelineHint':
+          'Сначала показывает миниатюру, затем заменяет ее исходным изображением.',
       'enableDomainFronting': 'Включить Domain Fronting',
       'bypassSNIBlocking': 'Обход блокировки SNI',
       'hostMapping': 'Сопоставление хостов',
@@ -483,6 +495,68 @@ class ru_RU {
       'checkClipboard': 'Проверять URL галереи в буфере обмена',
       'clearSuccess': 'Успешно очищено',
       'superResolution': 'Супер-разрешение изображений',
+      'inferenceBackend': 'Инференс-бэкенд',
+      'inferenceRefresh': 'Обновить',
+      'inferenceModeSection': 'Режим',
+      'inferenceManualSection': 'Ручной выбор',
+      'inferenceDetectionSection': 'Обнаружение',
+      'inferenceModelSection': 'Интеграция моделей',
+      'inferenceModeAuto': 'Авто',
+      'inferenceModeManual': 'Вручную',
+      'inferenceModeCpu': 'CPU',
+      'inferencePreferredBackend': 'Предпочитаемый бэкенд',
+      'inferenceDetectedDevice': 'Обнаруженное устройство',
+      'inferenceDeviceNotDetected':
+          'Не обнаружено (заполняется после интеграции моделей)',
+      'inferenceDomainOcr': 'Перевод изображений (OCR)',
+      'inferenceDomainSuperResolution': 'Суперразрешение',
+      'inferenceEnableNnapi': 'Аппаратное ускорение NNAPI',
+      'inferenceEnableNnapiHint':
+          'Использует NPU/GPU/DSP на поддерживаемых Android-устройствах; автоматически откатывается на CPU.',
+      'inferenceEnableCpuFallback': 'Откат на CPU',
+      'inferenceEnableCpuFallbackHint':
+          'Использовать CPU, если выбранный бэкенд недоступен.',
+      'inferenceEngineOcr': 'Перевод изображений/текста',
+      'inferenceEngineSuperResolution': 'Апскейлинг изображений',
+      'inferenceModelReady': 'Готов',
+      'inferenceModelNotIntegrated':
+          'Инференс не готов; подробности доступны в настройках инференса',
+      'inferenceOcrModel': 'Многоязычная OCR PP-OCRv6 small',
+      'inferenceOcrLanguageAuto':
+          'Автоматически распознаёт китайский, японский, английский и 50 языков',
+      'inferenceSuperResolutionModel': 'Модель суперразрешения (Real-ESRGAN)',
+      'inferenceModelNotDownloaded': 'Не загружено',
+      'inferenceModelValidating': 'Проверка целостности модели',
+      'inferenceModelVerified': 'Загружено, целостность подтверждена',
+      'inferenceModelInvalid':
+          'Модель повреждена или не прошла проверку; загрузите её снова',
+      'inferenceSessionStatus': 'Состояние Session',
+      'inferenceSessionBackendUnavailable':
+          'Среда выполнения или выбранный backend недоступны',
+      'inferenceSessionWaitingForModel':
+          'Ожидание загруженной и проверенной модели',
+      'inferenceSessionNotTested':
+          'Ещё не создана; будет проверена при первом запуске',
+      'inferenceSessionReady': 'Успешно создана и готова к работе',
+      'inferenceSessionFailed':
+          'Последнее создание завершилось ошибкой; проверьте журнал или смените backend',
+      'inferenceFrameworkNote':
+          'Провайдеры, целостность модели и состояние Session проверяются отдельно.',
+      'inferenceBackendAuto': 'Авто',
+      'inferenceBackendCpu': 'CPU',
+      'inferenceBackendDirectml': 'DirectML (GPU)',
+      'inferenceBackendCuda': 'CUDA (GPU NVIDIA)',
+      'inferenceBackendOpenvino': 'OpenVINO',
+      'inferenceBackendNnapi': 'NNAPI (Android)',
+      'inferenceBackendCoreml': 'CoreML (Apple)',
+      'inferenceBackendVulkan': 'Vulkan',
+      'inferenceBackendXnnpack': 'XNNPACK',
+      'imageTranslationOcrEngineOnnx': 'ONNX (на устройстве)',
+      'imageTranslationOcrNotConfigured':
+          'ONNX OCR-движок ещё не настроен. Интегрируйте модели в инференс-бэкенде.',
+      'superResolutionEngine': 'Движок',
+      'superResolutionEngineNcnnVulkan': 'ncnn-vulkan (внешний)',
+      'superResolutionEngineOnnx': 'ONNX (в приложении)',
       'stopSuperResolution': 'Остановить супер-разрешение',
       'deleteSuperResolvedImage': 'Удалить обработанное изображение',
       'superResolveOriginalImageHint':
@@ -1087,16 +1161,19 @@ class ru_RU {
       'imageTranslationMethodSection': 'Способ перевода',
       'imageTranslationMethodAppleLiveText': 'Apple Live Text',
       'imageTranslationMethodCustom': 'Пользовательский',
-      'imageTranslationAppleLiveTextUseApi': 'Использовать сторонний API для перевода',
+      'imageTranslationAppleLiveTextUseApi':
+          'Использовать сторонний API для перевода',
       'imageTranslationAppleLiveTextUseApiHint':
           'Используется тот же OpenAI-совместимый / Anthropic API, что и в пользовательском режиме, вместо встроенного перевода Apple.',
       'imageTranslationAppleLiveTextOnDeviceHint':
           'Распознавание и перевод выполняются на устройстве Apple. Встроенный перевод требует iOS 26 / macOS 26 или новее.',
       'autoTranslateGalleryText': 'Авто-перевод названий и комментариев',
-      'autoTranslateGalleryTextHint': 'При включении видимые названия и комментарии галерей переводятся на устройстве (требуются Apple Live Text и встроенный перевод Apple).',
+      'autoTranslateGalleryTextHint':
+          'При включении видимые названия и комментарии галерей переводятся на устройстве (требуются Apple Live Text и встроенный перевод Apple).',
       'imageTranslationTranslationUnavailable':
           'Встроенный перевод Apple требует iOS 26 / macOS 26 или новее. Включите «Использовать сторонний API для перевода» или обновите систему.',
-      'imageTranslationTranslationFailed': 'Не удалось выполнить встроенный перевод Apple.',
+      'imageTranslationTranslationFailed':
+          'Не удалось выполнить встроенный перевод Apple.',
       'imageTranslationShow': 'Показать перевод',
       'imageTranslationHide': 'Скрыть перевод',
       'imageTranslationRetranslate': 'Перевести заново',

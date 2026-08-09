@@ -14,6 +14,12 @@ import 'package:path/path.dart';
 
 import '../model/image_translation.dart';
 import '../setting/image_translation_setting.dart';
+import '../setting/inference_setting.dart';
+import 'inference/inference_exception.dart';
+import 'inference/inference_task.dart';
+import 'inference/ocr_inference_engine.dart';
+import 'inference/onnx_model_store.dart';
+import 'inference_service.dart';
 import 'jh_service.dart';
 import 'log.dart';
 import 'path_service.dart';
@@ -25,11 +31,8 @@ ImageTranslationService imageTranslationService = ImageTranslationService();
 /// Live Text), so the overlay scales blocks in the same space the image is
 /// actually displayed in. Tesseract/Paddle return null and the caller falls
 /// back to its header-based dimension probe.
-typedef _RecognizeResult = ({
-  List<RecognizedTextBlock> blocks,
-  int? imageWidth,
-  int? imageHeight,
-});
+typedef _RecognizeResult =
+    ({List<RecognizedTextBlock> blocks, int? imageWidth, int? imageHeight});
 
 class ImageTranslationService extends GetxController
     with JHLifeCircleBeanErrorCatch
@@ -62,11 +65,13 @@ class ImageTranslationService extends GetxController
   bool _cancelRequested = false;
   Process? _activeProcess;
   CancelToken? _activeCancelToken;
+  InferenceCancellationToken? _activeInferenceToken;
 
   /// Apple Live Text OCR (Vision framework) is exposed over a platform channel
   /// registered natively in ios/Runner and macos/Runner.
-  late final MethodChannel _liveTextChannel =
-      MethodChannel(liveTextOcrChannelName);
+  late final MethodChannel _liveTextChannel = MethodChannel(
+    liveTextOcrChannelName,
+  );
 
   void beginBatch(int total) {
     _cancelRequested = false;
@@ -91,6 +96,8 @@ class ImageTranslationService extends GetxController
     _activeProcess = null;
     _activeCancelToken?.cancel();
     _activeCancelToken = null;
+    _activeInferenceToken?.cancel('image translation cancelled');
+    _activeInferenceToken = null;
     update([batchProgressId]);
   }
 
@@ -114,8 +121,9 @@ class ImageTranslationService extends GetxController
       if (entity is! Directory) {
         continue;
       }
-      final File marker =
-          File(join(entity.path, 'site-packages', 'paddleocr', '__init__.py'));
+      final File marker = File(
+        join(entity.path, 'site-packages', 'paddleocr', '__init__.py'),
+      );
       if (marker.existsSync()) {
         return true;
       }
@@ -141,9 +149,10 @@ class ImageTranslationService extends GetxController
   Directory get _paddleHuggingFaceCache =>
       Directory(join(_paddleRoot.path, 'huggingface'));
 
-  String get _paddlePython => Platform.isWindows
-      ? join(_paddleVenv.path, 'Scripts', 'python.exe')
-      : join(_paddleVenv.path, 'bin', 'python');
+  String get _paddlePython =>
+      Platform.isWindows
+          ? join(_paddleVenv.path, 'Scripts', 'python.exe')
+          : join(_paddleVenv.path, 'bin', 'python');
 
   String taskId(String cacheKey) => '$taskIdPrefix::$cacheKey';
 
@@ -164,7 +173,9 @@ class ImageTranslationService extends GetxController
 
   @override
   List<JHLifeCircleBean> get initDependencies =>
-      super.initDependencies..add(imageTranslationSetting);
+      super.initDependencies
+        ..add(imageTranslationSetting)
+        ..add(inferenceService);
 
   @override
   Future<void> doInitBean() async {
@@ -174,8 +185,10 @@ class ImageTranslationService extends GetxController
   @override
   Future<void> doAfterBeanReady() async {}
 
-  Future<void> translate(ImageTranslationRequest request,
-      {bool force = false}) async {
+  Future<void> translate(
+    ImageTranslationRequest request, {
+    bool force = false,
+  }) async {
     final ImageTranslationResult existing = resultFor(request.cacheKey);
     if (!force &&
         (existing.status == ImageTranslationStatus.recognizing ||
@@ -185,9 +198,9 @@ class ImageTranslationService extends GetxController
     }
 
     _set(
-        request.cacheKey,
-        const ImageTranslationResult(
-            status: ImageTranslationStatus.recognizing));
+      request.cacheKey,
+      const ImageTranslationResult(status: ImageTranslationStatus.recognizing),
+    );
     _setStage(ImageTranslationStage.recognizing);
 
     String? temporaryPath;
@@ -200,13 +213,15 @@ class ImageTranslationService extends GetxController
       // hash, the dimension probe and (for bytes-based requests) the OCR
       // subprocess file. Previously the file was read again inside
       // _persistentCacheKey and a just-written temporary file was read back.
-      final List<int> sourceBytes = request.imageBytes == null
-          ? await File(request.imagePath!).readAsBytes()
-          : request.imageBytes!;
+      final List<int> sourceBytes =
+          request.imageBytes == null
+              ? await File(request.imagePath!).readAsBytes()
+              : request.imageBytes!;
 
       final String persistentKey = _persistentCacheKey(request, sourceBytes);
-      final ImageTranslationResult? cached =
-          await _readPersistentResult(persistentKey);
+      final ImageTranslationResult? cached = await _readPersistentResult(
+        persistentKey,
+      );
       if (!force && cached != null) {
         _set(request.cacheKey, cached.copyWith(fromCache: true));
         return;
@@ -220,8 +235,9 @@ class ImageTranslationService extends GetxController
       } else {
         final String fileName =
             'image_translation_${sha256.convert(sourceBytes).toString()}.png';
-        final File temporaryFile =
-            File(join(pathService.tempDir.path, fileName));
+        final File temporaryFile = File(
+          join(pathService.tempDir.path, fileName),
+        );
         await temporaryFile.writeAsBytes(sourceBytes, flush: true);
         temporaryPath = temporaryFile.path;
         imagePath = temporaryFile.path;
@@ -230,9 +246,11 @@ class ImageTranslationService extends GetxController
       // Probe the encoded dimensions from the image header only; the full
       // pixel decode happens inside the OCR engine subprocess.
       final ui.ImmutableBuffer buffer = await ui.ImmutableBuffer.fromUint8List(
-          Uint8List.fromList(sourceBytes));
-      final ui.ImageDescriptor descriptor =
-          await ui.ImageDescriptor.encoded(buffer);
+        Uint8List.fromList(sourceBytes),
+      );
+      final ui.ImageDescriptor descriptor = await ui.ImageDescriptor.encoded(
+        buffer,
+      );
       final int probeWidth = descriptor.width;
       final int probeHeight = descriptor.height;
       descriptor.dispose();
@@ -277,11 +295,12 @@ class ImageTranslationService extends GetxController
       _set(
         request.cacheKey,
         ImageTranslationResult(
-            status: ImageTranslationStatus.translating,
-            sourceText: sourceText,
-            blocks: blocks,
-            imageWidth: imageWidth,
-            imageHeight: imageHeight),
+          status: ImageTranslationStatus.translating,
+          sourceText: sourceText,
+          blocks: blocks,
+          imageWidth: imageWidth,
+          imageHeight: imageHeight,
+        ),
       );
       await _writePersistentResult(persistentKey, resultFor(request.cacheKey));
       _setStage(ImageTranslationStage.translating);
@@ -300,12 +319,13 @@ class ImageTranslationService extends GetxController
       _set(
         request.cacheKey,
         ImageTranslationResult(
-            status: ImageTranslationStatus.success,
-            sourceText: sourceText,
-            translatedText: translatedText,
-            blocks: blocks,
-            imageWidth: imageWidth,
-            imageHeight: imageHeight),
+          status: ImageTranslationStatus.success,
+          sourceText: sourceText,
+          translatedText: translatedText,
+          blocks: blocks,
+          imageWidth: imageWidth,
+          imageHeight: imageHeight,
+        ),
       );
       await _writePersistentResult(persistentKey, resultFor(request.cacheKey));
       _setStage(ImageTranslationStage.done);
@@ -316,9 +336,11 @@ class ImageTranslationService extends GetxController
       }
       log.warning('Image translation failed: ${e.code}');
       _set(
+        request.cacheKey,
+        resultFor(
           request.cacheKey,
-          resultFor(request.cacheKey).copyWith(
-              status: ImageTranslationStatus.failed, errorMessage: e.code));
+        ).copyWith(status: ImageTranslationStatus.failed, errorMessage: e.code),
+      );
       log.trace(stack);
     } on ProcessException catch (e, stack) {
       if (_cancelRequested) {
@@ -327,10 +349,12 @@ class ImageTranslationService extends GetxController
       }
       log.warning('Image OCR executable is unavailable: ${e.executable}');
       _set(
-          request.cacheKey,
-          resultFor(request.cacheKey).copyWith(
-              status: ImageTranslationStatus.failed,
-              errorMessage: 'OCR_UNAVAILABLE'));
+        request.cacheKey,
+        resultFor(request.cacheKey).copyWith(
+          status: ImageTranslationStatus.failed,
+          errorMessage: 'OCR_UNAVAILABLE',
+        ),
+      );
       log.trace(stack);
     } on DioException catch (e, stack) {
       if (_cancelRequested) {
@@ -339,10 +363,12 @@ class ImageTranslationService extends GetxController
       }
       log.warning('Image translation request failed: ${e.message}');
       _set(
-          request.cacheKey,
-          resultFor(request.cacheKey).copyWith(
-              status: ImageTranslationStatus.failed,
-              errorMessage: 'TRANSLATION_REQUEST_FAILED'));
+        request.cacheKey,
+        resultFor(request.cacheKey).copyWith(
+          status: ImageTranslationStatus.failed,
+          errorMessage: 'TRANSLATION_REQUEST_FAILED',
+        ),
+      );
       log.trace(stack);
     } catch (e, stack) {
       if (_cancelRequested) {
@@ -351,10 +377,12 @@ class ImageTranslationService extends GetxController
       }
       log.error('Image translation failed', e, stack);
       _set(
-          request.cacheKey,
-          resultFor(request.cacheKey).copyWith(
-              status: ImageTranslationStatus.failed,
-              errorMessage: 'TRANSLATION_FAILED'));
+        request.cacheKey,
+        resultFor(request.cacheKey).copyWith(
+          status: ImageTranslationStatus.failed,
+          errorMessage: 'TRANSLATION_FAILED',
+        ),
+      );
     } finally {
       if (temporaryPath != null) {
         File(temporaryPath).delete().ignore();
@@ -368,19 +396,29 @@ class ImageTranslationService extends GetxController
   }
 
   String _persistentCacheKey(
-      ImageTranslationRequest request, List<int> imageBytes) {
+    ImageTranslationRequest request,
+    List<int> imageBytes,
+  ) {
     final String imageHash = sha256.convert(imageBytes).toString();
     final String configFingerprint = jsonEncode({
       'ocrEngine': imageTranslationSetting.ocrEngine.value.name,
       'ocrLanguage': imageTranslationSetting.ocrLanguage.value,
       'paddleLanguage': imageTranslationSetting.paddleOcrLanguage.value,
       'appleLanguage': imageTranslationSetting.appleLiveTextLanguage.value,
-      'appleUseApi': imageTranslationSetting.appleLiveTextUseThirdPartyApi.value,
+      'appleUseApi':
+          imageTranslationSetting.appleLiveTextUseThirdPartyApi.value,
+      if (imageTranslationSetting.ocrEngine.value == ImageOcrEngine.onnx) ...{
+        'onnxModel': OnnxModelStore.instance.fingerprintOf(
+          OnnxModelStore.ocrManifestId,
+        ),
+        'onnxBackend':
+            inferenceService.resolveBackendFor(InferenceDomain.ocr)?.name,
+      },
       'provider': imageTranslationSetting.translatorProvider.value.name,
       'endpoint': imageTranslationSetting.translatorEndpoint.value,
       'model': imageTranslationSetting.translatorModel.value,
       'target': imageTranslationSetting.targetLanguage.value,
-      'promptVersion': 1,
+      'promptVersion': 2,
     });
     return sha256
         .convert(utf8.encode('$imageHash:$configFingerprint'))
@@ -388,16 +426,21 @@ class ImageTranslationService extends GetxController
   }
 
   Future<ImageTranslationResult?> _readPersistentResult(String key) async {
-    final File cacheFile =
-        File(join(_translationCacheDirectory.path, '$key.json'));
+    final File cacheFile = File(
+      join(_translationCacheDirectory.path, '$key.json'),
+    );
     if (!await cacheFile.exists()) return null;
     try {
-      final dynamic content = jsonDecode(utf8.decode(await compute(
-          _decompressJson, await cacheFile.readAsBytes())));
+      final dynamic content = jsonDecode(
+        utf8.decode(
+          await compute(_decompressJson, await cacheFile.readAsBytes()),
+        ),
+      );
       if (content is! Map) return null;
       final ImageTranslationResult result =
           ImageTranslationResult.successFromJson(
-              Map<String, dynamic>.from(content));
+            Map<String, dynamic>.from(content),
+          );
       final String cleaned = _stripReasoning(result.translatedText);
       return cleaned.isEmpty ? null : result.copyWith(translatedText: cleaned);
     } catch (_) {
@@ -406,14 +449,18 @@ class ImageTranslationService extends GetxController
   }
 
   Future<void> _writePersistentResult(
-      String key, ImageTranslationResult result) async {
+    String key,
+    ImageTranslationResult result,
+  ) async {
     await _translationCacheDirectory.create(recursive: true);
-    final File cacheFile =
-        File(join(_translationCacheDirectory.path, '$key.json'));
+    final File cacheFile = File(
+      join(_translationCacheDirectory.path, '$key.json'),
+    );
     // gzip-compress off the UI isolate so batch translation never blocks it.
     await cacheFile.writeAsBytes(
-        await compute(_compressJson, jsonEncode(result.toJson())),
-        flush: true);
+      await compute(_compressJson, jsonEncode(result.toJson())),
+      flush: true,
+    );
   }
 
   /// Compresses persistent-translation JSON with gzip on a background isolate
@@ -439,9 +486,13 @@ class ImageTranslationService extends GetxController
     if (imageTranslationSetting.ocrEngine.value == ImageOcrEngine.paddleOcr ||
         imageTranslationSetting.ocrEngine.value ==
             ImageOcrEngine.paddleOcrVl16) {
-      final List<RecognizedTextBlock> blocks =
-          await _recognizeWithPaddleOcr(imagePath);
+      final List<RecognizedTextBlock> blocks = await _recognizeWithPaddleOcr(
+        imagePath,
+      );
       return (blocks: blocks, imageWidth: null, imageHeight: null);
+    }
+    if (imageTranslationSetting.ocrEngine.value == ImageOcrEngine.onnx) {
+      return _recognizeWithOnnx(imagePath);
     }
     if (!Platform.isWindows && !Platform.isMacOS && !Platform.isLinux) {
       throw const ImageTranslationException('OCR_UNSUPPORTED_PLATFORM');
@@ -460,7 +511,7 @@ class ImageTranslationService extends GetxController
         'stdout',
         '-l',
         imageTranslationSetting.ocrLanguage.value,
-        'tsv'
+        'tsv',
       ],
       environment: environment.isEmpty ? null : environment,
     );
@@ -491,22 +542,55 @@ class ImageTranslationService extends GetxController
         continue;
       }
       final String key = '${fields[1]}:${fields[2]}:${fields[3]}:${fields[4]}';
-      lines.putIfAbsent(key, _TesseractLine.new).add(
-          fields[11].trim(),
-          double.tryParse(fields[10]) ?? 0,
-          double.tryParse(fields[6]) ?? 0,
-          double.tryParse(fields[7]) ?? 0,
-          double.tryParse(fields[8]) ?? 0,
-          double.tryParse(fields[9]) ?? 0);
+      lines
+          .putIfAbsent(key, _TesseractLine.new)
+          .add(
+            fields[11].trim(),
+            double.tryParse(fields[10]) ?? 0,
+            double.tryParse(fields[6]) ?? 0,
+            double.tryParse(fields[7]) ?? 0,
+            double.tryParse(fields[8]) ?? 0,
+            double.tryParse(fields[9]) ?? 0,
+          );
     }
     return (
-      blocks: lines.values
-          .map((line) => line.toBlock())
-          .where((block) => block.text.isNotEmpty)
-          .toList(),
+      blocks:
+          lines.values
+              .map((line) => line.toBlock())
+              .where((block) => block.text.isNotEmpty)
+              .toList(),
       imageWidth: null,
       imageHeight: null,
     );
+  }
+
+  /// On-device PP-OCRv6 through the unified inference backend.
+  Future<_RecognizeResult> _recognizeWithOnnx(String imagePath) async {
+    final OcrInferenceEngine engine = inferenceService.ocrEngine;
+    if (!engine.isReady) {
+      throw const ImageTranslationException('OCR_NOT_CONFIGURED');
+    }
+    final InferenceCancellationToken token = InferenceCancellationToken();
+    _activeInferenceToken = token;
+    try {
+      final OcrInferenceResult result = await engine.recognize(
+        imagePath,
+        cancellationToken: token,
+      );
+      return (
+        blocks: result.blocks,
+        imageWidth: result.imageWidth,
+        imageHeight: result.imageHeight,
+      );
+    } on InferenceNotReadyException {
+      throw const ImageTranslationException('OCR_NOT_CONFIGURED');
+    } on InferenceCancelledException {
+      throw const ImageTranslationException('OCR_CANCELLED');
+    } finally {
+      if (identical(_activeInferenceToken, token)) {
+        _activeInferenceToken = null;
+      }
+    }
   }
 
   /// On-device OCR through Apple's Vision framework (Live Text). The native
@@ -516,34 +600,31 @@ class ImageTranslationService extends GetxController
   /// upright pixel dimensions, which the caller must use for overlay scaling:
   /// the header-based dimension probe does not apply EXIF orientation, so on
   /// rotated pages it disagrees with the block coordinate space.
-  Future<_RecognizeResult> _recognizeWithAppleLiveText(
-      String imagePath) async {
+  Future<_RecognizeResult> _recognizeWithAppleLiveText(String imagePath) async {
     if (!Platform.isIOS && !Platform.isMacOS) {
       throw const ImageTranslationException('OCR_UNSUPPORTED_PLATFORM');
     }
     try {
-      final Map<dynamic, dynamic>? response =
-          await _liveTextChannel.invokeMethod<Map<dynamic, dynamic>>(
-        'recognizeText',
-        {
-          'path': imagePath,
-          'languages': _appleLiveTextLanguages(),
-          'automaticallyDetectsLanguage':
-              imageTranslationSetting.appleLiveTextLanguage.value == 'auto',
-          'recognitionLevel': 'accurate',
-          'maxDimension': 2200,
-        },
-      );
+      final Map<dynamic, dynamic>? response = await _liveTextChannel
+          .invokeMethod<Map<dynamic, dynamic>>('recognizeText', {
+            'path': imagePath,
+            'languages': _appleLiveTextLanguages(),
+            'automaticallyDetectsLanguage':
+                imageTranslationSetting.appleLiveTextLanguage.value == 'auto',
+            'recognitionLevel': 'accurate',
+            'maxDimension': 2200,
+          });
       if (response == null) {
         throw const ImageTranslationException('OCR_FAILED');
       }
       final List<dynamic> rawLines =
           response['lines'] as List<dynamic>? ?? const [];
-      final List<RecognizedTextBlock> blocks = rawLines
-          .whereType<Map>()
-          .map((raw) => _appleLiveTextBlock(Map<String, dynamic>.from(raw)))
-          .where((block) => block.text.trim().isNotEmpty)
-          .toList();
+      final List<RecognizedTextBlock> blocks =
+          rawLines
+              .whereType<Map>()
+              .map((raw) => _appleLiveTextBlock(Map<String, dynamic>.from(raw)))
+              .where((block) => block.text.trim().isNotEmpty)
+              .toList();
       if (blocks.isEmpty) {
         throw const ImageTranslationException('NO_TEXT');
       }
@@ -568,11 +649,12 @@ class ImageTranslationService extends GetxController
     if (value.trim().isEmpty || value.trim() == 'auto') {
       return null;
     }
-    final List<String> languages = value
-        .split(',')
-        .map((language) => language.trim())
-        .where((language) => language.isNotEmpty)
-        .toList();
+    final List<String> languages =
+        value
+            .split(',')
+            .map((language) => language.trim())
+            .where((language) => language.isNotEmpty)
+            .toList();
     return languages.isEmpty ? null : languages;
   }
 
@@ -587,7 +669,8 @@ class ImageTranslationService extends GetxController
       );
 
   Future<List<RecognizedTextBlock>> _recognizeWithPaddleOcr(
-      String imagePath) async {
+    String imagePath,
+  ) async {
     if (!Platform.isWindows && !Platform.isMacOS && !Platform.isLinux) {
       throw const ImageTranslationException('OCR_UNSUPPORTED_PLATFORM');
     }
@@ -596,14 +679,15 @@ class ImageTranslationService extends GetxController
     }
     final bool useVl =
         imageTranslationSetting.ocrEngine.value == ImageOcrEngine.paddleOcrVl16;
-    final String script = useVl
-        ? """import json
+    final String script =
+        useVl
+            ? """import json
 from paddleocr import PaddleOCRVL
 pipeline = PaddleOCRVL(pipeline_version='v1.6')
 for result in pipeline.predict(r'''$imagePath'''):
  print(json.dumps(result.json, ensure_ascii=False))
 """
-        : """import json
+            : """import json
 from paddleocr import PaddleOCR
 language = '${imageTranslationSetting.paddleOcrLanguage.value}'
 pipeline = PaddleOCR(
@@ -615,18 +699,19 @@ pipeline = PaddleOCR(
 for result in pipeline.predict(r'''$imagePath'''):
  print(json.dumps(result.json, ensure_ascii=False))
 """;
-    final Process process = await Process.start(_paddlePython, [
-      '-c',
-      script
-    ], environment: {
-      'HF_HOME': _paddleHuggingFaceCache.path,
-      'PADDLEX_HOME': _paddleRoot.path,
-      'PADDLE_PDX_MODEL_SOURCE': 'huggingface',
-      'PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK': 'True',
-      // Hugging Face's Xet transport can stall on some domestic networks.
-      // The normal HTTP path is more reliable for an in-app model download.
-      'HF_HUB_DISABLE_XET': '1',
-    });
+    final Process process = await Process.start(
+      _paddlePython,
+      ['-c', script],
+      environment: {
+        'HF_HOME': _paddleHuggingFaceCache.path,
+        'PADDLEX_HOME': _paddleRoot.path,
+        'PADDLE_PDX_MODEL_SOURCE': 'huggingface',
+        'PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK': 'True',
+        // Hugging Face's Xet transport can stall on some domestic networks.
+        // The normal HTTP path is more reliable for an in-app model download.
+        'HF_HUB_DISABLE_XET': '1',
+      },
+    );
     _activeProcess = process;
     final List<String> outputs = await Future.wait([
       process.stdout.transform(utf8.decoder).join(),
@@ -670,15 +755,19 @@ for result in pipeline.predict(r'''$imagePath'''):
           if (text is String && text.trim().isNotEmpty) {
             final dynamic score =
                 scores is List && index < scores.length ? scores[index] : 0;
-            blocks.add(_paddleBlock(
+            blocks.add(
+              _paddleBlock(
                 text.trim(),
                 (score as num?)?.toDouble() ?? 0,
-                boxes is List && index < boxes.length ? boxes[index] : null));
+                boxes is List && index < boxes.length ? boxes[index] : null,
+              ),
+            );
           }
         }
       } else if (texts is String && texts.trim().isNotEmpty) {
-        blocks.add(_paddleBlock(
-            texts.trim(), (scores as num?)?.toDouble() ?? 0, null));
+        blocks.add(
+          _paddleBlock(texts.trim(), (scores as num?)?.toDouble() ?? 0, null),
+        );
       }
       for (final dynamic child in value.values) {
         if (child != texts && child != scores)
@@ -692,37 +781,44 @@ for result in pipeline.predict(r'''$imagePath'''):
   }
 
   RecognizedTextBlock _paddleBlock(
-      String text, double confidence, dynamic box) {
+    String text,
+    double confidence,
+    dynamic box,
+  ) {
     if (box is List && box.length >= 4) {
       final List<double> values =
           box.take(4).map((value) => (value as num?)?.toDouble() ?? 0).toList();
       return RecognizedTextBlock(
-          text: text,
-          confidence: confidence,
-          left: values[0],
-          top: values[1],
-          width: values[2] - values[0],
-          height: values[3] - values[1]);
+        text: text,
+        confidence: confidence,
+        left: values[0],
+        top: values[1],
+        width: values[2] - values[0],
+        height: values[3] - values[1],
+      );
     }
     return RecognizedTextBlock(text: text, confidence: confidence);
   }
 
   Future<File> exportOverlay(ImageTranslationRequest request) async {
     final ImageTranslationResult result = resultFor(request.cacheKey);
-    final List<String> translations = const LineSplitter()
-        .convert(result.translatedText)
-        .map((line) => line.trim())
-        .where((line) => line.isNotEmpty)
-        .toList();
-    final List<RecognizedTextBlock> blocks = result.blocks
-        .where((block) => block.width > 4 && block.height > 4)
-        .toList();
+    final List<String> translations =
+        const LineSplitter()
+            .convert(result.translatedText)
+            .map((line) => line.trim())
+            .where((line) => line.isNotEmpty)
+            .toList();
+    final List<RecognizedTextBlock> blocks =
+        result.blocks
+            .where((block) => block.width > 4 && block.height > 4)
+            .toList();
     if (result.status != ImageTranslationStatus.success ||
         translations.length != blocks.length) {
       throw const ImageTranslationException('OVERLAY_NOT_READY');
     }
     final Uint8List source = Uint8List.fromList(
-        request.imageBytes ?? await File(request.imagePath!).readAsBytes());
+      request.imageBytes ?? await File(request.imagePath!).readAsBytes(),
+    );
     final ui.Codec codec = await ui.instantiateImageCodec(source);
     final ui.FrameInfo frame = await codec.getNextFrame();
     final ui.PictureRecorder recorder = ui.PictureRecorder();
@@ -731,30 +827,42 @@ for result in pipeline.predict(r'''$imagePath'''):
     for (int index = 0; index < blocks.length; index++) {
       _paintTranslation(canvas, blocks[index], translations[index]);
     }
-    final ui.Image image = await recorder
-        .endRecording()
-        .toImage(frame.image.width, frame.image.height);
+    final ui.Image image = await recorder.endRecording().toImage(
+      frame.image.width,
+      frame.image.height,
+    );
     final int width = frame.image.width;
     final int height = frame.image.height;
     // ui.Image cannot cross isolate boundaries, so rasterization (drawImage +
     // toImage, GPU-backed Canvas work) must stay on the UI isolate. The cheap
     // raw-RGBA copy happens here as well; the expensive PNG compression runs
     // on a background isolate so large exports don't jank the UI.
-    final ByteData? raw =
-        await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+    final ByteData? raw = await image.toByteData(
+      format: ui.ImageByteFormat.rawRgba,
+    );
     frame.image.dispose();
     image.dispose();
     if (raw == null)
       throw const ImageTranslationException('OVERLAY_ENCODE_FAILED');
-    final Uint8List pngBytes = await compute<
-        (Uint8List rgba, int width, int height),
-        Uint8List>(_encodePngOverlay,
-        (raw.buffer.asUint8List(raw.offsetInBytes, raw.lengthInBytes), width, height));
-    final Directory directory =
-        Directory(join(pathService.jhOcrModelDir.path, 'overlays'));
+    final Uint8List pngBytes =
+        await compute<(Uint8List rgba, int width, int height), Uint8List>(
+          _encodePngOverlay,
+          (
+            raw.buffer.asUint8List(raw.offsetInBytes, raw.lengthInBytes),
+            width,
+            height,
+          ),
+        );
+    final Directory directory = Directory(
+      join(pathService.jhOcrModelDir.path, 'overlays'),
+    );
     await directory.create(recursive: true);
-    final File output = File(join(directory.path,
-        'translation_${sha256.convert(source).toString().substring(0, 16)}.png'));
+    final File output = File(
+      join(
+        directory.path,
+        'translation_${sha256.convert(source).toString().substring(0, 16)}.png',
+      ),
+    );
     await output.writeAsBytes(pngBytes, flush: true);
     return output;
   }
@@ -765,18 +873,20 @@ for result in pipeline.predict(r'''$imagePath'''):
   /// PNG container by hand (signature + IHDR + zlib-compressed IDAT + IEND) to
   /// avoid pulling a codec package into the dependency graph.
   static Uint8List _encodePngOverlay(
-      (Uint8List rgba, int width, int height) payload) {
+    (Uint8List rgba, int width, int height) payload,
+  ) {
     final (Uint8List rgba, int width, int height) = payload;
     final BytesBuilder builder = BytesBuilder(copy: false);
     builder.add(const [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
-    final ByteData ihdr = ByteData(13)
-      ..setUint32(0, width)
-      ..setUint32(4, height)
-      ..setUint8(8, 8) // bit depth
-      ..setUint8(9, 6) // color type: truecolor with alpha
-      ..setUint8(10, 0) // compression: deflate
-      ..setUint8(11, 0) // filter method
-      ..setUint8(12, 0); // interlace: none
+    final ByteData ihdr =
+        ByteData(13)
+          ..setUint32(0, width)
+          ..setUint32(4, height)
+          ..setUint8(8, 8) // bit depth
+          ..setUint8(9, 6) // color type: truecolor with alpha
+          ..setUint8(10, 0) // compression: deflate
+          ..setUint8(11, 0) // filter method
+          ..setUint8(12, 0); // interlace: none
     _addPngChunk(builder, 'IHDR', ihdr.buffer.asUint8List());
 
     // Each scanline is prefixed with filter type 0 (None) and the whole
@@ -796,12 +906,12 @@ for result in pipeline.predict(r'''$imagePath'''):
     return builder.takeBytes();
   }
 
-  static void _addPngChunk(
-      BytesBuilder builder, String type, List<int> data) {
+  static void _addPngChunk(BytesBuilder builder, String type, List<int> data) {
     final Uint8List typeBytes = ascii.encode(type);
-    final Uint8List chunk = Uint8List(typeBytes.length + data.length)
-      ..setRange(0, typeBytes.length, typeBytes)
-      ..setRange(typeBytes.length, typeBytes.length + data.length, data);
+    final Uint8List chunk =
+        Uint8List(typeBytes.length + data.length)
+          ..setRange(0, typeBytes.length, typeBytes)
+          ..setRange(typeBytes.length, typeBytes.length + data.length, data);
     final ByteData length = ByteData(4)..setUint32(0, data.length);
     final ByteData crc = ByteData(4)..setUint32(0, _pngCrc32(chunk));
     builder.add(length.buffer.asUint8List());
@@ -822,26 +932,38 @@ for result in pipeline.predict(r'''$imagePath'''):
   }
 
   void _paintTranslation(
-      Canvas canvas, RecognizedTextBlock block, String translation) {
+    Canvas canvas,
+    RecognizedTextBlock block,
+    String translation,
+  ) {
     final Rect rect = Rect.fromLTWH(
-        block.left - 4, block.top - 3, block.width + 8, block.height + 6);
-    canvas.drawRRect(RRect.fromRectAndRadius(rect, const Radius.circular(3)),
-        Paint()..color = Colors.white);
-    final double fontSize = (rect.width / (translation.length * 0.82))
-        .clamp(8, (rect.height * 0.6).clamp(10, 30))
-        .toDouble();
+      block.left - 4,
+      block.top - 3,
+      block.width + 8,
+      block.height + 6,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(rect, const Radius.circular(3)),
+      Paint()..color = Colors.white,
+    );
+    final double fontSize =
+        (rect.width / (translation.length * 0.82))
+            .clamp(8, (rect.height * 0.6).clamp(10, 30))
+            .toDouble();
     final TextPainter painter = TextPainter(
-        text: TextSpan(
-            text: translation,
-            style: TextStyle(
-                color: Colors.black, fontSize: fontSize, height: 1.05)),
-        textAlign: TextAlign.center,
-        textDirection: TextDirection.ltr,
-        maxLines: 3,
-        ellipsis: '…')
-      ..layout(maxWidth: rect.width - 4);
+      text: TextSpan(
+        text: translation,
+        style: TextStyle(color: Colors.black, fontSize: fontSize, height: 1.05),
+      ),
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+      maxLines: 3,
+      ellipsis: '…',
+    )..layout(maxWidth: rect.width - 4);
     painter.paint(
-        canvas, Offset(rect.left + 2, rect.center.dy - painter.height / 2));
+      canvas,
+      Offset(rect.left + 2, rect.center.dy - painter.height / 2),
+    );
   }
 
   /// On-device translation through Apple's Translation framework. Only used in
@@ -854,22 +976,17 @@ for result in pipeline.predict(r'''$imagePath'''):
   /// or drop lines, misaligning the boxes and losing dialogue).
   Future<String> _translateWithApple(String sourceText) async {
     try {
-      final List<String> sourceLines =
-          const LineSplitter().convert(sourceText);
-      final Map<dynamic, dynamic>? response =
-          await _liveTextChannel.invokeMethod<Map<dynamic, dynamic>>(
-        'translateText',
-        {
-          'lines': sourceLines,
-          'target': _appleTargetLanguage(),
-          'source': _appleSourceLanguage(),
-        },
-      );
+      final List<String> sourceLines = const LineSplitter().convert(sourceText);
+      final Map<dynamic, dynamic>? response = await _liveTextChannel
+          .invokeMethod<Map<dynamic, dynamic>>('translateText', {
+            'lines': sourceLines,
+            'target': _appleTargetLanguage(),
+            'source': _appleSourceLanguage(),
+          });
       final List<dynamic> rawLines =
           response?['lines'] as List<dynamic>? ?? const [];
-      final List<String> translatedLines = rawLines
-          .map((line) => line?.toString() ?? '')
-          .toList();
+      final List<String> translatedLines =
+          rawLines.map((line) => line?.toString() ?? '').toList();
       if (translatedLines.join('\n').trim().isEmpty) {
         throw const ImageTranslationException('TRANSLATION_FAILED');
       }
@@ -879,7 +996,9 @@ for result in pipeline.predict(r'''$imagePath'''):
         throw const ImageTranslationException('TRANSLATION_UNAVAILABLE');
       }
       if (e.code == 'TRANSLATION_NOT_INSTALLED') {
-        log.warning('Apple on-device translation language pack missing: ${e.details}');
+        log.warning(
+          'Apple on-device translation language pack missing: ${e.details}',
+        );
         throw const ImageTranslationException('TRANSLATION_NOT_INSTALLED');
       }
       log.warning('Apple on-device translation failed: ${e.code} ${e.message}');
@@ -902,6 +1021,7 @@ for result in pipeline.predict(r'''$imagePath'''):
 
   /// LRU cache (insertion-ordered map) keyed by [String _galleryTextKey].
   final Map<String, String> _galleryTextCache = {};
+
   /// Keys whose translation failed this session, so a visible burst of titles
   /// does not retry the same unavailable text on every rebuild.
   final Set<String> _galleryTextFailed = {};
@@ -922,13 +1042,18 @@ for result in pipeline.predict(r'''$imagePath'''):
       imageTranslationSetting.autoTranslateGalleryText.value &&
       imageTranslationSetting.usesAppleOnDeviceTranslation;
 
-  String _galleryTextKey(String text) => sha256
-      .convert(utf8.encode(jsonEncode({
-        'text': text,
-        'target': imageTranslationSetting.targetLanguage.value,
-        'source': imageTranslationSetting.appleLiveTextLanguage.value,
-      })))
-      .toString();
+  String _galleryTextKey(String text) =>
+      sha256
+          .convert(
+            utf8.encode(
+              jsonEncode({
+                'text': text,
+                'target': imageTranslationSetting.targetLanguage.value,
+                'source': imageTranslationSetting.appleLiveTextLanguage.value,
+              }),
+            ),
+          )
+          .toString();
 
   /// The current translation of [text] if cached, or null when the feature is
   /// off or the text has not been translated yet. Synchronous so widgets can
@@ -959,7 +1084,8 @@ for result in pipeline.predict(r'''$imagePath'''):
     final Completer<String> completer = Completer<String>();
     _galleryTextCompleters[key] = completer;
     _enqueueGalleryTextTranslation(
-        () => _runGalleryTextTranslation(key, text, completer));
+      () => _runGalleryTextTranslation(key, text, completer),
+    );
     return completer.future;
   }
 
@@ -981,7 +1107,10 @@ for result in pipeline.predict(r'''$imagePath'''):
   }
 
   Future<void> _runGalleryTextTranslation(
-      String key, String text, Completer<String> completer) async {
+    String key,
+    String text,
+    Completer<String> completer,
+  ) async {
     String result = text;
     try {
       await _ensureGalleryTextCacheLoaded();
@@ -1041,8 +1170,10 @@ for result in pipeline.predict(r'''$imagePath'''):
       try {
         await _galleryTextCacheFile.parent.create(recursive: true);
         // Serialize + gzip off the UI isolate so scroll-heavy bursts don't jank.
-        final Uint8List compressed =
-            await compute(_compressJson, jsonEncode(_galleryTextCache));
+        final Uint8List compressed = await compute(
+          _compressJson,
+          jsonEncode(_galleryTextCache),
+        );
         await _galleryTextCacheFile.writeAsBytes(compressed, flush: true);
       } catch (e) {
         log.warning('Failed to save gallery text translation cache: $e');
@@ -1091,15 +1222,20 @@ for result in pipeline.predict(r'''$imagePath'''):
         .entries
         .map((entry) => '${entry.key + 1}: ${entry.value}')
         .join('\n');
-    final Dio dio = Dio(BaseOptions(
+    final Dio dio = Dio(
+      BaseOptions(
         connectTimeout: const Duration(seconds: 20),
-        receiveTimeout: const Duration(seconds: 90)));
+        receiveTimeout: const Duration(seconds: 90),
+      ),
+    );
     final CancelToken cancelToken = CancelToken();
     _activeCancelToken = cancelToken;
     final ImageTranslationProvider provider =
         imageTranslationSetting.translatorProvider.value;
     final String endpoint = _translationEndpoint(
-        imageTranslationSetting.translatorEndpoint.value!, provider);
+      imageTranslationSetting.translatorEndpoint.value!,
+      provider,
+    );
     final String instruction =
         'You translate comic dialogue accurately. Preserve line order, names, punctuation, and sound effects. '
         'Return exactly one translated line per input line, numbered the same as the input (e.g. "1: ..."). '
@@ -1109,50 +1245,60 @@ for result in pipeline.predict(r'''$imagePath'''):
         'Keep the same line numbers:\n\n$numberedSource';
     try {
       if (provider == ImageTranslationProvider.anthropic) {
-        final Response<dynamic> response = await dio.post(endpoint,
-            options: Options(
-                headers: _anthropicHeaders(
-                    imageTranslationSetting.translatorApiKey.value!)),
-            cancelToken: cancelToken,
-            data: {
-              'model': imageTranslationSetting.translatorModel.value,
-              'max_tokens': 2048,
-              'system': instruction,
-              'messages': [
-                {'role': 'user', 'content': prompt}
-              ],
-              ...?_thinkingParam(),
-            });
+        final Response<dynamic> response = await dio.post(
+          endpoint,
+          options: Options(
+            headers: _anthropicHeaders(
+              imageTranslationSetting.translatorApiKey.value!,
+            ),
+          ),
+          cancelToken: cancelToken,
+          data: {
+            'model': imageTranslationSetting.translatorModel.value,
+            'max_tokens': 2048,
+            'system': instruction,
+            'messages': [
+              {'role': 'user', 'content': prompt},
+            ],
+            ...?_thinkingParam(),
+          },
+        );
         final dynamic blocks =
             response.data is Map ? response.data['content'] : null;
         if (blocks is List) {
-          final String content = blocks
-              .whereType<Map>()
-              .map((block) => block['text'])
-              .whereType<String>()
-              .join('\n')
-              .trim();
+          final String content =
+              blocks
+                  .whereType<Map>()
+                  .map((block) => block['text'])
+                  .whereType<String>()
+                  .join('\n')
+                  .trim();
           if (content.isNotEmpty) {
             return _parseNumberedTranslations(
-                    _stripReasoning(content), sourceLines.length)
-                .join('\n');
+              _stripReasoning(content),
+              sourceLines.length,
+            ).join('\n');
           }
         }
       } else {
-        final Response<dynamic> response = await dio.post(endpoint,
-            options: Options(
-                headers: _openAIHeaders(
-                    imageTranslationSetting.translatorApiKey.value!)),
-            cancelToken: cancelToken,
-            data: {
-              'model': imageTranslationSetting.translatorModel.value,
-              'temperature': 0.2,
-              'messages': [
-                {'role': 'system', 'content': instruction},
-                {'role': 'user', 'content': prompt},
-              ],
-              ...?_thinkingParam(),
-            });
+        final Response<dynamic> response = await dio.post(
+          endpoint,
+          options: Options(
+            headers: _openAIHeaders(
+              imageTranslationSetting.translatorApiKey.value!,
+            ),
+          ),
+          cancelToken: cancelToken,
+          data: {
+            'model': imageTranslationSetting.translatorModel.value,
+            'temperature': 0.2,
+            'messages': [
+              {'role': 'system', 'content': instruction},
+              {'role': 'user', 'content': prompt},
+            ],
+            ...?_thinkingParam(),
+          },
+        );
         final dynamic choices =
             response.data is Map ? response.data['choices'] : null;
         if (choices is List && choices.isNotEmpty && choices.first is Map) {
@@ -1160,8 +1306,9 @@ for result in pipeline.predict(r'''$imagePath'''):
           final dynamic content = message is Map ? message['content'] : null;
           if (content is String && content.trim().isNotEmpty) {
             return _parseNumberedTranslations(
-                    _stripReasoning(content.trim()), sourceLines.length)
-                .join('\n');
+              _stripReasoning(content.trim()),
+              sourceLines.length,
+            ).join('\n');
           }
         }
       }
@@ -1182,8 +1329,9 @@ for result in pipeline.predict(r'''$imagePath'''):
       if (line.isEmpty) {
         continue;
       }
-      final RegExpMatch? match =
-          RegExp(r'^\s*(\d+)\s*[:：.]?\s*(.*)$').firstMatch(line);
+      final RegExpMatch? match = RegExp(
+        r'^\s*(\d+)\s*[:：.]?\s*(.*)$',
+      ).firstMatch(line);
       if (match != null) {
         final int? index = int.tryParse(match.group(1)!);
         if (index != null && index >= 1 && index <= lineCount) {
@@ -1230,9 +1378,10 @@ for result in pipeline.predict(r'''$imagePath'''):
     }
     return {
       'thinking': {
-        'type': imageTranslationSetting.enableThinking.value
-            ? 'adaptive'
-            : 'disabled',
+        'type':
+            imageTranslationSetting.enableThinking.value
+                ? 'adaptive'
+                : 'disabled',
       },
     };
   }
@@ -1246,28 +1395,34 @@ for result in pipeline.predict(r'''$imagePath'''):
     if (baseUrl.isEmpty || apiKey.trim().isEmpty) {
       throw const ImageTranslationException('API_CONFIGURATION_REQUIRED');
     }
-    final Dio dio = Dio(BaseOptions(
+    final Dio dio = Dio(
+      BaseOptions(
         connectTimeout: const Duration(seconds: 20),
-        receiveTimeout: const Duration(seconds: 30)));
+        receiveTimeout: const Duration(seconds: 30),
+      ),
+    );
     final Response<dynamic> response = await dio.get(
       _modelsEndpoint(baseUrl, provider),
       options: Options(
-          headers: provider == ImageTranslationProvider.anthropic
-              ? _anthropicHeaders(apiKey)
-              : _openAIHeaders(apiKey)),
+        headers:
+            provider == ImageTranslationProvider.anthropic
+                ? _anthropicHeaders(apiKey)
+                : _openAIHeaders(apiKey),
+      ),
     );
     final dynamic models = response.data is Map ? response.data['data'] : null;
     if (models is! List) {
       throw const ImageTranslationException('MODELS_INVALID_RESPONSE');
     }
-    final List<String> ids = models
-        .whereType<Map>()
-        .map((model) => model['id'])
-        .whereType<String>()
-        .where((id) => id.trim().isNotEmpty)
-        .toSet()
-        .toList()
-      ..sort();
+    final List<String> ids =
+        models
+            .whereType<Map>()
+            .map((model) => model['id'])
+            .whereType<String>()
+            .where((id) => id.trim().isNotEmpty)
+            .toSet()
+            .toList()
+          ..sort();
     if (ids.isEmpty) throw const ImageTranslationException('MODELS_EMPTY');
     return ids;
   }
@@ -1275,19 +1430,23 @@ for result in pipeline.predict(r'''$imagePath'''):
   Future<String?> discoverTessdataDirectory(String executable) async {
     if (!Platform.isWindows && !Platform.isMacOS && !Platform.isLinux)
       return null;
-    final ProcessResult result =
-        await Process.run(executable, ['--list-langs']);
+    final ProcessResult result = await Process.run(executable, [
+      '--list-langs',
+    ]);
     if (result.exitCode != 0) return null;
-    final Match? match =
-        RegExp(r'"([^"]+)"').firstMatch(result.stdout.toString());
+    final Match? match = RegExp(
+      r'"([^"]+)"',
+    ).firstMatch(result.stdout.toString());
     final String? path = match?.group(1);
     return path != null && await Directory(path).exists() ? path : null;
   }
 
-  Future<List<String>> installedOcrLanguages(
-      {required String executable}) async {
-    final ProcessResult result =
-        await Process.run(executable, ['--list-langs']);
+  Future<List<String>> installedOcrLanguages({
+    required String executable,
+  }) async {
+    final ProcessResult result = await Process.run(executable, [
+      '--list-langs',
+    ]);
     if (result.exitCode != 0)
       throw const ImageTranslationException('OCR_UNAVAILABLE');
     return const LineSplitter()
@@ -1327,8 +1486,11 @@ for result in pipeline.predict(r'''$imagePath'''):
         if (bootstrap == null) {
           throw const ImageTranslationException('PADDLE_PYTHON_UNSUPPORTED');
         }
-        final ProcessResult create =
-            await Process.run(bootstrap, ['-m', 'venv', _paddleVenv.path]);
+        final ProcessResult create = await Process.run(bootstrap, [
+          '-m',
+          'venv',
+          _paddleVenv.path,
+        ]);
         if (create.exitCode != 0) {
           throw const ImageTranslationException('PADDLE_VENV_CREATE_FAILED');
         }
@@ -1349,20 +1511,23 @@ for result in pipeline.predict(r'''$imagePath'''):
       }
       if (downloadVl16) {
         _setPaddleStage(
-            'Downloading PaddleOCR-VL-1.6 from Hugging Face', onStage);
+          'Downloading PaddleOCR-VL-1.6 from Hugging Face',
+          onStage,
+        );
         final String downloadScript =
             """from huggingface_hub import snapshot_download
 snapshot_download(repo_id='$paddleOcrVlRepo', cache_dir=r'''${_paddleHuggingFaceCache.path}''')
 """;
-        final Process downloadProcess = await Process.start(_paddlePython, [
-          '-c',
-          downloadScript
-        ], environment: {
-          'HF_HOME': _paddleHuggingFaceCache.path,
-          'PADDLEX_HOME': _paddleRoot.path,
-          'PADDLE_PDX_MODEL_SOURCE': 'huggingface',
-          'HF_HUB_DISABLE_XET': '1',
-        });
+        final Process downloadProcess = await Process.start(
+          _paddlePython,
+          ['-c', downloadScript],
+          environment: {
+            'HF_HOME': _paddleHuggingFaceCache.path,
+            'PADDLEX_HOME': _paddleRoot.path,
+            'PADDLE_PDX_MODEL_SOURCE': 'huggingface',
+            'HF_HUB_DISABLE_XET': '1',
+          },
+        );
         await _streamProcessOutput(downloadProcess);
         if (await downloadProcess.exitCode != 0) {
           throw const ImageTranslationException('PADDLE_VL_DOWNLOAD_FAILED');
@@ -1385,15 +1550,16 @@ try:
 except Exception:
     pass
 """;
-        final Process preloadProcess = await Process.start(_paddlePython, [
-          '-c',
-          preloadScript
-        ], environment: {
-          'HF_HOME': _paddleHuggingFaceCache.path,
-          'PADDLEX_HOME': _paddleRoot.path,
-          'PADDLE_PDX_MODEL_SOURCE': 'huggingface',
-          'HF_HUB_DISABLE_XET': '1',
-        });
+        final Process preloadProcess = await Process.start(
+          _paddlePython,
+          ['-c', preloadScript],
+          environment: {
+            'HF_HOME': _paddleHuggingFaceCache.path,
+            'PADDLEX_HOME': _paddleRoot.path,
+            'PADDLE_PDX_MODEL_SOURCE': 'huggingface',
+            'HF_HUB_DISABLE_XET': '1',
+          },
+        );
         await _streamProcessOutput(preloadProcess);
         if (await preloadProcess.exitCode != 0) {
           throw const ImageTranslationException('PADDLE_MODEL_DOWNLOAD_FAILED');
@@ -1451,15 +1617,18 @@ except Exception:
   String paddleRuntimePath() => _paddleRoot.path;
 
   Future<String?> _findCompatiblePython() async {
-    final List<String> candidates = Platform.isWindows
-        ? ['py', 'python']
-        : ['python3.12', 'python3.11', 'python3.10', 'python3'];
+    final List<String> candidates =
+        Platform.isWindows
+            ? ['py', 'python']
+            : ['python3.12', 'python3.11', 'python3.10', 'python3'];
     for (final String candidate in candidates) {
       try {
-        final ProcessResult result =
-            await Process.run(candidate, ['--version']);
-        final Match? version = RegExp(r'Python 3\.(\d+)')
-            .firstMatch('${result.stdout}${result.stderr}');
+        final ProcessResult result = await Process.run(candidate, [
+          '--version',
+        ]);
+        final Match? version = RegExp(
+          r'Python 3\.(\d+)',
+        ).firstMatch('${result.stdout}${result.stderr}');
         final int? minor = int.tryParse(version?.group(1) ?? '');
         if (result.exitCode == 0 &&
             minor != null &&
@@ -1519,12 +1688,14 @@ except Exception:
           : _appendPath(baseUrl, 'models');
 
   String _translationEndpoint(
-          String baseUrl, ImageTranslationProvider provider) =>
-      _appendPath(
-          baseUrl,
-          provider == ImageTranslationProvider.anthropic
-              ? 'messages'
-              : 'chat/completions');
+    String baseUrl,
+    ImageTranslationProvider provider,
+  ) => _appendPath(
+    baseUrl,
+    provider == ImageTranslationProvider.anthropic
+        ? 'messages'
+        : 'chat/completions',
+  );
 
   String _appendPath(String baseUrl, String path) {
     final String normalized = _trimUrl(baseUrl);
@@ -1535,15 +1706,15 @@ except Exception:
       value.trim().replaceFirst(RegExp(r'/+$'), '');
 
   Map<String, String> _openAIHeaders(String apiKey) => {
-        'Authorization': 'Bearer ${apiKey.trim()}',
-        'Content-Type': 'application/json',
-      };
+    'Authorization': 'Bearer ${apiKey.trim()}',
+    'Content-Type': 'application/json',
+  };
 
   Map<String, String> _anthropicHeaders(String apiKey) => {
-        'x-api-key': apiKey.trim(),
-        'anthropic-version': '2023-06-01',
-        'Content-Type': 'application/json',
-      };
+    'x-api-key': apiKey.trim(),
+    'anthropic-version': '2023-06-01',
+    'Content-Type': 'application/json',
+  };
 
   String _ocrModelUrl(String languageCode, OcrModelSource source) {
     final String fileName = '$languageCode.traineddata';
@@ -1570,8 +1741,9 @@ except Exception:
       final String evicted = _results.keys.first;
       _results.remove(evicted);
       log.warning(
-          'Image translation result cache exceeded $maxCachedResults entries, '
-          'evicted oldest: $evicted');
+        'Image translation result cache exceeded $maxCachedResults entries, '
+        'evicted oldest: $evicted',
+      );
       update([taskId(evicted)]);
     }
     update([taskId(cacheKey)]);
@@ -1592,8 +1764,14 @@ class _TesseractLine {
   double _right = 0;
   double _bottom = 0;
 
-  void add(String word, double confidence, double left, double top,
-      double width, double height) {
+  void add(
+    String word,
+    double confidence,
+    double left,
+    double top,
+    double width,
+    double height,
+  ) {
     _words.add(word);
     _confidences.add(confidence);
     _left = _left < left ? _left : left;
@@ -1603,15 +1781,17 @@ class _TesseractLine {
   }
 
   RecognizedTextBlock toBlock() {
-    final double confidence = _confidences.isEmpty
-        ? 0
-        : _confidences.reduce((a, b) => a + b) / _confidences.length;
+    final double confidence =
+        _confidences.isEmpty
+            ? 0
+            : _confidences.reduce((a, b) => a + b) / _confidences.length;
     return RecognizedTextBlock(
-        text: _words.join(' '),
-        confidence: confidence,
-        left: _left.isFinite ? _left : 0,
-        top: _top.isFinite ? _top : 0,
-        width: _right - (_left.isFinite ? _left : 0),
-        height: _bottom - (_top.isFinite ? _top : 0));
+      text: _words.join(' '),
+      confidence: confidence,
+      left: _left.isFinite ? _left : 0,
+      top: _top.isFinite ? _top : 0,
+      width: _right - (_left.isFinite ? _left : 0),
+      height: _bottom - (_top.isFinite ? _top : 0),
+    );
   }
 }

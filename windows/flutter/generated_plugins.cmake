@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   battery_plus
   desktop_webview_window
+  flutter_onnxruntime
   local_auth_windows
   pasteboard
   permission_handler_windows

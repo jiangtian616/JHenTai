@@ -17,7 +17,12 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
   void onInit() {
     super.onInit();
 
-    pageController = PageController(initialPage: readPageState.readPageInfo.currentImageIndex);
+    pageController = PageController(
+        initialPage: readPageState.readPageInfo.currentImageIndex);
+
+    readPageLogic.updateReaderViewport(
+      [readPageState.readPageInfo.currentImageIndex],
+    );
 
     /// record reading progress and sync thumbnails list index
     pageController.addListener(_readProgressListener);
@@ -54,19 +59,19 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
   }
 
   @override
-  void jump2ImageIndex(int pageIndex) {
-    pageController.jumpToPage(pageIndex);
-    super.jump2ImageIndex(pageIndex);
+  void jump2ImageIndex(int imageIndex) {
+    pageController.jumpToPage(imageIndex);
+    super.jump2ImageIndex(imageIndex);
   }
 
   @override
-  void scroll2ImageIndex(int pageIndex, [Duration? duration]) {
+  void scroll2ImageIndex(int imageIndex, [Duration? duration]) {
     pageController.animateToPage(
-      pageIndex,
+      imageIndex,
       duration: duration ?? const Duration(milliseconds: 200),
       curve: Curves.ease,
     );
-    super.scroll2ImageIndex(pageIndex, duration);
+    super.scroll2ImageIndex(imageIndex, duration);
   }
 
   @override
@@ -78,7 +83,8 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
     readPageLogic.toggleMenu();
 
     autoModeTimer = Timer.periodic(
-      Duration(milliseconds: (readSetting.autoModeInterval.value * 1000).toInt()),
+      Duration(
+          milliseconds: (readSetting.autoModeInterval.value * 1000).toInt()),
       (_) {
         /// changed read setting
         if (!readPageLogic.isInSinglePageReadDirection) {
@@ -90,7 +96,8 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
         }
 
         /// stop when at last
-        if (readPageState.readPageInfo.currentImageIndex == readPageState.readPageInfo.pageCount - 1) {
+        if (readPageState.readPageInfo.currentImageIndex ==
+            readPageState.readPageInfo.pageCount - 1) {
           Get.engine.addPostFrameCallback((_) {
             readPageLogic.closeAutoMode();
           });
@@ -105,6 +112,7 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
 
   void _readProgressListener() {
     int currentPage = pageController.page!.toInt();
+    readPageLogic.updateReaderViewport([currentPage]);
     readPageLogic.recordReadProgress(currentPage);
     readPageLogic.syncThumbnails(currentPage);
   }

@@ -178,6 +178,8 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
         return 'imageTranslationConfigureHint'.tr;
       case 'OCR_UNSUPPORTED_PLATFORM':
         return 'imageTranslationUnsupportedPlatform'.tr;
+      case 'OCR_NOT_CONFIGURED':
+        return 'imageTranslationOcrNotConfigured'.tr;
       case 'OCR_UNAVAILABLE':
         return 'imageTranslationOcrUnavailable'.tr;
       case 'OCR_FAILED':

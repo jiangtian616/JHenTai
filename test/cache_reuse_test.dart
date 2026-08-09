@@ -33,32 +33,35 @@ class _FakePathProvider extends PathProviderPlatform {
 void main() {
   tearDown(() => extendedImageDiskCacheDirectory = null);
 
-  test('getCachedImageFile finds the file extended_image writes (default dir)',
-      () async {
-    final Directory temp = await Directory.systemTemp.createTemp('cache_reuse');
-    PathProviderPlatform.instance = _FakePathProvider(temp.path);
+  test(
+    'getCachedImageFile finds the file extended_image writes (default dir)',
+    () async {
+      final Directory temp = await Directory.systemTemp.createTemp(
+        'cache_reuse',
+      );
+      PathProviderPlatform.instance = _FakePathProvider(temp.path);
 
-    const String url = 'https://example.com/0x0/sample.jpg';
-    final String key = keyToMd5(url);
-    final File cacheFile =
-        File(p.join(temp.path, cacheImageFolderName, key));
-    await cacheFile.create(recursive: true);
-    await cacheFile.writeAsBytes([1, 2, 3, 4]);
+      const String url = 'https://example.com/0x0/sample.jpg';
+      final String key = keyToMd5(url);
+      final File cacheFile = File(p.join(temp.path, cacheImageFolderName, key));
+      await cacheFile.create(recursive: true);
+      await cacheFile.writeAsBytes([1, 2, 3, 4]);
 
-    final File? found = await getCachedImageFile(url);
-    expect(found, isNotNull);
-    expect(found!.path, cacheFile.path);
+      final File? found = await getCachedImageFile(url);
+      expect(found, isNotNull);
+      expect(found!.path, cacheFile.path);
 
-    // A different URL resolves to a different key -> miss.
-    final File? miss =
-        await getCachedImageFile('https://example.com/0x0/other.jpg');
-    expect(miss, isNull);
+      // A different URL resolves to a different key -> miss.
+      final File? miss = await getCachedImageFile(
+        'https://example.com/0x0/other.jpg',
+      );
+      expect(miss, isNull);
 
-    await temp.delete(recursive: true);
-  });
+      await temp.delete(recursive: true);
+    },
+  );
 
-  test('normalizedImageCacheKey is stable across keystamp, node and URL format',
-      () {
+  test('normalizedImageCacheKey is stable across keystamp, node and URL format', () {
     // The same image fetched at different times can differ in the keystamp,
     // the H@H node, and even switch between the /h/ and /om/ URL formats.
     // Before this fix the raw md5(url) keys (and the /h/-only regex) differed,
@@ -78,21 +81,42 @@ void main() {
     expect(readKey, normalizedImageCacheKey(omUrl));
   });
 
-  test('getCachedImageFile honors the app custom disk cache directory', () async {
-    final Directory temp = await Directory.systemTemp.createTemp('cache_override');
-    final String customDir = p.join(temp.path, 'JHTData', 'temp', 'image-cache');
-    extendedImageDiskCacheDirectory = customDir;
-
-    const String url = 'https://example.com/0x0/sample.jpg';
-    final String key = keyToMd5(url);
-    final File cacheFile = File(p.join(customDir, key));
-    await cacheFile.create(recursive: true);
-    await cacheFile.writeAsBytes([1, 2, 3, 4]);
-
-    final File? found = await getCachedImageFile(url);
-    expect(found, isNotNull);
-    expect(found!.path, cacheFile.path);
-
-    await temp.delete(recursive: true);
+  test('effectiveEHImageUrl applies the shared EX image-host rewrite', () {
+    expect(
+      effectiveEHImageUrl('https://s.exhentai.org/images/a.jpg?x=1'),
+      'https://ehgt.org/images/a.jpg?x=1',
+    );
+    expect(
+      effectiveEHImageUrl('https://example.com/images/a.jpg'),
+      'https://example.com/images/a.jpg',
+    );
   });
+
+  test(
+    'getCachedImageFile honors the app custom disk cache directory',
+    () async {
+      final Directory temp = await Directory.systemTemp.createTemp(
+        'cache_override',
+      );
+      final String customDir = p.join(
+        temp.path,
+        'JHTData',
+        'temp',
+        'image-cache',
+      );
+      extendedImageDiskCacheDirectory = customDir;
+
+      const String url = 'https://example.com/0x0/sample.jpg';
+      final String key = keyToMd5(url);
+      final File cacheFile = File(p.join(customDir, key));
+      await cacheFile.create(recursive: true);
+      await cacheFile.writeAsBytes([1, 2, 3, 4]);
+
+      final File? found = await getCachedImageFile(url);
+      expect(found, isNotNull);
+      expect(found!.path, cacheFile.path);
+
+      await temp.delete(recursive: true);
+    },
+  );
 }

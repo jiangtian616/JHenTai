@@ -7,6 +7,7 @@ import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/image_translation.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
+import 'package:jhentai/src/setting/performance_setting.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../../../config/ui_config.dart';
@@ -14,8 +15,10 @@ import '../../../../service/gallery_download_service.dart';
 import '../../../../service/super_resolution_service.dart';
 import '../../../../service/log.dart';
 import '../../../../widget/eh_image.dart';
+import '../../../../widget/eh_thumbnail.dart';
 import '../../../../widget/icon_text_button.dart';
 import '../../../../widget/loading_state_indicator.dart';
+import '../../../../widget/progressive_image_stack.dart';
 import '../../../../widget/read_page_image_translation_overlay.dart';
 import '../../read_page_logic.dart';
 import '../../read_page_state.dart';
@@ -82,7 +85,8 @@ abstract class BaseLayout extends StatelessWidget {
       builder: (_) {
         /// step 1: parse image href if needed. check if thumbnail's info exists, if not, [parse] one page of thumbnails to get image hrefs.
         if (readPageState.thumbnails[index] == null) {
-          if (readPageState.parseImageHrefsStates[index] == LoadingState.idle) {
+          if (performanceSetting.enableReaderEngine2.isFalse &&
+              readPageState.parseImageHrefsStates[index] == LoadingState.idle) {
             readPageLogic.beginToParseImageHref(index);
           }
           return _buildParsingHrefsIndicator(context, index);
@@ -90,7 +94,8 @@ abstract class BaseLayout extends StatelessWidget {
 
         /// step 2: parse image url.
         if (readPageState.images[index] == null) {
-          if (readPageState.parseImageUrlStates[index] == LoadingState.idle) {
+          if (performanceSetting.enableReaderEngine2.isFalse &&
+              readPageState.parseImageUrlStates[index] == LoadingState.idle) {
             readPageLogic.beginToParseImageUrl(index, false);
           }
           return _buildParsingUrlIndicator(context, index);
@@ -146,22 +151,25 @@ abstract class BaseLayout extends StatelessWidget {
         width: placeHolderSize.width,
         child: GetBuilder<ReadPageLogic>(
           id: '${readPageLogic.parseImageUrlStateId}::$index',
-          builder: (_) => Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              LoadingStateIndicator(
-                loadingState: readPageState.parseImageUrlStates[index],
-                idleWidgetBuilder: () => const CircularProgressIndicator(),
-                errorWidgetBuilder: () => const Icon(Icons.warning,
-                    color: UIConfig.readPageWarningButtonColor),
-              ),
-              Text(
-                readPageState.parseImageUrlStates[index] == LoadingState.error
-                    ? readPageState.parseImageUrlErrorMsg[index]!
-                    : 'parsingURL'.tr,
-              ).marginOnly(top: 8),
-              Text((index + 1).toString()).marginOnly(top: 4),
-            ],
+          builder: (_) => _wrapWithProgressiveThumbnail(
+            index,
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                LoadingStateIndicator(
+                  loadingState: readPageState.parseImageUrlStates[index],
+                  idleWidgetBuilder: () => const CircularProgressIndicator(),
+                  errorWidgetBuilder: () => const Icon(Icons.warning,
+                      color: UIConfig.readPageWarningButtonColor),
+                ),
+                Text(
+                  readPageState.parseImageUrlStates[index] == LoadingState.error
+                      ? readPageState.parseImageUrlErrorMsg[index]!
+                      : 'parsingURL'.tr,
+                ).marginOnly(top: 8),
+                Text((index + 1).toString()).marginOnly(top: 4),
+              ],
+            ),
           ),
         ),
       ),
@@ -169,6 +177,48 @@ abstract class BaseLayout extends StatelessWidget {
   }
 
   Widget _buildOnlineImage(BuildContext context, int index) {
+    final double containerWidth =
+        logic.readPageState.imageContainerSizes[index]?.width ??
+            logic.getPlaceHolderSize(index).width;
+    final double containerHeight =
+        logic.readPageState.imageContainerSizes[index]?.height ??
+            logic.getPlaceHolderSize(index).height;
+
+    Widget image = EHImage(
+      galleryImage: readPageState.images[index]!,
+      containerWidth: containerWidth,
+      containerHeight: containerHeight,
+      clearMemoryCacheWhenDispose: true,
+      loadingProgressWidgetBuilder: (double progress) =>
+          _loadingProgressWidgetBuilder(index, progress),
+      failedWidgetBuilder: (ExtendedImageState state) =>
+          _failedWidgetBuilder(index, state),
+      completedWidgetBuilder: (state) =>
+          completedWidgetBuilderCallBack(index, state),
+      animateOnlyWhenVisible: true,
+      maxBytes: readSetting.enableMaxImageKilobyte.isTrue
+          ? readSetting.maxImageKilobyte.toInt() * 1024
+          : null,
+    );
+
+    if (performanceSetting.enableProgressiveImagePipeline.isTrue &&
+        readPageState.thumbnails[index] != null) {
+      image = ProgressiveImageStack(
+        width: containerWidth,
+        height: containerHeight,
+        showThumbnail: !readPageState.loadedOnlineImageIndices.contains(index),
+        thumbnail: EHThumbnail(
+          thumbnail: readPageState.thumbnails[index]!,
+          containerWidth: containerWidth,
+          containerHeight: containerHeight,
+        ),
+        image: image,
+        onDispose: () {
+          readPageState.loadedOnlineImageIndices.remove(index);
+        },
+      );
+    }
+
     return GestureDetector(
       onLongPressStart: (details) => logic.showOnlineImageContextMenu(
           index, context,
@@ -177,26 +227,7 @@ abstract class BaseLayout extends StatelessWidget {
           index, context,
           position: details.globalPosition),
       child: _wrapWithTranslationOverlay(
-        EHImage(
-          galleryImage: readPageState.images[index]!,
-          containerWidth:
-              logic.readPageState.imageContainerSizes[index]?.width ??
-                  logic.getPlaceHolderSize(index).width,
-          containerHeight:
-              logic.readPageState.imageContainerSizes[index]?.height ??
-                  logic.getPlaceHolderSize(index).height,
-          clearMemoryCacheWhenDispose: true,
-          loadingProgressWidgetBuilder: (double progress) =>
-              _loadingProgressWidgetBuilder(index, progress),
-          failedWidgetBuilder: (ExtendedImageState state) =>
-              _failedWidgetBuilder(index, state),
-          completedWidgetBuilder: (state) =>
-              completedWidgetBuilderCallBack(index, state),
-          animateOnlyWhenVisible: true,
-          maxBytes: readSetting.enableMaxImageKilobyte.isTrue
-              ? readSetting.maxImageKilobyte.toInt() * 1024
-              : null,
-        ),
+        image,
         index,
       ),
     );
@@ -210,6 +241,34 @@ abstract class BaseLayout extends StatelessWidget {
         CircularProgressIndicator(value: progress),
         Text('loading'.tr).marginOnly(top: 8),
         Text((index + 1).toString()).marginOnly(top: 4),
+      ],
+    );
+  }
+
+  Widget _wrapWithProgressiveThumbnail(int index, Widget status) {
+    if (performanceSetting.enableProgressiveImagePipeline.isFalse ||
+        readPageState.thumbnails[index] == null) {
+      return status;
+    }
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        IgnorePointer(
+          child: EHThumbnail(
+            thumbnail: readPageState.thumbnails[index]!,
+            containerWidth:
+                logic.readPageState.imageContainerSizes[index]?.width ??
+                    logic.getPlaceHolderSize(index).width,
+            containerHeight:
+                logic.readPageState.imageContainerSizes[index]?.height ??
+                    logic.getPlaceHolderSize(index).height,
+          ),
+        ),
+        ColoredBox(
+          color: UIConfig.readPageBackGroundColor.withValues(alpha: 0.46),
+        ),
+        Center(child: status),
       ],
     );
   }

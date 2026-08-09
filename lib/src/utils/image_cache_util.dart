@@ -1,5 +1,14 @@
 import 'package:extended_image_library/extended_image_library.dart';
 
+/// Applies the same host rewrite used by EHImage before network and cache work.
+String effectiveEHImageUrl(String url) {
+  final Uri? rawUri = Uri.tryParse(url);
+  if (rawUri == null || rawUri.host != 's.exhentai.org') {
+    return url;
+  }
+  return rawUri.replace(host: 'ehgt.org').toString();
+}
+
 /// Returns a stable disk-cache key for an E-Hentai image URL.
 ///
 /// EH image URLs carry a time-limited `keystamp=<ts>-<key>` token, can switch

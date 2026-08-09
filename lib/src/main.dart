@@ -54,11 +54,13 @@ import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/setting/super_resolution_setting.dart';
 import 'package:jhentai/src/setting/image_translation_setting.dart';
+import 'package:jhentai/src/setting/inference_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/widget/app_manager.dart';
 
 import 'config/theme_config.dart';
 import 'network/archive_bot_request.dart';
+import 'service/inference_service.dart';
 
 List<JHLifeCircleBean> lifeCircleBeans = [
   ehRequest,
@@ -84,6 +86,7 @@ List<JHLifeCircleBean> lifeCircleBeans = [
   storageService,
   superResolutionService,
   imageTranslationService,
+  inferenceService,
   tagTranslationService,
   tagSearchOrderOptimizationService,
   volumeService,
@@ -104,6 +107,7 @@ List<JHLifeCircleBean> lifeCircleBeans = [
   styleSetting,
   superResolutionSetting,
   imageTranslationSetting,
+  inferenceSetting,
   userSetting,
   keyboardShortcutSetting,
   builtInBlockedUserService,

@@ -4,12 +4,14 @@ import 'dart:io';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/config.dart';
 import 'package:jhentai/src/service/cloud_service.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
+import 'package:jhentai/src/setting/performance_setting.dart';
 import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/utils/app_icons.dart';
@@ -20,6 +22,7 @@ import '../../../enum/config_type_enum.dart';
 import '../../../routes/routes.dart';
 import '../../../service/isolate_service.dart';
 import '../../../utils/route_util.dart';
+import '../../../utils/text_input_formatter.dart';
 import '../../../widget/eh_config_type_select_dialog.dart';
 import '../../../widget/eh_apple_settings_list_view.dart';
 import '../../../widget/eh_apple_controls.dart';
@@ -38,12 +41,22 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
 
   LoadingState _exportDataLoadingState = LoadingState.idle;
   LoadingState _importDataLoadingState = LoadingState.idle;
+  late final TextEditingController _maxGalleryNum4AnimationController;
 
   @override
   void initState() {
     super.initState();
 
+    _maxGalleryNum4AnimationController = TextEditingController(
+      text: performanceSetting.maxGalleryNum4Animation.value.toString(),
+    );
     _loadingLogSize();
+  }
+
+  @override
+  void dispose() {
+    _maxGalleryNum4AnimationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -53,6 +66,15 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
       body: Obx(
         () => EHAppleSettingsListView(
           groups: [
+            EHAppleSettingsGroup(
+              title: 'readerPerformanceExperiments'.tr,
+              children: [
+                _buildReaderEngine2(),
+                _buildPerformanceGovernor(),
+                _buildProgressiveImagePipeline(),
+                _buildCoverDecodeOptimization(),
+              ],
+            ),
             EHAppleSettingsGroup(
               children: [
                 EHAppleExpandableSwitchListTile(
@@ -64,8 +86,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
                 ),
                 _buildOpenLogs(),
                 _buildClearLogs(context),
-                if (GetPlatform.isDesktop) _buildSuperResolution(),
-                _buildImageTranslation(),
+                _buildMaxGalleryNum4Animation(context),
                 _buildCheckUpdate(),
                 _buildCheckClipboard(),
                 if (GetPlatform.isAndroid) _buildVerifyAppLinks(),
@@ -77,6 +98,54 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildReaderEngine2() {
+    return EHAppleSwitchListTile(
+      title: Text('readerEngine2'.tr),
+      subtitle: Text('readerEngine2Hint'.tr),
+      value: performanceSetting.enableReaderEngine2.value,
+      onChanged: (value) async {
+        await performanceSetting.setEnableReaderEngine2(value);
+        toast('saveSuccess'.tr);
+      },
+    );
+  }
+
+  Widget _buildPerformanceGovernor() {
+    return EHAppleSwitchListTile(
+      title: Text('performanceGovernor'.tr),
+      subtitle: Text('performanceGovernorHint'.tr),
+      value: performanceSetting.enablePerformanceGovernor.value,
+      onChanged: (value) async {
+        await performanceSetting.setEnablePerformanceGovernor(value);
+        toast('saveSuccess'.tr);
+      },
+    );
+  }
+
+  Widget _buildProgressiveImagePipeline() {
+    return EHAppleSwitchListTile(
+      title: Text('progressiveImagePipeline'.tr),
+      subtitle: Text('progressiveImagePipelineHint'.tr),
+      value: performanceSetting.enableProgressiveImagePipeline.value,
+      onChanged: (value) async {
+        await performanceSetting.setEnableProgressiveImagePipeline(value);
+        toast('saveSuccess'.tr);
+      },
+    );
+  }
+
+  Widget _buildCoverDecodeOptimization() {
+    return EHAppleSwitchListTile(
+      title: Text('enableCoverDecodeOptimization'.tr),
+      subtitle: Text('enableCoverDecodeOptimizationHint'.tr),
+      value: performanceSetting.enableCoverDecodeOptimization.value,
+      onChanged: (value) async {
+        await performanceSetting.setEnableCoverDecodeOptimization(value);
+        toast('saveSuccess'.tr);
+      },
     );
   }
 
@@ -121,20 +190,47 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     );
   }
 
-  Widget _buildSuperResolution() {
+  Widget _buildMaxGalleryNum4Animation(BuildContext context) {
     return ListTile(
-      title: Text('superResolution'.tr),
-      trailing: Icon(AppIcons.chevronRight).marginOnly(right: 4),
-      onTap: () => toRoute(Routes.superResolution),
-    );
-  }
-
-  Widget _buildImageTranslation() {
-    return ListTile(
-      title: Text('imageTextTranslation'.tr),
-      subtitle: Text('imageTranslationSettingHint'.tr),
-      trailing: Icon(AppIcons.chevronRight).marginOnly(right: 4),
-      onTap: () => toRoute(Routes.imageTranslation),
+      title: Text('maxGalleryNum4Animation'.tr),
+      subtitle: Text('maxGalleryNum4AnimationHint'.tr),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 50,
+            child: EHAppleTextField(
+              controller: _maxGalleryNum4AnimationController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                isDense: true,
+                labelStyle: TextStyle(fontSize: 12),
+              ),
+              textAlign: TextAlign.center,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                IntRangeTextInputFormatter(minValue: 0),
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: () {
+              final int? value = int.tryParse(
+                _maxGalleryNum4AnimationController.value.text,
+              );
+              if (value == null) {
+                return;
+              }
+              performanceSetting.setMaxGalleryNum4Animation(value);
+              toast('saveSuccess'.tr);
+            },
+            icon: Icon(
+              Icons.check,
+              color: UIConfig.resumePauseButtonColor(context),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

@@ -25,6 +25,10 @@ class VerticalListLayoutLogic extends BaseLayoutLogic {
   void onInit() {
     super.onInit();
 
+    readPageLogic.updateReaderViewport(
+      [readPageState.readPageInfo.currentImageIndex],
+    );
+
     /// record reading progress and sync thumbnails list index
     state.itemPositionsListener.itemPositions.addListener(_readProgressListener);
   }
@@ -238,7 +242,11 @@ class VerticalListLayoutLogic extends BaseLayoutLogic {
   /// recording to at most once per 100ms, using a leading call plus a
   /// trailing catch-up so the final index of a scroll burst is never dropped.
   void _readProgressListener() {
-    final int? firstImageIndex = getCurrentVisibleItems().firstOrNull?.index;
+    final List<ItemPosition> visibleItems = getCurrentVisibleItems();
+    readPageLogic.updateReaderViewport(
+      visibleItems.map((position) => position.index),
+    );
+    final int? firstImageIndex = visibleItems.firstOrNull?.index;
 
     if (firstImageIndex == null) {
       return;

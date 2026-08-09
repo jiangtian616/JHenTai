@@ -276,6 +276,7 @@ class pt_BR {
       'downloadSetting': 'Configurações de download',
       'networkSetting': 'Configurações de Network',
       'performanceSetting': 'Performance Setting',
+      'inferenceSetting': 'Configurações de inferência',
       'mouseWheelSetting': 'Configurações da roda do mouse',
 
       /// eh setting page
@@ -440,6 +441,16 @@ class pt_BR {
       'ineffectiveInGalleryPage': 'Ineficaz na página da galeria agora.',
 
       /// advanced setting page
+      'readerPerformanceExperiments': 'Experimentos de desempenho de leitura',
+      'readerEngine2': 'Reader Engine 2.0',
+      'readerEngine2Hint':
+          'Prioriza páginas próximas com base na área visível e na direção da leitura.',
+      'performanceGovernor': 'Performance Governor',
+      'performanceGovernorHint':
+          'Monitora o tempo dos quadros e reduz a pré-carga e a concorrência quando há travamentos contínuos.',
+      'progressiveImagePipeline': 'Pipeline progressivo de imagens',
+      'progressiveImagePipelineHint':
+          'Mostra primeiro a miniatura e depois a substitui pela imagem original.',
       'enableDomainFronting': 'Ativar frente de Domínio',
       'bypassSNIBlocking': 'Ignorar bloqueio de SNI',
       'hostMapping': 'Mapeamento de host',
@@ -483,6 +494,68 @@ class pt_BR {
           'Verificar se há URL de Galeria na área de transferência',
       'clearSuccess': 'Limpado com Sucesso',
       'superResolution': 'Image Super Resolution',
+      'inferenceBackend': 'Backend de inferência',
+      'inferenceRefresh': 'Atualizar',
+      'inferenceModeSection': 'Modo',
+      'inferenceManualSection': 'Backend manual',
+      'inferenceDetectionSection': 'Detecção',
+      'inferenceModelSection': 'Integração de modelos',
+      'inferenceModeAuto': 'Automático',
+      'inferenceModeManual': 'Manual',
+      'inferenceModeCpu': 'CPU',
+      'inferencePreferredBackend': 'Backend preferido',
+      'inferenceDetectedDevice': 'Dispositivo detectado',
+      'inferenceDeviceNotDetected':
+          'Não detectado (preenchido após integrar modelos)',
+      'inferenceDomainOcr': 'Tradução de imagem (OCR)',
+      'inferenceDomainSuperResolution': 'Super resolução',
+      'inferenceEnableNnapi': 'Ativar aceleração NNAPI',
+      'inferenceEnableNnapiHint':
+          'Usa NPU/GPU/DSP em aparelhos Android compatíveis; volta para CPU automaticamente.',
+      'inferenceEnableCpuFallback': 'Fallback para CPU',
+      'inferenceEnableCpuFallbackHint':
+          'Usa CPU quando o backend selecionado não estiver disponível.',
+      'inferenceEngineOcr': 'Tradução de imagem/texto',
+      'inferenceEngineSuperResolution': 'Upscaling de imagem',
+      'inferenceModelReady': 'Pronto',
+      'inferenceModelNotIntegrated':
+          'A inferência não está pronta; veja os detalhes nas configurações',
+      'inferenceOcrModel': 'OCR multilíngue PP-OCRv6 small',
+      'inferenceOcrLanguageAuto':
+          'Reconhece automaticamente chinês, japonês, inglês e 50 idiomas',
+      'inferenceSuperResolutionModel':
+          'Modelo de super resolução (Real-ESRGAN)',
+      'inferenceModelNotDownloaded': 'Não baixado',
+      'inferenceModelValidating': 'Validando a integridade do modelo',
+      'inferenceModelVerified': 'Baixado e com integridade verificada',
+      'inferenceModelInvalid': 'Modelo corrompido ou inválido; baixe novamente',
+      'inferenceSessionStatus': 'Status da Session',
+      'inferenceSessionBackendUnavailable':
+          'O runtime de inferência ou o backend selecionado está indisponível',
+      'inferenceSessionWaitingForModel':
+          'Aguardando um modelo baixado e verificado',
+      'inferenceSessionNotTested':
+          'Ainda não criada; será verificada na primeira inferência',
+      'inferenceSessionReady': 'Criada com sucesso e pronta para inferência',
+      'inferenceSessionFailed':
+          'A última criação falhou; verifique os logs ou altere o backend',
+      'inferenceFrameworkNote':
+          'Provedores, integridade do modelo e Session são detectados separadamente.',
+      'inferenceBackendAuto': 'Automático',
+      'inferenceBackendCpu': 'CPU',
+      'inferenceBackendDirectml': 'DirectML (GPU)',
+      'inferenceBackendCuda': 'CUDA (GPU NVIDIA)',
+      'inferenceBackendOpenvino': 'OpenVINO',
+      'inferenceBackendNnapi': 'NNAPI (Android)',
+      'inferenceBackendCoreml': 'CoreML (Apple)',
+      'inferenceBackendVulkan': 'Vulkan',
+      'inferenceBackendXnnpack': 'XNNPACK',
+      'imageTranslationOcrEngineOnnx': 'ONNX (no dispositivo)',
+      'imageTranslationOcrNotConfigured':
+          'O motor OCR ONNX ainda não está configurado. Integre modelos no backend de inferência.',
+      'superResolutionEngine': 'Motor',
+      'superResolutionEngineNcnnVulkan': 'ncnn-vulkan (externo)',
+      'superResolutionEngineOnnx': 'ONNX (no aplicativo)',
       'stopSuperResolution': 'Stop Super Resolution',
       'deleteSuperResolvedImage': 'Delete Super Resolved Image',
       'superResolveOriginalImageHint':
@@ -1083,16 +1156,20 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationMethodSection': 'Método de tradução',
       'imageTranslationMethodAppleLiveText': 'Apple Live Text',
       'imageTranslationMethodCustom': 'Personalizado',
-      'imageTranslationAppleLiveTextUseApi': 'Usar API de terceiros para tradução',
+      'imageTranslationAppleLiveTextUseApi':
+          'Usar API de terceiros para tradução',
       'imageTranslationAppleLiveTextUseApiHint':
           'Reutiliza a mesma API compatível com OpenAI / Anthropic do modo personalizado em vez da tradução no dispositivo da Apple.',
       'imageTranslationAppleLiveTextOnDeviceHint':
           'O reconhecimento e a tradução são feitos no dispositivo pela Apple. A tradução no dispositivo exige iOS 26 / macOS 26 ou superior.',
-      'autoTranslateGalleryText': 'Traduzir títulos e comentários automaticamente',
-      'autoTranslateGalleryTextHint': 'Quando ativado, títulos e comentários de galerias visíveis são traduzidos no dispositivo (requer Apple Live Text e tradução on-device da Apple).',
+      'autoTranslateGalleryText':
+          'Traduzir títulos e comentários automaticamente',
+      'autoTranslateGalleryTextHint':
+          'Quando ativado, títulos e comentários de galerias visíveis são traduzidos no dispositivo (requer Apple Live Text e tradução on-device da Apple).',
       'imageTranslationTranslationUnavailable':
           'A tradução no dispositivo da Apple exige iOS 26 / macOS 26 ou superior. Ative "Usar API de terceiros para tradução" ou use um sistema mais recente.',
-      'imageTranslationTranslationFailed': 'Falha na tradução no dispositivo da Apple.',
+      'imageTranslationTranslationFailed':
+          'Falha na tradução no dispositivo da Apple.',
       'imageTranslationShow': 'Mostrar tradução',
       'imageTranslationHide': 'Ocultar tradução',
       'imageTranslationRetranslate': 'Retraduzir',

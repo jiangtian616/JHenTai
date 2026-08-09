@@ -20,6 +20,7 @@ enum ConfigEnum {
   styleSetting('styleSetting'),
   superResolutionSetting('SuperResolutionSetting'),
   imageTranslationSetting('ImageTranslationSetting'),
+  inferenceSetting('inferenceSetting'),
   userSetting('userSetting'),
   archiveBotSetting('archiveBotSetting'),
   keyboardShortcutSetting('keyboardShortcutSetting'),

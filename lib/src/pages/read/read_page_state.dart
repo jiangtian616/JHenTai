@@ -32,6 +32,10 @@ class ReadPageState with ScrollStatusListerState {
   /// retry feature to know which images actually need reloading.
   final Set<int> failedOnlineImageIndices = <int>{};
 
+  /// Online images whose full-resolution bytes have completed loading. The
+  /// progressive pipeline drops its thumbnail layer for these indices.
+  final Set<int> loadedOnlineImageIndices = <int>{};
+
   /// Image indices whose translation overlay is active in this reading session.
   final Map<int, ImageTranslationRequest> imageTranslationRequests = {};
 

@@ -8,6 +8,7 @@
 
 #include <battery_plus/battery_plus_windows_plugin.h>
 #include <desktop_webview_window/desktop_webview_window_plugin.h>
+#include <flutter_onnxruntime/flutter_onnxruntime_plugin.h>
 #include <local_auth_windows/local_auth_plugin.h>
 #include <pasteboard/pasteboard_plugin.h>
 #include <permission_handler_windows/permission_handler_windows_plugin.h>
@@ -24,6 +25,8 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("BatteryPlusWindowsPlugin"));
   DesktopWebviewWindowPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("DesktopWebviewWindowPlugin"));
+  FlutterOnnxruntimePluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("FlutterOnnxruntimePlugin"));
   LocalAuthPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("LocalAuthPlugin"));
   PasteboardPluginRegisterWithRegistrar(

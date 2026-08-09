@@ -53,4 +53,14 @@ void main() {
     restored.applyBeanConfig(config);
     expect(restored.autoTranslateGalleryText.value, isTrue);
   });
+
+  test('Apple Live Text auto language survives a config round-trip', () {
+    final ImageTranslationSetting setting = ImageTranslationSetting();
+    setting.appleLiveTextLanguage.value = 'auto';
+
+    final ImageTranslationSetting restored = ImageTranslationSetting();
+    restored.applyBeanConfig(setting.toConfigString());
+
+    expect(restored.appleLiveTextLanguage.value, 'auto');
+  });
 }

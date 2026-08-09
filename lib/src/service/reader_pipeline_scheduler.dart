@@ -1,0 +1,155 @@
+enum ReaderPagePriority {
+  visible(0),
+  nearby(1000),
+  background(2000);
+
+  const ReaderPagePriority(this.executorPriority);
+
+  final int executorPriority;
+}
+
+typedef ReaderPageRequest =
+    void Function(int imageIndex, ReaderPagePriority priority);
+
+/// Converts viewport changes into a small, direction-aware page work plan.
+///
+/// Network, decode and post-processing remain owned by their existing
+/// services. This class only decides which image indices should advance
+/// through the reader pipeline first.
+class ReaderPipelineScheduler {
+  ReaderPipelineScheduler({
+    required this.pageCount,
+    required this.onPageRequested,
+    int lookAhead = 3,
+    int lookBehind = 1,
+  }) : _lookAhead = lookAhead,
+       _lookBehind = lookBehind;
+
+  final int pageCount;
+  final ReaderPageRequest onPageRequested;
+  int _lookAhead;
+  int _lookBehind;
+
+  List<int> _visibleIndices = const [];
+  List<MapEntry<int, ReaderPagePriority>> _plan = const [];
+  int? _lastAnchor;
+  int _direction = 1;
+  bool _disposed = false;
+
+  List<MapEntry<int, ReaderPagePriority>> get plan => List.unmodifiable(_plan);
+  int get lookAhead => _lookAhead;
+  int get lookBehind => _lookBehind;
+  bool isPlanned(int imageIndex) =>
+      _plan.any((entry) => entry.key == imageIndex);
+
+  /// Whether any image from a detail page is still part of the active plan.
+  ///
+  /// Thumbnail href parsing is deduplicated at detail-page granularity, so
+  /// cancellation must use that same granularity. Otherwise a fast jump to a
+  /// different image on the same detail page can cancel the only task capable
+  /// of filling both images.
+  bool isDetailPagePlanned(int detailPageIndex, int imagesPerDetailPage) {
+    if (detailPageIndex < 0 || imagesPerDetailPage <= 0) {
+      return false;
+    }
+    return _plan.any(
+      (entry) => entry.key ~/ imagesPerDetailPage == detailPageIndex,
+    );
+  }
+
+  void configure({required int lookAhead, required int lookBehind}) {
+    if (_disposed) {
+      return;
+    }
+    _lookAhead = lookAhead < 0 ? 0 : lookAhead;
+    _lookBehind = lookBehind < 0 ? 0 : lookBehind;
+    if (_visibleIndices.isNotEmpty) {
+      updateViewport(_visibleIndices);
+    }
+  }
+
+  void updateViewport(Iterable<int> visibleIndices) {
+    if (_disposed || pageCount <= 0) {
+      return;
+    }
+
+    final List<int> visible =
+        visibleIndices
+            .where((index) => index >= 0 && index < pageCount)
+            .toSet()
+            .toList()
+          ..sort();
+    if (visible.isEmpty) {
+      return;
+    }
+
+    final int anchor = visible.first;
+    if (_lastAnchor != null && anchor != _lastAnchor) {
+      _direction = anchor > _lastAnchor! ? 1 : -1;
+    }
+    _lastAnchor = anchor;
+    _visibleIndices = visible;
+
+    final List<MapEntry<int, ReaderPagePriority>> nextPlan = [];
+    final Set<int> scheduled = <int>{};
+
+    void add(int index, ReaderPagePriority priority) {
+      if (index < 0 || index >= pageCount || !scheduled.add(index)) {
+        return;
+      }
+      nextPlan.add(MapEntry(index, priority));
+    }
+
+    for (final int index in visible) {
+      add(index, ReaderPagePriority.visible);
+    }
+
+    final int leadingEdge = _direction > 0 ? visible.last : visible.first;
+    for (int distance = 1; distance <= _lookAhead; distance++) {
+      add(leadingEdge + (_direction * distance), ReaderPagePriority.nearby);
+    }
+
+    final int trailingEdge = _direction > 0 ? visible.first : visible.last;
+    for (int distance = 1; distance <= _lookBehind; distance++) {
+      add(
+        trailingEdge - (_direction * distance),
+        ReaderPagePriority.background,
+      );
+    }
+
+    final Map<int, ReaderPagePriority> previousPriorities = {
+      for (final entry in _plan) entry.key: entry.value,
+    };
+    _plan = nextPlan;
+
+    for (final entry in nextPlan) {
+      final ReaderPagePriority? previous = previousPriorities[entry.key];
+      if (previous == null || entry.value.index < previous.index) {
+        onPageRequested(entry.key, entry.value);
+      }
+    }
+  }
+
+  /// Replays the current plan after one pipeline stage completes, allowing
+  /// pages that now have an href to advance to image-URL parsing.
+  void refresh() {
+    if (_disposed || _visibleIndices.isEmpty) {
+      return;
+    }
+    for (final entry in _plan) {
+      onPageRequested(entry.key, entry.value);
+    }
+  }
+
+  void clear() {
+    _visibleIndices = const [];
+    _plan = const [];
+    _lastAnchor = null;
+    _direction = 1;
+  }
+
+  void dispose() {
+    _disposed = true;
+    clear();
+  }
+}

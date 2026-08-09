@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:collection';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -21,10 +20,14 @@ import 'package:jhentai/src/pages/read/layout/vertical_list/vertical_list_layout
 import 'package:jhentai/src/pages/read/read_page_state.dart';
 import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/service/image_translation_service.dart';
+import 'package:jhentai/src/service/reader_image_prefetch_queue.dart';
+import 'package:jhentai/src/service/reader_pipeline_scheduler.dart';
+import 'package:jhentai/src/service/reader_performance_governor.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/service/volume_service.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/eh_executor.dart';
+import 'package:jhentai/src/utils/image_cache_util.dart';
 import 'package:retry/retry.dart';
 import 'package:screen_brightness/screen_brightness.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -41,6 +44,7 @@ import '../../service/log.dart';
 import '../../service/read_progress_service.dart';
 import '../../setting/image_translation_setting.dart';
 import '../../setting/preference_setting.dart';
+import '../../setting/performance_setting.dart';
 import '../../setting/read_setting.dart';
 import '../../utils/eh_spider_parser.dart';
 import '../../utils/route_util.dart';
@@ -77,10 +81,10 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
       effectiveReadDirection == ReadDirection.top2bottomList
           ? Get.find<VerticalListLayoutLogic>()
           : isInListReadDirection
-              ? Get.find<HorizontalListLayoutLogic>()
-              : isInDoubleColumnReadDirection
-                  ? Get.find<HorizontalDoubleColumnLayoutLogic>()
-                  : Get.find<HorizontalPageLayoutLogic>();
+          ? Get.find<HorizontalListLayoutLogic>()
+          : isInDoubleColumnReadDirection
+          ? Get.find<HorizontalDoubleColumnLayoutLogic>()
+          : Get.find<HorizontalPageLayoutLogic>();
 
   late Timer refreshCurrentTimeAndBatteryLevelTimer;
   late Timer flushReadProgressTimer;
@@ -95,6 +99,9 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   late Worker enableCustomBrightnessListener;
   late Worker customBrightnessListener;
   late Worker preloadListener;
+  late Worker readerEngine2Listener;
+  late Worker performanceGovernorListener;
+  late Worker progressiveImagePipelineListener;
   late Worker enableBottomMenuListener;
   late Worker orientationSpecificReadDirectionLister;
   late Worker portraitReadDirectionLister;
@@ -128,13 +135,17 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   /// Session-level parsed results for online galleries, so re-entering the
   /// same gallery reuses already parsed links instead of re-parsing from DB.
   static const int maxSessionCachedGalleries = 20;
-  static final Map<String, _SessionParseCache> _sessionParseCache =
-      LinkedHashMap<String, _SessionParseCache>();
+  static final Map<String, _SessionParseCache> _sessionParseCache = {};
 
-  final Throttling _thr =
-      Throttling(duration: const Duration(milliseconds: 200));
+  final Throttling _thr = Throttling(
+    duration: const Duration(milliseconds: 200),
+  );
 
   final int normalPriority = 10000;
+
+  late final ReaderPipelineScheduler readerPipelineScheduler;
+  late final ReaderPerformanceGovernor readerPerformanceGovernor;
+  late final ReaderImagePrefetchQueue readerImagePrefetchQueue;
 
   bool inited = false;
   Completer<void> delayInitCompleter = Completer<void>();
@@ -142,7 +153,72 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   @override
   void onInit() {
     super.onInit();
+    readerPipelineScheduler = ReaderPipelineScheduler(
+      pageCount: state.readPageInfo.pageCount,
+      onPageRequested: _advanceReaderPipeline,
+    );
+    readerImagePrefetchQueue = ReaderImagePrefetchQueue();
+    readerPerformanceGovernor = ReaderPerformanceGovernor(
+      onPolicyChanged: _applyReaderPerformancePolicy,
+    );
     _restoreSessionCache();
+  }
+
+  void _advanceReaderPipeline(int index, ReaderPagePriority priority) {
+    if (state.readPageInfo.mode != ReadMode.online) {
+      return;
+    }
+    if (state.thumbnails[index] == null) {
+      if (state.parseImageHrefsStates[index] == LoadingState.idle) {
+        beginToParseImageHref(index, priority: priority.executorPriority);
+      }
+      return;
+    }
+    if (state.images[index] == null &&
+        state.parseImageUrlStates[index] == LoadingState.idle) {
+      beginToParseImageUrl(index, false, priority: priority.executorPriority);
+    }
+  }
+
+  void updateReaderViewport(Iterable<int> visibleIndices) {
+    if (performanceSetting.enableReaderEngine2.isFalse) {
+      return;
+    }
+    readerPipelineScheduler.updateViewport(visibleIndices);
+    _syncImagePrefetchPlan();
+  }
+
+  void _applyReaderPerformancePolicy(ReaderPerformancePolicy policy) {
+    executor.concurrency = policy.parseConcurrency;
+    cacheExecutor.concurrency = policy.cacheConcurrency;
+    readerImagePrefetchQueue.configure(
+      concurrency: policy.imagePrefetchConcurrency,
+    );
+    readerPipelineScheduler.configure(
+      lookAhead: policy.lookAhead,
+      lookBehind: policy.lookBehind,
+    );
+    _syncImagePrefetchPlan();
+  }
+
+  void _syncImagePrefetchPlan() {
+    if (performanceSetting.enableReaderEngine2.isFalse ||
+        state.readPageInfo.mode != ReadMode.online) {
+      readerImagePrefetchQueue.clear();
+      return;
+    }
+    readerImagePrefetchQueue.updatePlan(
+      readerPipelineScheduler.plan,
+      (int index) => state.images[index]?.url,
+    );
+  }
+
+  void _syncPerformanceGovernor() {
+    if (performanceSetting.enablePerformanceGovernor.isTrue) {
+      readerPerformanceGovernor.start();
+    } else {
+      readerPerformanceGovernor.stop();
+    }
   }
 
   void _restoreSessionCache() {
@@ -201,72 +277,92 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
 
     /// Listen to turn page by volume key change
     toggleTurnPageByVolumeKeyLister = ever(
-        readSetting.enablePageTurnByVolumeKeys, (_) => listen2VolumeKeys());
+      readSetting.enablePageTurnByVolumeKeys,
+      (_) => listen2VolumeKeys(),
+    );
 
     /// Listen to immersive mode change
     toggleCurrentImmersiveModeLister = ever(
-        readSetting.enableImmersiveMode, (_) => applyCurrentImmersiveMode());
+      readSetting.enableImmersiveMode,
+      (_) => applyCurrentImmersiveMode(),
+    );
 
     /// Listen to device orientation change
-    toggleDeviceOrientationLister =
-        ever(readSetting.deviceDirection, (_) => updateDeviceOrientation());
+    toggleDeviceOrientationLister = ever(
+      readSetting.deviceDirection,
+      (_) => updateDeviceOrientation(),
+    );
 
     /// Listen to read direction change
-    readDirectionLister =
-        ever(readSetting.readDirection, (_) => onEffectiveSettingChanged());
+    readDirectionLister = ever(
+      readSetting.readDirection,
+      (_) => onEffectiveSettingChanged(),
+    );
 
     imageSpaceLister = ever(readSetting.imageSpace, (_) {
       updateSafely([layoutId]);
     });
 
-    displayFirstPageAloneListener = ever(readSetting.displayFirstPageAlone,
-        (_) => _syncDisplayFirstPageAloneToState());
-    portraitDisplayFirstPageAloneListener =
-        ever(readSetting.portraitDisplayFirstPageAlone, (_) {
-      if (readSetting.enableOrientationSpecificReadDirection.isTrue &&
-          isPortrait) {
-        _syncDisplayFirstPageAloneToState();
-      }
-    });
-    landscapeDisplayFirstPageAloneListener =
-        ever(readSetting.landscapeDisplayFirstPageAlone, (_) {
-      if (readSetting.enableOrientationSpecificReadDirection.isTrue &&
-          !isPortrait) {
-        _syncDisplayFirstPageAloneToState();
-      }
-    });
+    displayFirstPageAloneListener = ever(
+      readSetting.displayFirstPageAlone,
+      (_) => _syncDisplayFirstPageAloneToState(),
+    );
+    portraitDisplayFirstPageAloneListener = ever(
+      readSetting.portraitDisplayFirstPageAlone,
+      (_) {
+        if (readSetting.enableOrientationSpecificReadDirection.isTrue &&
+            isPortrait) {
+          _syncDisplayFirstPageAloneToState();
+        }
+      },
+    );
+    landscapeDisplayFirstPageAloneListener = ever(
+      readSetting.landscapeDisplayFirstPageAlone,
+      (_) {
+        if (readSetting.enableOrientationSpecificReadDirection.isTrue &&
+            !isPortrait) {
+          _syncDisplayFirstPageAloneToState();
+        }
+      },
+    );
 
     /// Listen to orientation-specific settings changes for rebuild
     orientationSpecificReadDirectionLister = ever(
-        readSetting.enableOrientationSpecificReadDirection,
-        (_) => onEffectiveSettingChanged());
+      readSetting.enableOrientationSpecificReadDirection,
+      (_) => onEffectiveSettingChanged(),
+    );
     portraitReadDirectionLister = ever(readSetting.portraitReadDirection, (_) {
       if (readSetting.enableOrientationSpecificReadDirection.isTrue &&
           isPortrait) {
         onEffectiveSettingChanged();
       }
     });
-    landscapeReadDirectionLister =
-        ever(readSetting.landscapeReadDirection, (_) {
+    landscapeReadDirectionLister = ever(readSetting.landscapeReadDirection, (
+      _,
+    ) {
       if (readSetting.enableOrientationSpecificReadDirection.isTrue &&
           !isPortrait) {
         onEffectiveSettingChanged();
       }
     });
-    portraitImageRegionWidthRatioLister =
-        ever(readSetting.portraitImageRegionWidthRatio, (_) {
-      if (readSetting.enableOrientationSpecificReadDirection.isTrue &&
-          isPortrait) {
-        updateSafely([layoutId]);
-      }
-    });
-    landscapeImageRegionWidthRatioLister =
-        ever(readSetting.landscapeImageRegionWidthRatio, (_) {
-      if (readSetting.enableOrientationSpecificReadDirection.isTrue &&
-          !isPortrait) {
-        updateSafely([layoutId]);
-      }
-    });
+    portraitImageRegionWidthRatioLister = ever(
+      readSetting.portraitImageRegionWidthRatio,
+      (_) {
+        if (readSetting.enableOrientationSpecificReadDirection.isTrue &&
+            isPortrait) {
+          updateSafely([layoutId]);
+        }
+      },
+    );
+    landscapeImageRegionWidthRatioLister = ever(
+      readSetting.landscapeImageRegionWidthRatio,
+      (_) {
+        if (readSetting.enableOrientationSpecificReadDirection.isTrue &&
+            !isPortrait) {
+          updateSafely([layoutId]);
+        }
+      },
+    );
 
     if (!GetPlatform.isDesktop) {
       state.battery.batteryLevel.then((value) => state.batteryLevel = value);
@@ -278,14 +374,18 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
       const Duration(seconds: 1),
       (_) => _refreshCurrentTimeAndBatteryLevel(),
     );
-    showStatusInfoLister =
-        ever(readSetting.showStatusInfo, (_) => _syncStatusInfoTimer());
+    showStatusInfoLister = ever(
+      readSetting.showStatusInfo,
+      (_) => _syncStatusInfoTimer(),
+    );
     if (readSetting.showStatusInfo.isFalse) {
       refreshCurrentTimeAndBatteryLevelTimer.cancel();
     }
 
-    flushReadProgressTimer =
-        Timer.periodic(const Duration(seconds: 5), (_) => _flushReadProgress());
+    flushReadProgressTimer = Timer.periodic(
+      const Duration(seconds: 5),
+      (_) => _flushReadProgress(),
+    );
 
     if (readSetting.keepScreenAwakeWhenReading.isTrue) {
       WakelockPlus.enable();
@@ -294,15 +394,17 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     if (GetPlatform.isMobile && readSetting.enableCustomReadBrightness.isTrue) {
       applyCurrentBrightness();
     }
-    enableCustomBrightnessListener =
-        ever(readSetting.enableCustomReadBrightness, (_) {
-      if (GetPlatform.isMobile &&
-          readSetting.enableCustomReadBrightness.isTrue) {
-        applyCurrentBrightness();
-      } else {
-        resetBrightness();
-      }
-    });
+    enableCustomBrightnessListener = ever(
+      readSetting.enableCustomReadBrightness,
+      (_) {
+        if (GetPlatform.isMobile &&
+            readSetting.enableCustomReadBrightness.isTrue) {
+          applyCurrentBrightness();
+        } else {
+          resetBrightness();
+        }
+      },
+    );
     customBrightnessListener = ever(readSetting.customBrightness, (_) {
       applyCurrentBrightness();
     });
@@ -311,15 +413,33 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
       updateSafely([topMenuId]);
     });
 
-    preloadListener = everAll(
-      [
-        readSetting.preloadPageCountLocal,
-        readSetting.preloadPageCount,
-        readSetting.preloadDistanceLocal,
-        readSetting.preloadDistance
-      ],
+    preloadListener = everAll([
+      readSetting.preloadPageCountLocal,
+      readSetting.preloadPageCount,
+      readSetting.preloadDistanceLocal,
+      readSetting.preloadDistance,
+    ], (_) => updateSafely([layoutId]));
+    readerEngine2Listener = ever(performanceSetting.enableReaderEngine2, (_) {
+      if (performanceSetting.enableReaderEngine2.isFalse) {
+        readerPipelineScheduler.clear();
+        readerImagePrefetchQueue.clear();
+      } else {
+        readerPipelineScheduler.updateViewport([
+          state.readPageInfo.currentImageIndex,
+        ]);
+        _syncImagePrefetchPlan();
+      }
+      updateSafely([layoutId]);
+    });
+    performanceGovernorListener = ever(
+      performanceSetting.enablePerformanceGovernor,
+      (_) => _syncPerformanceGovernor(),
+    );
+    progressiveImagePipelineListener = ever(
+      performanceSetting.enableProgressiveImagePipeline,
       (_) => updateSafely([layoutId]),
     );
+    _syncPerformanceGovernor();
 
     _syncDisplayFirstPageAloneToState();
 
@@ -332,6 +452,10 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   @override
   void onClose() {
     super.onClose();
+
+    readerPipelineScheduler.dispose();
+    readerImagePrefetchQueue.dispose();
+    readerPerformanceGovernor.stop();
 
     // Leaving the gallery must stop any in-flight translation batch so the
     // OCR/API work is not carried on in the background.
@@ -353,6 +477,9 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     enableCustomBrightnessListener.dispose();
     customBrightnessListener.dispose();
     preloadListener.dispose();
+    readerEngine2Listener.dispose();
+    performanceGovernorListener.dispose();
+    progressiveImagePipelineListener.dispose();
     enableBottomMenuListener.dispose();
     orientationSpecificReadDirectionLister.dispose();
     portraitReadDirectionLister.dispose();
@@ -387,7 +514,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     EHImageAnimationGateRegistry.clear();
   }
 
-  void beginToParseImageHref(int index) {
+  void beginToParseImageHref(int index, {int? priority}) {
     if (state.thumbnails[index] != null) {
       return;
     }
@@ -395,7 +522,8 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
       return;
     }
 
-    final int requestPageIndex = index ~/ state.thumbnailsCountPerPage;
+    final int imagesPerDetailPage = state.thumbnailsCountPerPage;
+    final int requestPageIndex = index ~/ imagesPerDetailPage;
     if (_parsingHrefPages.contains(requestPageIndex)) {
       return;
     }
@@ -404,10 +532,20 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     updateSafely(['$parseImageHrefsStateId::$index']);
     _parsingHrefPages.add(requestPageIndex);
 
-    _scheduleHrefParse(index, requestPageIndex);
+    _scheduleHrefParse(
+      index,
+      requestPageIndex,
+      imagesPerDetailPage,
+      priority ?? normalPriority,
+    );
   }
 
-  Future<void> _scheduleHrefParse(int index, int requestPageIndex) async {
+  Future<void> _scheduleHrefParse(
+    int index,
+    int requestPageIndex,
+    int imagesPerDetailPage,
+    int priority,
+  ) async {
     bool cached = false;
     bool probed = false;
     try {
@@ -421,23 +559,40 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
       cached = false;
     }
 
-    final Future<void> Function() task = () async {
+    Future<void> task() async {
       try {
+        if (priority < normalPriority &&
+            !readerPipelineScheduler.isDetailPagePlanned(
+              requestPageIndex,
+              imagesPerDetailPage,
+            )) {
+          state.parseImageHrefsStates[index] = LoadingState.idle;
+          updateSafely(['$parseImageHrefsStateId::$index']);
+          return;
+        }
         await parseImageHref(index, alreadyProbed: probed && !cached);
       } finally {
         _parsingHrefPages.remove(requestPageIndex);
       }
-    };
+    }
 
     try {
       if (cached) {
-        await cacheExecutor.scheduleTask(normalPriority, task);
+        await cacheExecutor.scheduleTask(priority, task);
       } else {
         /// limit the rate of parsing to decrease the lagging of build
-        await executor.scheduleTask(normalPriority, task);
+        await executor.scheduleTask(priority, task);
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       _parsingHrefPages.remove(requestPageIndex);
+      log.error(
+        'Unexpected thumbnail href parse failure, detail page: $requestPageIndex',
+        e,
+        stackTrace,
+      );
+      if (!isClosed) {
+        _markHrefPageError(requestPageIndex, 'parsePageFailed'.tr);
+      }
     }
   }
 
@@ -511,7 +666,8 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     }
 
     log.trace(
-        'Begin to load Thumbnail $index with page size: ${state.thumbnailsCountPerPage}');
+      'Begin to load Thumbnail $index with page size: ${state.thumbnailsCountPerPage}',
+    );
 
     int requestPageIndex = index ~/ state.thumbnailsCountPerPage;
 
@@ -526,8 +682,11 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
         ),
         maxAttempts: 3,
         retryIf: (e) => e is DioException,
-        onRetry: (e) =>
-            log.error('Get thumbnails error!', (e as DioException).errorMsg),
+        onRetry:
+            (e) => log.error(
+              'Get thumbnails error!',
+              (e as DioException).errorMsg,
+            ),
       );
     } on DioException catch (_) {
       _markHrefPageError(requestPageIndex, 'parsePageFailed'.tr);
@@ -545,9 +704,11 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
         state.thumbnailsCountPerPage != detailPageInfo.thumbnailsCountPerPage;
     state.thumbnailsCountPerPage = detailPageInfo.thumbnailsCountPerPage;
 
-    for (int i = detailPageInfo.imageNoFrom;
-        i <= detailPageInfo.imageNoTo;
-        i++) {
+    for (
+      int i = detailPageInfo.imageNoFrom;
+      i <= detailPageInfo.imageNoTo;
+      i++
+    ) {
       state.thumbnails[i] =
           detailPageInfo.thumbnails[i - detailPageInfo.imageNoFrom];
     }
@@ -558,18 +719,25 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
         'Parse image hrefs error, thumbnails count per page is not equal to default setting, parse again. Thumbnails count per page: ${detailPageInfo.thumbnailsCountPerPage}, changed: $thumbnailsCountPerPageChanged',
       );
       await ehRequest.removeCacheByGalleryUrlAndPage(
-          state.readPageInfo.galleryUrl!, requestPageIndex);
+        state.readPageInfo.galleryUrl!,
+        requestPageIndex,
+      );
       _parsingHrefPages.remove(requestPageIndex);
       return beginToParseImageHref(index);
     }
 
     updateSafely([
-      for (int i = detailPageInfo.imageNoFrom;
-          i <= detailPageInfo.imageNoTo;
-          i++)
+      for (
+        int i = detailPageInfo.imageNoFrom;
+        i <= detailPageInfo.imageNoTo;
+        i++
+      )
         '$onlineImageId::$i',
     ]);
     _saveSessionCache();
+    if (performanceSetting.enableReaderEngine2.isTrue) {
+      readerPipelineScheduler.refresh();
+    }
   }
 
   void _markHrefPageError(int requestPageIndex, String message) {
@@ -593,7 +761,12 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     }
   }
 
-  void beginToParseImageUrl(int index, bool reParse, {String? reloadKey}) {
+  void beginToParseImageUrl(
+    int index,
+    bool reParse, {
+    String? reloadKey,
+    int? priority,
+  }) {
     if (state.parseImageUrlStates[index] == LoadingState.loading) {
       return;
     }
@@ -601,50 +774,101 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     state.parseImageUrlStates[index] = LoadingState.loading;
     updateSafely(['$parseImageUrlStateId::$index']);
 
-    _scheduleUrlParse(index, reParse, reloadKey);
+    unawaited(
+      _scheduleUrlParse(index, reParse, reloadKey, priority ?? normalPriority),
+    );
   }
 
   Future<void> _scheduleUrlParse(
-      int index, bool reParse, String? reloadKey) async {
-    if (reParse) {
-      await executor.scheduleTask(
-          normalPriority, () => parseImageUrl(index, reParse, reloadKey));
-      return;
-    }
-
-    bool cached = false;
-    bool probed = false;
-    final String? href = state.thumbnails[index]?.replacedMPVHref(index + 1);
-    if (href != null) {
-      try {
-        cached = await ehRequest.hasCachedImagePage(href, reloadKey: reloadKey);
-        probed = true;
-      } catch (e) {
-        log.warning('Check image page cache failed, use rate limited parse', e);
-        cached = false;
+    int index,
+    bool reParse,
+    String? reloadKey,
+    int priority,
+  ) async {
+    try {
+      if (reParse) {
+        await executor.scheduleTask(
+          priority,
+          () => parseImageUrl(index, reParse, reloadKey),
+        );
+        return;
       }
-    }
 
-    final Future<void> Function() task =
-        () => parseImageUrl(index, reParse, reloadKey, alreadyProbed: probed && !cached);
-    if (cached) {
-      await cacheExecutor.scheduleTask(normalPriority, task);
-    } else {
-      await executor.scheduleTask(normalPriority, task);
+      bool cached = false;
+      bool probed = false;
+      final String? href = state.thumbnails[index]?.replacedMPVHref(index + 1);
+      if (href != null) {
+        try {
+          cached = await ehRequest.hasCachedImagePage(
+            href,
+            reloadKey: reloadKey,
+          );
+          probed = true;
+        } catch (e) {
+          log.warning(
+            'Check image page cache failed, use rate limited parse',
+            e,
+          );
+          cached = false;
+        }
+      }
+
+      Future<void> task() {
+        if (priority < normalPriority &&
+            !readerPipelineScheduler.isPlanned(index)) {
+          state.parseImageUrlStates[index] = LoadingState.idle;
+          updateSafely(['$parseImageUrlStateId::$index']);
+          return Future.value();
+        }
+        return parseImageUrl(
+          index,
+          reParse,
+          reloadKey,
+          alreadyProbed: probed && !cached,
+        );
+      }
+
+      if (cached) {
+        await cacheExecutor.scheduleTask(priority, task);
+      } else {
+        await executor.scheduleTask(priority, task);
+      }
+    } catch (e, stackTrace) {
+      log.error(
+        'Unexpected image URL parse failure, index: $index',
+        e,
+        stackTrace,
+      );
+      if (!isClosed) {
+        state.parseImageUrlStates[index] = LoadingState.error;
+        state.parseImageUrlErrorMsg[index] = 'parseURLFailed'.tr;
+        updateSafely(['$parseImageUrlStateId::$index']);
+      }
     }
   }
 
-  Future<void> parseImageUrl(int index, bool reParse, String? reloadKey,
-      {bool alreadyProbed = false}) async {
+  Future<void> parseImageUrl(
+    int index,
+    bool reParse,
+    String? reloadKey, {
+    bool alreadyProbed = false,
+  }) async {
     GalleryImage image;
     try {
       image = await retry(
-        () => requestImage(index, reParse, reloadKey, alreadyProbed: alreadyProbed),
+        () => requestImage(
+          index,
+          reParse,
+          reloadKey,
+          alreadyProbed: alreadyProbed,
+        ),
         maxAttempts: 3,
         retryIf: (e) => e is DioException,
-        onRetry: (e) => log.error(
-            'Parse gallery image failed, index: ${index.toString()}',
-            (e as DioException).errorMsg),
+        onRetry:
+            (e) => log.error(
+              'Parse gallery image failed, index: ${index.toString()}',
+              (e as DioException).errorMsg,
+            ),
       );
     } on DioException catch (_) {
       state.parseImageUrlStates[index] = LoadingState.error;
@@ -666,11 +890,15 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     state.images[index] = image;
     state.parseImageUrlStates[index] = LoadingState.success;
     updateSafely(['$onlineImageId::$index']);
+    _syncImagePrefetchPlan();
   }
 
   Future<GalleryImage> requestImage(
-      int index, bool reParse, String? reloadKey,
-      {bool alreadyProbed = false}) {
+    int index,
+    bool reParse,
+    String? reloadKey, {
+    bool alreadyProbed = false,
+  }) {
     return ehRequest.requestImagePage(
       state.thumbnails[index]!.replacedMPVHref(index + 1),
       reloadKey: reloadKey,
@@ -684,9 +912,11 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     String? reloadKey;
     if (state.images[index] != null) {
       reloadKey = state.images[index]!.reloadKey;
-      clearDiskCachedImage(state.images[index]!.url);
+      final String url = effectiveEHImageUrl(state.images[index]!.url);
+      await clearDiskCachedImage(url, cacheKey: normalizedImageCacheKey(url));
     }
     state.images[index] = null;
+    state.loadedOnlineImageIndices.remove(index);
     state.failedOnlineImageIndices.remove(index);
     beginToParseImageUrl(index, true, reloadKey: reloadKey);
     updateSafely(['$onlineImageId::$index']);
@@ -713,6 +943,17 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   /// image can trigger one automatic retry again.
   void markOnlineImageLoaded(int index) {
     _autoRetriedImageIndices.remove(index);
+    if (!state.loadedOnlineImageIndices.add(index)) {
+      return;
+    }
+
+    // completedWidgetBuilder runs while the image widget is building. Defer
+    // the rebuild that removes the thumbnail layer until that frame finishes.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!isClosed) {
+        updateSafely(['$onlineImageId::$index']);
+      }
+    });
   }
 
   /// Retry loading failed online images, covering a scope decided by
@@ -735,7 +976,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
       }
       final bool isFailed =
           state.parseImageUrlStates[i] == LoadingState.error ||
-              state.failedOnlineImageIndices.contains(i);
+          state.failedOnlineImageIndices.contains(i);
       if (i == fromIndex || isFailed) {
         targets.add(i);
       }
@@ -789,7 +1030,8 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   void applyCurrentBrightness() {
     if (GetPlatform.isMobile && readSetting.enableCustomReadBrightness.isTrue) {
       ScreenBrightness().setScreenBrightness(
-          readSetting.customBrightness.value.toDouble() / 100);
+        readSetting.customBrightness.value.toDouble() / 100,
+      );
     }
   }
 
@@ -808,12 +1050,16 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
       restoreDeviceOrientation();
     }
     if (readSetting.deviceDirection.value == DeviceDirection.landscape) {
-      SystemChrome.setPreferredOrientations(
-          [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
     }
     if (readSetting.deviceDirection.value == DeviceDirection.portrait) {
-      SystemChrome.setPreferredOrientations(
-          [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
     }
   }
 
@@ -854,13 +1100,15 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
 
     _lastIsPortrait = isPortrait;
 
-    final ReadDirection targetDirection = isPortrait
-        ? readSetting.portraitReadDirection.value
-        : readSetting.landscapeReadDirection.value;
+    final ReadDirection targetDirection =
+        isPortrait
+            ? readSetting.portraitReadDirection.value
+            : readSetting.landscapeReadDirection.value;
     final String directionName = targetDirection.name.tr;
     final String orientationKey = isPortrait ? 'portrait' : 'landscape';
     toast(
-        '${'autoSwitchedReadDirection'.tr}: $directionName (${orientationKey.tr})');
+      '${'autoSwitchedReadDirection'.tr}: $directionName (${orientationKey.tr})',
+    );
 
     onEffectiveSettingChanged();
   }
@@ -1110,11 +1358,14 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
 
   String getSuperResolutionProgress() {
     int gid = state.readPageInfo.gid!;
-    SuperResolutionType type = state.readPageInfo.mode == ReadMode.downloaded
-        ? SuperResolutionType.gallery
-        : SuperResolutionType.archive;
-    SuperResolutionInfo? superResolutionInfo =
-        superResolutionService.get(gid, type);
+    SuperResolutionType type =
+        state.readPageInfo.mode == ReadMode.downloaded
+            ? SuperResolutionType.gallery
+            : SuperResolutionType.archive;
+    SuperResolutionInfo? superResolutionInfo = superResolutionService.get(
+      gid,
+      type,
+    );
 
     if (superResolutionInfo == null) {
       return '';
@@ -1133,16 +1384,20 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
 
   List<ItemPosition> getCurrentVisibleThumbnails() {
     return filterAndSortItems(
-        state.thumbnailPositionsListener.itemPositions.value);
+      state.thumbnailPositionsListener.itemPositions.value,
+    );
   }
 
   /// for some reason like slow loading of some image, [ItemPositions] may be not in index order, and even some of
   /// them are not in viewport
   List<ItemPosition> filterAndSortItems(Iterable<ItemPosition> positions) {
-    positions = positions
-        .where(
-            (item) => !(item.itemTrailingEdge < 0 || item.itemLeadingEdge > 1))
-        .toList();
+    positions =
+        positions
+            .where(
+              (item) =>
+                  !(item.itemTrailingEdge < 0 || item.itemLeadingEdge > 1),
+            )
+            .toList();
     (positions as List<ItemPosition>).sort((a, b) => a.index - b.index);
     return positions;
   }
@@ -1211,8 +1466,10 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   }
 
   void clearImageContainerSized() {
-    state.imageContainerSizes =
-        List.generate(state.readPageInfo.pageCount, (_) => null);
+    state.imageContainerSizes = List.generate(
+      state.readPageInfo.pageCount,
+      (_) => null,
+    );
   }
 
   Future<void> openReadSetting(BuildContext context) async {
@@ -1232,12 +1489,13 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
         context: context,
         isScrollControlled: true,
         useSafeArea: true,
-        builder: (sheetContext) => FractionallySizedBox(
-          heightFactor: 0.92,
-          child: ImageTranslationConfigSheet(
-            onTranslateCurrentImage: () => _translateCurrentImage(context),
-          ),
-        ),
+        builder:
+            (sheetContext) => FractionallySizedBox(
+              heightFactor: 0.92,
+              child: ImageTranslationConfigSheet(
+                onTranslateCurrentImage: () => _translateCurrentImage(context),
+              ),
+            ),
       );
     }
     applyCurrentImmersiveMode();
@@ -1267,15 +1525,18 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
               return _buildDrawerRoute(
                 settings: settings,
                 useCupertino: preferenceSetting.enableSwipeBackGesture.isTrue,
-                builder: (_) => ImageTranslationConfigSheet(
-                  onTranslateCurrentImage: () {
-                    Navigator.of(dialogContext).pop();
-                    _translateCurrentImage(context);
-                  },
-                  onClose: () => Navigator.of(dialogContext).pop(),
-                  onOpenAdvancedSettings: () =>
-                      configNavigatorKey.currentState?.pushNamed('/advanced'),
-                ),
+                builder:
+                    (_) => ImageTranslationConfigSheet(
+                      onTranslateCurrentImage: () {
+                        Navigator.of(dialogContext).pop();
+                        _translateCurrentImage(context);
+                      },
+                      onClose: () => Navigator.of(dialogContext).pop(),
+                      onOpenAdvancedSettings:
+                          () => configNavigatorKey.currentState?.pushNamed(
+                            '/advanced',
+                          ),
+                    ),
               );
             }
             if (settings.name == '/advanced') {
@@ -1296,8 +1557,9 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
             child: Material(
               color: Theme.of(dialogContext).colorScheme.surface,
               elevation: 16,
-              borderRadius:
-                  const BorderRadius.horizontal(left: Radius.circular(18)),
+              borderRadius: const BorderRadius.horizontal(
+                left: Radius.circular(18),
+              ),
               clipBehavior: Clip.antiAlias,
               child: content,
             ),
@@ -1309,18 +1571,21 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
 
   Future<void> _translateCurrentImage(BuildContext context) async {
     final int startIndex = state.readPageInfo.currentImageIndex;
-    final int total = imageTranslationSetting.translateSubsequentPages.value
-        ? state.readPageInfo.pageCount - startIndex
-        : 1;
+    final int total =
+        imageTranslationSetting.translateSubsequentPages.value
+            ? state.readPageInfo.pageCount - startIndex
+            : 1;
     imageTranslationService.beginBatch(total);
     try {
       await layoutLogic.translateImage(startIndex, context);
       imageTranslationService.batchCompleted = 1;
       imageTranslationService.update([ImageTranslationService.batchProgressId]);
       if (imageTranslationSetting.translateSubsequentPages.value) {
-        for (int index = startIndex + 1;
-            index < state.readPageInfo.pageCount;
-            index++) {
+        for (
+          int index = startIndex + 1;
+          index < state.readPageInfo.pageCount;
+          index++
+        ) {
           if (imageTranslationService.isCancelRequested) {
             break;
           }
@@ -1332,8 +1597,9 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
             log.trace(stack);
           }
           imageTranslationService.batchCompleted = index - startIndex + 1;
-          imageTranslationService
-              .update([ImageTranslationService.batchProgressId]);
+          imageTranslationService.update([
+            ImageTranslationService.batchProgressId,
+          ]);
         }
       }
     } finally {
@@ -1352,8 +1618,10 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   /// persistent translation cache.
   Future<void> retranslateCurrentImage(BuildContext context) async {
     await layoutLogic.translateImage(
-        state.readPageInfo.currentImageIndex, context,
-        force: true);
+      state.readPageInfo.currentImageIndex,
+      context,
+      force: true,
+    );
   }
 
   /// Starts the translation flow for the current page (honouring the
@@ -1420,9 +1688,11 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
                     decoration: BoxDecoration(
                       color: colorScheme.surface,
                       borderRadius: const BorderRadius.horizontal(
-                          left: Radius.circular(18)),
+                        left: Radius.circular(18),
+                      ),
                       border: Border.all(
-                          color: colorScheme.outline.withValues(alpha: 0.4)),
+                        color: colorScheme.outline.withValues(alpha: 0.4),
+                      ),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.18),
@@ -1433,7 +1703,8 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
                     ),
                     child: ClipRRect(
                       borderRadius: const BorderRadius.horizontal(
-                          left: Radius.circular(18)),
+                        left: Radius.circular(18),
+                      ),
                       child: content,
                     ),
                   );
@@ -1459,19 +1730,24 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     if (useCupertino) {
       return PageRouteBuilder(
         pageBuilder: (context, __, ___) => builder(context),
-        transitionsBuilder: (_, animation, __, child) => SlideTransition(
-          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero)
-              .animate(
-                  CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
-          child: child,
-        ),
+        transitionsBuilder:
+            (_, animation, __, child) => SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1, 0),
+                end: Offset.zero,
+              ).animate(
+                CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+              ),
+              child: child,
+            ),
         settings: settings,
       );
     }
     return PageRouteBuilder(
       pageBuilder: (context, __, ___) => builder(context),
-      transitionsBuilder: (_, animation, __, child) =>
-          FadeTransition(opacity: animation, child: child),
+      transitionsBuilder:
+          (_, animation, __, child) =>
+              FadeTransition(opacity: animation, child: child),
       settings: settings,
     );
   }

@@ -278,6 +278,9 @@ class _ImageTranslationConfigSheetState
               value: ImageOcrEngine.paddleOcrVl16,
               child: Text('PaddleOCR-VL-1.6')),
           DropdownMenuItem(
+              value: ImageOcrEngine.onnx,
+              child: Text('imageTranslationOcrEngineOnnx'.tr)),
+          DropdownMenuItem(
               value: ImageOcrEngine.appleLiveText,
               child: Text('imageTranslationOcrEngineAppleLiveText'.tr)),
         ],

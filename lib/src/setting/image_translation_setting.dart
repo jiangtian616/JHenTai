@@ -13,7 +13,15 @@ enum ImageTranslationProvider { openAICompatible, anthropic }
 
 enum OcrModelSource { giteeMirror, githubOfficial }
 
-enum ImageOcrEngine { tesseract, paddleOcr, paddleOcrVl16, appleLiveText }
+enum ImageOcrEngine {
+  tesseract,
+  paddleOcr,
+  paddleOcrVl16,
+
+  /// 端侧 ONNX 推理（走统一"推理后端"入口，框架阶段尚未接入模型）。
+  onnx,
+  appleLiveText,
+}
 
 class ImageTranslationSetting
     with JHLifeCircleBeanWithConfigStorage

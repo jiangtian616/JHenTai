@@ -3,12 +3,19 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/image_translation_service.dart';
+import 'package:jhentai/src/service/inference/onnx_model_store.dart';
+import 'package:jhentai/src/service/inference_service.dart';
 import 'package:jhentai/src/setting/image_translation_setting.dart';
+import 'package:jhentai/src/setting/inference_setting.dart';
+import 'package:jhentai/src/utils/app_icons.dart';
+import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
 import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
+import 'package:jhentai/src/widget/onnx_model_tile.dart';
 import 'package:jhentai/src/widget/paddle_cli_output.dart';
 
 class _OcrModel {
@@ -87,27 +94,34 @@ class _SettingImageTranslationPageState
   void initState() {
     super.initState();
     _ocrExecutableController = TextEditingController(
-        text: imageTranslationSetting.ocrExecutable.value);
+      text: imageTranslationSetting.ocrExecutable.value,
+    );
     _paddleExecutableController = TextEditingController(
-        text: imageTranslationSetting.paddleOcrExecutable.value);
+      text: imageTranslationSetting.paddleOcrExecutable.value,
+    );
     _ocrDirectoryController = TextEditingController(
-        text: imageTranslationSetting.ocrDataDirectory.value ?? '');
+      text: imageTranslationSetting.ocrDataDirectory.value ?? '',
+    );
     _endpointController = TextEditingController(
-        text: imageTranslationSetting.translatorEndpoint.value ?? '');
+      text: imageTranslationSetting.translatorEndpoint.value ?? '',
+    );
     _apiKeyController = TextEditingController(
-        text: imageTranslationSetting.translatorApiKey.value ?? '');
+      text: imageTranslationSetting.translatorApiKey.value ?? '',
+    );
     _paddleLanguage = imageTranslationSetting.paddleOcrLanguage.value;
-    _appleLiveTextLanguage = imageTranslationSetting.appleLiveTextLanguage.value;
+    _appleLiveTextLanguage =
+        imageTranslationSetting.appleLiveTextLanguage.value;
     _appleLiveTextUseApi =
         imageTranslationSetting.appleLiveTextUseThirdPartyApi.value;
     _targetLanguage = imageTranslationSetting.targetLanguage.value;
     _provider = imageTranslationSetting.translatorProvider.value;
     _ocrSource = imageTranslationSetting.ocrModelSource.value;
     _ocrEngine = imageTranslationSetting.ocrEngine.value;
-    _selectedLanguages = imageTranslationSetting.ocrLanguage.value
-        .split('+')
-        .where((language) => language.isNotEmpty)
-        .toSet();
+    _selectedLanguages =
+        imageTranslationSetting.ocrLanguage.value
+            .split('+')
+            .where((language) => language.isNotEmpty)
+            .toSet();
     final String savedModel = imageTranslationSetting.translatorModel.value;
     if (savedModel.isNotEmpty) _availableModels = [savedModel];
     if (_ocrEngine != ImageOcrEngine.appleLiveText) {
@@ -184,7 +198,11 @@ class _SettingImageTranslationPageState
               title: 'imageTranslationOcrSection'.tr,
               children: [
                 _buildOcrEngine(),
-                if (_ocrEngine != ImageOcrEngine.tesseract) ...[
+                if (_ocrEngine == ImageOcrEngine.onnx) ...[
+                  _buildOnnxLanguage(),
+                  _buildOnnxModelTile(),
+                  _buildOnnxRuntime(),
+                ] else if (_ocrEngine != ImageOcrEngine.tesseract) ...[
                   _buildPaddleLanguage(),
                   _buildPaddleRuntime(),
                 ] else ...[
@@ -209,21 +227,24 @@ class _SettingImageTranslationPageState
         value: _provider,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (value) => setState(() {
-          _provider = value!;
-          _availableModels = [];
-          _endpointController.text =
-              _provider == ImageTranslationProvider.anthropic
-                  ? 'https://api.anthropic.com/v1'
-                  : 'https://api.openai.com/v1';
-        }),
+        onChanged:
+            (value) => setState(() {
+              _provider = value!;
+              _availableModels = [];
+              _endpointController.text =
+                  _provider == ImageTranslationProvider.anthropic
+                      ? 'https://api.anthropic.com/v1'
+                      : 'https://api.openai.com/v1';
+            }),
         items: [
           DropdownMenuItem(
-              value: ImageTranslationProvider.openAICompatible,
-              child: Text('imageTranslationOpenAICompatible'.tr)),
+            value: ImageTranslationProvider.openAICompatible,
+            child: Text('imageTranslationOpenAICompatible'.tr),
+          ),
           const DropdownMenuItem(
-              value: ImageTranslationProvider.anthropic,
-              child: Text('Anthropic Messages API')),
+            value: ImageTranslationProvider.anthropic,
+            child: Text('Anthropic Messages API'),
+          ),
         ],
       ),
     );
@@ -240,7 +261,9 @@ class _SettingImageTranslationPageState
           autocorrect: false,
           enableSuggestions: false,
           decoration: const InputDecoration(
-              isDense: true, labelStyle: TextStyle(fontSize: 12)),
+            isDense: true,
+            labelStyle: TextStyle(fontSize: 12),
+          ),
         ),
       ),
     );
@@ -257,7 +280,9 @@ class _SettingImageTranslationPageState
           autocorrect: false,
           enableSuggestions: false,
           decoration: const InputDecoration(
-              isDense: true, labelStyle: TextStyle(fontSize: 12)),
+            isDense: true,
+            labelStyle: TextStyle(fontSize: 12),
+          ),
         ),
       ),
     );
@@ -266,39 +291,53 @@ class _SettingImageTranslationPageState
   Widget _buildFetchModels() {
     return ListTile(
       title: Text('imageTranslationTestAndFetchModels'.tr),
-      subtitle: Text('imageTranslationApiTestHint'.tr,
-          style: const TextStyle(fontSize: 12)),
-      trailing: _fetchingModels
-          ? const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2))
-          : const Icon(Icons.cloud_sync_outlined),
+      subtitle: Text(
+        'imageTranslationApiTestHint'.tr,
+        style: const TextStyle(fontSize: 12),
+      ),
+      trailing:
+          _fetchingModels
+              ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+              : const Icon(Icons.cloud_sync_outlined),
       onTap: _fetchingModels ? null : _fetchModels,
     );
   }
 
   Widget _buildModel() {
-    final List<String> models = _availableModels.isEmpty
-        ? [imageTranslationSetting.translatorModel.value]
-        : _availableModels;
+    final List<String> models =
+        _availableModels.isEmpty
+            ? [imageTranslationSetting.translatorModel.value]
+            : _availableModels;
     return ListTile(
       title: Text('imageTranslationModel'.tr),
-      subtitle: _availableModels.isEmpty
-          ? Text('imageTranslationFetchModelsFirst'.tr,
-              style: const TextStyle(fontSize: 12))
-          : null,
+      subtitle:
+          _availableModels.isEmpty
+              ? Text(
+                'imageTranslationFetchModelsFirst'.tr,
+                style: const TextStyle(fontSize: 12),
+              )
+              : null,
       trailing: EHCodexStyleDropdown<String>(
-        value: models.contains(imageTranslationSetting.translatorModel.value)
-            ? imageTranslationSetting.translatorModel.value
-            : models.first,
+        value:
+            models.contains(imageTranslationSetting.translatorModel.value)
+                ? imageTranslationSetting.translatorModel.value
+                : models.first,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (model) => setState(
-            () => imageTranslationSetting.translatorModel.value = model!),
-        items: models
-            .map((model) => DropdownMenuItem(value: model, child: Text(model)))
-            .toList(),
+        onChanged:
+            (model) => setState(
+              () => imageTranslationSetting.translatorModel.value = model!,
+            ),
+        items:
+            models
+                .map(
+                  (model) => DropdownMenuItem(value: model, child: Text(model)),
+                )
+                .toList(),
       ),
     );
   }
@@ -315,10 +354,13 @@ class _SettingImageTranslationPageState
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
         onChanged: (value) => setState(() => _targetLanguage = value!),
-        items: options
-            .map((language) =>
-                DropdownMenuItem(value: language, child: Text(language)))
-            .toList(),
+        items:
+            options
+                .map(
+                  (language) =>
+                      DropdownMenuItem(value: language, child: Text(language)),
+                )
+                .toList(),
       ),
     );
   }
@@ -327,8 +369,10 @@ class _SettingImageTranslationPageState
     return Obx(
       () => EHAppleSwitchListTile(
         title: Text('imageTranslationEnableThinking'.tr),
-        subtitle: Text('imageTranslationEnableThinkingHint'.tr,
-            style: const TextStyle(fontSize: 12)),
+        subtitle: Text(
+          'imageTranslationEnableThinkingHint'.tr,
+          style: const TextStyle(fontSize: 12),
+        ),
         value: imageTranslationSetting.enableThinking.value,
         onChanged: imageTranslationSetting.saveEnableThinking,
       ),
@@ -338,22 +382,32 @@ class _SettingImageTranslationPageState
   Widget _buildOcrEngine() {
     return ListTile(
       title: Text('imageTranslationOcrEngine'.tr),
-      subtitle: Text('imageTranslationOcrDownloadHint'.tr,
-          style: const TextStyle(fontSize: 12)),
+      subtitle: Text(
+        'imageTranslationOcrDownloadHint'.tr,
+        style: const TextStyle(fontSize: 12),
+      ),
       trailing: EHCodexStyleDropdown<ImageOcrEngine>(
         value: _ocrEngine,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
         onChanged: (engine) => setState(() => _ocrEngine = engine!),
-        items: const [
+        items: [
+          const DropdownMenuItem(
+            value: ImageOcrEngine.tesseract,
+            child: Text('Tesseract'),
+          ),
+          const DropdownMenuItem(
+            value: ImageOcrEngine.paddleOcr,
+            child: Text('PaddleOCR (PP-OCRv6)'),
+          ),
+          const DropdownMenuItem(
+            value: ImageOcrEngine.paddleOcrVl16,
+            child: Text('PaddleOCR-VL-1.6'),
+          ),
           DropdownMenuItem(
-              value: ImageOcrEngine.tesseract, child: Text('Tesseract')),
-          DropdownMenuItem(
-              value: ImageOcrEngine.paddleOcr,
-              child: Text('PaddleOCR (PP-OCRv6)')),
-          DropdownMenuItem(
-              value: ImageOcrEngine.paddleOcrVl16,
-              child: Text('PaddleOCR-VL-1.6')),
+            value: ImageOcrEngine.onnx,
+            child: Text('imageTranslationOcrEngineOnnx'.tr),
+          ),
         ],
       ),
     );
@@ -361,23 +415,36 @@ class _SettingImageTranslationPageState
 
   Widget _buildAppleLiveTextLanguage() {
     final List<_OcrModel> options =
-        _appleLanguageOptions.any((option) => option.code == _appleLiveTextLanguage)
+        _appleLanguageOptions.any(
+              (option) => option.code == _appleLiveTextLanguage,
+            )
             ? _appleLanguageOptions
             : [
-                ..._appleLanguageOptions,
-                _OcrModel(_appleLiveTextLanguage, _appleLiveTextLanguage)
-              ];
+              ..._appleLanguageOptions,
+              _OcrModel(_appleLiveTextLanguage, _appleLiveTextLanguage),
+            ];
     return ListTile(
       title: Text('imageTranslationAppleLiveTextLanguage'.tr),
       trailing: EHCodexStyleDropdown<String>(
         value: _appleLiveTextLanguage,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (value) => setState(() => _appleLiveTextLanguage = value!),
-        items: options
-            .map((option) =>
-                DropdownMenuItem(value: option.code, child: Text(option.label)))
-            .toList(),
+        onChanged: (value) async {
+          if (value == null) {
+            return;
+          }
+          setState(() => _appleLiveTextLanguage = value);
+          await imageTranslationSetting.saveAppleLiveTextLanguage(value);
+        },
+        items:
+            options
+                .map(
+                  (option) => DropdownMenuItem(
+                    value: option.code,
+                    child: Text(option.label),
+                  ),
+                )
+                .toList(),
       ),
     );
   }
@@ -385,9 +452,11 @@ class _SettingImageTranslationPageState
   Widget _buildAppleLiveTextAvailability() {
     final bool available = Platform.isIOS || Platform.isMacOS;
     return ListTile(
-      title: Text(available
-          ? 'imageTranslationAppleLiveTextHint'.tr
-          : 'imageTranslationAppleLiveTextUnavailable'.tr),
+      title: Text(
+        available
+            ? 'imageTranslationAppleLiveTextHint'.tr
+            : 'imageTranslationAppleLiveTextUnavailable'.tr,
+      ),
       trailing: Icon(
         available ? Icons.check_circle_outline : Icons.warning_amber_outlined,
         color: available ? Colors.green : Colors.orange,
@@ -434,8 +503,10 @@ class _SettingImageTranslationPageState
   Widget _buildAppleLiveTextUseApi() {
     return EHAppleSwitchListTile(
       title: Text('imageTranslationAppleLiveTextUseApi'.tr),
-      subtitle: Text('imageTranslationAppleLiveTextUseApiHint'.tr,
-          style: const TextStyle(fontSize: 12)),
+      subtitle: Text(
+        'imageTranslationAppleLiveTextUseApiHint'.tr,
+        style: const TextStyle(fontSize: 12),
+      ),
       value: _appleLiveTextUseApi,
       onChanged: (value) {
         setState(() => _appleLiveTextUseApi = value);
@@ -447,8 +518,10 @@ class _SettingImageTranslationPageState
   Widget _buildOnDeviceTranslationHint() {
     return ListTile(
       leading: const Icon(Icons.phonelink_erase, size: 20),
-      title: Text('imageTranslationAppleLiveTextOnDeviceHint'.tr,
-          style: const TextStyle(fontSize: 12)),
+      title: Text(
+        'imageTranslationAppleLiveTextOnDeviceHint'.tr,
+        style: const TextStyle(fontSize: 12),
+      ),
     );
   }
 
@@ -456,8 +529,10 @@ class _SettingImageTranslationPageState
     return Obx(
       () => EHAppleSwitchListTile(
         title: Text('autoTranslateGalleryText'.tr),
-        subtitle: Text('autoTranslateGalleryTextHint'.tr,
-            style: const TextStyle(fontSize: 12)),
+        subtitle: Text(
+          'autoTranslateGalleryTextHint'.tr,
+          style: const TextStyle(fontSize: 12),
+        ),
         value: imageTranslationSetting.autoTranslateGalleryText.value,
         onChanged: imageTranslationSetting.saveAutoTranslateGalleryText,
       ),
@@ -469,9 +544,9 @@ class _SettingImageTranslationPageState
         _paddleLanguageOptions.any((option) => option.code == _paddleLanguage)
             ? _paddleLanguageOptions
             : [
-                ..._paddleLanguageOptions,
-                _OcrModel(_paddleLanguage, _paddleLanguage)
-              ];
+              ..._paddleLanguageOptions,
+              _OcrModel(_paddleLanguage, _paddleLanguage),
+            ];
     return ListTile(
       title: Text('imageTranslationPaddleLanguage'.tr),
       trailing: EHCodexStyleDropdown<String>(
@@ -479,11 +554,52 @@ class _SettingImageTranslationPageState
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
         onChanged: (value) => setState(() => _paddleLanguage = value!),
-        items: options
-            .map((option) =>
-                DropdownMenuItem(value: option.code, child: Text(option.label)))
-            .toList(),
+        items:
+            options
+                .map(
+                  (option) => DropdownMenuItem(
+                    value: option.code,
+                    child: Text(option.label),
+                  ),
+                )
+                .toList(),
       ),
+    );
+  }
+
+  /// PP-OCRv6 small uses one multilingual dictionary and detects the script
+  /// automatically; a language selector would only pretend to change models.
+  Widget _buildOnnxLanguage() {
+    return ListTile(
+      title: Text('imageTranslationOcrLanguage'.tr),
+      subtitle: Text(
+        'inferenceOcrLanguageAuto'.tr,
+        style: const TextStyle(fontSize: 12),
+      ),
+    );
+  }
+
+  /// PP-OCRv6 multilingual OCR model download/delete/status.
+  Widget _buildOnnxModelTile() {
+    return OnnxModelTile(
+      manifestId: OnnxModelStore.ocrManifestId,
+      title: 'inferenceOcrModel'.tr,
+    );
+  }
+
+  /// ONNX 端侧引擎的运行入口：显示当前生效后端与模型接入状态，跳转"推理后端"。
+  Widget _buildOnnxRuntime() {
+    return ListTile(
+      title: Text('inferenceBackend'.tr),
+      subtitle: Obx(
+        () => Text(
+          '${inferenceService.resolveBackendFor(InferenceDomain.ocr)?.label ?? 'inferenceDeviceNotDetected'.tr} · '
+          '${inferenceService.ocrEngine.isReady ? 'inferenceModelReady'.tr : 'inferenceModelNotIntegrated'.tr}',
+          style: const TextStyle(fontSize: 12),
+        ),
+      ),
+      trailing: Icon(AppIcons.chevronRight).marginOnly(right: 4),
+      onTap: () => toRoute(Routes.inference),
     );
   }
 
@@ -497,27 +613,35 @@ class _SettingImageTranslationPageState
             if (installed)
               ListTile(
                 title: Text('imageTranslationDeletePaddleRuntime'.tr),
-                subtitle: Text('imageTranslationDeletePaddleHint'.tr,
-                    style: const TextStyle(fontSize: 12)),
+                subtitle: Text(
+                  'imageTranslationDeletePaddleHint'.tr,
+                  style: const TextStyle(fontSize: 12),
+                ),
                 trailing: const Icon(Icons.delete_outline),
                 onTap: _confirmDeletePaddle,
               )
             else
               ListTile(
-                title: Text(imageTranslationService.paddleStage ??
-                    'imageTranslationPreparePaddle'.tr),
+                title: Text(
+                  imageTranslationService.paddleStage ??
+                      'imageTranslationPreparePaddle'.tr,
+                ),
                 subtitle: Text(
-                    '${'imageTranslationPaddleRuntimePath'.tr}: ${imageTranslationService.paddleRuntimePath()}',
-                    style: const TextStyle(fontSize: 12)),
-                trailing: imageTranslationService.preparingPaddle
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2))
-                    : const Icon(Icons.download_for_offline_outlined),
-                onTap: imageTranslationService.preparingPaddle
-                    ? null
-                    : _preparePaddle,
+                  '${'imageTranslationPaddleRuntimePath'.tr}: ${imageTranslationService.paddleRuntimePath()}',
+                  style: const TextStyle(fontSize: 12),
+                ),
+                trailing:
+                    imageTranslationService.preparingPaddle
+                        ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                        : const Icon(Icons.download_for_offline_outlined),
+                onTap:
+                    imageTranslationService.preparingPaddle
+                        ? null
+                        : _preparePaddle,
               ),
             PaddleCliOutput(lines: imageTranslationService.paddleOutput),
           ],
@@ -535,7 +659,9 @@ class _SettingImageTranslationPageState
           controller: _ocrExecutableController,
           autocorrect: false,
           decoration: const InputDecoration(
-              isDense: true, labelStyle: TextStyle(fontSize: 12)),
+            isDense: true,
+            labelStyle: TextStyle(fontSize: 12),
+          ),
         ),
       ),
     );
@@ -553,13 +679,16 @@ class _SettingImageTranslationPageState
               controller: _ocrDirectoryController,
               autocorrect: false,
               decoration: const InputDecoration(
-                  isDense: true, labelStyle: TextStyle(fontSize: 12)),
+                isDense: true,
+                labelStyle: TextStyle(fontSize: 12),
+              ),
             ),
           ),
           IconButton(
-              tooltip: 'imageTranslationChooseDirectory'.tr,
-              onPressed: _chooseDirectory,
-              icon: const Icon(Icons.folder_open_outlined)),
+            tooltip: 'imageTranslationChooseDirectory'.tr,
+            onPressed: _chooseDirectory,
+            icon: const Icon(Icons.folder_open_outlined),
+          ),
         ],
       ),
     );
@@ -568,12 +697,14 @@ class _SettingImageTranslationPageState
   Widget _buildDetectOcr() {
     return ListTile(
       title: Text('imageTranslationDetectOcr'.tr),
-      trailing: _detectingOcr
-          ? const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2))
-          : const Icon(Icons.manage_search_outlined),
+      trailing:
+          _detectingOcr
+              ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+              : const Icon(Icons.manage_search_outlined),
       onTap: _detectingOcr ? null : _detectOcr,
     );
   }
@@ -588,11 +719,13 @@ class _SettingImageTranslationPageState
         onChanged: (value) => setState(() => _ocrSource = value!),
         items: [
           DropdownMenuItem(
-              value: OcrModelSource.giteeMirror,
-              child: Text('imageTranslationGiteeMirror'.tr)),
+            value: OcrModelSource.giteeMirror,
+            child: Text('imageTranslationGiteeMirror'.tr),
+          ),
           DropdownMenuItem(
-              value: OcrModelSource.githubOfficial,
-              child: Text('imageTranslationGithubOfficial'.tr)),
+            value: OcrModelSource.githubOfficial,
+            child: Text('imageTranslationGithubOfficial'.tr),
+          ),
         ],
       ),
     );
@@ -602,39 +735,50 @@ class _SettingImageTranslationPageState
     return GetBuilder<ImageTranslationService>(
       id: imageTranslationService.ocrModelDownloadId(model.code),
       builder: (_) {
-        final bool downloading =
-            imageTranslationService.isDownloadingOcrModel(model.code);
+        final bool downloading = imageTranslationService.isDownloadingOcrModel(
+          model.code,
+        );
         final bool installed = _installedLanguages.contains(model.code);
         return ListTile(
           title: Text(model.label),
-          subtitle: downloading
-              ? Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: LinearProgressIndicator(
-                      value: imageTranslationService
-                          .ocrModelDownloadProgress(model.code)))
-              : Text(installed
-                  ? 'imageTranslationOcrInstalled'.tr
-                  : 'imageTranslationOcrNotInstalled'.tr),
+          subtitle:
+              downloading
+                  ? Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: LinearProgressIndicator(
+                      value: imageTranslationService.ocrModelDownloadProgress(
+                        model.code,
+                      ),
+                    ),
+                  )
+                  : Text(
+                    installed
+                        ? 'imageTranslationOcrInstalled'.tr
+                        : 'imageTranslationOcrNotInstalled'.tr,
+                  ),
           leading: Checkbox(
             value: _selectedLanguages.contains(model.code),
-            onChanged: (value) => setState(() {
-              value == true
-                  ? _selectedLanguages.add(model.code)
-                  : _selectedLanguages.remove(model.code);
-            }),
+            onChanged:
+                (value) => setState(() {
+                  value == true
+                      ? _selectedLanguages.add(model.code)
+                      : _selectedLanguages.remove(model.code);
+                }),
           ),
-          trailing: downloading
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2))
-              : IconButton(
-                  tooltip: 'download'.tr,
-                  onPressed: () => _downloadModel(model),
-                  icon: Icon(installed
-                      ? Icons.download_done
-                      : Icons.download_outlined)),
+          trailing:
+              downloading
+                  ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                  : IconButton(
+                    tooltip: 'download'.tr,
+                    onPressed: () => _downloadModel(model),
+                    icon: Icon(
+                      installed ? Icons.download_done : Icons.download_outlined,
+                    ),
+                  ),
         );
       },
     );
@@ -655,13 +799,17 @@ class _SettingImageTranslationPageState
           imageTranslationSetting.translatorModel.value = models.first;
         }
       });
-      toast('imageTranslationApiTestSuccess'
-          .trParams({'count': '${models.length}'}));
+      toast(
+        'imageTranslationApiTestSuccess'.trParams({
+          'count': '${models.length}',
+        }),
+      );
     } on ImageTranslationException catch (error) {
       toast('imageTranslationApiTestFailed'.trParams({'error': error.code}));
     } catch (_) {
       toast(
-          'imageTranslationApiTestFailed'.trParams({'error': 'NETWORK_ERROR'}));
+        'imageTranslationApiTestFailed'.trParams({'error': 'NETWORK_ERROR'}),
+      );
     } finally {
       if (mounted) setState(() => _fetchingModels = false);
     }
@@ -676,11 +824,12 @@ class _SettingImageTranslationPageState
   Future<void> _detectOcr() async {
     setState(() => _detectingOcr = true);
     try {
-      final String executable = _ocrExecutableController.text.trim().isEmpty
-          ? 'tesseract'
-          : _ocrExecutableController.text.trim();
-      final String? directory =
-          await imageTranslationService.discoverTessdataDirectory(executable);
+      final String executable =
+          _ocrExecutableController.text.trim().isEmpty
+              ? 'tesseract'
+              : _ocrExecutableController.text.trim();
+      final String? directory = await imageTranslationService
+          .discoverTessdataDirectory(executable);
       final List<String> installed = await imageTranslationService
           .installedOcrLanguages(executable: executable);
       if (!mounted) return;
@@ -707,8 +856,9 @@ class _SettingImageTranslationPageState
       if (mounted) toast('imageTranslationPaddleReady'.tr);
     } on ImageTranslationException catch (error) {
       if (mounted) {
-        toast('imageTranslationPaddlePrepareFailed'
-            .trParams({'error': error.code}));
+        toast(
+          'imageTranslationPaddlePrepareFailed'.trParams({'error': error.code}),
+        );
       }
     }
   }
@@ -716,18 +866,21 @@ class _SettingImageTranslationPageState
   Future<void> _confirmDeletePaddle() async {
     final bool? confirmed = await showDialog<bool>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text('imageTranslationDeletePaddleRuntime'.tr),
-        content: Text('imageTranslationDeletePaddleConfirm'.tr),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: Text('cancel'.tr)),
-          TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: Text('OK'.tr)),
-        ],
-      ),
+      builder:
+          (dialogContext) => AlertDialog(
+            title: Text('imageTranslationDeletePaddleRuntime'.tr),
+            content: Text('imageTranslationDeletePaddleConfirm'.tr),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: Text('cancel'.tr),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                child: Text('OK'.tr),
+              ),
+            ],
+          ),
     );
     if (confirmed == true) {
       await imageTranslationService.deletePaddleRuntime();

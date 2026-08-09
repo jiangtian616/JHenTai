@@ -8,10 +8,17 @@ import '../service/jh_service.dart';
 
 SuperResolutionSetting superResolutionSetting = SuperResolutionSetting();
 
-class SuperResolutionSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
+class SuperResolutionSetting
+    with JHLifeCircleBeanWithConfigStorage
+    implements JHLifeCircleBean {
   RxnString modelDirectoryPath = RxnString(null);
   Rx<ModelType> model = Rx<ModelType>(ModelType.CUGAN);
   RxInt gpuId = 0.obs;
+
+  /// 超分引擎：ncnn-vulkan 外部二进制或 AI Core 的 ONNX 分块推理。
+  Rx<SuperResolutionEngine> engine = Rx<SuperResolutionEngine>(
+    SuperResolutionEngine.ncnnVulkan,
+  );
 
   @override
   ConfigEnum get configEnum => ConfigEnum.superResolutionSetting;
@@ -21,8 +28,13 @@ class SuperResolutionSetting with JHLifeCircleBeanWithConfigStorage implements J
     Map map = jsonDecode(configString);
 
     modelDirectoryPath.value = map['modelDirectoryPath'];
-    model.value = map['model'] == null ? ModelType.CUGAN : ModelType.values[map['model']];
+    model.value =
+        map['model'] == null ? ModelType.CUGAN : ModelType.values[map['model']];
     gpuId.value = map['gpuId'] ?? gpuId.value;
+    engine.value = SuperResolutionEngine.values.firstWhere(
+      (value) => value.name == map['engine'],
+      orElse: () => SuperResolutionEngine.ncnnVulkan,
+    );
   }
 
   @override
@@ -31,6 +43,7 @@ class SuperResolutionSetting with JHLifeCircleBeanWithConfigStorage implements J
       'modelDirectoryPath': modelDirectoryPath.value,
       'model': model.value.index,
       'gpuId': gpuId.value,
+      'engine': engine.value.name,
     });
   }
 
@@ -57,7 +70,16 @@ class SuperResolutionSetting with JHLifeCircleBeanWithConfigStorage implements J
     this.gpuId.value = gpuId;
     await saveBeanConfig();
   }
+
+  Future<void> saveEngine(SuperResolutionEngine engine) async {
+    log.debug('saveSuperResolutionEngine:$engine');
+    this.engine.value = engine;
+    await saveBeanConfig();
+  }
 }
+
+/// 超分推理引擎：现有 ncnn-vulkan 外部二进制，或统一推理后端的 ONNX 引擎。
+enum SuperResolutionEngine { ncnnVulkan, onnx }
 
 enum ModelType {
   ESRGAN(
