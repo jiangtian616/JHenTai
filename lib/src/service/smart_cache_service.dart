@@ -38,8 +38,10 @@ class SmartCacheService
 
   @override
   Future<void> doInitBean() async {
-    extendedImageCacheObserver =
-        (String key, ExtendedImageCacheEventType event) {
+    extendedImageCacheObserver = (
+      String key,
+      ExtendedImageCacheEventType event,
+    ) {
       switch (event) {
         case ExtendedImageCacheEventType.hit:
           _recordImageHit(key);
@@ -82,11 +84,9 @@ class SmartCacheService
   }
 
   Future<void> _onImageWritten(String key) async {
-    final File file = File(join(
-      pathService.tempDir.path,
-      PathService.smartCacheFolderName,
-      key,
-    ));
+    final File file = File(
+      join(pathService.tempDir.path, PathService.smartCacheFolderName, key),
+    );
     final int size = file.existsSync() ? file.lengthSync() : 0;
     _imageWrittenCounts.update(
       key,
@@ -115,8 +115,9 @@ class SmartCacheService
   /// Public so tests can trigger a flush deterministically.
   Future<void> flushStats() async {
     final Map<String, int> hits = Map.of(_imageHitCounts);
-    final Map<String, ({int count, int sizeBytes})> writtens =
-        Map.of(_imageWrittenCounts);
+    final Map<String, ({int count, int sizeBytes})> writtens = Map.of(
+      _imageWrittenCounts,
+    );
     if (hits.isEmpty && writtens.isEmpty) {
       return;
     }
@@ -162,15 +163,19 @@ class SmartCacheService
     final int maxBytes = maxSizeMB * 1024 * 1024;
     final List<_CacheEntry> entries = await _collectEntries();
     int totalBytes = entries.fold<int>(
-        0, (sum, entry) => sum + entry.sizeBytes);
+      0,
+      (sum, entry) => sum + entry.sizeBytes,
+    );
     if (totalBytes <= maxBytes) {
       return;
     }
 
-    entries.sort(networkSetting.smartCacheEvictPolicy.value ==
-            SmartCacheEvictPolicy.addedDate
-        ? _compareByAddedDate
-        : _compareByUsageFrequency);
+    entries.sort(
+      networkSetting.smartCacheEvictPolicy.value ==
+              SmartCacheEvictPolicy.addedDate
+          ? _compareByAddedDate
+          : _compareByUsageFrequency,
+    );
 
     final int targetBytes = maxBytes * 9 ~/ 10;
     int evicted = 0;
@@ -190,16 +195,14 @@ class SmartCacheService
 
   Future<List<_CacheEntry>> _collectEntries() async {
     final Map<String, SmartCacheStatData> stats = {
-      for (final SmartCacheStatData stat
-          in await SmartCacheStatDao.selectAll())
+      for (final SmartCacheStatData stat in await SmartCacheStatDao.selectAll())
         stat.cacheKey: stat,
     };
 
     final List<_CacheEntry> entries = [];
-    final Directory imageDir = Directory(join(
-      pathService.tempDir.path,
-      PathService.smartCacheFolderName,
-    ));
+    final Directory imageDir = Directory(
+      join(pathService.tempDir.path, PathService.smartCacheFolderName),
+    );
     if (imageDir.existsSync()) {
       await for (final FileSystemEntity entity in imageDir.list()) {
         if (entity is! File) {
@@ -210,30 +213,41 @@ class SmartCacheService
         final SmartCacheStatData? stat = stats[key];
         final FileStat fileStat = entity.statSync();
         final DateTime fallbackTime = fileStat.modified;
-        entries.add(_CacheEntry(
-          key: key,
-          kind: 'image',
-          sizeBytes: size,
-          addedAt: stat?.addedAt ?? fallbackTime,
-          lastAccessAt: stat?.lastAccessAt ?? fallbackTime,
-          accessCount: stat?.accessCount ?? 0,
-        ));
+        entries.add(
+          _CacheEntry(
+            key: key,
+            kind: 'image',
+            sizeBytes: size,
+            addedAt: stat?.addedAt ?? fallbackTime,
+            lastAccessAt: stat?.lastAccessAt ?? fallbackTime,
+            accessCount: stat?.accessCount ?? 0,
+          ),
+        );
       }
     }
 
     final List<DioCachePageInfo> pages = await DioCacheDao.selectAllWithSize();
     for (final DioCachePageInfo page in pages) {
       final SmartCacheStatData? stat = stats[page.cacheKey];
-      final DateTime fallbackTime = page.expireDate
-          .subtract(networkSetting.smartCacheRetention.value);
-      entries.add(_CacheEntry(
-        key: page.cacheKey,
-        kind: 'page',
-        sizeBytes: page.sizeBytes,
-        addedAt: stat?.addedAt ?? fallbackTime,
-        lastAccessAt: stat?.lastAccessAt ?? fallbackTime,
-        accessCount: stat?.accessCount ?? 0,
-      ));
+      // Unlimited entries use a far-future expiry marker, which is not a
+      // meaningful creation time. Use the epoch only when legacy rows lack
+      // SmartCacheStat metadata; normal eviction is governed by that metadata.
+      final DateTime fallbackTime =
+          networkSetting.isSmartCacheRetentionUnlimited
+              ? DateTime.fromMillisecondsSinceEpoch(0)
+              : page.expireDate.subtract(
+                networkSetting.smartCacheRetention.value,
+              );
+      entries.add(
+        _CacheEntry(
+          key: page.cacheKey,
+          kind: 'page',
+          sizeBytes: page.sizeBytes,
+          addedAt: stat?.addedAt ?? fallbackTime,
+          lastAccessAt: stat?.lastAccessAt ?? fallbackTime,
+          accessCount: stat?.accessCount ?? 0,
+        ),
+      );
     }
 
     return entries;
@@ -241,11 +255,13 @@ class SmartCacheService
 
   Future<void> _deleteEntry(_CacheEntry entry) async {
     if (entry.kind == 'image') {
-      final File file = File(join(
-        pathService.tempDir.path,
-        PathService.smartCacheFolderName,
-        entry.key,
-      ));
+      final File file = File(
+        join(
+          pathService.tempDir.path,
+          PathService.smartCacheFolderName,
+          entry.key,
+        ),
+      );
       if (file.existsSync()) {
         file.deleteSync();
       }

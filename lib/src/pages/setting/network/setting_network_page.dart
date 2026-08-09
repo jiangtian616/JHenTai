@@ -100,6 +100,7 @@ class SettingNetworkPage extends StatelessWidget {
             (Duration? newValue) =>
                 networkSetting.saveSmartCacheRetention(newValue!),
         items: [
+          DropdownMenuItem(child: Text('unlimited'.tr), value: Duration.zero),
           DropdownMenuItem(
             child: Text('1d'.tr),
             value: const Duration(days: 1),
@@ -134,11 +135,11 @@ class SettingNetworkPage extends StatelessWidget {
                 networkSetting.saveSmartCacheMaxSizeMB(newValue ?? 0),
         items: [
           DropdownMenuItem(child: Text('unlimited'.tr), value: 0),
-          DropdownMenuItem(child: Text('512MB'), value: 512),
-          DropdownMenuItem(child: Text('1GB'), value: 1024),
-          DropdownMenuItem(child: Text('2GB'), value: 2048),
-          DropdownMenuItem(child: Text('5GB'), value: 5120),
-          DropdownMenuItem(child: Text('10GB'), value: 10240),
+          const DropdownMenuItem(child: Text('512MB'), value: 512),
+          const DropdownMenuItem(child: Text('1GB'), value: 1024),
+          const DropdownMenuItem(child: Text('2GB'), value: 2048),
+          const DropdownMenuItem(child: Text('5GB'), value: 5120),
+          const DropdownMenuItem(child: Text('10GB'), value: 10240),
         ],
       ),
     );

@@ -23,9 +23,13 @@ class NetworkSetting
   static const Duration fallbackImageCacheExpireDuration = Duration(days: 7);
 
   /// Smart cache: when enabled, pages and images you viewed are kept for
-  /// [smartCacheRetention] so revisiting them doesn't re-download.
+  /// [smartCacheRetention] so revisiting them doesn't re-download. A zero
+  /// duration is the persisted sentinel for no time-based expiry.
   RxBool enableSmartCache = true.obs;
   Rx<Duration> smartCacheRetention = const Duration(days: 7).obs;
+
+  bool get isSmartCacheRetentionUnlimited =>
+      enableSmartCache.isTrue && smartCacheRetention.value == Duration.zero;
 
   /// 0 means no space limit.
   RxInt smartCacheMaxSizeMB = 0.obs;
@@ -35,12 +39,14 @@ class NetworkSetting
   /// The retention actually in effect. When smart cache is on it governs both
   /// the page cache and the image cache; otherwise fixed short-lived defaults
   /// are used.
-  Duration get effectivePageCacheMaxAge => enableSmartCache.isTrue
-      ? smartCacheRetention.value
-      : fallbackPageCacheMaxAge;
-  Duration get effectiveCacheImageExpireDuration => enableSmartCache.isTrue
-      ? smartCacheRetention.value
-      : fallbackImageCacheExpireDuration;
+  Duration get effectivePageCacheMaxAge =>
+      enableSmartCache.isTrue
+          ? smartCacheRetention.value
+          : fallbackPageCacheMaxAge;
+  Duration get effectiveCacheImageExpireDuration =>
+      enableSmartCache.isTrue
+          ? smartCacheRetention.value
+          : fallbackImageCacheExpireDuration;
   RxBool enableDomainFronting = false.obs;
   Rx<JProxyType> proxyType = JProxyType.system.obs;
   RxString proxyAddress = 'localhost:1080'.obs;
@@ -63,7 +69,7 @@ class NetworkSetting
       '178.175.132.19',
       '178.175.132.20',
       '178.175.132.21',
-      '178.175.132.22'
+      '178.175.132.22',
     ],
     'upld.e-hentai.org': ['95.211.208.236', '89.149.221.236'],
     'api.e-hentai.org': [
@@ -71,7 +77,7 @@ class NetworkSetting
       '212.7.202.51',
       '5.79.104.110',
       '37.48.81.204',
-      '212.7.200.104'
+      '212.7.200.104',
     ],
     'forums.e-hentai.org': ['172.66.132.196', '172.66.140.62'],
   };
@@ -88,19 +94,23 @@ class NetworkSetting
     Map map = jsonDecode(configString);
 
     final int version = map['cacheConfigVersion'] ?? 1;
-    enableSmartCache.value = version < cacheConfigVersion
-        ? true
-        : (map['enableSmartCache'] ?? enableSmartCache.value);
+    enableSmartCache.value =
+        version < cacheConfigVersion
+            ? true
+            : (map['enableSmartCache'] ?? enableSmartCache.value);
     smartCacheRetention.value = Duration(
-        milliseconds: map['smartCacheRetention'] ??
-            smartCacheRetention.value.inMilliseconds);
-    smartCacheMaxSizeMB.value = version < cacheConfigVersion
-        ? 0
-        : (map['smartCacheMaxSizeMB'] ?? smartCacheMaxSizeMB.value);
-    smartCacheEvictPolicy.value = version < cacheConfigVersion
-        ? SmartCacheEvictPolicy.addedDate
-        : SmartCacheEvictPolicy.values[
-            map['smartCacheEvictPolicy'] ??
+      milliseconds:
+          map['smartCacheRetention'] ??
+          smartCacheRetention.value.inMilliseconds,
+    );
+    smartCacheMaxSizeMB.value =
+        version < cacheConfigVersion
+            ? 0
+            : (map['smartCacheMaxSizeMB'] ?? smartCacheMaxSizeMB.value);
+    smartCacheEvictPolicy.value =
+        version < cacheConfigVersion
+            ? SmartCacheEvictPolicy.addedDate
+            : SmartCacheEvictPolicy.values[map['smartCacheEvictPolicy'] ??
                 smartCacheEvictPolicy.value.index];
     enableDomainFronting.value =
         map['enableDomainFronting'] ?? enableDomainFronting.value;
@@ -167,10 +177,15 @@ class NetworkSetting
     await saveBeanConfig();
   }
 
-  Future<void> saveProxy(JProxyType proxyType, String proxyAddress,
-      String? proxyUsername, String? proxyPassword) async {
+  Future<void> saveProxy(
+    JProxyType proxyType,
+    String proxyAddress,
+    String? proxyUsername,
+    String? proxyPassword,
+  ) async {
     log.debug(
-        'saveProxy:$proxyType,$proxyAddress,$proxyUsername,$proxyPassword');
+      'saveProxy:$proxyType,$proxyAddress,$proxyUsername,$proxyPassword',
+    );
     this.proxyType.value = proxyType;
     this.proxyAddress.value = proxyAddress;
     this.proxyUsername.value = proxyUsername;

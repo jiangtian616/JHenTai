@@ -76,21 +76,23 @@ class ScheduleService
     String latestVersion;
 
     try {
-      latestVersion = (await retry(
-        () => ehRequest.get(
-            url: url, parser: EHSpiderParser.githubReleasePage2LatestVersion),
-        maxAttempts: 3,
-        delayFactor: const Duration(milliseconds: 500),
-      ))
-          .trim()
-          .split('+')[0];
+      latestVersion =
+          (await retry(
+            () => ehRequest.get(
+              url: url,
+              parser: EHSpiderParser.githubReleasePage2LatestVersion,
+            ),
+            maxAttempts: 3,
+            delayFactor: const Duration(milliseconds: 500),
+          )).trim().split('+')[0];
     } on Exception catch (_) {
       log.info('check update failed');
       return;
     }
 
-    String? dismissVersion =
-        await localConfigService.read(configKey: ConfigEnum.dismissVersion);
+    String? dismissVersion = await localConfigService.read(
+      configKey: ConfigEnum.dismissVersion,
+    );
     if (dismissVersion == latestVersion) {
       return;
     }
@@ -98,31 +100,37 @@ class ScheduleService
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     String currentVersion = 'v${packageInfo.version}'.trim();
     log.info(
-        'Latest version:[$latestVersion], current version: [$currentVersion], current build: [${packageInfo.buildNumber}]');
+      'Latest version:[$latestVersion], current version: [$currentVersion], current build: [${packageInfo.buildNumber}]',
+    );
 
     if (compareVersion(currentVersion, latestVersion) >= 0) {
       return;
     }
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      Get.dialog(UpdateDialog(
-          currentVersion: currentVersion, latestVersion: latestVersion));
+      Get.dialog(
+        UpdateDialog(
+          currentVersion: currentVersion,
+          latestVersion: latestVersion,
+        ),
+      );
     });
   }
 
   Future<void> refreshGalleryTags() async {
-    final DateTime threshold =
-        DateTime.now().subtract(_tagRefreshStaleThreshold);
+    final DateTime threshold = DateTime.now().subtract(
+      _tagRefreshStaleThreshold,
+    );
     int pageNo = 1;
     List<GalleryDownloadedData> gallerys =
         await GalleryDao.selectGallerysForTagRefresh(pageNo, 25, threshold);
     while (gallerys.isNotEmpty) {
       try {
-        List<GalleryMetadata> metadatas =
-            await ehRequest.requestGalleryMetadatas<List<GalleryMetadata>>(
-          list: gallerys.map((a) => (gid: a.gid, token: a.token)).toList(),
-          parser: EHSpiderParser.galleryMetadataJson2GalleryMetadatas,
-        );
+        List<GalleryMetadata> metadatas = await ehRequest
+            .requestGalleryMetadatas<List<GalleryMetadata>>(
+              list: gallerys.map((a) => (gid: a.gid, token: a.token)).toList(),
+              parser: EHSpiderParser.galleryMetadataJson2GalleryMetadatas,
+            );
 
         await GalleryDao.batchUpdateGallery(
           metadatas
@@ -136,35 +144,39 @@ class ScheduleService
               .toList(),
         );
         log.trace(
-            'refreshGalleryTags success, pageNo: $pageNo, archives: ${gallerys.map((a) => a.gid).toList()}');
+          'refreshGalleryTags success, pageNo: $pageNo, archives: ${gallerys.map((a) => a.gid).toList()}',
+        );
       } catch (e) {
         log.warning(
-            'refreshGalleryTags error, gallerys: ${gallerys.map((a) => (
-                  gid: a.gid,
-                  token: a.token
-                )).toList()}',
-            e,
-            true);
+          'refreshGalleryTags error, gallerys: ${gallerys.map((a) => (gid: a.gid, token: a.token)).toList()}',
+          e,
+          true,
+        );
       }
 
       pageNo++;
-      gallerys = await GalleryDao.selectGallerysForTagRefresh(pageNo, 25, threshold);
+      gallerys = await GalleryDao.selectGallerysForTagRefresh(
+        pageNo,
+        25,
+        threshold,
+      );
     }
   }
 
   Future<void> refreshArchiveTags() async {
-    final DateTime threshold =
-        DateTime.now().subtract(_tagRefreshStaleThreshold);
+    final DateTime threshold = DateTime.now().subtract(
+      _tagRefreshStaleThreshold,
+    );
     int pageNo = 1;
     List<ArchiveDownloadedData> archives =
         await ArchiveDao.selectArchivesForTagRefresh(pageNo, 25, threshold);
     while (archives.isNotEmpty) {
       try {
-        List<GalleryMetadata> metadatas =
-            await ehRequest.requestGalleryMetadatas<List<GalleryMetadata>>(
-          list: archives.map((a) => (gid: a.gid, token: a.token)).toList(),
-          parser: EHSpiderParser.galleryMetadataJson2GalleryMetadatas,
-        );
+        List<GalleryMetadata> metadatas = await ehRequest
+            .requestGalleryMetadatas<List<GalleryMetadata>>(
+              list: archives.map((a) => (gid: a.gid, token: a.token)).toList(),
+              parser: EHSpiderParser.galleryMetadataJson2GalleryMetadatas,
+            );
 
         await ArchiveDao.batchUpdateArchive(
           metadatas
@@ -178,16 +190,22 @@ class ScheduleService
               .toList(),
         );
         log.trace(
-            'refreshArchiveTags success, pageNo: $pageNo, archives: ${archives.map((a) => a.gid).toList()}');
+          'refreshArchiveTags success, pageNo: $pageNo, archives: ${archives.map((a) => a.gid).toList()}',
+        );
       } catch (e) {
         log.warning(
-            'refreshArchiveTags error, archives: ${archives.map((a) => a.gid).toList()}',
-            e,
-            true);
+          'refreshArchiveTags error, archives: ${archives.map((a) => a.gid).toList()}',
+          e,
+          true,
+        );
       }
 
       pageNo++;
-      archives = await ArchiveDao.selectArchivesForTagRefresh(pageNo, 25, threshold);
+      archives = await ArchiveDao.selectArchivesForTagRefresh(
+        pageNo,
+        25,
+        threshold,
+      );
     }
   }
 
@@ -195,9 +213,16 @@ class ScheduleService
     /// Only sendable values may cross into the spawned isolate; directory IO
     /// (stat + delete) is done there so the UI isolate never blocks on syscalls.
     final String dirPath = join(
-        pathService.tempDir.path, PathService.smartCacheFolderName);
+      pathService.tempDir.path,
+      PathService.smartCacheFolderName,
+    );
     final Duration expireDuration =
         networkSetting.effectiveCacheImageExpireDuration;
+
+    if (networkSetting.isSmartCacheRetentionUnlimited) {
+      log.info('Skip outdated image cache cleanup: retention is unlimited.');
+      return;
+    }
 
     final int count = await Isolate.run(() {
       final Directory cacheImageDirectory = Directory(dirPath);
@@ -225,9 +250,11 @@ class ScheduleService
     String thresholdTimeStr = thresholdTime.toString();
 
     return appDb.managers.localConfig
-        .filter((config) =>
-            config.configKey.equals(ConfigEnum.galleryImageHash.key) &
-            config.utime.column.isSmallerThanValue(thresholdTimeStr))
+        .filter(
+          (config) =>
+              config.configKey.equals(ConfigEnum.galleryImageHash.key) &
+              config.utime.column.isSmallerThanValue(thresholdTimeStr),
+        )
         .delete()
         .then((value) => value > 0);
   }
@@ -257,11 +284,7 @@ class ScheduleService
 
     if (preferenceSetting.showDawnInfo.isTrue && eventInfo.dawnInfo != null) {
       log.info('Check dawn success: ${eventInfo.dawnInfo}');
-      snack(
-        'dawnOfaNewDay'.tr,
-        eventInfo.dawnInfo!,
-        isShort: false,
-      );
+      snack('dawnOfaNewDay'.tr, eventInfo.dawnInfo!, isShort: false);
     }
 
     if (preferenceSetting.showHVInfo.isTrue && eventInfo.hvUrl != null) {
@@ -269,8 +292,11 @@ class ScheduleService
       snack(
         'encounterMonster'.tr,
         'encounterMonsterHint'.tr,
-        onPressed: () => launchUrlString(eventInfo.hvUrl!,
-            mode: LaunchMode.externalApplication),
+        onPressed:
+            () => launchUrlString(
+              eventInfo.hvUrl!,
+              mode: LaunchMode.externalApplication,
+            ),
         isShort: false,
       );
     }
@@ -292,12 +318,16 @@ class ScheduleService
       );
       log.debug('Auto Checkin response: $response');
       if (response.isSuccess) {
-        final checkInVO =
-            archiveBotSetting.botType.value.parseCheckIn(response.data);
+        final checkInVO = archiveBotSetting.botType.value.parseCheckIn(
+          response.data,
+        );
         snack(
-            'checkInSuccess'.tr,
-            'checkInSuccessHint'.trArgs(
-                [checkInVO.getGP.toString(), checkInVO.currentGP.toString()]));
+          'checkInSuccess'.tr,
+          'checkInSuccessHint'.trArgs([
+            checkInVO.getGP.toString(),
+            checkInVO.currentGP.toString(),
+          ]),
+        );
       }
     } on DioException catch (e) {
       log.error('Failed to auto checkin', e.errorMsg, e.stackTrace);

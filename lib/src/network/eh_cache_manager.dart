@@ -29,18 +29,21 @@ class EHCacheManager extends Interceptor {
     // Found
     302,
     // Temporary Redirect
-    307
+    307,
   ];
 
   static const String realUriExtraKey = 'realUri';
 
   EHCacheManager({required CacheOptions options})
-      : assert(options.store != null),
-        _options = options,
-        _store = options.store!;
+    : assert(options.store != null),
+      _options = options,
+      _store = options.store!;
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     CacheOptions cacheOptions = _getCacheOptions(options);
 
     options.extra[realUriExtraKey] = _computeCachedUrl(options, cacheOptions);
@@ -57,7 +60,9 @@ class EHCacheManager extends Interceptor {
       return;
     }
 
-    CacheResponse? cacheResponse = await _getCacheStore(cacheOptions).get(CacheOptions.defaultCacheKeyBuilder(options));
+    CacheResponse? cacheResponse = await _getCacheStore(
+      cacheOptions,
+    ).get(CacheOptions.defaultCacheKeyBuilder(options));
     if (cacheResponse != null && cacheResponse.url == options.uri.toString()) {
       if (cacheResponse.expired()) {
         await _deleteCacheResponse(cacheResponse, cacheOptions);
@@ -65,13 +70,15 @@ class EHCacheManager extends Interceptor {
       }
 
       log.trace('cache hit: ${options.uri.toString()}');
-      unawaited(SmartCacheStatDao.recordHit(
-        cacheResponse.cacheKey,
-        kind: 'page',
-        url: cacheResponse.url,
-        sizeBytes:
-            cacheResponse.content.length + cacheResponse.headers.length,
-      ));
+      unawaited(
+        SmartCacheStatDao.recordHit(
+          cacheResponse.cacheKey,
+          kind: 'page',
+          url: cacheResponse.url,
+          sizeBytes:
+              cacheResponse.content.length + cacheResponse.headers.length,
+        ),
+      );
       // Only extend the sliding expiry when the entry is close to expiring;
       // otherwise a hot page would turn every read into a DB write.
       if (cacheResponse.willExpireSoon(cacheOptions.expire)) {
@@ -79,8 +86,14 @@ class EHCacheManager extends Interceptor {
       }
       // Decompress off the UI isolate; [CacheResponse.toResponse] itself stays
       // synchronous to keep the dio interceptor contract unchanged.
-      final Uint8List decompressed = await compute(CacheResponse._decompress, cacheResponse.content);
-      return handler.resolve(cacheResponse.toResponse(options, decompressedContent: decompressed), true);
+      final Uint8List decompressed = await compute(
+        CacheResponse._decompress,
+        cacheResponse.content,
+      );
+      return handler.resolve(
+        cacheResponse.toResponse(options, decompressedContent: decompressed),
+        true,
+      );
     }
     handler.next(options);
   }
@@ -103,8 +116,12 @@ class EHCacheManager extends Interceptor {
   }
 
   Future<void> removeCacheByUrl(String url) {
-    String cacheKey = CacheOptions.defaultCacheKeyBuilder(RequestOptions(extra: {EHCacheManager.realUriExtraKey: url}));
-    return _store.delete(cacheKey).then((_) => SmartCacheStatDao.deleteByKey(cacheKey));
+    String cacheKey = CacheOptions.defaultCacheKeyBuilder(
+      RequestOptions(extra: {EHCacheManager.realUriExtraKey: url}),
+    );
+    return _store
+        .delete(cacheKey)
+        .then((_) => SmartCacheStatDao.deleteByKey(cacheKey));
   }
 
   Future<void> removeCacheByUrlPrefix(String url) {
@@ -131,8 +148,9 @@ class EHCacheManager extends Interceptor {
     );
     request.extra[realUriExtraKey] = _computeCachedUrl(request, cacheOptions);
 
-    final CacheResponse? cacheResponse = await _getCacheStore(cacheOptions)
-        .get(CacheOptions.defaultCacheKeyBuilder(request));
+    final CacheResponse? cacheResponse = await _getCacheStore(
+      cacheOptions,
+    ).get(CacheOptions.defaultCacheKeyBuilder(request));
     return cacheResponse != null &&
         cacheResponse.url == request.uri.toString() &&
         !cacheResponse.expired();
@@ -164,8 +182,11 @@ class EHCacheManager extends Interceptor {
 
     return cachedUrl;
   }
-  
-  bool _shouldSkipRequest(RequestOptions requestOptions, CacheOptions cacheOptions) {
+
+  bool _shouldSkipRequest(
+    RequestOptions requestOptions,
+    CacheOptions cacheOptions,
+  ) {
     if (requestOptions.method.toUpperCase() == 'POST') {
       return true;
     }
@@ -190,34 +211,50 @@ class EHCacheManager extends Interceptor {
       return true;
     }
 
-    if (!allowedStatusCodes.contains(response?.statusCode)) {
+    if (!allowedStatusCodes.contains(response.statusCode)) {
       return true;
     }
 
     return false;
   }
 
-  Future<void> _saveResponse(Response response, CacheOptions cacheOptions) async {
-    CacheResponse cacheResponse = await CacheResponse.fromResponseAsync(response, cacheOptions);
+  Future<void> _saveResponse(
+    Response response,
+    CacheOptions cacheOptions,
+  ) async {
+    CacheResponse cacheResponse = await CacheResponse.fromResponseAsync(
+      response,
+      cacheOptions,
+    );
 
     await _getCacheStore(cacheOptions).upsertCache(cacheResponse);
 
     response.extra[CacheResponse.extraKey] = cacheResponse.cacheKey;
-    unawaited(SmartCacheStatDao.recordWritten(
-      cacheResponse.cacheKey,
-      kind: 'page',
-      url: cacheResponse.url,
-      sizeBytes: cacheResponse.content.length + cacheResponse.headers.length,
-    ));
+    unawaited(
+      SmartCacheStatDao.recordWritten(
+        cacheResponse.cacheKey,
+        kind: 'page',
+        url: cacheResponse.url,
+        sizeBytes: cacheResponse.content.length + cacheResponse.headers.length,
+      ),
+    );
   }
 
-  Future<CacheResponse> _updateCacheResponse(CacheResponse cacheResponse, CacheOptions cacheOptions) async {
-    CacheResponse newCacheResponse = cacheResponse.copyWith(expireDate: DateTime.now().add(cacheOptions.expire));
+  Future<CacheResponse> _updateCacheResponse(
+    CacheResponse cacheResponse,
+    CacheOptions cacheOptions,
+  ) async {
+    CacheResponse newCacheResponse = cacheResponse.copyWith(
+      expireDate: CacheResponse.expireDateFor(cacheOptions.expire),
+    );
     await _getCacheStore(cacheOptions).upsertCache(newCacheResponse);
     return newCacheResponse;
   }
 
-  Future<void> _deleteCacheResponse(CacheResponse cacheResponse, CacheOptions cacheOptions) async {
+  Future<void> _deleteCacheResponse(
+    CacheResponse cacheResponse,
+    CacheOptions cacheOptions,
+  ) async {
     await _getCacheStore(cacheOptions).delete(cacheResponse.cacheKey);
   }
 }
@@ -244,22 +281,43 @@ class CacheOptions {
 
   static const _extraKey = '@cache_options@';
 
-  static get noCacheOptions => CacheOptions(policy: CachePolicy.noCache, expire: networkSetting.effectivePageCacheMaxAge);
+  static get noCacheOptions => CacheOptions(
+    policy: CachePolicy.noCache,
+    expire: networkSetting.effectivePageCacheMaxAge,
+  );
 
-  static get noCacheOptionsIgnoreParams => CacheOptions(policy: CachePolicy.noCache, expire: networkSetting.effectivePageCacheMaxAge, ignoreParams: true);
+  static get noCacheOptionsIgnoreParams => CacheOptions(
+    policy: CachePolicy.noCache,
+    expire: networkSetting.effectivePageCacheMaxAge,
+    ignoreParams: true,
+  );
 
-  static get cacheOptions => CacheOptions(policy: CachePolicy.cache, expire: networkSetting.effectivePageCacheMaxAge);
+  static get cacheOptions => CacheOptions(
+    policy: CachePolicy.cache,
+    expire: networkSetting.effectivePageCacheMaxAge,
+  );
 
-  static get cacheOptionsIgnoreParams => CacheOptions(policy: CachePolicy.cache, expire: networkSetting.effectivePageCacheMaxAge, ignoreParams: true);
+  static get cacheOptionsIgnoreParams => CacheOptions(
+    policy: CachePolicy.cache,
+    expire: networkSetting.effectivePageCacheMaxAge,
+    ignoreParams: true,
+  );
 
-  const CacheOptions({this.policy = CachePolicy.cache, required this.expire, this.store, this.ignoreParams = false});
+  const CacheOptions({
+    this.policy = CachePolicy.cache,
+    required this.expire,
+    this.store,
+    this.ignoreParams = false,
+  });
 
   static CacheOptions? fromExtra(RequestOptions request) {
     return request.extra[_extraKey];
   }
 
   static String defaultCacheKeyBuilder(RequestOptions request) {
-    return md5.convert(utf8.encode(request.extra[EHCacheManager.realUriExtraKey])).toString();
+    return md5
+        .convert(utf8.encode(request.extra[EHCacheManager.realUriExtraKey]))
+        .toString();
   }
 
   Map<String, dynamic> toExtra() {
@@ -270,8 +328,16 @@ class CacheOptions {
     return Options(extra: toExtra());
   }
 
-  CacheOptions copyWith({CachePolicy? policy, Duration? expire, SqliteCacheStore? store}) {
-    return CacheOptions(policy: policy ?? this.policy, expire: expire ?? this.expire, store: store ?? this.store);
+  CacheOptions copyWith({
+    CachePolicy? policy,
+    Duration? expire,
+    SqliteCacheStore? store,
+  }) {
+    return CacheOptions(
+      policy: policy ?? this.policy,
+      expire: expire ?? this.expire,
+      store: store ?? this.store,
+    );
   }
 }
 
@@ -288,25 +354,45 @@ class CacheResponse {
 
   static const extraKey = '@cache_key@';
 
-  CacheResponse({required this.url, required this.cacheKey, required this.content, required this.headers, required this.expireDate});
+  CacheResponse({
+    required this.url,
+    required this.cacheKey,
+    required this.content,
+    required this.headers,
+    required this.expireDate,
+  });
 
   /// Like [fromResponse], but gzip-compresses the serialized content on a
   /// background isolate via [compute] so the UI isolate isn't blocked.
-  static Future<CacheResponse> fromResponseAsync(Response response, CacheOptions options) async {
-    final Uint8List serialized = _serializeContent(response.requestOptions.responseType, response.data);
+  static Future<CacheResponse> fromResponseAsync(
+    Response response,
+    CacheOptions options,
+  ) async {
+    final Uint8List serialized = _serializeContent(
+      response.requestOptions.responseType,
+      response.data,
+    );
     final Uint8List compressed = await compute(_compress, serialized);
     return CacheResponse(
       content: compressed,
-      expireDate: DateTime.now().add(options.expire),
+      expireDate: expireDateFor(options.expire),
       headers: utf8.encode(jsonEncode(response.headers.map)),
       cacheKey: CacheOptions.defaultCacheKeyBuilder(response.requestOptions),
-      url: response.requestOptions.extra[EHCacheManager.realUriExtraKey] ?? response.requestOptions.uri.toString(),
+      url:
+          response.requestOptions.extra[EHCacheManager.realUriExtraKey] ??
+          response.requestOptions.uri.toString(),
     );
   }
 
-  Response toResponse(RequestOptions options, {Uint8List? decompressedContent}) {
+  Response toResponse(
+    RequestOptions options, {
+    Uint8List? decompressedContent,
+  }) {
     return Response(
-      data: _deserializeContent(options.responseType, decompressedContent ?? _decompress(content)),
+      data: _deserializeContent(
+        options.responseType,
+        decompressedContent ?? _decompress(content),
+      ),
       extra: {extraKey: cacheKey},
       headers: _getHeaders(),
       statusCode: 304,
@@ -315,13 +401,27 @@ class CacheResponse {
   }
 
   bool expired() {
-    return DateTime.now().isAfter(expireDate);
+    return !neverExpires &&
+        !networkSetting.isSmartCacheRetentionUnlimited &&
+        DateTime.now().isAfter(expireDate);
   }
+
+  /// A zero cache duration is the settings-level sentinel for unlimited
+  /// retention. Keep a concrete SQLite-compatible date while treating it as
+  /// non-expiring in Dart.
+  static final DateTime _neverExpireDate = DateTime.utc(9999, 12, 31);
+
+  static DateTime expireDateFor(Duration duration) =>
+      duration == Duration.zero
+          ? _neverExpireDate
+          : DateTime.now().add(duration);
+
+  bool get neverExpires => expireDate == _neverExpireDate;
 
   /// Whether the entry is close to expiring (within the last 10% of its TTL).
   /// Used to avoid rewriting the sliding expiry on every cache hit.
   bool willExpireSoon(Duration expire) {
-    if (expire <= Duration.zero) {
+    if (neverExpires || expire <= Duration.zero) {
       return false;
     }
     final Duration remaining = expireDate.difference(DateTime.now());
@@ -379,7 +479,13 @@ class CacheResponse {
     }
   }
 
-  CacheResponse copyWith({String? url, String? cacheKey, Uint8List? content, Uint8List? headers, DateTime? expireDate}) {
+  CacheResponse copyWith({
+    String? url,
+    String? cacheKey,
+    Uint8List? content,
+    Uint8List? headers,
+    DateTime? expireDate,
+  }) {
     return CacheResponse(
       url: url ?? this.url,
       cacheKey: cacheKey ?? this.cacheKey,
@@ -402,6 +508,9 @@ class SqliteCacheStore {
   }
 
   Future<void> cleanExpired() {
+    if (networkSetting.isSmartCacheRetentionUnlimited) {
+      return Future.value();
+    }
     return DioCacheDao.deleteCacheByDate(DateTime.now());
   }
 
@@ -424,7 +533,13 @@ class SqliteCacheStore {
       if (value == null) {
         return null;
       }
-      return CacheResponse(url: value.url, cacheKey: value.cacheKey, content: value.content, headers: value.headers, expireDate: value.expireDate);
+      return CacheResponse(
+        url: value.url,
+        cacheKey: value.cacheKey,
+        content: value.content,
+        headers: value.headers,
+        expireDate: value.expireDate,
+      );
     });
   }
 

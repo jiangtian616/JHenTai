@@ -62,7 +62,7 @@ class ReadSetting
   /// Automatically retry an online image when its loading progress stalls.
   RxBool enableImageTimeoutRetry = true.obs;
   RxInt imageTimeoutRetryCount = 1.obs;
-  RxInt imageTimeoutRetryInterval = 1000.obs;
+  RxInt imageTimeoutRetryInterval = 2000.obs;
   RxBool displayFirstPageAlone = true.obs;
   RxBool portraitDisplayFirstPageAlone = true.obs;
   RxBool landscapeDisplayFirstPageAlone = true.obs;
