@@ -7,6 +7,7 @@ import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/security_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:local_auth_android/local_auth_android.dart';
 import 'package:local_auth_darwin/local_auth_darwin.dart';
@@ -97,7 +98,7 @@ class _LockPageState extends State<LockPage> with WindowListener, WindowWidgetMi
                   child: Text(hintText),
                 ),
                 if (securitySetting.enableBiometricAuth.isTrue)
-                  IconButton(onPressed: biometricAuth, icon: const Icon(Icons.fingerprint, size: 40)).marginOnly(top: 24),
+                  EHAppleIconButton(onPressed: biometricAuth, icon: const Icon(Icons.fingerprint, size: 40)).marginOnly(top: 24),
               ],
             ),
           ),

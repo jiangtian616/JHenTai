@@ -40,7 +40,11 @@ class FavoritePageLogic extends BasePageLogic {
     if (result == null) {
       return;
     }
+    await handleChangeSortOrderTo(result);
+  }
 
+  /// Shared by the sort dialog and the Apple liquid-glass sort menu.
+  Future<void> handleChangeSortOrderTo(FavoriteSortOrder result) async {
     if (state.refreshState == LoadingState.loading) {
       return;
     }

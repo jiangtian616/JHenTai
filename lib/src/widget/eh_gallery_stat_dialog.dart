@@ -3,11 +3,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery_stats.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
@@ -65,16 +67,28 @@ class _EHGalleryStatDialogState extends State<EHGalleryStatDialog> {
   }
 
   Widget _buildSegmentedControl() {
-    return CupertinoSlidingSegmentedControl<GraphType>(
-      groupValue: graphType,
-      children: {
-        GraphType.allTime: Text('allTime'.tr).paddingSymmetric(horizontal: 12),
-        GraphType.year: Text('year'.tr).paddingSymmetric(horizontal: 12),
-        GraphType.month: Text('month'.tr).paddingSymmetric(horizontal: 12),
-        GraphType.day: Text('day'.tr).paddingSymmetric(horizontal: 12),
-      },
-      onValueChanged: (value) => setState(() => graphType = value!),
-    );
+    return ThemeConfig.isApple
+        ? GlassSegmentedControl(
+            selectedIndex: graphType.index,
+            segments: [
+              for (final type in GraphType.values)
+                GlassSegment(label: type.name.tr),
+            ],
+            onSegmentSelected: (index) =>
+                setState(() => graphType = GraphType.values[index]),
+          )
+        : CupertinoSlidingSegmentedControl<GraphType>(
+            groupValue: graphType,
+            children: {
+              GraphType.allTime: Text('allTime'.tr)
+                  .paddingSymmetric(horizontal: 12),
+              GraphType.year: Text('year'.tr).paddingSymmetric(horizontal: 12),
+              GraphType.month: Text('month'.tr)
+                  .paddingSymmetric(horizontal: 12),
+              GraphType.day: Text('day'.tr).paddingSymmetric(horizontal: 12),
+            },
+            onValueChanged: (value) => setState(() => graphType = value!),
+          );
   }
 
   Future<void> _getGalleryStats() async {

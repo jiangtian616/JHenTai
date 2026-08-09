@@ -6,6 +6,7 @@ import 'package:jhentai/src/mixin/scroll_to_top_page_mixin.dart';
 import 'package:jhentai/src/pages/details/thumbnails/thumbnails_page_logic.dart';
 import 'package:jhentai/src/pages/details/thumbnails/thumbnails_page_state.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/keep_alive.dart';
 
@@ -54,7 +55,7 @@ class ThumbnailsPage extends StatelessWidget with Scroll2TopPageMixin {
     return AppBar(
       title: Text(_mainTitleText, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
       actions: [
-        IconButton(
+        EHAppleIconButton(
           icon: Icon(Icons.send, size: 21),
           visualDensity: const VisualDensity(vertical: -2),
           onPressed: logic.handleTapJumpButton,

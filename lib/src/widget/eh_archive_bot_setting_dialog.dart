@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/widget/eh_apple_button.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/archive_bot_setting.dart';
@@ -53,7 +55,7 @@ class _EHArchiveBotSettingDialogState extends State<EHArchiveBotSettingDialog> {
         children: [
           Text('apiSetting'.tr),
           const Expanded(child: SizedBox()),
-          IconButton(
+          EHAppleIconButton(
             icon: const Icon(Icons.help),
             onPressed: () {
               launchUrlString(
@@ -76,8 +78,8 @@ class _EHArchiveBotSettingDialogState extends State<EHArchiveBotSettingDialog> {
         ],
       ),
       actions: [
-        TextButton(onPressed: backRoute, child: Text('cancel'.tr)),
-        TextButton(
+        EHAppleTextButton(onPressed: backRoute, child: Text('cancel'.tr)),
+        EHAppleTextButton(
           onPressed: _onConfirm,
           child: Text('OK'.tr),
         ),
@@ -120,7 +122,7 @@ class _EHArchiveBotSettingDialogState extends State<EHArchiveBotSettingDialog> {
     return ListTile(
       minLeadingWidth: 40,
       leading: Text('apiAddress'.tr, style: const TextStyle(fontSize: 14)),
-      title: TextField(
+      title: EHAppleTextField(
         controller: _apiAddressController,
         decoration: InputDecoration(
           border: const OutlineInputBorder(),
@@ -148,7 +150,7 @@ class _EHArchiveBotSettingDialogState extends State<EHArchiveBotSettingDialog> {
     return ListTile(
       minLeadingWidth: 40,
       leading: Text('apiKey'.tr, style: const TextStyle(fontSize: 14)),
-      title: TextField(
+      title: EHAppleTextField(
         controller: _apiKeyController,
         decoration: InputDecoration(
           border: const OutlineInputBorder(),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/config/theme_config.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import '../../config/ui_config.dart';
 import '../../setting/user_setting.dart';
 import '../../utils/app_icons.dart';
@@ -22,7 +23,7 @@ class SettingPage extends StatelessWidget {
         title: Text('setting'.tr),
         leading:
             showMenuButton
-                ? IconButton(
+                ? EHAppleIconButton(
                   icon: Icon(AppIcons.menu, size: 20),
                   onPressed:
                       () => TapMenuButtonNotification().dispatch(context),

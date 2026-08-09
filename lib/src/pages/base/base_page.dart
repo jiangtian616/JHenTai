@@ -6,6 +6,7 @@ import 'package:jhentai/src/pages/layout/mobile_v2/notification/tap_menu_button_
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/utils/app_icons.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
 import '../../config/ui_config.dart';
@@ -80,8 +81,20 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState>
   }
 
   Widget buildAppBarMenuButton(BuildContext context) {
-    return IconButton(
-      icon: Icon(AppIcons.menu, size: 20),
+    final Widget icon = Icon(AppIcons.menu, size: 22);
+    if (ThemeConfig.isApple) {
+      // Apple: a plain pull-out affordance (three lines, no glass circle),
+      // which pairs with the codex-style content-shift drawer.
+      return IconButton(
+        onPressed: () => TapMenuButtonNotification().dispatch(context),
+        icon: icon,
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+      );
+    }
+    return EHAppleIconButton(
+      icon: icon,
       onPressed: () => TapMenuButtonNotification().dispatch(context),
     );
   }
@@ -89,11 +102,13 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState>
   List<Widget> buildAppBarActions() {
     return [
       if (showJumpButton && state.gallerys.isNotEmpty)
-        IconButton(
+        EHAppleIconButton(
             icon: Icon(AppIcons.jump, size: 20),
             onPressed: logic.handleTapJumpButton),
+      if (showJumpButton && state.gallerys.isNotEmpty && showFilterButton)
+        const SizedBox(width: 8),
       if (showFilterButton)
-        IconButton(
+        EHAppleIconButton(
             icon: Icon(AppIcons.filter, size: 28),
             onPressed: logic.handleTapFilterButton),
     ];

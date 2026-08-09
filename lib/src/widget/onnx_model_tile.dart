@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/service/inference/onnx_model_store.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 class OnnxModelTile extends StatelessWidget {
@@ -84,7 +85,7 @@ class OnnxModelTile extends StatelessWidget {
                   ),
                 ),
               if (downloading)
-                IconButton(
+                EHAppleIconButton(
                   tooltip: 'cancel'.tr,
                   icon: const Icon(Icons.close),
                   onPressed: store.cancelDownload,
@@ -95,7 +96,7 @@ class OnnxModelTile extends StatelessWidget {
                   child: CupertinoActivityIndicator(),
                 )
               else if (downloaded)
-                IconButton(
+                EHAppleIconButton(
                   icon: const Icon(Icons.delete_outline),
                   onPressed:
                       anotherDownload
@@ -103,7 +104,7 @@ class OnnxModelTile extends StatelessWidget {
                           : () => store.deleteManifest(manifestId),
                 )
               else
-                IconButton(
+                EHAppleIconButton(
                   icon: const Icon(Icons.download),
                   onPressed:
                       anotherDownload

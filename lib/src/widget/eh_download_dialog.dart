@@ -4,6 +4,8 @@ import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/eh_apple_button.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 
 import 'eh_group_name_selector.dart';
 
@@ -52,8 +54,8 @@ class _EHDownloadDialogState extends State<EHDownloadDialog> {
       actionsPadding: const EdgeInsets.only(left: 24, right: 20, bottom: 12),
       content: _buildBody(),
       actions: [
-        TextButton(onPressed: backRoute, child: Text('cancel'.tr)),
-        TextButton(
+        EHAppleTextButton(onPressed: backRoute, child: Text('cancel'.tr)),
+        EHAppleTextButton(
           onPressed: () {
             if (group.isEmpty) {
               toast('invalid'.tr);
@@ -97,7 +99,7 @@ class _EHDownloadDialogState extends State<EHDownloadDialog> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text('downloadOriginalImage'.tr + ' ?', style: const TextStyle(fontSize: UIConfig.groupDialogCheckBoxTextSize)),
-          Checkbox(
+          EHAppleCheckbox(
             value: downloadOriginalImage,
             activeColor: UIConfig.groupDialogCheckBoxColor(context),
             onChanged: (bool? value) => setState(() => downloadOriginalImage = (value ?? true)),

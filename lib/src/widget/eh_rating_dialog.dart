@@ -5,6 +5,7 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get_utils/src/extensions/internacionalization.dart';
 import 'package:get/get_utils/src/extensions/widget_extensions.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/widget/eh_apple_button.dart';
 
 import '../utils/route_util.dart';
 
@@ -56,7 +57,7 @@ class _EHRatingDialogState extends State<EHRatingDialog> {
       child: SizedBox(
         height: UIConfig.ratingDialogButtonBoxHeight,
         width: UIConfig.ratingDialogButtonBoxWidth,
-        child: TextButton(
+        child: EHAppleTextButton(
           onPressed: () => backRoute(result: rating),
           child: Text('submit'.tr, style: const TextStyle(fontWeight: FontWeight.bold)),
         ),

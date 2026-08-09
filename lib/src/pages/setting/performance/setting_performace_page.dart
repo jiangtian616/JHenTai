@@ -66,7 +66,8 @@ class SettingPerformancePage extends StatelessWidget {
               ],
             ),
           ),
-          IconButton(
+          const SizedBox(width: 8),
+          EHAppleIconButton(
             onPressed: () {
               int? value =
                   int.tryParse(maxGalleryNum4AnimationController.value.text);

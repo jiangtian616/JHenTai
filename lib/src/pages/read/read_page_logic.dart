@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'dart:io' as io;
 import 'dart:math';
+
+import 'package:path/path.dart' as path;
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
@@ -1650,39 +1653,124 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
 
   Future<void> _translateCurrentImage(BuildContext context) async {
     final int startIndex = state.readPageInfo.currentImageIndex;
+    final bool translateSubsequent =
+        imageTranslationSetting.translateSubsequentPages.value;
     final int total =
-        imageTranslationSetting.translateSubsequentPages.value
-            ? state.readPageInfo.pageCount - startIndex
-            : 1;
+        translateSubsequent ? state.readPageInfo.pageCount - startIndex : 1;
     imageTranslationService.beginBatch(total);
     try {
-      await layoutLogic.translateImage(startIndex, context);
-      imageTranslationService.batchCompleted = 1;
-      imageTranslationService.update([ImageTranslationService.batchProgressId]);
-      if (imageTranslationSetting.translateSubsequentPages.value) {
-        for (
-          int index = startIndex + 1;
-          index < state.readPageInfo.pageCount;
-          index++
-        ) {
-          if (imageTranslationService.isCancelRequested) {
-            break;
+      final List<int> order = translateSubsequent
+          ? await _buildTranslationOrder(startIndex)
+          : [startIndex];
+      int completed = 0;
+
+      // Pipeline: OCR of the next page runs while the current page's
+      // translation is in flight, so OCR and translation overlap instead of
+      // serializing per page.
+      Future<void>? prevTranslate;
+      for (final int index in order) {
+        if (imageTranslationService.isCancelRequested) {
+          break;
+        }
+        // Kick off this page's OCR immediately — it overlaps the previous
+        // page's translation. Errors are swallowed per page so a single bad
+        // page (e.g. a failed online image fetch) doesn't abort the batch.
+        final Future<RecognizedImage?> ocrFuture =
+            _safeRecognize(index, context);
+        if (prevTranslate != null) {
+          // Only one translation at a time: wait for the previous page's
+          // translation before starting this one (this page's OCR has been
+          // running in parallel meanwhile).
+          await prevTranslate;
+        }
+        prevTranslate = ocrFuture.then((recognized) async {
+          // Count every processed page (skipped pages too) so the batch
+          // progress reaches 100% even when a page has no text / was cached.
+          completed++;
+          if (recognized != null) {
+            // A single slow/errored page must not abort the whole batch.
+            try {
+              await layoutLogic.translateRecognizedImage(
+                index,
+                context,
+                recognized,
+              );
+            } catch (e, stack) {
+              log.warning('Image translation failed for page $index: $e');
+              log.trace(stack);
+            }
           }
-          // A single slow/errored page must not abort the whole batch.
-          try {
-            await layoutLogic.translateImage(index, context);
-          } catch (e, stack) {
-            log.warning('Image translation failed for page $index: $e');
-            log.trace(stack);
-          }
-          imageTranslationService.batchCompleted = index - startIndex + 1;
+          imageTranslationService.batchCompleted = completed;
           imageTranslationService.update([
             ImageTranslationService.batchProgressId,
           ]);
-        }
+        });
+      }
+      if (prevTranslate != null) {
+        await prevTranslate;
       }
     } finally {
       imageTranslationService.endBatch();
+    }
+  }
+
+  /// Orders the pages to translate: the current page first, then the other
+  /// pages (only those from the current page onward — earlier pages are not
+  /// re-translated) whose images are already ready, then the pages whose
+  /// images are still loading (translated last so a loading page doesn't stall
+  /// the batch).
+  Future<List<int>> _buildTranslationOrder(int startIndex) async {
+    final List<int> indices = [
+      for (var i = startIndex; i < state.readPageInfo.pageCount; i++) i,
+    ];
+    // Resolve the disk-cache directory once for all online-mode probes.
+    final String? cacheDirectory =
+        state.readPageInfo.mode == ReadMode.online
+            ? await getExtendedImageDiskCacheDirectory()
+            : null;
+    final List<bool> readyFlags = await Future.wait(
+      indices.map((index) => _isPageImageReady(index, cacheDirectory)),
+    );
+    final List<int> ready = [];
+    final List<int> deferred = [];
+    for (var i = 0; i < indices.length; i++) {
+      (readyFlags[i] ? ready : deferred).add(indices[i]);
+    }
+    return [...ready, ...deferred];
+  }
+
+  /// Whether the page's source image is already available locally so
+  /// translating it won't wait on a slow network fetch.
+  Future<bool> _isPageImageReady(int index, [String? cacheDirectory]) async {
+    final GalleryImage? image = state.images[index];
+    if (image == null) {
+      return false;
+    }
+    final ReadMode mode = state.readPageInfo.mode;
+    if (mode != ReadMode.online) {
+      // Local images are immediately available (no network wait), so ordering
+      // only needs the current page first. A missing file fails gracefully
+      // during translation.
+      return image.path != null;
+    }
+    // Online: ready when the image is already in the extended_image disk cache
+    // (the reader / prefetch queue fills it as pages are viewed).
+    final String url = effectiveEHImageUrl(image.url);
+    final String cacheKey = normalizedImageCacheKey(url);
+    final String directory =
+        cacheDirectory ?? await getExtendedImageDiskCacheDirectory();
+    return io.File(path.join(directory, cacheKey)).exists();
+  }
+
+  /// Runs a page's OCR stage, treating any thrown error as "skip this page" so
+  /// a single bad page never aborts the whole batch.
+  Future<RecognizedImage?> _safeRecognize(int index, BuildContext context) async {
+    try {
+      return await layoutLogic.recognizeImage(index, context);
+    } catch (e, stack) {
+      log.warning('Image translation OCR failed for page $index: $e');
+      log.trace(stack);
+      return null;
     }
   }
 

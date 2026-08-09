@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/theme_config.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/performance_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
@@ -75,7 +76,9 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
             child: ClipRRect(
                 borderRadius: BorderRadius.circular(8), child: content),
           )
-        : Card(child: content);
+        : ThemeConfig.isApple
+            ? GlassCard(child: content)
+            : Card(child: content);
 
     if (gallery.blockedByLocalRules) {
       child = Blur(

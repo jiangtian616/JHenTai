@@ -8,6 +8,8 @@ import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/model/gallery_note.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/eh_apple_button.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../exception/eh_site_exception.dart';
@@ -112,10 +114,10 @@ class _EHFavoriteDialogState extends State<EHFavoriteDialog> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (preferenceSetting.enableDefaultFavorite.isTrue) Text('asYourDefault'.tr),
-                      if (preferenceSetting.enableDefaultFavorite.isTrue) Checkbox(value: remember, onChanged: (value) => setState(() => remember = value!)),
+                      if (preferenceSetting.enableDefaultFavorite.isTrue) EHAppleCheckbox(value: remember, onChanged: (value) => setState(() => remember = value!)),
                     ],
                   ),
-                  trailing: IconButton(
+                  trailing: EHAppleIconButton(
                     icon: const Icon(Icons.edit_note),
                     onPressed: () {
                       setState(() {
@@ -130,7 +132,7 @@ class _EHFavoriteDialogState extends State<EHFavoriteDialog> {
                       Expanded(
                         child: ConstrainedBox(
                           constraints: const BoxConstraints(maxWidth: 160),
-                          child: TextField(
+                          child: EHAppleTextField(
                             controller: _controller,
                             inputFormatters: [LengthLimitingTextInputFormatter(200)],
                             style: const TextStyle(fontSize: 12),
@@ -140,7 +142,7 @@ class _EHFavoriteDialogState extends State<EHFavoriteDialog> {
                           ),
                         ).paddingOnly(left: 8),
                       ),
-                      TextButton(
+                      EHAppleTextButton(
                         child: Text('OK'.tr),
                         onPressed: () {
                           if (selectedIndex == null) {

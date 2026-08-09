@@ -1,14 +1,12 @@
-import 'dart:math' as math;
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jhentai/src/config/theme_config.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 /// A dropdown trigger that keeps the normal Material [DropdownButton] when the
-/// Apple visual style is off, and opens a frosted-glass Apple-style rounded
-/// rectangle menu when it is on. The menu expands downward when it fits below
-/// the control, and flips upward when it would otherwise be clipped by the
-/// window edge.
+/// Apple visual style is off, and opens an iOS 26 liquid-glass [GlassMenu]
+/// that morphs from the trigger when it is on.
 class EHCodexStyleDropdown<T> extends StatefulWidget {
   const EHCodexStyleDropdown({
     super.key,
@@ -37,19 +35,6 @@ class EHCodexStyleDropdown<T> extends StatefulWidget {
 }
 
 class _EHCodexStyleDropdownState<T> extends State<EHCodexStyleDropdown<T>> {
-  final OverlayPortalController _controller = OverlayPortalController();
-
-  bool get _isEndAligned {
-    final AlignmentGeometry? alignment = widget.alignment;
-    if (alignment is Alignment) {
-      return alignment.x > 0;
-    }
-    if (alignment is AlignmentDirectional) {
-      return alignment.start > 0;
-    }
-    return false;
-  }
-
   @override
   Widget build(BuildContext context) {
     if (!ThemeConfig.isApple) {
@@ -72,25 +57,45 @@ class _EHCodexStyleDropdownState<T> extends State<EHCodexStyleDropdown<T>> {
       }
     }
 
-    return OverlayPortal.overlayChildLayoutBuilder(
-      controller: _controller,
-      overlayChildBuilder: _buildOverlay,
-      child: InkWell(
-        onTap: widget.enabled ? _controller.show : null,
-        borderRadius: BorderRadius.circular(6),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-          child: widget.isExpanded
-              ? SizedBox(
-                  width: double.infinity,
-                  child: Row(
+    return EHGlassMenu(
+      // GlassMenu performs arithmetic on menuWidth (SizedBox width), so a
+      // finite value is required even when the trigger is full width.
+      menuWidth: widget.isExpanded ? 480 : 220,
+      trigger: IgnorePointer(
+        ignoring: !widget.enabled,
+        child: InkWell(
+          onTap: null,
+          borderRadius: BorderRadius.circular(6),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            child: widget.isExpanded
+                ? SizedBox(
+                    width: double.infinity,
+                    child: Row(
+                      children: [
+                        if (selectedItem != null)
+                          DefaultTextStyle.merge(
+                            style: const TextStyle(fontSize: 15),
+                            child: selectedItem.child,
+                          ),
+                        const Spacer(),
+                        Icon(
+                          CupertinoIcons.chevron_down,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ],
+                    ),
+                  )
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       if (selectedItem != null)
                         DefaultTextStyle.merge(
                           style: const TextStyle(fontSize: 15),
                           child: selectedItem.child,
                         ),
-                      const Spacer(),
+                      const SizedBox(width: 2),
                       Icon(
                         CupertinoIcons.chevron_down,
                         size: 16,
@@ -98,233 +103,62 @@ class _EHCodexStyleDropdownState<T> extends State<EHCodexStyleDropdown<T>> {
                       ),
                     ],
                   ),
-                )
-              : Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (selectedItem != null)
-                      DefaultTextStyle.merge(
-                        style: const TextStyle(fontSize: 15),
-                        child: selectedItem.child,
-                      ),
-                    const SizedBox(width: 2),
-                    Icon(
-                      CupertinoIcons.chevron_down,
-                      size: 16,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ],
-                ),
+          ),
         ),
       ),
-    );
-  }
-
-  Widget _buildOverlay(BuildContext context, OverlayChildLayoutInfo info) {
-    if (info.childPaintTransform.determinant() == 0.0) {
-      return const SizedBox.shrink();
-    }
-
-    final Size triggerSize = info.childSize;
-    final Size overlaySize = info.overlaySize;
-    final Offset triggerOrigin =
-        MatrixUtils.transformPoint(info.childPaintTransform, Offset.zero);
-
-    final double maxMenuWidth = math.max(0.0, overlaySize.width - 16);
-    final double menuWidth = widget.isExpanded
-        ? triggerSize.width
-        : math.max(triggerSize.width, 220).clamp(0.0, maxMenuWidth).toDouble();
-
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: GestureDetector(
-            behavior: HitTestBehavior.translucent,
-            onTap: _controller.hide,
-          ),
-        ),
-        Positioned.fill(
-          child: CustomSingleChildLayout(
-            delegate: _DropdownPositionDelegate(
-              triggerRect: Rect.fromLTWH(triggerOrigin.dx, triggerOrigin.dy,
-                  triggerSize.width, triggerSize.height),
-              menuWidth: menuWidth,
-              menuMaxHeight: widget.menuMaxHeight ?? 320,
-              isEndAligned: _isEndAligned,
-              overlaySize: overlaySize,
-            ),
-            child: SizedBox(
-              width: menuWidth,
-              child: _buildMenu(context),
-            ),
-          ),
-        ),
+      items: [
+        for (final DropdownMenuItem<T> item in widget.items)
+          _buildGlassMenuItem(item),
       ],
     );
   }
 
-  Widget _buildMenu(BuildContext context) {
-    final ColorScheme scheme = Theme.of(context).colorScheme;
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: const Duration(milliseconds: 180),
-      curve: Curves.easeOutCubic,
-      builder: (context, t, child) => Opacity(
-        opacity: t,
-        child: Transform.translate(
-          offset: Offset(0, 6 * (1 - t)),
-          child: Transform.scale(
-            scale: 0.96 + 0.04 * t,
-            alignment: Alignment.topCenter,
-            child: child,
-          ),
-        ),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          decoration: BoxDecoration(
-            color: scheme.surface,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: scheme.outline.withValues(alpha: 0.35)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.24),
-                blurRadius: 24,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: widget.menuMaxHeight ?? 320,
-              ),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (var index = 0;
-                        index < widget.items.length;
-                        index++) ...[
-                      _buildMenuItem(context, widget.items[index]),
-                      if (index != widget.items.length - 1)
-                        Divider(
-                          height: 0.5,
-                          indent: 16,
-                          endIndent: 16,
-                          color: scheme.outline.withValues(alpha: 0.18),
-                        ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+  GlassMenuItem _buildGlassMenuItem(DropdownMenuItem<T> item) {
+    final ({String title, Widget? icon}) extracted =
+        _extractFromChild(item.child);
+    return GlassMenuItem(
+      title: extracted.title,
+      icon: extracted.icon,
+      isSelected: item.value == widget.value,
+      enabled: item.enabled,
+      onTap: () => widget.onChanged?.call(item.value),
     );
   }
 
-  Widget _buildMenuItem(BuildContext context, DropdownMenuItem<T> item) {
-    final bool selected = item.value == widget.value;
-    final ColorScheme scheme = Theme.of(context).colorScheme;
-    return InkWell(
-      onTap: item.enabled
-          ? () {
-              _controller.hide();
-              widget.onChanged?.call(item.value);
-            }
-          : null,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            Expanded(
-              child: DefaultTextStyle.merge(
-                style: TextStyle(
-                  fontSize: 15,
-                  color: item.enabled
-                      ? null
-                      : scheme.onSurface.withValues(alpha: 0.35),
-                ),
-                child: item.child,
-              ),
-            ),
-            if (selected) ...[
-              const SizedBox(width: 8),
-              Icon(
-                CupertinoIcons.check_mark,
-                size: 16,
-                color: scheme.primary,
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
+  /// Pulls the display text (and any leading icon) out of a
+  /// [DropdownMenuItem] child. Most callers pass a plain [Text]; a few wrap it
+  /// in a [Row] that may carry an icon.
+  ({String title, Widget? icon}) _extractFromChild(Widget child) {
+    String? title;
+    Widget? icon;
 
-class _DropdownPositionDelegate extends SingleChildLayoutDelegate {
-  _DropdownPositionDelegate({
-    required this.triggerRect,
-    required this.menuWidth,
-    required this.menuMaxHeight,
-    required this.isEndAligned,
-    required this.overlaySize,
-  });
-
-  final Rect triggerRect;
-  final double menuWidth;
-  final double menuMaxHeight;
-  final bool isEndAligned;
-  final Size overlaySize;
-
-  static const double _gap = 4;
-  static const double _margin = 8;
-
-  @override
-  BoxConstraints getConstraintsForChild(BoxConstraints constraints) =>
-      BoxConstraints(maxWidth: menuWidth, maxHeight: menuMaxHeight);
-
-  @override
-  Offset getPositionForChild(Size size, Size childSize) {
-    final double rawX =
-        isEndAligned ? triggerRect.right - menuWidth : triggerRect.left;
-    final double x = rawX
-        .clamp(
-            _margin, math.max(_margin, overlaySize.width - menuWidth - _margin))
-        .toDouble();
-
-    final double belowY = triggerRect.bottom + _gap;
-    final double aboveY = triggerRect.top - childSize.height - _gap;
-    final double spaceBelow = size.height - belowY;
-    final double spaceAbove = triggerRect.top - _gap;
-
-    final double y;
-    if (childSize.height <= spaceBelow) {
-      y = belowY;
-    } else if (childSize.height <= spaceAbove) {
-      y = aboveY;
-    } else if (spaceBelow >= spaceAbove) {
-      y = belowY;
-    } else {
-      y = aboveY;
+    void walk(Widget w) {
+      if (title != null && icon != null) {
+        return;
+      }
+      if (w is Text) {
+        title ??= w.data ?? '';
+        return;
+      }
+      if (w is Icon) {
+        icon ??= w;
+        return;
+      }
+      // [Widget.visitChildren] is a no-op for render-object widgets, so descend
+      // through the common `child` / `children` container fields directly.
+      final Widget? single = (w as dynamic).child;
+      if (single != null) {
+        walk(single);
+      }
+      final Object? multiple = (w as dynamic).children;
+      if (multiple is List<Widget>) {
+        for (final Widget c in multiple) {
+          walk(c);
+        }
+      }
     }
 
-    return Offset(
-      x,
-      y.clamp(0.0, math.max(0.0, size.height - childSize.height)).toDouble(),
-    );
+    walk(child);
+    return (title: title ?? '', icon: icon);
   }
-
-  @override
-  bool shouldRelayout(covariant _DropdownPositionDelegate oldDelegate) =>
-      oldDelegate.triggerRect != triggerRect ||
-      oldDelegate.menuWidth != menuWidth ||
-      oldDelegate.menuMaxHeight != menuMaxHeight ||
-      oldDelegate.isEndAligned != isEndAligned ||
-      oldDelegate.overlaySize != overlaySize;
 }

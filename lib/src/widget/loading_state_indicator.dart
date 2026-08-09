@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
+import '../config/theme_config.dart';
 import '../config/ui_config.dart';
 
 enum LoadingState {
@@ -68,9 +70,17 @@ class LoadingStateIndicator extends StatelessWidget {
     switch (loadingState) {
       case LoadingState.loading:
         child = loadingWidgetBuilder?.call() ??
-            (useCupertinoIndicator
-                ? CupertinoActivityIndicator(radius: indicatorRadius, color: indicatorColor)
-                : Center(child: UIConfig.loadingAnimation(context)));
+            (ThemeConfig.isApple
+                ? GlassProgressIndicator.circular(
+                    size: indicatorRadius * 2,
+                    color: indicatorColor,
+                  )
+                : (useCupertinoIndicator
+                    ? CupertinoActivityIndicator(
+                        radius: indicatorRadius,
+                        color: indicatorColor,
+                      )
+                    : Center(child: UIConfig.loadingAnimation(context))));
         break;
       case LoadingState.error:
         child = errorWidgetBuilder?.call() ??
@@ -83,9 +93,17 @@ class LoadingStateIndicator extends StatelessWidget {
         break;
       case LoadingState.idle:
         child = idleWidgetBuilder?.call() ??
-            (useCupertinoIndicator
-                ? CupertinoActivityIndicator(radius: indicatorRadius, color: indicatorColor)
-                : Center(child: UIConfig.loadingAnimation(context)));
+            (ThemeConfig.isApple
+                ? GlassProgressIndicator.circular(
+                    size: indicatorRadius * 2,
+                    color: indicatorColor,
+                  )
+                : (useCupertinoIndicator
+                    ? CupertinoActivityIndicator(
+                        radius: indicatorRadius,
+                        color: indicatorColor,
+                      )
+                    : Center(child: UIConfig.loadingAnimation(context))));
         break;
       case LoadingState.noMore:
         child = noMoreWidget ?? Text('noMoreData'.tr, style: TextStyle(color: UIConfig.loadingStateIndicatorButtonColor(context)));

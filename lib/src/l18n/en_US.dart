@@ -489,7 +489,10 @@ class en_US {
       'lanTrafficSent': 'Sent',
       'lanTrafficReceived': 'Received',
       'lanTrafficCurrentRunHint': 'LAN sharing data transferred during this run',
-      'lanDeviceId': 'Device ID',
+'lanDeviceId': 'Device ID',
+      'lanEditDeviceName': 'Edit device name',
+      'lanDeviceNameRequired': 'Device name cannot be empty',
+      'lanDeviceNameTooLong': 'Device name must be 128 characters or fewer',
       'lanTrustReady': 'Trusted-device identity is ready',
       'lanTrustReadyHint':
           'Reconnect credentials are stored in the system secure storage.',

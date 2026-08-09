@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:jhentai/src/config/theme_config.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/model/lan_device_trust.dart';
 import 'package:jhentai/src/service/lan_device_trust_service.dart';
 import 'package:jhentai/src/utils/byte_util.dart';
+import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/eh_apple_button.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 class SettingLanSharingPage extends StatelessWidget {
   const SettingLanSharingPage({super.key});
@@ -47,6 +52,8 @@ class SettingLanSharingPage extends StatelessWidget {
                             '${'lanDeviceId'.tr}: ${_shortId(service.localDeviceId)}',
                           ),
                           leading: const Icon(Icons.devices),
+                          trailing: const Icon(Icons.edit_outlined, size: 18),
+                          onTap: () => _editLocalDeviceName(context, service),
                         ),
                         ListTile(
                           title: Text('lanTrustReady'.tr),
@@ -173,6 +180,48 @@ class SettingLanSharingPage extends StatelessWidget {
     }
     return '${value.substring(0, 7)}…${value.substring(value.length - 6)}';
   }
+
+  /// Lets the user rename this device (persisted via the trust service).
+  Future<void> _editLocalDeviceName(
+    BuildContext context,
+    LanDeviceTrustService service,
+  ) async {
+    final TextEditingController controller = TextEditingController(
+      text: service.localDisplayName,
+    );
+    final String? name = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text('lanEditDeviceName'.tr),
+        content: EHAppleTextField(
+          controller: controller,
+          autofocus: true,
+          maxLength: 128,
+          decoration: const InputDecoration(isDense: true),
+          onSubmitted: (_) =>
+              Navigator.of(dialogContext).pop(controller.text),
+        ),
+        actions: [
+          EHAppleTextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text('cancel'.tr),
+          ),
+          EHAppleTextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(controller.text),
+            child: Text('OK'.tr),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (name == null) {
+      return;
+    }
+    final String? error = await service.setLocalDisplayName(name);
+    if (error != null) {
+      toast(error);
+    }
+  }
 }
 
 class _IncomingPairingTile extends StatelessWidget {
@@ -189,7 +238,7 @@ class _IncomingPairingTile extends StatelessWidget {
         peer.displayName.trim().isEmpty ? peer.deviceId : peer.displayName,
       ),
       subtitle: Text('lanIncomingPairingRequestHint'.tr),
-      trailing: FilledButton(
+      trailing: EHAppleFilledButton(
         onPressed: () => _review(context),
         child: Text('lanReviewDevice'.tr),
       ),
@@ -235,7 +284,7 @@ class _DiscoveredDeviceTile extends StatelessWidget {
         peer.displayName.trim().isEmpty ? peer.deviceId : peer.displayName,
       ),
       subtitle: Text('${peer.host}:${peer.port}'),
-      trailing: FilledButton.tonal(
+      trailing: EHAppleFilledButton.tonal(
         onPressed: isPairing ? null : () => _chooseTrust(context),
         child: Text(isPairing ? 'lanPairingWaiting'.tr : 'lanReviewDevice'.tr),
       ),
@@ -341,12 +390,12 @@ class _TrustDeviceDialogState extends State<_TrustDeviceDialog> {
         ),
       ),
       actions: [
-        TextButton(
+        EHAppleTextButton(
           onPressed:
               () => Navigator.pop(context, const _TrustDecision(trust: false)),
           child: Text('lanDoNotTrust'.tr),
         ),
-        FilledButton(
+        EHAppleFilledButton(
           onPressed:
               _permissions.isEmpty
                   ? null
@@ -450,26 +499,44 @@ class _TrustedDeviceTile extends StatelessWidget {
   }
 
   Future<void> _confirmRevoke(BuildContext context) async {
-    final bool? confirmed = await showDialog<bool>(
-      context: context,
-      builder:
-          (dialogContext) => AlertDialog(
-            title: Text('lanRevokeTrust'.tr),
-            content: Text(
-              'lanRevokeTrustHint'.trParams({'name': device.displayName}),
-            ),
+    final bool? confirmed = ThemeConfig.isApple
+        ? await GlassDialog.show<bool>(
+            context: context,
+            settings: UIConfig.glassDialogSettings(context),
+            title: 'lanRevokeTrust'.tr,
+            message: 'lanRevokeTrustHint'.trParams({'name': device.displayName}),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(false),
-                child: Text('cancel'.tr),
+              GlassDialogAction(
+                label: 'cancel'.tr,
+                onPressed: () => backRoute(result: false),
               ),
-              FilledButton(
-                onPressed: () => Navigator.of(dialogContext).pop(true),
-                child: Text('OK'.tr),
+              GlassDialogAction(
+                label: 'OK'.tr,
+                onPressed: () => backRoute(result: true),
+                isPrimary: true,
               ),
             ],
-          ),
-    );
+          )
+        : await showDialog<bool>(
+            context: context,
+            builder:
+                (dialogContext) => AlertDialog(
+                  title: Text('lanRevokeTrust'.tr),
+                  content: Text(
+                    'lanRevokeTrustHint'.trParams({'name': device.displayName}),
+                  ),
+                  actions: [
+                    EHAppleTextButton(
+                      onPressed: () => Navigator.of(dialogContext).pop(false),
+                      child: Text('cancel'.tr),
+                    ),
+                    EHAppleFilledButton(
+                      onPressed: () => Navigator.of(dialogContext).pop(true),
+                      child: Text('OK'.tr),
+                    ),
+                  ],
+                ),
+          );
     if (confirmed == true) {
       await lanDeviceTrustService.revokeTrust(device.deviceId);
     }

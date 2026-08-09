@@ -185,6 +185,10 @@ abstract interface class LanTrustRepository {
 
   Future<String> ensureLocalDeviceId(String Function() generator);
 
+  Future<String?> readLocalDeviceName();
+
+  Future<void> saveLocalDeviceName(String name);
+
   Future<String?> readLocalIdentitySeed();
 
   Future<void> saveLocalIdentitySeed(String seed);
@@ -253,6 +257,8 @@ class FileLanTrustRepository implements LanTrustRepository {
         'schemaVersion': schemaVersion,
         if (decoded['localDeviceId'] is String)
           'localDeviceId': decoded['localDeviceId'],
+        if (decoded['localDeviceName'] is String)
+          'localDeviceName': decoded['localDeviceName'],
         'devices': validDevices.map((device) => device.toJson()).toList(),
       };
     } on Object {
@@ -282,6 +288,17 @@ class FileLanTrustRepository implements LanTrustRepository {
     _metadata['localDeviceId'] = generated;
     await _persist();
     return generated;
+  }
+
+  @override
+  Future<String?> readLocalDeviceName() =>
+      Future.value(_metadata['localDeviceName'] as String?);
+
+  @override
+  Future<void> saveLocalDeviceName(String name) async {
+    final String trimmed = name.trim();
+    _metadata['localDeviceName'] = trimmed;
+    await _persist();
   }
 
   @override

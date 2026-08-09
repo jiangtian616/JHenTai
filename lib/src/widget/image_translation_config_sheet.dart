@@ -4,6 +4,7 @@ import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/image_translation_service.dart';
 import 'package:jhentai/src/setting/image_translation_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
+import 'package:jhentai/src/widget/eh_apple_button.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
 
@@ -121,7 +122,7 @@ class _ImageTranslationConfigSheetState
                 Expanded(
                     child: Text('imageTextTranslation'.tr,
                         style: Theme.of(context).textTheme.titleLarge)),
-                IconButton(
+                EHAppleIconButton(
                     onPressed: () {
                       if (widget.onClose != null) {
                         widget.onClose!();
@@ -164,7 +165,7 @@ class _ImageTranslationConfigSheetState
               runSpacing: 8,
               children: [
                 if (widget.onTranslateCurrentImage != null)
-                  FilledButton.icon(
+                  EHAppleFilledButton.icon(
                     onPressed: () {
                       Navigator.of(context).pop();
                       widget.onTranslateCurrentImage!();
@@ -172,7 +173,7 @@ class _ImageTranslationConfigSheetState
                     icon: const Icon(Icons.translate),
                     label: Text('translateImageText'.tr),
                   ),
-                TextButton(
+                EHAppleTextButton(
                   onPressed: () {
                     if (widget.onOpenAdvancedSettings != null) {
                       widget.onOpenAdvancedSettings!();

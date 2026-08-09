@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
@@ -21,6 +22,7 @@ import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/eh_alert_dialog.dart';
 import 'package:jhentai/src/widget/eh_comment_score_details_dialog.dart';
 import 'package:like_button/like_button.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../exception/eh_site_exception.dart';
@@ -60,40 +62,48 @@ class EHComment extends StatefulWidget {
 class _EHCommentState extends State<EHComment> {
   @override
   Widget build(BuildContext context) {
-    Widget child = Card(
-      elevation: 2,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _EHCommentHeader(
+    final Widget cardContent = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _EHCommentHeader(
+          inDetailPage: widget.inDetailPage,
+          username: widget.comment.username,
+          commentTime: widget.comment.time,
+          fromMe: widget.comment.fromMe,
+        ),
+        Flexible(
+          child: _EHCommentTextBody(
             inDetailPage: widget.inDetailPage,
-            username: widget.comment.username,
-            commentTime: widget.comment.time,
-            fromMe: widget.comment.fromMe,
-          ),
-          Flexible(
-            child: _EHCommentTextBody(
-              inDetailPage: widget.inDetailPage,
-              onBlockUser: widget.onBlockUser,
-              element: widget.comment.content,
-            ).paddingOnly(top: 4, bottom: 8),
-          ),
-          _EHCommentFooter(
-            inDetailPage: widget.inDetailPage,
-            commentId: widget.comment.id,
-            score: widget.comment.score,
-            scoreDetails: widget.comment.scoreDetails,
-            lastEditTime: widget.comment.lastEditTime,
-            fromMe: widget.comment.fromMe,
-            disableButtons: widget.disableButtons,
-            votedUp: widget.comment.votedUp,
-            votedDown: widget.comment.votedDown,
-            onVoted: widget.onVoted,
-            handleTapUpdateCommentButton: widget.handleTapUpdateCommentButton,
-          ),
-        ],
-      ).paddingOnly(left: 8, right: 8, top: 8, bottom: 6),
-    );
+            onBlockUser: widget.onBlockUser,
+            element: widget.comment.content,
+          ).paddingOnly(top: 4, bottom: 8),
+        ),
+        _EHCommentFooter(
+          inDetailPage: widget.inDetailPage,
+          commentId: widget.comment.id,
+          score: widget.comment.score,
+          scoreDetails: widget.comment.scoreDetails,
+          lastEditTime: widget.comment.lastEditTime,
+          fromMe: widget.comment.fromMe,
+          disableButtons: widget.disableButtons,
+          votedUp: widget.comment.votedUp,
+          votedDown: widget.comment.votedDown,
+          onVoted: widget.onVoted,
+          handleTapUpdateCommentButton: widget.handleTapUpdateCommentButton,
+        ),
+      ],
+    ).paddingOnly(left: 8, right: 8, top: 8, bottom: 6);
+
+    Widget child = ThemeConfig.isApple
+        ? GlassCard(
+            // Match Card's default spacing so adjacent comment cards in the
+            // fixed-extent horizontal strip don't butt against each other, and
+            // keep padding zero so the content's own insets aren't doubled.
+            padding: EdgeInsets.zero,
+            margin: const EdgeInsets.all(4),
+            child: cardContent,
+          )
+        : Card(elevation: 2, child: cardContent);
 
     if (widget.inDetailPage && widget.onBlockUser != null) {
       child = GestureDetector(

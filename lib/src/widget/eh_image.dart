@@ -10,12 +10,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/image_cache_util.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'dart:io' as io;
 
 import 'dart:ui' as ui;
@@ -344,12 +346,16 @@ class _EHImageState extends State<EHImage> {
   Widget buildFileImage(BuildContext context) {
     if (widget.galleryImage.downloadStatus == DownloadStatus.paused) {
       return widget.pausedWidgetBuilder?.call() ??
-          const Center(child: CircularProgressIndicator());
+          (ThemeConfig.isApple
+              ? GlassProgressIndicator.circular()
+              : const Center(child: CircularProgressIndicator()));
     }
 
     if (widget.galleryImage.downloadStatus == DownloadStatus.downloading) {
       return widget.downloadingWidgetBuilder?.call() ??
-          const Center(child: CircularProgressIndicator());
+          (ThemeConfig.isApple
+              ? GlassProgressIndicator.circular()
+              : const Center(child: CircularProgressIndicator()));
     }
 
     final io.File file = io.File(

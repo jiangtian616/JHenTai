@@ -24,6 +24,7 @@ import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
+import 'package:jhentai/src/utils/image_cache_util.dart';
 import 'package:jhentai/src/utils/permission_util.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
@@ -283,47 +284,130 @@ abstract class BaseLayoutLogic extends GetxController
         pathService.getVisibleDir().path, readPageState.images[index]!.path!);
   }
 
-  Future<void> translateImage(int index, BuildContext context,
+  /// OCR stage of a page's translation: builds the request, fetches the image
+  /// (online mode) and runs recognition. Returns the recognized source for
+  /// [translateRecognizedImage], or null when the page should be skipped
+  /// (image unavailable / no text / already translated).
+  Future<RecognizedImage?> recognizeImage(int index, BuildContext context,
       {bool force = false}) async {
     final GalleryImage? image = readPageState.images[index];
     if (image == null) {
-      return;
+      return null;
     }
 
     final ReadMode mode = readPageState.readPageInfo.mode;
-    ImageTranslationRequest request;
+    final ImageTranslationRequest? request = await _buildTranslationRequest(
+      index,
+      image,
+      mode,
+    );
+    if (request == null) {
+      return null;
+    }
+
+    readPageState.imageTranslationRequests[index] = request;
+    updateSafely([BaseLayoutLogic.pageId]);
+    return imageTranslationService.recognizeImage(request, force: force);
+  }
+
+  /// Translation stage of a page's translation: translates the recognized
+  /// source text and refreshes the overlay.
+  Future<void> translateRecognizedImage(
+    int index,
+    BuildContext context,
+    RecognizedImage recognized,
+  ) async {
+    final ImageTranslationRequest? request =
+        readPageState.imageTranslationRequests[index];
+    if (request == null) {
+      return;
+    }
+    await imageTranslationService.translateRecognizedText(request, recognized);
+    updateSafely([BaseLayoutLogic.pageId]);
+  }
+
+  /// Builds the translation request for [index], fetching the image bytes for
+  /// online mode. Returns null when the image is unavailable.
+  Future<ImageTranslationRequest?> _buildTranslationRequest(
+    int index,
+    GalleryImage image,
+    ReadMode mode,
+  ) async {
     if (mode == ReadMode.online) {
       // Images that have not been loaded/cached yet can take a long time to
       // fetch. Do not let one slow image stall a batch translation: give the
       // fetch a short timeout and skip the page when it is not available in
       // time. A single-page translate still reports the failure.
-      final Uint8List? bytes = await getNetworkImageData(image.url)
-          .timeout(const Duration(seconds: 5), onTimeout: () => null);
+      // Use the same effective URL + normalized cache key the reader uses, so
+      // pages already cached by the reader are reused instead of re-fetched.
+      final String url = effectiveEHImageUrl(image.url);
+      final String cacheKey = normalizedImageCacheKey(url);
+      final Uint8List? bytes =
+          await _loadImageBytesForTranslation(url, cacheKey)
+              .timeout(const Duration(seconds: 5), onTimeout: () => null);
       if (bytes == null) {
         if (!imageTranslationService.isBatchTranslating) {
           toast('imageTranslationSourceUnavailable'.tr);
         }
-        return;
+        return null;
       }
-      request = ImageTranslationRequest(
+      return ImageTranslationRequest(
           cacheKey: 'online:${image.url}', imageBytes: bytes);
-    } else if (mode == ReadMode.downloaded && image.path != null) {
-      request = ImageTranslationRequest(
+    }
+    if (mode == ReadMode.downloaded && image.path != null) {
+      return ImageTranslationRequest(
           cacheKey: 'downloaded:${image.path}',
           imagePath: _getDownloadedImageAbsolutePath(index));
-    } else if (mode == ReadMode.archive && image.path != null) {
-      request = ImageTranslationRequest(
+    }
+    if (mode == ReadMode.archive && image.path != null) {
+      return ImageTranslationRequest(
           cacheKey: 'archive:${image.path}',
           imagePath: _getArchiveImageAbsolutePath(index));
-    } else {
-      toast('imageTranslationSourceUnavailable'.tr);
+    }
+    toast('imageTranslationSourceUnavailable'.tr);
+    return null;
+  }
+
+  /// Reads a page's compressed bytes for translation, reusing the reader's
+  /// disk cache (keyed by [cacheKey]) when available and falling back to a
+  /// network fetch otherwise.
+  Future<Uint8List?> _loadImageBytesForTranslation(
+    String url,
+    String cacheKey,
+  ) async {
+    final Directory directory = Directory(
+      await getExtendedImageDiskCacheDirectory(),
+    );
+    final File cacheFile = File(join(directory.path, cacheKey));
+    if (await cacheFile.exists()) {
+      return cacheFile.readAsBytes();
+    }
+    // Not cached yet — fetch from the network. `cache: false` avoids the
+    // raw-URL key mismatch that would otherwise miss the reader's cache.
+    final ExtendedNetworkImageProvider provider = ExtendedNetworkImageProvider(
+      url,
+      cache: false,
+      cacheKey: cacheKey,
+      retries: 1,
+      printError: false,
+    );
+    return provider.getNetworkImageData();
+  }
+
+  /// Translates a single page end-to-end (OCR then translation). Batch
+  /// translation uses [recognizeImage] + [translateRecognizedImage] so the
+  /// pipeline can overlap the next page's OCR with the current translation.
+  Future<void> translateImage(int index, BuildContext context,
+      {bool force = false}) async {
+    final RecognizedImage? recognized = await recognizeImage(
+      index,
+      context,
+      force: force,
+    );
+    if (recognized == null) {
       return;
     }
-
-    readPageState.imageTranslationRequests[index] = request;
-    updateSafely([BaseLayoutLogic.pageId]);
-    await imageTranslationService.translate(request, force: force);
-    updateSafely([BaseLayoutLogic.pageId]);
+    await translateRecognizedImage(index, context, recognized);
   }
 
   /// Unified entry point for local image context menus.

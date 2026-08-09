@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/l18n/locale_text.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/network/jh_request.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:macos_window_utils/macos_window_utils.dart';
 import 'package:jhentai/src/routes/getx_router_observer.dart';
 import 'package:jhentai/src/routes/routes.dart';
@@ -124,6 +125,9 @@ void main(List<String> args) async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Pre-warm the liquid-glass shaders once before the first frame.
+  await LiquidGlassWidgets.initialize();
+
   if (GetPlatform.isMacOS) {
     await WindowManipulator.initialize();
   }
@@ -139,7 +143,60 @@ void main(List<String> args) async {
   lifeCircleBeans = topologicalSort(lifeCircleBeans);
   await _initBeansInParallel(lifeCircleBeans);
 
-  runApp(const MyApp());
+  runApp(
+    LiquidGlassWidgets.wrap(
+      child: const MyApp(),
+      theme: _buildGlassTheme(),
+      adaptiveQuality: true,
+      brightnessResolver: Theme.maybeBrightnessOf,
+    ),
+  );
+}
+
+/// iOS 26 liquid-glass theme mapped to JHenTai's Apple palette: neutral white
+/// glass instead of the package's cool-blue tint, a stronger refractive index
+/// for the light bending, and restrained specular edges (lower
+/// lightIntensity / ambientStrength) so buttons don't glow harshly.
+GlassThemeData _buildGlassTheme() {
+  // iOS is high-DPI (3x): the shader scales the edge specular by DPR, so the
+  // same settings render a much more prominent edge on iPhone than on macOS.
+  // Tone it down there while keeping the macOS look that reads well.
+  final bool isIOS = GetPlatform.isIOS;
+  return GlassThemeData(
+    light: GlassThemeVariant(
+      settings: GlassThemeSettings(
+        // Visible light fill so the button reads against the background.
+        glassColor: Color.fromRGBO(255, 255, 255, isIOS ? 0.15 : 0.28),
+        refractiveIndex: 1.8,
+        // No full-perimeter rim (fresnel 0). A vertical light makes the
+        // shader's mainLight + oppositeLight lobes land on the top AND bottom
+        // edges → two clear highlights, dim sides. iOS high-DPI gets a softer,
+        // dimmer lobe so the highlight reads as a faint hint, not a white ring.
+        fresnelStrength: 0,
+        lightAngle: 1.5708,
+        lightIntensity: isIOS ? 0.24 : 0.6,
+        ambientStrength: 0,
+        specularSharpness:
+            isIOS ? GlassSpecularSharpness.soft : GlassSpecularSharpness.sharp,
+      ),
+      // Kill the GlassGlow halo ring entirely — the full edge glow users saw
+      // came from the glowOpacity=1 halo (glowRadius 20), not the fresnel.
+      glowColors: GlassGlowColors(glowOpacity: 0),
+    ),
+    dark: GlassThemeVariant(
+      settings: GlassThemeSettings(
+        glassColor: Color.fromRGBO(255, 255, 255, isIOS ? 0.08 : 0.18),
+        refractiveIndex: 1.8,
+        fresnelStrength: 0,
+        lightAngle: 1.5708,
+        lightIntensity: isIOS ? 0.20 : 0.55,
+        ambientStrength: 0,
+        specularSharpness:
+            isIOS ? GlassSpecularSharpness.soft : GlassSpecularSharpness.sharp,
+      ),
+      glowColors: GlassGlowColors(glowOpacity: 0),
+    ),
+  );
 }
 
 /// Initializes beans in dependency waves: beans whose declared

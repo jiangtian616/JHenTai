@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/utils/app_icons.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import '../../../routes/routes.dart';
 import '../../../utils/route_util.dart';
 import '../../../network/eh_request.dart';
@@ -38,7 +39,7 @@ class SettingAccountPage extends StatelessWidget {
   Widget _buildLogin() {
     return ListTile(
       title: Text('login'.tr),
-      trailing: IconButton(
+      trailing: EHAppleIconButton(
           onPressed: () => toRoute(Routes.login),
           icon: Icon(AppIcons.chevronRight)),
       onTap: () => toRoute(Routes.login),
@@ -55,7 +56,7 @@ class SettingAccountPage extends StatelessWidget {
           await ehRequest.requestLogout();
         }
       },
-      trailing: IconButton(
+      trailing: EHAppleIconButton(
         icon: const Icon(Icons.logout),
         color: UIConfig.alertColor(context),
         onPressed: () async {

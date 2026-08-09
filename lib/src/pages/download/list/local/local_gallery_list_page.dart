@@ -3,6 +3,8 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_translated_text.dart';
 import 'package:jhentai/src/widget/fade_slide_widget.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
@@ -50,7 +52,7 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
       titleSpacing: 0,
       title: const DownloadPageSegmentControl(
           galleryType: DownloadPageGalleryType.local),
-      leading: IconButton(
+      leading: EHAppleIconButton(
         icon: const Icon(Icons.help),
         onPressed: () => toast(
             (GetPlatform.isIOS || GetPlatform.isMacOS)
@@ -59,44 +61,63 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
             isShort: false),
       ),
       actions: [
-        PopupMenuButton(
-          itemBuilder: (context) {
-            return [
-              PopupMenuItem(
-                value: 0,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.grid_view),
-                    const SizedBox(width: 12),
-                    Text('switch2GridMode'.tr)
-                  ],
-                ),
+        ThemeConfig.isApple
+            ? EHGlassMenu(
+                triggerBuilder: (context, toggle) => EHAppleIconButton(
+                    icon: const Icon(Icons.more_vert), onPressed: toggle),
+                items: [
+                  GlassMenuItem(
+                    title: 'switch2GridMode'.tr,
+                    icon: const Icon(Icons.grid_view),
+                    onTap: () => DownloadPageBodyTypeChangeNotification(
+                            bodyType: DownloadPageBodyType.grid)
+                        .dispatch(context),
+                  ),
+                  GlassMenuItem(
+                    title: 'refresh'.tr,
+                    icon: const Icon(Icons.refresh),
+                    onTap: () => logic.handleRefreshLocalGallery(),
+                  ),
+                ],
+              )
+            : PopupMenuButton(
+                itemBuilder: (context) {
+                  return [
+                    PopupMenuItem(
+                      value: 0,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.grid_view),
+                          const SizedBox(width: 12),
+                          Text('switch2GridMode'.tr)
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 1,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.refresh),
+                          const SizedBox(width: 12),
+                          Text('refresh'.tr)
+                        ],
+                      ),
+                    ),
+                  ];
+                },
+                onSelected: (value) {
+                  if (value == 0) {
+                    DownloadPageBodyTypeChangeNotification(
+                            bodyType: DownloadPageBodyType.grid)
+                        .dispatch(context);
+                  }
+                  if (value == 1) {
+                    logic.handleRefreshLocalGallery();
+                  }
+                },
               ),
-              PopupMenuItem(
-                value: 1,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.refresh),
-                    const SizedBox(width: 12),
-                    Text('refresh'.tr)
-                  ],
-                ),
-              ),
-            ];
-          },
-          onSelected: (value) {
-            if (value == 0) {
-              DownloadPageBodyTypeChangeNotification(
-                      bodyType: DownloadPageBodyType.grid)
-                  .dispatch(context);
-            }
-            if (value == 1) {
-              logic.handleRefreshLocalGallery();
-            }
-          },
-        ),
       ],
     );
   }

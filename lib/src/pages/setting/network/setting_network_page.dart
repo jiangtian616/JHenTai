@@ -179,7 +179,7 @@ class SettingNetworkPage extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
-            width: 50,
+            width: 90,
             child: EHAppleTextField(
               controller: connectTimeoutController,
               keyboardType: TextInputType.number,
@@ -194,11 +194,13 @@ class SettingNetworkPage extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(width: 8),
           Text(
             'ms',
             style: UIConfig.settingPageListTileTrailingTextStyle(context),
           ),
-          IconButton(
+          const SizedBox(width: 8),
+          EHAppleIconButton(
             onPressed: () {
               int? value = int.tryParse(connectTimeoutController.value.text);
               if (value == null) {
@@ -224,7 +226,7 @@ class SettingNetworkPage extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
-            width: 50,
+            width: 90,
             child: EHAppleTextField(
               controller: receiveTimeoutController,
               decoration: const InputDecoration(
@@ -238,11 +240,13 @@ class SettingNetworkPage extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(width: 8),
           Text(
             'ms',
             style: UIConfig.settingPageListTileTrailingTextStyle(context),
           ),
-          IconButton(
+          const SizedBox(width: 8),
+          EHAppleIconButton(
             onPressed: () {
               int? value = int.tryParse(receiveTimeoutController.value.text);
               if (value == null) {
@@ -328,8 +332,13 @@ class _CacheSizeTileState extends State<_CacheSizeTile> {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          IconButton(onPressed: _load, icon: const Icon(Icons.refresh)),
-          IconButton(onPressed: _clear, icon: const Icon(Icons.delete_outline)),
+          EHAppleIconButton(
+              onPressed: _load,
+              icon: const Icon(Icons.refresh)),
+          const SizedBox(width: 8),
+          EHAppleIconButton(
+              onPressed: _clear,
+              icon: const Icon(Icons.delete_outline)),
         ],
       ),
     );

@@ -2,11 +2,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/cookie_util.dart';
@@ -92,17 +94,29 @@ class _SettingEHPageState extends State<SettingEHPage> {
       title: Text('site'.tr),
       onTap: () =>
           ehSetting.saveSite(ehSetting.site.value == 'EH' ? 'EX' : 'EH'),
-      trailing: CupertinoSlidingSegmentedControl<String>(
-        groupValue: ehSetting.site.value,
-        children: const {
-          'EH': Text('E-Hentai'),
-          'EX': Text('EXHentai'),
-        },
-        onValueChanged: (value) {
-          ehSetting.saveSite(value ?? 'EH');
-          _loadProfile();
-        },
-      ),
+      trailing: ThemeConfig.isApple
+          ? GlassSegmentedControl(
+              selectedIndex: ehSetting.site.value == 'EX' ? 1 : 0,
+              segments: const [
+                GlassSegment(label: 'E-Hentai'),
+                GlassSegment(label: 'EXHentai'),
+              ],
+              onSegmentSelected: (index) {
+                ehSetting.saveSite(index == 0 ? 'EH' : 'EX');
+                _loadProfile();
+              },
+            )
+          : CupertinoSlidingSegmentedControl<String>(
+              groupValue: ehSetting.site.value,
+              children: const {
+                'EH': Text('E-Hentai'),
+                'EX': Text('EXHentai'),
+              },
+              onValueChanged: (value) {
+                ehSetting.saveSite(value ?? 'EH');
+                _loadProfile();
+              },
+            ),
     );
   }
 

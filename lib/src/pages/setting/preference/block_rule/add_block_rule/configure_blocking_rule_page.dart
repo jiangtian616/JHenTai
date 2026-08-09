@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
+import 'package:jhentai/src/widget/eh_apple_button.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 import '../../../../../service/local_block_rule_service.dart';
 import '../../../../../widget/eh_wheel_speed_controller.dart';
@@ -26,7 +29,7 @@ class ConfigureBlockingRulePage extends StatelessWidget {
         centerTitle: true,
         title: Text('blockingRules'.tr),
         actions: [
-          TextButton(
+          EHAppleTextButton(
               onPressed: logic.configureCurrentBlockRulesByGroup,
               child: Text('OK'.tr)),
         ],
@@ -50,7 +53,7 @@ class ConfigureBlockingRulePage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                OutlinedButton(
+                EHAppleOutlinedButton(
                   child: const Icon(Icons.add, size: 24),
                   style: FilledButton.styleFrom(
                       shape: const CircleBorder(), padding: EdgeInsets.zero),
@@ -67,94 +70,94 @@ class ConfigureBlockingRulePage extends StatelessWidget {
   }
 
   Widget _buildRuleForm(LocalBlockRule rule) {
+    final Widget cardContent = Column(
+      children: [
+        ListTile(
+          title: Text('blockingTarget'.tr),
+          trailing: EHCodexStyleDropdown<LocalBlockTargetEnum>(
+            value: rule.target,
+            alignment: Alignment.centerRight,
+            onChanged: (LocalBlockTargetEnum? newValue) {
+              rule.target = newValue!;
+              rule.attribute =
+                  LocalBlockAttributeEnum.withTarget(rule.target).first;
+              rule.pattern =
+                  LocalBlockPatternEnum.withAttribute(rule.attribute).first;
+              logic.updateSafely([logic.bodyId]);
+            },
+            items: LocalBlockTargetEnum.values
+                .map((e) => DropdownMenuItem(
+                    child: Text(e.desc.tr),
+                    value: e,
+                    alignment: Alignment.center))
+                .toList(),
+          ),
+        ),
+        ListTile(
+          title: Text('blockingAttribute'.tr),
+          trailing: EHCodexStyleDropdown<LocalBlockAttributeEnum>(
+            value: rule.attribute,
+            alignment: Alignment.centerRight,
+            onChanged: (LocalBlockAttributeEnum? newValue) {
+              rule.attribute = newValue!;
+              rule.pattern =
+                  LocalBlockPatternEnum.withAttribute(rule.attribute).first;
+              logic.updateSafely([logic.bodyId]);
+            },
+            items: LocalBlockAttributeEnum.withTarget(rule.target)
+                .map((e) => DropdownMenuItem(
+                    child: Text(e.desc.tr),
+                    value: e,
+                    alignment: Alignment.center))
+                .toList(),
+          ),
+        ),
+        ListTile(
+          title: Text('blockingPattern'.tr),
+          trailing: EHCodexStyleDropdown<LocalBlockPatternEnum>(
+            value: rule.pattern,
+            alignment: Alignment.centerRight,
+            onChanged: (LocalBlockPatternEnum? newValue) {
+              rule.pattern = newValue!;
+              logic.updateSafely([logic.bodyId]);
+            },
+            items: LocalBlockPatternEnum.withAttribute(rule.attribute)
+                .map((e) => DropdownMenuItem(
+                    child: Text(e.desc.tr),
+                    value: e,
+                    alignment: Alignment.center))
+                .toList(),
+          ),
+        ),
+        ListTile(
+          title: Text('blockingExpression'.tr),
+          trailing: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 180),
+            child: EHAppleTextField(
+              controller: TextEditingController(text: rule.expression),
+              textAlign: TextAlign.right,
+              decoration: const InputDecoration(isDense: true),
+              onChanged: (text) {
+                rule.expression = text;
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+    Widget child = ThemeConfig.isApple
+        ? GlassCard(child: cardContent)
+        : Card(child: cardContent);
     return Row(
       children: [
         Expanded(
-          child: Card(
-            child: Column(
-              children: [
-                ListTile(
-                  title: Text('blockingTarget'.tr),
-                  trailing: EHCodexStyleDropdown<LocalBlockTargetEnum>(
-                    value: rule.target,
-                    alignment: Alignment.centerRight,
-                    onChanged: (LocalBlockTargetEnum? newValue) {
-                      rule.target = newValue!;
-                      rule.attribute =
-                          LocalBlockAttributeEnum.withTarget(rule.target).first;
-                      rule.pattern =
-                          LocalBlockPatternEnum.withAttribute(rule.attribute)
-                              .first;
-                      logic.updateSafely([logic.bodyId]);
-                    },
-                    items: LocalBlockTargetEnum.values
-                        .map((e) => DropdownMenuItem(
-                            child: Text(e.desc.tr),
-                            value: e,
-                            alignment: Alignment.center))
-                        .toList(),
-                  ),
-                ),
-                ListTile(
-                  title: Text('blockingAttribute'.tr),
-                  trailing: EHCodexStyleDropdown<LocalBlockAttributeEnum>(
-                    value: rule.attribute,
-                    alignment: Alignment.centerRight,
-                    onChanged: (LocalBlockAttributeEnum? newValue) {
-                      rule.attribute = newValue!;
-                      rule.pattern =
-                          LocalBlockPatternEnum.withAttribute(rule.attribute)
-                              .first;
-                      logic.updateSafely([logic.bodyId]);
-                    },
-                    items: LocalBlockAttributeEnum.withTarget(rule.target)
-                        .map((e) => DropdownMenuItem(
-                            child: Text(e.desc.tr),
-                            value: e,
-                            alignment: Alignment.center))
-                        .toList(),
-                  ),
-                ),
-                ListTile(
-                  title: Text('blockingPattern'.tr),
-                  trailing: EHCodexStyleDropdown<LocalBlockPatternEnum>(
-                    value: rule.pattern,
-                    alignment: Alignment.centerRight,
-                    onChanged: (LocalBlockPatternEnum? newValue) {
-                      rule.pattern = newValue!;
-                      logic.updateSafely([logic.bodyId]);
-                    },
-                    items: LocalBlockPatternEnum.withAttribute(rule.attribute)
-                        .map((e) => DropdownMenuItem(
-                            child: Text(e.desc.tr),
-                            value: e,
-                            alignment: Alignment.center))
-                        .toList(),
-                  ),
-                ),
-                ListTile(
-                  title: Text('blockingExpression'.tr),
-                  trailing: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 180),
-                    child: EHAppleTextField(
-                      controller: TextEditingController(text: rule.expression),
-                      textAlign: TextAlign.right,
-                      decoration: const InputDecoration(isDense: true),
-                      onChanged: (text) {
-                        rule.expression = text;
-                      },
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          child: child,
         ),
         Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            OutlinedButton(
+            EHAppleOutlinedButton(
               child: const Icon(Icons.remove, size: 24),
               style: FilledButton.styleFrom(
                   shape: const CircleBorder(), padding: EdgeInsets.zero),

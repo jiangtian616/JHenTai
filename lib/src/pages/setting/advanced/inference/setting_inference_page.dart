@@ -20,7 +20,7 @@ class SettingInferencePage extends StatelessWidget {
         centerTitle: true,
         title: Text('inferenceSetting'.tr),
         actions: [
-          IconButton(
+          EHAppleIconButton(
             icon: const Icon(Icons.refresh),
             tooltip: 'inferenceRefresh'.tr,
             onPressed: inferenceService.refreshDetection,

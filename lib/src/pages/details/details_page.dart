@@ -20,6 +20,8 @@ import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/utils/uuid_util.dart';
 import 'package:jhentai/src/widget/eh_alert_dialog.dart';
+import 'package:jhentai/src/widget/eh_apple_button.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_gallery_detail_dialog.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_tag.dart';
@@ -29,6 +31,7 @@ import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/keep_alive.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 import '../../database/database.dart';
 import '../../mixin/scroll_to_top_logic_mixin.dart';
@@ -112,8 +115,63 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
               bool containArchive =
                   archiveDownloadService.containArchive(state.galleryUrl.gid);
 
-              return PopupMenuButton(
-                itemBuilder: (context) {
+              return ThemeConfig.isApple
+                  ? EHGlassMenu(
+                      triggerBuilder: (context, toggle) => EHAppleIconButton(
+                          icon: const Icon(Icons.more_vert), onPressed: toggle),
+                      items: [
+                        if (state.galleryDetails != null)
+                          GlassMenuItem(
+                            title: 'jump'.tr,
+                            icon: const Icon(Icons.send, size: 20),
+                            onTap: () => logic.handleTapJumpButton(),
+                          ),
+                        GlassMenuItem(
+                          title: 'share'.tr,
+                          icon: const Icon(Icons.share),
+                          onTap: () => logic.shareGallery(),
+                        ),
+                        if (state.galleryDetails != null)
+                          GlassMenuItem(
+                            title: 'addTag'.tr,
+                            icon: const Icon(Icons.bookmark_border),
+                            onTap: () => logic.handleAddTag(context),
+                          ),
+                        if (containGallery || containArchive)
+                          GlassMenuItem(
+                            title: 'delete'.tr,
+                            icon: const Icon(Icons.delete),
+                            onTap: () => logic.handleTapDeleteDownload(
+                              context,
+                              state.galleryUrl.gid,
+                              containGallery
+                                  ? DownloadPageGalleryType.download
+                                  : DownloadPageGalleryType.archive,
+                            ),
+                          ),
+                        if (state.galleryDetails?.parentGalleryUrl != null ||
+                            (state.galleryDetails?.childrenGallerys?.isNotEmpty ??
+                                false))
+                          GlassMenuItem(
+                            title: 'history'.tr,
+                            icon: const Icon(Icons.history),
+                            onTap: () => logic.handleTapHistoryButton(context),
+                          ),
+                        if (state.galleryDetails != null)
+                          GlassMenuItem(
+                            title: 'block'.tr,
+                            icon: const Icon(Icons.block),
+                            onTap: () => logic.blockGallery(),
+                          ),
+                        GlassMenuItem(
+                          title: 'resetReadProgress'.tr,
+                          icon: const Icon(Icons.restore),
+                          onTap: () => logic.handleResetReadProgress(),
+                        ),
+                      ],
+                    )
+                  : PopupMenuButton(
+                      itemBuilder: (context) {
                   return [
                     if (state.galleryDetails != null)
                       PopupMenuItem(
@@ -235,7 +293,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
               parent: AlwaysScrollableScrollPhysics()),
           scrollBehavior: UIConfig.scrollBehaviourWithScrollBarWithMouse,
           controller: state.scrollController,
-          scrollCacheExtent: ScrollCacheExtent.pixels(2000),
+          scrollCacheExtent: ScrollCacheExtent.pixels(5000),
           slivers: [
             CupertinoSliverRefreshControl(onRefresh: logic.handleRefresh),
             if (preferenceSetting.showAllGalleryTitles.isTrue)
@@ -970,7 +1028,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
             height: UIConfig.detailsPageNewVersionHintHeight,
             margin: const EdgeInsets.only(top: 12),
             child: FadeIn(
-              child: TextButton(
+              child: EHAppleTextButton(
                 child: Text('thisGalleryHasANewVersion'.tr),
                 onPressed: () => toRoute(
                   Routes.details,
@@ -1569,7 +1627,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                 height: UIConfig.detailsPageCommentIndicatorHeight,
                 child: Align(
                   alignment: Alignment.centerRight,
-                  child: TextButton(
+                  child: EHAppleTextButton(
                     onPressed: () => toRoute(Routes.comment,
                         arguments: state.galleryDetails!.comments),
                     child: Text(state.galleryDetails!.comments.isEmpty

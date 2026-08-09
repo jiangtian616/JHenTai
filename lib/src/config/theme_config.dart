@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -29,24 +30,30 @@ class ThemeConfig {
       colorSchemeSeed: color,
 
       /// default w500 is not supported for chinese characters in some devices
-      textTheme:
-          const TextTheme(titleMedium: TextStyle(fontWeight: FontWeight.w400)),
+      textTheme: const TextTheme(
+        titleMedium: TextStyle(fontWeight: FontWeight.w400),
+      ),
       appBarTheme: const AppBarTheme(scrolledUnderElevation: 0),
       navigationBarTheme: const NavigationBarThemeData(
         height: 48,
         surfaceTintColor: Colors.transparent,
         labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
       ),
-      popupMenuTheme:
-          const PopupMenuThemeData(surfaceTintColor: Colors.transparent),
+      popupMenuTheme: const PopupMenuThemeData(
+        surfaceTintColor: Colors.transparent,
+      ),
       textButtonTheme: const TextButtonThemeData(
-          style: ButtonStyle(mouseCursor: clickableMouseCursor)),
+        style: ButtonStyle(mouseCursor: clickableMouseCursor),
+      ),
       elevatedButtonTheme: const ElevatedButtonThemeData(
-          style: ButtonStyle(mouseCursor: clickableMouseCursor)),
+        style: ButtonStyle(mouseCursor: clickableMouseCursor),
+      ),
       outlinedButtonTheme: const OutlinedButtonThemeData(
-          style: ButtonStyle(mouseCursor: clickableMouseCursor)),
+        style: ButtonStyle(mouseCursor: clickableMouseCursor),
+      ),
       iconButtonTheme: const IconButtonThemeData(
-          style: ButtonStyle(mouseCursor: clickableMouseCursor)),
+        style: ButtonStyle(mouseCursor: clickableMouseCursor),
+      ),
       listTileTheme: const ListTileThemeData(mouseCursor: clickableMouseCursor),
       switchTheme: const SwitchThemeData(mouseCursor: clickableMouseCursor),
       checkboxTheme: const CheckboxThemeData(mouseCursor: clickableMouseCursor),
@@ -56,10 +63,12 @@ class ThemeConfig {
     );
 
     return themeData.copyWith(
-      appBarTheme: themeData.appBarTheme
-          .copyWith(backgroundColor: themeData.colorScheme.surface),
-      dialogTheme:
-          DialogThemeData(backgroundColor: themeData.colorScheme.surface),
+      appBarTheme: themeData.appBarTheme.copyWith(
+        backgroundColor: themeData.colorScheme.surface,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: themeData.colorScheme.surface,
+      ),
     );
   }
 
@@ -70,21 +79,40 @@ class ThemeConfig {
     final bool isDark = brightness == Brightness.dark;
     final Color appleAccent = isDark ? Colors.white : Colors.black;
 
-    final Color window = isDark
-        ? const Color(0xFF1E1E1E)
-        : const Color(0xFFF5F5F7); // macOS window / iOS grouped bg
-    final Color onSurface = isDark
-        ? const Color(0xFFF5F5F7)
-        : const Color(0xFF1D1D1F); // primary label
-    final Color secondary = isDark
-        ? const Color(0xFF98989D)
-        : const Color(0xFF6E6E73); // secondary label
-    final Color separator = isDark
-        ? const Color(0xFF3A3A3C)
-        : const Color(0xFFD2D2D7); // separators
+    final Color window =
+        isDark
+            ? const Color(0xFF1E1E1E)
+            : const Color(0xFFF5F5F7); // macOS window / iOS grouped bg
+    final Color onSurface =
+        isDark
+            ? const Color(0xFFF5F5F7)
+            : const Color(0xFF1D1D1F); // primary label
+    final Color secondary =
+        isDark
+            ? const Color(0xFF98989D)
+            : const Color(0xFF6E6E73); // secondary label
+    final Color separator =
+        isDark
+            ? const Color(0xFF3A3A3C)
+            : const Color(0xFFD2D2D7); // separators
     final Color error =
         isDark ? const Color(0xFFFF453A) : const Color(0xFFFF3B30); // systemRed
-    final BorderRadius controlRadius = BorderRadius.circular(7);
+    // Keep Apple mode monochrome, but make controls read as layered liquid
+    // glass rather than flat Material buttons.  The two surfaces deliberately
+    // swap in dark mode: a black primary button and pale glass secondary
+    // buttons in light mode, and the inverse in dark mode.
+    final BorderRadius controlRadius = BorderRadius.circular(14);
+    final Color glassSurface =
+        isDark
+            ? const Color(0xFF090909).withValues(alpha: 0.72)
+            : Colors.white.withValues(alpha: 0.76);
+    final Color glassBorder =
+        isDark
+            ? Colors.white.withValues(alpha: 0.30)
+            : Colors.white.withValues(alpha: 0.92);
+    final Color glassShadow = Colors.black.withValues(
+      alpha: isDark ? 0.34 : 0.14,
+    );
     final OutlineInputBorder inputBorder = OutlineInputBorder(
       borderRadius: controlRadius,
       borderSide: BorderSide(color: separator.withValues(alpha: 0.85)),
@@ -100,9 +128,10 @@ class ThemeConfig {
     final Color tertiaryContainer =
         isDark ? const Color(0xFF333336) : const Color(0xFFEDEDF0);
 
-    final ColorScheme scheme =
-        ColorScheme.fromSeed(seedColor: appleAccent, brightness: brightness)
-            .copyWith(
+    final ColorScheme scheme = ColorScheme.fromSeed(
+      seedColor: appleAccent,
+      brightness: brightness,
+    ).copyWith(
       primary: appleAccent,
       onPrimary: isDark ? Colors.black : Colors.white,
       primaryContainer: appleAccent.withValues(alpha: 0.2),
@@ -116,7 +145,8 @@ class ThemeConfig {
       tertiaryContainer: tertiaryContainer,
       onTertiaryContainer: onSurface,
       inversePrimary: appleAccent,
-      inverseSurface: isDark ? const Color(0xFFF5F5F7) : const Color(0xFF1D1D1F),
+      inverseSurface:
+          isDark ? const Color(0xFFF5F5F7) : const Color(0xFF1D1D1F),
       onInverseSurface: onSurface,
       surface: window,
       onSurface: onSurface,
@@ -133,8 +163,9 @@ class ThemeConfig {
       brightness: brightness,
       colorScheme: scheme,
       platform: GetPlatform.isMacOS ? TargetPlatform.macOS : TargetPlatform.iOS,
-      textTheme:
-          const TextTheme(titleMedium: TextStyle(fontWeight: FontWeight.w400)),
+      textTheme: const TextTheme(
+        titleMedium: TextStyle(fontWeight: FontWeight.w400),
+      ),
       appBarTheme: AppBarTheme(
         backgroundColor: window,
         scrolledUnderElevation: 0,
@@ -148,13 +179,37 @@ class ThemeConfig {
       ),
       popupMenuTheme: PopupMenuThemeData(
         surfaceTintColor: Colors.transparent,
-        color: scheme.surfaceContainerHighest,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        // Translucent glass panel for the imperative context menus
+        // (showEHContextMenu / showMenu) that can't be rebuilt as GlassMenu
+        // widgets — download/favorite item actions, history, tag sets, etc.
+        color: window.withValues(alpha: isDark ? 0.88 : 0.94),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+          side: BorderSide(
+            color:
+                isDark
+                    ? Colors.white.withValues(alpha: 0.15)
+                    : Colors.white.withValues(alpha: 0.60),
+            width: 0.8,
+          ),
+        ),
       ),
       dialogTheme: DialogThemeData(
-        backgroundColor: window,
+        // Translucent panel + hairline edge so the rich form dialogs read as
+        // frosted glass even though they keep the AlertDialog structure (they
+        // carry custom content GlassDialog can't hold).
+        backgroundColor: window.withValues(alpha: 0.85),
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color:
+                isDark
+                    ? Colors.white.withValues(alpha: 0.18)
+                    : Colors.white.withValues(alpha: 0.60),
+            width: 0.8,
+          ),
+        ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         isDense: true,
@@ -164,30 +219,115 @@ class ThemeConfig {
         border: inputBorder,
         enabledBorder: inputBorder,
         focusedBorder: inputBorder.copyWith(
-            borderSide: BorderSide(color: appleAccent, width: 1.5)),
+          borderSide: BorderSide(color: appleAccent, width: 1.5),
+        ),
       ),
       textSelectionTheme: TextSelectionThemeData(
         selectionColor: appleAccent.withValues(alpha: 0.2),
         cursorColor: appleAccent,
         selectionHandleColor: appleAccent,
       ),
+      // Make every Cupertino widget render in the app's monochrome accent
+      // instead of the default iOS system-blue: buttons, switches, sliders,
+      // segmented controls, text-field cursors, list-tile tints. This is also
+      // what lets CupertinoButton (used by the EHApple* wrappers) stay black in
+      // light mode / white in dark mode.
+      cupertinoOverrideTheme: CupertinoThemeData(
+        brightness: brightness,
+        primaryColor: appleAccent,
+        primaryContrastingColor: isDark ? Colors.black : Colors.white,
+        barBackgroundColor: window,
+        scaffoldBackgroundColor: window,
+      ).noDefault(),
       dividerTheme: DividerThemeData(color: separator),
-      textButtonTheme: const TextButtonThemeData(
-          style: ButtonStyle(mouseCursor: clickableMouseCursor)),
+      textButtonTheme: TextButtonThemeData(
+        style: ButtonStyle(
+          mouseCursor: clickableMouseCursor,
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) =>
+                states.contains(WidgetState.disabled)
+                    ? secondary.withValues(alpha: 0.45)
+                    : onSurface,
+          ),
+          overlayColor: WidgetStatePropertyAll(
+            appleAccent.withValues(alpha: isDark ? 0.14 : 0.09),
+          ),
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(borderRadius: controlRadius),
+          ),
+        ),
+      ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ButtonStyle(
           mouseCursor: clickableMouseCursor,
-          elevation: const WidgetStatePropertyAll(0),
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.disabled)) {
+              return appleAccent.withValues(alpha: 0.28);
+            }
+            return appleAccent;
+          }),
+          foregroundColor: WidgetStatePropertyAll(
+            isDark ? Colors.black : Colors.white,
+          ),
+          overlayColor: WidgetStatePropertyAll(
+            (isDark ? Colors.black : Colors.white).withValues(alpha: 0.14),
+          ),
+          elevation: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.pressed) ? 1 : 5,
+          ),
+          shadowColor: WidgetStatePropertyAll(glassShadow),
+          surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
           shape: WidgetStatePropertyAll(
-              RoundedRectangleBorder(borderRadius: controlRadius)),
+            RoundedRectangleBorder(borderRadius: controlRadius),
+          ),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: ButtonStyle(
+          mouseCursor: clickableMouseCursor,
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.disabled)) {
+              return appleAccent.withValues(alpha: 0.28);
+            }
+            return appleAccent;
+          }),
+          foregroundColor: WidgetStatePropertyAll(
+            isDark ? Colors.black : Colors.white,
+          ),
+          overlayColor: WidgetStatePropertyAll(
+            (isDark ? Colors.black : Colors.white).withValues(alpha: 0.14),
+          ),
+          elevation: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.pressed) ? 1 : 5,
+          ),
+          shadowColor: WidgetStatePropertyAll(glassShadow),
+          surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(borderRadius: controlRadius),
+          ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
           mouseCursor: clickableMouseCursor,
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.disabled)) {
+              return glassSurface.withValues(alpha: 0.28);
+            }
+            return glassSurface;
+          }),
+          foregroundColor: WidgetStatePropertyAll(onSurface),
+          overlayColor: WidgetStatePropertyAll(
+            appleAccent.withValues(alpha: isDark ? 0.16 : 0.08),
+          ),
+          elevation: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.pressed) ? 0 : 3,
+          ),
+          shadowColor: WidgetStatePropertyAll(glassShadow),
           shape: WidgetStatePropertyAll(
-              RoundedRectangleBorder(borderRadius: controlRadius)),
-          side: WidgetStatePropertyAll(BorderSide(color: separator)),
+            RoundedRectangleBorder(borderRadius: controlRadius),
+          ),
+          side: WidgetStatePropertyAll(BorderSide(color: glassBorder)),
         ),
       ),
       // Desktop tool icons live inside other MouseRegions (sidebar rows and

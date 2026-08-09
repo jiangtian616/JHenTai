@@ -266,7 +266,8 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
               ],
             ),
           ),
-          IconButton(
+          const SizedBox(width: 8),
+          EHAppleIconButton(
             onPressed: () {
               final int? value = int.tryParse(
                 _maxGalleryNum4AnimationController.value.text,

@@ -53,7 +53,8 @@ class SettingMouseWheelPage extends StatelessWidget {
                           },
                         ),
                       ),
-                      IconButton(
+                      const SizedBox(width: 8),
+                      EHAppleIconButton(
                         icon: Icon(Icons.check,
                             color: UIConfig.resumePauseButtonColor(context)),
                         onPressed: () {

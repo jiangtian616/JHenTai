@@ -62,7 +62,10 @@ class MobileLayoutPageV2Logic extends GetxController with DoubleTapToRefreshLogi
 
     if (prevIndex != index) {
       MobileLayoutPageV2State.scaffoldKey.currentState?.closeDrawer();
-      update([bodyId]);
+      // Also rebuild the sidebar so its highlight follows the selected tab;
+      // without tabBarId the drawer's GetBuilder keeps the initial highlight
+      // (home) even after navigating to another page.
+      update([bodyId, tabBarId]);
     }
   }
 

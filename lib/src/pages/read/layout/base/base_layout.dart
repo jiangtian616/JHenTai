@@ -3,11 +3,13 @@ import 'dart:math';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/image_translation.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 import 'package:jhentai/src/setting/performance_setting.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../../../config/ui_config.dart';
@@ -131,7 +133,9 @@ abstract class BaseLayout extends StatelessWidget {
                 children: [
                   LoadingStateIndicator(
                     loadingState: readPageState.parseImageHrefsStates[index],
-                    idleWidgetBuilder: () => const CircularProgressIndicator(),
+                    idleWidgetBuilder: () => ThemeConfig.isApple
+                        ? GlassProgressIndicator.circular()
+                        : const CircularProgressIndicator(),
                     errorWidgetBuilder:
                         () => const Icon(
                           Icons.warning,
@@ -171,8 +175,9 @@ abstract class BaseLayout extends StatelessWidget {
                   children: [
                     LoadingStateIndicator(
                       loadingState: readPageState.parseImageUrlStates[index],
-                      idleWidgetBuilder:
-                          () => const CircularProgressIndicator(),
+                      idleWidgetBuilder: () => ThemeConfig.isApple
+                          ? GlassProgressIndicator.circular()
+                          : const CircularProgressIndicator(),
                       errorWidgetBuilder:
                           () => const Icon(
                             Icons.warning,
@@ -262,7 +267,9 @@ abstract class BaseLayout extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        CircularProgressIndicator(value: progress),
+        ThemeConfig.isApple
+            ? GlassProgressIndicator.circular(value: progress)
+            : CircularProgressIndicator(value: progress),
         Text('loading'.tr).marginOnly(top: 8),
         Text((index + 1).toString()).marginOnly(top: 4),
       ],
@@ -459,7 +466,9 @@ abstract class BaseLayout extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (downloadStatus == DownloadStatus.downloading)
-            const CircularProgressIndicator(),
+            ThemeConfig.isApple
+                ? GlassProgressIndicator.circular()
+                : const CircularProgressIndicator(),
           if (downloadStatus == DownloadStatus.paused)
             const Icon(
               Icons.pause_circle_outline,
@@ -491,7 +500,9 @@ abstract class BaseLayout extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (downloadStatus == DownloadStatus.downloading)
-            const CircularProgressIndicator(),
+            ThemeConfig.isApple
+                ? GlassProgressIndicator.circular()
+                : const CircularProgressIndicator(),
           if (downloadStatus == DownloadStatus.paused)
             const Icon(
               Icons.pause_circle_outline,
@@ -583,9 +594,13 @@ abstract class BaseLayout extends StatelessWidget {
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(
-              value: max(downloadedBytes / totalBytes, 0.01),
-            ),
+            ThemeConfig.isApple
+                ? GlassProgressIndicator.circular(
+                    value: max(downloadedBytes / totalBytes, 0.01),
+                  )
+                : CircularProgressIndicator(
+                    value: max(downloadedBytes / totalBytes, 0.01),
+                  ),
             Text('downloading'.tr).marginOnly(top: 8),
             Text((index + 1).toString()),
           ],

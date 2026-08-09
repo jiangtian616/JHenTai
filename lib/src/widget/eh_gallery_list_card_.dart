@@ -14,6 +14,7 @@ import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/performance_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/widget/eh_translated_text.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
 import '../consts/locale_consts.dart';
@@ -318,14 +319,22 @@ class EHGalleryListCard extends StatelessWidget {
             return SizedBox(
               width: UIConfig.galleryCardReadProgressIndicatorSize,
               height: UIConfig.galleryCardReadProgressIndicatorSize,
-              child: CircularProgressIndicator(
-                value: progress,
-                strokeWidth: 2,
-                backgroundColor: UIConfig.galleryCardTextColor(context)
-                    .withValues(alpha: 0.2),
-                valueColor: AlwaysStoppedAnimation<Color>(
-                    UIConfig.galleryCardTextColor(context)),
-              ),
+              child: ThemeConfig.isApple
+                  ? GlassProgressIndicator.circular(
+                      value: progress,
+                      strokeWidth: 2,
+                      color: UIConfig.galleryCardTextColor(context),
+                      backgroundColor: UIConfig.galleryCardTextColor(context)
+                          .withValues(alpha: 0.2),
+                    )
+                  : CircularProgressIndicator(
+                      value: progress,
+                      strokeWidth: 2,
+                      backgroundColor: UIConfig.galleryCardTextColor(context)
+                          .withValues(alpha: 0.2),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                          UIConfig.galleryCardTextColor(context)),
+                    ),
             );
           },
         );

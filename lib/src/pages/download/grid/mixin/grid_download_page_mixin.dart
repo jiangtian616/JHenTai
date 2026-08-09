@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/utils/route_util.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_translated_text.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
@@ -51,16 +53,32 @@ mixin GridBasePage on StatelessWidget implements Scroll2TopPageMixin {
     return AppBar(
       centerTitle: true,
       leading: styleSetting.isInV2Layout
-          ? IconButton(
-              icon: isRouteAtTop(Routes.download) ? const Icon(Icons.arrow_back) : Icon(Icons.menu, size: 20),
-              onPressed: () {
-                if (isRouteAtTop(Routes.download)) {
-                  backRoute(currentRoute: Routes.download);
-                } else {
-                  TapMenuButtonNotification().dispatch(context);
-                }
-              },
-            )
+          ? (ThemeConfig.isApple
+              ? IconButton(
+                  onPressed: () {
+                    if (isRouteAtTop(Routes.download)) {
+                      backRoute(currentRoute: Routes.download);
+                    } else {
+                      TapMenuButtonNotification().dispatch(context);
+                    }
+                  },
+                  icon: isRouteAtTop(Routes.download)
+                      ? const Icon(Icons.arrow_back)
+                      : Icon(Icons.menu, size: 22),
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  hoverColor: Colors.transparent,
+                )
+              : EHAppleIconButton(
+                  icon: isRouteAtTop(Routes.download) ? const Icon(Icons.arrow_back) : Icon(Icons.menu, size: 20),
+                  onPressed: () {
+                    if (isRouteAtTop(Routes.download)) {
+                      backRoute(currentRoute: Routes.download);
+                    } else {
+                      TapMenuButtonNotification().dispatch(context);
+                    }
+                  },
+                ))
           : null,
       titleSpacing: 0,
       title: DownloadPageSegmentControl(galleryType: galleryType),

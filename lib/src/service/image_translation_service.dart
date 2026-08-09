@@ -34,6 +34,28 @@ ImageTranslationService imageTranslationService = ImageTranslationService();
 typedef _RecognizeResult =
     ({List<RecognizedTextBlock> blocks, int? imageWidth, int? imageHeight});
 
+/// The recognized source of one page, produced by [ImageTranslationService.recognizeImage]
+/// and consumed by [ImageTranslationService.translateRecognizedText]. Carrying it
+/// between the two stages lets the batch pipeline overlap the next page's OCR
+/// with the current page's translation.
+class RecognizedImage {
+  const RecognizedImage({
+    required this.cacheKey,
+    required this.persistentKey,
+    required this.sourceText,
+    required this.blocks,
+    required this.imageWidth,
+    required this.imageHeight,
+  });
+
+  final String cacheKey;
+  final String persistentKey;
+  final String sourceText;
+  final List<RecognizedTextBlock> blocks;
+  final int imageWidth;
+  final int imageHeight;
+}
+
 class ImageTranslationService extends GetxController
     with JHLifeCircleBeanErrorCatch
     implements JHLifeCircleBean {
@@ -185,7 +207,12 @@ class ImageTranslationService extends GetxController
   @override
   Future<void> doAfterBeanReady() async {}
 
-  Future<void> translate(
+  /// OCR stage of a translation: reads the image, runs recognition and returns
+  /// the recognized source for the translation stage. Returns null when the
+  /// page should be skipped (already translated / image unavailable / no text).
+  /// Split from [translate] so the batch pipeline can overlap the next page's
+  /// OCR with the current page's translation.
+  Future<RecognizedImage?> recognizeImage(
     ImageTranslationRequest request, {
     bool force = false,
   }) async {
@@ -194,7 +221,7 @@ class ImageTranslationService extends GetxController
         (existing.status == ImageTranslationStatus.recognizing ||
             existing.status == ImageTranslationStatus.translating ||
             existing.status == ImageTranslationStatus.success)) {
-      return;
+      return null;
     }
 
     _set(
@@ -207,7 +234,7 @@ class ImageTranslationService extends GetxController
     try {
       if (_cancelRequested) {
         _removeResult(request.cacheKey);
-        return;
+        return null;
       }
       // Read the image bytes exactly once: they feed the persistent-cache
       // hash, the dimension probe and (for bytes-based requests) the OCR
@@ -224,7 +251,7 @@ class ImageTranslationService extends GetxController
       );
       if (!force && cached != null) {
         _set(request.cacheKey, cached.copyWith(fromCache: true));
-        return;
+        return null;
       }
 
       // The OCR subprocess needs a real file path; only bytes-based requests
@@ -265,7 +292,7 @@ class ImageTranslationService extends GetxController
       final int imageHeight = recognized.imageHeight ?? probeHeight;
       if (_cancelRequested) {
         _removeResult(request.cacheKey);
-        return;
+        return null;
       }
       final String sourceText = blocks
           .map((block) => block.text)
@@ -289,7 +316,7 @@ class ImageTranslationService extends GetxController
             imageHeight: imageHeight,
           ),
         );
-        return;
+        return null;
       }
 
       _set(
@@ -304,35 +331,18 @@ class ImageTranslationService extends GetxController
       );
       await _writePersistentResult(persistentKey, resultFor(request.cacheKey));
       _setStage(ImageTranslationStage.translating);
-      final String translatedText =
-          imageTranslationSetting.usesAppleOnDeviceTranslation
-              ? await _translateWithApple(sourceText)
-              : await _translate(sourceText);
-      if (_cancelRequested) {
-        _removeResult(request.cacheKey);
-        return;
-      }
-      _setStage(ImageTranslationStage.masking);
-      await Future.delayed(const Duration(milliseconds: 80));
-      _setStage(ImageTranslationStage.embedding);
-      await Future.delayed(const Duration(milliseconds: 80));
-      _set(
-        request.cacheKey,
-        ImageTranslationResult(
-          status: ImageTranslationStatus.success,
-          sourceText: sourceText,
-          translatedText: translatedText,
-          blocks: blocks,
-          imageWidth: imageWidth,
-          imageHeight: imageHeight,
-        ),
+      return RecognizedImage(
+        cacheKey: request.cacheKey,
+        persistentKey: persistentKey,
+        sourceText: sourceText,
+        blocks: blocks,
+        imageWidth: imageWidth,
+        imageHeight: imageHeight,
       );
-      await _writePersistentResult(persistentKey, resultFor(request.cacheKey));
-      _setStage(ImageTranslationStage.done);
     } on ImageTranslationException catch (e, stack) {
       if (_cancelRequested) {
         _removeResult(request.cacheKey);
-        return;
+        return null;
       }
       log.warning('Image translation failed: ${e.code}');
       _set(
@@ -345,7 +355,7 @@ class ImageTranslationService extends GetxController
     } on ProcessException catch (e, stack) {
       if (_cancelRequested) {
         _removeResult(request.cacheKey);
-        return;
+        return null;
       }
       log.warning('Image OCR executable is unavailable: ${e.executable}');
       _set(
@@ -353,6 +363,77 @@ class ImageTranslationService extends GetxController
         resultFor(request.cacheKey).copyWith(
           status: ImageTranslationStatus.failed,
           errorMessage: 'OCR_UNAVAILABLE',
+        ),
+      );
+      log.trace(stack);
+    } catch (e, stack) {
+      if (_cancelRequested) {
+        _removeResult(request.cacheKey);
+        return null;
+      }
+      log.error('Image translation failed', e, stack);
+      _set(
+        request.cacheKey,
+        resultFor(request.cacheKey).copyWith(
+          status: ImageTranslationStatus.failed,
+          errorMessage: 'TRANSLATION_FAILED',
+        ),
+      );
+    } finally {
+      if (temporaryPath != null) {
+        File(temporaryPath).delete().ignore();
+      }
+    }
+    return null;
+  }
+
+  /// Translation stage: translates the recognized source text and finalizes
+  /// the result. Called after [recognizeImage] so the batch pipeline can run
+  /// the next page's OCR while this translation is in flight.
+  Future<void> translateRecognizedText(
+    ImageTranslationRequest request,
+    RecognizedImage recognized,
+  ) async {
+    try {
+      final String translatedText =
+          imageTranslationSetting.usesAppleOnDeviceTranslation
+              ? await _translateWithApple(recognized.sourceText)
+              : await _translate(recognized.sourceText);
+      if (_cancelRequested) {
+        _removeResult(request.cacheKey);
+        return;
+      }
+      _setStage(ImageTranslationStage.masking);
+      await Future.delayed(const Duration(milliseconds: 80));
+      _setStage(ImageTranslationStage.embedding);
+      await Future.delayed(const Duration(milliseconds: 80));
+      _set(
+        request.cacheKey,
+        ImageTranslationResult(
+          status: ImageTranslationStatus.success,
+          sourceText: recognized.sourceText,
+          translatedText: translatedText,
+          blocks: recognized.blocks,
+          imageWidth: recognized.imageWidth,
+          imageHeight: recognized.imageHeight,
+        ),
+      );
+      await _writePersistentResult(
+        recognized.persistentKey,
+        resultFor(request.cacheKey),
+      );
+      _setStage(ImageTranslationStage.done);
+    } on ImageTranslationException catch (e, stack) {
+      if (_cancelRequested) {
+        _removeResult(request.cacheKey);
+        return;
+      }
+      log.warning('Image translation failed: ${e.code}');
+      _set(
+        request.cacheKey,
+        resultFor(request.cacheKey).copyWith(
+          status: ImageTranslationStatus.failed,
+          errorMessage: e.code,
         ),
       );
       log.trace(stack);
@@ -383,11 +464,24 @@ class ImageTranslationService extends GetxController
           errorMessage: 'TRANSLATION_FAILED',
         ),
       );
-    } finally {
-      if (temporaryPath != null) {
-        File(temporaryPath).delete().ignore();
-      }
     }
+  }
+
+  /// Translates a single image end-to-end (OCR then translation). Batch
+  /// translation uses [recognizeImage] + [translateRecognizedText] directly so
+  /// the pipeline can overlap the next page's OCR with the current translation.
+  Future<void> translate(
+    ImageTranslationRequest request, {
+    bool force = false,
+  }) async {
+    final RecognizedImage? recognized = await recognizeImage(
+      request,
+      force: force,
+    );
+    if (recognized == null) {
+      return;
+    }
+    await translateRecognizedText(request, recognized);
   }
 
   void _removeResult(String cacheKey) {

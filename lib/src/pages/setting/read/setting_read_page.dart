@@ -353,11 +353,13 @@ class SettingReadPage extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(width: 8),
           Text(
             'KB',
             style: UIConfig.settingPageListTileTrailingTextStyle(context),
           ),
-          IconButton(
+          const SizedBox(width: 8),
+          EHAppleIconButton(
             onPressed: () {
               int? value = int.tryParse(imageMaxKilobytesController.value.text);
               if (value == null) {
@@ -560,8 +562,10 @@ class SettingReadPage extends StatelessWidget {
               },
             ),
           ),
+          const SizedBox(width: 8),
           const Text('%'),
-          IconButton(
+          const SizedBox(width: 8),
+          EHAppleIconButton(
             onPressed: _saveImageRegionWidthRatio,
             icon: Icon(
               Icons.check,
@@ -605,8 +609,10 @@ class SettingReadPage extends StatelessWidget {
               onSubmitted: (_) => _savePortraitImageRegionWidthRatio(),
             ),
           ),
+          const SizedBox(width: 8),
           const Text('%'),
-          IconButton(
+          const SizedBox(width: 8),
+          EHAppleIconButton(
             onPressed: _savePortraitImageRegionWidthRatio,
             icon: Icon(
               Icons.check,
@@ -652,8 +658,10 @@ class SettingReadPage extends StatelessWidget {
               onSubmitted: (_) => _saveLandscapeImageRegionWidthRatio(),
             ),
           ),
+          const SizedBox(width: 8),
           const Text('%'),
-          IconButton(
+          const SizedBox(width: 8),
+          EHAppleIconButton(
             onPressed: _saveLandscapeImageRegionWidthRatio,
             icon: Icon(
               Icons.check,
@@ -701,8 +709,10 @@ class SettingReadPage extends StatelessWidget {
               },
             ),
           ),
+          const SizedBox(width: 8),
           const Text('%'),
-          IconButton(
+          const SizedBox(width: 8),
+          EHAppleIconButton(
             onPressed: _saveGestureRegionWidthRatio,
             icon: Icon(
               Icons.check,

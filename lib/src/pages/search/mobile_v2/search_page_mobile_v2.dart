@@ -7,6 +7,7 @@ import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/uuid_util.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 
 import '../../../service/quick_search_service.dart';
 import '../../base/base_page.dart';
@@ -53,7 +54,7 @@ class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMob
   AppBar? buildAppBar(BuildContext context) {
     return AppBar(
       leading: GestureDetector(
-        child: IconButton(
+        child: EHAppleIconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => backRoute(currentRoute: Routes.mobileV2Search),
         ),

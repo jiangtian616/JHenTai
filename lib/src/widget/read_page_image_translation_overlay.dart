@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/model/image_translation.dart';
 import 'package:jhentai/src/service/image_translation_service.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 /// Inline overlay for the read page. After "recognize and translate this page"
 /// is triggered, the bottom result sheet is no longer shown; instead this
@@ -51,11 +54,14 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const SizedBox(
+                  SizedBox(
                       width: 12,
                       height: 12,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white)),
+                      child: ThemeConfig.isApple
+                          ? GlassProgressIndicator.circular(
+                              strokeWidth: 2, color: Colors.white)
+                          : const CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white)),
                   const SizedBox(width: 8),
                   Text(label,
                       style:
@@ -106,7 +112,7 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  IconButton(
+                  EHAppleIconButton(
                     onPressed: () =>
                         imageTranslationService.translate(request, force: true),
                     icon: const Icon(Icons.refresh,

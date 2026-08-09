@@ -156,7 +156,8 @@ class LanDeviceTrustService extends GetxController
     if (isEnabled) {
       await _loadOrCreateLocalIdentity();
     }
-    localDisplayName = _defaultDisplayName();
+    localDisplayName =
+        await _repository.readLocalDeviceName() ?? _defaultDisplayName();
     trustedDevices
       ..clear()
       ..addAll(await _repository.loadDevices());
@@ -792,6 +793,22 @@ class LanDeviceTrustService extends GetxController
       // A stable device id remains available when the hostname is unavailable.
     }
     return 'JHenTai ${localDeviceId.substring(localDeviceId.length - 6)}';
+  }
+
+  /// Persists a custom display name for this device and refreshes the UI.
+  /// Returns a human-readable error message, or null on success.
+  Future<String?> setLocalDisplayName(String name) async {
+    final String trimmed = name.trim();
+    if (trimmed.isEmpty) {
+      return 'lanDeviceNameRequired'.tr;
+    }
+    if (trimmed.length > 128) {
+      return 'lanDeviceNameTooLong'.tr;
+    }
+    await _repository.saveLocalDeviceName(trimmed);
+    localDisplayName = trimmed;
+    update();
+    return null;
   }
 
   void _validatePeer(LanDiscoveredPeer peer) {

@@ -5,6 +5,8 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/model/read_action.dart';
 import 'package:jhentai/src/setting/keyboard_shortcut_setting.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/eh_apple_button.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
 
 class SettingKeyboardShortcutsPage extends StatefulWidget {
@@ -61,7 +63,7 @@ class _SettingKeyboardShortcutsPageState
             centerTitle: true,
             title: Text('keyboardShortcuts'.tr),
             actions: [
-              TextButton(
+              EHAppleTextButton(
                 onPressed: _resetAll,
                 child:
                     Text('resetAll'.tr, style: const TextStyle(fontSize: 14)),
@@ -159,7 +161,7 @@ class _SettingKeyboardShortcutsPageState
       actionContent = SizedBox(
         width: 24,
         height: 24,
-        child: IconButton(
+        child: EHAppleIconButton(
           icon: const Icon(Icons.clear, size: 14),
           onPressed: () => _clearBinding(action, slot),
           tooltip: 'clearKey'.tr,

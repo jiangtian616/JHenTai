@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:blur/blur.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_page_mixin.dart';
 import 'package:jhentai/src/pages/download/grid/gallery/gallery_grid_download_page_state.dart';
@@ -15,6 +16,8 @@ import 'package:jhentai/src/pages/download/mixin/gallery/gallery_download_page_s
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/utils/route_util.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../../../config/ui_config.dart';
@@ -53,74 +56,112 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
         global: false,
         init: logic,
         id: logic.editButtonId,
-        builder: (_) => IconButton(
+        builder: (_) => EHAppleIconButton(
           icon: const Icon(Icons.sort),
           selectedIcon: const Icon(Icons.save),
           onPressed: logic.toggleEditMode,
           isSelected: state.inEditMode,
         ),
       ),
-      PopupMenuButton(
-        itemBuilder: (context) {
-          return [
-            PopupMenuItem(
-              value: 0,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [const Icon(Icons.view_list), const SizedBox(width: 12), Text('switch2ListMode'.tr)],
-              ),
+      const SizedBox(width: 8),
+      ThemeConfig.isApple
+          ? EHGlassMenu(
+              triggerBuilder: (context, toggle) => EHAppleIconButton(
+                  icon: const Icon(Icons.more_vert), onPressed: toggle),
+              items: [
+                GlassMenuItem(
+                  title: 'switch2ListMode'.tr,
+                  icon: const Icon(Icons.view_list),
+                  onTap: () => DownloadPageBodyTypeChangeNotification(bodyType: DownloadPageBodyType.list).dispatch(context),
+                ),
+                GlassMenuItem(
+                  title: 'multiSelect'.tr,
+                  icon: const Icon(Icons.done_all),
+                  onTap: () {
+                    if (state.inEditMode) {
+                      return;
+                    }
+                    logic.enterSelectMode();
+                  },
+                ),
+                GlassMenuItem(
+                  title: 'resumeAllTasks'.tr,
+                  icon: const Icon(Icons.play_arrow),
+                  onTap: logic.handleResumeAllTasks,
+                ),
+                GlassMenuItem(
+                  title: 'pauseAllTasks'.tr,
+                  icon: const Icon(Icons.pause),
+                  onTap: logic.handlePauseAllTasks,
+                ),
+                GlassMenuItem(
+                  title: 'search'.tr,
+                  icon: const Icon(Icons.search),
+                  onTap: () => toRoute(Routes.downloadSearch),
+                ),
+              ],
+            )
+          : PopupMenuButton(
+              itemBuilder: (context) {
+                return [
+                  PopupMenuItem(
+                    value: 0,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [const Icon(Icons.view_list), const SizedBox(width: 12), Text('switch2ListMode'.tr)],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 1,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [const Icon(Icons.done_all), const SizedBox(width: 12), Text('multiSelect'.tr)],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 2,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [const Icon(Icons.play_arrow), const SizedBox(width: 12), Text('resumeAllTasks'.tr)],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 3,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [const Icon(Icons.pause), const SizedBox(width: 12), Text('pauseAllTasks'.tr)],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 4,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [const Icon(Icons.search), const SizedBox(width: 12), Text('search'.tr)],
+                    ),
+                  ),
+                ];
+              },
+              onSelected: (value) {
+                if (value == 0) {
+                  DownloadPageBodyTypeChangeNotification(bodyType: DownloadPageBodyType.list).dispatch(context);
+                }
+                if (value == 1) {
+                  if (state.inEditMode) {
+                    return;
+                  }
+                  logic.enterSelectMode();
+                }
+                if (value == 2) {
+                  logic.handleResumeAllTasks();
+                }
+                if (value == 3) {
+                  logic.handlePauseAllTasks();
+                }
+                if (value == 4) {
+                  toRoute(Routes.downloadSearch);
+                }
+              },
             ),
-            PopupMenuItem(
-              value: 1,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [const Icon(Icons.done_all), const SizedBox(width: 12), Text('multiSelect'.tr)],
-              ),
-            ),
-            PopupMenuItem(
-              value: 2,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [const Icon(Icons.play_arrow), const SizedBox(width: 12), Text('resumeAllTasks'.tr)],
-              ),
-            ),
-            PopupMenuItem(
-              value: 3,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [const Icon(Icons.pause), const SizedBox(width: 12), Text('pauseAllTasks'.tr)],
-              ),
-            ),
-            PopupMenuItem(
-              value: 4,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [const Icon(Icons.search), const SizedBox(width: 12), Text('search'.tr)],
-              ),
-            ),
-          ];
-        },
-        onSelected: (value) {
-          if (value == 0) {
-            DownloadPageBodyTypeChangeNotification(bodyType: DownloadPageBodyType.list).dispatch(context);
-          }
-          if (value == 1) {
-            if (state.inEditMode) {
-              return;
-            }
-            logic.enterSelectMode();
-          }
-          if (value == 2) {
-            logic.handleResumeAllTasks();
-          }
-          if (value == 3) {
-            logic.handlePauseAllTasks();
-          }
-          if (value == 4) {
-            toRoute(Routes.downloadSearch);
-          }
-        },
-      ),
     ];
   }
 
@@ -269,11 +310,17 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
             minWidth: UIConfig.downloadPageGridViewCircularProgressSize,
             minHeight: UIConfig.downloadPageGridViewCircularProgressSize,
           ),
-          child: CircularProgressIndicator(
-            value: downloadProgress.curCount / downloadProgress.totalCount,
-            color: UIConfig.downloadPageGridProgressColor,
-            backgroundColor: UIConfig.downloadPageGridProgressBackGroundColor,
-          ),
+          child: ThemeConfig.isApple
+              ? GlassProgressIndicator.circular(
+                  value: downloadProgress.curCount / downloadProgress.totalCount,
+                  color: UIConfig.downloadPageGridProgressColor,
+                  backgroundColor: UIConfig.downloadPageGridProgressBackGroundColor,
+                )
+              : CircularProgressIndicator(
+                  value: downloadProgress.curCount / downloadProgress.totalCount,
+                  color: UIConfig.downloadPageGridProgressColor,
+                  backgroundColor: UIConfig.downloadPageGridProgressBackGroundColor,
+                ),
         ),
       ),
     );

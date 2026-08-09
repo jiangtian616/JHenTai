@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
 import 'package:jhentai/src/widget/eh_alert_dialog.dart';
 
@@ -20,7 +21,7 @@ class ExtraGalleryScanPathPage extends StatelessWidget {
         centerTitle: true,
         title: Text('extraGalleryScanPath'.tr),
         actions: [
-          IconButton(onPressed: _handleAddPath, icon: const Icon(Icons.add)),
+          EHAppleIconButton(onPressed: _handleAddPath, icon: const Icon(Icons.add)),
         ],
       ),
       body: Obx(

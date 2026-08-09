@@ -4,11 +4,14 @@ import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/model/tag_set.dart';
 import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page_logic.dart';
 import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page_state.dart';
+import 'package:jhentai/src/widget/eh_apple_button.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 import '../../../../utils/route_util.dart';
 import '../../../../utils/text_input_formatter.dart';
@@ -42,6 +45,7 @@ class TagSetsPage extends StatelessWidget {
       ),
       actions: [
         _buildTagSetColor(context),
+        const SizedBox(width: 8),
         _buildTagSetSwitcher(),
       ],
     );
@@ -55,7 +59,7 @@ class TagSetsPage extends StatelessWidget {
         idleWidgetBuilder: () => const SizedBox(),
         loadingWidgetBuilder: () => const SizedBox(),
         errorWidgetSameWithIdle: true,
-        successWidgetBuilder: () => IconButton(
+        successWidgetBuilder: () => EHAppleIconButton(
           icon: Icon(
             Icons.circle,
             color: state.currentTagSetBackgroundColor ??
@@ -89,23 +93,42 @@ class TagSetsPage extends StatelessWidget {
   GetBuilder<TagSetsLogic> _buildTagSetSwitcher() {
     return GetBuilder<TagSetsLogic>(
       id: TagSetsLogic.titleId,
-      builder: (_) => PopupMenuButton<int>(
-        initialValue: state.currentTagSetNo,
-        padding: EdgeInsets.zero,
-        onSelected: (value) {
-          if (state.currentTagSetNo == value) {
-            return;
-          }
-          state.currentTagSetNo = value;
-          logic.getCurrentTagSet();
-        },
-        itemBuilder: (_) => state.tagSets
-            .map(
-              (t) => PopupMenuItem<int>(
-                  value: t.number, child: Center(child: Text(t.name))),
+      builder: (_) => ThemeConfig.isApple
+          ? EHGlassMenu(
+              triggerBuilder: (context, toggle) => EHAppleIconButton(
+                  icon: const Icon(Icons.more_vert), onPressed: toggle),
+              items: state.tagSets
+                  .map(
+                    (t) => GlassMenuItem(
+                      title: t.name,
+                      onTap: () {
+                        if (state.currentTagSetNo == t.number) {
+                          return;
+                        }
+                        state.currentTagSetNo = t.number;
+                        logic.getCurrentTagSet();
+                      },
+                    ),
+                  )
+                  .toList(),
             )
-            .toList(),
-      ),
+          : PopupMenuButton<int>(
+              initialValue: state.currentTagSetNo,
+              padding: EdgeInsets.zero,
+              onSelected: (value) {
+                if (state.currentTagSetNo == value) {
+                  return;
+                }
+                state.currentTagSetNo = value;
+                logic.getCurrentTagSet();
+              },
+              itemBuilder: (_) => state.tagSets
+                  .map(
+                    (t) => PopupMenuItem<int>(
+                        value: t.number, child: Center(child: Text(t.name))),
+                  )
+                  .toList(),
+            ),
     );
   }
 
@@ -205,7 +228,7 @@ class _Tag extends StatelessWidget {
   }
 
   Widget _buildLeadingIcon(BuildContext context) {
-    return IconButton(
+    return EHAppleIconButton(
       icon: Icon(
         tag.watched
             ? Icons.favorite
@@ -314,14 +337,14 @@ class _ColorSettingDialogState extends State<_ColorSettingDialog> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            TextButton(child: Text('cancel'.tr), onPressed: backRoute),
-            TextButton(
+            EHAppleTextButton(child: Text('cancel'.tr), onPressed: backRoute),
+            EHAppleTextButton(
               child: Text('reset'.tr),
               onPressed: () {
                 backRoute(result: 'default');
               },
             ),
-            TextButton(
+            EHAppleTextButton(
               child: Text('OK'.tr),
               onPressed: () {
                 backRoute(result: selectedColor);

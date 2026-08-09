@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/image_translation_service.dart';
 import 'package:jhentai/src/service/inference/onnx_model_store.dart';
@@ -12,8 +13,10 @@ import 'package:jhentai/src/setting/inference_setting.dart';
 import 'package:jhentai/src/utils/app_icons.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/eh_apple_button.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
 import 'package:jhentai/src/widget/onnx_model_tile.dart';
 import 'package:jhentai/src/widget/paddle_cli_output.dart';
@@ -146,7 +149,7 @@ class _SettingImageTranslationPageState
       appBar: AppBar(
         centerTitle: true,
         title: Text('imageTextTranslation'.tr),
-        actions: [TextButton(onPressed: _save, child: Text('saveSetting'.tr))],
+        actions: [EHAppleTextButton(onPressed: _save, child: Text('saveSetting'.tr))],
       ),
       body: EHAppleSettingsListView(
         safeArea: true,
@@ -297,11 +300,13 @@ class _SettingImageTranslationPageState
       ),
       trailing:
           _fetchingModels
-              ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
+              ? SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: ThemeConfig.isApple
+                      ? const GlassProgressIndicator.circular(strokeWidth: 2)
+                      : const CircularProgressIndicator(strokeWidth: 2),
+                )
               : const Icon(Icons.cloud_sync_outlined),
       onTap: _fetchingModels ? null : _fetchModels,
     );
@@ -632,11 +637,13 @@ class _SettingImageTranslationPageState
                 ),
                 trailing:
                     imageTranslationService.preparingPaddle
-                        ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
+                        ? SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: ThemeConfig.isApple
+                                ? const GlassProgressIndicator.circular(strokeWidth: 2)
+                                : const CircularProgressIndicator(strokeWidth: 2),
+                          )
                         : const Icon(Icons.download_for_offline_outlined),
                 onTap:
                     imageTranslationService.preparingPaddle
@@ -684,7 +691,8 @@ class _SettingImageTranslationPageState
               ),
             ),
           ),
-          IconButton(
+          const SizedBox(width: 8),
+          EHAppleIconButton(
             tooltip: 'imageTranslationChooseDirectory'.tr,
             onPressed: _chooseDirectory,
             icon: const Icon(Icons.folder_open_outlined),
@@ -699,11 +707,13 @@ class _SettingImageTranslationPageState
       title: Text('imageTranslationDetectOcr'.tr),
       trailing:
           _detectingOcr
-              ? const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
+              ? SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: ThemeConfig.isApple
+                      ? const GlassProgressIndicator.circular(strokeWidth: 2)
+                      : const CircularProgressIndicator(strokeWidth: 2),
+                )
               : const Icon(Icons.manage_search_outlined),
       onTap: _detectingOcr ? null : _detectOcr,
     );
@@ -745,18 +755,26 @@ class _SettingImageTranslationPageState
               downloading
                   ? Padding(
                     padding: const EdgeInsets.only(top: 8),
-                    child: LinearProgressIndicator(
-                      value: imageTranslationService.ocrModelDownloadProgress(
-                        model.code,
-                      ),
-                    ),
+                    child: ThemeConfig.isApple
+                        ? GlassProgressIndicator.linear(
+                            value: imageTranslationService
+                                .ocrModelDownloadProgress(
+                                  model.code,
+                                ),
+                          )
+                        : LinearProgressIndicator(
+                            value: imageTranslationService
+                                .ocrModelDownloadProgress(
+                                  model.code,
+                                ),
+                          ),
                   )
                   : Text(
                     installed
                         ? 'imageTranslationOcrInstalled'.tr
                         : 'imageTranslationOcrNotInstalled'.tr,
                   ),
-          leading: Checkbox(
+          leading: EHAppleCheckbox(
             value: _selectedLanguages.contains(model.code),
             onChanged:
                 (value) => setState(() {
@@ -767,12 +785,14 @@ class _SettingImageTranslationPageState
           ),
           trailing:
               downloading
-                  ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                  : IconButton(
+                  ? SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: ThemeConfig.isApple
+                          ? const GlassProgressIndicator.circular(strokeWidth: 2)
+                          : const CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : EHAppleIconButton(
                     tooltip: 'download'.tr,
                     onPressed: () => _downloadModel(model),
                     icon: Icon(
@@ -871,11 +891,11 @@ class _SettingImageTranslationPageState
             title: Text('imageTranslationDeletePaddleRuntime'.tr),
             content: Text('imageTranslationDeletePaddleConfirm'.tr),
             actions: [
-              TextButton(
+              EHAppleTextButton(
                 onPressed: () => Navigator.of(dialogContext).pop(false),
                 child: Text('cancel'.tr),
               ),
-              TextButton(
+              EHAppleTextButton(
                 onPressed: () => Navigator.of(dialogContext).pop(true),
                 child: Text('OK'.tr),
               ),

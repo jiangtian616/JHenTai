@@ -45,7 +45,7 @@ class MobileLayoutPageV2State with DoubleTapToRefreshStateMixin {
         routeName: Routes.dashboard,
         selectedIcon: Icon(AppIcons.homeFill),
         unselectedIcon: Icon(AppIcons.home),
-        page: () => preferenceSetting.simpleDashboardMode.isTrue ? const SimpleDashboardPage() : const DashboardPage(),
+        page: () => preferenceSetting.simpleDashboardMode.isTrue ? const SimpleDashboardPage() : DashboardPage(),
         scrollController: () => preferenceSetting.simpleDashboardMode.isTrue
             ? Get.find<SimpleDashboardPageLogic>().scroll2TopState.scrollController
             : Get.find<DashboardPageLogic>().scroll2TopState.scrollController,

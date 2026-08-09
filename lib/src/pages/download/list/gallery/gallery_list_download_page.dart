@@ -9,8 +9,10 @@ import 'package:jhentai/src/pages/download/mixin/gallery/gallery_download_page_m
 import 'package:jhentai/src/service/super_resolution_service.dart' as srs;
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_translated_text.dart';
 import 'package:jhentai/src/widget/grouped_list.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import '../../../../database/database.dart';
 import '../../../../mixin/scroll_to_top_page_mixin.dart';
 import '../../../../model/gallery_image.dart';
@@ -78,103 +80,155 @@ class GalleryListDownloadPage extends StatelessWidget
     return AppBar(
       centerTitle: true,
       leading: styleSetting.isInV2Layout
-          ? IconButton(
-              icon: isRouteAtTop(Routes.download)
-                  ? const Icon(Icons.arrow_back)
-                  : Icon(Icons.menu, size: 20),
-              onPressed: () {
-                if (isRouteAtTop(Routes.download)) {
-                  backRoute(currentRoute: Routes.download);
-                } else {
-                  TapMenuButtonNotification().dispatch(context);
-                }
-              },
-            )
+          ? (ThemeConfig.isApple
+              ? IconButton(
+                  onPressed: () {
+                    if (isRouteAtTop(Routes.download)) {
+                      backRoute(currentRoute: Routes.download);
+                    } else {
+                      TapMenuButtonNotification().dispatch(context);
+                    }
+                  },
+                  icon: isRouteAtTop(Routes.download)
+                      ? const Icon(Icons.arrow_back)
+                      : Icon(Icons.menu, size: 22),
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  hoverColor: Colors.transparent,
+                )
+              : EHAppleIconButton(
+                  icon: isRouteAtTop(Routes.download)
+                      ? const Icon(Icons.arrow_back)
+                      : Icon(Icons.menu, size: 20),
+                  onPressed: () {
+                    if (isRouteAtTop(Routes.download)) {
+                      backRoute(currentRoute: Routes.download);
+                    } else {
+                      TapMenuButtonNotification().dispatch(context);
+                    }
+                  },
+                ))
           : null,
       titleSpacing: 0,
       title: const DownloadPageSegmentControl(
           galleryType: DownloadPageGalleryType.download),
       actions: [
-        PopupMenuButton(
-          itemBuilder: (context) {
-            return [
-              PopupMenuItem(
-                value: 0,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.grid_view),
-                    const SizedBox(width: 12),
-                    Text('switch2GridMode'.tr)
-                  ],
-                ),
+        ThemeConfig.isApple
+            ? EHGlassMenu(
+                triggerBuilder: (context, toggle) => EHAppleIconButton(
+                    icon: const Icon(Icons.more_vert), onPressed: toggle),
+                items: [
+                  GlassMenuItem(
+                    title: 'switch2GridMode'.tr,
+                    icon: const Icon(Icons.grid_view),
+                    onTap: () => DownloadPageBodyTypeChangeNotification(
+                            bodyType: DownloadPageBodyType.grid)
+                        .dispatch(context),
+                  ),
+                  GlassMenuItem(
+                    title: 'multiSelect'.tr,
+                    icon: const Icon(Icons.done_all),
+                    onTap: () => logic.enterSelectMode(),
+                  ),
+                  GlassMenuItem(
+                    title: 'resumeAllTasks'.tr,
+                    icon: const Icon(Icons.play_arrow),
+                    onTap: () =>
+                        logic.downloadService.resumeAllDownloadGallery(),
+                  ),
+                  GlassMenuItem(
+                    title: 'pauseAllTasks'.tr,
+                    icon: const Icon(Icons.pause),
+                    onTap: () =>
+                        logic.downloadService.pauseAllDownloadGallery(),
+                  ),
+                  GlassMenuItem(
+                    title: 'search'.tr,
+                    icon: const Icon(Icons.search),
+                    onTap: () => toRoute(Routes.downloadSearch),
+                  ),
+                ],
+              )
+            : PopupMenuButton(
+                itemBuilder: (context) {
+                  return [
+                    PopupMenuItem(
+                      value: 0,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.grid_view),
+                          const SizedBox(width: 12),
+                          Text('switch2GridMode'.tr)
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 1,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.done_all),
+                          const SizedBox(width: 12),
+                          Text('multiSelect'.tr)
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 2,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.play_arrow),
+                          const SizedBox(width: 12),
+                          Text('resumeAllTasks'.tr)
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 3,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.pause),
+                          const SizedBox(width: 12),
+                          Text('pauseAllTasks'.tr)
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 4,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.search),
+                          const SizedBox(width: 12),
+                          Text('search'.tr)
+                        ],
+                      ),
+                    ),
+                  ];
+                },
+                onSelected: (value) {
+                  if (value == 0) {
+                    DownloadPageBodyTypeChangeNotification(
+                            bodyType: DownloadPageBodyType.grid)
+                        .dispatch(context);
+                  }
+                  if (value == 1) {
+                    logic.enterSelectMode();
+                  }
+                  if (value == 2) {
+                    logic.downloadService.resumeAllDownloadGallery();
+                  }
+                  if (value == 3) {
+                    logic.downloadService.pauseAllDownloadGallery();
+                  }
+                  if (value == 4) {
+                    toRoute(Routes.downloadSearch);
+                  }
+                },
               ),
-              PopupMenuItem(
-                value: 1,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.done_all),
-                    const SizedBox(width: 12),
-                    Text('multiSelect'.tr)
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 2,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.play_arrow),
-                    const SizedBox(width: 12),
-                    Text('resumeAllTasks'.tr)
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 3,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.pause),
-                    const SizedBox(width: 12),
-                    Text('pauseAllTasks'.tr)
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 4,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.search),
-                    const SizedBox(width: 12),
-                    Text('search'.tr)
-                  ],
-                ),
-              ),
-            ];
-          },
-          onSelected: (value) {
-            if (value == 0) {
-              DownloadPageBodyTypeChangeNotification(
-                      bodyType: DownloadPageBodyType.grid)
-                  .dispatch(context);
-            }
-            if (value == 1) {
-              logic.enterSelectMode();
-            }
-            if (value == 2) {
-              logic.downloadService.resumeAllDownloadGallery();
-            }
-            if (value == 3) {
-              logic.downloadService.pauseAllDownloadGallery();
-            }
-            if (value == 4) {
-              toRoute(Routes.downloadSearch);
-            }
-          },
-        ),
       ],
     );
   }
@@ -629,11 +683,17 @@ class GalleryListDownloadPage extends StatelessWidget
             if (downloadProgress.downloadStatus != DownloadStatus.downloaded)
               SizedBox(
                 height: 3,
-                child: LinearProgressIndicator(
-                  value:
-                      downloadProgress.curCount / downloadProgress.totalCount,
-                  color: UIConfig.downloadPageProgressIndicatorColor(context),
-                ),
+                child: ThemeConfig.isApple
+                    ? GlassProgressIndicator.linear(
+                        value:
+                            downloadProgress.curCount / downloadProgress.totalCount,
+                        color: UIConfig.downloadPageProgressIndicatorColor(context),
+                      )
+                    : LinearProgressIndicator(
+                        value:
+                            downloadProgress.curCount / downloadProgress.totalCount,
+                        color: UIConfig.downloadPageProgressIndicatorColor(context),
+                      ),
               ).marginOnly(top: 4),
           ],
         );

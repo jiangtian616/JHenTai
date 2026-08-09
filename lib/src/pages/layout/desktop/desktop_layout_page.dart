@@ -5,6 +5,7 @@ import 'package:macos_window_utils/widgets/transparent_macos_sidebar.dart';
 import 'package:jhentai/src/pages/home_page.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_home_page.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_state.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 
 import '../../../config/theme_config.dart';
 import '../../../config/ui_config.dart';
@@ -97,7 +98,10 @@ class DesktopLayoutPage extends StatelessWidget {
                   ? AnimatedContainer(
                       duration: const Duration(milliseconds: 180),
                       curve: Curves.easeOutCubic,
-                      margin: const EdgeInsets.symmetric(horizontal: 5),
+                      width: EHAppleIconButton.defaultSize,
+                      height: EHAppleIconButton.defaultSize,
+                      // iOS selected capsule: a solid accent circle with a
+                      // contrasting icon, shown through the translucent glass.
                       decoration: BoxDecoration(
                         color: state.selectedTabIndex == index
                             ? Theme.of(context).colorScheme.primary
@@ -106,9 +110,9 @@ class DesktopLayoutPage extends StatelessWidget {
                                     .colorScheme
                                     .surfaceContainerHighest
                                 : Colors.transparent),
-                        borderRadius: BorderRadius.circular(8),
+                        shape: BoxShape.circle,
                       ),
-                      child: IconButton(
+                      child: EHAppleIconButton(
                         onPressed: () => logic.handleTapTabBarButton(index),
                         icon: state.selectedTabIndex == index
                             ? state.icons[index].selectedIcon
@@ -116,6 +120,9 @@ class DesktopLayoutPage extends StatelessWidget {
                         color: state.selectedTabIndex == index
                             ? Theme.of(context).colorScheme.onPrimary
                             : Theme.of(context).colorScheme.onSurfaceVariant,
+                        glowColor: state.selectedTabIndex == index
+                            ? Theme.of(context).colorScheme.primary
+                            : null,
                       ),
                     )
                   : DecoratedBox(
@@ -128,7 +135,7 @@ class DesktopLayoutPage extends StatelessWidget {
                                         context)))
                             : null,
                       ),
-                      child: IconButton(
+                      child: EHAppleIconButton(
                         onPressed: () => logic.handleTapTabBarButton(index),
                         icon: state.selectedTabIndex == index
                             ? state.icons[index].selectedIcon

@@ -122,12 +122,13 @@ class SettingPreferencePage extends StatelessWidget {
             loadingState: tagTranslationService.loadingState.value,
             indicatorRadius: 10,
             width: 40,
-            idleWidgetBuilder: () => IconButton(
+            idleWidgetBuilder: () => EHAppleIconButton(
                 onPressed: tagTranslationService.fetchDataFromGithub,
                 icon: const Icon(Icons.refresh)),
             errorWidgetSameWithIdle: true,
             successWidgetSameWithIdle: true,
           ),
+          const SizedBox(width: 8),
           EHAppleSwitch(
             value: preferenceSetting.enableTagZHTranslation.value,
             onChanged: (value) {
@@ -171,13 +172,14 @@ class SettingPreferencePage extends StatelessWidget {
             loadingState: tagSearchOrderOptimizationService.loadingState.value,
             indicatorRadius: 10,
             width: 40,
-            idleWidgetBuilder: () => IconButton(
+            idleWidgetBuilder: () => EHAppleIconButton(
                 onPressed:
                     tagSearchOrderOptimizationService.fetchDataFromGithub,
                 icon: const Icon(Icons.refresh)),
             errorWidgetSameWithIdle: true,
             successWidgetSameWithIdle: true,
           ),
+          const SizedBox(width: 8),
           EHAppleSwitch(
             value: preferenceSetting.enableTagZHSearchOrderOptimization.value,
             onChanged: (value) {
@@ -519,13 +521,14 @@ class SettingPreferencePage extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          IconButton(
+          EHAppleIconButton(
             icon: const Icon(Icons.help),
             onPressed: () => launchUrlString(
               'https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/built_in_blocked_user.json',
               mode: LaunchMode.externalApplication,
             ),
           ),
+          const SizedBox(width: 8),
           EHAppleSwitch(
             value: preferenceSetting.useBuiltInBlockedUsers.value,
             onChanged: preferenceSetting.saveUseBuiltInBlockedUsers,

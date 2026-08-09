@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../utils/screen_size_util.dart';
@@ -71,6 +72,25 @@ class UIConfig {
   /// 0 on desktop and non-Apple platforms.
   static double liquidGlassNavContentInset(BuildContext context) =>
       liquidGlassNavBarRaise(context) + MediaQuery.of(context).padding.bottom;
+
+  /// Glass settings shared by the app's dialogs. [GlassDialog] defaults to a
+  /// fully transparent glass with strong chromatic aberration and
+  /// over-saturation, which fringes crisp text edges with a coloured double
+  /// line under the text. Dialogs instead use the app's tuned glass (white
+  /// tint, higher refraction, restrained lighting) with no aberration or
+  /// saturation boost.
+  static LiquidGlassSettings glassDialogSettings(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    return LiquidGlassSettings(
+      glassColor: Colors.white.withValues(alpha: isDark ? 0.10 : 0.16),
+      refractiveIndex: 1.8,
+      lightIntensity: isDark ? 0.40 : 0.45,
+      ambientStrength: isDark ? 0.05 : 0.06,
+      chromaticAberration: 0,
+      saturation: 1.0,
+      fresnelStrength: 0,
+    );
+  }
 
   static const Map<String, Color> galleryCategoryColor = {
     'Doujinshi': Color(0xfffc4e4e),
@@ -202,11 +222,12 @@ class UIConfig {
   static Color desktopLeftTabIconColor(BuildContext context) =>
       Theme.of(context).colorScheme.onSurface;
 
-  /// macOS sidebar background (light / dark).
+  /// macOS sidebar background (light / dark). Both are translucent so the
+  /// native NSVisualEffectView frost behind them shows through.
   static const Color desktopSideBarColorLight = Color(0xFFECECEC);
   static const Color desktopSideBarColorDark = Color(0xFF1E1E1E);
-  static const double desktopMacOSSideBarLightAlpha = 0.55;
-  static const double desktopMacOSSideBarDarkAlpha = 1.0;
+  static const double desktopMacOSSideBarLightAlpha = 0.45;
+  static const double desktopMacOSSideBarDarkAlpha = 0.60;
 
   static Color desktopSideBarColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
@@ -454,12 +475,12 @@ class UIConfig {
   static const double desktopSearchBarHeight = 32;
   static const double mobileV2SearchBarHeight = 28;
 
-  static const double desktopSearchTabHeight = 32;
+  static const double desktopSearchTabHeight = 40;
   static const double desktopSearchTabWidth = 130;
-  static const double desktopSearchTabRemainingWidth = 42;
+  static const double desktopSearchTabRemainingWidth = 50;
   static const double desktopSearchTabDividerWidth = 16;
   static const double desktopSearchTabDividerBorderRadius = 8;
-  static const double desktopSearchTabIconSize = 16;
+  static const double desktopSearchTabIconSize = 14;
 
   static Color desktopSearchTabSelectedBackGroundColor(BuildContext context) =>
       Theme.of(context).colorScheme.onSurface;
@@ -506,6 +527,12 @@ class UIConfig {
 
   static Color readPageActiveButtonColor(BuildContext context) =>
       Theme.of(context).colorScheme.primary;
+
+  /// Per-button horizontal padding of the read-page top-right action buttons.
+  /// Each button carries half of the gap, so two adjacent buttons are spaced
+  /// by 2x this value.
+  static const double readPageTopMenuActionHPadding = 4;
+
   static const double readPageBottomThumbnailsRegionHeight = 156;
   static const double readPageThumbnailHeight = 120;
   static const double readPageThumbnailWidth = 80;
@@ -594,7 +621,11 @@ class UIConfig {
       Theme.of(context).colorScheme.error;
 
   static Color commentButtonColor(BuildContext context) =>
-      Theme.of(context).colorScheme.outline;
+      ThemeConfig.isApple
+          // outline (separator gray) is nearly invisible on the glass card;
+          // use a medium-contrast label instead.
+          ? Theme.of(context).colorScheme.onSurfaceVariant
+          : Theme.of(context).colorScheme.outline;
   static const double commentScoreSizeInDetailPage = 10;
   static const double commentScoreSizeInCommentPage = 10;
 

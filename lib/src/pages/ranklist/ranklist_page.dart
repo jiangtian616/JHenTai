@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/pages/base/base_page.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_logic.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 class RanklistPage extends BasePage {
   const RanklistPage({
@@ -32,17 +35,28 @@ class RanklistPage extends BasePage {
       leading: showMenuButton ? super.buildAppBarMenuButton(context) : null,
       actions: [
         ...super.buildAppBarActions(),
-        PopupMenuButton(
-          tooltip: '',
-          initialValue: state.ranklistType,
-          onSelected: logic.handleChangeRanklist,
-          itemBuilder: (BuildContext context) => <PopupMenuEntry<RanklistType>>[
-            PopupMenuItem<RanklistType>(value: RanklistType.allTime, child: Center(child: Text('allTime'.tr))),
-            PopupMenuItem<RanklistType>(value: RanklistType.year, child: Center(child: Text('year'.tr))),
-            PopupMenuItem<RanklistType>(value: RanklistType.month, child: Center(child: Text('month'.tr))),
-            PopupMenuItem<RanklistType>(value: RanklistType.day, child: Center(child: Text('day'.tr))),
-          ],
-        ),
+        ThemeConfig.isApple
+            ? EHGlassMenu(
+                triggerBuilder: (context, toggle) =>
+                    EHAppleIconButton(icon: const Icon(Icons.more_vert), onPressed: toggle),
+                items: [
+                  GlassMenuItem(title: 'allTime'.tr, onTap: () => logic.handleChangeRanklist(RanklistType.allTime)),
+                  GlassMenuItem(title: 'year'.tr, onTap: () => logic.handleChangeRanklist(RanklistType.year)),
+                  GlassMenuItem(title: 'month'.tr, onTap: () => logic.handleChangeRanklist(RanklistType.month)),
+                  GlassMenuItem(title: 'day'.tr, onTap: () => logic.handleChangeRanklist(RanklistType.day)),
+                ],
+              )
+            : PopupMenuButton(
+                tooltip: '',
+                initialValue: state.ranklistType,
+                onSelected: logic.handleChangeRanklist,
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<RanklistType>>[
+                  PopupMenuItem<RanklistType>(value: RanklistType.allTime, child: Center(child: Text('allTime'.tr))),
+                  PopupMenuItem<RanklistType>(value: RanklistType.year, child: Center(child: Text('year'.tr))),
+                  PopupMenuItem<RanklistType>(value: RanklistType.month, child: Center(child: Text('month'.tr))),
+                  PopupMenuItem<RanklistType>(value: RanklistType.day, child: Center(child: Text('day'.tr))),
+                ],
+              ),
       ],
     );
   }

@@ -177,7 +177,7 @@ class Routes {
     ),
     EHPage(
       name: dashboard,
-      page: () => const DashboardPage(),
+      page: () => DashboardPage(),
       transition: defaultTransition,
       side: Side.left,
     ),

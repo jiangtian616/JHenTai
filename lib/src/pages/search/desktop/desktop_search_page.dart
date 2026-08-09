@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:jhentai/src/widget/fade_slide_widget.dart';
 
@@ -93,13 +94,12 @@ class DesktopSearchPage extends StatelessWidget with Scroll2TopPageMixin {
                     ),
                   ),
                 ),
-                IconButton(
+                EHAppleIconButton(
                   onPressed: () => logic.addNewTab(
                       keyword: '', loadImmediately: ThemeConfig.isApple),
-                  icon: const Icon(Icons.add),
-                  constraints: const BoxConstraints.tightFor(
-                      width: UIConfig.desktopSearchTabHeight,
-                      height: UIConfig.desktopSearchTabHeight),
+                  icon: const Icon(Icons.add, size: 18),
+                  constraints:
+                      const BoxConstraints.tightFor(width: 24, height: 24),
                   padding: EdgeInsets.zero,
                 ),
               ],
@@ -271,13 +271,13 @@ class _SearchTabState extends State<_SearchTab> {
                       letterSpacing: 0.1),
                 ),
               ),
-              IconButton(
+              EHAppleIconButton(
                 onPressed: widget.onDelete,
                 icon: Icon(Icons.close,
                     color: colors.onSurfaceVariant,
                     size: UIConfig.desktopSearchTabIconSize),
                 constraints:
-                    const BoxConstraints.tightFor(width: 28, height: 28),
+                    const BoxConstraints.tightFor(width: 20, height: 20),
                 padding: EdgeInsets.zero,
               ),
             ],
@@ -306,7 +306,7 @@ class _SearchTabState extends State<_SearchTab> {
                     letterSpacing: 0.1),
               ).marginOnly(left: 2),
             ),
-            IconButton(
+            EHAppleIconButton(
               onPressed: widget.onDelete,
               icon: Icon(
                 Icons.clear,
@@ -315,9 +315,8 @@ class _SearchTabState extends State<_SearchTab> {
                     : widget.unSelectedTextColor,
                 size: UIConfig.desktopSearchTabIconSize,
               ),
-              constraints: const BoxConstraints.tightFor(
-                  width: UIConfig.desktopSearchTabHeight,
-                  height: UIConfig.desktopSearchTabHeight),
+              constraints:
+                  const BoxConstraints.tightFor(width: 20, height: 20),
               padding: EdgeInsets.zero,
             ),
           ],

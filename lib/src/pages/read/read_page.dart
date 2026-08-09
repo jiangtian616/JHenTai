@@ -16,7 +16,10 @@ import 'package:jhentai/src/pages/read/read_page_logic.dart';
 import 'package:jhentai/src/pages/read/read_page_state.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/service/image_translation_service.dart';
+import 'package:jhentai/src/widget/eh_apple_button.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_mouse_button_listener.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -321,99 +324,184 @@ class _ReadPageState extends State<ReadPage>
                   (state.readPageInfo.mode == ReadMode.downloaded ||
                       state.readPageInfo.mode == ReadMode.archive) &&
                   state.readPageInfo.useSuperResolution)
-                TextButton(
-                  child: GetBuilder<SuperResolutionService>(
-                    id: '${SuperResolutionService.superResolutionId}::${state.readPageInfo.gid}',
-                    builder: (_) => Text(
-                      'AI' + logic.getSuperResolutionProgress(),
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: state.useSuperResolution
-                            ? UIConfig.readPageActiveButtonColor(context)
-                            : UIConfig.readPageButtonColor,
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: UIConfig.readPageTopMenuActionHPadding),
+                  child: EHAppleTextButton(
+                    child: GetBuilder<SuperResolutionService>(
+                      id: '${SuperResolutionService.superResolutionId}::${state.readPageInfo.gid}',
+                      builder: (_) => Text(
+                        'AI' + logic.getSuperResolutionProgress(),
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: state.useSuperResolution
+                              ? UIConfig.readPageActiveButtonColor(context)
+                              : UIConfig.readPageButtonColor,
+                        ),
                       ),
                     ),
-                  ),
-                  onPressed: logic.handleTapSuperResolutionButton,
-                  style: TextButton.styleFrom(
-                    minimumSize: const Size(56, 56),
+                    onPressed: logic.handleTapSuperResolutionButton,
+                    style: TextButton.styleFrom(
+                      minimumSize: const Size(40, 40),
+                    ),
                   ),
                 ),
               Obx(() {
                 if (!logic.isInDoubleColumnReadDirection) {
                   return const SizedBox();
                 }
-                return ElevatedButton(
-                  child: Icon(
-                    Icons.looks_one,
-                    // ElevatedButton M3 default iconSize (18) shrinks a bare child Icon; pin size explicitly
-                    size: 24,
-                    color: state.displayFirstPageAlone
-                        ? UIConfig.readPageActiveButtonColor(context)
-                        : UIConfig.readPageButtonColor,
-                  ),
-                  onPressed: logic.toggleDisplayFirstPageAlone,
-                  style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    padding: const EdgeInsets.all(0),
-                    surfaceTintColor: Colors.transparent,
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    minimumSize: const Size(56, 56),
-                  ),
-                );
-              }),
-              GetBuilder<ReadPageLogic>(
-                id: logic.autoModeId,
-                builder: (_) => ElevatedButton(
-                  child: Icon(Icons.schedule,
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: UIConfig.readPageTopMenuActionHPadding),
+                  child: EHAppleElevatedButton(
+                    child: Icon(
+                      Icons.looks_one,
+                      // ElevatedButton M3 default iconSize (18) shrinks a bare child Icon; pin size explicitly
                       size: 24,
-                      color: state.autoMode
+                      color: state.displayFirstPageAlone
                           ? UIConfig.readPageActiveButtonColor(context)
-                          : UIConfig.readPageButtonColor),
-                  onPressed: logic.toggleAutoMode,
-                  style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    padding: const EdgeInsets.all(0),
-                    surfaceTintColor: Colors.transparent,
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    minimumSize: const Size(56, 56),
-                  ),
-                ),
-              ),
-              GetBuilder<ReadPageLogic>(
-                id: logic.translationMenuId,
-                builder: (_) => Tooltip(
-                  message: 'imageTextTranslation'.tr,
-                  child: ElevatedButton(
-                    key: _imageTranslationMenuKey,
-                    child: const Icon(Icons.translate,
-                        size: 24, color: UIConfig.readPageButtonColor),
-                    onPressed: () => _showImageTranslationMenu(context),
+                          : UIConfig.readPageButtonColor,
+                    ),
+                    onPressed: logic.toggleDisplayFirstPageAlone,
                     style: ElevatedButton.styleFrom(
                       elevation: 0,
                       padding: const EdgeInsets.all(0),
                       surfaceTintColor: Colors.transparent,
                       backgroundColor: Colors.transparent,
                       shadowColor: Colors.transparent,
-                      minimumSize: const Size(56, 56),
+                      minimumSize: const Size(40, 40),
+                    ),
+                  ),
+                );
+              }),
+              GetBuilder<ReadPageLogic>(
+                id: logic.autoModeId,
+                builder: (_) => Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: UIConfig.readPageTopMenuActionHPadding),
+                  child: EHAppleElevatedButton(
+                    child: Icon(Icons.schedule,
+                        size: 24,
+                        color: state.autoMode
+                            ? UIConfig.readPageActiveButtonColor(context)
+                            : UIConfig.readPageButtonColor),
+                    onPressed: logic.toggleAutoMode,
+                    style: ElevatedButton.styleFrom(
+                      elevation: 0,
+                      padding: const EdgeInsets.all(0),
+                      surfaceTintColor: Colors.transparent,
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      minimumSize: const Size(40, 40),
                     ),
                   ),
                 ),
               ),
+              GetBuilder<ReadPageLogic>(
+                id: logic.translationMenuId,
+                builder: (_) {
+                  final bool overlayVisible = state.showImageTranslationOverlay;
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: UIConfig.readPageTopMenuActionHPadding),
+                    child: Tooltip(
+                      message: 'imageTextTranslation'.tr,
+                      child: ThemeConfig.isApple
+                          ? EHGlassMenu(
+                              triggerBuilder: (context, toggle) =>
+                                  EHAppleElevatedButton(
+                                key: _imageTranslationMenuKey,
+                                child: const Icon(Icons.translate,
+                                    size: 24,
+                                    color: UIConfig.readPageButtonColor),
+                                // GlassMenu's own gesture opens the menu.
+                                onPressed: toggle,
+                                style: ElevatedButton.styleFrom(
+                                  elevation: 0,
+                                  padding: const EdgeInsets.all(0),
+                                  surfaceTintColor: Colors.transparent,
+                                  backgroundColor: Colors.transparent,
+                                  shadowColor: Colors.transparent,
+                                  minimumSize: const Size(40, 40),
+                                ),
+                              ),
+                              items: [
+                                GlassMenuItem(
+                                  title: 'imageTranslationStart'.tr,
+                                  icon: const Icon(Icons.play_arrow),
+                                  onTap: () =>
+                                      _handleImageTranslationMenuAction(
+                                          context,
+                                          _ImageTranslationMenuAction.start),
+                                ),
+                                GlassMenuItem(
+                                  title: 'imageTranslationRetranslate'.tr,
+                                  icon: const Icon(Icons.refresh),
+                                  onTap: () =>
+                                      _handleImageTranslationMenuAction(
+                                          context,
+                                          _ImageTranslationMenuAction
+                                              .retranslate),
+                                ),
+                                GlassMenuItem(
+                                  title: 'imageTranslationSettings'.tr,
+                                  icon: const Icon(Icons.settings),
+                                  onTap: () =>
+                                      _handleImageTranslationMenuAction(
+                                          context,
+                                          _ImageTranslationMenuAction.settings),
+                                ),
+                                GlassMenuItem(
+                                  title: (overlayVisible
+                                          ? 'imageTranslationHide'
+                                          : 'imageTranslationShow')
+                                      .tr,
+                                  icon: Icon(overlayVisible
+                                      ? Icons.visibility_off
+                                      : Icons.visibility),
+                                  onTap: () =>
+                                      _handleImageTranslationMenuAction(
+                                          context,
+                                          _ImageTranslationMenuAction
+                                              .toggleOverlay),
+                                ),
+                              ],
+                            )
+                          : EHAppleElevatedButton(
+                              key: _imageTranslationMenuKey,
+                              child: const Icon(Icons.translate,
+                                  size: 24,
+                                  color: UIConfig.readPageButtonColor),
+                              onPressed: () => _showImageTranslationMenu(context),
+                              style: ElevatedButton.styleFrom(
+                                elevation: 0,
+                                padding: const EdgeInsets.all(0),
+                                surfaceTintColor: Colors.transparent,
+                                backgroundColor: Colors.transparent,
+                                shadowColor: Colors.transparent,
+                                minimumSize: const Size(40, 40),
+                              ),
+                            ),
+                    ),
+                  );
+                },
+              ),
               if (readSetting.enableBottomMenu.isFalse)
-                ElevatedButton(
-                  child: const Icon(Icons.settings,
-                      size: 24, color: UIConfig.readPageButtonColor),
-                  onPressed: () => logic.openReadSetting(context),
-                  style: ElevatedButton.styleFrom(
-                    elevation: 0,
-                    padding: const EdgeInsets.all(0),
-                    surfaceTintColor: Colors.transparent,
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    minimumSize: const Size(56, 56),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: UIConfig.readPageTopMenuActionHPadding),
+                  child: EHAppleElevatedButton(
+                    child: const Icon(Icons.settings,
+                        size: 24, color: UIConfig.readPageButtonColor),
+                    onPressed: () => logic.openReadSetting(context),
+                    style: ElevatedButton.styleFrom(
+                      elevation: 0,
+                      padding: const EdgeInsets.all(0),
+                      surfaceTintColor: Colors.transparent,
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      minimumSize: const Size(40, 40),
+                    ),
                   ),
                 ),
             ],
@@ -527,11 +615,14 @@ class _ReadPageState extends State<ReadPage>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const SizedBox(
+                    SizedBox(
                         width: 12,
                         height: 12,
-                        child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white)),
+                        child: ThemeConfig.isApple
+                            ? GlassProgressIndicator.circular(
+                                strokeWidth: 2, color: Colors.white)
+                            : const CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white)),
                     const SizedBox(width: 8),
                     Text(
                       'translationProgress'.trParams({
@@ -760,7 +851,7 @@ class _ReadPageState extends State<ReadPage>
                       color: Colors.transparent,
                       child: RotatedBox(
                         quarterTurns: logic.isInRight2LeftDirection ? 2 : 0,
-                        child: Slider(
+                        child: EHAppleSlider(
                           min: 1,
                           max: state.readPageInfo.pageCount.toDouble(),
                           value: state.readPageInfo.currentImageIndex + 1.0,
@@ -793,50 +884,83 @@ class _ReadPageState extends State<ReadPage>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Material(
-            color: Colors.transparent,
-            child: PopupMenuButton<ReadDirection>(
-              initialValue: effectiveDirection,
-              icon:
-                  const Icon(Icons.height, color: UIConfig.readPageButtonColor),
-              itemBuilder: (_) => ReadDirection.values
-                  .map(
-                    (e) => PopupMenuItem<ReadDirection>(
-                        child: Text(e.name.tr), value: e),
-                  )
-                  .toList(),
-              onSelected: (ReadDirection value) =>
-                  logic.saveReadDirection(value),
-            ),
-          ),
-          Material(
-            color: Colors.transparent,
-            child: PopupMenuButton<DeviceDirection>(
-              initialValue: readSetting.deviceDirection.value,
-              icon: const Icon(Icons.screen_rotation,
-                  color: UIConfig.readPageButtonColor),
-              itemBuilder: (_) => DeviceDirection.values
-                  .map(
-                    (e) => PopupMenuItem<DeviceDirection>(
-                        child: Text(e.name.tr), value: e),
-                  )
-                  .toList(),
-              onSelected: (DeviceDirection value) {
-                readSetting.saveDeviceDirection(value);
-                logic.onEffectiveSettingChanged();
-              },
-            ),
-          ),
+          ThemeConfig.isApple
+              ? EHGlassMenu(
+                  trigger: const Icon(Icons.height,
+                      color: UIConfig.readPageButtonColor),
+                  items: [
+                    for (final e in ReadDirection.values)
+                      GlassMenuItem(
+                        title: e.name.tr,
+                        onTap: () => logic.saveReadDirection(e),
+                      ),
+                  ],
+                )
+              : Material(
+                  color: Colors.transparent,
+                  child: PopupMenuButton<ReadDirection>(
+                    initialValue: effectiveDirection,
+                    icon: const Icon(Icons.height,
+                        color: UIConfig.readPageButtonColor),
+                    itemBuilder: (_) => ReadDirection.values
+                        .map(
+                          (e) => PopupMenuItem<ReadDirection>(
+                              child: Text(e.name.tr), value: e),
+                        )
+                        .toList(),
+                    onSelected: (ReadDirection value) =>
+                        logic.saveReadDirection(value),
+                  ),
+                ),
+          ThemeConfig.isApple
+              ? EHGlassMenu(
+                  trigger: const Icon(Icons.screen_rotation,
+                      color: UIConfig.readPageButtonColor),
+                  items: [
+                    for (final e in DeviceDirection.values)
+                      GlassMenuItem(
+                        title: e.name.tr,
+                        onTap: () {
+                          readSetting.saveDeviceDirection(e);
+                          logic.onEffectiveSettingChanged();
+                        },
+                      ),
+                  ],
+                )
+              : Material(
+                  color: Colors.transparent,
+                  child: PopupMenuButton<DeviceDirection>(
+                    initialValue: readSetting.deviceDirection.value,
+                    icon: const Icon(Icons.screen_rotation,
+                        color: UIConfig.readPageButtonColor),
+                    itemBuilder: (_) => DeviceDirection.values
+                        .map(
+                          (e) => PopupMenuItem<DeviceDirection>(
+                              child: Text(e.name.tr), value: e),
+                        )
+                        .toList(),
+                    onSelected: (DeviceDirection value) {
+                      readSetting.saveDeviceDirection(value);
+                      logic.onEffectiveSettingChanged();
+                    },
+                  ),
+                ),
           GestureDetector(
             child: AbsorbPointer(
-              child: Material(
-                color: Colors.transparent,
-                child: PopupMenuButton(
-                  icon: const Icon(Icons.settings,
-                      color: UIConfig.readPageButtonColor),
-                  itemBuilder: (_) => [],
-                ),
-              ),
+              child: ThemeConfig.isApple
+                  ? EHGlassMenu(
+                      trigger: const Icon(Icons.settings,
+                          color: UIConfig.readPageButtonColor),
+                      items: [],
+                    )
+                  : Material(
+                      color: Colors.transparent,
+                      child: PopupMenuButton(
+                        icon: const Icon(Icons.settings,
+                            color: UIConfig.readPageButtonColor),
+                        itemBuilder: (_) => [],
+                      ),
+                    ),
             ),
             onTap: () => logic.openReadSetting(context),
           ),

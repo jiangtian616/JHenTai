@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jhentai/src/pages/download/mixin/basic/multi_select/multi_select_download_page_mixin.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 
 import '../../../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../../../mixin/scroll_to_top_page_mixin.dart';
@@ -29,14 +30,19 @@ mixin ArchiveDownloadPageMixin on StatelessWidget implements Scroll2TopPageMixin
   @override
   List<Widget> buildBottomAppBarButtons() {
     return [
-      IconButton(icon: const Icon(Icons.done_all), onPressed: archiveDownloadPageLogic.selectAllItem),
-      IconButton(icon: const Icon(Icons.play_arrow), onPressed: archiveDownloadPageLogic.handleMultiResumeTasks),
-      IconButton(icon: const Icon(Icons.pause), onPressed: archiveDownloadPageLogic.handleMultiPauseTasks),
-      IconButton(icon: const Icon(Icons.bookmark), onPressed: archiveDownloadPageLogic.handleMultiChangeGroup),
-      IconButton(icon: const Icon(Icons.delete), onPressed: archiveDownloadPageLogic.handleMultiDelete),
-      IconButton(icon: const Icon(Icons.smart_toy_outlined), onPressed: archiveDownloadPageLogic.handleChangeParseSource),
+      EHAppleIconButton(icon: const Icon(Icons.done_all), onPressed: archiveDownloadPageLogic.selectAllItem),
+      const SizedBox(width: 8),
+      EHAppleIconButton(icon: const Icon(Icons.play_arrow), onPressed: archiveDownloadPageLogic.handleMultiResumeTasks),
+      const SizedBox(width: 8),
+      EHAppleIconButton(icon: const Icon(Icons.pause), onPressed: archiveDownloadPageLogic.handleMultiPauseTasks),
+      const SizedBox(width: 8),
+      EHAppleIconButton(icon: const Icon(Icons.bookmark), onPressed: archiveDownloadPageLogic.handleMultiChangeGroup),
+      const SizedBox(width: 8),
+      EHAppleIconButton(icon: const Icon(Icons.delete), onPressed: archiveDownloadPageLogic.handleMultiDelete),
+      const SizedBox(width: 8),
+      EHAppleIconButton(icon: const Icon(Icons.smart_toy_outlined), onPressed: archiveDownloadPageLogic.handleChangeParseSource),
       const Expanded(child: SizedBox()),
-      IconButton(icon: const Icon(Icons.close), onPressed: multiSelectDownloadPageLogic.exitSelectMode),
+      EHAppleIconButton(icon: const Icon(Icons.close), onPressed: multiSelectDownloadPageLogic.exitSelectMode),
     ];
   }
 }

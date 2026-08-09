@@ -7,15 +7,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/pages/search/mixin/search_page_mixin.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:jhentai/src/service/quick_search_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/eh_alert_dialog.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:throttling/throttling.dart';
 
@@ -118,16 +121,16 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         if (widget.type == EHSearchConfigDialogType.update)
-          IconButton(
+          EHAppleIconButton(
               icon: const Icon(Icons.delete), onPressed: _handleDeleteConfig),
         if (widget.type == EHSearchConfigDialogType.filter)
-          IconButton(
+          EHAppleIconButton(
               icon: const Icon(Icons.refresh), onPressed: _resetAllConfig),
         if (widget.type == EHSearchConfigDialogType.add)
-          const IconButton(icon: Icon(Icons.close), onPressed: backRoute),
+          const EHAppleIconButton(icon: Icon(Icons.close), onPressed: backRoute),
         Text(title,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        IconButton(icon: const Icon(Icons.check), onPressed: checkAndBack),
+        EHAppleIconButton(icon: const Icon(Icons.check), onPressed: checkAndBack),
       ],
     );
   }
@@ -176,7 +179,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
   }
 
   Widget _buildSearchConfigName() {
-    return TextField(
+    return EHAppleTextField(
       decoration: InputDecoration(
         isDense: true,
         alignLabelWithHint: true,
@@ -189,23 +192,38 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
   }
 
   Widget _buildSearchTypeSelector() {
+    const List<SearchType> options = [
+      SearchType.gallery,
+      SearchType.favorite,
+      SearchType.watched,
+    ];
     return Center(
-      child: CupertinoSlidingSegmentedControl<SearchType>(
-        groupValue: searchConfig.searchType,
-        children: {
-          SearchType.gallery: ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 44),
-              child: Center(child: Text('gallery'.tr))),
-          SearchType.favorite: ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 44),
-              child: Center(child: Text('favorite'.tr))),
-          SearchType.watched: ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 44),
-              child: Center(child: Text('watched'.tr))),
-        },
-        onValueChanged: (type) =>
-            setState(() => searchConfig.searchType = type!),
-      ),
+      child: ThemeConfig.isApple
+          ? GlassSegmentedControl(
+              selectedIndex: options.indexOf(searchConfig.searchType),
+              segments: [
+                for (final type in options)
+                  GlassSegment(label: type.name.tr),
+              ],
+              onSegmentSelected: (index) =>
+                  setState(() => searchConfig.searchType = options[index]),
+            )
+          : CupertinoSlidingSegmentedControl<SearchType>(
+              groupValue: searchConfig.searchType,
+              children: {
+                SearchType.gallery: ConstrainedBox(
+                    constraints: const BoxConstraints(minWidth: 44),
+                    child: Center(child: Text('gallery'.tr))),
+                SearchType.favorite: ConstrainedBox(
+                    constraints: const BoxConstraints(minWidth: 44),
+                    child: Center(child: Text('favorite'.tr))),
+                SearchType.watched: ConstrainedBox(
+                    constraints: const BoxConstraints(minWidth: 44),
+                    child: Center(child: Text('watched'.tr))),
+              },
+              onValueChanged: (type) =>
+                  setState(() => searchConfig.searchType = type!),
+            ),
     );
   }
 
@@ -260,7 +278,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
       child: KeyboardListener(
         focusNode: focusNode,
         onKeyEvent: _handleDeleteTag,
-        child: TextField(
+        child: EHAppleTextField(
           decoration: InputDecoration(
             isDense: true,
             alignLabelWithHint: true,
@@ -598,7 +616,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
       contentPadding: EdgeInsets.zero,
       title: Text('onlySearchExpungedGalleries'.tr,
           style: const TextStyle(fontSize: 15)),
-      trailing: Switch(
+      trailing: EHAppleSwitch(
         value: searchConfig.onlySearchExpungedGalleries,
         onChanged: (bool value) =>
             setState(() => searchConfig.onlySearchExpungedGalleries = value),
@@ -612,7 +630,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
       contentPadding: EdgeInsets.zero,
       title: Text('onlyShowGalleriesWithTorrents'.tr,
           style: const TextStyle(fontSize: 15)),
-      trailing: Switch(
+      trailing: EHAppleSwitch(
         value: searchConfig.onlyShowGalleriesWithTorrents,
         onChanged: (bool value) =>
             setState(() => searchConfig.onlyShowGalleriesWithTorrents = value),
@@ -709,7 +727,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
       contentPadding: EdgeInsets.zero,
       title: Text('disableFilterForLanguage'.tr,
           style: const TextStyle(fontSize: 15)),
-      trailing: Switch(
+      trailing: EHAppleSwitch(
         value: searchConfig.disableFilterForLanguage,
         onChanged: (bool value) =>
             setState(() => searchConfig.disableFilterForLanguage = value),
@@ -723,7 +741,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
       contentPadding: EdgeInsets.zero,
       title: Text('disableFilterForUploader'.tr,
           style: const TextStyle(fontSize: 15)),
-      trailing: Switch(
+      trailing: EHAppleSwitch(
         value: searchConfig.disableFilterForUploader,
         onChanged: (bool value) =>
             setState(() => searchConfig.disableFilterForUploader = value),
@@ -737,7 +755,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
       contentPadding: EdgeInsets.zero,
       title:
           Text('disableFilterForTags'.tr, style: const TextStyle(fontSize: 15)),
-      trailing: Switch(
+      trailing: EHAppleSwitch(
         value: searchConfig.disableFilterForTags,
         onChanged: (bool value) =>
             setState(() => searchConfig.disableFilterForTags = value),

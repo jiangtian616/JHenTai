@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../../routes/routes.dart';
@@ -30,7 +31,7 @@ class SettingSuperResolutionPage extends StatelessWidget {
         centerTitle: true,
         title: Text('superResolution'.tr),
         actions: [
-          IconButton(
+          EHAppleIconButton(
             icon: const Icon(Icons.help),
             onPressed:
                 () => launchUrlString(
@@ -165,12 +166,11 @@ class SettingSuperResolutionPage extends StatelessWidget {
             builder:
                 (superResolutionService) =>
                     superResolutionService.downloadState == LoadingState.loading
-                        ? IconButton(
+                        ? EHAppleIconButton(
                           icon: const CupertinoActivityIndicator(),
                           onPressed: () {},
-                          enableFeedback: false,
                         )
-                        : IconButton(
+                        : EHAppleIconButton(
                           icon: const Icon(Icons.download),
                           padding: EdgeInsets.zero,
                           onPressed: () {

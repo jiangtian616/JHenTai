@@ -6,6 +6,7 @@ import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery_archive.dart';
 import 'package:jhentai/src/setting/archive_bot_setting.dart';
+import 'package:jhentai/src/widget/eh_apple_button.dart';
 import 'package:jhentai/src/widget/eh_asset.dart';
 import 'package:jhentai/src/widget/eh_group_name_selector.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
@@ -222,7 +223,7 @@ class _ArchiveButtonSet extends StatelessWidget {
             cost!,
             style: TextStyle(color: UIConfig.archiveDialogCostTextColor(context), fontSize: UIConfig.archiveDialogCostTextSize),
           ),
-        ElevatedButton(
+        EHAppleElevatedButton(
           onPressed: callback,
           child: Row(
             children: [

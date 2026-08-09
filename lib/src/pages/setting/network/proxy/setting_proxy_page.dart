@@ -27,7 +27,7 @@ class _SettingProxyPageState extends State<SettingProxyPage> {
         centerTitle: true,
         title: Text('proxySetting'.tr),
         actions: [
-          IconButton(
+          EHAppleIconButton(
             icon: const Icon(Icons.save),
             onPressed: () {
               networkSetting.saveProxy(

@@ -2,11 +2,15 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/pages/base/base_page.dart';
 import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page_state.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/utils/route_util.dart';
+import 'package:jhentai/src/utils/search_util.dart';
+import 'package:jhentai/src/widget/eh_apple_button.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:jhentai/src/widget/eh_dashboard_card.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
@@ -18,13 +22,33 @@ import 'dashboard_page_logic.dart';
 
 /// For mobile v2 layout
 class DashboardPage extends BasePage {
-  const DashboardPage({Key? key})
+  DashboardPage({Key? key})
       : super(
           key: key,
           showMenuButton: true,
           showTitle: true,
           showScroll2TopButton: true,
         );
+
+  /// Apple slide-down quick-search overlay (a bar drops from under the AppBar
+  /// and focuses the keyboard). Plain icons replace the glass circles so the
+  /// four function buttons stay compact.
+  final ValueNotifier<bool> _searchVisible = ValueNotifier(false);
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
+
+  void _toggleSearch() {
+    final bool opening = !_searchVisible.value;
+    _searchVisible.value = opening;
+    if (opening) {
+      // Focus right away so the system keyboard pops immediately.
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _searchFocusNode.requestFocus(),
+      );
+    } else {
+      _searchFocusNode.unfocus();
+    }
+  }
 
   @override
   String get name => 'home'.tr;
@@ -37,41 +61,130 @@ class DashboardPage extends BasePage {
 
   @override
   List<Widget> buildAppBarActions() {
+    // Apple style: plain pull-out icons (no glass circle) so the four function
+    // buttons (menu, search, more, plus bottom nav) stay compact.
     return [
-      IconButton(
-        icon: const Icon(Icons.search),
-        onPressed: () => toRoute(Routes.mobileV2Search),
-      ),
-      IconButton(
-        icon: const Icon(Icons.more_vert),
-        onPressed: MobileLayoutPageV2State.scaffoldKey.currentState?.openEndDrawer,
-      ),
+      if (ThemeConfig.isApple)
+        IconButton(
+          onPressed: _toggleSearch,
+          icon: const Icon(Icons.search, size: 24),
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          hoverColor: Colors.transparent,
+        )
+      else
+        EHAppleIconButton(
+          icon: const Icon(Icons.search),
+          onPressed: () => toRoute(Routes.mobileV2Search),
+        ),
+      if (ThemeConfig.isApple)
+        IconButton(
+          onPressed:
+              MobileLayoutPageV2State.scaffoldKey.currentState?.openEndDrawer,
+          icon: const Icon(Icons.door_front_door_outlined, size: 24),
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          hoverColor: Colors.transparent,
+        )
+      else
+        EHAppleIconButton(
+          icon: const Icon(Icons.more_vert),
+          onPressed:
+              MobileLayoutPageV2State.scaffoldKey.currentState?.openEndDrawer,
+        ),
     ];
   }
 
   @override
   Widget buildBody(BuildContext context) {
-    return GetBuilder<DashboardPageLogic>(
-      id: logic.bodyId,
-      builder: (_) => NotificationListener<UserScrollNotification>(
-        onNotification: logic.onUserScroll,
-        child: EHWheelSpeedController(
-          controller: state.scrollController,
-          child: CustomScrollView(
-            key: state.pageStorageKey,
-            controller: state.scrollController,
-            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-            scrollBehavior: UIConfig.scrollBehaviourWithScrollBarWithMouse,
-            slivers: [
-              buildPullDownIndicator(),
-              _buildRanklistDesc(),
-              _buildRanklist(),
-              _buildPopularListDesc(),
-              _buildPopular(),
-              _buildGalleryDesc(context),
-              _buildGalleryBody(context),
-              super.buildLoadMoreIndicator(context),
-            ],
+    return ValueListenableBuilder<bool>(
+      valueListenable: _searchVisible,
+      builder: (context, visible, _) => Stack(
+        fit: StackFit.expand,
+        children: [
+          // Underlying gallery content.
+          GetBuilder<DashboardPageLogic>(
+            id: logic.bodyId,
+            builder: (_) => NotificationListener<UserScrollNotification>(
+              onNotification: logic.onUserScroll,
+              child: EHWheelSpeedController(
+                controller: state.scrollController,
+                child: CustomScrollView(
+                  key: state.pageStorageKey,
+                  controller: state.scrollController,
+                  physics: const BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics()),
+                  scrollBehavior:
+                      UIConfig.scrollBehaviourWithScrollBarWithMouse,
+                  slivers: [
+                    buildPullDownIndicator(),
+                    _buildRanklistDesc(),
+                    _buildRanklist(),
+                    _buildPopularListDesc(),
+                    _buildPopular(),
+                    _buildGalleryDesc(context),
+                    _buildGalleryBody(context),
+                    super.buildLoadMoreIndicator(context),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // Dim the underlying content while the quick-search bar is open;
+          // tapping the scrim closes it.
+          if (visible)
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: _toggleSearch,
+                child: Container(color: Colors.black54),
+              ),
+            ),
+          // Slide-down search bar pinned to the top, above the scrim.
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: _buildSlideDownSearch(visible),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Apple quick-search bar that drops down from under the AppBar and focuses
+  /// the system keyboard immediately; submitting runs a new search and closes.
+  Widget _buildSlideDownSearch(bool visible) {
+    return AnimatedSlide(
+      offset: visible ? Offset.zero : const Offset(0, -1),
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOutCubic,
+      child: ClipRect(
+        child: AnimatedSize(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeOutCubic,
+          child: SizedBox(
+            height: visible ? 44 : 0,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+              child: EHAppleTextField(
+                controller: _searchController,
+                focusNode: _searchFocusNode,
+                decoration: InputDecoration(
+                  isDense: true,
+                  hintText: 'search'.tr,
+                ),
+                onSubmitted: (keyword) {
+                  final String trimmed = keyword.trim();
+                  if (trimmed.isEmpty) {
+                    return;
+                  }
+                  _toggleSearch();
+                  _searchController.clear();
+                  newSearch(keyword: trimmed);
+                },
+              ),
+            ),
           ),
         ),
       ),
@@ -156,15 +269,17 @@ class DashboardPage extends BasePage {
       sliver: SliverToBoxAdapter(
         child: _GalleryListDesc(
           actions: [
-            IconButton(
+            EHAppleIconButton(
               icon: Icon(Icons.settings, size: 22, color: UIConfig.dashboardPageGalleryDescButtonColor(context)),
               onPressed: logic.handleTapFilterButton,
-              style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4)),
+              padding: EdgeInsets.zero,
+              visualDensity: const VisualDensity(vertical: -4),
             ),
-            IconButton(
+            EHAppleIconButton(
               icon: Icon(Icons.refresh, size: 25, color: UIConfig.dashboardPageGalleryDescButtonColor(context)),
               onPressed: logic.handleClearAndRefresh,
-              style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: const VisualDensity(vertical: -4, horizontal: -4)),
+              padding: EdgeInsets.zero,
+              visualDensity: const VisualDensity(vertical: -4, horizontal: -4),
             ),
           ],
         ),
@@ -208,7 +323,7 @@ class _RankListDesc extends StatelessWidget {
           ],
         ),
         const Expanded(child: SizedBox()),
-        TextButton(
+        EHAppleTextButton(
           style: TextButton.styleFrom(padding: const EdgeInsets.only(left: 12), visualDensity: const VisualDensity(vertical: -4)),
           onPressed: () => const TapTabBarButtonNotification(Routes.ranklist).dispatch(context),
           child: Row(
@@ -242,7 +357,7 @@ class _PopularListDesc extends StatelessWidget {
           ],
         ),
         const Expanded(child: SizedBox()),
-        TextButton(
+        EHAppleTextButton(
           style: TextButton.styleFrom(padding: const EdgeInsets.only(left: 12), visualDensity: const VisualDensity(vertical: -4)),
           onPressed: () => const TapTabBarButtonNotification(Routes.popular).dispatch(context),
           child: Row(

@@ -153,6 +153,7 @@ Future<void> _waitUntil(bool Function() predicate) async {
 class _MemoryTrustRepository implements LanTrustRepository {
   String? localDeviceId;
   String? localIdentitySeed;
+  String? localDeviceName;
   final Map<String, TrustedLanDevice> devices = {};
   final Map<String, LanDeviceCredentials> credentials = {};
 
@@ -163,6 +164,14 @@ class _MemoryTrustRepository implements LanTrustRepository {
   @override
   Future<String> ensureLocalDeviceId(String Function() generator) async =>
       localDeviceId ??= generator();
+  @override
+  Future<String?> readLocalDeviceName() async => localDeviceName;
+
+  @override
+  Future<void> saveLocalDeviceName(String name) async {
+    localDeviceName = name;
+  }
+
 
   @override
   Future<void> init() async {}

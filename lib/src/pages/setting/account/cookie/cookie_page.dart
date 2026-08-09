@@ -14,6 +14,7 @@ import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/cookie_util.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
@@ -41,7 +42,7 @@ class _CookiePageState extends State<CookiePage> {
         centerTitle: true,
         title: Text('accountSetting'.tr),
         actions: [
-          IconButton(icon: const Icon(Icons.copy), onPressed: _copyCookies),
+          EHAppleIconButton(icon: const Icon(Icons.copy), onPressed: _copyCookies),
         ],
       ),
       body: EHAppleSettingsListView(
@@ -62,7 +63,7 @@ class _CookiePageState extends State<CookiePage> {
                                 loadingWidgetBuilder: () =>
                                     const CupertinoActivityIndicator()
                                         .marginOnly(right: 10),
-                                idleWidgetBuilder: () => IconButton(
+                                idleWidgetBuilder: () => EHAppleIconButton(
                                     icon: const Icon(Icons.refresh),
                                     onPressed: _refreshIgneousCookie),
                                 successWidgetSameWithIdle: true,
