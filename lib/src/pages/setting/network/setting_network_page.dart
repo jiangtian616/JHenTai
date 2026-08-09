@@ -26,12 +26,15 @@ import '../../../utils/text_input_formatter.dart';
 import '../../../utils/toast_util.dart';
 
 class SettingNetworkPage extends StatelessWidget {
-  final TextEditingController proxyAddressController =
-      TextEditingController(text: networkSetting.proxyAddress.value);
+  final TextEditingController proxyAddressController = TextEditingController(
+    text: networkSetting.proxyAddress.value,
+  );
   final TextEditingController connectTimeoutController = TextEditingController(
-      text: networkSetting.connectTimeout.value.toString());
+    text: networkSetting.connectTimeout.value.toString(),
+  );
   final TextEditingController receiveTimeoutController = TextEditingController(
-      text: networkSetting.receiveTimeout.value.toString());
+    text: networkSetting.receiveTimeout.value.toString(),
+  );
 
   SettingNetworkPage({Key? key}) : super(key: key);
 
@@ -93,17 +96,26 @@ class SettingNetworkPage extends StatelessWidget {
         value: networkSetting.smartCacheRetention.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (Duration? newValue) =>
-            networkSetting.saveSmartCacheRetention(newValue!),
+        onChanged:
+            (Duration? newValue) =>
+                networkSetting.saveSmartCacheRetention(newValue!),
         items: [
           DropdownMenuItem(
-              child: Text('1d'.tr), value: const Duration(days: 1)),
+            child: Text('1d'.tr),
+            value: const Duration(days: 1),
+          ),
           DropdownMenuItem(
-              child: Text('3d'.tr), value: const Duration(days: 3)),
+            child: Text('3d'.tr),
+            value: const Duration(days: 3),
+          ),
           DropdownMenuItem(
-              child: Text('7d'.tr), value: const Duration(days: 7)),
+            child: Text('7d'.tr),
+            value: const Duration(days: 7),
+          ),
           DropdownMenuItem(
-              child: Text('30d'.tr), value: const Duration(days: 30)),
+            child: Text('30d'.tr),
+            value: const Duration(days: 30),
+          ),
         ],
       ),
     );
@@ -117,8 +129,9 @@ class SettingNetworkPage extends StatelessWidget {
         value: networkSetting.smartCacheMaxSizeMB.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (int? newValue) =>
-            networkSetting.saveSmartCacheMaxSizeMB(newValue ?? 0),
+        onChanged:
+            (int? newValue) =>
+                networkSetting.saveSmartCacheMaxSizeMB(newValue ?? 0),
         items: [
           DropdownMenuItem(child: Text('unlimited'.tr), value: 0),
           DropdownMenuItem(child: Text('512MB'), value: 512),
@@ -139,9 +152,11 @@ class SettingNetworkPage extends StatelessWidget {
         value: networkSetting.smartCacheEvictPolicy.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (SmartCacheEvictPolicy? newValue) =>
-            networkSetting.saveSmartCacheEvictPolicy(
-                newValue ?? SmartCacheEvictPolicy.addedDate),
+        onChanged:
+            (SmartCacheEvictPolicy? newValue) =>
+                networkSetting.saveSmartCacheEvictPolicy(
+                  newValue ?? SmartCacheEvictPolicy.addedDate,
+                ),
         items: [
           DropdownMenuItem(
             child: Text('smartCacheEvictByAddedDate'.tr),
@@ -168,7 +183,9 @@ class SettingNetworkPage extends StatelessWidget {
               controller: connectTimeoutController,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
-                  isDense: true, labelStyle: TextStyle(fontSize: 12)),
+                isDense: true,
+                labelStyle: TextStyle(fontSize: 12),
+              ),
               textAlign: TextAlign.center,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
@@ -176,8 +193,10 @@ class SettingNetworkPage extends StatelessWidget {
               ],
             ),
           ),
-          Text('ms',
-              style: UIConfig.settingPageListTileTrailingTextStyle(context)),
+          Text(
+            'ms',
+            style: UIConfig.settingPageListTileTrailingTextStyle(context),
+          ),
           IconButton(
             onPressed: () {
               int? value = int.tryParse(connectTimeoutController.value.text);
@@ -187,8 +206,10 @@ class SettingNetworkPage extends StatelessWidget {
               networkSetting.saveConnectTimeout(value);
               toast('saveSuccess'.tr);
             },
-            icon: Icon(Icons.check,
-                color: UIConfig.resumePauseButtonColor(context)),
+            icon: Icon(
+              Icons.check,
+              color: UIConfig.resumePauseButtonColor(context),
+            ),
           ),
         ],
       ),
@@ -206,7 +227,9 @@ class SettingNetworkPage extends StatelessWidget {
             child: EHAppleTextField(
               controller: receiveTimeoutController,
               decoration: const InputDecoration(
-                  isDense: true, labelStyle: TextStyle(fontSize: 12)),
+                isDense: true,
+                labelStyle: TextStyle(fontSize: 12),
+              ),
               textAlign: TextAlign.center,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
@@ -214,8 +237,10 @@ class SettingNetworkPage extends StatelessWidget {
               ],
             ),
           ),
-          Text('ms',
-              style: UIConfig.settingPageListTileTrailingTextStyle(context)),
+          Text(
+            'ms',
+            style: UIConfig.settingPageListTileTrailingTextStyle(context),
+          ),
           IconButton(
             onPressed: () {
               int? value = int.tryParse(receiveTimeoutController.value.text);
@@ -225,8 +250,10 @@ class SettingNetworkPage extends StatelessWidget {
               networkSetting.saveReceiveTimeout(value);
               toast('saveSuccess'.tr);
             },
-            icon: Icon(Icons.check,
-                color: UIConfig.resumePauseButtonColor(context)),
+            icon: Icon(
+              Icons.check,
+              color: UIConfig.resumePauseButtonColor(context),
+            ),
           ),
         ],
       ),
@@ -292,20 +319,16 @@ class _CacheSizeTileState extends State<_CacheSizeTile> {
   Widget build(BuildContext context) {
     return ListTile(
       title: Text('cacheSize'.tr),
-      subtitle: Text(loadingState == LoadingState.loading || sizeText.isEmpty
-          ? 'loading'.tr
-          : sizeText),
+      subtitle: Text(
+        loadingState == LoadingState.loading || sizeText.isEmpty
+            ? 'loading'.tr
+            : sizeText,
+      ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          IconButton(
-            onPressed: _load,
-            icon: const Icon(Icons.refresh),
-          ),
-          IconButton(
-            onPressed: _clear,
-            icon: const Icon(Icons.delete_outline),
-          ),
+          IconButton(onPressed: _load, icon: const Icon(Icons.refresh)),
+          IconButton(onPressed: _clear, icon: const Icon(Icons.delete_outline)),
         ],
       ),
     );
@@ -327,7 +350,7 @@ int _computeImageCacheSize(String dirPath) {
     return 0;
   }
   return dir.listSync().fold<int>(
-      0,
-      (previousValue, element) =>
-          previousValue + (element as File).lengthSync());
+    0,
+    (previousValue, element) => previousValue + (element as File).lengthSync(),
+  );
 }

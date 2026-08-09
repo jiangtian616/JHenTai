@@ -669,6 +669,11 @@ class ru_RU {
       'failedImageRetryScope': "Область повторной загрузки изображений",
       'failedImageRetryScopeHint':
           "Область, применяемая при нажатии на неудачное онлайн-изображение для перезагрузки",
+      'imageTimeoutRetry': 'Повтор при тайм-ауте',
+      'imageTimeoutRetryHint':
+          'Автоматически повторять, если онлайн-изображение не отвечает или прогресс не меняется',
+      'imageTimeoutRetryCount': 'Число повторов',
+      'imageTimeoutRetryInterval': 'Порог тайм-аута',
       'retrySingleImage': "Только это изображение",
       'retryCurrentPageAndAfter': "Текущее и последующие",
       'retryAllFailedImages': "Все неудачные изображения",

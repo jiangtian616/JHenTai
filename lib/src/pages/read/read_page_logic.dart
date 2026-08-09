@@ -129,8 +129,12 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   /// Detail pages with an in-flight prefetch triggered by an explicit jump.
   final Set<int> _prefetchingPages = <int>{};
 
-  /// Online images that already had one automatic retry after a load failure.
-  final Set<int> _autoRetriedImageIndices = <int>{};
+  /// Number of automatic retries performed for each online image load.
+  final Map<int, int> _autoRetryCounts = <int, int>{};
+
+  /// One watchdog per visible online image. It is reset by every image loading
+  /// progress event and cancelled as soon as the image completes or reloads.
+  final Map<int, Timer> _onlineImageProgressWatchdogs = <int, Timer>{};
 
   /// Session-level parsed results for online galleries, so re-entering the
   /// same gallery reuses already parsed links instead of re-parsing from DB.
@@ -452,6 +456,8 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   @override
   void onClose() {
     super.onClose();
+
+    _cancelAllOnlineImageProgressWatchdogs();
 
     readerPipelineScheduler.dispose();
     readerImagePrefetchQueue.dispose();
@@ -909,6 +915,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   }
 
   Future<void> reloadImage(int index) async {
+    _cancelOnlineImageProgressWatchdog(index);
     String? reloadKey;
     if (state.images[index] != null) {
       reloadKey = state.images[index]!.reloadKey;
@@ -922,27 +929,84 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     updateSafely(['$onlineImageId::$index']);
   }
 
-  /// Automatically reload an online image once after its first load failure.
-  /// The retry re-parses the image page so a fresh image URL is used.
+  /// Automatically reload an online image after a load failure. The retry
+  /// re-parses the image page so a fresh image URL is used.
   void autoRetryFailedImage(int index) {
-    if (_autoRetriedImageIndices.contains(index)) {
+    _scheduleAutoRetry(
+      index,
+      delay: const Duration(milliseconds: 500),
+      reason: 'load failure',
+    );
+  }
+
+  /// Records that an online image is still making progress. If no more loading
+  /// updates arrive before the configured timeout, retry it through the normal
+  /// reparse path. A gallery image is retried up to the configured limit.
+  void watchOnlineImageLoading(int index) {
+    if (readSetting.enableImageTimeoutRetry.isFalse ||
+        _autoRetryCount(index) >= readSetting.imageTimeoutRetryCount.value) {
+      _cancelOnlineImageProgressWatchdog(index);
       return;
     }
-    _autoRetriedImageIndices.add(index);
 
-    Future.delayed(const Duration(milliseconds: 500), () {
+    _cancelOnlineImageProgressWatchdog(index);
+    late final Timer watchdog;
+    watchdog = Timer(
+      Duration(milliseconds: readSetting.imageTimeoutRetryInterval.value),
+      () {
+        if (isClosed || _onlineImageProgressWatchdogs[index] != watchdog) {
+          return;
+        }
+        _onlineImageProgressWatchdogs.remove(index);
+        if (readSetting.enableImageTimeoutRetry.isTrue) {
+          _scheduleAutoRetry(index, reason: 'loading progress timeout');
+        }
+      },
+    );
+    _onlineImageProgressWatchdogs[index] = watchdog;
+  }
+
+  void _scheduleAutoRetry(
+    int index, {
+    Duration delay = Duration.zero,
+    required String reason,
+  }) {
+    final int retryCount = _autoRetryCount(index);
+    final int maxRetryCount = readSetting.imageTimeoutRetryCount.value;
+    if (retryCount >= maxRetryCount) {
+      return;
+    }
+    _autoRetryCounts[index] = retryCount + 1;
+
+    Future.delayed(delay, () {
       if (isClosed) {
         return;
       }
-      log.info('Auto retry failed online image, index: $index');
+      log.info(
+        'Auto retry online image, index: $index, reason: $reason, attempt: ${retryCount + 1}/$maxRetryCount',
+      );
       reloadImage(index);
     });
   }
 
+  void _cancelOnlineImageProgressWatchdog(int index) {
+    _onlineImageProgressWatchdogs.remove(index)?.cancel();
+  }
+
+  void _cancelAllOnlineImageProgressWatchdogs() {
+    for (final Timer watchdog in _onlineImageProgressWatchdogs.values) {
+      watchdog.cancel();
+    }
+    _onlineImageProgressWatchdogs.clear();
+  }
+
+  int _autoRetryCount(int index) => _autoRetryCounts[index] ?? 0;
+
   /// Called when image bytes finish loading, so a later failure of the same
   /// image can trigger one automatic retry again.
   void markOnlineImageLoaded(int index) {
-    _autoRetriedImageIndices.remove(index);
+    _cancelOnlineImageProgressWatchdog(index);
+    _autoRetryCounts.remove(index);
     if (!state.loadedOnlineImageIndices.add(index)) {
       return;
     }

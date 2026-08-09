@@ -33,8 +33,11 @@ class ScrollOffsetToScrollController extends ScrollController {
   ScrollPosition get position => scrollOffsetController.position;
 
   @override
-  Future<void> animateTo(double offset,
-      {required Duration duration, required Curve curve}) async {
+  Future<void> animateTo(
+    double offset, {
+    required Duration duration,
+    required Curve curve,
+  }) async {
     await position.animateTo(offset, duration: duration, curve: curve);
   }
 
@@ -55,25 +58,29 @@ abstract class BaseLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: logic.readPageLogic.delayInitCompleter.future,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return GetBuilder<BaseLayoutLogic>(
-              id: BaseLayoutLogic.pageId,
-              global: false,
-              init: logic,
-              builder: (_) => ScrollConfiguration(
-                behavior: readSetting.showScrollBar.isTrue
-                    ? UIConfig.scrollBehaviourWithScrollBarWithMouse
-                    : UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
-                child: buildBody(context),
-              ),
-            );
-          }
+      future: logic.readPageLogic.delayInitCompleter.future,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          return GetBuilder<BaseLayoutLogic>(
+            id: BaseLayoutLogic.pageId,
+            global: false,
+            init: logic,
+            builder:
+                (_) => ScrollConfiguration(
+                  behavior:
+                      readSetting.showScrollBar.isTrue
+                          ? UIConfig.scrollBehaviourWithScrollBarWithMouse
+                          : UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
+                  child: buildBody(context),
+                ),
+          );
+        }
 
-          return Center(
-              child: Container(color: UIConfig.readPageBackGroundColor));
-        });
+        return Center(
+          child: Container(color: UIConfig.readPageBackGroundColor),
+        );
+      },
+    );
   }
 
   Widget buildBody(BuildContext context);
@@ -118,23 +125,28 @@ abstract class BaseLayout extends StatelessWidget {
         width: placeHolderSize.width,
         child: GetBuilder<ReadPageLogic>(
           id: '${readPageLogic.parseImageHrefsStateId}::$index',
-          builder: (_) => Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              LoadingStateIndicator(
-                loadingState: readPageState.parseImageHrefsStates[index],
-                idleWidgetBuilder: () => const CircularProgressIndicator(),
-                errorWidgetBuilder: () => const Icon(Icons.warning,
-                    color: UIConfig.readPageWarningButtonColor),
+          builder:
+              (_) => Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  LoadingStateIndicator(
+                    loadingState: readPageState.parseImageHrefsStates[index],
+                    idleWidgetBuilder: () => const CircularProgressIndicator(),
+                    errorWidgetBuilder:
+                        () => const Icon(
+                          Icons.warning,
+                          color: UIConfig.readPageWarningButtonColor,
+                        ),
+                  ),
+                  Text(
+                    readPageState.parseImageHrefsStates[index] ==
+                            LoadingState.error
+                        ? readPageState.parseImageHrefErrorMsg!
+                        : 'parsingPage'.tr,
+                  ).marginOnly(top: 8),
+                  Text((index + 1).toString()).marginOnly(top: 4),
+                ],
               ),
-              Text(
-                readPageState.parseImageHrefsStates[index] == LoadingState.error
-                    ? readPageState.parseImageHrefErrorMsg!
-                    : 'parsingPage'.tr,
-              ).marginOnly(top: 8),
-              Text((index + 1).toString()).marginOnly(top: 4),
-            ],
-          ),
         ),
       ),
     );
@@ -151,26 +163,32 @@ abstract class BaseLayout extends StatelessWidget {
         width: placeHolderSize.width,
         child: GetBuilder<ReadPageLogic>(
           id: '${readPageLogic.parseImageUrlStateId}::$index',
-          builder: (_) => _wrapWithProgressiveThumbnail(
-            index,
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                LoadingStateIndicator(
-                  loadingState: readPageState.parseImageUrlStates[index],
-                  idleWidgetBuilder: () => const CircularProgressIndicator(),
-                  errorWidgetBuilder: () => const Icon(Icons.warning,
-                      color: UIConfig.readPageWarningButtonColor),
+          builder:
+              (_) => _wrapWithProgressiveThumbnail(
+                index,
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    LoadingStateIndicator(
+                      loadingState: readPageState.parseImageUrlStates[index],
+                      idleWidgetBuilder:
+                          () => const CircularProgressIndicator(),
+                      errorWidgetBuilder:
+                          () => const Icon(
+                            Icons.warning,
+                            color: UIConfig.readPageWarningButtonColor,
+                          ),
+                    ),
+                    Text(
+                      readPageState.parseImageUrlStates[index] ==
+                              LoadingState.error
+                          ? readPageState.parseImageUrlErrorMsg[index]!
+                          : 'parsingURL'.tr,
+                    ).marginOnly(top: 8),
+                    Text((index + 1).toString()).marginOnly(top: 4),
+                  ],
                 ),
-                Text(
-                  readPageState.parseImageUrlStates[index] == LoadingState.error
-                      ? readPageState.parseImageUrlErrorMsg[index]!
-                      : 'parsingURL'.tr,
-                ).marginOnly(top: 8),
-                Text((index + 1).toString()).marginOnly(top: 4),
-              ],
-            ),
-          ),
+              ),
         ),
       ),
     );
@@ -179,26 +197,29 @@ abstract class BaseLayout extends StatelessWidget {
   Widget _buildOnlineImage(BuildContext context, int index) {
     final double containerWidth =
         logic.readPageState.imageContainerSizes[index]?.width ??
-            logic.getPlaceHolderSize(index).width;
+        logic.getPlaceHolderSize(index).width;
     final double containerHeight =
         logic.readPageState.imageContainerSizes[index]?.height ??
-            logic.getPlaceHolderSize(index).height;
+        logic.getPlaceHolderSize(index).height;
 
     Widget image = EHImage(
       galleryImage: readPageState.images[index]!,
       containerWidth: containerWidth,
       containerHeight: containerHeight,
       clearMemoryCacheWhenDispose: true,
-      loadingProgressWidgetBuilder: (double progress) =>
-          _loadingProgressWidgetBuilder(index, progress),
-      failedWidgetBuilder: (ExtendedImageState state) =>
-          _failedWidgetBuilder(index, state),
-      completedWidgetBuilder: (state) =>
-          completedWidgetBuilderCallBack(index, state),
+      loadingProgressWidgetBuilder: (double progress) {
+        readPageLogic.watchOnlineImageLoading(index);
+        return _loadingProgressWidgetBuilder(index, progress);
+      },
+      failedWidgetBuilder:
+          (ExtendedImageState state) => _failedWidgetBuilder(index, state),
+      completedWidgetBuilder:
+          (state) => completedWidgetBuilderCallBack(index, state),
       animateOnlyWhenVisible: true,
-      maxBytes: readSetting.enableMaxImageKilobyte.isTrue
-          ? readSetting.maxImageKilobyte.toInt() * 1024
-          : null,
+      maxBytes:
+          readSetting.enableMaxImageKilobyte.isTrue
+              ? readSetting.maxImageKilobyte.toInt() * 1024
+              : null,
     );
 
     if (performanceSetting.enableProgressiveImagePipeline.isTrue &&
@@ -220,16 +241,19 @@ abstract class BaseLayout extends StatelessWidget {
     }
 
     return GestureDetector(
-      onLongPressStart: (details) => logic.showOnlineImageContextMenu(
-          index, context,
-          position: details.globalPosition),
-      onSecondaryTapDown: (details) => logic.showOnlineImageContextMenu(
-          index, context,
-          position: details.globalPosition),
-      child: _wrapWithTranslationOverlay(
-        image,
-        index,
-      ),
+      onLongPressStart:
+          (details) => logic.showOnlineImageContextMenu(
+            index,
+            context,
+            position: details.globalPosition,
+          ),
+      onSecondaryTapDown:
+          (details) => logic.showOnlineImageContextMenu(
+            index,
+            context,
+            position: details.globalPosition,
+          ),
+      child: _wrapWithTranslationOverlay(image, index),
     );
   }
 
@@ -259,10 +283,10 @@ abstract class BaseLayout extends StatelessWidget {
             thumbnail: readPageState.thumbnails[index]!,
             containerWidth:
                 logic.readPageState.imageContainerSizes[index]?.width ??
-                    logic.getPlaceHolderSize(index).width,
+                logic.getPlaceHolderSize(index).width,
             containerHeight:
                 logic.readPageState.imageContainerSizes[index]?.height ??
-                    logic.getPlaceHolderSize(index).height,
+                logic.getPlaceHolderSize(index).height,
           ),
         ),
         ColoredBox(
@@ -286,10 +310,12 @@ abstract class BaseLayout extends StatelessWidget {
       children: [
         IconTextButton(
           icon: const Icon(Icons.error, color: UIConfig.readPageButtonColor),
-          text: Text('networkError'.tr,
-              style: const TextStyle(color: UIConfig.readPageButtonColor)),
-          onPressed: () =>
-              logic.readPageLogic.retryFailedImages(fromIndex: index),
+          text: Text(
+            'networkError'.tr,
+            style: const TextStyle(color: UIConfig.readPageButtonColor),
+          ),
+          onPressed:
+              () => logic.readPageLogic.retryFailedImages(fromIndex: index),
         ),
         Text((index + 1).toString()),
       ],
@@ -313,12 +339,15 @@ abstract class BaseLayout extends StatelessWidget {
         return;
       }
       FittedSizes fittedSizes = logic.getImageFittedSize(
-        Size(state.extendedImageInfo!.image.width.toDouble(),
-            state.extendedImageInfo!.image.height.toDouble()),
+        Size(
+          state.extendedImageInfo!.image.width.toDouble(),
+          state.extendedImageInfo!.image.height.toDouble(),
+        ),
       );
       logic.readPageState.imageContainerSizes[index] = fittedSizes.destination;
-      logic.readPageLogic
-          .updateSafely(['${readPageLogic.onlineImageId}::$index']);
+      logic.readPageLogic.updateSafely([
+        '${readPageLogic.onlineImageId}::$index',
+      ]);
     });
 
     return null;
@@ -327,7 +356,8 @@ abstract class BaseLayout extends StatelessWidget {
   /// local mode: wait for download service to parse and download
   Widget buildItemInLocalMode(BuildContext context, int index) {
     return GetBuilder<GalleryDownloadService>(
-      id: '${galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$index',
+      id:
+          '${galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$index',
       builder: (_) {
         /// step 1: wait for parsing image's href for this image. But if image's url has been parsed,
         /// we don't need to wait parsing thumbnail.
@@ -354,7 +384,8 @@ abstract class BaseLayout extends StatelessWidget {
 
   Widget _buildLocalSuperResolutionImage(BuildContext context, int index) {
     return GetBuilder<SuperResolutionService>(
-      id: '${SuperResolutionService.superResolutionImageId}::${readPageState.readPageInfo.gid!}::$index',
+      id:
+          '${SuperResolutionService.superResolutionImageId}::${readPageState.readPageInfo.gid!}::$index',
       builder: (_) {
         int gid = readPageState.readPageInfo.gid!;
         SuperResolutionType type =
@@ -367,34 +398,43 @@ abstract class BaseLayout extends StatelessWidget {
         }
 
         return GestureDetector(
-          onLongPressStart: (details) => logic.showLocalImageContextMenu(
-              index, context,
-              position: details.globalPosition),
-          onSecondaryTapDown: (details) => logic.showLocalImageContextMenu(
-              index, context,
-              position: details.globalPosition),
+          onLongPressStart:
+              (details) => logic.showLocalImageContextMenu(
+                index,
+                context,
+                position: details.globalPosition,
+              ),
+          onSecondaryTapDown:
+              (details) => logic.showLocalImageContextMenu(
+                index,
+                context,
+                position: details.globalPosition,
+              ),
           child: _wrapWithTranslationOverlay(
             EHImage(
               galleryImage: readPageState.images[index]!.copyWith(
                 path: superResolutionService.computeImageOutputRelativePath(
-                    readPageState.images[index]!.path!),
+                  readPageState.images[index]!.path!,
+                ),
               ),
               containerWidth:
                   logic.readPageState.imageContainerSizes[index]?.width ??
-                      logic.getPlaceHolderSize(index).width,
+                  logic.getPlaceHolderSize(index).width,
               containerHeight:
                   logic.readPageState.imageContainerSizes[index]?.height ??
-                      logic.getPlaceHolderSize(index).height,
+                  logic.getPlaceHolderSize(index).height,
               clearMemoryCacheWhenDispose: true,
               loadingWidgetBuilder: () => _loadingWidgetBuilder(context, index),
-              failedWidgetBuilder: (state) =>
-                  _failedWidgetBuilderForLocalMode(index, state),
-              completedWidgetBuilder: (state) =>
-                  completedWidgetBuilderForLocalModeCallBack(index, state),
+              failedWidgetBuilder:
+                  (state) => _failedWidgetBuilderForLocalMode(index, state),
+              completedWidgetBuilder:
+                  (state) =>
+                      completedWidgetBuilderForLocalModeCallBack(index, state),
               animateOnlyWhenVisible: true,
-              maxBytes: readSetting.enableMaxImageKilobyte.isTrue
-                  ? readSetting.maxImageKilobyte.toInt() * 1024
-                  : null,
+              maxBytes:
+                  readSetting.enableMaxImageKilobyte.isTrue
+                      ? readSetting.maxImageKilobyte.toInt() * 1024
+                      : null,
             ),
             index,
           ),
@@ -405,10 +445,11 @@ abstract class BaseLayout extends StatelessWidget {
 
   /// wait for [GalleryDownloadService] to parse image href in local mode
   Widget _buildWaitParsingHrefsIndicator(BuildContext context, int index) {
-    DownloadStatus downloadStatus = galleryDownloadService
-        .galleryDownloadInfos[readPageState.readPageInfo.gid]!
-        .downloadProgress
-        .downloadStatus;
+    DownloadStatus downloadStatus =
+        galleryDownloadService
+            .galleryDownloadInfos[readPageState.readPageInfo.gid]!
+            .downloadProgress
+            .downloadStatus;
     Size placeHolderSize = logic.getPlaceHolderSize(index);
 
     return SizedBox(
@@ -420,12 +461,15 @@ abstract class BaseLayout extends StatelessWidget {
           if (downloadStatus == DownloadStatus.downloading)
             const CircularProgressIndicator(),
           if (downloadStatus == DownloadStatus.paused)
-            const Icon(Icons.pause_circle_outline,
-                color: UIConfig.readPageButtonColor),
-          Text(downloadStatus == DownloadStatus.downloading
-                  ? 'parsingPage'.tr
-                  : 'paused'.tr)
-              .marginOnly(top: 8),
+            const Icon(
+              Icons.pause_circle_outline,
+              color: UIConfig.readPageButtonColor,
+            ),
+          Text(
+            downloadStatus == DownloadStatus.downloading
+                ? 'parsingPage'.tr
+                : 'paused'.tr,
+          ).marginOnly(top: 8),
           Text((index + 1).toString()).marginOnly(top: 4),
         ],
       ),
@@ -434,10 +478,11 @@ abstract class BaseLayout extends StatelessWidget {
 
   /// wait for [GalleryDownloadService] to parse image url in local mode
   Widget _buildWaitParsingUrlIndicator(BuildContext context, int index) {
-    DownloadStatus downloadStatus = galleryDownloadService
-        .galleryDownloadInfos[readPageState.readPageInfo.gid]!
-        .downloadProgress
-        .downloadStatus;
+    DownloadStatus downloadStatus =
+        galleryDownloadService
+            .galleryDownloadInfos[readPageState.readPageInfo.gid]!
+            .downloadProgress
+            .downloadStatus;
     Size placeHolderSize = logic.getPlaceHolderSize(index);
     return SizedBox(
       height: placeHolderSize.height,
@@ -448,12 +493,15 @@ abstract class BaseLayout extends StatelessWidget {
           if (downloadStatus == DownloadStatus.downloading)
             const CircularProgressIndicator(),
           if (downloadStatus == DownloadStatus.paused)
-            const Icon(Icons.pause_circle_outline,
-                color: UIConfig.readPageButtonColor),
-          Text(downloadStatus == DownloadStatus.downloading
-                  ? 'parsingURL'.tr
-                  : 'paused'.tr)
-              .marginOnly(top: 8),
+            const Icon(
+              Icons.pause_circle_outline,
+              color: UIConfig.readPageButtonColor,
+            ),
+          Text(
+            downloadStatus == DownloadStatus.downloading
+                ? 'parsingURL'.tr
+                : 'paused'.tr,
+          ).marginOnly(top: 8),
           Text((index + 1).toString()).marginOnly(top: 4),
         ],
       ),
@@ -462,33 +510,41 @@ abstract class BaseLayout extends StatelessWidget {
 
   Widget _buildLocalImage(BuildContext context, int index) {
     return GestureDetector(
-      onLongPressStart: (details) => logic.showLocalImageContextMenu(
-          index, context,
-          position: details.globalPosition),
-      onSecondaryTapDown: (details) => logic.showLocalImageContextMenu(
-          index, context,
-          position: details.globalPosition),
+      onLongPressStart:
+          (details) => logic.showLocalImageContextMenu(
+            index,
+            context,
+            position: details.globalPosition,
+          ),
+      onSecondaryTapDown:
+          (details) => logic.showLocalImageContextMenu(
+            index,
+            context,
+            position: details.globalPosition,
+          ),
       child: _wrapWithTranslationOverlay(
         EHImage(
           galleryImage: readPageState.images[index]!,
           containerWidth:
               logic.readPageState.imageContainerSizes[index]?.width ??
-                  logic.getPlaceHolderSize(index).width,
+              logic.getPlaceHolderSize(index).width,
           containerHeight:
               logic.readPageState.imageContainerSizes[index]?.height ??
-                  logic.getPlaceHolderSize(index).height,
+              logic.getPlaceHolderSize(index).height,
           clearMemoryCacheWhenDispose: true,
           downloadingWidgetBuilder: () => _downloadingWidgetBuilder(index),
           pausedWidgetBuilder: () => _pausedWidgetBuilder(index),
           loadingWidgetBuilder: () => _loadingWidgetBuilder(context, index),
-          failedWidgetBuilder: (state) =>
-              _failedWidgetBuilderForLocalMode(index, state),
-          completedWidgetBuilder: (state) =>
-              completedWidgetBuilderForLocalModeCallBack(index, state),
+          failedWidgetBuilder:
+              (state) => _failedWidgetBuilderForLocalMode(index, state),
+          completedWidgetBuilder:
+              (state) =>
+                  completedWidgetBuilderForLocalModeCallBack(index, state),
           animateOnlyWhenVisible: true,
-          maxBytes: readSetting.enableMaxImageKilobyte.isTrue
-              ? readSetting.maxImageKilobyte.toInt() * 1024
-              : null,
+          maxBytes:
+              readSetting.enableMaxImageKilobyte.isTrue
+                  ? readSetting.maxImageKilobyte.toInt() * 1024
+                  : null,
         ),
         index,
       ),
@@ -505,7 +561,8 @@ abstract class BaseLayout extends StatelessWidget {
       children: [
         child,
         Positioned.fill(
-            child: ReadPageImageTranslationOverlay(request: request)),
+          child: ReadPageImageTranslationOverlay(request: request),
+        ),
       ],
     );
   }
@@ -513,11 +570,13 @@ abstract class BaseLayout extends StatelessWidget {
   /// downloading for local mode
   Widget _downloadingWidgetBuilder(int index) {
     return GetBuilder<GalleryDownloadService>(
-      id: '${galleryDownloadService.galleryDownloadSpeedComputerId}::${readPageState.readPageInfo.gid}',
+      id:
+          '${galleryDownloadService.galleryDownloadSpeedComputerId}::${readPageState.readPageInfo.gid}',
       builder: (_) {
-        GalleryDownloadSpeedComputer speedComputer = galleryDownloadService
-            .galleryDownloadInfos[readPageState.readPageInfo.gid]!
-            .speedComputer;
+        GalleryDownloadSpeedComputer speedComputer =
+            galleryDownloadService
+                .galleryDownloadInfos[readPageState.readPageInfo.gid]!
+                .speedComputer;
         int downloadedBytes = speedComputer.imageDownloadedBytes[index];
         int totalBytes = speedComputer.imageTotalBytes[index];
 
@@ -525,7 +584,8 @@ abstract class BaseLayout extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             CircularProgressIndicator(
-                value: max(downloadedBytes / totalBytes, 0.01)),
+              value: max(downloadedBytes / totalBytes, 0.01),
+            ),
             Text('downloading'.tr).marginOnly(top: 8),
             Text((index + 1).toString()),
           ],
@@ -539,8 +599,10 @@ abstract class BaseLayout extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(Icons.pause_circle_outline,
-            color: UIConfig.readPageButtonColor),
+        const Icon(
+          Icons.pause_circle_outline,
+          color: UIConfig.readPageButtonColor,
+        ),
         Text('paused'.tr).marginOnly(top: 8),
         Text((index + 1).toString()),
       ],
@@ -567,8 +629,10 @@ abstract class BaseLayout extends StatelessWidget {
       children: [
         IconTextButton(
           icon: const Icon(Icons.sentiment_very_dissatisfied),
-          text: Text('error'.tr,
-              style: const TextStyle(color: UIConfig.readPageButtonColor)),
+          text: Text(
+            'error'.tr,
+            style: const TextStyle(color: UIConfig.readPageButtonColor),
+          ),
           onPressed: state.reLoadImage,
         ),
         Text((index + 1).toString()),
@@ -578,7 +642,9 @@ abstract class BaseLayout extends StatelessWidget {
 
   /// completed for local mode
   Widget? completedWidgetBuilderForLocalModeCallBack(
-      int index, ExtendedImageState state) {
+    int index,
+    ExtendedImageState state,
+  ) {
     if (state.extendedImageInfo == null ||
         logic.readPageState.imageContainerSizes[index] != null) {
       return null;
@@ -590,12 +656,14 @@ abstract class BaseLayout extends StatelessWidget {
         return;
       }
       FittedSizes fittedSizes = logic.getImageFittedSize(
-        Size(state.extendedImageInfo!.image.width.toDouble(),
-            state.extendedImageInfo!.image.height.toDouble()),
+        Size(
+          state.extendedImageInfo!.image.width.toDouble(),
+          state.extendedImageInfo!.image.height.toDouble(),
+        ),
       );
       logic.readPageState.imageContainerSizes[index] = fittedSizes.destination;
       galleryDownloadService.updateSafely([
-        '${galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$index'
+        '${galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$index',
       ]);
     });
 
