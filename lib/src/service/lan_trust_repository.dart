@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:cryptography/cryptography.dart';
 import 'package:jhentai/src/model/lan_device_trust.dart';
 import 'package:path/path.dart';
+import 'package:synchronized/synchronized.dart';
 
 abstract interface class LanSecretStore {
   Future<String?> read(String key);
@@ -13,20 +15,159 @@ abstract interface class LanSecretStore {
   Future<void> delete(String key);
 }
 
-class PlatformLanSecretStore implements LanSecretStore {
-  static const FlutterSecureStorage _storage = FlutterSecureStorage(
-    aOptions: AndroidOptions(storageNamespace: 'jhentai_lan_trust'),
-  );
+/// File-backed credential storage for builds that cannot use an OS keychain.
+///
+/// Values are authenticated and encrypted with AES-256-GCM. The installation
+/// key is intentionally stored separately from the encrypted vault so secrets
+/// are never present as plain text. This protects against accidental exposure
+/// and copied vault files, but it cannot protect against an attacker who can
+/// read both files as the current OS user.
+class EncryptedFileLanSecretStore implements LanSecretStore {
+  static const int _schemaVersion = 1;
+  static const int _keyLength = 32;
+  static const int _nonceLength = 12;
+
+  final Directory directory;
+  final Random _secureRandom;
+  final Cipher _cipher;
+  final Lock _lock = Lock();
+
+  EncryptedFileLanSecretStore({
+    required this.directory,
+    Random? secureRandom,
+    Cipher? cipher,
+  }) : _secureRandom = secureRandom ?? Random.secure(),
+       _cipher = cipher ?? AesGcm.with256bits();
+
+  File get _keyFile => File(join(directory.path, '.credential-key'));
+
+  File get _vaultFile => File(join(directory.path, 'credentials.v1.enc'));
 
   @override
-  Future<String?> read(String key) => _storage.read(key: key);
+  Future<String?> read(String key) =>
+      _lock.synchronized(() async => (await _readValues())[key]);
 
   @override
-  Future<void> write(String key, String value) =>
-      _storage.write(key: key, value: value);
+  Future<void> write(String key, String value) => _lock.synchronized(() async {
+    final Map<String, String> values = await _readValues();
+    values[key] = value;
+    await _writeValues(values);
+  });
 
   @override
-  Future<void> delete(String key) => _storage.delete(key: key);
+  Future<void> delete(String key) => _lock.synchronized(() async {
+    final Map<String, String> values = await _readValues();
+    if (values.remove(key) != null) {
+      await _writeValues(values);
+    }
+  });
+
+  Future<Map<String, String>> _readValues() async {
+    await directory.create(recursive: true);
+    if (!await _vaultFile.exists()) {
+      return {};
+    }
+    final dynamic envelope = jsonDecode(await _vaultFile.readAsString());
+    if (envelope is! Map || envelope['version'] != _schemaVersion) {
+      throw const FormatException('Unsupported LAN credential vault');
+    }
+    final List<int> nonce = _decodeBytes(envelope['nonce'], _nonceLength);
+    final List<int> cipherText = _decodeBytes(envelope['cipherText']);
+    final List<int> mac = _decodeBytes(envelope['mac'], 16);
+    final List<int> clearText = await _cipher.decrypt(
+      SecretBox(cipherText, nonce: nonce, mac: Mac(mac)),
+      secretKey: SecretKey(await _loadOrCreateKey()),
+    );
+    final dynamic decoded = jsonDecode(utf8.decode(clearText));
+    if (decoded is! Map) {
+      throw const FormatException('Invalid LAN credential vault');
+    }
+    return decoded.map<String, String>((key, value) {
+      if (key is! String || value is! String) {
+        throw const FormatException('Invalid LAN credential entry');
+      }
+      return MapEntry(key, value);
+    });
+  }
+
+  Future<void> _writeValues(Map<String, String> values) async {
+    await directory.create(recursive: true);
+    final List<int> nonce = List<int>.generate(
+      _nonceLength,
+      (_) => _secureRandom.nextInt(256),
+    );
+    final SecretBox encrypted = await _cipher.encrypt(
+      utf8.encode(jsonEncode(values)),
+      secretKey: SecretKey(await _loadOrCreateKey()),
+      nonce: nonce,
+    );
+    final String envelope = jsonEncode({
+      'version': _schemaVersion,
+      'nonce': base64UrlEncode(encrypted.nonce),
+      'cipherText': base64UrlEncode(encrypted.cipherText),
+      'mac': base64UrlEncode(encrypted.mac.bytes),
+    });
+    final File temporary = File('${_vaultFile.path}.tmp');
+    await temporary.writeAsString(envelope, flush: true);
+    await _restrictToCurrentUser(temporary);
+    if (await _vaultFile.exists() && Platform.isWindows) {
+      await _vaultFile.delete();
+    }
+    await temporary.rename(_vaultFile.path);
+  }
+
+  Future<List<int>> _loadOrCreateKey() async {
+    await directory.create(recursive: true);
+    if (await _keyFile.exists()) {
+      final List<int> existing = await _keyFile.readAsBytes();
+      if (existing.length != _keyLength) {
+        throw const FormatException('Invalid LAN credential key');
+      }
+      return existing;
+    }
+    final List<int> generated = List<int>.generate(
+      _keyLength,
+      (_) => _secureRandom.nextInt(256),
+    );
+    final File temporary = File('${_keyFile.path}.tmp');
+    await temporary.writeAsBytes(generated, flush: true);
+    await _restrictToCurrentUser(temporary);
+    if (await _keyFile.exists()) {
+      await temporary.delete();
+      return _keyFile.readAsBytes();
+    }
+    await temporary.rename(_keyFile.path);
+    return generated;
+  }
+
+  List<int> _decodeBytes(dynamic value, [int? expectedLength]) {
+    if (value is! String) {
+      throw const FormatException('Invalid LAN credential vault');
+    }
+    final List<int> bytes;
+    try {
+      bytes = base64Url.decode(base64Url.normalize(value));
+    } on FormatException {
+      throw const FormatException('Invalid LAN credential vault');
+    }
+    if (expectedLength != null && bytes.length != expectedLength) {
+      throw const FormatException('Invalid LAN credential vault');
+    }
+    return bytes;
+  }
+
+  Future<void> _restrictToCurrentUser(File file) async {
+    if (!Platform.isMacOS && !Platform.isLinux) {
+      return;
+    }
+    final ProcessResult result = await Process.run('chmod', ['600', file.path]);
+    if (result.exitCode != 0) {
+      throw FileSystemException(
+        'Unable to restrict LAN credential permissions',
+        file.path,
+      );
+    }
+  }
 }
 
 class LanDeviceCredentials {

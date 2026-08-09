@@ -7,7 +7,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   bonsoir_windows
   desktop_webview_window
   flutter_onnxruntime
-  flutter_secure_storage_windows
   local_auth_windows
   pasteboard
   permission_handler_windows
