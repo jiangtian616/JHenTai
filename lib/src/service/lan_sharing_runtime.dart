@@ -666,18 +666,21 @@ class LanSharingRuntime
       );
       await recordImagePage(href, image);
     }
-    final String cacheKey = normalizedImageCacheKey(
-      effectiveEHImageUrl(image.url),
-    );
     final String? cacheDirectory =
         _imageCacheDirectoryOverride ?? extendedImageDiskCacheDirectory;
     if (cacheDirectory == null) {
       return null;
     }
-    final File file = File(path.join(cacheDirectory, cacheKey));
-    if (!await file.exists()) {
+    final String effectiveUrl = effectiveEHImageUrl(image.url);
+    final File? file = await findCompatibleImageCacheFile(
+      directory: cacheDirectory,
+      url: effectiveUrl,
+    );
+    if (file == null) {
+      log.debug('LAN image cache miss: ${_canonicalImagePageKey(href)}');
       return null;
     }
+    log.debug('LAN image cache hit: ${_canonicalImagePageKey(href)}');
     return LanSharedImage(
       image: image.toJson(),
       bytes: await file.readAsBytes(),

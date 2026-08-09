@@ -184,6 +184,13 @@ Future<bool> prefetchReaderImageToDisk(String rawUrl) async {
   if (await destination.exists()) {
     return true;
   }
+  final File? compatible = await findCompatibleImageCacheFile(
+    directory: directory.path,
+    url: url,
+  );
+  if (compatible != null) {
+    return true;
+  }
 
   final ExtendedNetworkImageProvider provider = ExtendedNetworkImageProvider(
     url,

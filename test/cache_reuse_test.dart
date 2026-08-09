@@ -81,6 +81,28 @@ void main() {
     expect(readKey, normalizedImageCacheKey(omUrl));
   });
 
+  test(
+    'legacy raw URL cache entry is migrated to the stable fileindex key',
+    () async {
+      final Directory temp = await Directory.systemTemp.createTemp(
+        'legacy_image_cache',
+      );
+      const String url =
+          'https://node.hath.network/h/hash/keystamp=1-key;fileindex=244549847;xres=1280/a.webp';
+      final File legacy = File(p.join(temp.path, keyToMd5(url)));
+      await legacy.writeAsBytes(const [1, 2, 3]);
+
+      final File? migrated = await findCompatibleImageCacheFile(
+        directory: temp.path,
+        url: url,
+      );
+
+      expect(migrated?.path, p.join(temp.path, normalizedImageCacheKey(url)));
+      expect(await migrated?.readAsBytes(), const [1, 2, 3]);
+      await temp.delete(recursive: true);
+    },
+  );
+
   test('effectiveEHImageUrl applies the shared EX image-host rewrite', () {
     expect(
       effectiveEHImageUrl('https://s.exhentai.org/images/a.jpg?x=1'),
