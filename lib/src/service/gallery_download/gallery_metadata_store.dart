@@ -104,20 +104,10 @@ class GalleryMetadataStore {
     await info.ensureImagesLoaded();
 
     final List<GalleryImage?>? images = info.images;
-    final List<Map<String, dynamic>?> imagesJson = images
-        ?.map((img) => img?.toJson())
-        .toList() ??
-        <Map<String, dynamic>?>[];
+    final List<Map<String, dynamic>?> imagesJson = images?.map((img) => img?.toJson()).toList() ?? <Map<String, dynamic>?>[];
 
     Map<String, Object> metadata = {
-      'gallery': gallery
-          .toGalleryDownloadedData()
-          .copyWith(
-            downloadStatusIndex: info.downloadProgress.downloadStatus.index,
-            priority: info.priority,
-            groupName: info.group,
-          )
-          .toJson(),
+      'gallery': gallery.toGalleryDownloadedData().toJson(),
       'images': jsonEncode(imagesJson),
     };
 
@@ -158,9 +148,7 @@ class GalleryMetadataStore {
       );
     }
 
-    List<GalleryImage?> images = (jsonDecode(raw['images']) as List)
-        .map((_map) => _map == null ? null : GalleryImage.fromJson(_map))
-        .toList();
+    List<GalleryImage?> images = (jsonDecode(raw['images']) as List).map((_map) => _map == null ? null : GalleryImage.fromJson(_map)).toList();
 
     /// To deal with changed download location, compute download path again.
     for (int serialNo = 0; serialNo < images.length; serialNo++) {
@@ -203,8 +191,7 @@ class GalleryMetadataStore {
         (metadata['gallery'] as Map)['insertTime'] = DateTime.now().toString();
       }
       if ((metadata['gallery'] as Map)['priority'] == null) {
-        (metadata['gallery'] as Map)['priority'] =
-            GalleryDownloadService.defaultDownloadGalleryPriority;
+        (metadata['gallery'] as Map)['priority'] = GalleryDownloadService.defaultDownloadGalleryPriority;
       }
       if ((metadata['gallery'] as Map)['groupName'] == null) {
         (metadata['gallery'] as Map)['groupName'] = 'default';
@@ -226,4 +213,3 @@ class GalleryMetadataStore {
     }
   }
 }
-
