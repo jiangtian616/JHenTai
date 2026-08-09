@@ -167,7 +167,7 @@ jobs:
         run: |
           # Prepare build depends
           sudo apt-get update -y
-          sudo apt-get install -y ninja-build libfuse2 webkit2gtk-4.1 libsecret-1-dev
+          sudo apt-get install -y ninja-build libfuse2 webkit2gtk-4.1
           
           # Compile
           flutter build linux --release -t lib/src/main.dart
@@ -199,7 +199,7 @@ jobs:
         run: |
           # Prepare build depends
           sudo apt-get update -y
-          sudo apt-get install -y ninja-build libfuse2 webkit2gtk-4.1 libsecret-1-dev
+          sudo apt-get install -y ninja-build libfuse2 webkit2gtk-4.1
           
           # Compile
           flutter build linux --release -t lib/src/main.dart

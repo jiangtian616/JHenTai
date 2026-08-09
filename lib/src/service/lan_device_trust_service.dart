@@ -132,7 +132,9 @@ class LanDeviceTrustService extends GetxController
         _repositoryOverride ??
         FileLanTrustRepository(
           directory: pathService.jhLanDir,
-          secretStore: PlatformLanSecretStore(),
+          secretStore: EncryptedFileLanSecretStore(
+            directory: pathService.jhLanSecretDir,
+          ),
         );
     await _repository.init();
     localDeviceId = await _repository.ensureLocalDeviceId(_generateDeviceId);

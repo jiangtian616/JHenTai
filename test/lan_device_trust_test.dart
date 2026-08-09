@@ -122,6 +122,65 @@ void main() {
   );
 
   test(
+    'encrypted file secret store persists without exposing values',
+    () async {
+      final Directory temporary = await Directory.systemTemp.createTemp(
+        'jhentai_lan_encrypted_secrets',
+      );
+      final EncryptedFileLanSecretStore first = EncryptedFileLanSecretStore(
+        directory: temporary,
+        secureRandom: Random(41),
+      );
+      const String identitySeed = 'AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE';
+      await first.write('identity', identitySeed);
+      await first.write('token', _remoteToken);
+
+      final File vault = File('${temporary.path}/credentials.v1.enc');
+      final File key = File('${temporary.path}/.credential-key');
+      final String encrypted = await vault.readAsString();
+      expect(encrypted, isNot(contains(identitySeed)));
+      expect(encrypted, isNot(contains(_remoteToken)));
+      expect(await key.length(), 32);
+
+      final EncryptedFileLanSecretStore reloaded = EncryptedFileLanSecretStore(
+        directory: temporary,
+        secureRandom: Random(42),
+      );
+      expect(await reloaded.read('identity'), identitySeed);
+      expect(await reloaded.read('token'), _remoteToken);
+      await temporary.delete(recursive: true);
+    },
+  );
+
+  test('encrypted file secret store rejects a modified vault', () async {
+    final Directory temporary = await Directory.systemTemp.createTemp(
+      'jhentai_lan_tampered_secrets',
+    );
+    final EncryptedFileLanSecretStore store = EncryptedFileLanSecretStore(
+      directory: temporary,
+      secureRandom: Random(43),
+    );
+    await store.write('token', _remoteToken);
+
+    final File vault = File('${temporary.path}/credentials.v1.enc');
+    final Map<String, dynamic> envelope = Map<String, dynamic>.from(
+      jsonDecode(await vault.readAsString()) as Map,
+    );
+    final List<int> cipherText = base64Url.decode(
+      base64Url.normalize(envelope['cipherText'] as String),
+    );
+    cipherText[0] ^= 1;
+    envelope['cipherText'] = base64UrlEncode(cipherText);
+    await vault.writeAsString(jsonEncode(envelope), flush: true);
+
+    await expectLater(
+      store.read('token'),
+      throwsA(isA<SecretBoxAuthenticationError>()),
+    );
+    await temporary.delete(recursive: true);
+  });
+
+  test(
     'pairing persists trust and inbound authentication checks both factors',
     () async {
       final _MemoryTrustRepository repository = _MemoryTrustRepository();
