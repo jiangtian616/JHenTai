@@ -32,6 +32,7 @@ import 'package:jhentai/src/pages/setting/keyboard_shortcuts/setting_keyboard_sh
 import 'package:jhentai/src/pages/setting/mousewheel/setting_mouse_wheel_page.dart';
 import 'package:jhentai/src/pages/setting/network/proxy/setting_proxy_page.dart';
 import 'package:jhentai/src/pages/setting/network/setting_network_page.dart';
+import 'package:jhentai/src/pages/setting/network/lan/setting_lan_sharing_page.dart';
 import 'package:jhentai/src/pages/setting/performance/setting_performace_page.dart';
 import 'package:jhentai/src/pages/setting/preference/block_rule/blocking_rule_page.dart';
 import 'package:jhentai/src/pages/setting/preference/setting_preference_page.dart';
@@ -123,6 +124,7 @@ class Routes {
 
   static const String hostMapping = "/setting_network/hostMapping";
   static const String proxy = "/setting_network/proxy";
+  static const String lanSharing = "/setting_advanced/lanSharing";
 
   static const String extraGalleryScanPath =
       "/setting_download/extraGalleryScanPath";
@@ -320,6 +322,14 @@ class Routes {
     EHPage(
       name: settingNetwork,
       page: () => SettingNetworkPage().withEscOrFifthButton2BackRightRoute(),
+      transition: defaultTransition,
+    ),
+    EHPage(
+      name: lanSharing,
+      page:
+          () =>
+              const SettingLanSharingPage()
+                  .withEscOrFifthButton2BackRightRoute(),
       transition: defaultTransition,
     ),
     EHPage(

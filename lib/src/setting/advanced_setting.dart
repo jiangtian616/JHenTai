@@ -9,12 +9,15 @@ import '../service/jh_service.dart';
 
 AdvancedSetting advancedSetting = AdvancedSetting();
 
-class AdvancedSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
+class AdvancedSetting
+    with JHLifeCircleBeanWithConfigStorage
+    implements JHLifeCircleBean {
   RxBool enableLogging = true.obs;
   RxBool enableVerboseLogging = kDebugMode.obs;
   RxBool enableCheckUpdate = true.obs;
   RxBool enableCheckClipboard = true.obs;
   RxBool inNoImageMode = false.obs;
+  RxBool enableLanSharing = false.obs;
 
   @override
   ConfigEnum get configEnum => ConfigEnum.advancedSetting;
@@ -24,10 +27,14 @@ class AdvancedSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     Map map = jsonDecode(configString);
 
     enableLogging.value = map['enableLogging'];
-    enableVerboseLogging.value = map['enableVerboseLogging'] ?? enableVerboseLogging.value;
-    enableCheckUpdate.value = map['enableCheckUpdate'] ?? enableCheckUpdate.value;
-    enableCheckClipboard.value = map['enableCheckClipboard'] ?? enableCheckClipboard.value;
+    enableVerboseLogging.value =
+        map['enableVerboseLogging'] ?? enableVerboseLogging.value;
+    enableCheckUpdate.value =
+        map['enableCheckUpdate'] ?? enableCheckUpdate.value;
+    enableCheckClipboard.value =
+        map['enableCheckClipboard'] ?? enableCheckClipboard.value;
     inNoImageMode.value = map['inNoImageMode'] ?? inNoImageMode.value;
+    enableLanSharing.value = map['enableLanSharing'] ?? enableLanSharing.value;
   }
 
   @override
@@ -38,6 +45,7 @@ class AdvancedSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
       'enableCheckUpdate': enableCheckUpdate.value,
       'enableCheckClipboard': enableCheckClipboard.value,
       'inNoImageMode': inNoImageMode.value,
+      'enableLanSharing': enableLanSharing.value,
     });
   }
 
@@ -74,6 +82,12 @@ class AdvancedSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   Future<void> saveInNoImageMode(bool inNoImageMode) async {
     log.debug('saveInNoImageMode:$inNoImageMode');
     this.inNoImageMode.value = inNoImageMode;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveEnableLanSharing(bool enableLanSharing) async {
+    log.debug('saveEnableLanSharing:$enableLanSharing');
+    this.enableLanSharing.value = enableLanSharing;
     await saveBeanConfig();
   }
 }

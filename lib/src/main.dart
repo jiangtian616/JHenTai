@@ -61,6 +61,8 @@ import 'package:jhentai/src/widget/app_manager.dart';
 import 'config/theme_config.dart';
 import 'network/archive_bot_request.dart';
 import 'service/inference_service.dart';
+import 'service/lan_device_trust_service.dart';
+import 'service/lan_sharing_runtime.dart';
 
 List<JHLifeCircleBean> lifeCircleBeans = [
   ehRequest,
@@ -86,6 +88,8 @@ List<JHLifeCircleBean> lifeCircleBeans = [
   storageService,
   superResolutionService,
   imageTranslationService,
+  lanDeviceTrustService,
+  lanSharingRuntime,
   inferenceService,
   tagTranslationService,
   tagSearchOrderOptimizationService,
@@ -124,11 +128,13 @@ void main(List<String> args) async {
     await WindowManipulator.initialize();
   }
 
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    systemNavigationBarColor: Colors.transparent,
-    systemNavigationBarDividerColor: Colors.transparent,
-    statusBarColor: Colors.transparent,
-  ));
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarDividerColor: Colors.transparent,
+      statusBarColor: Colors.transparent,
+    ),
+  );
 
   lifeCircleBeans = topologicalSort(lifeCircleBeans);
   await _initBeansInParallel(lifeCircleBeans);
@@ -145,9 +151,10 @@ Future<void> _initBeansInParallel(List<JHLifeCircleBean> sortedBeans) async {
   final Set<JHLifeCircleBean> initialized = <JHLifeCircleBean>{};
 
   while (remaining.isNotEmpty) {
-    final List<JHLifeCircleBean> wave = remaining
-        .where((bean) => bean.initDependencies.every(initialized.contains))
-        .toList();
+    final List<JHLifeCircleBean> wave =
+        remaining
+            .where((bean) => bean.initDependencies.every(initialized.contains))
+            .toList();
 
     // topologicalSort visits every dependency before its dependents, so a
     // ready wave always exists unless the graph has a cycle (which the sort
@@ -175,9 +182,13 @@ class MyApp extends StatelessWidget {
       title: 'JHenTai',
       themeMode: styleSetting.themeMode.value,
       theme: ThemeConfig.theme(
-          styleSetting.lightThemeColor.value, Brightness.light),
-      darkTheme:
-          ThemeConfig.theme(styleSetting.darkThemeColor.value, Brightness.dark),
+        styleSetting.lightThemeColor.value,
+        Brightness.light,
+      ),
+      darkTheme: ThemeConfig.theme(
+        styleSetting.darkThemeColor.value,
+        Brightness.dark,
+      ),
 
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
@@ -196,10 +207,11 @@ class MyApp extends StatelessWidget {
       translations: LocaleText(),
 
       getPages: Routes.pages,
-      initialRoute: securitySetting.enablePasswordAuth.isTrue ||
-              securitySetting.enableBiometricAuth.isTrue
-          ? Routes.lock
-          : Routes.home,
+      initialRoute:
+          securitySetting.enablePasswordAuth.isTrue ||
+                  securitySetting.enableBiometricAuth.isTrue
+              ? Routes.lock
+              : Routes.home,
       navigatorObservers: [GetXRouterObserver()],
       builder: (context, child) => AppManager(child: child!),
 

@@ -35,6 +35,12 @@
 	<true/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Auth identity</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Discover and pair with JHenTai devices on your local network.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_jhentai-lan._tcp</string>
+	</array>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Pick up image to search</string>
 	<key>NSPhotoLibraryUsageDescription</key>
