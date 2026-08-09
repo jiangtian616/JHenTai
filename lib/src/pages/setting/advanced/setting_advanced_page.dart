@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/config.dart';
 import 'package:jhentai/src/service/cloud_service.dart';
+import 'package:jhentai/src/service/lan_sharing_runtime.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/performance_setting.dart';
 import 'package:jhentai/src/service/log.dart';
@@ -67,6 +68,10 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
         () => EHAppleSettingsListView(
           groups: [
             EHAppleSettingsGroup(
+              title: 'experimentalFeatures'.tr,
+              children: [_buildLanSharingExperiment()],
+            ),
+            EHAppleSettingsGroup(
               title: 'readerPerformanceExperiments'.tr,
               children: [
                 _buildReaderEngine2(),
@@ -110,6 +115,52 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
         await performanceSetting.setEnableReaderEngine2(value);
         toast('saveSuccess'.tr);
       },
+    );
+  }
+
+  Widget _buildLanSharingExperiment() {
+    return EHAppleExpandableSwitchListTile(
+      title: Text('lanSharing'.tr),
+      subtitle: Text('lanSharingExperimentalHint'.tr),
+      value: advancedSetting.enableLanSharing.value,
+      onChanged: (value) async {
+        try {
+          await advancedSetting.saveEnableLanSharing(value);
+        } on Object catch (error, stack) {
+          log.warning('Failed to save LAN sharing setting', error, true);
+          log.trace(stack);
+          toast('saveFailed'.tr);
+          return;
+        }
+
+        try {
+          await lanSharingRuntime.setEnabled(value);
+        } on Object catch (error, stack) {
+          log.warning('Failed to update LAN sharing runtime', error, true);
+          log.trace(stack);
+          if (value) {
+            try {
+              await advancedSetting.saveEnableLanSharing(false);
+            } on Object catch (rollbackError, rollbackStack) {
+              log.warning(
+                'Failed to roll back LAN sharing setting',
+                rollbackError,
+                true,
+              );
+              log.trace(rollbackStack);
+            }
+          }
+          toast('lanSharingStartFailed'.tr);
+        }
+      },
+      children: [
+        ListTile(
+          title: Text('lanFindAndPairDevices'.tr),
+          subtitle: Text('lanFindAndPairDevicesHint'.tr),
+          trailing: Icon(AppIcons.chevronRight).marginOnly(right: 4),
+          onTap: () => toRoute(Routes.lanSharing),
+        ),
+      ],
     );
   }
 
@@ -176,14 +227,16 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
           LoadingStateIndicator(
             loadingState: _logLoadingState,
             useCupertinoIndicator: true,
-            successWidgetBuilder: () => Text(
-              _logSize,
-              style: TextStyle(
-                  color: UIConfig.resumePauseButtonColor(context),
-                  fontWeight: FontWeight.w500),
-            ),
+            successWidgetBuilder:
+                () => Text(
+                  _logSize,
+                  style: TextStyle(
+                    color: UIConfig.resumePauseButtonColor(context),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
             errorTapCallback: _loadingLogSize,
-          ).marginOnly(right: 8)
+          ).marginOnly(right: 8),
         ],
       ),
       onLongPress: _clearAndLoadingLogSize,
@@ -290,7 +343,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
             successWidgetSameWithIdle: true,
             useCupertinoIndicator: true,
             errorWidgetSameWithIdle: true,
-          ).marginOnly(right: 8)
+          ).marginOnly(right: 8),
         ],
       ),
       onTap: () => _importData(context),
@@ -309,7 +362,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
             successWidgetSameWithIdle: true,
             useCupertinoIndicator: true,
             errorWidgetSameWithIdle: true,
-          ).marginOnly(right: 8)
+          ).marginOnly(right: 8),
         ],
       ),
       onTap: () => _exportData(context),
@@ -411,7 +464,9 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   }
 
   Future<void> _exportDataMobile(
-      String fileName, List<CloudConfigTypeEnum>? result) async {
+    String fileName,
+    List<CloudConfigTypeEnum>? result,
+  ) async {
     if (_exportDataLoadingState == LoadingState.loading) {
       return;
     }
@@ -446,7 +501,9 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   }
 
   Future<void> _exportDataDesktop(
-      String fileName, List<CloudConfigTypeEnum>? result) async {
+    String fileName,
+    List<CloudConfigTypeEnum>? result,
+  ) async {
     if (_exportDataLoadingState == LoadingState.loading) {
       return;
     }
@@ -484,8 +541,9 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
       if (await file.exists()) {
         await file.create(recursive: true);
       }
-      await file
-          .writeAsString(await isolateService.jsonEncodeAsync(uploadConfigs));
+      await file.writeAsString(
+        await isolateService.jsonEncodeAsync(uploadConfigs),
+      );
       log.info('Export data to $savedPath success');
       toast('success'.tr);
       setStateSafely(() => _exportDataLoadingState = LoadingState.success);

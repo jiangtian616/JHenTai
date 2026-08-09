@@ -36,7 +36,10 @@
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_dartobservatory._tcp</string>
+		<string>_jhentai-lan._tcp</string>
 	</array>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Discover and pair with JHenTai devices on your local network.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Auth identity</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>

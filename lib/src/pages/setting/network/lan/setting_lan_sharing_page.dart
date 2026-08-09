@@ -1,0 +1,477 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:jhentai/src/model/lan_device_trust.dart';
+import 'package:jhentai/src/service/lan_device_trust_service.dart';
+import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
+import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
+
+class SettingLanSharingPage extends StatelessWidget {
+  const SettingLanSharingPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(centerTitle: true, title: Text('lanSharing'.tr)),
+      body: GetBuilder<LanDeviceTrustService>(
+        id: LanDeviceTrustService.identityChangedId,
+        builder: (service) {
+          if (!service.isEnabled) {
+            return EHAppleSettingsListView(
+              groups: [
+                EHAppleSettingsGroup(
+                  children: [
+                    ListTile(
+                      title: Text('lanSharingDisabled'.tr),
+                      subtitle: Text('lanSharingDisabledHint'.tr),
+                      leading: const Icon(Icons.wifi_off),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          }
+          return GetBuilder<LanDeviceTrustService>(
+            id: LanDeviceTrustService.devicesChangedId,
+            builder:
+                (service) => EHAppleSettingsListView(
+                  groups: [
+                    EHAppleSettingsGroup(
+                      title: 'lanLocalDevice'.tr,
+                      children: [
+                        ListTile(
+                          title: Text(service.localDisplayName),
+                          subtitle: Text(
+                            '${'lanDeviceId'.tr}: ${_shortId(service.localDeviceId)}',
+                          ),
+                          leading: const Icon(Icons.devices),
+                        ),
+                        ListTile(
+                          title: Text('lanTrustReady'.tr),
+                          subtitle: Text('lanTrustReadyHint'.tr),
+                          leading: const Icon(Icons.verified_user_outlined),
+                        ),
+                      ],
+                    ),
+                    EHAppleSettingsGroup(
+                      title: 'lanNearbyDevices'.tr,
+                      children: [
+                        GetBuilder<LanDeviceTrustService>(
+                          id: LanDeviceTrustService.discoveredDevicesChangedId,
+                          builder: (service) {
+                            final peers =
+                                service.discoveredPeers
+                                    .where(
+                                      (peer) =>
+                                          service.deviceById(peer.deviceId) ==
+                                          null,
+                                    )
+                                    .toList();
+                            if (peers.isEmpty) {
+                              return ListTile(
+                                title: Text('lanSearchingDevices'.tr),
+                                subtitle: Text('lanSearchingDevicesHint'.tr),
+                                leading: const Icon(Icons.radar),
+                              );
+                            }
+                            return Column(
+                              children:
+                                  peers
+                                      .map(
+                                        (peer) =>
+                                            _DiscoveredDeviceTile(peer: peer),
+                                      )
+                                      .toList(),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                    EHAppleSettingsGroup(
+                      title: 'lanIncomingPairingRequests'.tr,
+                      children: [
+                        GetBuilder<LanDeviceTrustService>(
+                          id: LanDeviceTrustService.incomingPairingsChangedId,
+                          builder: (service) {
+                            if (service.incomingPairingRequests.isEmpty) {
+                              return ListTile(
+                                title: Text('lanNoIncomingPairingRequests'.tr),
+                                leading: const Icon(
+                                  Icons.mark_email_read_outlined,
+                                ),
+                              );
+                            }
+                            return Column(
+                              children:
+                                  service.incomingPairingRequests
+                                      .map(
+                                        (request) => _IncomingPairingTile(
+                                          request: request,
+                                        ),
+                                      )
+                                      .toList(),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                    EHAppleSettingsGroup(
+                      title: 'lanTrustedDevices'.tr,
+                      children:
+                          service.trustedDevices.isEmpty
+                              ? [
+                                ListTile(
+                                  title: Text('lanNoTrustedDevices'.tr),
+                                  subtitle: Text('lanNoTrustedDevicesHint'.tr),
+                                  leading: const Icon(Icons.phonelink_off),
+                                ),
+                              ]
+                              : service.trustedDevices
+                                  .map(
+                                    (device) => _TrustedDeviceTile(
+                                      key: ValueKey(device.deviceId),
+                                      device: device,
+                                    ),
+                                  )
+                                  .toList(),
+                    ),
+                  ],
+                ),
+          );
+        },
+      ),
+    );
+  }
+
+  static String _shortId(String value) {
+    if (value.length <= 14) {
+      return value;
+    }
+    return '${value.substring(0, 7)}…${value.substring(value.length - 6)}';
+  }
+}
+
+class _IncomingPairingTile extends StatelessWidget {
+  final LanIncomingPairingRequest request;
+
+  const _IncomingPairingTile({required this.request});
+
+  @override
+  Widget build(BuildContext context) {
+    final LanDiscoveredPeer peer = request.peer;
+    return ListTile(
+      leading: const Icon(Icons.phonelink_ring),
+      title: Text(
+        peer.displayName.trim().isEmpty ? peer.deviceId : peer.displayName,
+      ),
+      subtitle: Text('lanIncomingPairingRequestHint'.tr),
+      trailing: FilledButton(
+        onPressed: () => _review(context),
+        child: Text('lanReviewDevice'.tr),
+      ),
+    );
+  }
+
+  Future<void> _review(BuildContext context) async {
+    final _TrustDecision? decision = await showDialog<_TrustDecision>(
+      context: context,
+      builder: (context) => _TrustDeviceDialog(peer: request.peer),
+    );
+    if (decision == null) {
+      return;
+    }
+    if (!decision.trust) {
+      lanDeviceTrustService.declineIncomingPairing(request.peer.deviceId);
+      return;
+    }
+    try {
+      await lanDeviceTrustService.acceptIncomingPairing(
+        deviceId: request.peer.deviceId,
+        permissions: decision.permissions,
+        autoConnect: decision.autoConnect,
+      );
+      toast('lanTrustGranted'.tr);
+    } on Object {
+      toast('lanPairingFailed'.tr);
+    }
+  }
+}
+
+class _DiscoveredDeviceTile extends StatelessWidget {
+  final LanDiscoveredPeer peer;
+
+  const _DiscoveredDeviceTile({required this.peer});
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isPairing = lanDeviceTrustService.isPairingWith(peer.deviceId);
+    return ListTile(
+      leading: const Icon(Icons.devices_other),
+      title: Text(
+        peer.displayName.trim().isEmpty ? peer.deviceId : peer.displayName,
+      ),
+      subtitle: Text('${peer.host}:${peer.port}'),
+      trailing: FilledButton.tonal(
+        onPressed: isPairing ? null : () => _chooseTrust(context),
+        child: Text(isPairing ? 'lanPairingWaiting'.tr : 'lanReviewDevice'.tr),
+      ),
+    );
+  }
+
+  Future<void> _chooseTrust(BuildContext context) async {
+    final _TrustDecision? decision = await showDialog<_TrustDecision>(
+      context: context,
+      builder: (context) => _TrustDeviceDialog(peer: peer),
+    );
+    if (decision == null) {
+      return;
+    }
+    if (!decision.trust) {
+      lanDeviceTrustService.ignoreDiscoveredDevice(peer.deviceId);
+      return;
+    }
+    try {
+      await lanDeviceTrustService.trustDiscoveredDevice(
+        deviceId: peer.deviceId,
+        permissions: decision.permissions,
+        autoConnect: decision.autoConnect,
+      );
+      toast('lanTrustGranted'.tr);
+    } on Object {
+      toast('lanPairingFailed'.tr);
+    }
+  }
+}
+
+class _TrustDecision {
+  final bool trust;
+  final Set<LanSharePermission> permissions;
+  final bool autoConnect;
+
+  const _TrustDecision({
+    required this.trust,
+    this.permissions = const {},
+    this.autoConnect = true,
+  });
+}
+
+class _TrustDeviceDialog extends StatefulWidget {
+  final LanDiscoveredPeer peer;
+
+  const _TrustDeviceDialog({required this.peer});
+
+  @override
+  State<_TrustDeviceDialog> createState() => _TrustDeviceDialogState();
+}
+
+class _TrustDeviceDialogState extends State<_TrustDeviceDialog> {
+  final Set<LanSharePermission> _permissions = {
+    LanSharePermission.downloads,
+    LanSharePermission.imageCache,
+    LanSharePermission.translationResults,
+  };
+  bool _autoConnect = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(
+        'lanTrustDeviceQuestion'.trParams({'name': widget.peer.displayName}),
+      ),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('lanTrustDeviceWarning'.tr),
+            const SizedBox(height: 12),
+            SelectableText(
+              _formatFingerprint(widget.peer.identityFingerprint),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            const SizedBox(height: 12),
+            ...LanSharePermission.values.map(
+              (permission) => CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+                title: Text('lanPermission_${permission.name}'.tr),
+                value: _permissions.contains(permission),
+                onChanged: (selected) {
+                  setState(() {
+                    if (selected == true) {
+                      _permissions.add(permission);
+                    } else {
+                      _permissions.remove(permission);
+                    }
+                  });
+                },
+              ),
+            ),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text('lanAutoConnect'.tr),
+              value: _autoConnect,
+              onChanged: (value) => setState(() => _autoConnect = value),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed:
+              () => Navigator.pop(context, const _TrustDecision(trust: false)),
+          child: Text('lanDoNotTrust'.tr),
+        ),
+        FilledButton(
+          onPressed:
+              _permissions.isEmpty
+                  ? null
+                  : () => Navigator.pop(
+                    context,
+                    _TrustDecision(
+                      trust: true,
+                      permissions: Set.unmodifiable(_permissions),
+                      autoConnect: _autoConnect,
+                    ),
+                  ),
+          child: Text('lanTrustAndPair'.tr),
+        ),
+      ],
+    );
+  }
+}
+
+String _formatFingerprint(String fingerprint) {
+  final List<String> chunks = [];
+  for (int index = 0; index < fingerprint.length; index += 8) {
+    chunks.add(fingerprint.substring(index, index + 8));
+  }
+  return chunks.join(' ');
+}
+
+class _TrustedDeviceTile extends StatelessWidget {
+  final TrustedLanDevice device;
+
+  const _TrustedDeviceTile({super.key, required this.device});
+
+  @override
+  Widget build(BuildContext context) {
+    return GetBuilder<LanDeviceTrustService>(
+      id: lanDeviceTrustService.connectionId(device.deviceId),
+      builder: (service) {
+        final LanConnectionSnapshot connection = service.connectionFor(
+          device.deviceId,
+        );
+        return ExpansionTile(
+          leading: Icon(_statusIcon(connection.state)),
+          title: Text(device.displayName),
+          subtitle: Text(_statusLabel(connection.state)),
+          childrenPadding: const EdgeInsets.only(left: 16, right: 8, bottom: 8),
+          children: [
+            EHAppleSwitchListTile(
+              title: Text('lanAutoConnect'.tr),
+              subtitle: Text('lanAutoConnectHint'.tr),
+              value: device.autoConnect,
+              onChanged:
+                  (value) => lanDeviceTrustService.setAutoConnect(
+                    device.deviceId,
+                    value,
+                  ),
+            ),
+            ListTile(
+              title: Text('lanFingerprint'.tr),
+              subtitle: SelectableText(
+                _formatFingerprint(device.identityFingerprint),
+              ),
+            ),
+            ListTile(
+              title: Text('lanLastSeen'.tr),
+              trailing: Text(
+                DateFormat(
+                  'yyyy-MM-dd HH:mm',
+                ).format(device.lastSeenAt.toLocal()),
+              ),
+            ),
+            ListTile(
+              title: Text('lanPermissions'.tr),
+              subtitle: Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                children:
+                    device.permissions
+                        .map(
+                          (permission) => Chip(
+                            visualDensity: VisualDensity.compact,
+                            label: Text(_permissionLabel(permission)),
+                          ),
+                        )
+                        .toList(),
+              ),
+            ),
+            ListTile(
+              title: Text(
+                'lanRevokeTrust'.tr,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+              leading: Icon(
+                Icons.link_off,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              onTap: () => _confirmRevoke(context),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _confirmRevoke(BuildContext context) async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (dialogContext) => AlertDialog(
+            title: Text('lanRevokeTrust'.tr),
+            content: Text(
+              'lanRevokeTrustHint'.trParams({'name': device.displayName}),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: Text('cancel'.tr),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                child: Text('OK'.tr),
+              ),
+            ],
+          ),
+    );
+    if (confirmed == true) {
+      await lanDeviceTrustService.revokeTrust(device.deviceId);
+    }
+  }
+
+  IconData _statusIcon(LanPeerConnectionState state) {
+    switch (state) {
+      case LanPeerConnectionState.connected:
+        return Icons.link;
+      case LanPeerConnectionState.connecting:
+        return Icons.sync;
+      case LanPeerConnectionState.discovered:
+        return Icons.wifi;
+      case LanPeerConnectionState.failed:
+        return Icons.error_outline;
+      case LanPeerConnectionState.identityMismatch:
+        return Icons.gpp_bad_outlined;
+      case LanPeerConnectionState.offline:
+        return Icons.devices_other;
+    }
+  }
+
+  String _statusLabel(LanPeerConnectionState state) =>
+      'lanConnection_${state.name}'.tr;
+
+  String _permissionLabel(LanSharePermission permission) =>
+      'lanPermission_${permission.name}'.tr;
+}

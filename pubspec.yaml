@@ -86,6 +86,9 @@ dependencies:
     git: https://github.com/KasemJaffer/receive_sharing_intent
   window_manager: 0.3.9
   permission_handler: 11.3.1
+  flutter_secure_storage: ^10.3.1
+  cryptography: ^2.9.0
+  bonsoir: ^7.1.4
   grouped_list: 5.1.2
   flutter_resizable_container: 2.0.0
   loading_animation_widget: 1.2.0+4
