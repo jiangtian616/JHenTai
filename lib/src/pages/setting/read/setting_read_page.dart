@@ -24,19 +24,24 @@ import '../../home_page.dart';
 class SettingReadPage extends StatelessWidget {
   final TextEditingController imageRegionWidthRatioController =
       TextEditingController(
-          text: readSetting.imageRegionWidthRatio.value.toString());
+        text: readSetting.imageRegionWidthRatio.value.toString(),
+      );
   final TextEditingController portraitImageRegionWidthRatioController =
       TextEditingController(
-          text: readSetting.portraitImageRegionWidthRatio.value.toString());
+        text: readSetting.portraitImageRegionWidthRatio.value.toString(),
+      );
   final TextEditingController landscapeImageRegionWidthRatioController =
       TextEditingController(
-          text: readSetting.landscapeImageRegionWidthRatio.value.toString());
+        text: readSetting.landscapeImageRegionWidthRatio.value.toString(),
+      );
   final TextEditingController gestureRegionWidthRatioController =
       TextEditingController(
-          text: readSetting.gestureRegionWidthRatio.value.toString());
+        text: readSetting.gestureRegionWidthRatio.value.toString(),
+      );
   final TextEditingController imageMaxKilobytesController =
       TextEditingController(
-          text: readSetting.maxImageKilobyte.value.toString());
+        text: readSetting.maxImageKilobyte.value.toString(),
+      );
 
   SettingReadPage({Key? key}) : super(key: key);
 
@@ -91,10 +96,13 @@ class SettingReadPage extends StatelessWidget {
                 if (GetPlatform.isMobile)
                   EHAppleExpandableSwitchListTile(
                     title: Text('enableOrientationSpecificReadDirection'.tr),
-                    subtitle:
-                        Text('enableOrientationSpecificReadDirectionHint'.tr),
+                    subtitle: Text(
+                      'enableOrientationSpecificReadDirectionHint'.tr,
+                    ),
                     value:
-                        readSetting.enableOrientationSpecificReadDirection.value,
+                        readSetting
+                            .enableOrientationSpecificReadDirection
+                            .value,
                     onChanged:
                         readSetting.saveEnableOrientationSpecificReadDirection,
                     children: [
@@ -113,7 +121,8 @@ class SettingReadPage extends StatelessWidget {
                   _buildReadDirection().center(),
                 if (GetPlatform.isMobile &&
                         readSetting
-                            .enableOrientationSpecificReadDirection.isTrue
+                            .enableOrientationSpecificReadDirection
+                            .isTrue
                     ? (readSetting.portraitReadDirection.value ==
                             ReadDirection.top2bottomList ||
                         readSetting.landscapeReadDirection.value ==
@@ -135,9 +144,11 @@ class SettingReadPage extends StatelessWidget {
                       .fadeIn(const Key('preloadPageCountInLocalMode'))
                       .center(),
                 _buildFailedImageRetryScope().center(),
+                _buildImageTimeoutRetry().center(),
                 if (GetPlatform.isMobile &&
                     readSetting
-                        .enableOrientationSpecificReadDirection.isTrue) ...[
+                        .enableOrientationSpecificReadDirection
+                        .isTrue) ...[
                   if (readSetting.portraitReadDirection.value ==
                           ReadDirection.left2rightDoubleColumn ||
                       readSetting.portraitReadDirection.value ==
@@ -179,9 +190,10 @@ class SettingReadPage extends StatelessWidget {
   Widget _buildEnableImmersiveMode() {
     return EHAppleSwitchListTile(
       title: Text('enableImmersiveMode'.tr),
-      subtitle: GetPlatform.isMobile
-          ? Text('enableImmersiveHint'.tr)
-          : Text('enableImmersiveHint4Windows'.tr),
+      subtitle:
+          GetPlatform.isMobile
+              ? Text('enableImmersiveHint'.tr)
+              : Text('enableImmersiveHint4Windows'.tr),
       value: readSetting.enableImmersiveMode.value,
       onChanged: readSetting.saveEnableImmersiveMode,
     );
@@ -221,8 +233,9 @@ class SettingReadPage extends StatelessWidget {
         Expanded(
           child: EHAppleSlider(
             value: readSetting.customBrightness.value.toDouble(),
-            onChanged: (double value) =>
-                readSetting.saveCustomBrightness(value.toInt()),
+            onChanged:
+                (double value) =>
+                    readSetting.saveCustomBrightness(value.toInt()),
             min: 0,
             max: 100,
           ),
@@ -242,30 +255,12 @@ class SettingReadPage extends StatelessWidget {
           readSetting.saveImageSpace(newValue!);
         },
         items: const [
-          DropdownMenuItem(
-            child: Text('0'),
-            value: 0,
-          ),
-          DropdownMenuItem(
-            child: Text('2'),
-            value: 2,
-          ),
-          DropdownMenuItem(
-            child: Text('4'),
-            value: 4,
-          ),
-          DropdownMenuItem(
-            child: Text('6'),
-            value: 6,
-          ),
-          DropdownMenuItem(
-            child: Text('8'),
-            value: 7,
-          ),
-          DropdownMenuItem(
-            child: Text('10'),
-            value: 10,
-          ),
+          DropdownMenuItem(child: Text('0'), value: 0),
+          DropdownMenuItem(child: Text('2'), value: 2),
+          DropdownMenuItem(child: Text('4'), value: 4),
+          DropdownMenuItem(child: Text('6'), value: 6),
+          DropdownMenuItem(child: Text('8'), value: 7),
+          DropdownMenuItem(child: Text('10'), value: 10),
         ],
       ),
     ).marginOnly(right: 12);
@@ -348,16 +343,20 @@ class SettingReadPage extends StatelessWidget {
             child: EHAppleTextField(
               controller: imageMaxKilobytesController,
               decoration: const InputDecoration(
-                  isDense: true, labelStyle: TextStyle(fontSize: 12)),
+                isDense: true,
+                labelStyle: TextStyle(fontSize: 12),
+              ),
               textAlign: TextAlign.center,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
-                IntRangeTextInputFormatter(minValue: 1)
+                IntRangeTextInputFormatter(minValue: 1),
               ],
             ),
           ),
-          Text('KB',
-              style: UIConfig.settingPageListTileTrailingTextStyle(context)),
+          Text(
+            'KB',
+            style: UIConfig.settingPageListTileTrailingTextStyle(context),
+          ),
           IconButton(
             onPressed: () {
               int? value = int.tryParse(imageMaxKilobytesController.value.text);
@@ -367,8 +366,10 @@ class SettingReadPage extends StatelessWidget {
               readSetting.saveMaxImageKilobyte(value);
               toast('saveSuccess'.tr);
             },
-            icon: Icon(Icons.check,
-                color: UIConfig.resumePauseButtonColor(context)),
+            icon: Icon(
+              Icons.check,
+              color: UIConfig.resumePauseButtonColor(context),
+            ),
           ),
         ],
       ),
@@ -381,16 +382,22 @@ class SettingReadPage extends StatelessWidget {
       trailing: EHCodexStyleDropdown<DeviceDirection>(
         value: readSetting.deviceDirection.value,
         elevation: 4,
-        onChanged: (DeviceDirection? newValue) =>
-            readSetting.saveDeviceDirection(newValue!),
+        onChanged:
+            (DeviceDirection? newValue) =>
+                readSetting.saveDeviceDirection(newValue!),
         items: [
           DropdownMenuItem(
-              child: Text('followSystem'.tr),
-              value: DeviceDirection.followSystem),
+            child: Text('followSystem'.tr),
+            value: DeviceDirection.followSystem,
+          ),
           DropdownMenuItem(
-              child: Text('landscape'.tr), value: DeviceDirection.landscape),
+            child: Text('landscape'.tr),
+            value: DeviceDirection.landscape,
+          ),
           DropdownMenuItem(
-              child: Text('portrait'.tr), value: DeviceDirection.portrait),
+            child: Text('portrait'.tr),
+            value: DeviceDirection.portrait,
+          ),
         ],
       ).marginOnly(right: 12),
     );
@@ -402,11 +409,13 @@ class SettingReadPage extends StatelessWidget {
       trailing: EHCodexStyleDropdown<ReadDirection>(
         value: readSetting.portraitReadDirection.value,
         elevation: 4,
-        onChanged: (ReadDirection? newValue) =>
-            readSetting.savePortraitReadDirection(newValue!),
-        items: ReadDirection.values
-            .map((e) => DropdownMenuItem(child: Text(e.name.tr), value: e))
-            .toList(),
+        onChanged:
+            (ReadDirection? newValue) =>
+                readSetting.savePortraitReadDirection(newValue!),
+        items:
+            ReadDirection.values
+                .map((e) => DropdownMenuItem(child: Text(e.name.tr), value: e))
+                .toList(),
       ).marginOnly(right: 12),
     );
   }
@@ -417,11 +426,13 @@ class SettingReadPage extends StatelessWidget {
       trailing: EHCodexStyleDropdown<ReadDirection>(
         value: readSetting.landscapeReadDirection.value,
         elevation: 4,
-        onChanged: (ReadDirection? newValue) =>
-            readSetting.saveLandscapeReadDirection(newValue!),
-        items: ReadDirection.values
-            .map((e) => DropdownMenuItem(child: Text(e.name.tr), value: e))
-            .toList(),
+        onChanged:
+            (ReadDirection? newValue) =>
+                readSetting.saveLandscapeReadDirection(newValue!),
+        items:
+            ReadDirection.values
+                .map((e) => DropdownMenuItem(child: Text(e.name.tr), value: e))
+                .toList(),
       ).marginOnly(right: 12),
     );
   }
@@ -432,11 +443,13 @@ class SettingReadPage extends StatelessWidget {
       trailing: EHCodexStyleDropdown<ReadDirection>(
         value: readSetting.readDirection.value,
         elevation: 4,
-        onChanged: (ReadDirection? newValue) =>
-            readSetting.saveReadDirection(newValue!),
-        items: ReadDirection.values
-            .map((e) => DropdownMenuItem(child: Text(e.name.tr), value: e))
-            .toList(),
+        onChanged:
+            (ReadDirection? newValue) =>
+                readSetting.saveReadDirection(newValue!),
+        items:
+            ReadDirection.values
+                .map((e) => DropdownMenuItem(child: Text(e.name.tr), value: e))
+                .toList(),
       ).marginOnly(right: 12),
     );
   }
@@ -448,11 +461,65 @@ class SettingReadPage extends StatelessWidget {
       trailing: EHCodexStyleDropdown<FailedImageRetryScope>(
         value: readSetting.failedImageRetryScope.value,
         elevation: 4,
-        onChanged: (FailedImageRetryScope? newValue) =>
-            readSetting.saveFailedImageRetryScope(newValue!),
-        items: FailedImageRetryScope.values
-            .map((e) => DropdownMenuItem(child: Text(e.name.tr), value: e))
-            .toList(),
+        onChanged:
+            (FailedImageRetryScope? newValue) =>
+                readSetting.saveFailedImageRetryScope(newValue!),
+        items:
+            FailedImageRetryScope.values
+                .map((e) => DropdownMenuItem(child: Text(e.name.tr), value: e))
+                .toList(),
+      ).marginOnly(right: 12),
+    );
+  }
+
+  Widget _buildImageTimeoutRetry() {
+    return EHAppleExpandableSwitchListTile(
+      title: Text('imageTimeoutRetry'.tr),
+      subtitle: Text('imageTimeoutRetryHint'.tr),
+      value: readSetting.enableImageTimeoutRetry.value,
+      onChanged: readSetting.saveEnableImageTimeoutRetry,
+      children: [
+        _buildImageTimeoutRetryCount(),
+        _buildImageTimeoutRetryInterval(),
+      ],
+    );
+  }
+
+  Widget _buildImageTimeoutRetryCount() {
+    return ListTile(
+      title: Text('imageTimeoutRetryCount'.tr),
+      trailing: EHCodexStyleDropdown<int>(
+        value: readSetting.imageTimeoutRetryCount.value,
+        elevation: 4,
+        onChanged:
+            (int? value) => readSetting.saveImageTimeoutRetryCount(value!),
+        items: List<DropdownMenuItem<int>>.generate(
+          5,
+          (int index) =>
+              DropdownMenuItem(value: index + 1, child: Text('${index + 1}')),
+        ),
+      ).marginOnly(right: 12),
+    );
+  }
+
+  Widget _buildImageTimeoutRetryInterval() {
+    const List<int> intervals = <int>[500, 1000, 1500, 2000];
+    return ListTile(
+      title: Text('imageTimeoutRetryInterval'.tr),
+      trailing: EHCodexStyleDropdown<int>(
+        value: readSetting.imageTimeoutRetryInterval.value,
+        elevation: 4,
+        onChanged:
+            (int? value) => readSetting.saveImageTimeoutRetryInterval(value!),
+        items:
+            intervals
+                .map(
+                  (int value) => DropdownMenuItem(
+                    value: value,
+                    child: Text('${value / 1000}s'),
+                  ),
+                )
+                .toList(),
       ).marginOnly(right: 12),
     );
   }
@@ -462,8 +529,9 @@ class SettingReadPage extends StatelessWidget {
       title: Text('notchOptimization'.tr),
       subtitle: Text('notchOptimizationHint'.tr),
       trailing: EHAppleSwitch(
-          value: readSetting.notchOptimization.value,
-          onChanged: readSetting.saveNotchOptimization),
+        value: readSetting.notchOptimization.value,
+        onChanged: readSetting.saveNotchOptimization,
+      ),
     );
   }
 
@@ -479,7 +547,9 @@ class SettingReadPage extends StatelessWidget {
               controller: imageRegionWidthRatioController,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
-                  isDense: true, labelStyle: TextStyle(fontSize: 12)),
+                isDense: true,
+                labelStyle: TextStyle(fontSize: 12),
+              ),
               textAlign: TextAlign.center,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
@@ -493,8 +563,10 @@ class SettingReadPage extends StatelessWidget {
           const Text('%'),
           IconButton(
             onPressed: _saveImageRegionWidthRatio,
-            icon: Icon(Icons.check,
-                color: UIConfig.resumePauseButtonColor(context)),
+            icon: Icon(
+              Icons.check,
+              color: UIConfig.resumePauseButtonColor(context),
+            ),
           ),
         ],
       ),
@@ -522,7 +594,9 @@ class SettingReadPage extends StatelessWidget {
               controller: portraitImageRegionWidthRatioController,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
-                  isDense: true, labelStyle: TextStyle(fontSize: 12)),
+                isDense: true,
+                labelStyle: TextStyle(fontSize: 12),
+              ),
               textAlign: TextAlign.center,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
@@ -534,8 +608,10 @@ class SettingReadPage extends StatelessWidget {
           const Text('%'),
           IconButton(
             onPressed: _savePortraitImageRegionWidthRatio,
-            icon: Icon(Icons.check,
-                color: UIConfig.resumePauseButtonColor(context)),
+            icon: Icon(
+              Icons.check,
+              color: UIConfig.resumePauseButtonColor(context),
+            ),
           ),
         ],
       ),
@@ -543,8 +619,9 @@ class SettingReadPage extends StatelessWidget {
   }
 
   void _savePortraitImageRegionWidthRatio() {
-    int? value =
-        int.tryParse(portraitImageRegionWidthRatioController.value.text);
+    int? value = int.tryParse(
+      portraitImageRegionWidthRatioController.value.text,
+    );
     if (value == null) {
       return;
     }
@@ -564,7 +641,9 @@ class SettingReadPage extends StatelessWidget {
               controller: landscapeImageRegionWidthRatioController,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
-                  isDense: true, labelStyle: TextStyle(fontSize: 12)),
+                isDense: true,
+                labelStyle: TextStyle(fontSize: 12),
+              ),
               textAlign: TextAlign.center,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
@@ -576,8 +655,10 @@ class SettingReadPage extends StatelessWidget {
           const Text('%'),
           IconButton(
             onPressed: _saveLandscapeImageRegionWidthRatio,
-            icon: Icon(Icons.check,
-                color: UIConfig.resumePauseButtonColor(context)),
+            icon: Icon(
+              Icons.check,
+              color: UIConfig.resumePauseButtonColor(context),
+            ),
           ),
         ],
       ),
@@ -585,8 +666,9 @@ class SettingReadPage extends StatelessWidget {
   }
 
   void _saveLandscapeImageRegionWidthRatio() {
-    int? value =
-        int.tryParse(landscapeImageRegionWidthRatioController.value.text);
+    int? value = int.tryParse(
+      landscapeImageRegionWidthRatioController.value.text,
+    );
     if (value == null) {
       return;
     }
@@ -606,7 +688,9 @@ class SettingReadPage extends StatelessWidget {
               controller: gestureRegionWidthRatioController,
               keyboardType: TextInputType.number,
               decoration: const InputDecoration(
-                  isDense: true, labelStyle: TextStyle(fontSize: 12)),
+                isDense: true,
+                labelStyle: TextStyle(fontSize: 12),
+              ),
               textAlign: TextAlign.center,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
@@ -620,8 +704,10 @@ class SettingReadPage extends StatelessWidget {
           const Text('%'),
           IconButton(
             onPressed: _saveGestureRegionWidthRatio,
-            icon: Icon(Icons.check,
-                color: UIConfig.resumePauseButtonColor(context)),
+            icon: Icon(
+              Icons.check,
+              color: UIConfig.resumePauseButtonColor(context),
+            ),
           ),
         ],
       ),
@@ -683,26 +769,29 @@ class SettingReadPage extends StatelessWidget {
             nearestNav.widget.key != Get.keys[rightV2]) {
           nearestNav.push(
             PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) =>
-                    const SettingKeyboardShortcutsPage(),
-                transitionsBuilder:
-                    preferenceSetting.enableSwipeBackGesture.isTrue &&
-                            styleSetting.isInMobileLayout
-                        ? (context, animation, secondaryAnimation, child) =>
-                            SlideTransition(
-                              position: Tween<Offset>(
-                                begin: const Offset(1, 0),
-                                end: Offset.zero,
-                              ).animate(CurvedAnimation(
+              pageBuilder:
+                  (context, animation, secondaryAnimation) =>
+                      const SettingKeyboardShortcutsPage(),
+              transitionsBuilder:
+                  preferenceSetting.enableSwipeBackGesture.isTrue &&
+                          styleSetting.isInMobileLayout
+                      ? (context, animation, secondaryAnimation, child) =>
+                          SlideTransition(
+                            position: Tween<Offset>(
+                              begin: const Offset(1, 0),
+                              end: Offset.zero,
+                            ).animate(
+                              CurvedAnimation(
                                 parent: animation,
                                 curve: Curves.easeInOut,
-                              )),
-                              child: child,
-                            )
-                        : (context, animation, secondaryAnimation, child) =>
-                            FadeTransition(opacity: animation, child: child),
-                transitionDuration:
-                    UIConfig.defaultPageRouteTransitionDuration),
+                              ),
+                            ),
+                            child: child,
+                          )
+                      : (context, animation, secondaryAnimation, child) =>
+                          FadeTransition(opacity: animation, child: child),
+              transitionDuration: UIConfig.defaultPageRouteTransitionDuration,
+            ),
           );
         } else {
           toRoute(Routes.settingKeyboardShortcuts);
@@ -786,13 +875,18 @@ class SettingReadPage extends StatelessWidget {
         value: readSetting.autoModeStyle.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (AutoModeStyle? newValue) =>
-            readSetting.saveAutoModeStyle(newValue!),
+        onChanged:
+            (AutoModeStyle? newValue) =>
+                readSetting.saveAutoModeStyle(newValue!),
         items: [
           DropdownMenuItem(
-              child: Text('scroll'.tr), value: AutoModeStyle.scroll),
+            child: Text('scroll'.tr),
+            value: AutoModeStyle.scroll,
+          ),
           DropdownMenuItem(
-              child: Text('turnPage'.tr), value: AutoModeStyle.turnPage),
+            child: Text('turnPage'.tr),
+            value: AutoModeStyle.turnPage,
+          ),
         ],
       ).marginOnly(right: 12),
     );
@@ -805,14 +899,18 @@ class SettingReadPage extends StatelessWidget {
       trailing: EHCodexStyleDropdown<TurnPageMode>(
         value: readSetting.turnPageMode.value,
         elevation: 4,
-        onChanged: (TurnPageMode? newValue) =>
-            readSetting.saveTurnPageMode(newValue!),
+        onChanged:
+            (TurnPageMode? newValue) => readSetting.saveTurnPageMode(newValue!),
         items: [
           DropdownMenuItem(child: Text('image'.tr), value: TurnPageMode.image),
           DropdownMenuItem(
-              child: Text('screen'.tr), value: TurnPageMode.screen),
+            child: Text('screen'.tr),
+            value: TurnPageMode.screen,
+          ),
           DropdownMenuItem(
-              child: Text('adaptive'.tr), value: TurnPageMode.adaptive),
+            child: Text('adaptive'.tr),
+            value: TurnPageMode.adaptive,
+          ),
         ],
       ).marginOnly(right: 12),
     );

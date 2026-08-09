@@ -712,6 +712,11 @@ class en_US {
       'failedImageRetryScope': "Retry Failed Images",
       'failedImageRetryScopeHint':
           "Scope when tapping a failed online image to reload it",
+      'imageTimeoutRetry': 'Timeout Retry',
+      'imageTimeoutRetryHint':
+          'Automatically retry when an online image has no response or stalled progress',
+      'imageTimeoutRetryCount': 'Retry Count',
+      'imageTimeoutRetryInterval': 'Timeout Threshold',
       'retrySingleImage': "Only the tapped image",
       'retryCurrentPageAndAfter': "Current image and after",
       'retryAllFailedImages': "All failed images",

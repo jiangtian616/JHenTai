@@ -9,7 +9,9 @@ import '../service/jh_service.dart';
 
 ReadSetting readSetting = ReadSetting();
 
-class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
+class ReadSetting
+    with JHLifeCircleBeanWithConfigStorage
+    implements JHLifeCircleBean {
   RxBool enableImmersiveMode = true.obs;
   RxBool keepScreenAwakeWhenReading = true.obs;
   RxBool enableCustomReadBrightness = false.obs;
@@ -24,9 +26,15 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   RxBool enableTapDragToScaleUp = false.obs;
   RxBool enableBottomMenu = false.obs;
   Rx<DeviceDirection> deviceDirection = DeviceDirection.followSystem.obs;
-  Rx<ReadDirection> readDirection = GetPlatform.isMobile ? ReadDirection.top2bottomList.obs : ReadDirection.left2rightList.obs;
+  Rx<ReadDirection> readDirection =
+      GetPlatform.isMobile
+          ? ReadDirection.top2bottomList.obs
+          : ReadDirection.left2rightList.obs;
   RxBool enableOrientationSpecificReadDirection = false.obs;
-  Rx<ReadDirection> portraitReadDirection = GetPlatform.isMobile ? ReadDirection.top2bottomList.obs : ReadDirection.left2rightList.obs;
+  Rx<ReadDirection> portraitReadDirection =
+      GetPlatform.isMobile
+          ? ReadDirection.top2bottomList.obs
+          : ReadDirection.left2rightList.obs;
   Rx<ReadDirection> landscapeReadDirection = ReadDirection.left2rightList.obs;
   RxBool notchOptimization = false.obs;
   RxInt imageRegionWidthRatio = 100.obs;
@@ -38,6 +46,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   RxDouble autoModeInterval = 2.0.obs;
   Rx<AutoModeStyle> autoModeStyle = AutoModeStyle.turnPage.obs;
   Rx<TurnPageMode> turnPageMode = TurnPageMode.adaptive.obs;
+
   /// Online preloads default to 2 screens/pages ahead: enough for fast
   /// flipping, but still conservative because E-Hentai rate-limits page
   /// requests. The request *rate* stays bounded by the read page's executor
@@ -47,14 +56,27 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   RxInt preloadDistanceLocal = GetPlatform.isIOS ? 3.obs : 8.obs;
   RxInt preloadPageCount = 2.obs;
   RxInt preloadPageCountLocal = 3.obs;
-  Rx<FailedImageRetryScope> failedImageRetryScope = FailedImageRetryScope.retryCurrentPageAndAfter.obs;
+  Rx<FailedImageRetryScope> failedImageRetryScope =
+      FailedImageRetryScope.retryCurrentPageAndAfter.obs;
+
+  /// Automatically retry an online image when its loading progress stalls.
+  RxBool enableImageTimeoutRetry = true.obs;
+  RxInt imageTimeoutRetryCount = 1.obs;
+  RxInt imageTimeoutRetryInterval = 1000.obs;
   RxBool displayFirstPageAlone = true.obs;
   RxBool portraitDisplayFirstPageAlone = true.obs;
   RxBool landscapeDisplayFirstPageAlone = true.obs;
   RxBool reverseTurnPageDirection = false.obs;
   RxBool disablePageTurningOnTap = false.obs;
   RxBool enableMaxImageKilobyte =
-      (GetPlatform.isDesktop || PlatformDispatcher.instance.views.first.physicalSize.width / PlatformDispatcher.instance.views.first.devicePixelRatio >= 600)
+      (GetPlatform.isDesktop ||
+              PlatformDispatcher.instance.views.first.physicalSize.width /
+                      PlatformDispatcher
+                          .instance
+                          .views
+                          .first
+                          .devicePixelRatio >=
+                  600)
           ? false.obs
           : true.obs;
   RxInt maxImageKilobyte = (1024 * 5).obs;
@@ -65,7 +87,8 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
       d == ReadDirection.right2leftList;
 
   static bool isDoubleColumnDirection(ReadDirection d) =>
-      d == ReadDirection.left2rightDoubleColumn || d == ReadDirection.right2leftDoubleColumn;
+      d == ReadDirection.left2rightDoubleColumn ||
+      d == ReadDirection.right2leftDoubleColumn;
 
   static bool isSinglePageDirection(ReadDirection d) =>
       d == ReadDirection.left2rightSinglePage ||
@@ -74,7 +97,8 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
       d == ReadDirection.right2leftSinglePageFitWidth;
 
   static bool isFitWidthDirection(ReadDirection d) =>
-      d == ReadDirection.left2rightSinglePageFitWidth || d == ReadDirection.right2leftSinglePageFitWidth;
+      d == ReadDirection.left2rightSinglePageFitWidth ||
+      d == ReadDirection.right2leftSinglePageFitWidth;
 
   static bool isRight2LeftDirection(ReadDirection d) =>
       d == ReadDirection.right2leftSinglePage ||
@@ -84,42 +108,48 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
 
   bool get isInListReadDirection {
     if (enableOrientationSpecificReadDirection.isTrue && GetPlatform.isMobile) {
-      return isListDirection(portraitReadDirection.value) || isListDirection(landscapeReadDirection.value);
+      return isListDirection(portraitReadDirection.value) ||
+          isListDirection(landscapeReadDirection.value);
     }
     return isListDirection(readDirection.value);
   }
 
   bool get isEveryInListReadDirection {
     if (enableOrientationSpecificReadDirection.isTrue && GetPlatform.isMobile) {
-      return isListDirection(portraitReadDirection.value) && isListDirection(landscapeReadDirection.value);
+      return isListDirection(portraitReadDirection.value) &&
+          isListDirection(landscapeReadDirection.value);
     }
     return isListDirection(readDirection.value);
   }
 
   bool get isInSinglePageReadDirection {
     if (enableOrientationSpecificReadDirection.isTrue && GetPlatform.isMobile) {
-      return isSinglePageDirection(portraitReadDirection.value) || isSinglePageDirection(landscapeReadDirection.value);
+      return isSinglePageDirection(portraitReadDirection.value) ||
+          isSinglePageDirection(landscapeReadDirection.value);
     }
     return isSinglePageDirection(readDirection.value);
   }
 
   bool get isInFitWidthReadDirection {
     if (enableOrientationSpecificReadDirection.isTrue && GetPlatform.isMobile) {
-      return isFitWidthDirection(portraitReadDirection.value) || isFitWidthDirection(landscapeReadDirection.value);
+      return isFitWidthDirection(portraitReadDirection.value) ||
+          isFitWidthDirection(landscapeReadDirection.value);
     }
     return isFitWidthDirection(readDirection.value);
   }
 
   bool get isInDoubleColumnReadDirection {
     if (enableOrientationSpecificReadDirection.isTrue && GetPlatform.isMobile) {
-      return isDoubleColumnDirection(portraitReadDirection.value) || isDoubleColumnDirection(landscapeReadDirection.value);
+      return isDoubleColumnDirection(portraitReadDirection.value) ||
+          isDoubleColumnDirection(landscapeReadDirection.value);
     }
     return isDoubleColumnDirection(readDirection.value);
   }
 
   bool get isInRight2LeftDirection {
     if (enableOrientationSpecificReadDirection.isTrue && GetPlatform.isMobile) {
-      return isRight2LeftDirection(portraitReadDirection.value) || isRight2LeftDirection(landscapeReadDirection.value);
+      return isRight2LeftDirection(portraitReadDirection.value) ||
+          isRight2LeftDirection(landscapeReadDirection.value);
     }
     return isRight2LeftDirection(readDirection.value);
   }
@@ -132,46 +162,97 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     Map map = jsonDecode(configString);
 
     enableImmersiveMode.value = map['enableImmersiveMode'];
-    keepScreenAwakeWhenReading.value = map['keepScreenAwakeWhenReading'] ?? keepScreenAwakeWhenReading.value;
-    enableCustomReadBrightness.value = map['enableCustomReadBrightness'] ?? enableCustomReadBrightness.value;
+    keepScreenAwakeWhenReading.value =
+        map['keepScreenAwakeWhenReading'] ?? keepScreenAwakeWhenReading.value;
+    enableCustomReadBrightness.value =
+        map['enableCustomReadBrightness'] ?? enableCustomReadBrightness.value;
     customBrightness.value = map['customBrightness'] ?? customBrightness.value;
     imageSpace.value = map['imageSpace'] ?? imageSpace.value;
     showThumbnails.value = map['showThumbnails'] ?? showThumbnails.value;
     showScrollBar.value = map['showScrollBar'] ?? showScrollBar.value;
     showStatusInfo.value = map['showStatusInfo'] ?? showStatusInfo.value;
-    enablePageTurnByVolumeKeys.value = map['enablePageTurnByVolumeKeys'] ?? enablePageTurnByVolumeKeys.value;
+    enablePageTurnByVolumeKeys.value =
+        map['enablePageTurnByVolumeKeys'] ?? enablePageTurnByVolumeKeys.value;
     enablePageTurnAnime.value = map['enablePageTurnAnime'];
-    enableDoubleTapToScaleUp.value = map['enableDoubleTapToScaleUp'] ?? enableDoubleTapToScaleUp.value;
-    enableTapDragToScaleUp.value = map['enableTapDragToScaleUp'] ?? enableTapDragToScaleUp.value;
+    enableDoubleTapToScaleUp.value =
+        map['enableDoubleTapToScaleUp'] ?? enableDoubleTapToScaleUp.value;
+    enableTapDragToScaleUp.value =
+        map['enableTapDragToScaleUp'] ?? enableTapDragToScaleUp.value;
     enableBottomMenu.value = map['enableBottomMenu'] ?? enableBottomMenu.value;
     autoModeInterval.value = map['autoModeInterval'] ?? autoModeInterval.value;
-    autoModeStyle.value = AutoModeStyle.values[map['autoModeStyle'] ?? AutoModeStyle.scroll.index];
-    deviceDirection.value = DeviceDirection.values[map['deviceDirection'] ?? DeviceDirection.followSystem.index];
+    autoModeStyle.value =
+        AutoModeStyle.values[map['autoModeStyle'] ??
+            AutoModeStyle.scroll.index];
+    deviceDirection.value =
+        DeviceDirection.values[map['deviceDirection'] ??
+            DeviceDirection.followSystem.index];
     readDirection.value = ReadDirection.values[map['readDirection']];
-    notchOptimization.value = map['notchOptimization'] ?? notchOptimization.value;
-    imageRegionWidthRatio.value = map['imageRegionWidthRatio'] ?? imageRegionWidthRatio.value;
-    portraitImageRegionWidthRatio.value = map['portraitImageRegionWidthRatio'] ?? map['imageRegionWidthRatio'] ?? portraitImageRegionWidthRatio.value;
-    landscapeImageRegionWidthRatio.value = map['landscapeImageRegionWidthRatio'] ?? map['imageRegionWidthRatio'] ?? landscapeImageRegionWidthRatio.value;
-    gestureRegionWidthRatio.value = map['gestureRegionWidthRatio'] ?? gestureRegionWidthRatio.value;
-    useThirdPartyViewer.value = map['useThirdPartyViewer'] ?? useThirdPartyViewer.value;
+    notchOptimization.value =
+        map['notchOptimization'] ?? notchOptimization.value;
+    imageRegionWidthRatio.value =
+        map['imageRegionWidthRatio'] ?? imageRegionWidthRatio.value;
+    portraitImageRegionWidthRatio.value =
+        map['portraitImageRegionWidthRatio'] ??
+        map['imageRegionWidthRatio'] ??
+        portraitImageRegionWidthRatio.value;
+    landscapeImageRegionWidthRatio.value =
+        map['landscapeImageRegionWidthRatio'] ??
+        map['imageRegionWidthRatio'] ??
+        landscapeImageRegionWidthRatio.value;
+    gestureRegionWidthRatio.value =
+        map['gestureRegionWidthRatio'] ?? gestureRegionWidthRatio.value;
+    useThirdPartyViewer.value =
+        map['useThirdPartyViewer'] ?? useThirdPartyViewer.value;
     thirdPartyViewerPath.value = map['thirdPartyViewerPath'];
     turnPageMode.value = TurnPageMode.values[map['turnPageMode']];
     preloadDistance.value = map['preloadDistance'];
-    preloadDistanceLocal.value = map['preloadDistanceLocal'] ?? preloadDistanceLocal.value;
+    preloadDistanceLocal.value =
+        map['preloadDistanceLocal'] ?? preloadDistanceLocal.value;
     preloadPageCount.value = map['preloadPageCount'];
-    preloadPageCountLocal.value = map['preloadPageCountLocal'] ?? preloadPageCountLocal.value;
-    failedImageRetryScope.value = FailedImageRetryScope.values[map['failedImageRetryScope'] ?? failedImageRetryScope.value.index];
-    displayFirstPageAlone.value = map['displayFirstPageAlone'] ?? displayFirstPageAlone.value;
-    portraitDisplayFirstPageAlone.value = map['portraitDisplayFirstPageAlone'] ?? map['displayFirstPageAlone'] ?? portraitDisplayFirstPageAlone.value;
-    landscapeDisplayFirstPageAlone.value = map['landscapeDisplayFirstPageAlone'] ?? map['displayFirstPageAlone'] ?? landscapeDisplayFirstPageAlone.value;
-    reverseTurnPageDirection.value = map['reverseTurnPageDirection'] ?? reverseTurnPageDirection.value;
-    disablePageTurningOnTap.value = map['disablePageTurningOnTap'] ?? disablePageTurningOnTap.value;
-    enableMaxImageKilobyte.value = map['enableMaxImageKilobyte'] ?? enableMaxImageKilobyte.value;
+    preloadPageCountLocal.value =
+        map['preloadPageCountLocal'] ?? preloadPageCountLocal.value;
+    failedImageRetryScope.value =
+        FailedImageRetryScope.values[map['failedImageRetryScope'] ??
+            failedImageRetryScope.value.index];
+    enableImageTimeoutRetry.value =
+        map['enableImageTimeoutRetry'] ?? enableImageTimeoutRetry.value;
+    final int timeoutRetryCount =
+        map['imageTimeoutRetryCount'] ?? imageTimeoutRetryCount.value;
+    imageTimeoutRetryCount.value = timeoutRetryCount.clamp(1, 5).toInt();
+    final int timeoutRetryInterval =
+        map['imageTimeoutRetryInterval'] ?? imageTimeoutRetryInterval.value;
+    imageTimeoutRetryInterval.value =
+        const <int>[500, 1000, 1500, 2000].contains(timeoutRetryInterval)
+            ? timeoutRetryInterval
+            : imageTimeoutRetryInterval.value;
+    displayFirstPageAlone.value =
+        map['displayFirstPageAlone'] ?? displayFirstPageAlone.value;
+    portraitDisplayFirstPageAlone.value =
+        map['portraitDisplayFirstPageAlone'] ??
+        map['displayFirstPageAlone'] ??
+        portraitDisplayFirstPageAlone.value;
+    landscapeDisplayFirstPageAlone.value =
+        map['landscapeDisplayFirstPageAlone'] ??
+        map['displayFirstPageAlone'] ??
+        landscapeDisplayFirstPageAlone.value;
+    reverseTurnPageDirection.value =
+        map['reverseTurnPageDirection'] ?? reverseTurnPageDirection.value;
+    disablePageTurningOnTap.value =
+        map['disablePageTurningOnTap'] ?? disablePageTurningOnTap.value;
+    enableMaxImageKilobyte.value =
+        map['enableMaxImageKilobyte'] ?? enableMaxImageKilobyte.value;
     maxImageKilobyte.value = map['maxImageKilobyte'] ?? maxImageKilobyte.value;
-    enableOrientationSpecificReadDirection.value = map['enableOrientationSpecificReadDirection'] ?? enableOrientationSpecificReadDirection.value;
+    enableOrientationSpecificReadDirection.value =
+        map['enableOrientationSpecificReadDirection'] ??
+        enableOrientationSpecificReadDirection.value;
+
     /// On first load, migrate existing readDirection to both portrait and landscape
-    portraitReadDirection.value = ReadDirection.values[map['portraitReadDirection'] ?? map['readDirection']];
-    landscapeReadDirection.value = ReadDirection.values[map['landscapeReadDirection'] ?? map['readDirection']];
+    portraitReadDirection.value =
+        ReadDirection.values[map['portraitReadDirection'] ??
+            map['readDirection']];
+    landscapeReadDirection.value =
+        ReadDirection.values[map['landscapeReadDirection'] ??
+            map['readDirection']];
   }
 
   @override
@@ -207,6 +288,9 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
       'preloadPageCount': preloadPageCount.value,
       'preloadPageCountLocal': preloadPageCountLocal.value,
       'failedImageRetryScope': failedImageRetryScope.value.index,
+      'enableImageTimeoutRetry': enableImageTimeoutRetry.value,
+      'imageTimeoutRetryCount': imageTimeoutRetryCount.value,
+      'imageTimeoutRetryInterval': imageTimeoutRetryInterval.value,
       'displayFirstPageAlone': displayFirstPageAlone.value,
       'portraitDisplayFirstPageAlone': portraitDisplayFirstPageAlone.value,
       'landscapeDisplayFirstPageAlone': landscapeDisplayFirstPageAlone.value,
@@ -214,7 +298,8 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
       'disablePageTurningOnTap': disablePageTurningOnTap.value,
       'enableMaxImageKilobyte': enableMaxImageKilobyte.value,
       'maxImageKilobyte': maxImageKilobyte.value,
-      'enableOrientationSpecificReadDirection': enableOrientationSpecificReadDirection.value,
+      'enableOrientationSpecificReadDirection':
+          enableOrientationSpecificReadDirection.value,
       'portraitReadDirection': portraitReadDirection.value.index,
       'landscapeReadDirection': landscapeReadDirection.value.index,
     });
@@ -400,6 +485,27 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     await saveBeanConfig();
   }
 
+  Future<void> saveEnableImageTimeoutRetry(bool value) async {
+    log.debug('saveEnableImageTimeoutRetry:$value');
+    enableImageTimeoutRetry.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveImageTimeoutRetryCount(int value) async {
+    log.debug('saveImageTimeoutRetryCount:$value');
+    imageTimeoutRetryCount.value = value.clamp(1, 5).toInt();
+    await saveBeanConfig();
+  }
+
+  Future<void> saveImageTimeoutRetryInterval(int value) async {
+    if (!const <int>[500, 1000, 1500, 2000].contains(value)) {
+      return;
+    }
+    log.debug('saveImageTimeoutRetryInterval:$value');
+    imageTimeoutRetryInterval.value = value;
+    await saveBeanConfig();
+  }
+
   Future<void> savePreloadPageCountLocal(int value) async {
     log.debug('savePreloadPageCountLocal:$value');
     preloadPageCountLocal.value = value;
@@ -490,10 +596,7 @@ enum TurnPageMode {
   adaptive,
 }
 
-enum AutoModeStyle {
-  scroll,
-  turnPage,
-}
+enum AutoModeStyle { scroll, turnPage }
 
 /// How wide a retry is when the user taps a failed online image to reload it.
 enum FailedImageRetryScope {

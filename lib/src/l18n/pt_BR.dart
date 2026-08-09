@@ -667,6 +667,11 @@ class pt_BR {
       'failedImageRetryScope': "Escopo de repetição de imagens com falha",
       'failedImageRetryScopeHint':
           "Escopo ao tocar em uma imagem online com falha para recarregá-la",
+      'imageTimeoutRetry': 'Repetir por tempo esgotado',
+      'imageTimeoutRetryHint':
+          'Tentar novamente quando uma imagem online não responder ou o progresso travar',
+      'imageTimeoutRetryCount': 'Número de tentativas',
+      'imageTimeoutRetryInterval': 'Limite de tempo',
       'retrySingleImage': "Apenas a imagem tocada",
       'retryCurrentPageAndAfter': "Imagem atual e seguintes",
       'retryAllFailedImages': "Todas as imagens com falha",

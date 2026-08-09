@@ -331,6 +331,7 @@ class Routes {
               const SettingLanSharingPage()
                   .withEscOrFifthButton2BackRightRoute(),
       transition: defaultTransition,
+      offAllBefore: false,
     ),
     EHPage(
       name: settingDownload,
