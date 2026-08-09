@@ -879,11 +879,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     }
   }
 
-  void _submitTask({
-    required int gid,
-    required int priority,
-    required AsyncTask<void> task,
-  }) {
+  void _submitTask({required int gid, required int priority, required AsyncTask<void> task}) {
     galleryDownloadInfos[gid]?.tasks.add(task);
 
     executor.scheduleTask(priority, task).then((_) => galleryDownloadInfos[gid]?.tasks.remove(task)).onError((e, stackTrace) {
@@ -892,6 +888,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         log.error('Executor exception!', e, stackTrace);
         log.uploadError(e);
       }
+      return null;
     });
   }
 
