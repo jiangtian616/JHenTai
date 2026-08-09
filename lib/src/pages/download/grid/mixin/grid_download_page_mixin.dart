@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
-import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
+import 'package:jhentai/src/widget/eh_translated_text.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 
@@ -275,7 +275,7 @@ class GridGallery extends StatelessWidget {
           ),
           GestureDetector(
             onTap: onTapTitle,
-            child: Center(child: Text(title.breakWord, maxLines: 1, overflow: TextOverflow.ellipsis)),
+            child: Center(child: EHTranslatedText(title, breakWord: true, maxLines: 1, overflow: TextOverflow.ellipsis)),
           ),
         ],
       ),

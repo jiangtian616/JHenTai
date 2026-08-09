@@ -993,6 +993,8 @@ favnote：配對收藏備註
           '沿用自訂模式的 OpenAI 相容 / Anthropic API，而非 Apple 端側翻譯。',
       'imageTranslationAppleLiveTextOnDeviceHint':
           '辨識與翻譯皆由 Apple 於端側完成。端側翻譯需 iOS 26 / macOS 26 以上系統。',
+      'autoTranslateGalleryText': '自動翻譯圖庫標題與評論',
+      'autoTranslateGalleryTextHint': '開啟後，你看到的圖庫標題和評論將自動翻譯（需要 Apple Live Text 與 Apple 裝置端翻譯）。',
       'imageTranslationTranslationUnavailable':
           'Apple 端側翻譯需 iOS 26 / macOS 26 以上系統。請開啟「使用第三方 API 翻譯」或於更高版本系統使用。',
       'imageTranslationTranslationFailed': 'Apple 端側翻譯失敗。',

@@ -1092,6 +1092,8 @@ class ru_RU {
           'Используется тот же OpenAI-совместимый / Anthropic API, что и в пользовательском режиме, вместо встроенного перевода Apple.',
       'imageTranslationAppleLiveTextOnDeviceHint':
           'Распознавание и перевод выполняются на устройстве Apple. Встроенный перевод требует iOS 26 / macOS 26 или новее.',
+      'autoTranslateGalleryText': 'Авто-перевод названий и комментариев',
+      'autoTranslateGalleryTextHint': 'При включении видимые названия и комментарии галерей переводятся на устройстве (требуются Apple Live Text и встроенный перевод Apple).',
       'imageTranslationTranslationUnavailable':
           'Встроенный перевод Apple требует iOS 26 / macOS 26 или новее. Включите «Использовать сторонний API для перевода» или обновите систему.',
       'imageTranslationTranslationFailed': 'Не удалось выполнить встроенный перевод Apple.',

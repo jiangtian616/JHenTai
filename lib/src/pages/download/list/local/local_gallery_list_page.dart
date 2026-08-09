@@ -3,6 +3,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
+import 'package:jhentai/src/widget/eh_translated_text.dart';
 import 'package:jhentai/src/widget/fade_slide_widget.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:path/path.dart' as p;
@@ -311,7 +312,7 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(gallery.title,
+        EHTranslatedText(gallery.title,
             maxLines: 3,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(

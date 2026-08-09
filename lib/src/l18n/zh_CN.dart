@@ -996,6 +996,8 @@ favnote：匹配收藏备注
           '复用自定义模式的 OpenAI 兼容 / Anthropic API，而不是使用 Apple 端侧翻译。',
       'imageTranslationAppleLiveTextOnDeviceHint':
           '识别与翻译均由 Apple 在端侧完成。端侧翻译需要 iOS 26 / macOS 26 及以上系统。',
+      'autoTranslateGalleryText': '自动翻译图库标题与评论',
+      'autoTranslateGalleryTextHint': '开启后，你看到的图库标题和评论将自动翻译（需要 Apple Live Text 与 Apple 端上翻译）。',
       'imageTranslationTranslationUnavailable':
           'Apple 端侧翻译需要 iOS 26 / macOS 26 及以上系统。请开启「使用第三方 API 翻译」或在更高版本系统上使用。',
       'imageTranslationTranslationFailed': 'Apple 端侧翻译失败。',

@@ -7,10 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/theme_config.dart';
-import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/performance_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:jhentai/src/widget/eh_translated_text.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
 import '../config/ui_config.dart';
@@ -282,8 +282,9 @@ class EHGalleryWaterFlowCard extends StatelessWidget {
   }
 
   Widget _buildTitle() {
-    return Text(
-      gallery.title.breakWord,
+    return EHTranslatedText(
+      gallery.title,
+      breakWord: true,
       maxLines: 3,
       overflow: TextOverflow.ellipsis,
       style: const TextStyle(

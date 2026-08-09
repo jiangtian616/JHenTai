@@ -10,7 +10,6 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/enum/eh_namespace.dart';
-import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_page_mixin.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
@@ -25,6 +24,7 @@ import 'package:jhentai/src/widget/eh_gallery_detail_dialog.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
 import 'package:jhentai/src/widget/eh_tag.dart';
 import 'package:jhentai/src/widget/eh_thumbnail.dart';
+import 'package:jhentai/src/widget/eh_translated_text.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:jhentai/src/widget/icon_text_button.dart';
 import 'package:jhentai/src/widget/keep_alive.dart';
@@ -82,7 +82,8 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         id: DetailsPageLogic.galleryId,
         global: false,
         init: logic,
-        builder: (_) => Text(logic.mainTitleText.breakWord,
+        builder: (_) => EHTranslatedText(logic.mainTitleText,
+            breakWord: true,
             style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
       ),
       actions: [
@@ -339,8 +340,9 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
       global: false,
       init: logic,
       builder: (_) {
-        return SelectableText(
+        return EHTranslatedText(
           logic.mainTitleText,
+          selectable: true,
           minLines: 1,
           maxLines: 5,
           style: const TextStyle(
@@ -426,8 +428,9 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
             return AnimatedSwitcher(
               duration: const Duration(
                   milliseconds: UIConfig.detailsPageAnimationDuration),
-              child: SelectableText(
+              child: EHTranslatedText(
                 subTitle,
+                selectable: true,
                 minLines: 1,
                 maxLines: 2,
                 style: UIConfig.detailsPageSubTitleTextStyle(context),

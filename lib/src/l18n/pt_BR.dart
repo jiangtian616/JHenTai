@@ -1088,6 +1088,8 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
           'Reutiliza a mesma API compatível com OpenAI / Anthropic do modo personalizado em vez da tradução no dispositivo da Apple.',
       'imageTranslationAppleLiveTextOnDeviceHint':
           'O reconhecimento e a tradução são feitos no dispositivo pela Apple. A tradução no dispositivo exige iOS 26 / macOS 26 ou superior.',
+      'autoTranslateGalleryText': 'Traduzir títulos e comentários automaticamente',
+      'autoTranslateGalleryTextHint': 'Quando ativado, títulos e comentários de galerias visíveis são traduzidos no dispositivo (requer Apple Live Text e tradução on-device da Apple).',
       'imageTranslationTranslationUnavailable':
           'A tradução no dispositivo da Apple exige iOS 26 / macOS 26 ou superior. Ative "Usar API de terceiros para tradução" ou use um sistema mais recente.',
       'imageTranslationTranslationFailed': 'Falha na tradução no dispositivo da Apple.',

@@ -47,6 +47,10 @@ class ImageTranslationSetting
   final RxString targetLanguage = '简体中文'.obs;
   final RxBool enableThinking = false.obs;
   final RxBool translateSubsequentPages = false.obs;
+  /// Whether to auto-translate gallery titles and comments as they appear on
+  /// screen. Only functional in Apple Live Text mode with on-device
+  /// translation (see [usesAppleOnDeviceTranslation]).
+  final RxBool autoTranslateGalleryText = false.obs;
 
   bool get isTranslatorConfigured =>
       translatorEndpoint.value?.trim().isNotEmpty == true &&
@@ -92,6 +96,8 @@ class ImageTranslationSetting
     enableThinking.value = config['enableThinking'] ?? enableThinking.value;
     translateSubsequentPages.value =
         config['translateSubsequentPages'] ?? translateSubsequentPages.value;
+    autoTranslateGalleryText.value =
+        config['autoTranslateGalleryText'] ?? autoTranslateGalleryText.value;
   }
 
   @override
@@ -114,6 +120,7 @@ class ImageTranslationSetting
         'targetLanguage': targetLanguage.value,
         'enableThinking': enableThinking.value,
         'translateSubsequentPages': translateSubsequentPages.value,
+        'autoTranslateGalleryText': autoTranslateGalleryText.value,
       });
 
   @override
@@ -227,6 +234,11 @@ class ImageTranslationSetting
 
   Future<void> saveTranslateSubsequentPages(bool value) async {
     translateSubsequentPages.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveAutoTranslateGalleryText(bool value) async {
+    autoTranslateGalleryText.value = value;
     await saveBeanConfig();
   }
 

@@ -27,7 +27,9 @@ import '../../../exception/eh_site_exception.dart';
 import '../../../model/gallery_comment.dart';
 import '../../../network/eh_request.dart';
 import '../../../utils/check_util.dart';
+import '../../../setting/image_translation_setting.dart';
 import '../../../setting/user_setting.dart';
+import '../../../service/image_translation_service.dart';
 import '../../../service/log.dart';
 import '../../../utils/route_util.dart';
 
@@ -155,7 +157,7 @@ class _EHCommentHeader extends StatelessWidget {
   }
 }
 
-class _EHCommentTextBody extends StatelessWidget {
+class _EHCommentTextBody extends StatefulWidget {
   final bool inDetailPage;
   final Function()? onBlockUser;
   final dom.Element element;
@@ -168,26 +170,117 @@ class _EHCommentTextBody extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<_EHCommentTextBody> createState() => _EHCommentTextBodyState();
+}
+
+class _EHCommentTextBodyState extends State<_EHCommentTextBody> {
+  /// On-device translations keyed by the source text run, so the rich comment
+  /// formatting (bold/italic/links/images) stays intact while each text run is
+  /// replaced by its translation when the auto-translate setting is active.
+  final Map<String, String> _translations = {};
+  late final Worker _settingWorker;
+
+  @override
+  void initState() {
+    super.initState();
+    // Re-evaluate already-visible comments when the feature is toggled.
+    _settingWorker = ever(imageTranslationSetting.autoTranslateGalleryText,
+        (_) {
+      if (!mounted) return;
+      setState(_translations.clear);
+      _translateRuns();
+    });
+    _translateRuns();
+  }
+
+  @override
+  void didUpdateWidget(_EHCommentTextBody oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.element != widget.element) {
+      _translations.clear();
+      _translateRuns();
+    }
+  }
+
+  @override
+  void dispose() {
+    _settingWorker.dispose();
+    super.dispose();
+  }
+
+  void _translateRuns() {
+    final Set<String> runs = <String>{};
+    for (final dom.Node node in widget.element.nodes) {
+      _collectTextRuns(node, runs);
+    }
+    for (final String run in runs) {
+      _translateRun(run);
+    }
+  }
+
+  /// Mirrors [buildTag] traversal so only text that is actually rendered gets
+  /// translated: handled inline elements (span/strong/em/del/a) are walked,
+  /// and unhandled element / non-element nodes are collected as one leaf run
+  /// because buildTag renders them via a single `node.text` span.
+  void _collectTextRuns(dom.Node node, Set<String> runs) {
+    if (node is dom.Text) {
+      _addTextRun(node.text, runs);
+      return;
+    }
+    if (node is! dom.Element) {
+      _addTextRun(node.text, runs);
+      return;
+    }
+    if (node.localName == 'div' && node.attributes['id'] == 'spa') return;
+    if (node.localName == 'br' || node.localName == 'img') return;
+    if (node.localName == 'span' ||
+        node.localName == 'strong' ||
+        node.localName == 'em' ||
+        node.localName == 'del' ||
+        node.localName == 'a') {
+      for (final dom.Node child in node.nodes) {
+        _collectTextRuns(child, runs);
+      }
+      return;
+    }
+    _addTextRun(node.text, runs);
+  }
+
+  void _addTextRun(String? text, Set<String> runs) {
+    if (text != null && text.trim().isNotEmpty) {
+      runs.add(text);
+    }
+  }
+
+  Future<void> _translateRun(String run) async {
+    final String result =
+        await imageTranslationService.translateGalleryText(run);
+    if (mounted && result != run) {
+      setState(() => _translations[run] = result);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    Widget widget = Container(
+    Widget content = Container(
       alignment: Alignment.topLeft,
       child: Text.rich(
         TextSpan(
           style: TextStyle(
-            fontSize: inDetailPage ? UIConfig.commentBodyTextSizeInDetailPage : UIConfig.commentBodyTextSizeInCommentPage,
+            fontSize: widget.inDetailPage ? UIConfig.commentBodyTextSizeInDetailPage : UIConfig.commentBodyTextSizeInCommentPage,
             color: UIConfig.commentBodyTextColor(context),
             height: 1.5,
           ),
-          children: element.nodes.map((tag) => buildTag(context, tag)).toList(),
+          children: widget.element.nodes.map((tag) => buildTag(context, tag)).toList(),
         ),
-        maxLines: inDetailPage ? 5 : null,
-        overflow: inDetailPage ? TextOverflow.ellipsis : null,
+        maxLines: widget.inDetailPage ? 5 : null,
+        overflow: widget.inDetailPage ? TextOverflow.ellipsis : null,
       ),
     );
 
-    if (!inDetailPage) {
-      widget = SelectionArea(
-        child: widget,
+    if (!widget.inDetailPage) {
+      content = SelectionArea(
+        child: content,
         contextMenuBuilder: (BuildContext context, SelectableRegionState selectableRegionState) {
           AdaptiveTextSelectionToolbar toolbar = AdaptiveTextSelectionToolbar.selectableRegion(
             selectableRegionState: selectableRegionState,
@@ -198,7 +291,7 @@ class _EHCommentTextBody extends StatelessWidget {
               label: 'blockUser'.tr,
               onPressed: () {
                 ContextMenuController.removeAny();
-                onBlockUser?.call();
+                widget.onBlockUser?.call();
               },
             ),
           );
@@ -208,21 +301,22 @@ class _EHCommentTextBody extends StatelessWidget {
       );
     }
 
-    return widget;
+    return content;
   }
 
   /// Maybe i can rewrite it by `Chain of Responsibility Pattern`
   InlineSpan buildTag(BuildContext context, dom.Node node) {
     /// plain text
     if (node is dom.Text) {
-      return _buildText(context, node.text);
+      return _buildText(context, _translations[node.text] ?? node.text);
     }
 
     /// unknown node
     if (node is! dom.Element) {
       log.error('Can not parse html node: $node');
       log.uploadError(Exception('Can not parse html node'), extraInfos: {'node': node});
-      return TextSpan(text: node.text);
+      return _buildText(
+          context, _translations[node.text ?? ''] ?? node.text ?? '');
     }
 
     /// advertisement
@@ -269,7 +363,7 @@ class _EHCommentTextBody extends StatelessWidget {
     /// image
     if (node.localName == 'img') {
       /// not show image in detail page
-      if (inDetailPage) {
+      if (widget.inDetailPage) {
         return TextSpan(text: '[${'image'.tr}]  ', style: const TextStyle(color: UIConfig.commentLinkColor));
       }
 
@@ -316,7 +410,7 @@ class _EHCommentTextBody extends StatelessWidget {
             .toList(),
       );
 
-      if (!inDetailPage) {
+      if (!widget.inDetailPage) {
         child = GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () => _handleTapUrl(node.attributes['href'] ?? node.text),
@@ -329,7 +423,7 @@ class _EHCommentTextBody extends StatelessWidget {
 
     log.error('Can not parse html tag: $node');
     log.uploadError(Exception('Can not parse html tag'), extraInfos: {'node': node});
-    return TextSpan(text: node.text);
+    return _buildText(context, _translations[node.text] ?? node.text);
   }
 
   InlineSpan _buildText(BuildContext context, String text) {
@@ -345,7 +439,7 @@ class _EHCommentTextBody extends StatelessWidget {
       return TextSpan(
         text: match.group(0),
         style: const TextStyle(color: UIConfig.commentLinkColor, fontSize: UIConfig.commentLinkFontSize),
-        recognizer: inDetailPage ? null : (TapGestureRecognizer()..onTap = () => _handleTapUrl(match.group(0)!)),
+        recognizer: widget.inDetailPage ? null : (TapGestureRecognizer()..onTap = () => _handleTapUrl(match.group(0)!)),
         children: [_buildText(context, text.substring(match.end))],
       );
     }

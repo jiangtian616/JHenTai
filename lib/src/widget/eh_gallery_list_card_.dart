@@ -13,6 +13,7 @@ import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/performance_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:jhentai/src/widget/eh_translated_text.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
 import '../consts/locale_consts.dart';
@@ -205,7 +206,7 @@ class EHGalleryListCard extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        EHTranslatedText(
           gallery.title,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,

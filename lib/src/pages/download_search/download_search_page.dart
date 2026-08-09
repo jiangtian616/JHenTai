@@ -5,6 +5,7 @@ import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/pages/download_search/download_search_state.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
+import 'package:jhentai/src/widget/eh_translated_text.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
@@ -210,7 +211,7 @@ class DownloadSearchPage extends StatelessWidget {
   }
 
   Widget _buildGalleryTitle(GallerySearchVO gallery) {
-    return Text(
+    return EHTranslatedText(
       gallery.title,
       maxLines: 2,
       overflow: TextOverflow.ellipsis,

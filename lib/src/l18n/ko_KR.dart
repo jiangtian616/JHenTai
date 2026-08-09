@@ -1028,6 +1028,8 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
           'Apple 온디바이스 번역 대신 사용자 정의 모드와 동일한 OpenAI 호환 / Anthropic API를 사용합니다.',
       'imageTranslationAppleLiveTextOnDeviceHint':
           '인식과 번역이 모두 Apple 온디바이스로 실행됩니다. 온디바이스 번역은 iOS 26 / macOS 26 이상이 필요합니다.',
+      'autoTranslateGalleryText': '갤러리 제목 및 댓글 자동 번역',
+      'autoTranslateGalleryTextHint': '켜면 보이는 갤러리 제목과 댓글이 자동으로 번역됩니다 (Apple Live Text 및 Apple 온디바이스 번역 필요).',
       'imageTranslationTranslationUnavailable':
           'Apple 온디바이스 번역은 iOS 26 / macOS 26 이상이 필요합니다. "타사 API로 번역"을 켜거나 최신 시스템에서 사용하세요.',
       'imageTranslationTranslationFailed': 'Apple 온디바이스 번역에 실패했습니다.',

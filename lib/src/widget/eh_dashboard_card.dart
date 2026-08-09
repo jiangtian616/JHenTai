@@ -4,6 +4,7 @@ import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/setting/performance_setting.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
+import 'package:jhentai/src/widget/eh_translated_text.dart';
 import '../config/ui_config.dart';
 
 import '../consts/locale_consts.dart';
@@ -94,7 +95,7 @@ class _EHDashboardCardState extends State<EHDashboardCard> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        EHTranslatedText(
           widget.gallery.title,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(color: UIConfig.dashboardCardTextColor, fontSize: 12),

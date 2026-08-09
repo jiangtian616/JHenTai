@@ -41,4 +41,16 @@ void main() {
     setting.applyBeanConfig('{"ocrEngine": "unknownEngine"}');
     expect(setting.ocrEngine.value, ImageOcrEngine.tesseract);
   });
+
+  test('auto-translate-gallery-text setting survives a config round-trip', () {
+    final ImageTranslationSetting setting = ImageTranslationSetting();
+    expect(setting.autoTranslateGalleryText.value, isFalse);
+
+    setting.autoTranslateGalleryText.value = true;
+    final String config = setting.toConfigString();
+
+    final ImageTranslationSetting restored = ImageTranslationSetting();
+    restored.applyBeanConfig(config);
+    expect(restored.autoTranslateGalleryText.value, isTrue);
+  });
 }

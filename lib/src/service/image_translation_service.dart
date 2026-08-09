@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -391,7 +392,8 @@ class ImageTranslationService extends GetxController
         File(join(_translationCacheDirectory.path, '$key.json'));
     if (!await cacheFile.exists()) return null;
     try {
-      final dynamic content = jsonDecode(await cacheFile.readAsString());
+      final dynamic content = jsonDecode(utf8.decode(await compute(
+          _decompressJson, await cacheFile.readAsBytes())));
       if (content is! Map) return null;
       final ImageTranslationResult result =
           ImageTranslationResult.successFromJson(
@@ -408,7 +410,25 @@ class ImageTranslationService extends GetxController
     await _translationCacheDirectory.create(recursive: true);
     final File cacheFile =
         File(join(_translationCacheDirectory.path, '$key.json'));
-    await cacheFile.writeAsString(jsonEncode(result.toJson()), flush: true);
+    // gzip-compress off the UI isolate so batch translation never blocks it.
+    await cacheFile.writeAsBytes(
+        await compute(_compressJson, jsonEncode(result.toJson())),
+        flush: true);
+  }
+
+  /// Compresses persistent-translation JSON with gzip on a background isolate
+  /// via [compute] (see [_writePersistentResult]).
+  static Uint8List _compressJson(String content) =>
+      Uint8List.fromList(gzip.encode(utf8.encode(content)));
+
+  /// Decompresses persistent-translation JSON; falls back to the raw bytes for
+  /// backward compatibility with cache files written before gzip compression.
+  static Uint8List _decompressJson(Uint8List data) {
+    try {
+      return Uint8List.fromList(gzip.decode(data));
+    } on FormatException {
+      return data;
+    }
   }
 
   Future<_RecognizeResult> _recognize(String imagePath) async {
@@ -871,6 +891,163 @@ for result in pipeline.predict(r'''$imagePath'''):
       log.trace(stack);
       throw const ImageTranslationException('TRANSLATION_FAILED');
     }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Gallery title / comment auto-translation (Apple on-device only)
+  // ---------------------------------------------------------------------------
+
+  static const int maxGalleryTextCacheEntries = 2000;
+  static const int _galleryTextConcurrency = 4;
+
+  /// LRU cache (insertion-ordered map) keyed by [String _galleryTextKey].
+  final Map<String, String> _galleryTextCache = {};
+  /// Keys whose translation failed this session, so a visible burst of titles
+  /// does not retry the same unavailable text on every rebuild.
+  final Set<String> _galleryTextFailed = {};
+  final Map<String, Completer<String>> _galleryTextCompleters = {};
+  final List<Future<void> Function()> _galleryTextQueue = [];
+  int _galleryTextActive = 0;
+  Timer? _galleryTextSaveTimer;
+
+  /// Single in-flight cache load, shared by concurrent callers so the first
+  /// visible burst waits for the persisted entries instead of re-translating.
+  Future<void>? _galleryTextCacheLoadFuture;
+
+  File get _galleryTextCacheFile =>
+      File(join(_translationCacheDirectory.path, 'gallery_text_cache.json'));
+
+  bool get _galleryTextEnabled =>
+      (Platform.isIOS || Platform.isMacOS) &&
+      imageTranslationSetting.autoTranslateGalleryText.value &&
+      imageTranslationSetting.usesAppleOnDeviceTranslation;
+
+  String _galleryTextKey(String text) => sha256
+      .convert(utf8.encode(jsonEncode({
+        'text': text,
+        'target': imageTranslationSetting.targetLanguage.value,
+        'source': imageTranslationSetting.appleLiveTextLanguage.value,
+      })))
+      .toString();
+
+  /// The current translation of [text] if cached, or null when the feature is
+  /// off or the text has not been translated yet. Synchronous so widgets can
+  /// read the cache directly in build.
+  String? galleryTextTranslationFor(String text) {
+    if (!_galleryTextEnabled) return null;
+    return _galleryTextCache[_galleryTextKey(text)];
+  }
+
+  /// Translates a gallery title or a comment text run on-device, returning
+  /// [text] unchanged when the feature is disabled, unavailable, or the native
+  /// translation fails — callers can always render the returned string. A
+  /// modest worker queue keeps bursts of visible titles from spawning parallel
+  /// TranslationSessions, and in-flight requests share one Future per key.
+  Future<String> translateGalleryText(String text) async {
+    if (!_galleryTextEnabled) return text;
+    if (text.trim().isEmpty) return text;
+    final String key = _galleryTextKey(text);
+    // Fast paths so cached, failed, or in-flight texts never occupy a queue
+    // slot or hit the native translation again.
+    final String? cached = _galleryTextCache[key];
+    if (cached != null) return cached;
+    if (_galleryTextFailed.contains(key)) return text;
+    final Completer<String>? existing = _galleryTextCompleters[key];
+    if (existing != null) {
+      return existing.future;
+    }
+    final Completer<String> completer = Completer<String>();
+    _galleryTextCompleters[key] = completer;
+    _enqueueGalleryTextTranslation(
+        () => _runGalleryTextTranslation(key, text, completer));
+    return completer.future;
+  }
+
+  void _enqueueGalleryTextTranslation(Future<void> Function() task) {
+    _galleryTextQueue.add(task);
+    _pumpGalleryTextQueue();
+  }
+
+  void _pumpGalleryTextQueue() {
+    while (_galleryTextActive < _galleryTextConcurrency &&
+        _galleryTextQueue.isNotEmpty) {
+      final Future<void> Function() task = _galleryTextQueue.removeAt(0);
+      _galleryTextActive++;
+      task().whenComplete(() {
+        _galleryTextActive--;
+        _pumpGalleryTextQueue();
+      });
+    }
+  }
+
+  Future<void> _runGalleryTextTranslation(
+      String key, String text, Completer<String> completer) async {
+    String result = text;
+    try {
+      await _ensureGalleryTextCacheLoaded();
+      final String? cached = _galleryTextCache[key];
+      if (cached != null) {
+        result = cached;
+      } else if (!_galleryTextFailed.contains(key)) {
+        final String translated = await _translateWithApple(text);
+        if (translated.trim().isNotEmpty) {
+          result = translated;
+          _galleryTextCache[key] = translated;
+          _evictGalleryTextCache();
+          _scheduleGalleryTextCacheSave();
+        }
+      }
+    } on ImageTranslationException {
+      _galleryTextFailed.add(key);
+    } on Exception {
+      _galleryTextFailed.add(key);
+    } finally {
+      _galleryTextCompleters.remove(key);
+      if (!completer.isCompleted) completer.complete(result);
+    }
+  }
+
+  void _evictGalleryTextCache() {
+    while (_galleryTextCache.length > maxGalleryTextCacheEntries) {
+      _galleryTextCache.remove(_galleryTextCache.keys.first);
+    }
+  }
+
+  Future<void> _ensureGalleryTextCacheLoaded() =>
+      _galleryTextCacheLoadFuture ??= _loadGalleryTextCache();
+
+  Future<void> _loadGalleryTextCache() async {
+    try {
+      if (!await _galleryTextCacheFile.exists()) return;
+      final Uint8List bytes = await _galleryTextCacheFile.readAsBytes();
+      // Decompress off the UI isolate; jsonDecode of the (capped) map is light.
+      final Uint8List decompressed = await compute(_decompressJson, bytes);
+      final dynamic content = jsonDecode(utf8.decode(decompressed));
+      if (content is! Map) return;
+      content.forEach((key, value) {
+        if (key is String && value is String) {
+          _galleryTextCache[key] = value;
+        }
+      });
+      _evictGalleryTextCache();
+    } catch (_) {
+      // Corrupt cache: ignore and rebuild from scratch.
+    }
+  }
+
+  void _scheduleGalleryTextCacheSave() {
+    _galleryTextSaveTimer?.cancel();
+    _galleryTextSaveTimer = Timer(const Duration(seconds: 1), () async {
+      try {
+        await _galleryTextCacheFile.parent.create(recursive: true);
+        // Serialize + gzip off the UI isolate so scroll-heavy bursts don't jank.
+        final Uint8List compressed =
+            await compute(_compressJson, jsonEncode(_galleryTextCache));
+        await _galleryTextCacheFile.writeAsBytes(compressed, flush: true);
+      } catch (e) {
+        log.warning('Failed to save gallery text translation cache: $e');
+      }
+    });
   }
 
   /// Maps the [ImageTranslationSetting.targetLanguage] display string to a

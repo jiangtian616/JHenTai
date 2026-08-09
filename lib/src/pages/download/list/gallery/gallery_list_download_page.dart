@@ -9,6 +9,7 @@ import 'package:jhentai/src/pages/download/mixin/gallery/gallery_download_page_m
 import 'package:jhentai/src/service/super_resolution_service.dart' as srs;
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:jhentai/src/widget/eh_translated_text.dart';
 import 'package:jhentai/src/widget/grouped_list.dart';
 import '../../../../database/database.dart';
 import '../../../../mixin/scroll_to_top_page_mixin.dart';
@@ -412,7 +413,7 @@ class GalleryListDownloadPage extends StatelessWidget
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        EHTranslatedText(
           gallery.title,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,

@@ -161,8 +161,10 @@ class _SettingImageTranslationPageState
                   _buildFetchModels(),
                   _buildModel(),
                   _buildEnableThinking(),
-                ] else
+                ] else ...[
                   _buildOnDeviceTranslationHint(),
+                  _buildAutoTranslateGalleryText(),
+                ],
               ],
             ),
           ] else ...[
@@ -447,6 +449,18 @@ class _SettingImageTranslationPageState
       leading: const Icon(Icons.phonelink_erase, size: 20),
       title: Text('imageTranslationAppleLiveTextOnDeviceHint'.tr,
           style: const TextStyle(fontSize: 12)),
+    );
+  }
+
+  Widget _buildAutoTranslateGalleryText() {
+    return Obx(
+      () => EHAppleSwitchListTile(
+        title: Text('autoTranslateGalleryText'.tr),
+        subtitle: Text('autoTranslateGalleryTextHint'.tr,
+            style: const TextStyle(fontSize: 12)),
+        value: imageTranslationSetting.autoTranslateGalleryText.value,
+        onChanged: imageTranslationSetting.saveAutoTranslateGalleryText,
+      ),
     );
   }
 
