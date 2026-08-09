@@ -18,7 +18,16 @@ LanDeviceTrustService lanDeviceTrustService = LanDeviceTrustService();
 abstract interface class LanPeerSession {
   Future<void> get closed;
 
+  Future<LanSharedImage?> requestImageCache(String imagePageHref);
+
   Future<void> close();
+}
+
+class LanSharedImage {
+  final Map<String, dynamic> image;
+  final List<int> bytes;
+
+  const LanSharedImage({required this.image, required this.bytes});
 }
 
 abstract interface class LanPeerConnector {
@@ -179,6 +188,23 @@ class LanDeviceTrustService extends GetxController
     for (final TrustedLanDevice device in trustedDevices) {
       if (device.deviceId == deviceId) {
         return device;
+      }
+    }
+    return null;
+  }
+
+  Future<LanSharedImage?> requestImageCache(String imagePageHref) async {
+    for (final MapEntry<String, LanPeerSession> entry
+        in _sessions.entries.toList()) {
+      try {
+        final LanSharedImage? image = await entry.value
+            .requestImageCache(imagePageHref)
+            .timeout(const Duration(seconds: 3));
+        if (image != null) {
+          return image;
+        }
+      } on Object catch (error) {
+        log.warning('LAN image cache request failed: $error');
       }
     }
     return null;

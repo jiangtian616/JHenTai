@@ -6,11 +6,19 @@ import 'dart:typed_data';
 
 import 'package:bonsoir/bonsoir.dart';
 import 'package:cryptography/cryptography.dart';
+import 'package:extended_image/extended_image.dart'
+    show extendedImageDiskCacheDirectory;
 import 'package:jhentai/src/model/lan_device_trust.dart';
+import 'package:path/path.dart' as path;
 
+import '../model/gallery_image.dart';
+import '../network/eh_request.dart';
+import '../utils/eh_spider_parser.dart';
+import '../utils/image_cache_util.dart';
 import 'jh_service.dart';
 import 'lan_device_trust_service.dart';
 import 'log.dart';
+import 'path_service.dart';
 
 LanSharingRuntime lanSharingRuntime = LanSharingRuntime();
 
@@ -25,6 +33,12 @@ class LanSharingRuntime
   final bool useServiceDiscovery;
   final InternetAddress bindAddress;
   final Random _secureRandom;
+  final String? _imageCacheDirectoryOverride;
+  final bool _persistImagePageManifest;
+  final Future<LanSharedImage?> Function(String imagePageHref)?
+  _imageCacheResolverOverride;
+  final Map<String, GalleryImage> _imagePageManifest = {};
+  Future<void> _manifestWrite = Future<void>.value();
 
   HttpServer? _server;
   BonsoirBroadcast? _broadcast;
@@ -37,9 +51,14 @@ class LanSharingRuntime
     this.useServiceDiscovery = true,
     InternetAddress? bindAddress,
     Random? secureRandom,
+    Future<LanSharedImage?> Function(String imagePageHref)? imageCacheResolver,
+    String? imageCacheDirectory,
   }) : trustService = trustService ?? lanDeviceTrustService,
        bindAddress = bindAddress ?? InternetAddress.anyIPv4,
-       _secureRandom = secureRandom ?? Random.secure();
+       _secureRandom = secureRandom ?? Random.secure(),
+       _imageCacheDirectoryOverride = imageCacheDirectory,
+       _persistImagePageManifest = trustService == null,
+       _imageCacheResolverOverride = imageCacheResolver;
 
   bool get isRunning => _started;
 
@@ -52,9 +71,63 @@ class LanSharingRuntime
   Future<void> doInitBean() async {
     trustService.attachConnector(this);
     trustService.attachPairer(this);
+    if (_imageCacheResolverOverride == null && _persistImagePageManifest) {
+      await _loadImagePageManifest();
+    }
     if (trustService.isEnabled) {
       await start();
     }
+  }
+
+  Future<GalleryImage?> fetchCachedImage(String imagePageHref) async {
+    if (!_started || !trustService.isEnabled) {
+      return null;
+    }
+    final LanSharedImage? shared = await trustService.requestImageCache(
+      imagePageHref,
+    );
+    if (shared == null || shared.bytes.isEmpty) {
+      return null;
+    }
+    final GalleryImage image = GalleryImage.fromJson(shared.image);
+    final String cacheKey = normalizedImageCacheKey(
+      effectiveEHImageUrl(image.url),
+    );
+    final String? cacheDirectory =
+        _imageCacheDirectoryOverride ?? extendedImageDiskCacheDirectory;
+    if (cacheDirectory == null) {
+      return null;
+    }
+    final File target = File(path.join(cacheDirectory, cacheKey));
+    if (!await target.exists()) {
+      await target.parent.create(recursive: true);
+      final File temporary = File(
+        '${target.path}.lan-${DateTime.now().microsecondsSinceEpoch}',
+      );
+      try {
+        await temporary.writeAsBytes(shared.bytes, flush: true);
+        await temporary.rename(target.path);
+      } finally {
+        if (await temporary.exists()) {
+          await temporary.delete();
+        }
+      }
+    }
+    await recordImagePage(imagePageHref, image);
+    return image;
+  }
+
+  Future<void> recordImagePage(String imagePageHref, GalleryImage image) async {
+    if (_imageCacheResolverOverride != null || !_persistImagePageManifest) {
+      return;
+    }
+    _imagePageManifest[_canonicalImagePageKey(imagePageHref)] = image;
+    _manifestWrite = _manifestWrite
+        .then((_) => _saveImagePageManifest())
+        .catchError((Object error) {
+          log.warning('Save LAN image cache manifest failed: $error');
+        });
+    await _manifestWrite;
   }
 
   @override
@@ -377,7 +450,12 @@ class LanSharingRuntime
           'signature': _encodeBytes(ackSignature),
         }),
       );
-      return _WebSocketLanPeerSession(socket, iterator);
+      return _WebSocketLanPeerSession(
+        socket,
+        iterator,
+        supportsImageCache: (response['capabilities'] as List? ?? const [])
+            .contains('imageCacheV1'),
+      );
     } on Object {
       await iterator.cancel();
       await socket.close();
@@ -519,6 +597,7 @@ class LanSharingRuntime
           'type': 'auth_challenge',
           'challenge': serverChallenge,
           'signature': _encodeBytes(serverSignature),
+          'capabilities': const ['imageCacheV1'],
         }),
       );
       final Map<String, dynamic> ack = await _nextSocketJson(iterator);
@@ -532,13 +611,115 @@ class LanSharingRuntime
         return;
       }
       while (await iterator.moveNext()) {
-        // The authenticated socket is kept alive for future sharing messages.
+        final dynamic message = iterator.current;
+        if (message is! String || message.length > _maxRequestBytes) {
+          continue;
+        }
+        final dynamic decoded = jsonDecode(message);
+        if (decoded is! Map || decoded['type'] != 'cache_image') {
+          continue;
+        }
+        final String requestId = decoded['id'] as String? ?? '';
+        final TrustedLanDevice? device = trustService.deviceById(deviceId);
+        if (requestId.isEmpty ||
+            device == null ||
+            !device.permissions.contains(LanSharePermission.imageCache)) {
+          socket.add(jsonEncode({'type': 'cache_image_miss', 'id': requestId}));
+          continue;
+        }
+        final String href = decoded['href'] as String? ?? '';
+        final LanSharedImage? shared =
+            await (_imageCacheResolverOverride?.call(href) ??
+                _resolveLocalImageCache(href));
+        if (shared == null || shared.bytes.isEmpty) {
+          socket.add(jsonEncode({'type': 'cache_image_miss', 'id': requestId}));
+          continue;
+        }
+        socket.add(
+          jsonEncode({
+            'type': 'cache_image_hit',
+            'id': requestId,
+            'image': shared.image,
+            'byteLength': shared.bytes.length,
+          }),
+        );
+        socket.add(shared.bytes);
       }
     } on Object catch (error) {
       await socket.close(WebSocketStatus.protocolError, error.toString());
     } finally {
       await iterator.cancel();
     }
+  }
+
+  Future<LanSharedImage?> _resolveLocalImageCache(String href) async {
+    GalleryImage? image = _imagePageManifest[_canonicalImagePageKey(href)];
+    if (image == null) {
+      if (!await ehRequest.hasCachedImagePage(href)) {
+        return null;
+      }
+      image = await ehRequest.requestImagePage<GalleryImage>(
+        href,
+        parser: EHSpiderParser.imagePage2GalleryImage,
+      );
+      await recordImagePage(href, image);
+    }
+    final String cacheKey = normalizedImageCacheKey(
+      effectiveEHImageUrl(image.url),
+    );
+    final String? cacheDirectory =
+        _imageCacheDirectoryOverride ?? extendedImageDiskCacheDirectory;
+    if (cacheDirectory == null) {
+      return null;
+    }
+    final File file = File(path.join(cacheDirectory, cacheKey));
+    if (!await file.exists()) {
+      return null;
+    }
+    return LanSharedImage(
+      image: image.toJson(),
+      bytes: await file.readAsBytes(),
+    );
+  }
+
+  String _canonicalImagePageKey(String href) {
+    final Uri uri = Uri.parse(href);
+    return uri.path;
+  }
+
+  File get _imagePageManifestFile =>
+      File(path.join(pathService.jhLanDir.path, 'image-cache-manifest.json'));
+
+  Future<void> _loadImagePageManifest() async {
+    final File file = _imagePageManifestFile;
+    if (!await file.exists()) {
+      return;
+    }
+    try {
+      final dynamic decoded = jsonDecode(await file.readAsString());
+      if (decoded is Map) {
+        for (final MapEntry<dynamic, dynamic> entry in decoded.entries) {
+          if (entry.key is String && entry.value is Map) {
+            _imagePageManifest[entry.key as String] = GalleryImage.fromJson(
+              Map<String, dynamic>.from(entry.value as Map),
+            );
+          }
+        }
+      }
+    } on Object catch (error) {
+      log.warning('Load LAN image cache manifest failed: $error');
+    }
+  }
+
+  Future<void> _saveImagePageManifest() async {
+    final File file = _imagePageManifestFile;
+    await file.parent.create(recursive: true);
+    await file.writeAsString(
+      jsonEncode(
+        _imagePageManifest.map((key, value) => MapEntry(key, value.toJson())),
+      ),
+      flush: true,
+    );
   }
 
   Future<Map<String, dynamic>> _postJson(
@@ -711,9 +892,18 @@ class LanSharingRuntime
 class _WebSocketLanPeerSession implements LanPeerSession {
   final WebSocket _socket;
   final StreamIterator<dynamic> _iterator;
+  final bool _supportsImageCache;
   final Completer<void> _closed = Completer<void>();
+  final Map<String, Completer<LanSharedImage?>> _pending = {};
+  int _nextRequestId = 0;
+  String? _pendingBinaryRequestId;
+  Map<String, dynamic>? _pendingBinaryImage;
 
-  _WebSocketLanPeerSession(this._socket, this._iterator) {
+  _WebSocketLanPeerSession(
+    this._socket,
+    this._iterator, {
+    required bool supportsImageCache,
+  }) : _supportsImageCache = supportsImageCache {
     unawaited(_drain());
   }
 
@@ -723,14 +913,63 @@ class _WebSocketLanPeerSession implements LanPeerSession {
   Future<void> _drain() async {
     try {
       while (await _iterator.moveNext()) {
-        // Sharing messages will be dispatched here by the transfer layer.
+        final dynamic message = _iterator.current;
+        if (message is List<int>) {
+          final String? id = _pendingBinaryRequestId;
+          final Map<String, dynamic>? image = _pendingBinaryImage;
+          _pendingBinaryRequestId = null;
+          _pendingBinaryImage = null;
+          if (id != null && image != null) {
+            _pending
+                .remove(id)
+                ?.complete(LanSharedImage(image: image, bytes: message));
+          }
+          continue;
+        }
+        if (message is! String) {
+          continue;
+        }
+        final dynamic decoded = jsonDecode(message);
+        if (decoded is! Map) {
+          continue;
+        }
+        final String id = decoded['id'] as String? ?? '';
+        if (decoded['type'] == 'cache_image_miss') {
+          _pending.remove(id)?.complete(null);
+        } else if (decoded['type'] == 'cache_image_hit' &&
+            decoded['image'] is Map) {
+          _pendingBinaryRequestId = id;
+          _pendingBinaryImage = Map<String, dynamic>.from(
+            decoded['image'] as Map,
+          );
+        }
       }
     } finally {
       await _iterator.cancel();
+      for (final Completer<LanSharedImage?> pending in _pending.values) {
+        if (!pending.isCompleted) {
+          pending.complete(null);
+        }
+      }
+      _pending.clear();
       if (!_closed.isCompleted) {
         _closed.complete();
       }
     }
+  }
+
+  @override
+  Future<LanSharedImage?> requestImageCache(String imagePageHref) {
+    if (!_supportsImageCache) {
+      return Future<LanSharedImage?>.value();
+    }
+    final String id = '${++_nextRequestId}';
+    final Completer<LanSharedImage?> completer = Completer<LanSharedImage?>();
+    _pending[id] = completer;
+    _socket.add(
+      jsonEncode({'type': 'cache_image', 'id': id, 'href': imagePageHref}),
+    );
+    return completer.future;
   }
 
   @override

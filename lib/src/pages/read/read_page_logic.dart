@@ -41,6 +41,7 @@ import '../../model/read_page_info.dart';
 import '../../network/eh_request.dart';
 import '../../routes/routes.dart';
 import '../../service/log.dart';
+import '../../service/lan_sharing_runtime.dart';
 import '../../service/read_progress_service.dart';
 import '../../setting/image_translation_setting.dart';
 import '../../setting/preference_setting.dart';
@@ -804,6 +805,16 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
       bool probed = false;
       final String? href = state.thumbnails[index]?.replacedMPVHref(index + 1);
       if (href != null) {
+        final GalleryImage? lanImage = await lanSharingRuntime.fetchCachedImage(
+          href,
+        );
+        if (lanImage != null) {
+          state.images[index] = lanImage;
+          state.parseImageUrlStates[index] = LoadingState.success;
+          updateSafely(['$onlineImageId::$index']);
+          _syncImagePrefetchPlan();
+          return;
+        }
         try {
           cached = await ehRequest.hasCachedImagePage(
             href,
@@ -894,6 +905,10 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     }
 
     state.images[index] = image;
+    final String? href = state.thumbnails[index]?.replacedMPVHref(index + 1);
+    if (href != null) {
+      unawaited(lanSharingRuntime.recordImagePage(href, image));
+    }
     state.parseImageUrlStates[index] = LoadingState.success;
     updateSafely(['$onlineImageId::$index']);
     _syncImagePrefetchPlan();

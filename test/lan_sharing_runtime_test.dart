@@ -8,6 +8,8 @@ import 'package:jhentai/src/service/lan_device_trust_service.dart';
 import 'package:jhentai/src/service/lan_sharing_runtime.dart';
 import 'package:jhentai/src/service/lan_trust_repository.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
+import 'package:jhentai/src/utils/image_cache_util.dart';
+import 'package:path/path.dart' as path;
 
 void main() {
   setUp(() => advancedSetting.enableLanSharing.value = true);
@@ -17,6 +19,13 @@ void main() {
   test(
     'two LAN runtimes pair by approval and establish a trusted session',
     () async {
+      final Directory phoneCache = await Directory.systemTemp.createTemp(
+        'jh-lan-phone-cache-',
+      );
+      const String imagePageHref = 'https://e-hentai.org/s/hash/123-1';
+      const String imageUrl =
+          'https://example.test/image.jpg?fileindex=42&keystamp=old';
+      final List<int> imageBytes = List<int>.generate(256, (index) => index);
       final LanDeviceTrustService deviceA = LanDeviceTrustService(
         repository: _MemoryTrustRepository(),
         secureRandom: Random(101),
@@ -35,12 +44,33 @@ void main() {
         useServiceDiscovery: false,
         bindAddress: InternetAddress.loopbackIPv4,
         secureRandom: Random(303),
+        imageCacheDirectory: phoneCache.path,
       );
       final LanSharingRuntime runtimeB = LanSharingRuntime(
         trustService: deviceB,
         useServiceDiscovery: false,
         bindAddress: InternetAddress.loopbackIPv4,
         secureRandom: Random(404),
+        imageCacheResolver: (href) async {
+          if (href != imagePageHref) {
+            return null;
+          }
+          return LanSharedImage(
+            image: {
+              'url': imageUrl,
+              'height': 1200.0,
+              'width': 800.0,
+              'originalImageUrl': null,
+              'originalImageHeight': null,
+              'originalImageWidth': null,
+              'reloadKey': null,
+              'imageHash': null,
+              'path': null,
+              'downloadStatus': 0,
+            },
+            bytes: imageBytes,
+          );
+        },
       );
       await runtimeA.doInitBean();
       await runtimeB.doInitBean();
@@ -60,7 +90,10 @@ void main() {
       expect(deviceB.trustedDevices, isEmpty);
       await deviceB.acceptIncomingPairing(
         deviceId: deviceA.localDeviceId,
-        permissions: const {LanSharePermission.translationResults},
+        permissions: const {
+          LanSharePermission.imageCache,
+          LanSharePermission.translationResults,
+        },
       );
       await pairing;
 
@@ -73,10 +106,24 @@ void main() {
         LanPeerConnectionState.connected,
       );
 
+      final LanSharedImage? raw = await deviceA.requestImageCache(
+        imagePageHref,
+      );
+      expect(raw?.bytes, imageBytes);
+      final dynamic image = await runtimeA.fetchCachedImage(imagePageHref);
+      expect(image?.url, imageUrl);
+      expect(
+        await File(
+          path.join(phoneCache.path, normalizedImageCacheKey(imageUrl)),
+        ).readAsBytes(),
+        imageBytes,
+      );
+
       await runtimeA.stop();
       await runtimeB.stop();
       deviceA.onClose();
       deviceB.onClose();
+      await phoneCache.delete(recursive: true);
     },
   );
 }

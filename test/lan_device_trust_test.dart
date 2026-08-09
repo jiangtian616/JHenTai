@@ -495,6 +495,9 @@ class _FakeSession implements LanPeerSession {
   Future<void> get closed => _closed.future;
 
   @override
+  Future<LanSharedImage?> requestImageCache(String imagePageHref) async => null;
+
+  @override
   Future<void> close() async {
     closedByClient = true;
     if (!_closed.isCompleted) {
