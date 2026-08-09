@@ -110,6 +110,8 @@ void main() {
         imagePageHref,
       );
       expect(raw?.bytes, imageBytes);
+      expect(deviceA.receivedBytes, imageBytes.length);
+      expect(deviceB.sentBytes, imageBytes.length);
       final dynamic image = await runtimeA.fetchCachedImage(imagePageHref);
       expect(image?.url, imageUrl);
       expect(

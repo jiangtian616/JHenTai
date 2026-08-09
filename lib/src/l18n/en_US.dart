@@ -484,6 +484,11 @@ class en_US {
       'lanSharingStartFailed':
           'The LAN service could not start, so sharing remains disabled. Check system network permissions or logs.',
       'lanLocalDevice': 'This Device',
+      'lanTrafficStats': 'Transfer Traffic',
+      'lanTrafficTotal': 'Total',
+      'lanTrafficSent': 'Sent',
+      'lanTrafficReceived': 'Received',
+      'lanTrafficCurrentRunHint': 'LAN sharing data transferred during this run',
       'lanDeviceId': 'Device ID',
       'lanTrustReady': 'Trusted-device identity is ready',
       'lanTrustReadyHint':

@@ -89,6 +89,7 @@ class LanDeviceTrustService extends GetxController
   static const String discoveredDevicesChangedId = 'lanDiscoveredDevices';
   static const String incomingPairingsChangedId = 'lanIncomingPairings';
   static const String identityChangedId = 'lanLocalIdentity';
+  static const String trafficChangedId = 'lanTraffic';
   static const String connectionIdPrefix = 'lanConnection';
   static const Duration retryCooldown = Duration(seconds: 10);
 
@@ -115,6 +116,10 @@ class LanDeviceTrustService extends GetxController
   String localIdentityPublicKey = '';
   String localIdentityFingerprint = '';
   final List<TrustedLanDevice> trustedDevices = [];
+  int sentBytes = 0;
+  int receivedBytes = 0;
+
+  int get totalTransferredBytes => sentBytes + receivedBytes;
 
   LanDeviceTrustService({
     LanTrustRepository? repository,
@@ -224,6 +229,8 @@ class LanDeviceTrustService extends GetxController
     }
     if (value) {
       await _loadOrCreateLocalIdentity();
+      sentBytes = 0;
+      receivedBytes = 0;
       isEnabled = true;
     } else {
       isEnabled = false;
@@ -243,9 +250,26 @@ class LanDeviceTrustService extends GetxController
     }
     update([
       identityChangedId,
+      trafficChangedId,
       discoveredDevicesChangedId,
       incomingPairingsChangedId,
     ]);
+  }
+
+  void recordTrafficSent(int bytes) {
+    if (bytes <= 0) {
+      return;
+    }
+    sentBytes += bytes;
+    update([trafficChangedId]);
+  }
+
+  void recordTrafficReceived(int bytes) {
+    if (bytes <= 0) {
+      return;
+    }
+    receivedBytes += bytes;
+    update([trafficChangedId]);
   }
 
   Future<void> observeDiscovery(Stream<LanDiscoveredPeer> peers) async {

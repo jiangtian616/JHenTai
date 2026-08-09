@@ -453,6 +453,7 @@ class LanSharingRuntime
       return _WebSocketLanPeerSession(
         socket,
         iterator,
+        onBytesReceived: trustService.recordTrafficReceived,
         supportsImageCache: (response['capabilities'] as List? ?? const [])
             .contains('imageCacheV1'),
       );
@@ -644,6 +645,7 @@ class LanSharingRuntime
           }),
         );
         socket.add(shared.bytes);
+        trustService.recordTrafficSent(shared.bytes.length);
       }
     } on Object catch (error) {
       await socket.close(WebSocketStatus.protocolError, error.toString());
@@ -893,6 +895,7 @@ class _WebSocketLanPeerSession implements LanPeerSession {
   final WebSocket _socket;
   final StreamIterator<dynamic> _iterator;
   final bool _supportsImageCache;
+  final void Function(int bytes) _onBytesReceived;
   final Completer<void> _closed = Completer<void>();
   final Map<String, Completer<LanSharedImage?>> _pending = {};
   int _nextRequestId = 0;
@@ -902,8 +905,10 @@ class _WebSocketLanPeerSession implements LanPeerSession {
   _WebSocketLanPeerSession(
     this._socket,
     this._iterator, {
+    required void Function(int bytes) onBytesReceived,
     required bool supportsImageCache,
-  }) : _supportsImageCache = supportsImageCache {
+  }) : _supportsImageCache = supportsImageCache,
+       _onBytesReceived = onBytesReceived {
     unawaited(_drain());
   }
 
@@ -920,6 +925,7 @@ class _WebSocketLanPeerSession implements LanPeerSession {
           _pendingBinaryRequestId = null;
           _pendingBinaryImage = null;
           if (id != null && image != null) {
+            _onBytesReceived(message.length);
             _pending
                 .remove(id)
                 ?.complete(LanSharedImage(image: image, bytes: message));

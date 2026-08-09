@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/model/lan_device_trust.dart';
 import 'package:jhentai/src/service/lan_device_trust_service.dart';
+import 'package:jhentai/src/utils/byte_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
@@ -51,6 +52,28 @@ class SettingLanSharingPage extends StatelessWidget {
                           title: Text('lanTrustReady'.tr),
                           subtitle: Text('lanTrustReadyHint'.tr),
                           leading: const Icon(Icons.verified_user_outlined),
+                        ),
+                      ],
+                    ),
+                    EHAppleSettingsGroup(
+                      title: 'lanTrafficStats'.tr,
+                      children: [
+                        GetBuilder<LanDeviceTrustService>(
+                          id: LanDeviceTrustService.trafficChangedId,
+                          builder:
+                              (service) => ListTile(
+                                leading: const Icon(
+                                  Icons.swap_vert_circle_outlined,
+                                ),
+                                title: Text(
+                                  '${'lanTrafficTotal'.tr}: ${byte2String(service.totalTransferredBytes.toDouble())}',
+                                ),
+                                subtitle: Text(
+                                  '${'lanTrafficSent'.tr}: ${byte2String(service.sentBytes.toDouble())}  ·  '
+                                  '${'lanTrafficReceived'.tr}: ${byte2String(service.receivedBytes.toDouble())}\n'
+                                  '${'lanTrafficCurrentRunHint'.tr}',
+                                ),
+                              ),
                         ),
                       ],
                     ),
