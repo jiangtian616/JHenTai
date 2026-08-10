@@ -28,10 +28,11 @@ import '../utils/table.dart' as util;
 import 'archive_download_service.dart';
 import 'gallery_download/download_path_resolver.dart';
 import 'gallery_download/gallery_download_service.dart';
+import 'gallery_download/gallery_images_retainer.dart';
 
 SuperResolutionService superResolutionService = SuperResolutionService();
 
-class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
+class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCatch, GalleryImagesRetainer implements JHLifeCircleBean {
   static const String downloadId = 'downloadId';
   static const String superResolutionId = 'superResolutionId';
   static const String superResolutionImageId = 'superResolutionImageId';
@@ -194,7 +195,11 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
     if (superResolutionInfo == null) {
       List<GalleryImage> rawImages;
       if (type == SuperResolutionType.gallery) {
-        await galleryDownloadService.galleryDownloadInfos[gid]!.ensureImagesLoaded();
+        /// Retain for the duration of super-resolution — [_doSuperResolve]
+        /// releases when the operation ends (success / pause / cancel).
+        /// Singleton service: onClose never fires, so explicit release is
+        /// required to avoid leaking the retain.
+        await retainGalleryImages(gid);
         rawImages = galleryDownloadService.galleryDownloadInfos[gid]!.images!
             .whereType<GalleryImage>()
             .toList();
@@ -278,66 +283,76 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
   }
 
   Future<void> _doSuperResolve(int gid, SuperResolutionType type) async {
-    List<GalleryImage> rawImages;
-    if (type == SuperResolutionType.gallery) {
-      await galleryDownloadService.galleryDownloadInfos[gid]!.ensureImagesLoaded();
-      rawImages = galleryDownloadService.galleryDownloadInfos[gid]!.images!
-          .whereType<GalleryImage>()
-          .toList();
-    } else {
-      rawImages = await archiveDownloadService.getUnpackedImages(gid);
-    }
-
-    SuperResolutionInfo superResolutionInfo = get(gid, type)!;
-    if (superResolutionInfo.status != SuperResolutionStatus.running) {
-      superResolutionInfo.status = SuperResolutionStatus.running;
-      await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
-      updateSafely(['$superResolutionId::$gid']);
-    }
-
-    for (int i = 0; i < rawImages.length; i++) {
-      /// cancelled
-      if (get(gid, type) == null) {
-        return;
+    /// Retain was acquired in [superResolve] for gallery type; release on
+    /// every exit path (cancel / pause / error / success). try/finally is
+    /// the only way to cover all early returns without duplicating release.
+    try {
+      List<GalleryImage> rawImages;
+      if (type == SuperResolutionType.gallery) {
+        /// [superResolve] already retained + loaded; images is guaranteed
+        /// resident. Re-ensuring here would be a redundant await.
+        rawImages = galleryDownloadService.galleryDownloadInfos[gid]!.images!
+            .whereType<GalleryImage>()
+            .toList();
+      } else {
+        rawImages = await archiveDownloadService.getUnpackedImages(gid);
       }
 
-      if (superResolutionInfo.status == SuperResolutionStatus.paused) {
-        return;
-      }
-
-      if (superResolutionInfo.imageStatuses[i] == SuperResolutionStatus.success) {
-        continue;
-      }
-
-      if (superResolutionSetting.modelDirectoryPath.value == null) {
-        return;
-      }
-
-      superResolutionInfo.imageStatuses[i] = SuperResolutionStatus.running;
-      await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
-      updateSafely(['$superResolutionId::$gid']);
-
-      bool success = await _handleImage(rawImages[i], superResolutionInfo);
-      if (!success) {
-        pauseSuperResolve(gid, type);
-        return;
-      }
-
-      superResolutionInfo.imageStatuses[i] = SuperResolutionStatus.success;
-      log.download('super resolve image ${rawImages[i].path} success');
-
-      /// we can't kill the process immediately on Windows
-      if (get(gid, type) != null) {
+      SuperResolutionInfo superResolutionInfo = get(gid, type)!;
+      if (superResolutionInfo.status != SuperResolutionStatus.running) {
+        superResolutionInfo.status = SuperResolutionStatus.running;
         await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
+        updateSafely(['$superResolutionId::$gid']);
       }
-      updateSafely(['$superResolutionId::$gid', '$superResolutionImageId::$gid::$i']);
-    }
 
-    if (get(gid, type) != null && superResolutionInfo.imageStatuses.every((status) => status == SuperResolutionStatus.success)) {
-      superResolutionInfo.status = SuperResolutionStatus.success;
-      await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
-      updateSafely(['$superResolutionId::$gid']);
-      log.info('super resolve success, gid:$gid');
+      for (int i = 0; i < rawImages.length; i++) {
+        /// cancelled
+        if (get(gid, type) == null) {
+          return;
+        }
+
+        if (superResolutionInfo.status == SuperResolutionStatus.paused) {
+          return;
+        }
+
+        if (superResolutionInfo.imageStatuses[i] == SuperResolutionStatus.success) {
+          continue;
+        }
+
+        if (superResolutionSetting.modelDirectoryPath.value == null) {
+          return;
+        }
+
+        superResolutionInfo.imageStatuses[i] = SuperResolutionStatus.running;
+        await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
+        updateSafely(['$superResolutionId::$gid']);
+
+        bool success = await _handleImage(rawImages[i], superResolutionInfo);
+        if (!success) {
+          pauseSuperResolve(gid, type);
+          return;
+        }
+
+        superResolutionInfo.imageStatuses[i] = SuperResolutionStatus.success;
+        log.download('super resolve image ${rawImages[i].path} success');
+
+        /// we can't kill the process immediately on Windows
+        if (get(gid, type) != null) {
+          await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
+        }
+        updateSafely(['$superResolutionId::$gid', '$superResolutionImageId::$gid::$i']);
+      }
+
+      if (get(gid, type) != null && superResolutionInfo.imageStatuses.every((status) => status == SuperResolutionStatus.success)) {
+        superResolutionInfo.status = SuperResolutionStatus.success;
+        await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
+        updateSafely(['$superResolutionId::$gid']);
+        log.info('super resolve success, gid:$gid');
+      }
+    } finally {
+      if (type == SuperResolutionType.gallery) {
+        releaseGalleryImages(gid);
+      }
     }
   }
 

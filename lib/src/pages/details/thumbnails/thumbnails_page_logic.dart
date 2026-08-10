@@ -12,12 +12,14 @@ import '../../../mixin/scroll_to_top_state_mixin.dart';
 import '../../../model/detail_page_info.dart';
 import '../../../network/eh_request.dart';
 import '../../../utils/eh_spider_parser.dart';
+import '../../../service/gallery_download/gallery_download_service.dart';
+import '../../../service/gallery_download/gallery_images_retainer.dart';
 import '../../../service/log.dart';
 import '../../../utils/snack_util.dart';
 import '../../../widget/jump_page_dialog.dart';
 import '../../../widget/loading_state_indicator.dart';
 
-class ThumbnailsPageLogic extends GetxController with Scroll2TopLogicMixin {
+class ThumbnailsPageLogic extends GetxController with Scroll2TopLogicMixin, GalleryImagesRetainer {
   static const String thumbnailsId = 'thumbnailsId';
   static const String loadingStateId = 'loadingStateId';
 
@@ -32,6 +34,17 @@ class ThumbnailsPageLogic extends GetxController with Scroll2TopLogicMixin {
   @override
   void onReady() {
     super.onReady();
+
+    /// Retain the gallery's image list for the lifetime of this page. The
+    /// thumbnails page reads [GalleryDownloadInfo.imageAtSync] synchronously
+    /// when building items; retaining prevents eviction if the gallery
+    /// completes download while this page is open. Idempotent with
+    /// [DetailsPageLogic]'s retain — refcount stays ≥1 across both.
+    final int gid = detailsPageState.galleryUrl.gid;
+    if (galleryDownloadService.containGallery(gid)) {
+      retainGalleryImages(gid);
+    }
+
     loadMoreThumbnails();
   }
 

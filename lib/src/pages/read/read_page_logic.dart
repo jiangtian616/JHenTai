@@ -35,6 +35,7 @@ import '../../network/eh_request.dart';
 import '../../routes/routes.dart';
 import '../../service/log.dart';
 import '../../service/gallery_download/gallery_download_service.dart';
+import '../../service/gallery_download/gallery_images_retainer.dart';
 import '../../service/read_progress_service.dart';
 import '../../setting/preference_setting.dart';
 import '../../setting/read_setting.dart';
@@ -47,7 +48,7 @@ import '../home_page.dart';
 import '../setting/read/setting_read_page.dart';
 import '../setting/keyboard_shortcuts/setting_keyboard_shortcuts_page.dart';
 
-class ReadPageLogic extends GetxController with WidgetsBindingObserver {
+class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryImagesRetainer {
   final String pageId = 'pageId';
   final String layoutId = 'layoutId';
   final String onlineImageId = 'onlineImageId';
@@ -112,6 +113,16 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   @override
   void onReady() {
     super.onReady();
+
+    /// Retain the gallery's image list for the lifetime of the read page.
+    /// The caller (goToReadPage) already ensured [ensureImagesLoaded] so the
+    /// list is resident when [ReadPageState] was constructed; this retain
+    /// keeps it resident even if the download completes mid-read (eviction
+    /// is deferred to our onClose). Online / archive / local modes have no
+    /// service-side list to retain — skip.
+    if (state.readPageInfo.mode == ReadMode.downloaded && state.readPageInfo.gid != null) {
+      retainGalleryImages(state.readPageInfo.gid!);
+    }
 
     WidgetsBinding.instance.addObserver(this);
 
@@ -271,16 +282,9 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
       resetBrightness();
     }
 
-    /// Release the gallery's image list if it's fully downloaded. The read
-    /// page kept it resident for synchronous access; now that we're closing,
-    /// evict to bound memory. Incomplete galleries keep their list — the
-    /// download loop is still using it.
-    if (state.readPageInfo.mode == ReadMode.downloaded) {
-      final GalleryDownloadInfo? info = galleryDownloadService.galleryDownloadInfos[state.readPageInfo.gid];
-      if (info != null && info.downloadProgress.downloadStatus == DownloadStatus.downloaded) {
-        info.evictImages();
-      }
-    }
+    /// Gallery image retain released by [GalleryImagesRetainer.onClose]
+    /// (super.onClose below). If the gallery is fully downloaded and no
+    /// other consumer holds a retain, the list is evicted there.
 
     Get.delete<VerticalListLayoutLogic>(force: true);
     Get.delete<HorizontalListLayoutLogic>(force: true);

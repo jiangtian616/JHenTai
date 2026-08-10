@@ -37,6 +37,7 @@ import 'package:jhentai/src/widget/eh_rating_dialog.dart';
 import 'package:jhentai/src/widget/eh_gallery_stat_dialog.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
+import 'package:jhentai/src/service/gallery_download/gallery_images_retainer.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
@@ -93,7 +94,7 @@ class DetailsPageArgument {
   }
 }
 
-class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2TopLogicMixin, UpdateGlobalGalleryStatusLogicMixin {
+class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2TopLogicMixin, UpdateGlobalGalleryStatusLogicMixin, GalleryImagesRetainer {
   static const String galleryId = 'galleryId';
   static const String uploaderId = 'uploaderId';
   static const String detailsId = 'detailsId';
@@ -147,10 +148,12 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
 
     /// If this gallery is in the download list and its image list has been
     /// evicted (fully downloaded earlier), reload so detail/thumbnails pages
-    /// can read image status synchronously.
+    /// can read image status synchronously. Retain for the lifetime of this
+    /// controller so eviction stays deferred until details (and any spawned
+    /// thumbnails page) closes.
     final int gid = state.galleryUrl.gid;
     if (galleryDownloadService.containGallery(gid)) {
-      await galleryDownloadService.galleryDownloadInfos[gid]!.ensureImagesLoaded();
+      await retainGalleryImages(gid);
     }
 
     if (state.galleryDetails == null || state.apikey == null) {
@@ -170,17 +173,9 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
 
     if (SiteSetting.preferJapaneseTitle.isTrue) {
-      return state.galleryDetails?.japaneseTitle ??
-          state.galleryDetails?.rawTitle ??
-          state.galleryMetadata?.japaneseTitle ??
-          state.galleryMetadata?.title ??
-          '';
+      return state.galleryDetails?.japaneseTitle ?? state.galleryDetails?.rawTitle ?? state.galleryMetadata?.japaneseTitle ?? state.galleryMetadata?.title ?? '';
     } else {
-      return state.galleryDetails?.rawTitle ??
-          state.galleryDetails?.japaneseTitle ??
-          state.galleryMetadata?.title ??
-          state.galleryMetadata?.japaneseTitle ??
-          '';
+      return state.galleryDetails?.rawTitle ?? state.galleryDetails?.japaneseTitle ?? state.galleryMetadata?.title ?? state.galleryMetadata?.japaneseTitle ?? '';
     }
   }
 

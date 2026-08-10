@@ -144,7 +144,7 @@ class _GalleryMetadataStore {
       if (images[serialNo] == null) {
         continue;
       }
-      images[serialNo]!.path = DownloadPathResolver.computeImageDownloadRelativePath(gallery, images[serialNo]!.url, serialNo);
+      images[serialNo]!.path = DownloadPathResolver.computeImageDownloadRelativePath(gallery, _downloadUrlFor(gallery, images[serialNo]!), serialNo);
       images[serialNo]!.imageHash ??= '';
     }
 

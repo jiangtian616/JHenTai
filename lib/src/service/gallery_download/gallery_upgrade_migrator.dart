@@ -51,7 +51,7 @@ class _GalleryUpgradeMigrator {
       /// have `downloadOriginalImage=true` and stored `fullimg.php`→`jpg` on
       /// disk; we must use the same URL when recomputing the path for the new
       /// gallery so the extension matches.
-      final String oldDownloadUrl = oldImage.downloadUrlFor(oldGallery.downloadOriginalImage);
+      final String oldDownloadUrl = _downloadUrlFor(oldGallery.toGalleryDownloadedData(), oldImage);
       GalleryImage newImage = oldImage.copyWith(
         path: DownloadPathResolver.computeImageDownloadRelativePath(newGallery.toGalleryDownloadedData(), oldDownloadUrl, serialNo),
         downloadStatus: DownloadStatus.downloaded,
@@ -143,7 +143,7 @@ class _GalleryUpgradeMigrator {
     }
 
     if (preSaveNewImage) {
-      final String oldDownloadUrl = oldImage.downloadUrlFor(oldGallery.downloadOriginalImage);
+      final String oldDownloadUrl = _downloadUrlFor(oldGallery.toGalleryDownloadedData(), oldImage);
       GalleryImage newImage = oldImage.copyWith(
         path: DownloadPathResolver.computeImageDownloadRelativePath(newGallery.toGalleryDownloadedData(), oldDownloadUrl, newImageSerialNo),
         downloadStatus: newImageDownloadStatus!,

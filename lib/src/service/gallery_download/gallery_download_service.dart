@@ -844,7 +844,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
             final String newPath = DownloadPathResolver.computeImageDownloadRelativePath(
               info.toGalleryDownloadedData(),
-              img.downloadUrlFor(info.downloadOriginalImage),
+              _downloadUrlFor(info.toGalleryDownloadedData(), img),
               serialNo,
             );
 
@@ -1440,6 +1440,23 @@ class GalleryDownloadRequest {
   });
 }
 
+/// Pick the URL to actually download from, given the gallery's
+/// `downloadOriginalImage` flag. Used by the download pipeline (parse url,
+/// download bytes, upgrade migration, path recompute) and by metadata restore.
+///
+/// For download-original galleries, prefer [GalleryImage.originalImageUrl] and
+/// fall back to [GalleryImage.url] if the original URL is missing (legacy rows
+/// written before the `originalImageUrl` column existed, where `url` itself
+/// stores the original URL). For regular galleries, always use `url`.
+///
+/// Free function (not a method on [GalleryImage]) so it can be called from
+/// any context — including the metadata store's [Isolate.run] restore path,
+/// which only has a [GalleryDownloadedData] (parsed from JSON) and no access
+/// to the [GalleryDownloadInfo] singleton.
+String _downloadUrlFor(GalleryDownloadedData gallery, GalleryImage image) {
+  return gallery.downloadOriginalImage ? (image.originalImageUrl ?? image.url) : image.url;
+}
+
 class GalleryDownloadInfo implements Comparable<GalleryDownloadInfo> {
   // === Identity (immutable after creation) ===
   final int gid;
@@ -1574,10 +1591,82 @@ class GalleryDownloadInfo implements Comparable<GalleryDownloadInfo> {
     }
   }
 
+  /// Refcount of active consumers that need the full [images] list resident
+  /// for synchronous access (read page, details page, thumbnails page,
+  /// super-resolution, etc.). While non-empty, [evictImages] is a no-op —
+  /// the list stays resident until the last consumer calls [releaseImages].
+  ///
+  /// Keyed by an owner label (caller-supplied, e.g. 'ReadPageLogic',
+  /// 'SuperResolutionService') so that a blocked evict can log exactly which
+  /// consumers are still holding a retain. A single owner may retain multiple
+  /// times — its count is the map value.
+  ///
+  /// The download loop itself does NOT retain — eviction is gated by
+  /// `downloadStatus == downloaded` separately, so an incomplete gallery
+  /// never evicts regardless of refcount.
+  final Map<String, int> _imageResidents = <String, int>{};
+
+  /// Mark that a consumer (read page, detail page, etc.) needs the full
+  /// [images] list to stay resident. Pairs with [releaseImages]. Safe to
+  /// call multiple times — each call increments the owner's count, each
+  /// release decrements. If [images] is currently evicted, triggers a lazy
+  /// reload so the consumer can read synchronously after the returned future
+  /// completes (or use [ensureImagesLoaded] explicitly for the async wait).
+  ///
+  /// [owner] should be a stable identifier for debugging — typically the
+  /// consumer's runtimeType or a short literal. Identical owner strings
+  /// aggregate into a single map entry.
+  void retainImages({required String owner}) {
+    _imageResidents[owner] = (_imageResidents[owner] ?? 0) + 1;
+    if (images == null) {
+      ensureImagesLoaded();
+    }
+  }
+
+  /// Release a retain. When the count drops to 0 AND the gallery is fully
+  /// downloaded, evicts the list to bound memory. Incomplete galleries
+  /// keep the list — the download loop is still using it.
+  ///
+  /// [owner] must match the [retainImages] call. Pass `evictIfComplete: false`
+  /// for consumers that close while another is expected to take over
+  /// imminently (rare).
+  void releaseImages({required String owner, bool evictIfComplete = true}) {
+    final int? count = _imageResidents[owner];
+    if (count == null || count == 0) {
+      log.warning('releaseImages called with owner "$owner" but no matching retain on gallery $gid; current owners: ${_ownersSnapshot()}');
+      return;
+    }
+    if (count == 1) {
+      _imageResidents.remove(owner);
+    } else {
+      _imageResidents[owner] = count - 1;
+    }
+    if (_imageResidents.isEmpty && evictIfComplete && downloadProgress.downloadStatus == DownloadStatus.downloaded) {
+      evictImages();
+    }
+  }
+
+  /// Whether any consumer is currently retaining the [images] list.
+  bool get imagesRetained => _imageResidents.isNotEmpty;
+
+  /// Snapshot of current owners + their retain counts, formatted for logs.
+  /// E.g. `ReadPageLogic(1), SuperResolutionService(2)`.
+  String _ownersSnapshot() {
+    return _imageResidents.entries.map((e) => '${e.key}(${e.value})').join(', ');
+  }
+
   /// Release [images] from memory. [coverImage] is retained for list/grid
-  /// cover display. Called on download complete and on read page close
-  /// (when the gallery is fully downloaded).
+  /// cover display. No-op while [imagesRetained] is true — eviction is
+  /// deferred to the last consumer's [releaseImages] call, and the blocking
+  /// owners are logged for debugging.
+  ///
+  /// Called directly by the download-completion path and by [releaseImages]
+  /// when the refcount drains to 0 on a completed gallery.
   void evictImages() {
+    if (_imageResidents.isNotEmpty) {
+      log.debug('evictImages skipped on gallery $gid: ${_imageResidents.length} owner(s) still retaining: ${_ownersSnapshot()}');
+      return;
+    }
     images = null;
   }
 

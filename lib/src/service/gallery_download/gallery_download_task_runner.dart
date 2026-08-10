@@ -218,7 +218,7 @@ class _GalleryDownloadTaskRunner {
       /// gallery's `downloadOriginalImage` flag. The parser fills both `url`
       /// (regular) and `originalImageUrl` (original); the model itself has no
       /// opinion about which one to use.
-      final String downloadUrl = image.downloadUrlFor(gallery.downloadOriginalImage);
+      final String downloadUrl = _downloadUrlFor(gallery.toGalleryDownloadedData(), image);
       image.path = DownloadPathResolver.computeImageDownloadRelativePath(gallery.toGalleryDownloadedData(), downloadUrl, serialNo);
       image.downloadStatus = DownloadStatus.downloading;
 
@@ -259,7 +259,7 @@ class _GalleryDownloadTaskRunner {
         }
       }
 
-      final String downloadUrl = image.downloadUrlFor(gallery.downloadOriginalImage);
+      final String downloadUrl = _downloadUrlFor(gallery.toGalleryDownloadedData(), image);
       String path = DownloadPathResolver.computeImageDownloadAbsolutePath(gallery.toGalleryDownloadedData(), downloadUrl, serialNo);
 
       await tryLoadFromCacheInsteadDownload(image, downloadUrl, serialNo, path);

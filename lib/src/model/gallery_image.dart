@@ -97,16 +97,6 @@ class GalleryImage {
     );
   }
 
-  /// Pick the URL to actually download from, given the gallery's
-  /// `downloadOriginalImage` flag. For download-original galleries, prefer
-  /// `originalImageUrl` and fall back to `url` if the original URL is missing
-  /// (e.g. legacy rows written before the `originalImageUrl` column existed,
-  /// where `url` itself stores the original URL). For regular galleries,
-  /// always use `url`.
-  String downloadUrlFor(bool downloadOriginal) {
-    return downloadOriginal ? (originalImageUrl ?? url) : url;
-  }
-
   @override
   String toString() {
     return 'GalleryImage{url: $url, height: $height, width: $width, originalImageUrl: $originalImageUrl, originalImageHeight: $originalImageHeight, originalImageWidth: $originalImageWidth, reloadKey: $reloadKey, path: $path, imageHash: $imageHash, downloadStatus: $downloadStatus}';
