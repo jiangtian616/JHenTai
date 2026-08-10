@@ -141,7 +141,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                           children: [Text('delete'.tr), const Icon(Icons.delete)],
                         ),
                       ),
-                    if (state.galleryDetails?.parentGalleryUrl != null || (state.galleryDetails?.childrenGallerys?.isNotEmpty ?? false))
+                    if (state.galleryDetails?.parentGalleryUrl != null || (state.galleryDetails?.childrenGalleries?.isNotEmpty ?? false))
                       PopupMenuItem(
                         value: 4,
                         child: Row(

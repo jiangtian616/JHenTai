@@ -149,7 +149,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
                 _buildKeywordTextField().marginOnly(top: 12),
                 _buildLanguageSelector().marginOnly(top: 20),
                 _buildSearchExpungedGalleriesSwitch(),
-                _buildOnlySearchGallerysWithTorrentsSwitch(),
+                _buildOnlySearchGalleriesWithTorrentsSwitch(),
                 _buildPageRangeSelector(),
                 _buildRatingSelector(),
                 _buildDisableFilterForLanguageSwitch(),
@@ -557,7 +557,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
     );
   }
 
-  Widget _buildOnlySearchGallerysWithTorrentsSwitch() {
+  Widget _buildOnlySearchGalleriesWithTorrentsSwitch() {
     return ListTile(
       dense: true,
       contentPadding: EdgeInsets.zero,

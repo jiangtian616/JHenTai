@@ -5,8 +5,8 @@ import 'package:jhentai/src/pages/details/thumbnails/thumbnails_page.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/pages/download_search/download_search_page.dart';
 import 'package:jhentai/src/pages/gallery_image/gallery_image_page.dart';
-import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page.dart';
-import 'package:jhentai/src/pages/gallerys/simple/gallerys_page.dart';
+import 'package:jhentai/src/pages/gallery/dashboard/dashboard_page.dart';
+import 'package:jhentai/src/pages/gallery/simple/gallery_page.dart';
 import 'package:jhentai/src/pages/history/history_page.dart';
 import 'package:jhentai/src/pages/home_page.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_home_page.dart';
@@ -68,7 +68,7 @@ class Routes {
   /// left
   static const String desktopHome = "/desktop_home";
   static const String mobileLayoutV2 = "/mobile_layout_v2";
-  static const String gallerys = "/gallerys";
+  static const String gallery = "/gallery";
   static const String dashboard = "/dashboard";
   static const String popular = "/popular";
   static const String ranklist = "/ranklist";
@@ -157,8 +157,8 @@ class Routes {
       side: Side.fullScreen,
     ),
     EHPage(
-      name: gallerys,
-      page: () => const GallerysPage(),
+      name: gallery,
+      page: () => const GalleryPage(),
       transition: defaultTransition,
       side: Side.left,
     ),

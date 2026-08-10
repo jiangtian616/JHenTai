@@ -28,7 +28,7 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
   RxInt downloadTaskConcurrency = 6.obs;
   RxInt maximum = 2.obs;
   Rx<Duration> period = const Duration(seconds: 1).obs;
-  RxBool downloadAllGallerysOfSamePriority = false.obs;
+  RxBool downloadAllGalleriesOfSamePriority = false.obs;
   RxBool useJH2UpdateGallery = false.obs;
   RxInt archiveDownloadIsolateCount = 1.obs;
   RxBool manageArchiveDownloadConcurrency = true.obs;
@@ -60,7 +60,8 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     downloadTaskConcurrency.value = map['downloadTaskConcurrency'];
     maximum.value = map['maximum'];
     period.value = Duration(milliseconds: map['period']);
-    downloadAllGallerysOfSamePriority.value = map['downloadAllGallerysOfSamePriority'] ?? downloadAllGallerysOfSamePriority.value;
+    downloadAllGalleriesOfSamePriority.value =
+        map['downloadAllGalleriesOfSamePriority'] ?? map['downloadAllGallerysOfSamePriority'] ?? downloadAllGalleriesOfSamePriority.value;
     useJH2UpdateGallery.value = map['useJH2UpdateGallery'] ?? useJH2UpdateGallery.value;
     archiveDownloadIsolateCount.value = map['archiveDownloadIsolateCount'] ?? archiveDownloadIsolateCount.value;
     if (archiveDownloadIsolateCount.value > 10) {
@@ -85,7 +86,7 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
       'downloadTaskConcurrency': downloadTaskConcurrency.value,
       'maximum': maximum.value,
       'period': period.value.inMilliseconds,
-      'downloadAllGallerysOfSamePriority': downloadAllGallerysOfSamePriority.value,
+      'downloadAllGalleriesOfSamePriority': downloadAllGalleriesOfSamePriority.value,
       'useJH2UpdateGallery': useJH2UpdateGallery.value,
       'archiveDownloadIsolateCount': archiveDownloadIsolateCount.value,
       'manageArchiveDownloadConcurrency': manageArchiveDownloadConcurrency.value,
@@ -188,9 +189,9 @@ class DownloadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     await saveBeanConfig();
   }
 
-  Future<void> saveDownloadAllGallerysOfSamePriority(bool value) async {
-    log.debug('saveDownloadAllGallerysOfSamePriority:$value');
-    downloadAllGallerysOfSamePriority.value = value;
+  Future<void> saveDownloadAllGalleriesOfSamePriority(bool value) async {
+    log.debug('saveDownloadAllGalleriesOfSamePriority:$value');
+    downloadAllGalleriesOfSamePriority.value = value;
     await saveBeanConfig();
   }
   

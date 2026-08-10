@@ -103,18 +103,18 @@ class GalleryGridDownloadPageLogic extends GetxController
 
   @override
   Future<void> saveGalleryOrderAfterDrag(int beforeIndex, int afterIndex) async {
-    List<GalleryDownloadInfo> gallerys = state.currentGalleryObjects.cast();
+    List<GalleryDownloadInfo> galleries = state.currentGalleryObjects.cast();
 
     /// default order is 0, we must assign current order to the archive first
-    for (int i = 0; i < gallerys.length; i++) {
-      gallerys[i].sortOrder = i;
+    for (int i = 0; i < galleries.length; i++) {
+      galleries[i].sortOrder = i;
     }
 
     int head = min(beforeIndex, afterIndex);
     int tail = max(beforeIndex, afterIndex);
 
     for (int index = head; index <= tail; index++) {
-      GalleryDownloadInfo galleryDownloadInfo = gallerys[index];
+      GalleryDownloadInfo galleryDownloadInfo = galleries[index];
 
       if (index == beforeIndex) {
         galleryDownloadInfo.sortOrder = afterIndex;
@@ -125,7 +125,7 @@ class GalleryGridDownloadPageLogic extends GetxController
       }
     }
 
-    await downloadService.updateGalleryOrder(gallerys);
+    await downloadService.updateGalleryOrder(galleries);
   }
 
   @override

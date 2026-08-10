@@ -80,9 +80,9 @@ class DownloadSearchPage extends StatelessWidget {
           scrollBehavior: UIConfig.scrollBehaviourWithScrollBarWithMouse,
           slivers: [
             SliverList.separated(
-              itemBuilder: (context, index) => _buildGallery(context, state.gallerys[index]),
+              itemBuilder: (context, index) => _buildGallery(context, state.galleries[index]),
               separatorBuilder: (context, index) => const SizedBox(height: 10),
-              itemCount: state.gallerys.length,
+              itemCount: state.galleries.length,
             ),
             const SliverToBoxAdapter(child: SizedBox(height: 10)),
             SliverList.separated(

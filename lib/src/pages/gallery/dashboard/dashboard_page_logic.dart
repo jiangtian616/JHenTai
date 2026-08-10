@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/pages/base/base_page_logic.dart';
-import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page_state.dart';
+import 'package:jhentai/src/pages/gallery/dashboard/dashboard_page_state.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_state.dart';
 
 import '../../../consts/eh_consts.dart';
@@ -55,9 +55,9 @@ class DashboardPageLogic extends BasePageLogic {
 
     log.info('Get ranklist data');
 
-    List<dynamic> gallerysAndPageInfo;
+    List<dynamic> galleriesAndPageInfo;
     try {
-      gallerysAndPageInfo = await ehRequest.requestRanklistPage(
+      galleriesAndPageInfo = await ehRequest.requestRanklistPage(
         ranklistType: RanklistType.day,
         pageNo: 0,
         parser: EHSpiderParser.ranklistPage2GalleryPageInfo,
@@ -76,7 +76,7 @@ class DashboardPageLogic extends BasePageLogic {
       return;
     }
 
-    state.ranklistGallerys = await super.postHandleNewGallerys(gallerysAndPageInfo[0], cleanDuplicate: false);
+    state.ranklistGalleries = await super.postHandleNewGalleries(galleriesAndPageInfo[0], cleanDuplicate: false);
 
     state.ranklistLoadingState = LoadingState.success;
     update([ranklistId]);
@@ -95,9 +95,9 @@ class DashboardPageLogic extends BasePageLogic {
 
     log.info('Get popular list data');
 
-    GalleryPageInfo gallerysPage;
+    GalleryPageInfo galleriesPage;
     try {
-      gallerysPage = await ehRequest.requestGalleryPage(
+      galleriesPage = await ehRequest.requestGalleryPage(
         url: EHConsts.EPopular,
         parser: EHSpiderParser.galleryPage2GalleryPageInfo,
       );
@@ -115,13 +115,13 @@ class DashboardPageLogic extends BasePageLogic {
       return;
     }
 
-    state.popularGallerys = await super.postHandleNewGallerys(gallerysPage.gallerys, cleanDuplicate: false);
+    state.popularGalleries = await super.postHandleNewGalleries(galleriesPage.galleries, cleanDuplicate: false);
 
     state.popularLoadingState = LoadingState.success;
     update([popularListId]);
   }
 
-  /// pull-down to refresh ranklist & popular & gallerys, we need to sync loading state manually because [handleRefresh] doesn't
+  /// pull-down to refresh ranklist & popular & galleries, we need to sync loading state manually because [handleRefresh] doesn't
   /// refresh loading state
   Future<void> handleRefreshTotalPage() async {
     state.loadingState = LoadingState.loading;

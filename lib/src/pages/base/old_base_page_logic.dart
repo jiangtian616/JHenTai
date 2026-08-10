@@ -42,7 +42,7 @@ abstract class OldBasePageLogic extends BasePageLogic {
 
     state.loadingState = LoadingState.loading;
 
-    state.gallerys.clear();
+    state.galleries.clear();
     state.prevPageIndexToLoad = null;
     state.nextPageIndexToLoad = 0;
     state.pageCount = -1;
@@ -65,9 +65,9 @@ abstract class OldBasePageLogic extends BasePageLogic {
     state.refreshState = LoadingState.loading;
     updateSafely([refreshStateId]);
 
-    List<dynamic> gallerysAndPageInfo;
+    List<dynamic> galleriesAndPageInfo;
     try {
-      gallerysAndPageInfo = await getGallerysAndPageInfoByPage(0);
+      galleriesAndPageInfo = await getGalleriesAndPageInfoByPage(0);
     } on DioException catch (e) {
       log.error('refreshGalleryFailed'.tr, e.errorMsg);
       snack('refreshGalleryFailed'.tr, e.errorMsg ?? '', isShort: true);
@@ -76,12 +76,12 @@ abstract class OldBasePageLogic extends BasePageLogic {
       return;
     }
 
-    List<Gallery> gallerys = await super.postHandleNewGallerys(gallerysAndPageInfo[0], cleanDuplicate: false);
+    List<Gallery> galleries = await super.postHandleNewGalleries(galleriesAndPageInfo[0], cleanDuplicate: false);
 
-    state.gallerys = gallerys;
-    state.pageCount = gallerysAndPageInfo[1];
-    state.prevPageIndexToLoad = gallerysAndPageInfo[2];
-    state.nextPageIndexToLoad = gallerysAndPageInfo[3];
+    state.galleries = galleries;
+    state.pageCount = galleriesAndPageInfo[1];
+    state.prevPageIndexToLoad = galleriesAndPageInfo[2];
+    state.nextPageIndexToLoad = galleriesAndPageInfo[3];
     state.galleryCollectionKey = Key(newUUID());
 
     state.refreshState = LoadingState.idle;
@@ -112,22 +112,22 @@ abstract class OldBasePageLogic extends BasePageLogic {
     LoadingState prevState = state.loadingState;
     state.loadingState = LoadingState.loading;
 
-    List<dynamic> gallerysAndPageInfo;
+    List<dynamic> galleriesAndPageInfo;
     try {
-      gallerysAndPageInfo = await getGallerysAndPageInfoByPage(state.prevPageIndexToLoad!);
+      galleriesAndPageInfo = await getGalleriesAndPageInfoByPage(state.prevPageIndexToLoad!);
     } on DioException catch (e) {
-      log.error('getGallerysFailed'.tr, e.errorMsg);
-      snack('getGallerysFailed'.tr, e.errorMsg ?? '', isShort: true);
+      log.error('getGalleriesFailed'.tr, e.errorMsg);
+      snack('getGalleriesFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = prevState;
       updateSafely([loadingStateId]);
       return;
     }
 
-    List<Gallery> gallerys = await super.postHandleNewGallerys(gallerysAndPageInfo[0]);
+    List<Gallery> galleries = await super.postHandleNewGalleries(galleriesAndPageInfo[0]);
 
-    state.gallerys.insertAll(0, gallerys);
-    state.pageCount = gallerysAndPageInfo[1];
-    state.prevPageIndexToLoad = gallerysAndPageInfo[2];
+    state.galleries.insertAll(0, galleries);
+    state.pageCount = galleriesAndPageInfo[1];
+    state.prevPageIndexToLoad = galleriesAndPageInfo[2];
 
     state.loadingState = prevState;
     updateSafely();
@@ -143,7 +143,7 @@ abstract class OldBasePageLogic extends BasePageLogic {
     LoadingState prevState = state.loadingState;
     state.loadingState = LoadingState.loading;
 
-    if (state.gallerys.isEmpty) {
+    if (state.galleries.isEmpty) {
       /// for [CenterStatusIndicator]
       updateSafely([bodyId]);
     } else if (prevState == LoadingState.error || prevState == LoadingState.noData) {
@@ -151,22 +151,22 @@ abstract class OldBasePageLogic extends BasePageLogic {
       updateSafely([loadingStateId]);
     }
 
-    List<dynamic> gallerysAndPageInfo;
+    List<dynamic> galleriesAndPageInfo;
     try {
-      gallerysAndPageInfo = await getGallerysAndPageInfoByPage(state.nextPageIndexToLoad!);
+      galleriesAndPageInfo = await getGalleriesAndPageInfoByPage(state.nextPageIndexToLoad!);
     } on DioException catch (e) {
-      log.error('getGallerysFailed'.tr, e.errorMsg);
-      snack('getGallerysFailed'.tr, e.errorMsg ?? '', isShort: true);
+      log.error('getGalleriesFailed'.tr, e.errorMsg);
+      snack('getGalleriesFailed'.tr, e.errorMsg ?? '', isShort: true);
       state.loadingState = LoadingState.error;
       updateSafely([loadingStateId]);
       return;
     }
 
-    List<Gallery> gallerys = await super.postHandleNewGallerys(gallerysAndPageInfo[0]);
+    List<Gallery> galleries = await super.postHandleNewGalleries(galleriesAndPageInfo[0]);
 
-    state.gallerys.addAll(gallerys);
-    state.pageCount = gallerysAndPageInfo[1];
-    state.nextPageIndexToLoad = gallerysAndPageInfo[3];
+    state.galleries.addAll(galleries);
+    state.pageCount = galleriesAndPageInfo[1];
+    state.nextPageIndexToLoad = galleriesAndPageInfo[3];
 
     if (state.pageCount == 0) {
       state.loadingState = LoadingState.noData;
@@ -185,7 +185,7 @@ abstract class OldBasePageLogic extends BasePageLogic {
       return;
     }
 
-    state.gallerys.clear();
+    state.galleries.clear();
     state.loadingState = LoadingState.loading;
     updateSafely();
     state.scrollController.jumpTo(0);
@@ -195,9 +195,9 @@ abstract class OldBasePageLogic extends BasePageLogic {
     state.prevPageIndexToLoad = null;
     state.nextPageIndexToLoad = 0;
 
-    List<dynamic> gallerysAndPageInfo;
+    List<dynamic> galleriesAndPageInfo;
     try {
-      gallerysAndPageInfo = await getGallerysAndPageInfoByPage(pageIndex);
+      galleriesAndPageInfo = await getGalleriesAndPageInfoByPage(pageIndex);
     } on DioException catch (e) {
       log.error('refreshGalleryFailed'.tr, e.errorMsg);
       snack('refreshGalleryFailed'.tr, e.errorMsg ?? '', isShort: true);
@@ -206,12 +206,12 @@ abstract class OldBasePageLogic extends BasePageLogic {
       return;
     }
 
-    List<Gallery> gallerys = await postHandleNewGallerys(gallerysAndPageInfo[0]);
+    List<Gallery> galleries = await postHandleNewGalleries(galleriesAndPageInfo[0]);
 
-    state.gallerys.addAll(gallerys);
-    state.pageCount = gallerysAndPageInfo[1];
-    state.prevPageIndexToLoad = gallerysAndPageInfo[2];
-    state.nextPageIndexToLoad = gallerysAndPageInfo[3];
+    state.galleries.addAll(galleries);
+    state.pageCount = galleriesAndPageInfo[1];
+    state.prevPageIndexToLoad = galleriesAndPageInfo[2];
+    state.nextPageIndexToLoad = galleriesAndPageInfo[3];
 
     if (state.pageCount == 0) {
       state.loadingState = LoadingState.noData;
@@ -239,5 +239,5 @@ abstract class OldBasePageLogic extends BasePageLogic {
     }
   }
 
-  Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex);
+  Future<List<dynamic>> getGalleriesAndPageInfoByPage(int pageIndex);
 }

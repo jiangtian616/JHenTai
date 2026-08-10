@@ -30,7 +30,7 @@ class GalleryUpgradeMigrator {
   /// matching old image (by hash), copies bytes, and marks the new image as
   /// downloaded.
   Future<void> copyImageInfosFromImageHashes(GalleryDownloadInfo newGallery, List<String> imageHashes) async {
-    GalleryDownloadInfo? oldGallery = _service.gallerys.firstWhereOrNull((e) => e.galleryUrl == newGallery.oldVersionGalleryUrl);
+    GalleryDownloadInfo? oldGallery = _service.galleries.firstWhereOrNull((e) => e.galleryUrl == newGallery.oldVersionGalleryUrl);
     if (oldGallery == null) {
       return;
     }
@@ -130,7 +130,7 @@ class GalleryUpgradeMigrator {
     if (newImageHash == null) {
       return;
     }
-    GalleryDownloadInfo? oldGallery = _service.gallerys.firstWhereOrNull((e) => e.galleryUrl == oldVersionGalleryUrl);
+    GalleryDownloadInfo? oldGallery = _service.galleries.firstWhereOrNull((e) => e.galleryUrl == oldVersionGalleryUrl);
     if (oldGallery == null) {
       return;
     }

@@ -90,11 +90,11 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
     }
 
     loadingState = LoadingState.loading;
-    state.gallerys.clear();
+    state.galleries.clear();
     state.archives.clear();
     updateSafely([loadingStateId]);
 
-    List<TagData> allGalleryTags = galleryDownloadService.gallerys.map((g) => g.tags).mapMany(tagDataString2TagDataList).toList();
+    List<TagData> allGalleryTags = galleryDownloadService.galleries.map((g) => g.tags).mapMany(tagDataString2TagDataList).toList();
     List<TagData> allArchiveTags = archiveDownloadService.archives.map((a) => a.tags).mapMany(tagDataString2TagDataList).toList();
     List<TagData> allTags = {...allGalleryTags, ...allArchiveTags}.toList();
     List<TagData> translatedTags = await tagTranslationService.translateTagDatasIfNeeded(allTags);
@@ -103,7 +103,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
       translatedTagDataTable.put(tag.namespace, tag.key, tag);
     }
 
-    List<GallerySearchVO> gallerys = galleryDownloadService.gallerys
+    List<GallerySearchVO> galleries = galleryDownloadService.galleries
         .map(
           (g) => GallerySearchVO(
             gid: g.gid,
@@ -160,7 +160,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
         return;
       }
 
-      state.gallerys = gallerys.where((g) {
+      state.galleries = galleries.where((g) {
         if (regExp!.hasMatch(g.title)) {
           return true;
         }
@@ -195,7 +195,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
         return false;
       }).toList();
     } else {
-      state.gallerys = gallerys.where((g) {
+      state.galleries = galleries.where((g) {
         if (g.title.contains(value)) {
           return true;
         }
@@ -385,7 +385,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
       }
     }
 
-    state.gallerys.remove(gallery);
+    state.galleries.remove(gallery);
     await galleryDownloadService.deleteGalleryByGid(gallery.gid);
     update([bodyId]);
     updateGlobalGalleryStatus();

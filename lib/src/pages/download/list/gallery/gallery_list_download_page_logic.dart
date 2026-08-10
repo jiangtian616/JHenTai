@@ -106,12 +106,12 @@ class GalleryListDownloadPageLogic extends GetxController
   Future<void> selectAllItem() async {
     await state.displayGroupsCompleter.future;
 
-    List<GalleryDownloadInfo> gallerys = [];
+    List<GalleryDownloadInfo> galleries = [];
     for (String group in state.displayGroups) {
-      gallerys.addAll(downloadService.gallerysWithGroup(group));
+      galleries.addAll(downloadService.galleriesWithGroup(group));
     }
 
-    multiSelectDownloadPageState.selectedGids.addAll(gallerys.map((gallery) => gallery.gid));
+    multiSelectDownloadPageState.selectedGids.addAll(galleries.map((gallery) => gallery.gid));
     updateSafely(multiSelectDownloadPageState.selectedGids.map((gid) => '$itemCardId::$gid').toList());
   }
 }

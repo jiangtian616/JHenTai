@@ -98,7 +98,7 @@ class pt_BR {
       'filtered': 'Filtered',
 
       /// gallery page
-      'getGallerysFailed': "Falha ao obter galerias",
+      'getGalleriesFailed': "Falha ao obter galerias",
       'refreshGalleryFailed': 'Falha ao Atualizar galerias',
       'tabBarSetting': 'Opções da barra de abas',
       'jumpPageTo': 'Pular para à página',
@@ -262,7 +262,7 @@ class pt_BR {
       'redirect2Eh': 'Redirecionar para EH, se disponível',
       'redirect2EhHint': 'Try to load gallery detail page from EH site first to get better network performance',
       'redirectAllGallery': 'Redirect all gallery to EH',
-      'imDonorHint': 'If you are a donor, you can turn this on to help you access gallerys in EX site',
+      'imDonorHint': 'If you are a donor, you can turn this on to help you access galleries in EX site',
       'profileSetting': 'Profile Setting',
       'chooseProfileHint': 'Choose profile used in JHenTai',
       'siteSetting': 'Configuração do site',
@@ -282,7 +282,7 @@ class pt_BR {
       'myTagsHint': 'gerenciar tags assistidas e ocultas',
       'localTags': 'Local Tags',
       'localTagsHint': 'Extra filter tags',
-      'localTagsHint2': 'Gallerys with these tags will be hidden',
+      'localTagsHint2': 'Galleries with these tags will be hidden',
       'addLocalTags': 'Add Tags',
       'hidden': 'Escondido',
       'nope': 'Nope(Não)',
@@ -389,7 +389,7 @@ class pt_BR {
 
       /// performance setting page
       'maxGalleryNum4Animation': 'Max Gallery Num For List Animation in Download page',
-      'maxGalleryNum4AnimationHint': 'Disable animation for groups which have more gallerys than this value(for list style)',
+      'maxGalleryNum4AnimationHint': 'Disable animation for groups which have more galleries than this value(for list style)',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': 'Velocidade de rolagem',
@@ -588,8 +588,8 @@ class pt_BR {
       'reUnlock': 'Desbloquear novamente',
       'reUnlockHint': 'Atenção! precisa comprar este arquivo novamente para desbloque-lo novamente.',
       'downloadHelpInfo': 'Se você não conseguir fazer o download e encontrar erros como a tabela não existe nos logs, desinstale o aplicativo atual e reinstale.',
-      'localGalleryHelpInfo': 'Load gallerys which is not downloaded by JHenTai. Add config in Download Setting -> Extra Gallery Scan Path and then refresh.',
-      'localGalleryHelpInfo4iOSAndMacOS': 'Load gallerys which is not downloaded by JHenTai. Put your gallerys in default download path and then refresh',
+      'localGalleryHelpInfo': 'Load galleries which is not downloaded by JHenTai. Add config in Download Setting -> Extra Gallery Scan Path and then refresh.',
+      'localGalleryHelpInfo4iOSAndMacOS': 'Load galleries which is not downloaded by JHenTai. Put your galleries in default download path and then refresh',
       'deleteLocalGalleryHint': 'Delete your local files',
       'priority': 'Prioridade',
       'highest': 'Alta',
@@ -613,9 +613,9 @@ class pt_BR {
       'operationHasCompleted': 'The operation has completed',
       'operationInProgress': 'The operation is in progress',
       'startProcess': 'Start Process',
-      'multiReDownloadHint': 'You will re-download all selected gallerys.',
-      'multiChangeGroupHint': 'You will change group of all selected gallerys.',
-      'multiDeleteHint': 'You will delete all selected gallerys.',
+      'multiReDownloadHint': 'You will re-download all selected galleries.',
+      'multiChangeGroupHint': 'You will change group of all selected galleries.',
+      'multiDeleteHint': 'You will delete all selected galleries.',
       'blankImageHint': 'Downloading the image returned an empty result, trying to re-parse.',
       'peakHoursHint': 'Downloading original files during peak hours requires GP, and you do not have enough, downloading is paused.',
       'oldGalleryHint': 'Downloading original files of this gallery requires GP, and you do not have enough.',
@@ -681,10 +681,10 @@ class pt_BR {
 
       /// ranklist page
       'getRanklistFailed': 'Falha ao obter lista de classificação',
-      'getSomeOfGallerysFailed': 'Falha ao obter algumas das galerias',
+      'getSomeOfGalleriesFailed': 'Falha ao obter algumas das galerias',
 
       /// history page
-      'getHistoryGallerysFailed': 'Falha ao obter alguns dos histórico galerias',
+      'getHistoryGalleriesFailed': 'Falha ao obter alguns dos histórico galerias',
 
       /// search page
       'search': 'Pesquisar',
@@ -709,7 +709,7 @@ class pt_BR {
       'resetDownloadPath': 'Redefinir caminho de download',
       'singleImageSavePath': 'Single Image Save Path',
       'extraGalleryScanPath': 'Extra Gallery Scan Path',
-      'extraGalleryScanPathHint': 'To scan and load local gallerys',
+      'extraGalleryScanPathHint': 'To scan and load local galleries',
       'downloadOriginalImage': 'Imagem original',
       'downloadOriginalImageByDefault': 'Escolher imagem original por padrão',
       'originalImage': 'Original',
@@ -730,8 +730,8 @@ class pt_BR {
       'per': 'por',
       'images': 'imagens',
       'downloadTimeout': 'Tempo limite de download',
-      'downloadAllGallerysOfSamePriority': 'Download All Gallerys of Same Priority',
-      'downloadAllGallerysOfSamePriorityHint': 'Download only 1 gallery simultaneously in 1 group with highest priority by default',
+      'downloadAllGalleriesOfSamePriority': 'Download All Galleries of Same Priority',
+      'downloadAllGalleriesOfSamePriorityHint': 'Download only 1 gallery simultaneously in 1 group with highest priority by default',
       'alwaysUseDefaultGroup': 'Sempre usar o grupo padrão',
       'enableStoreMetadataForRestore': 'Ativar metadados da loja para restauração',
       'enableStoreMetadataForRestoreHint': 'Se desabilitar isso, você não poderá restaurar as tarefas de download',
@@ -813,7 +813,7 @@ class pt_BR {
       'useBuiltInBlockedUsers': 'Enable Built-in User Blocklist',
       'useBuiltInBlockedUsersHint': 'Filter out gallery comments from users on the blocklist',
       'blockingRules': 'Block Rules',
-      'blockingRulesHint': 'Additional blocking rules for gallerys and comments',
+      'blockingRulesHint': 'Additional blocking rules for galleries and comments',
       'blockingTarget': 'Blocking Target',
       'blockingAttribute': 'Blocking Attribute',
       'blockingPattern': 'Blocking Pattern',

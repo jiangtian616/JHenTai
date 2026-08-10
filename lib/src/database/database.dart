@@ -211,9 +211,9 @@ class AppDb extends _$AppDb {
       await m.createTable(galleryHistory);
 
       if (Get.isRegistered<StorageService>()) {
-        List<Gallery>? gallerys = storageService.read<List>(ConfigEnum.oldGalleryHistory.key)?.map((e) => Gallery.fromJson(e)).toList();
+        List<Gallery>? galleries = storageService.read<List>(ConfigEnum.oldGalleryHistory.key)?.map((e) => Gallery.fromJson(e)).toList();
 
-        List<GalleryHistoryModel>? historyModels = gallerys
+        List<GalleryHistoryModel>? historyModels = galleries
             ?.map(
               (g) => GalleryHistoryModel(
                 galleryUrl: g.galleryUrl,
@@ -259,7 +259,7 @@ class AppDb extends _$AppDb {
       await m.createTable(galleryGroup);
       await m.createTable(archiveGroup);
 
-      Set<String> galleryGroups = (await GalleryDao.selectOldGallerys()).map((g) => g.groupName ?? 'default'.tr).toSet();
+      Set<String> galleryGroups = (await GalleryDao.selectOldGalleries()).map((g) => g.groupName ?? 'default'.tr).toSet();
       Set<String> archiveGroups = (await ArchiveDao.selectOldArchives()).map((g) => g.groupName ?? 'default'.tr).toSet();
 
       log.info('Migrate gallery groups: $galleryGroups');
@@ -320,9 +320,9 @@ class AppDb extends _$AppDb {
       await m.createTable(galleryDownloaded);
       await m.createTable(archiveDownloaded);
 
-      List<GalleryDownloadedOldData> gallerys = await GalleryDao.selectOldGallerys();
+      List<GalleryDownloadedOldData> galleries = await GalleryDao.selectOldGalleries();
       await appDb.transaction(() async {
-        for (GalleryDownloadedOldData g in gallerys) {
+        for (GalleryDownloadedOldData g in galleries) {
           await GalleryDao.insertGallery(
             GalleryDownloadedCompanion.insert(
               gid: Value(g.gid),
@@ -426,7 +426,7 @@ class AppDb extends _$AppDb {
       }
     });
 
-    final List<GalleryDownloadedData> galleries = await GalleryDao.selectGallerys();
+    final List<GalleryDownloadedData> galleries = await GalleryDao.selectGalleries();
     await transaction(() async {
       for (final GalleryDownloadedData g in galleries) {
         await (update(galleryDownloaded)..where((t) => t.gid.equals(g.gid))).write(

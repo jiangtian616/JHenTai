@@ -117,7 +117,7 @@ mixin SearchPageLogicMixin on BasePageLogic {
       toggleBodyType();
     }
 
-    state.gallerys.clear();
+    state.galleries.clear();
     state.prevGid = null;
     state.nextGid = null;
     state.totalCount = null;
@@ -268,7 +268,7 @@ mixin SearchPageLogicMixin on BasePageLogic {
       return super.getGalleryPage(prevGid: prevGid, nextGid: nextGid, seek: seek);
     }
 
-    log.info('Get gallerys data with file search, prevGid:$prevGid, nextGid:$nextGid');
+    log.info('Get galleries data with file search, prevGid:$prevGid, nextGid:$nextGid');
     return ehRequest.requestGalleryPage(
       prevGid: prevGid,
       nextGid: nextGid,
@@ -338,7 +338,7 @@ mixin SearchPageLogicMixin on BasePageLogic {
   }
 
   void toggleBodyType() {
-    state.bodyType = (state.bodyType == SearchPageBodyType.gallerys ? SearchPageBodyType.suggestionAndHistory : SearchPageBodyType.gallerys);
+    state.bodyType = (state.bodyType == SearchPageBodyType.galleries ? SearchPageBodyType.suggestionAndHistory : SearchPageBodyType.galleries);
     update();
   }
 

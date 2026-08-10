@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/pages/base/base_page.dart';
-import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page_state.dart';
+import 'package:jhentai/src/pages/gallery/dashboard/dashboard_page_state.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
@@ -107,8 +107,8 @@ class DashboardPage extends BasePage {
             successWidgetBuilder: () => ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              itemCount: state.ranklistGallerys.length,
-              itemBuilder: (_, index) => EHDashboardCard(gallery: state.ranklistGallerys[index], badge: _getRanklistBadge(index)),
+              itemCount: state.ranklistGalleries.length,
+              itemBuilder: (_, index) => EHDashboardCard(gallery: state.ranklistGalleries[index], badge: _getRanklistBadge(index)),
               separatorBuilder: (_, __) => const VerticalDivider(),
               scrollCacheExtent: ScrollCacheExtent.pixels(2000),
             ).enableMouseDrag(withScrollBar: false).fadeIn(),
@@ -139,8 +139,8 @@ class DashboardPage extends BasePage {
             successWidgetBuilder: () => ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              itemCount: state.popularGallerys.length,
-              itemBuilder: (_, index) => EHDashboardCard(gallery: state.popularGallerys[index]),
+              itemCount: state.popularGalleries.length,
+              itemBuilder: (_, index) => EHDashboardCard(gallery: state.popularGalleries[index]),
               separatorBuilder: (_, __) => const VerticalDivider(),
               scrollCacheExtent: ScrollCacheExtent.pixels(2000),
             ).enableMouseDrag(withScrollBar: false).fadeIn(),

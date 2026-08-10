@@ -99,7 +99,7 @@ class ru_RU {
       'filtered': 'Отфильтровано',
 
       /// gallery page
-      'getGallerysFailed': "Не удалось получить галереи",
+      'getGalleriesFailed': "Не удалось получить галереи",
       'refreshGalleryFailed': 'Не удалось обновить галерею',
       'tabBarSetting': 'Настройка панели вкладок',
       'jumpPageTo': 'Перейти к странице',
@@ -689,10 +689,10 @@ class ru_RU {
 
       /// ranklist page
       'getRanklistFailed': 'Не удалось получить список рейтинга',
-      'getSomeOfGallerysFailed': 'Не удалось получить некоторые галереи',
+      'getSomeOfGalleriesFailed': 'Не удалось получить некоторые галереи',
 
       /// history page
-      'getHistoryGallerysFailed': 'Не удалось получить галереи из истории',
+      'getHistoryGalleriesFailed': 'Не удалось получить галереи из истории',
 
       /// search page
       'search': 'Поиск',
@@ -738,8 +738,8 @@ class ru_RU {
       'per': 'за',
       'images': 'изображений',
       'downloadTimeout': 'Тайм-аут загрузки',
-      'downloadAllGallerysOfSamePriority': 'Загружать все галереи одного приоритета',
-      'downloadAllGallerysOfSamePriorityHint': 'По умолчанию загружать только 1 галерею одновременно в 1 группе с высшим приоритетом',
+      'downloadAllGalleriesOfSamePriority': 'Загружать все галереи одного приоритета',
+      'downloadAllGalleriesOfSamePriorityHint': 'По умолчанию загружать только 1 галерею одновременно в 1 группе с высшим приоритетом',
       'alwaysUseDefaultGroup': 'Всегда использовать группу по умолчанию',
       'enableStoreMetadataForRestore': 'Включить сохранение метаданных для восстановления',
       'enableStoreMetadataForRestoreHint': 'Если отключено, вы не сможете восстановить задачи загрузки',

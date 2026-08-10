@@ -131,12 +131,12 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
 
   @override
   GridGroup groupBuilder(BuildContext context, String groupName, bool inEditMode) {
-    List<GalleryDownloadInfo> gallerys = state.galleryObjectsWithGroup(groupName);
+    List<GalleryDownloadInfo> galleries = state.galleryObjectsWithGroup(groupName);
     return GridGroup(
       groupName: groupName,
-      contentSize: gallerys.length,
-      widgets: gallerys
-          .sublist(0, min(GridGroup.maxWidgetCount, gallerys.length))
+      contentSize: galleries.length,
+      widgets: galleries
+          .sublist(0, min(GridGroup.maxWidgetCount, galleries.length))
           .map(
             (gallery) => GetBuilder<GalleryDownloadService>(
               id: '${logic.downloadService.galleryDownloadSuccessId}::${gallery.gid}',

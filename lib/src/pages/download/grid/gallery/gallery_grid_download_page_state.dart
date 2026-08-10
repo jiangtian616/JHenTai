@@ -12,5 +12,5 @@ class GalleryGridDownloadPageState with Scroll2TopStateMixin, MultiSelectDownloa
 
   @override
   List<GalleryDownloadInfo> galleryObjectsWithGroup(String groupName) =>
-      galleryDownloadService.gallerys.where((gallery) => gallery.group == groupName).toList();
+      galleryDownloadService.galleries.where((gallery) => gallery.group == groupName).toList();
 }

@@ -97,7 +97,7 @@ class zh_CN {
       'filtered': '已过滤',
 
       /// gallery page
-      'getGallerysFailed': "获取画廊数据失败",
+      'getGalleriesFailed': "获取画廊数据失败",
       'tabBarSetting': '标签栏设置',
       'refreshGalleryFailed': '刷新画廊失败',
       'jumpPageTo': '跳转页面至',
@@ -686,10 +686,10 @@ favnote：匹配收藏备注
 
       /// ranklist page
       'getRanklistFailed': '获取排行榜数据失败',
-      'getSomeOfGallerysFailed': '获取部分画廊数据失败',
+      'getSomeOfGalleriesFailed': '获取部分画廊数据失败',
 
       /// history page
-      'getHistoryGallerysFailed': '获取历史数据失败',
+      'getHistoryGalleriesFailed': '获取历史数据失败',
 
       /// search page
       'search': '搜索',
@@ -734,8 +734,8 @@ favnote：匹配收藏备注
       'speedLimitHint': '下载太快可能会被限制',
       'per': '每',
       'images': '图片',
-      'downloadAllGallerysOfSamePriority': '同一优先级下同时下载所有画廊',
-      'downloadAllGallerysOfSamePriorityHint': '默认情况下逐优先级下载画廊，且每个优先级下只会同时下载一个画廊',
+      'downloadAllGalleriesOfSamePriority': '同一优先级下同时下载所有画廊',
+      'downloadAllGalleriesOfSamePriorityHint': '默认情况下逐优先级下载画廊，且每个优先级下只会同时下载一个画廊',
       'alwaysUseDefaultGroup': '总是使用默认分组',
       'restoreDownloadTasks': '恢复下载任务',
       'enableStoreMetadataForRestore': '允许储存下载元数据用来恢复下载记录',

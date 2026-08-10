@@ -171,7 +171,7 @@ class GalleryDownloadTaskRunner {
       }
 
       /// some gallery's [thumbnailsCountPerPage] is not equal to default setting, we need to compute and update it.
-      /// For example, default setting is 40, but some gallerys' thumbnails has only high quality thumbnails, which results in 20.
+      /// For example, default setting is 40, but some galleries' thumbnails has only high quality thumbnails, which results in 20.
       bool thumbnailsCountPerPageChanged = galleryDownloadInfo.thumbnailsCountPerPage != detailPageInfo.thumbnailsCountPerPage;
       galleryDownloadInfo.thumbnailsCountPerPage = detailPageInfo.thumbnailsCountPerPage;
 

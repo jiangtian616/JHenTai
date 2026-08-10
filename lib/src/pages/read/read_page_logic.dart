@@ -336,7 +336,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     state.parseImageHrefsStates[index] = LoadingState.idle;
 
     /// some gallery's [thumbnailsCountPerPage] is not equal to default setting, we need to compute and update it.
-    /// For example, default setting is 40, but some gallerys' thumbnails has only high quality thumbnails, which results in 20.
+    /// For example, default setting is 40, but some galleries' thumbnails has only high quality thumbnails, which results in 20.
     bool thumbnailsCountPerPageChanged = state.thumbnailsCountPerPage != detailPageInfo.thumbnailsCountPerPage;
     state.thumbnailsCountPerPage = detailPageInfo.thumbnailsCountPerPage;
 

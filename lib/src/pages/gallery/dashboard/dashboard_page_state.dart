@@ -15,6 +15,6 @@ class DashboardPageState extends BasePageState {
   LoadingState ranklistLoadingState = LoadingState.idle;
   LoadingState popularLoadingState = LoadingState.idle;
 
-  List<Gallery> ranklistGallerys = List.empty(growable: true);
-  List<Gallery> popularGallerys = List.empty(growable: true);
+  List<Gallery> ranklistGalleries = List.empty(growable: true);
+  List<Gallery> popularGalleries = List.empty(growable: true);
 }

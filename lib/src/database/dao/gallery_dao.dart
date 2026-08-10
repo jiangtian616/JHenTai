@@ -3,11 +3,11 @@ import 'package:drift/drift.dart';
 import '../database.dart';
 
 class GalleryDao {
-  static Future<List<GalleryDownloadedData>> selectGallerys() {
+  static Future<List<GalleryDownloadedData>> selectGalleries() {
     return appDb.select(appDb.galleryDownloaded).get();
   }
 
-  static Future<List<GalleryDownloadedData>> selectGallerysForTagRefresh(int pageNo, int pageSize) {
+  static Future<List<GalleryDownloadedData>> selectGalleriesForTagRefresh(int pageNo, int pageSize) {
     return (appDb.select(appDb.galleryDownloaded)
           ..orderBy([(gallery) => OrderingTerm(expression: gallery.tagRefreshTime)])
           ..limit(pageSize, offset: (pageNo - 1) * pageSize))
@@ -31,9 +31,9 @@ class GalleryDao {
     );
   }
 
-  static Future<void> batchUpdateGallery(List<GalleryDownloadedCompanion> gallerys) {
+  static Future<void> batchUpdateGallery(List<GalleryDownloadedCompanion> galleries) {
     return appDb.batch((batch) async {
-      for (GalleryDownloadedCompanion gallery in gallerys) {
+      for (GalleryDownloadedCompanion gallery in galleries) {
         batch.update(appDb.galleryDownloaded, gallery, where: (a) => a.gid.equals(gallery.gid.value));
       }
     });
@@ -48,7 +48,7 @@ class GalleryDao {
     return (appDb.delete(appDb.galleryDownloaded)..where((gallery) => gallery.gid.equals(gid))).go();
   }
 
-  static Future<List<GalleryDownloadedOldData>> selectOldGallerys() {
+  static Future<List<GalleryDownloadedOldData>> selectOldGalleries() {
     return (appDb.select(appDb.galleryDownloadedOld)..orderBy([(gallery) => OrderingTerm(expression: gallery.insertTime)])).get();
   }
 }

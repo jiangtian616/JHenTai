@@ -815,7 +815,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       builder: (_) => EHGalleryHistoryDialog(
         currentGalleryTitle: state.gallery?.title ?? state.galleryDetails?.japaneseTitle ?? state.galleryDetails?.rawTitle ?? '',
         parentUrl: state.galleryDetails?.parentGalleryUrl,
-        childrenGallerys: state.galleryDetails?.childrenGallerys,
+        childrenGalleries: state.galleryDetails?.childrenGalleries,
       ),
     );
   }
