@@ -569,7 +569,22 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     log.info('Re-download image, gid: $gid, index: $serialNo');
-    
+
+    /// Snapshot the per-image downloaded flag and materialize the list BEFORE
+    /// the status flip below. [GalleryDownloadProgress.hasDownloaded]
+    /// synthesizes an all-true list for `downloaded` galleries (backing
+    /// `_hasDownloaded` stays null); reading it after the CAS to `downloading`
+    /// would lazily allocate an all-false list — this decrement would never
+    /// fire, curCount would overshoot pageCount, and the gallery would stall
+    /// in `downloading` (the `curCount == totalCount` completion check would
+    /// never match again).
+    final bool wasDownloaded = gallery.downloadProgress.hasDownloaded[serialNo];
+
+    /// Copy the synthesized list into `_hasDownloaded` while still in the old
+    /// status, so flipping this one image back to downloading below doesn't
+    /// reset every other downloaded image's flag to false.
+    gallery.downloadProgress.hasDownloaded = List<bool>.from(gallery.downloadProgress.hasDownloaded);
+
     /// If the gallery is not currently `downloading`, CAS-flip it to
     /// `downloading` first (gated on the current status). This covers both
     /// `downloaded` (re-download a completed gallery's image) and `paused`
@@ -595,7 +610,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     _deleteImageInDisk(image);
 
-    if (gallery.downloadProgress.hasDownloaded[serialNo] == true) {
+    if (wasDownloaded) {
       gallery.downloadProgress.curCount--;
     }
     gallery.downloadProgress.hasDownloaded[serialNo] = false;
@@ -833,6 +848,17 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       }
 
       _initGalleryInfoInMemoryWithImages(gallery, restoredImages);
+
+      /// The metadata-restore path loads every gallery's full image list
+      /// (to derive curCount/hasDownloaded and the metadata snapshot). No
+      /// consumer retains at startup, so evict completed galleries' lists
+      /// right away to match the DB path ([_instantiateFromDB] loads only
+      /// coverImage). [GalleryDownloadInfo.evictImages] keeps coverImage
+      /// (serialNo 0) resident for list/grid cover display; incomplete
+      /// galleries keep their list for the download loop.
+      if (gallery.downloadStatusIndex == DownloadStatus.downloaded.index) {
+        galleryDownloadInfos[gallery.gid]!.evictImages();
+      }
 
       restoredCount++;
     }

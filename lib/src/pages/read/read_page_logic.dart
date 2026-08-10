@@ -34,7 +34,6 @@ import '../../model/read_page_info.dart';
 import '../../network/eh_request.dart';
 import '../../routes/routes.dart';
 import '../../service/log.dart';
-import '../../service/gallery_download/gallery_download_service.dart';
 import '../../service/gallery_download/gallery_images_retainer.dart';
 import '../../service/read_progress_service.dart';
 import '../../setting/preference_setting.dart';
@@ -43,6 +42,7 @@ import '../../utils/eh_spider_parser.dart';
 import '../../utils/route_util.dart';
 import '../../utils/toast_util.dart';
 import '../../widget/auto_mode_interval_dialog.dart';
+import '../../widget/eh_image.dart';
 import '../../widget/loading_state_indicator.dart';
 import '../home_page.dart';
 import '../setting/read/setting_read_page.dart';
@@ -253,6 +253,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
 
     state.focusNode.dispose();
     refreshCurrentTimeAndBatteryLevelTimer.cancel();
+    toggleTurnPageByVolumeKeyLister.dispose();
     toggleCurrentImmersiveModeLister.dispose();
     readDirectionLister.dispose();
     imageSpaceLister.dispose();
@@ -294,6 +295,10 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
     executor.close();
 
     WakelockPlus.disable();
+
+    /// Unpause + forget every animation gate this page created so a codec
+    /// parked on a gate is not frozen forever after the page is torn down.
+    EHImageAnimationGateRegistry.clear();
   }
 
   void beginToParseImageHref(int index) {
