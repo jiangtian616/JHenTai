@@ -1,34 +1,4 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io' as io;
-
-import 'package:dio/dio.dart';
-import 'package:executor/executor.dart';
-import 'package:extended_image/extended_image.dart';
-import 'package:get/get_rx/get_rx.dart';
-import 'package:get/get_utils/get_utils.dart';
-import 'package:jhentai/src/enum/config_enum.dart';
-import 'package:jhentai/src/exception/eh_image_exception.dart';
-import 'package:jhentai/src/exception/eh_parse_exception.dart';
-import 'package:jhentai/src/exception/eh_site_exception.dart';
-import 'package:jhentai/src/extension/dio_exception_extension.dart';
-import 'package:jhentai/src/model/jh_response/fetch_image_hashes_vo.dart';
-import 'package:jhentai/src/model/jh_response/jh_response.dart';
-import 'package:jhentai/src/network/jh_request.dart';
-import 'package:jhentai/src/service/local_config_service.dart';
-import 'package:jhentai/src/service/log.dart';
-import 'package:jhentai/src/setting/download_setting.dart';
-import 'package:jhentai/src/utils/jh_response_parser.dart';
-import 'package:retry/retry.dart';
-
-import '../../database/dao/gallery_image_dao.dart';
-import '../../model/detail_page_info.dart';
-import '../../model/gallery_image.dart';
-import '../../network/eh_request.dart';
-import '../../utils/eh_spider_parser.dart';
-import 'download_path_resolver.dart';
-import 'eh_image_exception_matcher.dart';
-import 'gallery_download_service.dart';
+part of 'gallery_download_service.dart';
 
 /// Orchestrates the per-gallery download pipeline: parse hrefs → parse urls →
 /// download bytes, with retry, re-parse, and upgrade-migration shortcuts.
@@ -36,19 +6,19 @@ import 'gallery_download_service.dart';
 /// Each instance is bound to a single [GalleryDownloadInfo] but is stateless
 /// across calls — runners are created on demand by [GalleryDownloadService].
 /// State mutation (status, progress, queue submission) is delegated back to
-/// the service via its public aliases.
-class GalleryDownloadTaskRunner {
+/// the service via its library-private aliases.
+class _GalleryDownloadTaskRunner {
   static const int _maxRetryTimes = 5;
   static const int _maxRetryTimes4FetchImageHashes = 3;
 
   final GalleryDownloadService _service;
   final GalleryDownloadInfo gallery;
 
-  GalleryDownloadTaskRunner(this._service, this.gallery);
+  _GalleryDownloadTaskRunner(this._service, this.gallery);
 
   AsyncTask<void> downloadGalleryTask() {
     return () async {
-      if (_service.taskHasBeenPausedOrRemoved(gallery)) {
+      if (_service._taskHasBeenPausedOrRemoved(gallery)) {
         return;
       }
 
@@ -57,7 +27,7 @@ class GalleryDownloadTaskRunner {
         List<String> imageHashes = await fetchImageHashesFromJHenTaiServer();
 
         if (imageHashes.length == gallery.pageCount) {
-          await _service.tryCopyImageInfosFromImageHashes(gallery, imageHashes);
+          await _service._upgradeMigrator.copyImageInfosFromImageHashes(gallery, imageHashes);
         } else {
           log.error('Image hashes count mismatch, gid: ${gallery.gid}, expected: ${gallery.pageCount}, actual: ${imageHashes.length}');
         }
@@ -70,7 +40,7 @@ class GalleryDownloadTaskRunner {
   }
 
   Future<List<String>> fetchImageHashesFromJHenTaiServer() async {
-    if (_service.taskHasBeenPausedOrRemoved(gallery)) {
+    if (_service._taskHasBeenPausedOrRemoved(gallery)) {
       return [];
     }
 
@@ -112,7 +82,7 @@ class GalleryDownloadTaskRunner {
   }
 
   Future<void> processImage(int serialNo) async {
-    if (_service.taskHasBeenPausedOrRemoved(gallery)) {
+    if (_service._taskHasBeenPausedOrRemoved(gallery)) {
       return;
     }
 
@@ -123,23 +93,23 @@ class GalleryDownloadTaskRunner {
       return;
     }
 
-    /// url has been parsed (DB row exists) => download directly
+    /// step 3: url has been parsed (DB row exists) => download directly
     if (galleryDownloadInfo.imageAtSync(serialNo) != null) {
-      return _service.submitImageTask(gallery, serialNo, () => downloadImageTask(serialNo));
+      return _service._submitImageTask(gallery, serialNo, () => downloadImageTask(serialNo));
     }
 
-    /// has parsed href => parse url
+    /// step 2: has parsed href => parse url
     if (galleryDownloadInfo.imageHrefs[serialNo] != null) {
-      return _service.submitImageTask(gallery, serialNo, () => parseImageUrlTask(serialNo));
+      return _service._submitImageTask(gallery, serialNo, () => parseImageUrlTask(serialNo));
     }
 
-    /// has not parsed href => parse href
-    _service.submitImageTask(gallery, serialNo, () => parseImageHrefTask(serialNo));
+    /// step 1: has not parsed href => parse href
+    _service._submitImageTask(gallery, serialNo, () => parseImageHrefTask(serialNo));
   }
 
   AsyncTask<void> parseImageHrefTask(int serialNo) {
     return () async {
-      if (_service.taskHasBeenPausedOrRemoved(gallery)) {
+      if (_service._taskHasBeenPausedOrRemoved(gallery)) {
         return;
       }
 
@@ -163,10 +133,10 @@ class GalleryDownloadTaskRunner {
         if (e.type == DioExceptionType.cancel) {
           return;
         }
-        return _service.submitImageTask(gallery, serialNo, () => parseImageHrefTask(serialNo));
+        return _service._submitImageTask(gallery, serialNo, () => parseImageHrefTask(serialNo));
       } on EHSiteException catch (e) {
         log.download('Parse image href error, reason: ${e.message}, gallery url: ${gallery.galleryUrl}');
-        await _service.pauseOnSiteError(gallery: gallery, pauseAll: e.shouldPauseAllDownloadTasks, message: e.message);
+        await _service._pauseOnSiteError(gallery: gallery, pauseAll: e.shouldPauseAllDownloadTasks, message: e.message);
         return;
       }
 
@@ -186,17 +156,17 @@ class GalleryDownloadTaskRunner {
           'Parse image hrefs error, thumbnails count per page is not equal to default setting, parse again. Thumbnails count per page: ${detailPageInfo.thumbnailsCountPerPage}, changed: $thumbnailsCountPerPageChanged',
         );
         await ehRequest.removeCacheByGalleryUrlAndPage(gallery.galleryUrl, requestPageIndex);
-        return _service.submitImageTask(gallery, serialNo, () => parseImageHrefTask(serialNo));
+        return _service._submitImageTask(gallery, serialNo, () => parseImageHrefTask(serialNo));
       }
 
       /// Next step: parse image url
-      _service.submitImageTask(gallery, serialNo, () => parseImageUrlTask(serialNo));
+      _service._submitImageTask(gallery, serialNo, () => parseImageUrlTask(serialNo));
     };
   }
 
   AsyncTask<void> parseImageUrlTask(int serialNo, {bool reParse = false, String? reloadKey}) {
     return () async {
-      if (_service.taskHasBeenPausedOrRemoved(gallery)) {
+      if (_service._taskHasBeenPausedOrRemoved(gallery)) {
         return;
       }
 
@@ -204,7 +174,7 @@ class GalleryDownloadTaskRunner {
 
       /// If this is a update from old gallery, try to copy from existing old image first
       if (gallery.oldVersionGalleryUrl != null) {
-        await _service.tryCopyImageInfoFromHref(gallery.oldVersionGalleryUrl!, gallery, serialNo);
+        await _service._upgradeMigrator.tryCopyImageInfoFromHref(gallery.oldVersionGalleryUrl!, gallery, serialNo);
 
         if (galleryDownloadInfo.imageAtSync(serialNo) != null) {
           return;
@@ -229,17 +199,17 @@ class GalleryDownloadTaskRunner {
         if (e.type == DioExceptionType.cancel) {
           return;
         }
-        return _service.submitImageTask(gallery, serialNo, () => parseImageUrlTask(serialNo, reParse: true));
+        return _service._submitImageTask(gallery, serialNo, () => parseImageUrlTask(serialNo, reParse: true));
       } on EHParseException catch (e) {
         log.download('Parse image url error, reason: ${e.message.tr}');
-        await _service.pauseOnSiteError(gallery: gallery, pauseAll: e.shouldPauseAllDownloadTasks, message: e.message.tr);
+        await _service._pauseOnSiteError(gallery: gallery, pauseAll: e.shouldPauseAllDownloadTasks, message: e.message.tr);
 
         ehRequest.removeCacheByUrl(galleryDownloadInfo.imageHrefs[serialNo]!.replacedMPVHref(serialNo + 1));
 
         return;
       } on EHSiteException catch (e) {
         log.download('Parse image url error, reason: ${e.message.tr}');
-        await _service.pauseOnSiteError(gallery: gallery, pauseAll: e.shouldPauseAllDownloadTasks, message: e.message.tr);
+        await _service._pauseOnSiteError(gallery: gallery, pauseAll: e.shouldPauseAllDownloadTasks, message: e.message.tr);
 
         return;
       }
@@ -252,31 +222,31 @@ class GalleryDownloadTaskRunner {
       image.path = DownloadPathResolver.computeImageDownloadRelativePath(gallery.toGalleryDownloadedData(), downloadUrl, serialNo);
       image.downloadStatus = DownloadStatus.downloading;
 
-      await _service.saveNewImageInfoInDatabase(image, serialNo, gallery.gid);
+      await _service._saveNewImageInfoInDatabase(image, serialNo, gallery.gid);
 
       galleryDownloadInfo.upsertImage(serialNo, image);
 
       log.download('Parse image url success, index: $serialNo, url: $downloadUrl');
 
       /// Next step: download image
-      return _service.submitImageTask(gallery, serialNo, () => downloadImageTask(serialNo));
+      return _service._submitImageTask(gallery, serialNo, () => downloadImageTask(serialNo));
     };
   }
 
   AsyncTask<void> downloadImageTask(int serialNo) {
     return () async {
-      if (_service.taskHasBeenPausedOrRemoved(gallery)) {
+      if (_service._taskHasBeenPausedOrRemoved(gallery)) {
         return;
       }
 
       GalleryDownloadInfo galleryDownloadInfo = _service.galleryDownloadInfos[gallery.gid]!;
       GalleryImage image = galleryDownloadInfo.imageAtSync(serialNo) ?? (await galleryDownloadInfo.imageAt(serialNo))!;
 
-      await _service.updateImageStatus(gallery, image, serialNo, DownloadStatus.downloading);
+      await _service._updateImageStatus(gallery, image, serialNo, DownloadStatus.downloading);
 
       /// If this is a update from old gallery, try to copy from existing old image first
       if (gallery.oldVersionGalleryUrl != null) {
-        await _service.tryCopyImageInfoFromImage(gallery.oldVersionGalleryUrl!, gallery, serialNo);
+        await _service._upgradeMigrator.tryCopyImageInfoFromImage(gallery.oldVersionGalleryUrl!, gallery, serialNo);
 
         if (image.downloadStatus == DownloadStatus.downloaded) {
           return;
@@ -320,10 +290,10 @@ class GalleryDownloadTaskRunner {
           return;
         }
         log.download('Download ${gallery.title} image: $serialNo failed, try re-parse. Reason: ${e.errorMsg}. Url:$downloadUrl');
-        return reParseImageUrlAndDownload(serialNo);
+        return _reParseImageUrlAndDownload(serialNo);
       } on EHSiteException catch (e) {
         log.download('Download Error, reason: ${e.message}');
-        await _service.pauseOnSiteError(gallery: gallery, pauseAll: e.shouldPauseAllDownloadTasks, message: e.message);
+        await _service._pauseOnSiteError(gallery: gallery, pauseAll: e.shouldPauseAllDownloadTasks, message: e.message);
         return;
       }
 
@@ -336,28 +306,28 @@ class GalleryDownloadTaskRunner {
 
         if (exception != null) {
           if (exception.operation == EHImageExceptionAfterOperation.reParse) {
-            return reParseImageUrlAndDownload(serialNo);
+            return _reParseImageUrlAndDownload(serialNo);
           }
-          return _service.pauseOnSiteError(
+          return _service._pauseOnSiteError(
             gallery: gallery,
             pauseAll: exception.operation == EHImageExceptionAfterOperation.pauseAll,
             message: exception.message,
           );
         }
-        return _service.pauseOnSiteError(gallery: gallery, pauseAll: false, message: 'downloadFailed'.tr);
+        return _service._pauseOnSiteError(gallery: gallery, pauseAll: false, message: 'downloadFailed'.tr);
       }
 
       log.download('Download ${gallery.title} image: $serialNo success');
 
-      await _service.updateImageStatus(gallery, image, serialNo, DownloadStatus.downloaded);
+      await _service._updateImageStatus(gallery, image, serialNo, DownloadStatus.downloaded);
 
-      await _service.updateProgressAfterImageDownloaded(gallery, serialNo);
+      await _service._updateProgressAfterImageDownloaded(gallery, serialNo);
     };
   }
 
   /// the image's url may be invalid, try re-parse and then download
-  Future<void> reParseImageUrlAndDownload(int serialNo) async {
-    if (_service.taskHasBeenPausedOrRemoved(gallery)) {
+  Future<void> _reParseImageUrlAndDownload(int serialNo) async {
+    if (_service._taskHasBeenPausedOrRemoved(gallery)) {
       return;
     }
 
@@ -369,11 +339,11 @@ class GalleryDownloadTaskRunner {
 
     /// has parsed href => parse url
     if (galleryDownloadInfo.imageHrefs[serialNo] != null) {
-      return _service.submitImageTask(gallery, serialNo, () => parseImageUrlTask(serialNo, reParse: true, reloadKey: reloadKey));
+      return _service._submitImageTask(gallery, serialNo, () => parseImageUrlTask(serialNo, reParse: true, reloadKey: reloadKey));
     }
 
     /// has not parsed href => parse href
-    return _service.submitImageTask(gallery, serialNo, () => parseImageHrefTask(serialNo));
+    return _service._submitImageTask(gallery, serialNo, () => parseImageHrefTask(serialNo));
   }
 
   Future<void> tryLoadFromCacheInsteadDownload(GalleryImage image, String downloadUrl, int serialNo, String path) async {
@@ -381,8 +351,8 @@ class GalleryDownloadTaskRunner {
     if (cachedImageFile != null && cachedImageFile.existsSync()) {
       log.debug('download image from cache, gallery: ${gallery.gid}, serialNo:$serialNo');
       await cachedImageFile.copy(path);
-      await _service.updateImageStatus(gallery, image, serialNo, DownloadStatus.downloaded);
-      await _service.updateProgressAfterImageDownloaded(gallery, serialNo);
+      await _service._updateImageStatus(gallery, image, serialNo, DownloadStatus.downloaded);
+      await _service._updateProgressAfterImageDownloaded(gallery, serialNo);
     }
   }
 }

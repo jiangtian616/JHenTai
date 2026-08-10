@@ -1,15 +1,4 @@
-import 'dart:io' as io;
-
-import 'package:collection/collection.dart';
-import 'package:jhentai/src/extension/list_extension.dart';
-import 'package:path/path.dart' as path;
-
-import '../../model/gallery_image.dart';
-import 'download_path_resolver.dart';
-import 'gallery_download_service.dart';
-import '../log.dart';
-import '../path_service.dart';
-import '../super_resolution_service.dart';
+part of 'gallery_download_service.dart';
 
 /// Handles copying image data (bytes + metadata + super-resolution info) from
 /// an old gallery version to a new one during a gallery update. Locates
@@ -19,10 +8,10 @@ import '../super_resolution_service.dart';
 /// Holds a back-reference to [GalleryDownloadService] for DB writes, progress
 /// updates, and metadata persistence — the migrator is an orchestration layer
 /// over the service's primitives, not an independent data store.
-class GalleryUpgradeMigrator {
+class _GalleryUpgradeMigrator {
   final GalleryDownloadService _service;
 
-  GalleryUpgradeMigrator(this._service);
+  _GalleryUpgradeMigrator(this._service);
 
   /// Bulk-copy matching images by hash. Called once per gallery update after
   /// [fetchImageHashes] returns. Iterates all serialNos; for each, finds the
@@ -40,7 +29,7 @@ class GalleryUpgradeMigrator {
     await oldGallery.ensureImagesLoaded();
 
     for (int serialNo = 0; serialNo < newGallery.pageCount; serialNo++) {
-      if (_service.taskHasBeenPausedOrRemoved(newGallery)) {
+      if (_service._taskHasBeenPausedOrRemoved(newGallery)) {
         break;
       }
 
@@ -73,22 +62,22 @@ class GalleryUpgradeMigrator {
       await oldFile.copy(path.join(pathService.getVisibleDir().path, newImage.path!));
 
       if (newGallery.imageAtSync(serialNo) == null) {
-        await _service.saveNewImageInfoInDatabase(newImage, serialNo, newGallery.gid);
+        await _service._saveNewImageInfoInDatabase(newImage, serialNo, newGallery.gid);
         newGallery.upsertImage(serialNo, newImage);
       } else {
-        await _service.updateImageStatus(newGallery, newImage, serialNo, DownloadStatus.downloaded);
+        await _service._updateImageStatus(newGallery, newImage, serialNo, DownloadStatus.downloaded);
       }
 
-      await _service.updateProgressAfterImageDownloaded(newGallery, serialNo);
+      await _service._updateProgressAfterImageDownloaded(newGallery, serialNo);
 
       await superResolutionService.copyImageInfo(oldGallery.toGalleryDownloadedData(), newGallery.toGalleryDownloadedData(), oldImageSerialNo, serialNo);
     }
 
-    _service.saveGalleryMetadataInDisk(newGallery);
+    _service._saveGalleryMetadataInDisk(newGallery);
   }
 
   /// Try to copy a single image's info using its href's originImageHash.
-  /// Called from [_parseImageUrlTask] before parsing the image URL — if the
+  /// Called from [parseImageUrlTask] before parsing the image URL — if the
   /// old gallery has a matching image, we skip the parse entirely.
   Future<void> tryCopyImageInfoFromHref(String oldVersionGalleryUrl, GalleryDownloadInfo newGallery, int newImageSerialNo) {
     final String? newImageHash = newGallery.imageHrefs[newImageSerialNo]!.originImageHash;
@@ -103,7 +92,7 @@ class GalleryUpgradeMigrator {
   }
 
   /// If two images' [imageHash] is equal, they are the same image.
-  /// Called from [_downloadImageTask] after parsing the image URL — if the
+  /// Called from [downloadImageTask] after parsing the image URL — if the
   /// old gallery has a matching image, we skip the download entirely.
   Future<void> tryCopyImageInfoFromImage(String oldVersionGalleryUrl, GalleryDownloadInfo newGallery, int newImageSerialNo) {
     final String? hash = newGallery.imageAtSync(newImageSerialNo)?.imageHash;
@@ -159,7 +148,7 @@ class GalleryUpgradeMigrator {
         path: DownloadPathResolver.computeImageDownloadRelativePath(newGallery.toGalleryDownloadedData(), oldDownloadUrl, newImageSerialNo),
         downloadStatus: newImageDownloadStatus!,
       );
-      await _service.saveNewImageInfoInDatabase(newImage, newImageSerialNo, newGallery.gid);
+      await _service._saveNewImageInfoInDatabase(newImage, newImageSerialNo, newGallery.gid);
       newGallery.upsertImage(newImageSerialNo, newImage);
     }
 
@@ -175,8 +164,8 @@ class GalleryUpgradeMigrator {
     io.File oldFile = io.File(path.join(pathService.getVisibleDir().path, oldImage.path!));
     await oldFile.copy(path.join(pathService.getVisibleDir().path, newImage.path!));
 
-    await _service.updateImageStatus(newGallery, newImage, newImageSerialNo, DownloadStatus.downloaded);
+    await _service._updateImageStatus(newGallery, newImage, newImageSerialNo, DownloadStatus.downloaded);
 
-    await _service.updateProgressAfterImageDownloaded(newGallery, newImageSerialNo);
+    await _service._updateProgressAfterImageDownloaded(newGallery, newImageSerialNo);
   }
 }

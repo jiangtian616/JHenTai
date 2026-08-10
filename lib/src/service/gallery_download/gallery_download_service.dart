@@ -9,6 +9,7 @@ import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:executor/executor.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
@@ -19,14 +20,23 @@ import 'package:intl/intl.dart';
 import 'package:jhentai/src/database/dao/gallery_dao.dart';
 import 'package:jhentai/src/database/dao/gallery_group_dao.dart';
 import 'package:jhentai/src/database/database.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
+import 'package:jhentai/src/exception/eh_image_exception.dart';
+import 'package:jhentai/src/exception/eh_parse_exception.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
+import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
+import 'package:jhentai/src/model/jh_response/fetch_image_hashes_vo.dart';
+import 'package:jhentai/src/model/jh_response/jh_response.dart';
+import 'package:jhentai/src/network/jh_request.dart';
+import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/utils/convert_util.dart';
+import 'package:jhentai/src/utils/jh_response_parser.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:path/path.dart' as path;
@@ -36,11 +46,8 @@ import '../../consts/locale_consts.dart';
 import '../../database/dao/gallery_image_dao.dart';
 import '../../exception/cancel_exception.dart';
 import '../../exception/eh_site_exception.dart';
-import 'download_path_resolver.dart';
-import 'gallery_metadata_store.dart';
-import 'gallery_download_task_runner.dart';
-import 'gallery_upgrade_migrator.dart';
 import '../../model/comic_info.dart';
+import '../../model/detail_page_info.dart';
 import '../../model/gallery_detail.dart';
 import '../../model/gallery_image.dart';
 import '../../network/eh_request.dart';
@@ -50,6 +57,12 @@ import '../../utils/eh_spider_parser.dart';
 import '../../utils/snack_util.dart';
 import '../jh_service.dart';
 import '../path_service.dart';
+import 'download_path_resolver.dart';
+import 'eh_image_exception_matcher.dart';
+
+part 'gallery_download_task_runner.dart';
+part 'gallery_upgrade_migrator.dart';
+part 'gallery_metadata_store.dart';
 
 /// Responsible for local images meta-data and download all images of a gallery
 GalleryDownloadService galleryDownloadService = GalleryDownloadService();
@@ -103,8 +116,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   static const int defaultDownloadGalleryPriority = 4;
 
   /// Backward-compat alias — external callers read this const to locate the
-  /// metadata file. The canonical home is now [GalleryMetadataStore].
-  static const String metadataFileName = GalleryMetadataStore.metadataFileName;
+  /// metadata file. The canonical home is now [_GalleryMetadataStore].
+  static const String metadataFileName = _GalleryMetadataStore.metadataFileName;
   static const int _priorityBase = 100000000;
 
   final Completer<bool> _completer = Completer();
@@ -179,7 +192,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     _submitTask(
       gid: info.gid,
       priority: _computeGalleryTaskPriority(info),
-      task: GalleryDownloadTaskRunner(this, info).downloadGalleryTask(),
+      task: _GalleryDownloadTaskRunner(this, info).downloadGalleryTask(),
     );
   }
 
@@ -216,8 +229,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     /// Snapshot the downloading galleries — pauseDownloadGallery mutates
     /// `downloadProgress.downloadStatus` mid-iteration, so we can't filter
     /// lazily against the live map.
-    final List<GalleryDownloadInfo> downloading =
-        galleryDownloadInfos.values.where((g) => g.downloadProgress.downloadStatus == DownloadStatus.downloading).toList();
+    final List<GalleryDownloadInfo> downloading = galleryDownloadInfos.values.where((g) => g.downloadProgress.downloadStatus == DownloadStatus.downloading).toList();
     if (downloading.isEmpty) return;
 
     /// Single transaction: bulk gallery status + bulk image status.
@@ -361,7 +373,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       _submitTask(
         gid: info.gid,
         priority: _computeGalleryTaskPriority(info),
-        task: GalleryDownloadTaskRunner(this, info).downloadGalleryTask(),
+        task: _GalleryDownloadTaskRunner(this, info).downloadGalleryTask(),
       );
     }
   }
@@ -529,7 +541,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     update(['$galleryDownloadSuccessId::${gallery.gid}', '$galleryDownloadProgressId::${gallery.gid}']);
 
-    GalleryDownloadTaskRunner(this, gallery).reParseImageUrlAndDownload(serialNo);
+    _GalleryDownloadTaskRunner(this, gallery)._reParseImageUrlAndDownload(serialNo);
   }
 
   Future<void> assignPriority(GalleryDownloadInfo gallery, int priority) async {
@@ -699,12 +711,12 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     /// Parse all metadata files in a single background isolate. Each parse
-    /// is pure (static [GalleryMetadataStore.readForRestore]); only primitive
+    /// is pure (static [_GalleryMetadataStore.readForRestore]); only primitive
     /// paths cross the isolate boundary.
     final List<({GalleryDownloadedData gallery, List<GalleryImage?> images})?> restoredList = await Isolate.run(() {
       return galleryDirPaths.map((p) {
         try {
-          return GalleryMetadataStore.readForRestore(io.Directory(p));
+          return _GalleryMetadataStore.readForRestore(io.Directory(p));
         } catch (e, st) {
           // Logging from a worker isolate may not reach file handlers; swallow
           // here so one bad metadata file doesn't abort the whole restore.
@@ -952,29 +964,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     return galleryDownloadInfos[gallery.gid] == null || galleryDownloadInfos[gallery.gid]!.downloadProgress.downloadStatus == DownloadStatus.paused;
   }
 
-  /// Public alias for cross-class use (e.g. [GalleryUpgradeMigrator]).
-  bool taskHasBeenPausedOrRemoved(GalleryDownloadInfo gallery) => _taskHasBeenPausedOrRemoved(gallery);
-
   bool _taskHasBeenRemoved(GalleryDownloadInfo gallery) {
     return galleryDownloadInfos[gallery.gid] == null;
   }
-
-  /// Public alias for cross-class use (e.g. [GalleryDownloadTaskRunner]).
-  bool taskHasBeenRemoved(GalleryDownloadInfo gallery) => _taskHasBeenRemoved(gallery);
-
-  void submitImageTask(GalleryDownloadInfo gallery, int serialNo, AsyncTask<void> Function() taskBuilder) => _submitImageTask(gallery, serialNo, taskBuilder);
-
-  Future<void> pauseOnSiteError({required GalleryDownloadInfo gallery, required bool pauseAll, String? message}) =>
-      _pauseOnSiteError(gallery: gallery, pauseAll: pauseAll, message: message);
-
-  Future<void> tryCopyImageInfosFromImageHashes(GalleryDownloadInfo newGallery, List<String> imageHashes) =>
-      _upgradeMigrator.copyImageInfosFromImageHashes(newGallery, imageHashes);
-
-  Future<void> tryCopyImageInfoFromHref(String oldVersionGalleryUrl, GalleryDownloadInfo newGallery, int newImageSerialNo) =>
-      _upgradeMigrator.tryCopyImageInfoFromHref(oldVersionGalleryUrl, newGallery, newImageSerialNo);
-
-  Future<void> tryCopyImageInfoFromImage(String oldVersionGalleryUrl, GalleryDownloadInfo newGallery, int newImageSerialNo) =>
-      _upgradeMigrator.tryCopyImageInfoFromImage(oldVersionGalleryUrl, newGallery, newImageSerialNo);
 
   Future<void> _updateProgressAfterImageDownloaded(GalleryDownloadInfo gallery, int serialNo) async {
     if (_taskHasBeenRemoved(gallery)) {
@@ -999,9 +991,6 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     update(['$galleryDownloadProgressId::${gallery.gid}']);
   }
-
-  /// Public alias for cross-class use (e.g. [GalleryUpgradeMigrator]).
-  Future<void> updateProgressAfterImageDownloaded(GalleryDownloadInfo gallery, int serialNo) => _updateProgressAfterImageDownloaded(gallery, serialNo);
 
   Future<void> _instantiateFromDB() async {
     /// Parallelize the three startup DB queries — they have no data dependency
@@ -1081,10 +1070,6 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     return true;
   }
-
-  /// Public alias for cross-class use (e.g. [GalleryUpgradeMigrator]).
-  Future<bool> updateImageStatus(GalleryDownloadInfo gallery, GalleryImage image, int serialNo, DownloadStatus downloadStatus) =>
-      _updateImageStatus(gallery, image, serialNo, downloadStatus);
 
   Future<bool> _addGroup(String group) async {
     if (!allGroups.contains(group)) {
@@ -1220,9 +1205,6 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         0;
   }
 
-  /// Public alias for cross-class use (e.g. [GalleryUpgradeMigrator]).
-  Future<bool> saveNewImageInfoInDatabase(GalleryImage image, int serialNo, int gid) => _saveNewImageInfoInDatabase(image, serialNo, gid);
-
   Future<bool> _updateGalleryInDatabase(GalleryDownloadedCompanion gallery) async {
     return await GalleryDao.updateGallery(gallery) > 0;
   }
@@ -1275,16 +1257,13 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   // Disk
 
   /// Per-gallery metadata JSON persistence (debounced writes + disk reads for restore).
-  late final GalleryMetadataStore _metadataStore = GalleryMetadataStore(this);
+  late final _GalleryMetadataStore _metadataStore = _GalleryMetadataStore(this);
 
   /// Gallery upgrade migration: copy image bytes + metadata from an old gallery
   /// version to a new one by matching imageHash.
-  late final GalleryUpgradeMigrator _upgradeMigrator = GalleryUpgradeMigrator(this);
+  late final _GalleryUpgradeMigrator _upgradeMigrator = _GalleryUpgradeMigrator(this);
 
   void _saveGalleryMetadataInDisk(GalleryDownloadInfo gallery) => _metadataStore.save(gallery);
-
-  /// Public alias for cross-class use (e.g. [GalleryUpgradeMigrator]).
-  void saveGalleryMetadataInDisk(GalleryDownloadInfo gallery) => _metadataStore.save(gallery);
 
   Future<void> _flushMetadataSave(GalleryDownloadInfo gallery) => _metadataStore.flush(gallery);
 

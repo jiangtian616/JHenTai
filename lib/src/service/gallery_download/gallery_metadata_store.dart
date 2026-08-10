@@ -1,21 +1,10 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io' as io;
-
-import 'package:drift/drift.dart' show Value;
-import 'package:path/path.dart' as path;
-
-import '../../database/database.dart';
-import '../../model/gallery_image.dart';
-import 'download_path_resolver.dart';
-import 'gallery_download_service.dart';
-import '../log.dart';
+part of 'gallery_download_service.dart';
 
 /// Owns gallery metadata JSON persistence: throttled writes, immediate flush,
 /// and disk reads for restore. The in-memory state lives in
 /// [GalleryDownloadService.galleryDownloadInfos]; this class only handles
 /// serializing that state to/from `metadata` files on disk.
-class GalleryMetadataStore {
+class _GalleryMetadataStore {
   static const String metadataFileName = 'metadata';
 
   /// Throttle window. The first [save] after a gallery becomes dirty starts
@@ -43,7 +32,7 @@ class GalleryMetadataStore {
   /// write so the on-disk state never goes backwards.
   final Map<int, Future<void>> _metadataWrites = {};
 
-  GalleryMetadataStore(this._service);
+  _GalleryMetadataStore(this._service);
 
   /// Mark [gallery] dirty and ensure a throttle timer is running. Safe to call
   /// from sync contexts. The actual disk write happens at most once per
