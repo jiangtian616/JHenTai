@@ -7,10 +7,21 @@ import 'package:image/image.dart' as image;
 
 import 'inference_exception.dart';
 import 'inference_task.dart';
-import 'onnx_model_store.dart';
 import 'onnx_ocr_engine.dart' show OnnxProviderResolver;
 import 'onnx_runtime.dart';
 import 'super_resolution_inference_engine.dart';
+
+/// Immutable Real-ESRGAN model-file info, resolved on the UI isolate and passed
+/// to the super-resolution worker isolate, which cannot touch [OnnxModelStore].
+class OnnxSuperResolutionModelInfo {
+  const OnnxSuperResolutionModelInfo({
+    required this.modelPath,
+    required this.fingerprint,
+  });
+
+  final String modelPath;
+  final String fingerprint;
+}
 
 /// Tiled Real-ESRGAN anime x4 implementation.
 ///
@@ -18,11 +29,21 @@ import 'super_resolution_inference_engine.dart';
 /// copied to the destination. This prevents seams without retaining a whole
 /// float output tensor for the page. The final RGBA canvas remains bounded by a
 /// platform-specific pixel budget.
+///
+/// All work is performed on the calling isolate; the super-resolution worker
+/// isolate owns an [OnnxRuntime] instance and drives this engine off the UI
+/// thread.
 class OnnxSuperResolutionInferenceEngine
     implements SuperResolutionInferenceEngine {
-  OnnxSuperResolutionInferenceEngine({required this.providerResolver});
+  OnnxSuperResolutionInferenceEngine({
+    required this.runtime,
+    required this.providerResolver,
+    required this.model,
+  });
 
+  final OnnxRuntime runtime;
   final OnnxProviderResolver providerResolver;
+  final OnnxSuperResolutionModelInfo model;
 
   static const int _modelScale = 4;
   static const int _tileCore = 128;
@@ -33,12 +54,7 @@ class OnnxSuperResolutionInferenceEngine
   String get displayName => 'ONNX · Real-ESRGAN anime 6B';
 
   @override
-  bool get isReady =>
-      OnnxRuntime.instance.isAvailable &&
-      providerResolver().isNotEmpty &&
-      OnnxModelStore.instance.isManifestDownloaded(
-        OnnxModelStore.superResolutionManifestId,
-      );
+  bool get isReady => runtime.isAvailable && providerResolver().isNotEmpty;
 
   @override
   Future<void> upscale({
@@ -62,24 +78,18 @@ class OnnxSuperResolutionInferenceEngine
         await sourceFile.length() > _maxInputBytes) {
       throw StateError('super-resolution input is missing or exceeds 150 MiB');
     }
-    final String? modelPath = OnnxModelStore.instance.filePath(
-      OnnxModelStore.superResolutionManifestId,
-      'model',
-    );
-    final String? fingerprint = OnnxModelStore.instance.fingerprintOf(
-      OnnxModelStore.superResolutionManifestId,
-    );
-    if (modelPath == null || fingerprint == null) {
-      throw const InferenceNotReadyException('onnx-super-resolution');
-    }
-    final ort.OrtSession? session = await OnnxRuntime.instance.session(
-      modelPath,
-      modelFingerprint: fingerprint,
+    final ort.OrtSession? session = await runtime.session(
+      model.modelPath,
+      modelFingerprint: model.fingerprint,
       providers: providerResolver(),
     );
     if (session == null) {
       throw const InferenceNotReadyException('onnx-super-resolution');
     }
+    // Session creation (slow on first load) and the decode below are long
+    // awaits with no checkpoint; honour a cancel that lands during setup so we
+    // do not read + decode + allocate the output canvas only to discard it.
+    token.throwIfCancelled();
 
     final image.Image? decoded = image.decodeImage(
       await sourceFile.readAsBytes(),
@@ -88,6 +98,7 @@ class OnnxSuperResolutionInferenceEngine
       throw StateError('unsupported super-resolution image');
     }
     final image.Image source = image.bakeOrientation(decoded);
+    token.throwIfCancelled();
     final int outWidth = _checkedMultiply(source.width, scale);
     final int outHeight = _checkedMultiply(source.height, scale);
     final int outputPixels = _checkedMultiply(outWidth, outHeight);
@@ -105,6 +116,10 @@ class OnnxSuperResolutionInferenceEngine
       height: outHeight,
       numChannels: 4,
     );
+    // The full output canvas (up to ~400 MB on desktop / ~160 MB on mobile) is
+    // now allocated; abort here if the user cancelled during setup rather than
+    // running every tile for a result nobody will keep.
+    token.throwIfCancelled();
 
     final int tilesX = (source.width / _tileCore).ceil();
     final int tilesY = (source.height / _tileCore).ceil();
@@ -196,7 +211,7 @@ class OnnxSuperResolutionInferenceEngine
     Map<String, ort.OrtValue>? outputs;
     try {
       token.throwIfCancelled();
-      outputs = await OnnxRuntime.instance.run(session, <String, ort.OrtValue>{
+      outputs = await runtime.run(session, <String, ort.OrtValue>{
         session.inputNames.first: inputTensor,
       });
       token.throwIfCancelled();

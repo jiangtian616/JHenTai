@@ -557,6 +557,11 @@ class ru_RU {
       'superResolutionEngine': 'Движок',
       'superResolutionEngineNcnnVulkan': 'ncnn-vulkan (внешний)',
       'superResolutionEngineOnnx': 'ONNX (в приложении)',
+      'onnxModelDescRapidOcrSmall': 'Полный многоязычный словарь PP-OCRv6 с высокой точностью распознавания при умеренных размере и скорости. Подходит для большинства комиксов и изображений.',
+      'onnxModelDescRapidOcrTiny': 'Сокращённый словарь и лёгкие сети: самый быстрый и компактный вариант, но с меньшим набором символов и чуть меньшей точностью на сложных глифах. Лучше всего подходит для слабых устройств или максимальной скорости.',
+      'onnxModelDescRealEsrgan6B': 'Высокое качество: больше всего деталей и лучшее качество, медленнее.',
+      'onnxModelDescRealEsrgan4B32F': 'Быстрый вариант: примерно в 3-4 раза быстрее с чуть меньшим количеством деталей; идеально для пакетной обработки.',
+      'superResolutionModelPickerHint': 'Смена модели требует повторной обработки страниц',
       'stopSuperResolution': 'Остановить супер-разрешение',
       'deleteSuperResolvedImage': 'Удалить обработанное изображение',
       'superResolveOriginalImageHint':
@@ -1090,6 +1095,8 @@ class ru_RU {
       'imageTranslationOcrFailed':
           'Не удалось распознать текст. Проверьте языковые пакеты OCR и формат изображения.',
       'imageTranslationNoText': 'На изображении не найден текст.',
+      'imageTranslationAlreadyTranslated': 'Эта страница уже переведена.',
+      'imageTranslationCancelled': 'Перевод отменён.',
       'imageTranslationRequestFailed':
           'Ошибка запроса перевода. Проверьте адрес, ключ и сеть.',
       'imageTranslationInvalidResponse': 'Переводчик вернул неверный ответ.',

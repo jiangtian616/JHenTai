@@ -19,6 +19,19 @@ class AdvancedSetting
   RxBool inNoImageMode = false.obs;
   RxBool enableLanSharing = false.obs;
 
+  /// When true, the download page's "Local" tab shows the LAN gallery directory
+  /// (galleries on connected trusted devices) instead of local files.
+  RxBool lanLocalTabAsLan = false.obs;
+
+  /// When true (desktop only), closing the window keeps the app resident in the
+  /// background (system tray / menu bar) so the LAN sharing server stays up.
+  RxBool lanStayResident = false.obs;
+
+  /// Server mode: this device acts as the storage/cache for connected devices.
+  /// Images peers browse are downloaded here and cached on THIS device, so the
+  /// peer keeps almost no cache of its own.
+  RxBool lanServerMode = false.obs;
+
   @override
   ConfigEnum get configEnum => ConfigEnum.advancedSetting;
 
@@ -35,6 +48,11 @@ class AdvancedSetting
         map['enableCheckClipboard'] ?? enableCheckClipboard.value;
     inNoImageMode.value = map['inNoImageMode'] ?? inNoImageMode.value;
     enableLanSharing.value = map['enableLanSharing'] ?? enableLanSharing.value;
+    lanLocalTabAsLan.value =
+        map['lanLocalTabAsLan'] ?? lanLocalTabAsLan.value;
+    lanStayResident.value =
+        map['lanStayResident'] ?? lanStayResident.value;
+    lanServerMode.value = map['lanServerMode'] ?? lanServerMode.value;
   }
 
   @override
@@ -46,6 +64,9 @@ class AdvancedSetting
       'enableCheckClipboard': enableCheckClipboard.value,
       'inNoImageMode': inNoImageMode.value,
       'enableLanSharing': enableLanSharing.value,
+      'lanLocalTabAsLan': lanLocalTabAsLan.value,
+      'lanStayResident': lanStayResident.value,
+      'lanServerMode': lanServerMode.value,
     });
   }
 
@@ -82,6 +103,24 @@ class AdvancedSetting
   Future<void> saveInNoImageMode(bool inNoImageMode) async {
     log.debug('saveInNoImageMode:$inNoImageMode');
     this.inNoImageMode.value = inNoImageMode;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveLanLocalTabAsLan(bool value) async {
+    log.debug('saveLanLocalTabAsLan:$value');
+    lanLocalTabAsLan.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveLanStayResident(bool value) async {
+    log.debug('saveLanStayResident:$value');
+    lanStayResident.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveLanServerMode(bool value) async {
+    log.debug('saveLanServerMode:$value');
+    lanServerMode.value = value;
     await saveBeanConfig();
   }
 

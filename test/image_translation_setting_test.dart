@@ -12,9 +12,7 @@ void main() {
       "appleLiveTextLanguage": "ja-JP,en-US",
       "appleLiveTextAutoSelected": true,
       "appleLiveTextUseThirdPartyApi": true,
-      "lastCustomOcrEngine": "paddleOcr",
-      "ocrLanguage": "jpn+eng",
-      "paddleOcrLanguage": "japan"
+      "lastCustomOcrEngine": "paddleOcr"
     }
     ''');
 
@@ -23,7 +21,8 @@ void main() {
     expect(setting.appleLiveTextLanguage.value, 'ja-JP,en-US');
     expect(setting.appleLiveTextAutoSelected.value, isTrue);
     expect(setting.appleLiveTextUseThirdPartyApi.value, isTrue);
-    expect(setting.lastCustomOcrEngine.value, ImageOcrEngine.paddleOcr);
+    // "paddleOcr" no longer exists in the enum; custom mode is fixed to ONNX.
+    expect(setting.lastCustomOcrEngine.value, ImageOcrEngine.onnx);
     // The API toggle is on, so translation is not fully on-device.
     expect(setting.usesAppleOnDeviceTranslation, isFalse);
 
@@ -33,13 +32,13 @@ void main() {
     expect(encoded['appleLiveTextLanguage'], 'ja-JP,en-US');
     expect(encoded['appleLiveTextAutoSelected'], isTrue);
     expect(encoded['appleLiveTextUseThirdPartyApi'], isTrue);
-    expect(encoded['lastCustomOcrEngine'], 'paddleOcr');
+    expect(encoded['lastCustomOcrEngine'], 'onnx');
   });
 
   test('unknown OCR engine degrades safely to the current value', () {
     final ImageTranslationSetting setting = ImageTranslationSetting();
     setting.applyBeanConfig('{"ocrEngine": "unknownEngine"}');
-    expect(setting.ocrEngine.value, ImageOcrEngine.tesseract);
+    expect(setting.ocrEngine.value, ImageOcrEngine.onnx);
   });
 
   test('auto-translate-gallery-text setting survives a config round-trip', () {

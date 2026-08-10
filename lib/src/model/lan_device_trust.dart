@@ -183,6 +183,61 @@ class LanPairingAcceptance {
   });
 }
 
+/// A single downloaded-gallery summary a trusted host serves to a peer, so the
+/// peer can browse the host's library without fetching gallery metadata itself.
+class LanSharedGallerySummary {
+  final String deviceId;
+  final String deviceName;
+  final int gid;
+  final String token;
+  final String title;
+  final String galleryUrl;
+  final int pageCount;
+  final String category;
+  final String publishTime;
+  final String? coverUrl;
+
+  const LanSharedGallerySummary({
+    required this.deviceId,
+    required this.deviceName,
+    required this.gid,
+    required this.token,
+    required this.title,
+    required this.galleryUrl,
+    required this.pageCount,
+    required this.category,
+    required this.publishTime,
+    this.coverUrl,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'deviceId': deviceId,
+    'deviceName': deviceName,
+    'gid': gid,
+    'token': token,
+    'title': title,
+    'galleryUrl': galleryUrl,
+    'pageCount': pageCount,
+    'category': category,
+    'publishTime': publishTime,
+    if (coverUrl != null) 'coverUrl': coverUrl,
+  };
+
+  factory LanSharedGallerySummary.fromJson(Map<String, dynamic> json) =>
+      LanSharedGallerySummary(
+        deviceId: json['deviceId'] as String? ?? '',
+        deviceName: json['deviceName'] as String? ?? '',
+        gid: (json['gid'] as num?)?.toInt() ?? 0,
+        token: json['token'] as String? ?? '',
+        title: json['title'] as String? ?? '',
+        galleryUrl: json['galleryUrl'] as String? ?? '',
+        pageCount: (json['pageCount'] as num?)?.toInt() ?? 0,
+        category: json['category'] as String? ?? '',
+        publishTime: json['publishTime'] as String? ?? '',
+        coverUrl: json['coverUrl'] as String?,
+      );
+}
+
 extension _IterableFirstOrNull<T> on Iterable<T> {
   T? get firstOrNull {
     final Iterator<T> iterator = this.iterator;

@@ -122,3 +122,73 @@ class OnnxModelTile extends StatelessWidget {
     );
   }
 }
+
+/// Lists every model of [kind] (e.g. 'ocr', 'superResolution') with its
+/// description — how that tier differs in speed / size / accuracy — below the
+/// name, and a radio marking the currently active one. Tapping a row selects it
+/// via [onSelect].
+class OnnxModelPicker extends StatelessWidget {
+  const OnnxModelPicker({
+    super.key,
+    required this.kind,
+    required this.activeId,
+    required this.onSelect,
+  });
+
+  final String kind;
+  final String activeId;
+  final ValueChanged<String> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final List<OnnxModelManifest> models =
+        OnnxModelStore.instance.manifestsOfKind(kind);
+    if (models.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    final ColorScheme scheme = Theme.of(context).colorScheme;
+    return Column(
+      children: [
+        for (final OnnxModelManifest model in models)
+          InkWell(
+            onTap: () => onSelect(model.id),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Icon(
+                      model.id == activeId
+                          ? Icons.radio_button_checked
+                          : Icons.radio_button_off,
+                      size: 20,
+                      color: scheme.primary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(model.displayName),
+                        const SizedBox(height: 2),
+                        Text(
+                          model.description.tr,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}

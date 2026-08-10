@@ -15,26 +15,6 @@ class _LanguageOption {
   final String label;
 }
 
-const List<_LanguageOption> _ocrLanguageOptions = [
-  _LanguageOption('jpn+eng', '日语 + 英语'),
-  _LanguageOption('jpn', '日语（横排）'),
-  _LanguageOption('jpn_vert', '日语（竖排）'),
-  _LanguageOption('chi_sim', '简体中文'),
-  _LanguageOption('chi_tra', '繁体中文'),
-  _LanguageOption('eng', '英语'),
-  _LanguageOption('kor', '韩语'),
-  _LanguageOption('chi_sim+eng', '简中 + 英语'),
-  _LanguageOption('chi_tra+eng', '繁中 + 英语'),
-];
-
-const List<_LanguageOption> _paddleLanguageOptions = [
-  _LanguageOption('japan', '日本語'),
-  _LanguageOption('ch', '简体中文'),
-  _LanguageOption('chinese_cht', '繁體中文'),
-  _LanguageOption('en', 'English'),
-  _LanguageOption('korean', '한국어'),
-];
-
 const List<_LanguageOption> _appleLanguageOptions = [
   _LanguageOption('auto', '自动检测 / Auto'),
   _LanguageOption('ja-JP', '日本語'),
@@ -78,8 +58,6 @@ class _ImageTranslationConfigSheetState
     extends State<ImageTranslationConfigSheet> {
   late ImageOcrEngine _ocrEngine;
   late String _model;
-  late String _ocrLanguage;
-  late String _paddleLanguage;
   late String _appleLiveTextLanguage;
   late bool _appleLiveTextUseApi;
   late String _targetLanguage;
@@ -93,8 +71,6 @@ class _ImageTranslationConfigSheetState
     super.initState();
     _ocrEngine = imageTranslationSetting.ocrEngine.value;
     _model = imageTranslationSetting.translatorModel.value;
-    _ocrLanguage = imageTranslationSetting.ocrLanguage.value;
-    _paddleLanguage = imageTranslationSetting.paddleOcrLanguage.value;
     _appleLiveTextLanguage =
         imageTranslationSetting.appleLiveTextLanguage.value;
     _appleLiveTextUseApi =
@@ -147,7 +123,7 @@ class _ImageTranslationConfigSheetState
                   _buildModel(),
                   _buildEnableThinking(),
                 ],
-                _buildOcrLanguage(),
+                if (appleMode) _buildOcrLanguage(),
                 _buildTargetLanguage(),
                 if (appleMode) _buildAppleLiveTextUseApi(),
                 if (appleMode && !_appleLiveTextUseApi)
@@ -270,14 +246,6 @@ class _ImageTranslationConfigSheetState
           }
         },
         items: [
-          const DropdownMenuItem(
-              value: ImageOcrEngine.tesseract, child: Text('Tesseract')),
-          const DropdownMenuItem(
-              value: ImageOcrEngine.paddleOcr,
-              child: Text('PaddleOCR (PP-OCRv6)')),
-          const DropdownMenuItem(
-              value: ImageOcrEngine.paddleOcrVl16,
-              child: Text('PaddleOCR-VL-1.6')),
           DropdownMenuItem(
               value: ImageOcrEngine.onnx,
               child: Text('imageTranslationOcrEngineOnnx'.tr)),
@@ -290,50 +258,23 @@ class _ImageTranslationConfigSheetState
   }
 
   Widget _buildOcrLanguage() {
-    final bool apple = _ocrEngine == ImageOcrEngine.appleLiveText;
-    final bool paddle = !apple && _ocrEngine != ImageOcrEngine.tesseract;
-    final List<_LanguageOption> options = apple
-        ? _appleLanguageOptions
-        : paddle
-            ? _paddleLanguageOptions
-            : _ocrLanguageOptions;
-    final String current = apple
-        ? _appleLiveTextLanguage
-        : paddle
-            ? _paddleLanguage
-            : _ocrLanguage;
     return _dropdownRow(
-      apple
-          ? 'imageTranslationAppleLiveTextLanguage'.tr
-          : paddle
-              ? 'imageTranslationPaddleLanguage'.tr
-              : 'imageTranslationOcrLanguage'.tr,
+      'imageTranslationAppleLiveTextLanguage'.tr,
       EHCodexStyleDropdown<String>(
-        value: current,
+        value: _appleLiveTextLanguage,
         onChanged: (value) {
-          setState(() {
-            if (apple) {
-              _appleLiveTextLanguage = value!;
-            } else if (paddle) {
-              _paddleLanguage = value!;
-            } else {
-              _ocrLanguage = value!;
-            }
-          });
-          if (apple) {
-            imageTranslationSetting
-                .saveAppleLiveTextLanguage(_appleLiveTextLanguage);
-          } else if (paddle) {
-            imageTranslationSetting.savePaddleOcrLanguage(_paddleLanguage);
-          } else {
-            imageTranslationSetting.saveOcrLanguage(_ocrLanguage);
-          }
+          setState(() => _appleLiveTextLanguage = value!);
+          imageTranslationSetting
+              .saveAppleLiveTextLanguage(_appleLiveTextLanguage);
         },
         items: [
-          ...options.map((option) =>
+          ..._appleLanguageOptions.map((option) =>
               DropdownMenuItem(value: option.code, child: Text(option.label))),
-          if (!options.any((option) => option.code == current))
-            DropdownMenuItem(value: current, child: Text(current)),
+          if (!_appleLanguageOptions
+              .any((option) => option.code == _appleLiveTextLanguage))
+            DropdownMenuItem(
+                value: _appleLiveTextLanguage,
+                child: Text(_appleLiveTextLanguage)),
         ],
       ),
     );

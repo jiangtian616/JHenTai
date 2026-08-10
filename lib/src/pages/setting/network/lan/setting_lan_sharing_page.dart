@@ -5,6 +5,7 @@ import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/model/lan_device_trust.dart';
 import 'package:jhentai/src/service/lan_device_trust_service.dart';
+import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/utils/byte_util.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
@@ -60,6 +61,35 @@ class SettingLanSharingPage extends StatelessWidget {
                           subtitle: Text('lanTrustReadyHint'.tr),
                           leading: const Icon(Icons.verified_user_outlined),
                         ),
+                      ],
+                    ),
+                    EHAppleSettingsGroup(
+                      children: [
+                        Obx(
+                          () => EHAppleSwitchListTile(
+                            title: Text('lanLocalTabAsLan'.tr),
+                            subtitle: Text('lanLocalTabAsLanHint'.tr),
+                            value: advancedSetting.lanLocalTabAsLan.value,
+                            onChanged: advancedSetting.saveLanLocalTabAsLan,
+                          ),
+                        ),
+                        Obx(
+                          () => EHAppleSwitchListTile(
+                            title: Text('lanServerMode'.tr),
+                            subtitle: Text('lanServerModeHint'.tr),
+                            value: advancedSetting.lanServerMode.value,
+                            onChanged: advancedSetting.saveLanServerMode,
+                          ),
+                        ),
+                        if (GetPlatform.isDesktop)
+                          Obx(
+                            () => EHAppleSwitchListTile(
+                              title: Text('lanStayResident'.tr),
+                              subtitle: Text('lanStayResidentHint'.tr),
+                              value: advancedSetting.lanStayResident.value,
+                              onChanged: advancedSetting.saveLanStayResident,
+                            ),
+                          ),
                       ],
                     ),
                     EHAppleSettingsGroup(

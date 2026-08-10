@@ -1,8 +1,11 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/model/image_translation.dart';
 import 'package:jhentai/src/service/image_translation_service.dart';
+import 'package:jhentai/src/utils/image_text_grouping.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
@@ -190,6 +193,8 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
         return 'imageTranslationOcrUnavailable'.tr;
       case 'OCR_FAILED':
         return 'imageTranslationOcrFailed'.tr;
+      case 'OCR_CANCELLED':
+        return 'imageTranslationCancelled'.tr;
       case 'NO_TEXT':
         return 'imageTranslationNoText'.tr;
       case 'TRANSLATION_REQUEST_FAILED':
@@ -205,8 +210,6 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
             .tr;
       case 'TRANSLATION_FAILED':
         return 'imageTranslationTranslationFailed'.tr;
-      case 'PADDLE_RUNTIME_NOT_READY':
-        return 'imageTranslationPaddleNotReady'.tr;
       default:
         return 'imageTranslationFailed'.tr;
     }
@@ -238,45 +241,64 @@ class _ImageTranslationOverlayPainter extends CustomPainter {
     final List<String> translations =
         result.translatedText.split('\n').map((line) => line.trim()).toList();
 
-    for (int index = 0; index < result.blocks.length; index++) {
-      final RecognizedTextBlock block = result.blocks[index];
-      final String translation =
-          index < translations.length ? translations[index] : '';
-      if (translation.isEmpty) {
-        continue;
+    // Adjacent lines of the same speech bubble (a group) share ONE background
+    // pill AND one font size, so a merged bubble reads as a coherent block
+    // instead of a set of independently-sized lines. All pills are drawn first
+    // (see paintTranslationBubbleBackground) so a later bubble never covers an
+    // earlier line's wrapped text overflow; text stays per-line inside.
+    final List<(Rect, String, double)> entries = <(Rect, String, double)>[];
+    final List<Rect> mergedBackgrounds = <Rect>[];
+    for (final RecognizedTextGroup group
+        in groupRecognizedTextBlocks(result.blocks)) {
+      Rect? merged;
+      final List<(Rect, String)> groupEntries = <(Rect, String)>[];
+      double groupFont = double.infinity;
+      for (final int index in group.blockIndices) {
+        final String translation =
+            index < translations.length ? translations[index] : '';
+        if (translation.trim().isEmpty) {
+          continue;
+        }
+        final RecognizedTextBlock block = result.blocks[index];
+        final Rect rect = Rect.fromLTWH(
+          block.left * scaleX - 4,
+          block.top * scaleY - 3,
+          block.width * scaleX + 8,
+          block.height * scaleY + 6,
+        );
+        groupEntries.add((rect, translation));
+        merged = merged == null ? rect : merged.expandToInclude(rect);
+        // The shared size is the tightest of the member lines' fits, so no
+        // line overflows its own box and none is larger than its neighbors.
+        groupFont = math.min(
+          groupFont,
+          fitTranslationFontSize(
+            translation,
+            math.max(1, rect.width - 4),
+            rect.height,
+            textDirection,
+          ),
+        );
       }
-
-      final Rect rect = Rect.fromLTWH(
-        block.left * scaleX - 4,
-        block.top * scaleY - 3,
-        block.width * scaleX + 8,
-        block.height * scaleY + 6,
+      if (merged != null) {
+        mergedBackgrounds.add(merged);
+        final double resolved = groupFont.isFinite ? groupFont : 8;
+        for (final (Rect rect, String translation) in groupEntries) {
+          entries.add((rect, translation, resolved));
+        }
+      }
+    }
+    for (final Rect rect in mergedBackgrounds) {
+      paintTranslationBubbleBackground(canvas, rect);
+    }
+    for (final (Rect rect, String translation, double fontSize) in entries) {
+      paintTranslationBubbleText(
+        canvas,
+        rect,
+        translation,
+        textDirection,
+        fontSize: fontSize,
       );
-      final RRect rrect =
-          RRect.fromRectAndRadius(rect, const Radius.circular(3));
-      canvas.drawRRect(rrect, Paint()..color = const Color(0xE6FFFFFF));
-      canvas.drawRRect(
-        rrect,
-        Paint()
-          ..color = const Color(0x33000000)
-          ..style = PaintingStyle.stroke,
-      );
-
-      final double fontSize = (rect.width / (translation.length * 0.82))
-          .clamp(8, (rect.height * 0.6).clamp(10, 30))
-          .toDouble();
-      final TextPainter painter = TextPainter(
-        text: TextSpan(
-            text: translation,
-            style: TextStyle(
-                color: Colors.black, fontSize: fontSize, height: 1.05)),
-        textAlign: TextAlign.center,
-        textDirection: textDirection,
-        maxLines: 3,
-        ellipsis: '…',
-      )..layout(maxWidth: rect.width - 4);
-      painter.paint(
-          canvas, Offset(rect.left + 2, rect.center.dy - painter.height / 2));
     }
   }
 

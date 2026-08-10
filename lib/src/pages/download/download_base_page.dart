@@ -7,8 +7,9 @@ import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/pages/download/grid/local/local_gallery_grid_page.dart';
+import 'package:jhentai/src/pages/setting/network/lan/lan_gallery_list_page.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
-import 'package:jhentai/src/service/storage_service.dart';
+import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:simple_animations/animation_controller_extension/animation_controller_extension.dart';
@@ -69,9 +70,23 @@ class _DownloadPageState extends State<DownloadPage> {
                       ? bodyType == DownloadPageBodyType.list
                           ? ArchiveListDownloadPage(key: const PageStorageKey('ArchiveListDownloadBody'))
                           : ArchiveGridDownloadPage(key: const PageStorageKey('ArchiveGridDownloadBody'))
-                      : bodyType == DownloadPageBodyType.list
-                          ? LocalGalleryListPage(key: const PageStorageKey('LocalGalleryListBody'))
-                          : LocalGalleryGridPage(key: const PageStorageKey('LocalGalleryGridBody')),
+                      : Obx(
+                          () => advancedSetting.lanLocalTabAsLan.value
+                              ? const LanGalleryListPage(
+                                  key: PageStorageKey('LanGalleryListBody'),
+                                )
+                              : bodyType == DownloadPageBodyType.list
+                                  ? LocalGalleryListPage(
+                                      key: const PageStorageKey(
+                                        'LocalGalleryListBody',
+                                      ),
+                                    )
+                                  : LocalGalleryGridPage(
+                                      key: const PageStorageKey(
+                                        'LocalGalleryGridBody',
+                                      ),
+                                    ),
+                        ),
         ),
       ),
     ).enableMouseDrag();

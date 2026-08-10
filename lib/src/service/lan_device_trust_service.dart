@@ -18,7 +18,18 @@ LanDeviceTrustService lanDeviceTrustService = LanDeviceTrustService();
 abstract interface class LanPeerSession {
   Future<void> get closed;
 
-  Future<LanSharedImage?> requestImageCache(String imagePageHref);
+  /// Requests an image by its image-page URL. [galleryUrl] + [pageIndex] let
+  /// the host fall back to its downloaded gallery when the image is not in the
+  /// online image cache; both are optional (older peers omit them).
+  Future<LanSharedImage?> requestImageCache(
+    String imagePageHref, {
+    String? galleryUrl,
+    int? pageIndex,
+  });
+
+  /// Lists the downloaded galleries the peer shares (needs the `downloads`
+  /// permission on the host side).
+  Future<List<LanSharedGallerySummary>> listDownloadedGalleries();
 
   Future<void> close();
 }
@@ -199,12 +210,20 @@ class LanDeviceTrustService extends GetxController
     return null;
   }
 
-  Future<LanSharedImage?> requestImageCache(String imagePageHref) async {
+  Future<LanSharedImage?> requestImageCache(
+    String imagePageHref, {
+    String? galleryUrl,
+    int? pageIndex,
+  }) async {
     for (final MapEntry<String, LanPeerSession> entry
         in _sessions.entries.toList()) {
       try {
         final LanSharedImage? image = await entry.value
-            .requestImageCache(imagePageHref)
+            .requestImageCache(
+              imagePageHref,
+              galleryUrl: galleryUrl,
+              pageIndex: pageIndex,
+            )
             .timeout(const Duration(seconds: 3));
         if (image != null) {
           return image;
@@ -214,6 +233,24 @@ class LanDeviceTrustService extends GetxController
       }
     }
     return null;
+  }
+
+  /// Merges the downloaded-gallery lists from every connected trusted peer.
+  /// A peer only appears here if it granted us the `downloads` permission.
+  Future<List<LanSharedGallerySummary>> listDownloadedGalleries() async {
+    final List<LanSharedGallerySummary> result = [];
+    for (final MapEntry<String, LanPeerSession> entry
+        in _sessions.entries.toList()) {
+      try {
+        final List<LanSharedGallerySummary> galleries = await entry.value
+            .listDownloadedGalleries()
+            .timeout(const Duration(seconds: 3));
+        result.addAll(galleries);
+      } on Object catch (error) {
+        log.warning('LAN gallery list request failed: $error');
+      }
+    }
+    return result;
   }
 
   void attachConnector(LanPeerConnector connector) {
@@ -257,12 +294,18 @@ class LanDeviceTrustService extends GetxController
     ]);
   }
 
+  /// Throttle for the traffic tile: byte counters are updated on every network
+  /// chunk, but the tile must not rebuild hundreds of times per second while a
+  /// transfer is active. One coalesced update at most every 500 ms keeps the
+  /// settings page smooth during heavy sharing.
+  Timer? _trafficUpdateTimer;
+
   void recordTrafficSent(int bytes) {
     if (bytes <= 0) {
       return;
     }
     sentBytes += bytes;
-    update([trafficChangedId]);
+    _scheduleTrafficUpdate();
   }
 
   void recordTrafficReceived(int bytes) {
@@ -270,7 +313,14 @@ class LanDeviceTrustService extends GetxController
       return;
     }
     receivedBytes += bytes;
-    update([trafficChangedId]);
+    _scheduleTrafficUpdate();
+  }
+
+  void _scheduleTrafficUpdate() {
+    _trafficUpdateTimer ??= Timer(const Duration(milliseconds: 500), () {
+      _trafficUpdateTimer = null;
+      update([trafficChangedId]);
+    });
   }
 
   Future<void> observeDiscovery(Stream<LanDiscoveredPeer> peers) async {
@@ -602,7 +652,16 @@ class LanDeviceTrustService extends GetxController
       lastSeenAt: now,
       protocolVersion: peer.protocolVersion,
     );
-    _replaceDevice(seen);
+    // A routine heartbeat only bumps lastSeenAt — update the list silently so
+    // the page does not rebuild the whole trusted-devices section on every
+    // broadcast; the connection-tile refresh below re-reads the list. A change
+    // the user can see (name / protocol) still triggers the full rebuild.
+    _replaceDevice(
+      seen,
+      notify:
+          seen.displayName != device.displayName ||
+          seen.protocolVersion != device.protocolVersion,
+    );
     if (now.difference(device.lastSeenAt).abs() > const Duration(minutes: 5)) {
       await _repository.updateDevice(seen);
     }
@@ -694,11 +753,13 @@ class LanDeviceTrustService extends GetxController
     }
   }
 
-  void _replaceDevice(TrustedLanDevice device) {
+  void _replaceDevice(TrustedLanDevice device, {bool notify = true}) {
     trustedDevices.removeWhere((entry) => entry.deviceId == device.deviceId);
     trustedDevices.add(device);
     trustedDevices.sort((a, b) => a.displayName.compareTo(b.displayName));
-    update([devicesChangedId]);
+    if (notify) {
+      update([devicesChangedId]);
+    }
   }
 
   void _setConnection(String deviceId, LanConnectionSnapshot snapshot) {
@@ -749,6 +810,17 @@ class LanDeviceTrustService extends GetxController
 
   void _rememberDiscoveredPeer(LanDiscoveredPeer peer) {
     final DateTime now = DateTime.now().toUtc();
+    // Broadcasts from the same device repeat; only rebuild the discovered
+    // section when the peer's visible fields actually changed, so a busy LAN
+    // does not rebuild the page on every heartbeat.
+    final LanDiscoveredPeer? existing = _discoveredPeers[peer.deviceId];
+    final bool changed =
+        existing == null ||
+        existing.displayName != peer.displayName ||
+        existing.host != peer.host ||
+        existing.port != peer.port ||
+        existing.identityFingerprint != peer.identityFingerprint ||
+        existing.identityPublicKey != peer.identityPublicKey;
     _discoveredPeers[peer.deviceId] = peer;
     _discoveredAt[peer.deviceId] = now;
     final List<String> expired =
@@ -771,7 +843,9 @@ class LanDeviceTrustService extends GetxController
       _discoveredPeers.remove(oldest);
       _discoveredAt.remove(oldest);
     }
-    update([discoveredDevicesChangedId]);
+    if (changed) {
+      update([discoveredDevicesChangedId]);
+    }
   }
 
   String _randomBase64Url(int byteCount) {
@@ -807,7 +881,10 @@ class LanDeviceTrustService extends GetxController
     }
     await _repository.saveLocalDeviceName(trimmed);
     localDisplayName = trimmed;
-    update();
+    // The page's GetBuilders all carry specific ids, so a bare update() would
+    // only reach id-less listeners and the new name would not appear until the
+    // next unrelated rebuild. Refresh the identity + device sections directly.
+    update([identityChangedId, devicesChangedId]);
     return null;
   }
 
@@ -868,6 +945,8 @@ class LanDeviceTrustService extends GetxController
   @override
   void onClose() {
     _discoverySubscription?.cancel();
+    _trafficUpdateTimer?.cancel();
+    _trafficUpdateTimer = null;
     for (final LanPeerSession session in _sessions.values) {
       unawaited(session.close());
     }

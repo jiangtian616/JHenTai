@@ -342,9 +342,18 @@ abstract class BaseLayoutLogic extends GetxController
       // pages already cached by the reader are reused instead of re-fetched.
       final String url = effectiveEHImageUrl(image.url);
       final String cacheKey = normalizedImageCacheKey(url);
-      final Uint8List? bytes =
-          await _loadImageBytesForTranslation(url, cacheKey)
-              .timeout(const Duration(seconds: 5), onTimeout: () => null);
+      Uint8List? bytes;
+      try {
+        bytes = await _loadImageBytesForTranslation(url, cacheKey)
+            .timeout(const Duration(seconds: 5), onTimeout: () => null);
+      } catch (e, stack) {
+        // A failed fetch (Dio error etc.) must not escape recognizeImage as an
+        // uncaught async exception on the single-page path; treat it like an
+        // unavailable image and report the same way.
+        log.warning('Failed to load image bytes for translation: $e');
+        log.trace(stack);
+        bytes = null;
+      }
       if (bytes == null) {
         if (!imageTranslationService.isBatchTranslating) {
           toast('imageTranslationSourceUnavailable'.tr);
@@ -399,15 +408,45 @@ abstract class BaseLayoutLogic extends GetxController
   /// pipeline can overlap the next page's OCR with the current translation.
   Future<void> translateImage(int index, BuildContext context,
       {bool force = false}) async {
+    // A single-page translate is a fresh operation: clear the one-shot cancel
+    // latch left over from an earlier cancelled translate or from leaving the
+    // read page, otherwise every later context-menu translate silently no-ops.
+    imageTranslationService.resetCancelFlag();
+    // The inline overlay is the only way to see a translation result; quietly
+    // translating while it is hidden would look like a dead menu option.
+    if (!readPageState.showImageTranslationOverlay) {
+      readPageState.showImageTranslationOverlay = true;
+      updateSafely([BaseLayoutLogic.pageId]);
+      readPageLogic.updateSafely([readPageLogic.translationMenuId]);
+    }
+
     final RecognizedImage? recognized = await recognizeImage(
       index,
       context,
       force: force,
     );
     if (recognized == null) {
+      _hintIfAlreadyTranslated(index, force);
       return;
     }
     await translateRecognizedImage(index, context, recognized);
+  }
+
+  /// When a single-page translate has nothing to do, explain why if the page
+  /// already carries a finished translation (previously a silent no-op).
+  void _hintIfAlreadyTranslated(int index, bool force) {
+    if (force) {
+      return;
+    }
+    final ImageTranslationRequest? request =
+        readPageState.imageTranslationRequests[index];
+    if (request == null) {
+      return;
+    }
+    if (imageTranslationService.resultFor(request.cacheKey).status ==
+        ImageTranslationStatus.success) {
+      toast('imageTranslationAlreadyTranslated'.tr);
+    }
   }
 
   /// Unified entry point for local image context menus.

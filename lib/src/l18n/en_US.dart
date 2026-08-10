@@ -471,6 +471,21 @@ class en_US {
       'unlimited': "Unlimited",
       'cacheSize': "Current Cache Size",
       'lanSharing': 'LAN Sharing',
+      'lanGalleryList': 'LAN Gallery',
+      'lanLocalTabAsLan': 'Download page “Local” tab shows the LAN gallery',
+      'lanLocalTabAsLanHint': 'When on, the download page’s Local tab lists galleries on connected trusted devices',
+      'lanStayResident': 'Stay resident in background (mac/Linux/Windows)',
+      'lanStayResidentHint': 'When on, closing the window keeps the app running in the background (LAN sharing stays online); restore from the system tray',
+      'lanServerMode': 'Server mode',
+      'lanServerModeHint': 'This device is the storage/cache: images peers browse are downloaded and cached here, so peers keep almost no cache of their own',
+      'lanResidentShow': 'Show main window',
+      'lanResidentQuit': 'Quit',
+      'lanGalleryListFailed': 'Failed to load LAN galleries',
+      'lanGalleryListEmpty': 'No galleries available',
+      'lanGalleryListEmptyHint': 'Connected devices must grant you the Downloads permission to appear here',
+      'lanGalleryPageCount': '{count} pages',
+      'lanGalleryOpenFailed': 'Unable to open this gallery',
+      'lanUnknownDevice': 'Unknown device',
       'lanSharingHint': 'Pair and automatically reconnect to trusted devices',
       'experimentalFeatures': 'Experimental Features',
       'lanSharingExperimentalHint':
@@ -612,6 +627,11 @@ class en_US {
       'superResolutionEngine': 'Engine',
       'superResolutionEngineNcnnVulkan': 'ncnn-vulkan (external)',
       'superResolutionEngineOnnx': 'ONNX (in-app)',
+      'onnxModelDescRapidOcrSmall': 'Full PP-OCRv6 multilingual dictionary with high recognition accuracy at moderate size and speed. Good for most comics and images.',
+      'onnxModelDescRapidOcrTiny': 'Reduced dictionary and lightweight networks: the fastest and smallest tier, but with a smaller character set and slightly lower accuracy on complex glyphs. Best for low-end devices or speed-first use.',
+      'onnxModelDescRealEsrgan6B': 'High-quality tier: the most detail and best quality, slower on large images.',
+      'onnxModelDescRealEsrgan4B32F': 'Fast tier: roughly 3-4x faster with slightly less detail; ideal for batch processing.',
+      'superResolutionModelPickerHint': 'Switching models re-processes upscaled pages',
       'stopSuperResolution': 'Stop Super Resolution',
       'deleteSuperResolvedImage': 'Delete Super Resolved Image',
       'superResolveOriginalImageHint':
@@ -1127,6 +1147,8 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationOcrFailed':
           'Text recognition failed. Check the OCR language packs and image format.',
       'imageTranslationNoText': 'No text was recognized in this image.',
+      'imageTranslationAlreadyTranslated': 'This page is already translated.',
+      'imageTranslationCancelled': 'Translation cancelled.',
       'imageTranslationRequestFailed':
           'Translation request failed. Check the endpoint, key, and network.',
       'imageTranslationInvalidResponse':

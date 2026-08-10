@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/theme_config.dart';
@@ -19,7 +18,6 @@ import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
 import 'package:jhentai/src/widget/onnx_model_tile.dart';
-import 'package:jhentai/src/widget/paddle_cli_output.dart';
 
 class _OcrModel {
   const _OcrModel(this.code, this.label);
@@ -27,23 +25,6 @@ class _OcrModel {
   final String code;
   final String label;
 }
-
-const List<_OcrModel> _ocrModels = [
-  _OcrModel('jpn', '日语（横排）'),
-  _OcrModel('jpn_vert', '日语（竖排）'),
-  _OcrModel('chi_sim', '简体中文'),
-  _OcrModel('chi_tra', '繁体中文'),
-  _OcrModel('eng', '英语'),
-  _OcrModel('kor', '韩语'),
-];
-
-const List<_OcrModel> _paddleLanguageOptions = [
-  _OcrModel('japan', '日本語'),
-  _OcrModel('ch', '简体中文'),
-  _OcrModel('chinese_cht', '繁體中文'),
-  _OcrModel('en', 'English'),
-  _OcrModel('korean', '한국어'),
-];
 
 const List<_OcrModel> _appleLanguageOptions = [
   _OcrModel('auto', '自动检测 / Auto'),
@@ -75,68 +56,38 @@ class SettingImageTranslationPage extends StatefulWidget {
 
 class _SettingImageTranslationPageState
     extends State<SettingImageTranslationPage> {
-  late final TextEditingController _ocrExecutableController;
-  late final TextEditingController _paddleExecutableController;
-  late final TextEditingController _ocrDirectoryController;
   late final TextEditingController _endpointController;
   late final TextEditingController _apiKeyController;
-  late String _paddleLanguage;
   late String _appleLiveTextLanguage;
   late bool _appleLiveTextUseApi;
   late String _targetLanguage;
   late ImageTranslationProvider _provider;
-  late OcrModelSource _ocrSource;
   late ImageOcrEngine _ocrEngine;
-  late Set<String> _selectedLanguages;
   List<String> _availableModels = [];
-  Set<String> _installedLanguages = {};
   bool _fetchingModels = false;
-  bool _detectingOcr = false;
 
   @override
   void initState() {
     super.initState();
-    _ocrExecutableController = TextEditingController(
-      text: imageTranslationSetting.ocrExecutable.value,
-    );
-    _paddleExecutableController = TextEditingController(
-      text: imageTranslationSetting.paddleOcrExecutable.value,
-    );
-    _ocrDirectoryController = TextEditingController(
-      text: imageTranslationSetting.ocrDataDirectory.value ?? '',
-    );
     _endpointController = TextEditingController(
       text: imageTranslationSetting.translatorEndpoint.value ?? '',
     );
     _apiKeyController = TextEditingController(
       text: imageTranslationSetting.translatorApiKey.value ?? '',
     );
-    _paddleLanguage = imageTranslationSetting.paddleOcrLanguage.value;
     _appleLiveTextLanguage =
         imageTranslationSetting.appleLiveTextLanguage.value;
     _appleLiveTextUseApi =
         imageTranslationSetting.appleLiveTextUseThirdPartyApi.value;
     _targetLanguage = imageTranslationSetting.targetLanguage.value;
     _provider = imageTranslationSetting.translatorProvider.value;
-    _ocrSource = imageTranslationSetting.ocrModelSource.value;
     _ocrEngine = imageTranslationSetting.ocrEngine.value;
-    _selectedLanguages =
-        imageTranslationSetting.ocrLanguage.value
-            .split('+')
-            .where((language) => language.isNotEmpty)
-            .toSet();
     final String savedModel = imageTranslationSetting.translatorModel.value;
     if (savedModel.isNotEmpty) _availableModels = [savedModel];
-    if (_ocrEngine != ImageOcrEngine.appleLiveText) {
-      _detectOcr();
-    }
   }
 
   @override
   void dispose() {
-    _ocrExecutableController.dispose();
-    _paddleExecutableController.dispose();
-    _ocrDirectoryController.dispose();
     _endpointController.dispose();
     _apiKeyController.dispose();
     super.dispose();
@@ -199,22 +150,13 @@ class _SettingImageTranslationPageState
             ),
             EHAppleSettingsGroup(
               title: 'imageTranslationOcrSection'.tr,
+              // Custom mode is fixed to on-device ONNX (PP-OCRv6); the model
+              // tier (small vs tiny) is selectable below.
               children: [
-                _buildOcrEngine(),
-                if (_ocrEngine == ImageOcrEngine.onnx) ...[
-                  _buildOnnxLanguage(),
-                  _buildOnnxModelTile(),
-                  _buildOnnxRuntime(),
-                ] else if (_ocrEngine != ImageOcrEngine.tesseract) ...[
-                  _buildPaddleLanguage(),
-                  _buildPaddleRuntime(),
-                ] else ...[
-                  _buildOcrExecutable(),
-                  _buildOcrDirectory(),
-                  _buildDetectOcr(),
-                  _buildOcrModelSource(),
-                  ..._ocrModels.map(_ocrModelTile),
-                ],
+                _buildOnnxLanguage(),
+                _buildOnnxModelPicker(),
+                _buildOnnxModelTile(),
+                _buildOnnxRuntime(),
               ],
             ),
           ],
@@ -384,40 +326,6 @@ class _SettingImageTranslationPageState
     );
   }
 
-  Widget _buildOcrEngine() {
-    return ListTile(
-      title: Text('imageTranslationOcrEngine'.tr),
-      subtitle: Text(
-        'imageTranslationOcrDownloadHint'.tr,
-        style: const TextStyle(fontSize: 12),
-      ),
-      trailing: EHCodexStyleDropdown<ImageOcrEngine>(
-        value: _ocrEngine,
-        elevation: 4,
-        alignment: AlignmentDirectional.centerEnd,
-        onChanged: (engine) => setState(() => _ocrEngine = engine!),
-        items: [
-          const DropdownMenuItem(
-            value: ImageOcrEngine.tesseract,
-            child: Text('Tesseract'),
-          ),
-          const DropdownMenuItem(
-            value: ImageOcrEngine.paddleOcr,
-            child: Text('PaddleOCR (PP-OCRv6)'),
-          ),
-          const DropdownMenuItem(
-            value: ImageOcrEngine.paddleOcrVl16,
-            child: Text('PaddleOCR-VL-1.6'),
-          ),
-          DropdownMenuItem(
-            value: ImageOcrEngine.onnx,
-            child: Text('imageTranslationOcrEngineOnnx'.tr),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildAppleLiveTextLanguage() {
     final List<_OcrModel> options =
         _appleLanguageOptions.any(
@@ -544,34 +452,6 @@ class _SettingImageTranslationPageState
     );
   }
 
-  Widget _buildPaddleLanguage() {
-    final List<_OcrModel> options =
-        _paddleLanguageOptions.any((option) => option.code == _paddleLanguage)
-            ? _paddleLanguageOptions
-            : [
-              ..._paddleLanguageOptions,
-              _OcrModel(_paddleLanguage, _paddleLanguage),
-            ];
-    return ListTile(
-      title: Text('imageTranslationPaddleLanguage'.tr),
-      trailing: EHCodexStyleDropdown<String>(
-        value: _paddleLanguage,
-        elevation: 4,
-        alignment: AlignmentDirectional.centerEnd,
-        onChanged: (value) => setState(() => _paddleLanguage = value!),
-        items:
-            options
-                .map(
-                  (option) => DropdownMenuItem(
-                    value: option.code,
-                    child: Text(option.label),
-                  ),
-                )
-                .toList(),
-      ),
-    );
-  }
-
   /// PP-OCRv6 small uses one multilingual dictionary and detects the script
   /// automatically; a language selector would only pretend to change models.
   Widget _buildOnnxLanguage() {
@@ -584,12 +464,40 @@ class _SettingImageTranslationPageState
     );
   }
 
-  /// PP-OCRv6 multilingual OCR model download/delete/status.
+  /// ONNX OCR 模型选择：列出所有 PP-OCRv6 档位，名字下方标注速度/体积/精度
+  /// 差异，单选切换活动模型。
+  Widget _buildOnnxModelPicker() {
+    return Obx(() {
+      final String active = imageTranslationSetting.onnxModelId.value;
+      final List<OnnxModelManifest> models =
+          OnnxModelStore.instance.manifestsOfKind('ocr');
+      final bool activeKnown = models.any(
+        (OnnxModelManifest model) => model.id == active,
+      );
+      return OnnxModelPicker(
+        kind: 'ocr',
+        activeId: activeKnown || models.isEmpty ? active : models.first.id,
+        onSelect: imageTranslationSetting.saveOnnxModelId,
+      );
+    });
+  }
+
+  /// 活动 ONNX OCR 模型（PP-OCRv6）的下载/删除/状态。
   Widget _buildOnnxModelTile() {
-    return OnnxModelTile(
-      manifestId: OnnxModelStore.ocrManifestId,
-      title: 'inferenceOcrModel'.tr,
-    );
+    return Obx(() {
+      final List<OnnxModelManifest> models =
+          OnnxModelStore.instance.manifestsOfKind('ocr');
+      final String active = imageTranslationSetting.onnxModelId.value;
+      final bool activeKnown = models.any(
+        (OnnxModelManifest model) => model.id == active,
+      );
+      final String manifestId =
+          activeKnown || models.isEmpty ? active : models.first.id;
+      return OnnxModelTile(
+        manifestId: manifestId,
+        title: 'inferenceOcrModel'.tr,
+      );
+    });
   }
 
   /// ONNX 端侧引擎的运行入口：显示当前生效后端与模型接入状态，跳转"推理后端"。
@@ -605,202 +513,6 @@ class _SettingImageTranslationPageState
       ),
       trailing: Icon(AppIcons.chevronRight).marginOnly(right: 4),
       onTap: () => toRoute(Routes.inference),
-    );
-  }
-
-  Widget _buildPaddleRuntime() {
-    return GetBuilder<ImageTranslationService>(
-      id: ImageTranslationService.paddlePrepareId,
-      builder: (_) {
-        final bool installed = imageTranslationService.isPaddleRuntimeInstalled;
-        return Column(
-          children: [
-            if (installed)
-              ListTile(
-                title: Text('imageTranslationDeletePaddleRuntime'.tr),
-                subtitle: Text(
-                  'imageTranslationDeletePaddleHint'.tr,
-                  style: const TextStyle(fontSize: 12),
-                ),
-                trailing: const Icon(Icons.delete_outline),
-                onTap: _confirmDeletePaddle,
-              )
-            else
-              ListTile(
-                title: Text(
-                  imageTranslationService.paddleStage ??
-                      'imageTranslationPreparePaddle'.tr,
-                ),
-                subtitle: Text(
-                  '${'imageTranslationPaddleRuntimePath'.tr}: ${imageTranslationService.paddleRuntimePath()}',
-                  style: const TextStyle(fontSize: 12),
-                ),
-                trailing:
-                    imageTranslationService.preparingPaddle
-                        ? SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: ThemeConfig.isApple
-                                ? const GlassProgressIndicator.circular(strokeWidth: 2)
-                                : const CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.download_for_offline_outlined),
-                onTap:
-                    imageTranslationService.preparingPaddle
-                        ? null
-                        : _preparePaddle,
-              ),
-            PaddleCliOutput(lines: imageTranslationService.paddleOutput),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildOcrExecutable() {
-    return ListTile(
-      title: Text('imageTranslationOcrExecutable'.tr),
-      trailing: SizedBox(
-        width: 160,
-        child: EHAppleTextField(
-          controller: _ocrExecutableController,
-          autocorrect: false,
-          decoration: const InputDecoration(
-            isDense: true,
-            labelStyle: TextStyle(fontSize: 12),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildOcrDirectory() {
-    return ListTile(
-      title: Text('imageTranslationOcrDataDirectory'.tr),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: 180,
-            child: EHAppleTextField(
-              controller: _ocrDirectoryController,
-              autocorrect: false,
-              decoration: const InputDecoration(
-                isDense: true,
-                labelStyle: TextStyle(fontSize: 12),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          EHAppleIconButton(
-            tooltip: 'imageTranslationChooseDirectory'.tr,
-            onPressed: _chooseDirectory,
-            icon: const Icon(Icons.folder_open_outlined),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetectOcr() {
-    return ListTile(
-      title: Text('imageTranslationDetectOcr'.tr),
-      trailing:
-          _detectingOcr
-              ? SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: ThemeConfig.isApple
-                      ? const GlassProgressIndicator.circular(strokeWidth: 2)
-                      : const CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.manage_search_outlined),
-      onTap: _detectingOcr ? null : _detectOcr,
-    );
-  }
-
-  Widget _buildOcrModelSource() {
-    return ListTile(
-      title: Text('imageTranslationOcrModelSource'.tr),
-      trailing: EHCodexStyleDropdown<OcrModelSource>(
-        value: _ocrSource,
-        elevation: 4,
-        alignment: AlignmentDirectional.centerEnd,
-        onChanged: (value) => setState(() => _ocrSource = value!),
-        items: [
-          DropdownMenuItem(
-            value: OcrModelSource.giteeMirror,
-            child: Text('imageTranslationGiteeMirror'.tr),
-          ),
-          DropdownMenuItem(
-            value: OcrModelSource.githubOfficial,
-            child: Text('imageTranslationGithubOfficial'.tr),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _ocrModelTile(_OcrModel model) {
-    return GetBuilder<ImageTranslationService>(
-      id: imageTranslationService.ocrModelDownloadId(model.code),
-      builder: (_) {
-        final bool downloading = imageTranslationService.isDownloadingOcrModel(
-          model.code,
-        );
-        final bool installed = _installedLanguages.contains(model.code);
-        return ListTile(
-          title: Text(model.label),
-          subtitle:
-              downloading
-                  ? Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: ThemeConfig.isApple
-                        ? GlassProgressIndicator.linear(
-                            value: imageTranslationService
-                                .ocrModelDownloadProgress(
-                                  model.code,
-                                ),
-                          )
-                        : LinearProgressIndicator(
-                            value: imageTranslationService
-                                .ocrModelDownloadProgress(
-                                  model.code,
-                                ),
-                          ),
-                  )
-                  : Text(
-                    installed
-                        ? 'imageTranslationOcrInstalled'.tr
-                        : 'imageTranslationOcrNotInstalled'.tr,
-                  ),
-          leading: EHAppleCheckbox(
-            value: _selectedLanguages.contains(model.code),
-            onChanged:
-                (value) => setState(() {
-                  value == true
-                      ? _selectedLanguages.add(model.code)
-                      : _selectedLanguages.remove(model.code);
-                }),
-          ),
-          trailing:
-              downloading
-                  ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: ThemeConfig.isApple
-                          ? const GlassProgressIndicator.circular(strokeWidth: 2)
-                          : const CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : EHAppleIconButton(
-                    tooltip: 'download'.tr,
-                    onPressed: () => _downloadModel(model),
-                    icon: Icon(
-                      installed ? Icons.download_done : Icons.download_outlined,
-                    ),
-                  ),
-        );
-      },
     );
   }
 
@@ -835,106 +547,6 @@ class _SettingImageTranslationPageState
     }
   }
 
-  Future<void> _chooseDirectory() async {
-    final String? path = await FilePicker.platform.getDirectoryPath();
-    if (path != null && mounted)
-      setState(() => _ocrDirectoryController.text = path);
-  }
-
-  Future<void> _detectOcr() async {
-    setState(() => _detectingOcr = true);
-    try {
-      final String executable =
-          _ocrExecutableController.text.trim().isEmpty
-              ? 'tesseract'
-              : _ocrExecutableController.text.trim();
-      final String? directory = await imageTranslationService
-          .discoverTessdataDirectory(executable);
-      final List<String> installed = await imageTranslationService
-          .installedOcrLanguages(executable: executable);
-      if (!mounted) return;
-      setState(() {
-        if (_ocrDirectoryController.text.trim().isEmpty && directory != null) {
-          _ocrDirectoryController.text = directory;
-        }
-        _installedLanguages = installed.toSet();
-      });
-    } catch (_) {
-      if (mounted) {
-        toast('imageTranslationOcrDetectFailed'.tr);
-      }
-    } finally {
-      if (mounted) setState(() => _detectingOcr = false);
-    }
-  }
-
-  Future<void> _preparePaddle() async {
-    try {
-      await imageTranslationService.preparePaddleRuntime(
-        downloadVl16: _ocrEngine == ImageOcrEngine.paddleOcrVl16,
-      );
-      if (mounted) toast('imageTranslationPaddleReady'.tr);
-    } on ImageTranslationException catch (error) {
-      if (mounted) {
-        toast(
-          'imageTranslationPaddlePrepareFailed'.trParams({'error': error.code}),
-        );
-      }
-    }
-  }
-
-  Future<void> _confirmDeletePaddle() async {
-    final bool? confirmed = await showDialog<bool>(
-      context: context,
-      builder:
-          (dialogContext) => AlertDialog(
-            title: Text('imageTranslationDeletePaddleRuntime'.tr),
-            content: Text('imageTranslationDeletePaddleConfirm'.tr),
-            actions: [
-              EHAppleTextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(false),
-                child: Text('cancel'.tr),
-              ),
-              EHAppleTextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(true),
-                child: Text('OK'.tr),
-              ),
-            ],
-          ),
-    );
-    if (confirmed == true) {
-      await imageTranslationService.deletePaddleRuntime();
-    }
-  }
-
-  Future<void> _downloadModel(_OcrModel model) async {
-    String directory = _ocrDirectoryController.text.trim();
-    if (directory.isEmpty) {
-      await _detectOcr();
-      directory = _ocrDirectoryController.text.trim();
-    }
-    if (directory.isEmpty ||
-        !Platform.isWindows && !Platform.isMacOS && !Platform.isLinux) {
-      toast('imageTranslationOcrDirectoryRequired'.tr);
-      return;
-    }
-    try {
-      await imageTranslationService.downloadOcrModel(
-        languageCode: model.code,
-        source: _ocrSource,
-        dataDirectory: directory,
-      );
-      if (!mounted) return;
-      setState(() {
-        _installedLanguages.add(model.code);
-        _selectedLanguages.add(model.code);
-      });
-      toast('imageTranslationOcrDownloadSuccess'.tr);
-    } catch (_) {
-      if (mounted) toast('imageTranslationOcrDownloadFailed'.tr);
-    }
-  }
-
   Future<void> _save() async {
     final bool appleMode = _ocrEngine == ImageOcrEngine.appleLiveText;
     final bool needsApi = !appleMode || _appleLiveTextUseApi;
@@ -943,14 +555,8 @@ class _SettingImageTranslationPageState
       return;
     }
     await imageTranslationSetting.save(
-      ocrExecutable: _ocrExecutableController.text,
       ocrEngine: _ocrEngine,
-      paddleOcrExecutable: _paddleExecutableController.text,
-      paddleOcrLanguage: _paddleLanguage,
       appleLiveTextLanguage: _appleLiveTextLanguage,
-      ocrLanguage: _selectedLanguages.join('+'),
-      ocrDataDirectory: _ocrDirectoryController.text,
-      ocrModelSource: _ocrSource,
       translatorProvider: _provider,
       translatorEndpoint: _endpointController.text,
       translatorApiKey: _apiKeyController.text,

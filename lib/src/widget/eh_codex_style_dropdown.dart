@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jhentai/src/config/theme_config.dart';
@@ -59,8 +61,10 @@ class _EHCodexStyleDropdownState<T> extends State<EHCodexStyleDropdown<T>> {
 
     return EHGlassMenu(
       // GlassMenu performs arithmetic on menuWidth (SizedBox width), so a
-      // finite value is required even when the trigger is full width.
-      menuWidth: widget.isExpanded ? 480 : 220,
+      // finite value is required even when the trigger is full width. For the
+      // compact case the menu widens to fit its longest item instead of a
+      // fixed 220px that truncates long labels.
+      menuWidth: _menuWidth(),
       trigger: IgnorePointer(
         ignoring: !widget.enabled,
         child: InkWell(
@@ -111,6 +115,46 @@ class _EHCodexStyleDropdownState<T> extends State<EHCodexStyleDropdown<T>> {
           _buildGlassMenuItem(item),
       ],
     );
+  }
+
+  /// The expanded menu's width. The full-width ([isExpanded]) case keeps a
+  /// fixed 480px; otherwise the menu grows to fit its widest item label (with
+  /// icon and padding) instead of staying at a fixed 220px that truncates long
+  /// text, bounded to a sane range and the screen width.
+  double _menuWidth() {
+    if (widget.isExpanded) {
+      return 480;
+    }
+    double widest = 0;
+    bool hasIcon = false;
+    for (final DropdownMenuItem<T> item in widget.items) {
+      final ({String title, Widget? icon}) extracted =
+          _extractFromChild(item.child);
+      if (extracted.icon != null) {
+        hasIcon = true;
+      }
+      if (extracted.title.isEmpty) {
+        continue;
+      }
+      // GlassMenuItem renders titles at 17px by default.
+      final TextPainter painter = TextPainter(
+        text: TextSpan(
+          text: extracted.title,
+          style: const TextStyle(fontSize: 17),
+        ),
+        textDirection: Directionality.of(context),
+        maxLines: 1,
+      )..layout();
+      widest = math.max(widest, painter.width);
+    }
+    // Icon column + menu/item horizontal padding + a little breathing room.
+    final double iconExtra = hasIcon ? 36 : 0;
+    final double natural = widest + iconExtra + 72;
+    final double screenCap = (MediaQuery.sizeOf(context).width - 40).clamp(
+      220.0,
+      420.0,
+    );
+    return natural.clamp(220.0, screenCap);
   }
 
   GlassMenuItem _buildGlassMenuItem(DropdownMenuItem<T> item) {

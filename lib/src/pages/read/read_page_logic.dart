@@ -810,6 +810,10 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
       if (href != null) {
         final GalleryImage? lanImage = await lanSharingRuntime.fetchCachedImage(
           href,
+          // The gallery context lets a trusted host serve the page from its
+          // DOWNLOADED copy, not just the online image cache.
+          galleryUrl: state.readPageInfo.galleryUrl,
+          pageIndex: index,
         );
         if (lanImage != null) {
           state.images[index] = lanImage;
@@ -939,6 +943,12 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
       reloadKey = state.images[index]!.reloadKey;
       final String url = effectiveEHImageUrl(state.images[index]!.url);
       await clearDiskCachedImage(url, cacheKey: normalizedImageCacheKey(url));
+    }
+    // The reloaded image is a different picture; drop any stale translation
+    // overlay (and its result) so old blocks/text are not drawn over it.
+    final oldRequest = state.imageTranslationRequests.remove(index);
+    if (oldRequest != null) {
+      imageTranslationService.removeResult(oldRequest.cacheKey);
     }
     state.images[index] = null;
     state.loadedOnlineImageIndices.remove(index);
@@ -1657,7 +1667,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
         imageTranslationSetting.translateSubsequentPages.value;
     final int total =
         translateSubsequent ? state.readPageInfo.pageCount - startIndex : 1;
-    imageTranslationService.beginBatch(total);
+    final int generation = imageTranslationService.beginBatch(total);
     try {
       final List<int> order = translateSubsequent
           ? await _buildTranslationOrder(startIndex)
@@ -1700,17 +1710,21 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
               log.trace(stack);
             }
           }
-          imageTranslationService.batchCompleted = completed;
-          imageTranslationService.update([
-            ImageTranslationService.batchProgressId,
-          ]);
+          // Guard against a stale batch (cancelled, then superseded) writing
+          // its own progress over a newer batch's shared state.
+          if (imageTranslationService.isCurrentBatch(generation)) {
+            imageTranslationService.batchCompleted = completed;
+            imageTranslationService.update([
+              ImageTranslationService.batchProgressId,
+            ]);
+          }
         });
       }
       if (prevTranslate != null) {
         await prevTranslate;
       }
     } finally {
-      imageTranslationService.endBatch();
+      imageTranslationService.endBatch(generation);
     }
   }
 

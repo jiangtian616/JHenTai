@@ -556,6 +556,11 @@ class pt_BR {
       'superResolutionEngine': 'Motor',
       'superResolutionEngineNcnnVulkan': 'ncnn-vulkan (externo)',
       'superResolutionEngineOnnx': 'ONNX (no aplicativo)',
+      'onnxModelDescRapidOcrSmall': 'Dicionário multilíngue completo do PP-OCRv6 com alta precisão de reconhecimento em tamanho e velocidade moderados. Bom para a maioria dos quadrinhos e imagens.',
+      'onnxModelDescRapidOcrTiny': 'Dicionário reduzido e redes leves: a camada mais rápida e menor, mas com um conjunto de caracteres menor e precisão ligeiramente menor em glifos complexos. Ideal para dispositivos fracos ou uso focado em velocidade.',
+      'onnxModelDescRealEsrgan6B': 'Camada de alta qualidade: mais detalhes e melhor qualidade, mais lenta.',
+      'onnxModelDescRealEsrgan4B32F': 'Camada rápida: cerca de 3-4x mais rápida com um pouco menos de detalhes; ideal para processamento em lote.',
+      'superResolutionModelPickerHint': 'Trocar de modelo reprocessa páginas ampliadas',
       'stopSuperResolution': 'Stop Super Resolution',
       'deleteSuperResolvedImage': 'Delete Super Resolved Image',
       'superResolveOriginalImageHint':
@@ -1082,6 +1087,8 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationOcrFailed':
           'O reconhecimento de texto falhou. Verifique os pacotes de idioma do OCR e o formato da imagem.',
       'imageTranslationNoText': 'Nenhum texto foi reconhecido nesta imagem.',
+      'imageTranslationAlreadyTranslated': 'Esta página já foi traduzida.',
+      'imageTranslationCancelled': 'Tradução cancelada.',
       'imageTranslationRequestFailed':
           'A solicitação de tradução falhou. Verifique o endpoint, a chave e a rede.',
       'imageTranslationInvalidResponse':

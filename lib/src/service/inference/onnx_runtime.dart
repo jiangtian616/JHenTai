@@ -3,15 +3,63 @@ import 'dart:async';
 import 'package:flutter_onnxruntime/flutter_onnxruntime.dart' as ort;
 import 'package:jhentai/src/service/log.dart';
 
+/// Diagnostic sink for ONNX Runtime lifecycle events.
+///
+/// The app-wide default writes through the global [log] singleton. The OCR
+/// worker isolate passes a no-op sink instead: the global `log` depends on
+/// UI-isolate services (`pathService`) that are never initialized there, so
+/// logging from the worker would throw `LateInitializationError`.
+abstract interface class OnnxRuntimeLog {
+  void info(String message);
+  void warning(String message);
+  void trace(Object message);
+}
+
+class _DefaultOnnxRuntimeLog implements OnnxRuntimeLog {
+  const _DefaultOnnxRuntimeLog();
+
+  @override
+  void info(String message) => log.info(message);
+
+  @override
+  void warning(String message) => log.warning(message);
+
+  @override
+  void trace(Object message) => log.trace(message);
+}
+
+class _NoopOnnxRuntimeLog implements OnnxRuntimeLog {
+  const _NoopOnnxRuntimeLog();
+
+  @override
+  void info(String message) {}
+
+  @override
+  void warning(String message) {}
+
+  @override
+  void trace(Object message) {}
+}
+
+/// A no-op [OnnxRuntimeLog] for the OCR worker isolate.
+const OnnxRuntimeLog noopOnnxRuntimeLog = _NoopOnnxRuntimeLog();
+
 /// Process-wide ONNX Runtime owner.
 ///
 /// Initialization and session creation are single-flight. Sessions are keyed
 /// by model fingerprint and execution-provider order, so changing backend or
 /// replacing a model never reuses a stale native session.
+///
+/// The constructor is public so the OCR worker isolate can own a private
+/// instance alongside the app-wide [instance]; every instance keeps its own
+/// provider list, session cache and lifecycle leases. [log] overrides where
+/// diagnostics go (the worker passes [noopOnnxRuntimeLog]).
 class OnnxRuntime {
-  OnnxRuntime._();
+  OnnxRuntime({OnnxRuntimeLog? log}) : _log = log ?? const _DefaultOnnxRuntimeLog();
 
-  static final OnnxRuntime instance = OnnxRuntime._();
+  final OnnxRuntimeLog _log;
+
+  static final OnnxRuntime instance = OnnxRuntime();
 
   ort.OnnxRuntime? _engine;
   final List<ort.OrtProvider> _providers = <ort.OrtProvider>[];
@@ -64,12 +112,12 @@ class OnnxRuntime {
         ..clear()
         ..addAll(providers);
       _available = providers.isNotEmpty;
-      log.info(
+      _log.info(
         'ONNX Runtime available, providers: ${providers.map((ort.OrtProvider provider) => provider.name).join(', ')}',
       );
     } catch (e, s) {
-      log.warning('ONNX Runtime initialization failed: $e');
-      log.trace(s);
+      _log.warning('ONNX Runtime initialization failed: $e');
+      _log.trace(s);
       _engine = null;
       _providers.clear();
       _available = false;
@@ -101,7 +149,7 @@ class OnnxRuntime {
         .toSet()
         .toList(growable: false);
     if (effectiveProviders.isEmpty) {
-      log.warning('No requested ONNX provider is available: $providers');
+      _log.warning('No requested ONNX provider is available: $providers');
       return null;
     }
     final String cacheKey = _cacheKey(
@@ -159,14 +207,14 @@ class OnnxRuntime {
       );
       _sessionErrors.remove(modelPath);
       _allSessions.add(_sessions[cacheKey]!);
-      log.info(
+      _log.info(
         'ONNX session ready: $modelPath (${providers.map((ort.OrtProvider provider) => provider.name).join(' -> ')})',
       );
       return created;
     } catch (e, s) {
       _sessionErrors[modelPath] = e.toString();
-      log.warning('create ONNX session failed: $modelPath: $e');
-      log.trace(s);
+      _log.warning('create ONNX session failed: $modelPath: $e');
+      _log.trace(s);
       return null;
     }
   }
@@ -311,7 +359,7 @@ class OnnxRuntime {
     try {
       await entry.session.close();
     } catch (e) {
-      log.trace('close ONNX session failed: $e');
+      _log.trace('close ONNX session failed: $e');
     } finally {
       _allSessions.remove(entry);
       if (!(entry.closeCompleter?.isCompleted ?? true)) {

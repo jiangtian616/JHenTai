@@ -52,6 +52,7 @@ class SettingSuperResolutionPage extends StatelessWidget {
                 _buildEngine(),
                 if (superResolutionSetting.engine.value ==
                     SuperResolutionEngine.onnx) ...[
+                  _buildOnnxModelPicker(),
                   _buildOnnxModelTile(),
                   _buildInferenceBackend(),
                 ],
@@ -95,12 +96,40 @@ class SettingSuperResolutionPage extends StatelessWidget {
     );
   }
 
-  /// ONNX 超分模型（Real-ESRGAN anime）的下载/删除/状态。
+  /// ONNX 超分模型选择器：列出所有 superResolution manifest，名字下方标注
+  /// 速度/体积/精度差异，单选切换活动模型。
+  Widget _buildOnnxModelPicker() {
+    return Obx(() {
+      final String active = superResolutionSetting.onnxModelId.value;
+      final List<OnnxModelManifest> models =
+          OnnxModelStore.instance.manifestsOfKind('superResolution');
+      final bool activeKnown = models.any(
+        (OnnxModelManifest model) => model.id == active,
+      );
+      return OnnxModelPicker(
+        kind: 'superResolution',
+        activeId: activeKnown || models.isEmpty ? active : models.first.id,
+        onSelect: superResolutionSetting.saveOnnxModelId,
+      );
+    });
+  }
+
+  /// 活动 ONNX 超分模型（Real-ESRGAN anime）的下载/删除/状态。
   Widget _buildOnnxModelTile() {
-    return OnnxModelTile(
-      manifestId: OnnxModelStore.superResolutionManifestId,
-      title: 'inferenceSuperResolutionModel'.tr,
-    );
+    return Obx(() {
+      final List<OnnxModelManifest> models =
+          OnnxModelStore.instance.manifestsOfKind('superResolution');
+      final String active = superResolutionSetting.onnxModelId.value;
+      final bool activeKnown = models.any(
+        (OnnxModelManifest model) => model.id == active,
+      );
+      final String manifestId =
+          activeKnown || models.isEmpty ? active : models.first.id;
+      return OnnxModelTile(
+        manifestId: manifestId,
+        title: 'inferenceSuperResolutionModel'.tr,
+      );
+    });
   }
 
   Widget _buildInferenceBackend() {

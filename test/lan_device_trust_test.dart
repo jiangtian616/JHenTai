@@ -504,7 +504,15 @@ class _FakeSession implements LanPeerSession {
   Future<void> get closed => _closed.future;
 
   @override
-  Future<LanSharedImage?> requestImageCache(String imagePageHref) async => null;
+  Future<LanSharedImage?> requestImageCache(
+    String imagePageHref, {
+    String? galleryUrl,
+    int? pageIndex,
+  }) async => null;
+
+  @override
+  Future<List<LanSharedGallerySummary>> listDownloadedGalleries() async =>
+      const <LanSharedGallerySummary>[];
 
   @override
   Future<void> close() async {

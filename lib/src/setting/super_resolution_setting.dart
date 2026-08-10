@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/service/log.dart';
 
+import '../service/inference/onnx_model_store.dart';
 import '../service/jh_service.dart';
 
 SuperResolutionSetting superResolutionSetting = SuperResolutionSetting();
@@ -20,6 +21,11 @@ class SuperResolutionSetting
     SuperResolutionEngine.ncnnVulkan,
   );
 
+  /// The active ONNX super-resolution model manifest id. Both current models
+  /// (anime 6B and the lighter 4B32F) are x4 with the same input contract, so
+  /// the engine itself is unaffected by the choice.
+  RxString onnxModelId = RxString(OnnxModelStore.superResolutionManifestId);
+
   @override
   ConfigEnum get configEnum => ConfigEnum.superResolutionSetting;
 
@@ -35,6 +41,12 @@ class SuperResolutionSetting
       (value) => value.name == map['engine'],
       orElse: () => SuperResolutionEngine.ncnnVulkan,
     );
+    final String? savedOnnxModelId = map['onnxModelId'];
+    if (savedOnnxModelId != null &&
+        OnnxModelStore.instance.manifestOf(savedOnnxModelId)?.kind ==
+            'superResolution') {
+      onnxModelId.value = savedOnnxModelId;
+    }
   }
 
   @override
@@ -44,6 +56,7 @@ class SuperResolutionSetting
       'model': model.value.index,
       'gpuId': gpuId.value,
       'engine': engine.value.name,
+      'onnxModelId': onnxModelId.value,
     });
   }
 
@@ -74,6 +87,12 @@ class SuperResolutionSetting
   Future<void> saveEngine(SuperResolutionEngine engine) async {
     log.debug('saveSuperResolutionEngine:$engine');
     this.engine.value = engine;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveOnnxModelId(String modelId) async {
+    log.debug('saveOnnxModelId:$modelId');
+    onnxModelId.value = modelId;
     await saveBeanConfig();
   }
 }

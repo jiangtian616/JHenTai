@@ -86,7 +86,7 @@ enum LiveTextOCR {
     // a genuine downcast on every SDK revision (no-op warning is avoided).
     let observations = (request as VNRequest).results as? [VNRecognizedTextObservation] ?? []
 
-    let lines: [[String: Any]] = observations.compactMap { observation in
+    var lines: [[String: Any]] = observations.compactMap { observation in
       guard let candidate = observation.topCandidates(1).first else { return nil }
       let text = candidate.string.trimmingCharacters(in: .whitespacesAndNewlines)
       guard !text.isEmpty else { return nil }
@@ -100,8 +100,20 @@ enum LiveTextOCR {
         "height": Double(box.height * upright.height),
       ]
     }
-    // Comic reading order: top-to-bottom, then left-to-right.
-    .sorted {
+    // Comic reading order. Vertical-text (tategaki) pages read right-to-left,
+    // so when the majority of lines are tall columns we sort by left descending
+    // (rightmost column first) then top; otherwise top-to-bottom, left-to-right.
+    let tallCount = lines.filter {
+      ($0["height"] as? Double ?? 0) > ($0["width"] as? Double ?? 0) * 1.4
+    }.count
+    let mostlyVertical = !lines.isEmpty && tallCount * 2 > lines.count
+    lines.sort {
+      if mostlyVertical {
+        let left0 = $0["left"] as? Double ?? 0
+        let left1 = $1["left"] as? Double ?? 0
+        if abs(left0 - left1) > 1 { return left0 > left1 }
+        return ($0["top"] as? Double ?? 0) < ($1["top"] as? Double ?? 0)
+      }
       let top0 = $0["top"] as? Double ?? 0
       let top1 = $1["top"] as? Double ?? 0
       if abs(top0 - top1) > 1 { return top0 < top1 }

@@ -7,18 +7,21 @@ import 'dart:typed_data';
 import 'package:bonsoir/bonsoir.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:extended_image/extended_image.dart'
-    show extendedImageDiskCacheDirectory;
+    show extendedImageDiskCacheDirectory, ExtendedNetworkImageProvider;
 import 'package:jhentai/src/model/lan_device_trust.dart';
 import 'package:path/path.dart' as path;
 
 import '../model/gallery_image.dart';
 import '../network/eh_request.dart';
+import '../setting/advanced_setting.dart';
 import '../utils/eh_spider_parser.dart';
 import '../utils/image_cache_util.dart';
+import 'gallery_download_service.dart';
 import 'jh_service.dart';
 import 'lan_device_trust_service.dart';
 import 'log.dart';
 import 'path_service.dart';
+import '../database/database.dart';
 
 LanSharingRuntime lanSharingRuntime = LanSharingRuntime();
 
@@ -37,6 +40,13 @@ class LanSharingRuntime
   final bool _persistImagePageManifest;
   final Future<LanSharedImage?> Function(String imagePageHref)?
   _imageCacheResolverOverride;
+
+  /// Test hook that replaces the downloaded-gallery lookup.
+  final Future<LanSharedImage?> Function(String galleryUrl, int pageIndex)?
+  _downloadResolverOverride;
+
+  /// Test hook that replaces the host's downloaded-gallery catalog.
+  final List<LanSharedGallerySummary> Function()? _galleryListOverride;
   final Map<String, GalleryImage> _imagePageManifest = {};
   Future<void> _manifestWrite = Future<void>.value();
 
@@ -52,13 +62,18 @@ class LanSharingRuntime
     InternetAddress? bindAddress,
     Random? secureRandom,
     Future<LanSharedImage?> Function(String imagePageHref)? imageCacheResolver,
+    Future<LanSharedImage?> Function(String galleryUrl, int pageIndex)?
+    downloadResolver,
+    List<LanSharedGallerySummary> Function()? galleryListOverride,
     String? imageCacheDirectory,
   }) : trustService = trustService ?? lanDeviceTrustService,
        bindAddress = bindAddress ?? InternetAddress.anyIPv4,
        _secureRandom = secureRandom ?? Random.secure(),
        _imageCacheDirectoryOverride = imageCacheDirectory,
        _persistImagePageManifest = trustService == null,
-       _imageCacheResolverOverride = imageCacheResolver;
+       _imageCacheResolverOverride = imageCacheResolver,
+       _downloadResolverOverride = downloadResolver,
+       _galleryListOverride = galleryListOverride;
 
   bool get isRunning => _started;
 
@@ -79,17 +94,33 @@ class LanSharingRuntime
     }
   }
 
-  Future<GalleryImage?> fetchCachedImage(String imagePageHref) async {
+  Future<GalleryImage?> fetchCachedImage(
+    String imagePageHref, {
+    String? galleryUrl,
+    int? pageIndex,
+  }) async {
     if (!_started || !trustService.isEnabled) {
       return null;
     }
     final LanSharedImage? shared = await trustService.requestImageCache(
       imagePageHref,
+      galleryUrl: galleryUrl,
+      pageIndex: pageIndex,
     );
     if (shared == null || shared.bytes.isEmpty) {
       return null;
     }
     final GalleryImage image = GalleryImage.fromJson(shared.image);
+    if (advancedSetting.lanServerMode.value) {
+      // Server mode: the host holds the image, so keep THIS device's persistent
+      // cache minimal — materialize the LAN bytes to a transient temp file and
+      // let the reader load from it instead of bloating the disk cache.
+      final String fileName =
+          'lan_${normalizedImageCacheKey(effectiveEHImageUrl(image.url))}';
+      final File tempFile = File(path.join(pathService.tempDir.path, fileName));
+      await tempFile.writeAsBytes(shared.bytes, flush: true);
+      return image.copyWith(path: tempFile.path);
+    }
     final String cacheKey = normalizedImageCacheKey(
       effectiveEHImageUrl(image.url),
     );
@@ -617,21 +648,52 @@ class LanSharingRuntime
           continue;
         }
         final dynamic decoded = jsonDecode(message);
-        if (decoded is! Map || decoded['type'] != 'cache_image') {
+        if (decoded is! Map) {
           continue;
         }
         final String requestId = decoded['id'] as String? ?? '';
+        if (decoded['type'] == 'list_galleries') {
+          await _handleListGalleries(socket, deviceId, requestId);
+          continue;
+        }
+        if (decoded['type'] != 'cache_image') {
+          continue;
+        }
         final TrustedLanDevice? device = trustService.deviceById(deviceId);
-        if (requestId.isEmpty ||
-            device == null ||
-            !device.permissions.contains(LanSharePermission.imageCache)) {
+        if (requestId.isEmpty || device == null) {
+          socket.add(jsonEncode({'type': 'cache_image_miss', 'id': requestId}));
+          continue;
+        }
+        final bool allowCache = device.permissions.contains(
+          LanSharePermission.imageCache,
+        );
+        final bool allowDownloads = device.permissions.contains(
+          LanSharePermission.downloads,
+        );
+        if (!allowCache && !allowDownloads) {
           socket.add(jsonEncode({'type': 'cache_image_miss', 'id': requestId}));
           continue;
         }
         final String href = decoded['href'] as String? ?? '';
-        final LanSharedImage? shared =
-            await (_imageCacheResolverOverride?.call(href) ??
-                _resolveLocalImageCache(href));
+        final String galleryUrl = decoded['galleryUrl'] as String? ?? '';
+        final int? pageIndex = (decoded['pageIndex'] as num?)?.toInt();
+        // Image cache first (online pages), then the host's downloaded gallery
+        // when the peer has the downloads permission.
+        LanSharedImage? shared;
+        if (allowCache) {
+          shared = await (_imageCacheResolverOverride?.call(href) ??
+              _resolveLocalImageCache(href));
+        }
+        if ((shared == null || shared.bytes.isEmpty) &&
+            allowDownloads &&
+            galleryUrl.isNotEmpty &&
+            pageIndex != null) {
+          shared = await (_downloadResolverOverride?.call(
+                galleryUrl,
+                pageIndex,
+              ) ??
+              _resolveLocalDownload(galleryUrl, pageIndex));
+        }
         if (shared == null || shared.bytes.isEmpty) {
           socket.add(jsonEncode({'type': 'cache_image_miss', 'id': requestId}));
           continue;
@@ -652,6 +714,62 @@ class LanSharingRuntime
     } finally {
       await iterator.cancel();
     }
+  }
+
+  /// Replies to a peer's `list_galleries` request with this device's downloaded
+  /// galleries, but only when the peer holds the `downloads` permission.
+  Future<void> _handleListGalleries(
+    WebSocket socket,
+    String deviceId,
+    String requestId,
+  ) async {
+    final List<LanSharedGallerySummary> summaries = [];
+    final TrustedLanDevice? device = trustService.deviceById(deviceId);
+    if (device != null &&
+        device.permissions.contains(LanSharePermission.downloads)) {
+      summaries.addAll(_galleryListOverride?.call() ?? _localGallerySummaries());
+    }
+    socket.add(
+      jsonEncode({
+        'type': 'list_galleries_result',
+        'id': requestId,
+        'galleries': summaries
+            .map((LanSharedGallerySummary summary) => summary.toJson())
+            .toList(),
+      }),
+    );
+  }
+
+  /// Builds gallery summaries from this device's downloaded-gallery catalog.
+  List<LanSharedGallerySummary> _localGallerySummaries() => [
+    for (final GalleryDownloadedData gallery in galleryDownloadService.gallerys)
+      LanSharedGallerySummary(
+        deviceId: trustService.localDeviceId,
+        deviceName: trustService.localDisplayName,
+        gid: gallery.gid,
+        token: gallery.token,
+        title: gallery.title,
+        galleryUrl: gallery.galleryUrl,
+        pageCount: gallery.pageCount,
+        category: gallery.category,
+        publishTime: gallery.publishTime,
+        coverUrl: _coverUrlFor(gallery.gid),
+      ),
+  ];
+
+  /// The URL of a downloaded gallery's first image, used as a cover hint.
+  String? _coverUrlFor(int gid) {
+    final GalleryDownloadInfo? info =
+        galleryDownloadService.galleryDownloadInfos[gid];
+    if (info == null) {
+      return null;
+    }
+    for (final GalleryImage? image in info.images) {
+      if (image != null && image.downloadStatus == DownloadStatus.downloaded) {
+        return image.url;
+      }
+    }
+    return null;
   }
 
   Future<LanSharedImage?> _resolveLocalImageCache(String href) async {
@@ -676,16 +794,115 @@ class LanSharingRuntime
       directory: cacheDirectory,
       url: effectiveUrl,
     );
-    if (file == null) {
-      log.debug('LAN image cache miss: ${_canonicalImagePageKey(href)}');
+    if (file != null) {
+      log.debug('LAN image cache hit: ${_canonicalImagePageKey(href)}');
+      return LanSharedImage(
+        image: image.toJson(),
+        bytes: await file.readAsBytes(),
+      );
+    }
+    // Server mode: this device is the storage for browsing peers. Download the
+    // missing image and cache it HERE, so the peer keeps no cache of its own
+    // and later requests for the same page hit without the network.
+    if (advancedSetting.lanServerMode.value) {
+      final List<int>? bytes = await _downloadImageBytes(effectiveUrl);
+      if (bytes != null && bytes.isNotEmpty) {
+        final String cacheKey = normalizedImageCacheKey(effectiveUrl);
+        final File target = File(path.join(cacheDirectory, cacheKey));
+        try {
+          await target.parent.create(recursive: true);
+          await target.writeAsBytes(bytes, flush: true);
+          log.debug(
+            'LAN server mode cached: ${_canonicalImagePageKey(href)}',
+          );
+          return LanSharedImage(image: image.toJson(), bytes: bytes);
+        } on Object catch (error, stack) {
+          log.warning('LAN server mode cache write failed: $error');
+          log.trace(stack);
+        }
+      }
+    }
+    log.debug('LAN image cache miss: ${_canonicalImagePageKey(href)}');
+    return null;
+  }
+
+  /// Fetches an image's bytes over the network (used by server mode to pull a
+  /// missing image into this device's cache).
+  Future<List<int>?> _downloadImageBytes(String url) async {
+    try {
+      final ExtendedNetworkImageProvider provider =
+          ExtendedNetworkImageProvider(
+        url,
+        cache: false,
+        retries: 1,
+        printError: false,
+      );
+      return await provider.getNetworkImageData();
+    } on Object catch (error, stack) {
+      log.warning('LAN server mode image download failed: $error');
+      log.trace(stack);
       return null;
     }
-    log.debug('LAN image cache hit: ${_canonicalImagePageKey(href)}');
+  }
+
+  /// Serves a page from the host's downloaded gallery: locates the gallery by
+  /// its URL, reads the downloaded file for [pageIndex], and returns it with
+  /// the host's private download path stripped.
+  Future<LanSharedImage?> _resolveLocalDownload(
+    String galleryUrl,
+    int pageIndex,
+  ) async {
+    final GalleryDownloadedData? gallery = _findDownloadedGallery(galleryUrl);
+    if (gallery == null) {
+      return null;
+    }
+    final GalleryDownloadInfo? info =
+        galleryDownloadService.galleryDownloadInfos[gallery.gid];
+    if (info == null || pageIndex < 0 || pageIndex >= info.images.length) {
+      return null;
+    }
+    final GalleryImage? image = info.images[pageIndex];
+    if (image == null ||
+        image.downloadStatus != DownloadStatus.downloaded ||
+        image.path == null ||
+        image.path!.isEmpty) {
+      return null;
+    }
+    final File file = File(
+      GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
+        image.path!,
+      ),
+    );
+    if (!await file.exists()) {
+      log.debug('LAN download miss: $galleryUrl #$pageIndex');
+      return null;
+    }
+    log.debug('LAN download hit: $galleryUrl #$pageIndex');
     return LanSharedImage(
-      image: image.toJson(),
+      // The peer must treat the image as a plain online image, not inherit the
+      // host's on-disk path.
+      image: image
+          .copyWith(path: null, downloadStatus: DownloadStatus.none)
+          .toJson(),
       bytes: await file.readAsBytes(),
     );
   }
+
+  GalleryDownloadedData? _findDownloadedGallery(String galleryUrl) {
+    final String normalized = _normalizeGalleryUrl(galleryUrl);
+    for (final GalleryDownloadedData gallery in galleryDownloadService.gallerys) {
+      if (_normalizeGalleryUrl(gallery.galleryUrl) == normalized ||
+          (gallery.oldVersionGalleryUrl != null &&
+              _normalizeGalleryUrl(gallery.oldVersionGalleryUrl!) ==
+                  normalized)) {
+        return gallery;
+      }
+    }
+    return null;
+  }
+
+  String _normalizeGalleryUrl(String value) =>
+      value.trim().replaceFirst(RegExp(r'/+$'), '');
 
   String _canonicalImagePageKey(String href) {
     final Uri uri = Uri.parse(href);
@@ -901,6 +1118,8 @@ class _WebSocketLanPeerSession implements LanPeerSession {
   final void Function(int bytes) _onBytesReceived;
   final Completer<void> _closed = Completer<void>();
   final Map<String, Completer<LanSharedImage?>> _pending = {};
+  final Map<String, Completer<List<LanSharedGallerySummary>>>
+      _pendingListGalleries = {};
   int _nextRequestId = 0;
   String? _pendingBinaryRequestId;
   Map<String, dynamic>? _pendingBinaryImage;
@@ -951,6 +1170,18 @@ class _WebSocketLanPeerSession implements LanPeerSession {
           _pendingBinaryImage = Map<String, dynamic>.from(
             decoded['image'] as Map,
           );
+        } else if (decoded['type'] == 'list_galleries_result' &&
+            decoded['galleries'] is List) {
+          _pendingListGalleries.remove(id)?.complete(
+            (decoded['galleries'] as List)
+                .whereType<Map>()
+                .map(
+                  (dynamic gallery) => LanSharedGallerySummary.fromJson(
+                    Map<String, dynamic>.from(gallery as Map),
+                  ),
+                )
+                .toList(),
+          );
         }
       }
     } finally {
@@ -961,6 +1192,13 @@ class _WebSocketLanPeerSession implements LanPeerSession {
         }
       }
       _pending.clear();
+      for (final Completer<List<LanSharedGallerySummary>> pending
+          in _pendingListGalleries.values) {
+        if (!pending.isCompleted) {
+          pending.complete(const <LanSharedGallerySummary>[]);
+        }
+      }
+      _pendingListGalleries.clear();
       if (!_closed.isCompleted) {
         _closed.complete();
       }
@@ -968,7 +1206,11 @@ class _WebSocketLanPeerSession implements LanPeerSession {
   }
 
   @override
-  Future<LanSharedImage?> requestImageCache(String imagePageHref) {
+  Future<LanSharedImage?> requestImageCache(
+    String imagePageHref, {
+    String? galleryUrl,
+    int? pageIndex,
+  }) {
     if (!_supportsImageCache) {
       return Future<LanSharedImage?>.value();
     }
@@ -976,8 +1218,24 @@ class _WebSocketLanPeerSession implements LanPeerSession {
     final Completer<LanSharedImage?> completer = Completer<LanSharedImage?>();
     _pending[id] = completer;
     _socket.add(
-      jsonEncode({'type': 'cache_image', 'id': id, 'href': imagePageHref}),
+      jsonEncode({
+        'type': 'cache_image',
+        'id': id,
+        'href': imagePageHref,
+        if (galleryUrl != null) 'galleryUrl': galleryUrl,
+        if (pageIndex != null) 'pageIndex': pageIndex,
+      }),
     );
+    return completer.future;
+  }
+
+  @override
+  Future<List<LanSharedGallerySummary>> listDownloadedGalleries() {
+    final String id = 'g${++_nextRequestId}';
+    final Completer<List<LanSharedGallerySummary>> completer =
+        Completer<List<LanSharedGallerySummary>>();
+    _pendingListGalleries[id] = completer;
+    _socket.add(jsonEncode({'type': 'list_galleries', 'id': id}));
     return completer.future;
   }
 

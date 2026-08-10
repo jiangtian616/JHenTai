@@ -3,7 +3,9 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/inference/onnx_model_store.dart';
 import 'package:jhentai/src/service/inference_service.dart';
+import 'package:jhentai/src/setting/image_translation_setting.dart';
 import 'package:jhentai/src/setting/inference_setting.dart';
+import 'package:jhentai/src/setting/super_resolution_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
@@ -57,13 +59,13 @@ class SettingInferencePage extends StatelessWidget {
               children: [
                 _buildModelStatus(
                   'inferenceEngineOcr'.tr,
-                  OnnxModelStore.ocrManifestId,
+                  imageTranslationSetting.onnxModelId.value,
                   InferenceDomain.ocr,
                   () => toRoute(Routes.imageTranslation),
                 ),
                 _buildModelStatus(
                   'inferenceEngineSuperResolution'.tr,
-                  OnnxModelStore.superResolutionManifestId,
+                  superResolutionSetting.onnxModelId.value,
                   InferenceDomain.superResolution,
                   () => toRoute(Routes.superResolution),
                 ),

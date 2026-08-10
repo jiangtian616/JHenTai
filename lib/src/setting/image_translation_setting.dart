@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:get/get.dart';
 
 import '../enum/config_enum.dart';
+import '../service/inference/onnx_model_store.dart';
 import '../service/jh_service.dart';
 import '../service/log.dart';
 
@@ -11,25 +12,21 @@ ImageTranslationSetting imageTranslationSetting = ImageTranslationSetting();
 
 enum ImageTranslationProvider { openAICompatible, anthropic }
 
-enum OcrModelSource { giteeMirror, githubOfficial }
-
 enum ImageOcrEngine {
-  tesseract,
-  paddleOcr,
-  paddleOcrVl16,
-
-  /// 端侧 ONNX 推理（走统一"推理后端"入口，框架阶段尚未接入模型）。
+  /// 端侧 ONNX 推理（PP-OCRv6，走统一"推理后端"入口）。
   onnx,
+
+  /// Apple Vision framework 的 Live Text 识别（仅 Apple 平台）。
   appleLiveText,
 }
 
 class ImageTranslationSetting
     with JHLifeCircleBeanWithConfigStorage
     implements JHLifeCircleBean {
-  final RxString ocrExecutable = 'tesseract'.obs;
-  final Rx<ImageOcrEngine> ocrEngine = ImageOcrEngine.tesseract.obs;
-  final RxString paddleOcrExecutable = 'paddleocr'.obs;
-  final RxString paddleOcrLanguage = 'japan'.obs;
+  final Rx<ImageOcrEngine> ocrEngine = ImageOcrEngine.onnx.obs;
+  /// The active ONNX OCR model manifest id (e.g. PP-OCRv6 small vs tiny). The
+  /// engine resolves model files lazily against this id.
+  final RxString onnxModelId = RxString(OnnxModelStore.ocrManifestId);
   /// Apple Live Text recognition languages, as a comma-separated list of
   /// BCP-47 codes, or 'auto' for on-device auto detection (iOS 16 / macOS 13+).
   final RxString appleLiveTextLanguage = 'auto'.obs;
@@ -42,11 +39,8 @@ class ImageTranslationSetting
   /// Apple's on-device translation.
   final RxBool appleLiveTextUseThirdPartyApi = false.obs;
   /// The OCR engine to restore when switching back from Apple Live Text mode to
-  /// the custom mode.
-  final Rx<ImageOcrEngine> lastCustomOcrEngine = ImageOcrEngine.tesseract.obs;
-  final RxString ocrLanguage = 'jpn+eng'.obs;
-  final RxnString ocrDataDirectory = RxnString();
-  final Rx<OcrModelSource> ocrModelSource = OcrModelSource.giteeMirror.obs;
+  /// the custom mode (always ONNX now that it is the only custom engine).
+  final Rx<ImageOcrEngine> lastCustomOcrEngine = ImageOcrEngine.onnx.obs;
   final Rx<ImageTranslationProvider> translatorProvider =
       ImageTranslationProvider.openAICompatible.obs;
   final RxnString translatorEndpoint = RxnString();
@@ -71,14 +65,13 @@ class ImageTranslationSetting
   @override
   void applyBeanConfig(String configString) {
     final Map<String, dynamic> config = jsonDecode(configString);
-    ocrExecutable.value = config['ocrExecutable'] ?? ocrExecutable.value;
+    // Custom mode is fixed to ONNX; stored values for removed engines
+    // (tesseract/paddle) fall back to the current default via orElse.
     ocrEngine.value = ImageOcrEngine.values.firstWhere(
         (engine) => engine.name == config['ocrEngine'],
         orElse: () => ocrEngine.value);
-    paddleOcrExecutable.value =
-        config['paddleOcrExecutable'] ?? paddleOcrExecutable.value;
-    paddleOcrLanguage.value =
-        config['paddleOcrLanguage'] ?? paddleOcrLanguage.value;
+    onnxModelId.value =
+        config['onnxModelId'] ?? onnxModelId.value;
     appleLiveTextLanguage.value =
         config['appleLiveTextLanguage'] ?? appleLiveTextLanguage.value;
     appleLiveTextAutoSelected.value =
@@ -89,11 +82,6 @@ class ImageTranslationSetting
     lastCustomOcrEngine.value = ImageOcrEngine.values.firstWhere(
         (engine) => engine.name == config['lastCustomOcrEngine'],
         orElse: () => lastCustomOcrEngine.value);
-    ocrLanguage.value = config['ocrLanguage'] ?? ocrLanguage.value;
-    ocrDataDirectory.value = config['ocrDataDirectory'];
-    ocrModelSource.value = OcrModelSource.values.firstWhere(
-        (source) => source.name == config['ocrModelSource'],
-        orElse: () => ocrModelSource.value);
     translatorProvider.value = ImageTranslationProvider.values.firstWhere(
         (provider) => provider.name == config['translatorProvider'],
         orElse: () => translatorProvider.value);
@@ -110,17 +98,12 @@ class ImageTranslationSetting
 
   @override
   String toConfigString() => jsonEncode({
-        'ocrExecutable': ocrExecutable.value,
         'ocrEngine': ocrEngine.value.name,
-        'paddleOcrExecutable': paddleOcrExecutable.value,
-        'paddleOcrLanguage': paddleOcrLanguage.value,
+        'onnxModelId': onnxModelId.value,
         'appleLiveTextLanguage': appleLiveTextLanguage.value,
         'appleLiveTextAutoSelected': appleLiveTextAutoSelected.value,
         'appleLiveTextUseThirdPartyApi': appleLiveTextUseThirdPartyApi.value,
         'lastCustomOcrEngine': lastCustomOcrEngine.value.name,
-        'ocrLanguage': ocrLanguage.value,
-        'ocrDataDirectory': ocrDataDirectory.value,
-        'ocrModelSource': ocrModelSource.value.name,
         'translatorProvider': translatorProvider.value.name,
         'translatorEndpoint': translatorEndpoint.value,
         'translatorApiKey': translatorApiKey.value,
@@ -185,14 +168,8 @@ class ImageTranslationSetting
   }
 
   Future<void> save({
-    required String ocrExecutable,
     required ImageOcrEngine ocrEngine,
-    required String paddleOcrExecutable,
-    required String paddleOcrLanguage,
     required String appleLiveTextLanguage,
-    required String ocrLanguage,
-    required String ocrDataDirectory,
-    required OcrModelSource ocrModelSource,
     required ImageTranslationProvider translatorProvider,
     required String translatorEndpoint,
     required String translatorApiKey,
@@ -202,22 +179,10 @@ class ImageTranslationSetting
     bool? translateSubsequentPages,
   }) async {
     log.debug('Save image translation settings');
-    this.ocrExecutable.value =
-        ocrExecutable.trim().isEmpty ? 'tesseract' : ocrExecutable.trim();
     this.ocrEngine.value = ocrEngine;
-    this.paddleOcrExecutable.value = paddleOcrExecutable.trim().isEmpty
-        ? 'paddleocr'
-        : paddleOcrExecutable.trim();
-    this.paddleOcrLanguage.value =
-        paddleOcrLanguage.trim().isEmpty ? 'japan' : paddleOcrLanguage.trim();
     this.appleLiveTextLanguage.value = appleLiveTextLanguage.trim().isEmpty
         ? 'auto'
         : appleLiveTextLanguage.trim();
-    this.ocrLanguage.value =
-        ocrLanguage.trim().isEmpty ? 'jpn+eng' : ocrLanguage.trim();
-    this.ocrDataDirectory.value =
-        ocrDataDirectory.trim().isEmpty ? null : ocrDataDirectory.trim();
-    this.ocrModelSource.value = ocrModelSource;
     this.translatorProvider.value = translatorProvider;
     this.translatorEndpoint.value =
         translatorEndpoint.trim().isEmpty ? null : translatorEndpoint.trim();
@@ -261,16 +226,6 @@ class ImageTranslationSetting
     await saveBeanConfig();
   }
 
-  Future<void> saveOcrLanguage(String value) async {
-    ocrLanguage.value = value.trim().isEmpty ? 'jpn+eng' : value.trim();
-    await saveBeanConfig();
-  }
-
-  Future<void> savePaddleOcrLanguage(String value) async {
-    paddleOcrLanguage.value = value.trim().isEmpty ? 'japan' : value.trim();
-    await saveBeanConfig();
-  }
-
   Future<void> saveAppleLiveTextLanguage(String value) async {
     appleLiveTextLanguage.value = value.trim().isEmpty ? 'auto' : value.trim();
     await saveBeanConfig();
@@ -283,6 +238,12 @@ class ImageTranslationSetting
 
   Future<void> saveOcrEngine(ImageOcrEngine value) async {
     ocrEngine.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveOnnxModelId(String modelId) async {
+    log.debug('saveOnnxModelId:$modelId');
+    onnxModelId.value = modelId;
     await saveBeanConfig();
   }
 }

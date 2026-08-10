@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -23,6 +24,7 @@ import 'inference_service.dart';
 import 'jh_service.dart';
 import 'log.dart';
 import 'path_service.dart';
+import '../utils/image_text_grouping.dart';
 
 ImageTranslationService imageTranslationService = ImageTranslationService();
 
@@ -60,24 +62,11 @@ class ImageTranslationService extends GetxController
     with JHLifeCircleBeanErrorCatch
     implements JHLifeCircleBean {
   static const String taskIdPrefix = 'imageTranslation';
-  static const String paddlePrepareId = 'paddlePrepare';
-  static const String ocrModelDownloadIdPrefix = 'ocrModelDownload';
   static const String batchProgressId = 'imageTranslationBatchProgress';
   static const String liveTextOcrChannelName =
       'top.jtmonster.jhentai.live_text_ocr';
 
   final Map<String, ImageTranslationResult> _results = {};
-  final Set<String> _downloadingOcrModels = {};
-  final Map<String, double?> _ocrModelDownloadProgress = {};
-  static const String paddleOcrVlRepo = 'PaddlePaddle/PaddleOCR-VL-1.6';
-
-  /// Paddle runtime preparation state, kept in the service so it survives
-  /// leaving the settings page.
-  bool preparingPaddle = false;
-  String? paddleStage;
-  final List<String> _paddleOutput = [];
-
-  List<String> get paddleOutput => List.unmodifiable(_paddleOutput);
 
   /// Batch translation progress shown by the read-page top banner.
   bool isBatchTranslating = false;
@@ -85,6 +74,12 @@ class ImageTranslationService extends GetxController
   int batchCompleted = 0;
   ImageTranslationStage currentStage = ImageTranslationStage.idle;
   bool _cancelRequested = false;
+
+  /// Monotonic batch generation. Bumped every time a batch starts; a stale
+  /// batch still unwinding after a cancel can only write shared progress state
+  /// when its captured generation is still current, so it can never clobber a
+  /// newer batch's banner/progress.
+  int _batchGeneration = 0;
   Process? _activeProcess;
   CancelToken? _activeCancelToken;
   InferenceCancellationToken? _activeInferenceToken;
@@ -95,16 +90,23 @@ class ImageTranslationService extends GetxController
     liveTextOcrChannelName,
   );
 
-  void beginBatch(int total) {
+  int beginBatch(int total) {
+    _batchGeneration++;
     _cancelRequested = false;
     isBatchTranslating = true;
     batchTotal = total;
     batchCompleted = 0;
     currentStage = ImageTranslationStage.idle;
     update([batchProgressId]);
+    return _batchGeneration;
   }
 
-  void endBatch() {
+  void endBatch(int generation) {
+    // A cancelled batch still unwinding after a newer batch started must not
+    // reset the newer batch's shared progress state.
+    if (generation != _batchGeneration) {
+      return;
+    }
     isBatchTranslating = false;
     batchCompleted = batchTotal;
     currentStage = ImageTranslationStage.done;
@@ -125,67 +127,31 @@ class ImageTranslationService extends GetxController
 
   bool get isCancelRequested => _cancelRequested;
 
+  /// Whether [generation] is the currently running batch. Batch loops guard
+  /// their shared progress writes with this so an unwinding stale batch cannot
+  /// clobber a newer one.
+  bool isCurrentBatch(int generation) => generation == _batchGeneration;
+
+  /// Clears the one-shot cancel latch before a single-page (non-batch)
+  /// translation. cancelBatch() arms _cancelRequested and only the batch
+  /// lifecycle (beginBatch/endBatch) clears it; single-page translations have
+  /// no batch lifecycle of their own, so without this a single cancel (the
+  /// status-chip X, or leaving the read page) would permanently disable every
+  /// later context-menu translate.
+  void resetCancelFlag() {
+    _cancelRequested = false;
+  }
+
+  /// Removes an in-memory result. Used when the source image is reloaded so a
+  /// stale overlay is not drawn over the new image.
+  void removeResult(String cacheKey) => _removeResult(cacheKey);
+
   void _setStage(ImageTranslationStage stage) {
     currentStage = stage;
     update([batchProgressId]);
   }
 
-  /// Whether the PaddleOCR venv has the paddleocr package installed.
-  bool get isPaddleRuntimeInstalled {
-    if (!File(_paddlePython).existsSync()) {
-      return false;
-    }
-    final Directory libDir = Directory(join(_paddleVenv.path, 'lib'));
-    if (!libDir.existsSync()) {
-      return false;
-    }
-    for (final FileSystemEntity entity in libDir.listSync()) {
-      if (entity is! Directory) {
-        continue;
-      }
-      final File marker = File(
-        join(entity.path, 'site-packages', 'paddleocr', '__init__.py'),
-      );
-      if (marker.existsSync()) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  Future<void> deletePaddleRuntime() async {
-    if (_paddleRoot.existsSync()) {
-      await _paddleRoot.delete(recursive: true);
-    }
-    preparingPaddle = false;
-    paddleStage = null;
-    _paddleOutput.clear();
-    update([paddlePrepareId]);
-  }
-
-  Directory get _paddleRoot =>
-      Directory(join(pathService.jhOcrModelDir.path, 'paddleocr'));
-
-  Directory get _paddleVenv => Directory(join(_paddleRoot.path, 'venv'));
-
-  Directory get _paddleHuggingFaceCache =>
-      Directory(join(_paddleRoot.path, 'huggingface'));
-
-  String get _paddlePython =>
-      Platform.isWindows
-          ? join(_paddleVenv.path, 'Scripts', 'python.exe')
-          : join(_paddleVenv.path, 'bin', 'python');
-
   String taskId(String cacheKey) => '$taskIdPrefix::$cacheKey';
-
-  String ocrModelDownloadId(String languageCode) =>
-      '$ocrModelDownloadIdPrefix::$languageCode';
-
-  bool isDownloadingOcrModel(String languageCode) =>
-      _downloadingOcrModels.contains(languageCode);
-
-  double? ocrModelDownloadProgress(String languageCode) =>
-      _ocrModelDownloadProgress[languageCode];
 
   Directory get _translationCacheDirectory =>
       Directory(join(pathService.jhOcrModelDir.path, 'cache'));
@@ -237,15 +203,20 @@ class ImageTranslationService extends GetxController
         return null;
       }
       // Read the image bytes exactly once: they feed the persistent-cache
-      // hash, the dimension probe and (for bytes-based requests) the OCR
-      // subprocess file. Previously the file was read again inside
-      // _persistentCacheKey and a just-written temporary file was read back.
+      // hash and (for bytes-based requests) the OCR subprocess file.
+      // Previously the file was read again inside _persistentCacheKey and a
+      // just-written temporary file was read back.
       final List<int> sourceBytes =
           request.imageBytes == null
               ? await File(request.imagePath!).readAsBytes()
               : request.imageBytes!;
 
-      final String persistentKey = _persistentCacheKey(request, sourceBytes);
+      // Hashing the full image on the UI isolate drops frames on every page
+      // (SHA-256 over a few MB is tens of ms); run it off-isolate. The single
+      // hash also names the bytes-path temp file below, avoiding a second
+      // full-image hash.
+      final String imageHash = await compute(_sha256Hex, sourceBytes);
+      final String persistentKey = _persistentCacheKey(request, imageHash);
       final ImageTranslationResult? cached = await _readPersistentResult(
         persistentKey,
       );
@@ -260,8 +231,7 @@ class ImageTranslationService extends GetxController
       if (request.imagePath != null) {
         imagePath = request.imagePath!;
       } else {
-        final String fileName =
-            'image_translation_${sha256.convert(sourceBytes).toString()}.png';
+        final String fileName = 'image_translation_$imageHash.png';
         final File temporaryFile = File(
           join(pathService.tempDir.path, fileName),
         );
@@ -270,26 +240,23 @@ class ImageTranslationService extends GetxController
         imagePath = temporaryFile.path;
       }
 
-      // Probe the encoded dimensions from the image header only; the full
-      // pixel decode happens inside the OCR engine subprocess.
-      final ui.ImmutableBuffer buffer = await ui.ImmutableBuffer.fromUint8List(
-        Uint8List.fromList(sourceBytes),
-      );
-      final ui.ImageDescriptor descriptor = await ui.ImageDescriptor.encoded(
-        buffer,
-      );
-      final int probeWidth = descriptor.width;
-      final int probeHeight = descriptor.height;
-      descriptor.dispose();
-      buffer.dispose();
-
       final _RecognizeResult recognized = await _recognize(imagePath);
       final List<RecognizedTextBlock> blocks = recognized.blocks;
-      // Apple Live Text reports the upright (EXIF-applied) dimensions, which
-      // the header probe misses; use them so the overlay scales blocks in the
-      // same space the image is actually displayed in.
-      final int imageWidth = recognized.imageWidth ?? probeWidth;
-      final int imageHeight = recognized.imageHeight ?? probeHeight;
+      // Both on-device engines (ONNX, Apple Live Text) always report the
+      // upright pixel dimensions; probe the image header only as a fallback so
+      // the hot path never copies the page bytes on the UI isolate.
+      final int imageWidth;
+      final int imageHeight;
+      if (recognized.imageWidth != null && recognized.imageHeight != null) {
+        imageWidth = recognized.imageWidth!;
+        imageHeight = recognized.imageHeight!;
+      } else {
+        final (int width, int height) = await _probeImageDimensions(
+          sourceBytes,
+        );
+        imageWidth = width;
+        imageHeight = height;
+      }
       if (_cancelRequested) {
         _removeResult(request.cacheKey);
         return null;
@@ -397,8 +364,8 @@ class ImageTranslationService extends GetxController
     try {
       final String translatedText =
           imageTranslationSetting.usesAppleOnDeviceTranslation
-              ? await _translateWithApple(recognized.sourceText)
-              : await _translate(recognized.sourceText);
+              ? await _translateWithApple(recognized.blocks)
+              : await _translate(recognized.blocks);
       if (_cancelRequested) {
         _removeResult(request.cacheKey);
         return;
@@ -474,6 +441,10 @@ class ImageTranslationService extends GetxController
     ImageTranslationRequest request, {
     bool force = false,
   }) async {
+    // Single-page retry/translate: clear any stale cancel latch so a previous
+    // cancelled translate (which never went through the batch lifecycle) does
+    // not silently disable this one.
+    _cancelRequested = false;
     final RecognizedImage? recognized = await recognizeImage(
       request,
       force: force,
@@ -491,19 +462,16 @@ class ImageTranslationService extends GetxController
 
   String _persistentCacheKey(
     ImageTranslationRequest request,
-    List<int> imageBytes,
+    String imageHash,
   ) {
-    final String imageHash = sha256.convert(imageBytes).toString();
     final String configFingerprint = jsonEncode({
       'ocrEngine': imageTranslationSetting.ocrEngine.value.name,
-      'ocrLanguage': imageTranslationSetting.ocrLanguage.value,
-      'paddleLanguage': imageTranslationSetting.paddleOcrLanguage.value,
       'appleLanguage': imageTranslationSetting.appleLiveTextLanguage.value,
       'appleUseApi':
           imageTranslationSetting.appleLiveTextUseThirdPartyApi.value,
       if (imageTranslationSetting.ocrEngine.value == ImageOcrEngine.onnx) ...{
         'onnxModel': OnnxModelStore.instance.fingerprintOf(
-          OnnxModelStore.ocrManifestId,
+          imageTranslationSetting.onnxModelId.value,
         ),
         'onnxBackend':
             inferenceService.resolveBackendFor(InferenceDomain.ocr)?.name,
@@ -512,11 +480,28 @@ class ImageTranslationService extends GetxController
       'endpoint': imageTranslationSetting.translatorEndpoint.value,
       'model': imageTranslationSetting.translatorModel.value,
       'target': imageTranslationSetting.targetLanguage.value,
-      'promptVersion': 2,
+      // Group-aware translation (speech bubbles translated as one utterance).
+      'promptVersion': 3,
     });
     return sha256
         .convert(utf8.encode('$imageHash:$configFingerprint'))
         .toString();
+  }
+
+  /// Probes the encoded image dimensions from its header. Only used as a
+  /// fallback when an OCR engine reports no dimensions (both on-device engines
+  /// always do), so the per-page hot path stays free of full-buffer copies.
+  Future<(int, int)> _probeImageDimensions(List<int> sourceBytes) async {
+    final ui.ImmutableBuffer buffer = await ui.ImmutableBuffer.fromUint8List(
+      Uint8List.fromList(sourceBytes),
+    );
+    final ui.ImageDescriptor descriptor = await ui.ImageDescriptor.encoded(
+      buffer,
+    );
+    final (int, int) dims = (descriptor.width, descriptor.height);
+    descriptor.dispose();
+    buffer.dispose();
+    return dims;
   }
 
   Future<ImageTranslationResult?> _readPersistentResult(String key) async {
@@ -572,98 +557,27 @@ class ImageTranslationService extends GetxController
     }
   }
 
+  /// SHA-256 hex of the source image bytes. Runs off the UI isolate via
+  /// [compute] so hashing a multi-MB page never blocks frame production.
+  static String _sha256Hex(List<int> bytes) => sha256.convert(bytes).toString();
+
   Future<_RecognizeResult> _recognize(String imagePath) async {
     if (imageTranslationSetting.ocrEngine.value ==
         ImageOcrEngine.appleLiveText) {
       return _recognizeWithAppleLiveText(imagePath);
     }
-    if (imageTranslationSetting.ocrEngine.value == ImageOcrEngine.paddleOcr ||
-        imageTranslationSetting.ocrEngine.value ==
-            ImageOcrEngine.paddleOcrVl16) {
-      final List<RecognizedTextBlock> blocks = await _recognizeWithPaddleOcr(
-        imagePath,
-      );
-      return (blocks: blocks, imageWidth: null, imageHeight: null);
-    }
-    if (imageTranslationSetting.ocrEngine.value == ImageOcrEngine.onnx) {
-      return _recognizeWithOnnx(imagePath);
-    }
-    if (!Platform.isWindows && !Platform.isMacOS && !Platform.isLinux) {
-      throw const ImageTranslationException('OCR_UNSUPPORTED_PLATFORM');
-    }
-
-    final Map<String, String> environment = <String, String>{};
-    final String? dataDirectory =
-        imageTranslationSetting.ocrDataDirectory.value;
-    if (dataDirectory != null && dataDirectory.isNotEmpty) {
-      environment['TESSDATA_PREFIX'] = dataDirectory;
-    }
-    final Process process = await Process.start(
-      imageTranslationSetting.ocrExecutable.value,
-      [
-        imagePath,
-        'stdout',
-        '-l',
-        imageTranslationSetting.ocrLanguage.value,
-        'tsv',
-      ],
-      environment: environment.isEmpty ? null : environment,
-    );
-    _activeProcess = process;
-    final List<String> outputs = await Future.wait([
-      process.stdout.transform(utf8.decoder).join(),
-      process.stderr.transform(utf8.decoder).join(),
-    ]);
-    final String stdout = outputs[0];
-    final String stderr = outputs[1];
-    final int exitCode = await process.exitCode;
-    _activeProcess = null;
-    if (exitCode != 0) {
-      log.warning('Tesseract exited with $exitCode: $stderr');
-      throw const ImageTranslationException('OCR_FAILED');
-    }
-
-    final Map<String, _TesseractLine> lines = {};
-    for (final String rawLine in const LineSplitter().convert(stdout)) {
-      final List<String> fields = rawLine.split('\t');
-      if (fields.length != 12 ||
-          fields.first == 'level' ||
-          fields[11].trim().isEmpty) {
-        continue;
-      }
-      final int level = int.tryParse(fields[0]) ?? 0;
-      if (level != 5) {
-        continue;
-      }
-      final String key = '${fields[1]}:${fields[2]}:${fields[3]}:${fields[4]}';
-      lines
-          .putIfAbsent(key, _TesseractLine.new)
-          .add(
-            fields[11].trim(),
-            double.tryParse(fields[10]) ?? 0,
-            double.tryParse(fields[6]) ?? 0,
-            double.tryParse(fields[7]) ?? 0,
-            double.tryParse(fields[8]) ?? 0,
-            double.tryParse(fields[9]) ?? 0,
-          );
-    }
-    return (
-      blocks:
-          lines.values
-              .map((line) => line.toBlock())
-              .where((block) => block.text.isNotEmpty)
-              .toList(),
-      imageWidth: null,
-      imageHeight: null,
-    );
+    // Custom mode is fixed to ONNX.
+    return _recognizeWithOnnx(imagePath);
   }
 
   /// On-device PP-OCRv6 through the unified inference backend.
   Future<_RecognizeResult> _recognizeWithOnnx(String imagePath) async {
     final OcrInferenceEngine engine = inferenceService.ocrEngine;
-    if (!engine.isReady) {
-      throw const ImageTranslationException('OCR_NOT_CONFIGURED');
-    }
+    // No isReady pre-check here: recognize() itself throws
+    // InferenceNotReadyException when the manifest/backend is unavailable and
+    // the catch below maps it to OCR_NOT_CONFIGURED. Checking isReady first
+    // would re-run the same synchronous manifest validation (sync disk I/O on
+    // the UI isolate) a second time per page.
     final InferenceCancellationToken token = InferenceCancellationToken();
     _activeInferenceToken = token;
     try {
@@ -702,9 +616,11 @@ class ImageTranslationService extends GetxController
       final Map<dynamic, dynamic>? response = await _liveTextChannel
           .invokeMethod<Map<dynamic, dynamic>>('recognizeText', {
             'path': imagePath,
+            // Always an explicit list (a curated default for 'auto') so Vision
+            // recognizes vertical CJK — its automatic language detection does
+            // not reliably trigger vertical-text recognition.
             'languages': _appleLiveTextLanguages(),
-            'automaticallyDetectsLanguage':
-                imageTranslationSetting.appleLiveTextLanguage.value == 'auto',
+            'automaticallyDetectsLanguage': false,
             'recognitionLevel': 'accurate',
             'maxDimension': 2200,
           });
@@ -736,12 +652,16 @@ class ImageTranslationService extends GetxController
     }
   }
 
-  /// Comma-separated BCP-47 codes from the Apple Live Text setting, or null to
-  /// let Vision auto-detect among its supported languages.
+  /// Comma-separated BCP-47 codes from the Apple Live Text setting.
+  ///
+  /// For 'auto' a curated CJK + English default is used instead of Vision's
+  /// automatic language detection, because auto-detection is unreliable for
+  /// VERTICAL Japanese text — Apple requires the vertical-capable languages
+  /// (Japanese / Chinese / Korean) to be set explicitly on the request.
   List<String>? _appleLiveTextLanguages() {
     final String value = imageTranslationSetting.appleLiveTextLanguage.value;
     if (value.trim().isEmpty || value.trim() == 'auto') {
-      return null;
+      return const <String>['ja-JP', 'zh-Hans', 'zh-Hant', 'ko-KR', 'en-US'];
     }
     final List<String> languages =
         value
@@ -761,138 +681,6 @@ class ImageTranslationService extends GetxController
         width: (raw['width'] as num?)?.toDouble() ?? 0,
         height: (raw['height'] as num?)?.toDouble() ?? 0,
       );
-
-  Future<List<RecognizedTextBlock>> _recognizeWithPaddleOcr(
-    String imagePath,
-  ) async {
-    if (!Platform.isWindows && !Platform.isMacOS && !Platform.isLinux) {
-      throw const ImageTranslationException('OCR_UNSUPPORTED_PLATFORM');
-    }
-    if (!await File(_paddlePython).exists()) {
-      throw const ImageTranslationException('PADDLE_RUNTIME_NOT_READY');
-    }
-    final bool useVl =
-        imageTranslationSetting.ocrEngine.value == ImageOcrEngine.paddleOcrVl16;
-    final String script =
-        useVl
-            ? """import json
-from paddleocr import PaddleOCRVL
-pipeline = PaddleOCRVL(pipeline_version='v1.6')
-for result in pipeline.predict(r'''$imagePath'''):
- print(json.dumps(result.json, ensure_ascii=False))
-"""
-            : """import json
-from paddleocr import PaddleOCR
-language = '${imageTranslationSetting.paddleOcrLanguage.value}'
-pipeline = PaddleOCR(
-    lang=language,
-    use_doc_orientation_classify=False,
-    use_doc_unwarping=False,
-    use_textline_orientation=language in ('japan', 'chinese_cht', 'korean'),
-)
-for result in pipeline.predict(r'''$imagePath'''):
- print(json.dumps(result.json, ensure_ascii=False))
-""";
-    final Process process = await Process.start(
-      _paddlePython,
-      ['-c', script],
-      environment: {
-        'HF_HOME': _paddleHuggingFaceCache.path,
-        'PADDLEX_HOME': _paddleRoot.path,
-        'PADDLE_PDX_MODEL_SOURCE': 'huggingface',
-        'PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK': 'True',
-        // Hugging Face's Xet transport can stall on some domestic networks.
-        // The normal HTTP path is more reliable for an in-app model download.
-        'HF_HUB_DISABLE_XET': '1',
-      },
-    );
-    _activeProcess = process;
-    final List<String> outputs = await Future.wait([
-      process.stdout.transform(utf8.decoder).join(),
-      process.stderr.transform(utf8.decoder).join(),
-    ]);
-    final String stdout = outputs[0];
-    final String stderr = outputs[1];
-    final int exitCode = await process.exitCode;
-    _activeProcess = null;
-    if (exitCode != 0) {
-      log.warning('PaddleOCR exited with $exitCode: $stderr');
-      throw const ImageTranslationException('OCR_FAILED');
-    }
-    final List<RecognizedTextBlock> blocks = _paddleBlocks(stdout);
-    if (blocks.isEmpty) throw const ImageTranslationException('NO_TEXT');
-    return blocks;
-  }
-
-  List<RecognizedTextBlock> _paddleBlocks(String output) {
-    final List<RecognizedTextBlock> blocks = [];
-    final RegExp jsonObject = RegExp(r'\{[\s\S]*\}');
-    final Match? match = jsonObject.firstMatch(output);
-    if (match == null) return blocks;
-    try {
-      final dynamic value = jsonDecode(match.group(0)!);
-      _collectPaddleTexts(value, blocks);
-    } catch (_) {
-      return blocks;
-    }
-    return blocks;
-  }
-
-  void _collectPaddleTexts(dynamic value, List<RecognizedTextBlock> blocks) {
-    if (value is Map) {
-      final dynamic texts = value['rec_texts'] ?? value['rec_text'];
-      final dynamic scores = value['rec_scores'] ?? value['rec_score'];
-      final dynamic boxes = value['rec_boxes'];
-      if (texts is List) {
-        for (int index = 0; index < texts.length; index++) {
-          final dynamic text = texts[index];
-          if (text is String && text.trim().isNotEmpty) {
-            final dynamic score =
-                scores is List && index < scores.length ? scores[index] : 0;
-            blocks.add(
-              _paddleBlock(
-                text.trim(),
-                (score as num?)?.toDouble() ?? 0,
-                boxes is List && index < boxes.length ? boxes[index] : null,
-              ),
-            );
-          }
-        }
-      } else if (texts is String && texts.trim().isNotEmpty) {
-        blocks.add(
-          _paddleBlock(texts.trim(), (scores as num?)?.toDouble() ?? 0, null),
-        );
-      }
-      for (final dynamic child in value.values) {
-        if (child != texts && child != scores)
-          _collectPaddleTexts(child, blocks);
-      }
-    } else if (value is List) {
-      for (final dynamic child in value) {
-        _collectPaddleTexts(child, blocks);
-      }
-    }
-  }
-
-  RecognizedTextBlock _paddleBlock(
-    String text,
-    double confidence,
-    dynamic box,
-  ) {
-    if (box is List && box.length >= 4) {
-      final List<double> values =
-          box.take(4).map((value) => (value as num?)?.toDouble() ?? 0).toList();
-      return RecognizedTextBlock(
-        text: text,
-        confidence: confidence,
-        left: values[0],
-        top: values[1],
-        width: values[2] - values[0],
-        height: values[3] - values[1],
-      );
-    }
-    return RecognizedTextBlock(text: text, confidence: confidence);
-  }
 
   Future<File> exportOverlay(ImageTranslationRequest request) async {
     final ImageTranslationResult result = resultFor(request.cacheKey);
@@ -918,8 +706,56 @@ for result in pipeline.predict(r'''$imagePath'''):
     final ui.PictureRecorder recorder = ui.PictureRecorder();
     final Canvas canvas = Canvas(recorder)
       ..drawImage(frame.image, Offset.zero, Paint());
-    for (int index = 0; index < blocks.length; index++) {
-      _paintTranslation(canvas, blocks[index], translations[index]);
+    // Adjacent lines of the same bubble (a group) share ONE background pill and
+    // ONE font size, mirroring the read page. All pills are drawn first so a
+    // later bubble never covers an earlier line's wrapped text overflow; text
+    // stays per line at the group's shared size.
+    final List<(Rect, String, double)> entries = <(Rect, String, double)>[];
+    final List<Rect> mergedBackgrounds = <Rect>[];
+    for (final RecognizedTextGroup group in groupRecognizedTextBlocks(blocks)) {
+      Rect? merged;
+      final List<(Rect, String)> groupEntries = <(Rect, String)>[];
+      double groupFont = double.infinity;
+      for (final int index in group.blockIndices) {
+        final RecognizedTextBlock block = blocks[index];
+        final Rect rect = Rect.fromLTWH(
+          block.left - 4,
+          block.top - 3,
+          block.width + 8,
+          block.height + 6,
+        );
+        final String translation = translations[index];
+        groupEntries.add((rect, translation));
+        merged = merged == null ? rect : merged.expandToInclude(rect);
+        groupFont = math.min(
+          groupFont,
+          fitTranslationFontSize(
+            translation,
+            math.max(1, rect.width - 4),
+            rect.height,
+            TextDirection.ltr,
+          ),
+        );
+      }
+      if (merged != null) {
+        mergedBackgrounds.add(merged);
+        final double resolved = groupFont.isFinite ? groupFont : 8;
+        for (final (Rect rect, String translation) in groupEntries) {
+          entries.add((rect, translation, resolved));
+        }
+      }
+    }
+    for (final Rect rect in mergedBackgrounds) {
+      paintTranslationBubbleBackground(canvas, rect);
+    }
+    for (final (Rect rect, String translation, double fontSize) in entries) {
+      paintTranslationBubbleText(
+        canvas,
+        rect,
+        translation,
+        TextDirection.ltr,
+        fontSize: fontSize,
+      );
     }
     final ui.Image image = await recorder.endRecording().toImage(
       frame.image.width,
@@ -1025,55 +861,60 @@ for result in pipeline.predict(r'''$imagePath'''):
     return crc ^ 0xFFFFFFFF;
   }
 
-  void _paintTranslation(
-    Canvas canvas,
-    RecognizedTextBlock block,
-    String translation,
-  ) {
-    final Rect rect = Rect.fromLTWH(
-      block.left - 4,
-      block.top - 3,
-      block.width + 8,
-      block.height + 6,
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(rect, const Radius.circular(3)),
-      Paint()..color = Colors.white,
-    );
-    final double fontSize =
-        (rect.width / (translation.length * 0.82))
-            .clamp(8, (rect.height * 0.6).clamp(10, 30))
-            .toDouble();
-    final TextPainter painter = TextPainter(
-      text: TextSpan(
-        text: translation,
-        style: TextStyle(color: Colors.black, fontSize: fontSize, height: 1.05),
-      ),
-      textAlign: TextAlign.center,
-      textDirection: TextDirection.ltr,
-      maxLines: 3,
-      ellipsis: '…',
-    )..layout(maxWidth: rect.width - 4);
-    painter.paint(
-      canvas,
-      Offset(rect.left + 2, rect.center.dy - painter.height / 2),
-    );
-  }
-
   /// On-device translation through Apple's Translation framework. Only used in
   /// Apple Live Text mode with the third-party API toggle off; on systems that
   /// do not support it the native side reports TRANSLATION_UNAVAILABLE.
   ///
-  /// The source text is split into its lines and translated one-for-one so the
-  /// read-page overlay keeps a 1:1 mapping between recognized blocks and
-  /// translated lines (translating the whole page as a single blob would merge
-  /// or drop lines, misaligning the boxes and losing dialogue).
-  Future<String> _translateWithApple(String sourceText) async {
+  /// The OCR reports one block per visual line, so a speech bubble that spans
+  /// several lines arrives as several blocks. Apple's framework has no
+  /// cross-request context, so each multi-line utterance is folded into ONE
+  /// request (its lines joined by newlines) to be translated as a coherent
+  /// whole instead of as isolated fragments. Each group's output is then
+  /// re-split back into the group's line count so the read-page overlay keeps
+  /// a 1:1 mapping between recognized blocks and translated lines; when the
+  /// framework cannot translate a group it returns the source unchanged, which
+  /// re-splits back into the original lines.
+  Future<String> _translateWithApple(List<RecognizedTextBlock> blocks) async {
+    // One request per group (its lines joined by newlines) gives the whole
+    // utterance cross-line context; the translated group is re-split back into
+    // the group's line count afterwards.
+    final List<RecognizedTextGroup> groups = groupRecognizedTextBlocks(blocks);
+    final List<String> groupSources = groups
+        .map((RecognizedTextGroup group) => group.textOf(blocks))
+        .toList();
+    final List<String> rawGroupTexts = await _translateAppleLines(groupSources);
+    final List<String> translatedLines = <String>[];
+    for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
+      final String groupTranslation = groupIndex < rawGroupTexts.length
+          ? rawGroupTexts[groupIndex]
+          : '';
+      final List<String> sourceLines = groups[groupIndex].blockIndices
+          .map((int index) => blocks[index].text.trim())
+          .toList();
+      translatedLines.addAll(
+        splitGroupTranslationIntoLines(
+          // When the framework cannot translate a group it returns the source
+          // unchanged, which re-splits back into the original lines.
+          translation: groupTranslation.isEmpty
+              ? groupSources[groupIndex]
+              : groupTranslation,
+          sourceLines: sourceLines,
+        ),
+      );
+    }
+    return translatedLines.join('\n');
+  }
+
+  /// Translates [lines] through Apple's on-device Translation framework, one
+  /// translated string per input line (an input line may itself be a group's
+  /// newline-joined text). Throws [ImageTranslationException] when the
+  /// framework is unavailable, a language pack is missing, or nothing came
+  /// back — callers decide how to fall back.
+  Future<List<String>> _translateAppleLines(List<String> lines) async {
     try {
-      final List<String> sourceLines = const LineSplitter().convert(sourceText);
       final Map<dynamic, dynamic>? response = await _liveTextChannel
           .invokeMethod<Map<dynamic, dynamic>>('translateText', {
-            'lines': sourceLines,
+            'lines': lines,
             'target': _appleTargetLanguage(),
             'source': _appleSourceLanguage(),
           });
@@ -1084,7 +925,7 @@ for result in pipeline.predict(r'''$imagePath'''):
       if (translatedLines.join('\n').trim().isEmpty) {
         throw const ImageTranslationException('TRANSLATION_FAILED');
       }
-      return translatedLines.join('\n');
+      return translatedLines;
     } on PlatformException catch (e) {
       if (e.code == 'TRANSLATION_UNAVAILABLE') {
         throw const ImageTranslationException('TRANSLATION_UNAVAILABLE');
@@ -1212,7 +1053,8 @@ for result in pipeline.predict(r'''$imagePath'''):
       if (cached != null) {
         result = cached;
       } else if (!_galleryTextFailed.contains(key)) {
-        final String translated = await _translateWithApple(text);
+        final String translated =
+            (await _translateAppleLines(<String>[text])).first;
         if (translated.trim().isNotEmpty) {
           result = translated;
           _galleryTextCache[key] = translated;
@@ -1309,13 +1151,23 @@ for result in pipeline.predict(r'''$imagePath'''):
     return value.split(',').first.trim();
   }
 
-  Future<String> _translate(String sourceText) async {
-    final List<String> sourceLines = const LineSplitter().convert(sourceText);
-    final String numberedSource = sourceLines
-        .asMap()
-        .entries
-        .map((entry) => '${entry.key + 1}: ${entry.value}')
-        .join('\n');
+  Future<String> _translate(List<RecognizedTextBlock> blocks) async {
+    // Multi-line speech bubbles must be translated as one coherent utterance,
+    // not line by line: the OCR stage reports one block per visual line, so a
+    // bubble that spans several lines arrives as several blocks. Group the
+    // blocks into utterances and mark the group boundaries in the source so
+    // the model has the full bubble as context while still emitting exactly
+    // one translated line per input line for the 1:1 overlay mapping.
+    final List<String> sourceLines =
+        blocks.map((block) => block.text.trim()).toList();
+    final List<RecognizedTextGroup> groups = groupRecognizedTextBlocks(blocks);
+    final StringBuffer numberedSource = StringBuffer();
+    for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
+      numberedSource.writeln('Group ${groupIndex + 1}:');
+      for (final int blockIndex in groups[groupIndex].blockIndices) {
+        numberedSource.writeln('${blockIndex + 1}: ${sourceLines[blockIndex]}');
+      }
+    }
     final Dio dio = Dio(
       BaseOptions(
         connectTimeout: const Duration(seconds: 20),
@@ -1331,9 +1183,12 @@ for result in pipeline.predict(r'''$imagePath'''):
       provider,
     );
     final String instruction =
-        'You translate comic dialogue accurately. Preserve line order, names, punctuation, and sound effects. '
+        'You translate comic dialogue accurately. The input lines are grouped into numbered groups; each group is one '
+        'speech bubble or utterance. Translate each group as a single coherent utterance, combining its line fragments '
+        'into natural phrasing. Preserve line order and line count within each group. '
         'Return exactly one translated line per input line, numbered the same as the input (e.g. "1: ..."). '
-        'Do not add headings, labels, numbering, or reasoning/think blocks.';
+        'Use continuous numbering across all groups — do not restart the numbers per group. '
+        'Do not add headings, group labels, numbering, or reasoning/think blocks.';
     final String prompt =
         'Translate the following comic text into ${imageTranslationSetting.targetLanguage.value}. '
         'Keep the same line numbers:\n\n$numberedSource';
@@ -1421,6 +1276,11 @@ for result in pipeline.predict(r'''$imagePath'''):
     for (final String rawLine in const LineSplitter().convert(text)) {
       final String line = rawLine.trim();
       if (line.isEmpty) {
+        continue;
+      }
+      // The group-aware prompt marks speech-bubble boundaries with "Group N:";
+      // a model that echoes those labels back must not consume a line slot.
+      if (RegExp(r'^\s*group\s*\d+', caseSensitive: false).hasMatch(line)) {
         continue;
       }
       final RegExpMatch? match = RegExp(
@@ -1521,261 +1381,6 @@ for result in pipeline.predict(r'''$imagePath'''):
     return ids;
   }
 
-  Future<String?> discoverTessdataDirectory(String executable) async {
-    if (!Platform.isWindows && !Platform.isMacOS && !Platform.isLinux)
-      return null;
-    final ProcessResult result = await Process.run(executable, [
-      '--list-langs',
-    ]);
-    if (result.exitCode != 0) return null;
-    final Match? match = RegExp(
-      r'"([^"]+)"',
-    ).firstMatch(result.stdout.toString());
-    final String? path = match?.group(1);
-    return path != null && await Directory(path).exists() ? path : null;
-  }
-
-  Future<List<String>> installedOcrLanguages({
-    required String executable,
-  }) async {
-    final ProcessResult result = await Process.run(executable, [
-      '--list-langs',
-    ]);
-    if (result.exitCode != 0)
-      throw const ImageTranslationException('OCR_UNAVAILABLE');
-    return const LineSplitter()
-        .convert(result.stdout.toString())
-        .skipWhile((line) => line.contains('available languages'))
-        .map((line) => line.trim())
-        .where((line) => line.isNotEmpty)
-        .toList();
-  }
-
-  Future<void> checkPaddleOcr({required String executable}) async {
-    if (!Platform.isWindows && !Platform.isMacOS && !Platform.isLinux) {
-      throw const ImageTranslationException('OCR_UNSUPPORTED_PLATFORM');
-    }
-    final ProcessResult result = await Process.run(executable, ['--help']);
-    if (result.exitCode != 0) {
-      throw const ImageTranslationException('OCR_UNAVAILABLE');
-    }
-  }
-
-  Future<void> preparePaddleRuntime({
-    required bool downloadVl16,
-    void Function(String stage)? onStage,
-  }) async {
-    if (!Platform.isWindows && !Platform.isMacOS && !Platform.isLinux) {
-      throw const ImageTranslationException('OCR_UNSUPPORTED_PLATFORM');
-    }
-    preparingPaddle = true;
-    paddleStage = null;
-    _paddleOutput.clear();
-    update([paddlePrepareId]);
-    try {
-      await _paddleRoot.create(recursive: true);
-      if (!await File(_paddlePython).exists()) {
-        _setPaddleStage('Creating Python environment', onStage);
-        final String? bootstrap = await _findCompatiblePython();
-        if (bootstrap == null) {
-          throw const ImageTranslationException('PADDLE_PYTHON_UNSUPPORTED');
-        }
-        final ProcessResult create = await Process.run(bootstrap, [
-          '-m',
-          'venv',
-          _paddleVenv.path,
-        ]);
-        if (create.exitCode != 0) {
-          throw const ImageTranslationException('PADDLE_VENV_CREATE_FAILED');
-        }
-      }
-      _setPaddleStage('Installing PaddleOCR runtime', onStage);
-      final Process installProcess = await Process.start(_paddlePython, [
-        '-m',
-        'pip',
-        'install',
-        '--upgrade',
-        'paddleocr==3.7.0',
-        'paddlepaddle',
-        'huggingface_hub',
-      ]);
-      await _streamProcessOutput(installProcess);
-      if (await installProcess.exitCode != 0) {
-        throw const ImageTranslationException('PADDLE_RUNTIME_INSTALL_FAILED');
-      }
-      if (downloadVl16) {
-        _setPaddleStage(
-          'Downloading PaddleOCR-VL-1.6 from Hugging Face',
-          onStage,
-        );
-        final String downloadScript =
-            """from huggingface_hub import snapshot_download
-snapshot_download(repo_id='$paddleOcrVlRepo', cache_dir=r'''${_paddleHuggingFaceCache.path}''')
-""";
-        final Process downloadProcess = await Process.start(
-          _paddlePython,
-          ['-c', downloadScript],
-          environment: {
-            'HF_HOME': _paddleHuggingFaceCache.path,
-            'PADDLEX_HOME': _paddleRoot.path,
-            'PADDLE_PDX_MODEL_SOURCE': 'huggingface',
-            'HF_HUB_DISABLE_XET': '1',
-          },
-        );
-        await _streamProcessOutput(downloadProcess);
-        if (await downloadProcess.exitCode != 0) {
-          throw const ImageTranslationException('PADDLE_VL_DOWNLOAD_FAILED');
-        }
-      } else {
-        _setPaddleStage('Downloading PP-OCRv6 models', onStage);
-        final String language = imageTranslationSetting.paddleOcrLanguage.value;
-        final String preloadScript = """
-import numpy as np
-from paddleocr import PaddleOCR
-language = '$language'
-pipeline = PaddleOCR(
-    lang=language,
-    use_doc_orientation_classify=False,
-    use_doc_unwarping=False,
-    use_textline_orientation=language in ('japan', 'chinese_cht', 'korean'),
-)
-try:
-    pipeline.predict(np.zeros((64, 64, 3), dtype=np.uint8))
-except Exception:
-    pass
-""";
-        final Process preloadProcess = await Process.start(
-          _paddlePython,
-          ['-c', preloadScript],
-          environment: {
-            'HF_HOME': _paddleHuggingFaceCache.path,
-            'PADDLEX_HOME': _paddleRoot.path,
-            'PADDLE_PDX_MODEL_SOURCE': 'huggingface',
-            'HF_HUB_DISABLE_XET': '1',
-          },
-        );
-        await _streamProcessOutput(preloadProcess);
-        if (await preloadProcess.exitCode != 0) {
-          throw const ImageTranslationException('PADDLE_MODEL_DOWNLOAD_FAILED');
-        }
-      }
-    } finally {
-      preparingPaddle = false;
-      paddleStage = null;
-      update([paddlePrepareId]);
-    }
-  }
-
-  void _setPaddleStage(String stage, void Function(String stage)? onStage) {
-    paddleStage = stage;
-    update([paddlePrepareId]);
-    onStage?.call(stage);
-  }
-
-  void _appendPaddleOutput(String line) {
-    if (_paddleOutput.length >= 300) {
-      _paddleOutput.removeAt(0);
-    }
-    _paddleOutput.add(line);
-    update([paddlePrepareId]);
-  }
-
-  Future<void> _streamProcessOutput(Process process) async {
-    await Future.wait([
-      _readProcessStream(process.stdout),
-      _readProcessStream(process.stderr),
-    ]);
-  }
-
-  Future<void> _readProcessStream(Stream<List<int>> stream) async {
-    final StringBuffer buffer = StringBuffer();
-    await for (final List<int> chunk in stream) {
-      buffer.write(utf8.decode(chunk, allowMalformed: true));
-      final String text = buffer.toString();
-      final List<String> lines = text.split(RegExp(r'[\r\n]+'));
-      buffer.clear();
-      buffer.write(lines.removeLast());
-      for (final String line in lines) {
-        final String trimmed = line.trim();
-        if (trimmed.isNotEmpty) {
-          _appendPaddleOutput(trimmed);
-        }
-      }
-    }
-    final String rest = buffer.toString().trim();
-    if (rest.isNotEmpty) {
-      _appendPaddleOutput(rest);
-    }
-  }
-
-  String paddleRuntimePath() => _paddleRoot.path;
-
-  Future<String?> _findCompatiblePython() async {
-    final List<String> candidates =
-        Platform.isWindows
-            ? ['py', 'python']
-            : ['python3.12', 'python3.11', 'python3.10', 'python3'];
-    for (final String candidate in candidates) {
-      try {
-        final ProcessResult result = await Process.run(candidate, [
-          '--version',
-        ]);
-        final Match? version = RegExp(
-          r'Python 3\.(\d+)',
-        ).firstMatch('${result.stdout}${result.stderr}');
-        final int? minor = int.tryParse(version?.group(1) ?? '');
-        if (result.exitCode == 0 &&
-            minor != null &&
-            minor >= 9 &&
-            minor <= 12) {
-          return candidate;
-        }
-      } on ProcessException {
-        continue;
-      }
-    }
-    return null;
-  }
-
-  Future<void> downloadOcrModel({
-    required String languageCode,
-    required OcrModelSource source,
-    required String dataDirectory,
-    void Function(int received, int total)? onProgress,
-  }) async {
-    _downloadingOcrModels.add(languageCode);
-    _ocrModelDownloadProgress[languageCode] = null;
-    update([ocrModelDownloadId(languageCode)]);
-    final Directory directory = Directory(dataDirectory);
-    if (!await directory.exists()) await directory.create(recursive: true);
-    final String url = _ocrModelUrl(languageCode, source);
-    final File target = File(join(directory.path, '$languageCode.traineddata'));
-    final File partial = File('${target.path}.download');
-    try {
-      await Dio().download(
-        url,
-        partial.path,
-        onReceiveProgress: (received, total) {
-          if (total > 0) {
-            _ocrModelDownloadProgress[languageCode] = received / total;
-            update([ocrModelDownloadId(languageCode)]);
-          }
-          onProgress?.call(received, total);
-        },
-      );
-      if (await partial.length() == 0) {
-        await partial.delete();
-        throw const ImageTranslationException('OCR_MODEL_DOWNLOAD_FAILED');
-      }
-      if (await target.exists()) await target.delete();
-      await partial.rename(target.path);
-    } finally {
-      _downloadingOcrModels.remove(languageCode);
-      _ocrModelDownloadProgress.remove(languageCode);
-      update([ocrModelDownloadId(languageCode)]);
-    }
-  }
-
   String _modelsEndpoint(String baseUrl, ImageTranslationProvider provider) =>
       provider == ImageTranslationProvider.anthropic
           ? _appendPath(baseUrl, 'models')
@@ -1810,16 +1415,6 @@ except Exception:
     'Content-Type': 'application/json',
   };
 
-  String _ocrModelUrl(String languageCode, OcrModelSource source) {
-    final String fileName = '$languageCode.traineddata';
-    switch (source) {
-      case OcrModelSource.giteeMirror:
-        return 'https://gitee.com/colluslau/tessdata_fast/raw/master/$fileName';
-      case OcrModelSource.githubOfficial:
-        return 'https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/main/$fileName';
-    }
-  }
-
   /// Upper bound on in-memory translation results. Batch-translating a long
   /// gallery used to accumulate one entry per page forever; evicting the
   /// least-recently-used entry keeps memory bounded. The on-disk persistent
@@ -1844,48 +1439,103 @@ except Exception:
   }
 }
 
+/// Paints the white rounded pill behind one translated bubble. Drawn for ALL
+/// bubbles before any text (see [paintTranslationBubbleText]) so a later
+/// bubble never covers an earlier line's wrapped text overflow. Shared by the
+/// read-page overlay and the exported overlay PNG so both render identically.
+void paintTranslationBubbleBackground(Canvas canvas, Rect rect) {
+  final RRect rrect = RRect.fromRectAndRadius(rect, const Radius.circular(3));
+  canvas.drawRRect(rrect, Paint()..color = const Color(0xE6FFFFFF));
+  canvas.drawRRect(
+    rrect,
+    Paint()
+      ..color = const Color(0x33000000)
+      ..style = PaintingStyle.stroke,
+  );
+}
+
+/// Paints one translated line's text into its bubble [rect], sized to fit both
+/// the width and the height of the box so a long translation wraps inside the
+/// bubble instead of overflowing it or being chopped by an ellipsis.
+///
+/// [fontSize] overrides the per-line fit so every line of a merged bubble
+/// shares the same size; pass the group's shared size (see
+/// [fitTranslationFontSize]).
+void paintTranslationBubbleText(
+  Canvas canvas,
+  Rect rect,
+  String translation,
+  TextDirection textDirection, {
+  double? fontSize,
+}) {
+  final double maxWidth = math.max(1, rect.width - 4);
+  final double maxHeight = rect.height;
+  final double resolvedFontSize = fontSize ??
+      fitTranslationFontSize(
+        translation,
+        maxWidth,
+        maxHeight,
+        textDirection,
+      );
+  final int maxLines = math.max(
+    1,
+    (maxHeight / (resolvedFontSize * 1.05)).floor(),
+  );
+  final TextPainter painter = TextPainter(
+    text: TextSpan(
+      text: translation,
+      style: TextStyle(
+        color: Colors.black,
+        fontSize: resolvedFontSize,
+        height: 1.05,
+      ),
+    ),
+    textAlign: TextAlign.center,
+    textDirection: textDirection,
+    maxLines: maxLines,
+    ellipsis: '…',
+  )..layout(maxWidth: maxWidth);
+  painter.paint(
+    canvas,
+    Offset(rect.left + 2, rect.center.dy - painter.height / 2),
+  );
+}
+
+/// The largest font size (clamped 8-30) whose laid-out wrapped text still fits
+/// the box, found with a binary search over [TextPainter] layouts.
+double fitTranslationFontSize(
+  String text,
+  double maxWidth,
+  double maxHeight,
+  TextDirection textDirection,
+) {
+  const double minFont = 8;
+  const double maxFont = 30;
+  double low = minFont;
+  double high = maxFont;
+  double best = minFont;
+  while (low <= high) {
+    final double mid = (low + high) / 2;
+    final TextPainter probe = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(fontSize: mid, height: 1.05),
+      ),
+      textAlign: TextAlign.center,
+      textDirection: textDirection,
+    )..layout(maxWidth: maxWidth);
+    if (probe.height <= maxHeight) {
+      best = mid;
+      low = mid + 0.5;
+    } else {
+      high = mid - 0.5;
+    }
+  }
+  return best;
+}
+
 class ImageTranslationException implements Exception {
   final String code;
 
   const ImageTranslationException(this.code);
-}
-
-class _TesseractLine {
-  final List<String> _words = [];
-  final List<double> _confidences = [];
-  double _left = double.infinity;
-  double _top = double.infinity;
-  double _right = 0;
-  double _bottom = 0;
-
-  void add(
-    String word,
-    double confidence,
-    double left,
-    double top,
-    double width,
-    double height,
-  ) {
-    _words.add(word);
-    _confidences.add(confidence);
-    _left = _left < left ? _left : left;
-    _top = _top < top ? _top : top;
-    _right = _right > left + width ? _right : left + width;
-    _bottom = _bottom > top + height ? _bottom : top + height;
-  }
-
-  RecognizedTextBlock toBlock() {
-    final double confidence =
-        _confidences.isEmpty
-            ? 0
-            : _confidences.reduce((a, b) => a + b) / _confidences.length;
-    return RecognizedTextBlock(
-      text: _words.join(' '),
-      confidence: confidence,
-      left: _left.isFinite ? _left : 0,
-      top: _top.isFinite ? _top : 0,
-      width: _right - (_left.isFinite ? _left : 0),
-      height: _bottom - (_top.isFinite ? _top : 0),
-    );
-  }
 }

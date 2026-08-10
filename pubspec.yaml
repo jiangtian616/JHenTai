@@ -140,6 +140,7 @@ dependencies:
   # macOS native window vibrancy (translucent sidebar / title bar)
   macos_window_utils: ^1.9.1
   liquid_glass_widgets: ^0.29.3
+  tray_manager: ^0.5.3
 
 dependency_overrides:
   test_api: 0.6.0
