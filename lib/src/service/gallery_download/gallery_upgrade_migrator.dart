@@ -4,7 +4,6 @@ import 'package:collection/collection.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:path/path.dart' as path;
 
-import '../../database/database.dart';
 import '../../model/gallery_image.dart';
 import 'download_path_resolver.dart';
 import 'gallery_download_service.dart';
@@ -34,6 +33,11 @@ class GalleryUpgradeMigrator {
     if (oldGallery == null) {
       return;
     }
+
+    /// The old gallery's image list may have been evicted from memory
+    /// (download complete / read page close), so sync reads below would find
+    /// nothing. Reload from DB first so byte-copy can locate old images.
+    await oldGallery.ensureImagesLoaded();
 
     for (int serialNo = 0; serialNo < newGallery.pageCount; serialNo++) {
       if (_service.taskHasBeenPausedOrRemoved(newGallery)) {
@@ -134,6 +138,10 @@ class GalleryUpgradeMigrator {
     if (oldGallery == null) {
       return;
     }
+
+    /// Same evict-concern as [copyImageInfosFromImageHashes]: reload the old
+    /// gallery's image list from DB before the sync reads below.
+    await oldGallery.ensureImagesLoaded();
 
     int? oldImageSerialNo = oldGallery.images?.firstIndexWhereOrNull((e) => e?.imageHash == newImageHash);
     if (oldImageSerialNo == null) {

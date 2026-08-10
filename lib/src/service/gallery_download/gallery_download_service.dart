@@ -127,11 +127,11 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     _downloadSettingListener = everAll(
       [downloadSetting.downloadTaskConcurrency, downloadSetting.maximum, downloadSetting.period],
-          (_) {
+      (_) {
         updateExecutor();
       },
     );
-    
+
     if (downloadSetting.restoreTasksAutomatically.isTrue) {
       restoreTasks();
     }
@@ -216,9 +216,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     /// Snapshot the downloading galleries — pauseDownloadGallery mutates
     /// `downloadProgress.downloadStatus` mid-iteration, so we can't filter
     /// lazily against the live map.
-    final List<GalleryDownloadInfo> downloading = galleryDownloadInfos.values
-        .where((g) => g.downloadProgress.downloadStatus == DownloadStatus.downloading)
-        .toList();
+    final List<GalleryDownloadInfo> downloading =
+        galleryDownloadInfos.values.where((g) => g.downloadProgress.downloadStatus == DownloadStatus.downloading).toList();
     if (downloading.isEmpty) return;
 
     /// Single transaction: bulk gallery status + bulk image status.
@@ -320,9 +319,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   Future<void> resumeAllDownloadGallery() async {
-    final List<GalleryDownloadInfo> paused = galleryDownloadInfos.values
-        .where((g) => g.downloadProgress.downloadStatus == DownloadStatus.paused)
-        .toList();
+    final List<GalleryDownloadInfo> paused = galleryDownloadInfos.values.where((g) => g.downloadProgress.downloadStatus == DownloadStatus.paused).toList();
     if (paused.isEmpty) return;
 
     /// Single transaction: bulk gallery status + bulk image status.
@@ -696,11 +693,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       return 0;
     }
 
-    final List<String> galleryDirPaths = downloadDir
-        .listSync()
-        .whereType<io.Directory>()
-        .map((d) => d.path)
-        .toList();
+    final List<String> galleryDirPaths = downloadDir.listSync().whereType<io.Directory>().map((d) => d.path).toList();
     if (galleryDirPaths.isEmpty) {
       return 0;
     }
@@ -886,11 +879,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     }
   }
 
-  void _submitTask({
-    required int gid,
-    required int priority,
-    required AsyncTask<void> task,
-  }) {
+  void _submitTask({required int gid, required int priority, required AsyncTask<void> task}) {
     galleryDownloadInfos[gid]?.tasks.add(task);
 
     executor.scheduleTask(priority, task).then((_) => galleryDownloadInfos[gid]?.tasks.remove(task)).onError((e, stackTrace) {
@@ -899,6 +888,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         log.error('Executor exception!', e, stackTrace);
         log.uploadError(e);
       }
+      return null;
     });
   }
 
@@ -972,8 +962,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   /// Public alias for cross-class use (e.g. [GalleryDownloadTaskRunner]).
   bool taskHasBeenRemoved(GalleryDownloadInfo gallery) => _taskHasBeenRemoved(gallery);
 
-  void submitImageTask(GalleryDownloadInfo gallery, int serialNo, AsyncTask<void> Function() taskBuilder) =>
-      _submitImageTask(gallery, serialNo, taskBuilder);
+  void submitImageTask(GalleryDownloadInfo gallery, int serialNo, AsyncTask<void> Function() taskBuilder) => _submitImageTask(gallery, serialNo, taskBuilder);
 
   Future<void> pauseOnSiteError({required GalleryDownloadInfo gallery, required bool pauseAll, String? message}) =>
       _pauseOnSiteError(gallery: gallery, pauseAll: pauseAll, message: message);
@@ -1415,6 +1404,7 @@ class GalleryDownloadInfo implements Comparable<GalleryDownloadInfo> {
   /// [_computeGalleryTaskPriority] avoids `DateFormat.parse` on every image
   /// task submit.
   late final int _insertTimePriority = _parseInsertTimePriority();
+
   int get insertTimePriority => _insertTimePriority;
 
   // === Mutable config (user-changeable) ===
