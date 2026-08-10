@@ -563,13 +563,37 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     await gallery.ensureImagesLoaded();
-    GalleryImage? image = gallery.imageAtSync(serialNo);
-
+    final GalleryImage? image = gallery.imageAtSync(serialNo);
     if (image == null) {
       return;
     }
 
     log.info('Re-download image, gid: $gid, index: $serialNo');
+    
+    /// If the gallery is not currently `downloading`, CAS-flip it to
+    /// `downloading` first (gated on the current status). This covers both
+    /// `downloaded` (re-download a completed gallery's image) and `paused`
+    /// (re-download while paused — implicit resume). CAS-first ensures that
+    /// if a concurrent path (deleteGallery, pauseAll, resumeAll) beat us to
+    /// the status flip, we bail BEFORE touching memory, image rows, or disk
+    /// files. A gallery already in `downloading` needs no flip — its task
+    /// pipeline is in flight and will (re)process this image.
+    final DownloadStatus currentStatus = gallery.downloadProgress.downloadStatus;
+    if (currentStatus != DownloadStatus.downloading) {
+      final bool flipped = await _updateGalleryDownloadStatus(
+        gallery,
+        DownloadStatus.downloading,
+        fromStatus: currentStatus,
+      );
+      if (!flipped) {
+        log.download('reDownloadImage: CAS failed (gid=$gid, expected=$currentStatus→downloading); concurrent path won, bailing.');
+        return;
+      }
+    }
+
+    await _updateImageStatus(gallery, image, serialNo, DownloadStatus.downloading);
+
+    _deleteImageInDisk(image);
 
     if (gallery.downloadProgress.hasDownloaded[serialNo] == true) {
       gallery.downloadProgress.curCount--;
@@ -577,9 +601,6 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     gallery.downloadProgress.hasDownloaded[serialNo] = false;
     gallery.speedComputer.resetProgress(serialNo);
     gallery.speedComputer.start();
-    await _updateImageStatus(gallery, image, serialNo, DownloadStatus.downloading);
-    await _updateGalleryDownloadStatus(gallery, DownloadStatus.downloading);
-    _deleteImageInDisk(image);
 
     update(['$galleryDownloadSuccessId::${gallery.gid}', '$galleryDownloadProgressId::${gallery.gid}']);
 
@@ -1045,12 +1066,25 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     downloadProgress.hasDownloaded[serialNo] = true;
 
     if (downloadProgress.curCount == downloadProgress.totalCount) {
-      downloadProgress.downloadStatus = DownloadStatus.downloaded;
-      await _updateGalleryDownloadStatus(gallery, DownloadStatus.downloaded);
+      /// Don't pre-flip memory status before the await — the CAS may fail if
+      /// a concurrent pauseAll beat us to it, in which case DB stays `paused`
+      /// and we must NOT set memory to `downloaded` (would diverge). The
+      /// `_updateGalleryDownloadStatus` call writes memory only on CAS success.
+      final bool flipped = await _updateGalleryDownloadStatus(
+        gallery,
+        DownloadStatus.downloaded,
+        fromStatus: DownloadStatus.downloading,
+      );
 
-      /// Re-check after the await in [_updateGalleryDownloadStatus]: a
-      /// concurrent deleteGallery could have removed this entry. Avoid
-      /// null-bang on the post-await memory mutations.
+      /// Re-check after the await: CAS failure means a concurrent pauseAll
+      /// flipped status to `paused` (memory not written to `downloaded`);
+      /// or deleteGallery may have removed the entry. Either way, bail
+      /// without disposing speedComputer or evicting images — the gallery
+      /// is not in the `downloaded` state we expected.
+      if (!flipped) {
+        log.download('Completion CAS failed: gid=${gallery.gid}, expected=downloading→downloaded; a concurrent path (likely pauseAll) changed status. Skipping evict/dispose.');
+        return;
+      }
       final GalleryDownloadInfo? live = _liveInfoOrSkip(gallery.gid, DownloadStatus.downloaded);
       if (live == null) {
         return;
@@ -1120,14 +1154,37 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     return true;
   }
 
-  Future<void> _updateGalleryDownloadStatus(GalleryDownloadInfo gallery, DownloadStatus downloadStatus) async {
-    await _updateGalleryInDatabase(
-      GalleryDownloadedCompanion(gid: Value(gallery.gid), downloadStatusIndex: Value(downloadStatus.index)),
+  Future<bool> _updateGalleryDownloadStatus(
+    GalleryDownloadInfo gallery,
+    DownloadStatus downloadStatus, {
+    DownloadStatus? fromStatus,
+  }) async {
+    /// CAS: when [fromStatus] is provided, the DB UPDATE is gated on the
+    /// current row's `downloadStatusIndex` matching it. This prevents lost
+    /// updates when a concurrent `pauseAllDownloadGallery` / `resumeAllDownloadGallery`
+    /// has already flipped the row. Without this, a late completion writing
+    /// `downloaded` could overwrite a just-written `paused`, or vice versa.
+    ///
+    /// Memory mutation follows the DB result: if 0 rows updated, the CAS
+    /// failed (someone else won) — skip the memory write so memory stays
+    /// consistent with DB.
+    final GalleryDownloadedCompanion companion = GalleryDownloadedCompanion(
+      gid: Value(gallery.gid),
+      downloadStatusIndex: Value(downloadStatus.index),
     );
+    final bool success = fromStatus == null
+        ? await _updateGalleryInDatabase(companion)
+        : await _updateGalleryInDatabase(companion, fromStatusIndex: fromStatus.index);
 
-    galleryDownloadInfos[gallery.gid]!.downloadProgress.downloadStatus = downloadStatus;
+    if (!success) {
+      log.download('CAS skip on _updateGalleryDownloadStatus: gid=${gallery.gid}, expected=$fromStatus, target=$downloadStatus');
+      return false;
+    }
+
+    galleryDownloadInfos[gallery.gid]?.downloadProgress.downloadStatus = downloadStatus;
 
     _saveGalleryMetadataInDisk(gallery);
+    return true;
   }
 
   Future<bool> _updateImageStatus(GalleryDownloadInfo gallery, GalleryImage image, int serialNo, DownloadStatus downloadStatus) async {
@@ -1280,8 +1337,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         0;
   }
 
-  Future<bool> _updateGalleryInDatabase(GalleryDownloadedCompanion gallery) async {
-    return await GalleryDao.updateGallery(gallery) > 0;
+  Future<bool> _updateGalleryInDatabase(GalleryDownloadedCompanion gallery, {int? fromStatusIndex}) async {
+    return await GalleryDao.updateGallery(gallery, fromStatusIndex: fromStatusIndex) > 0;
   }
 
   Future<bool> _updateImageInDatabase(ImageCompanion image) async {

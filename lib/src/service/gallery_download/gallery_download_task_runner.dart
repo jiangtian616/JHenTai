@@ -246,7 +246,15 @@ class _GalleryDownloadTaskRunner {
       }
 
       GalleryDownloadInfo galleryDownloadInfo = _service.galleryDownloadInfos[gallery.gid]!;
-      GalleryImage image = galleryDownloadInfo.imageAtSync(serialNo) ?? (await galleryDownloadInfo.imageAt(serialNo))!;
+      /// Image may be cleared between the sync read and the async fallback by
+      /// a concurrent `_reParseImageUrlAndDownload` (403 re-parse on the same
+      /// serialNo calls `clearImage`). The `!` would NPE in that window.
+      /// Re-check status after the await — if paused/removed or image gone,
+      /// bail out; the re-parse path will re-submit when ready.
+      final GalleryImage? image = galleryDownloadInfo.imageAtSync(serialNo) ?? await galleryDownloadInfo.imageAt(serialNo);
+      if (image == null || _service._taskHasBeenPausedOrRemoved(gallery)) {
+        return;
+      }
 
       await _service._updateImageStatus(gallery, image, serialNo, DownloadStatus.downloading);
 

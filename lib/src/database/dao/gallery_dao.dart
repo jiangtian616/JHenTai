@@ -18,8 +18,20 @@ class GalleryDao {
     return appDb.into(appDb.galleryDownloaded).insert(gallery);
   }
 
-  static Future<int> updateGallery(GalleryDownloadedCompanion gallery) {
-    return (appDb.update(appDb.galleryDownloaded)..where((a) => a.gid.equals(gallery.gid.value))).write(gallery);
+  /// Update a single gallery row. When [fromStatusIndex] is provided, the
+  /// update is gated on the current `downloadStatusIndex` matching — a CAS
+  /// guard preventing a status-flipping path (e.g. reDownloadImage setting
+  /// `downloading`) from overwriting a concurrent status change (e.g.
+  /// pauseAll setting `paused`). Mirrors [batchUpdateGallery]'s CAS param.
+  /// Returns 0 rows updated if the CAS failed.
+  static Future<int> updateGallery(GalleryDownloadedCompanion gallery, {int? fromStatusIndex}) {
+    final update = appDb.update(appDb.galleryDownloaded);
+    if (fromStatusIndex == null) {
+      return (update..where((a) => a.gid.equals(gallery.gid.value))).write(gallery);
+    }
+    return (update
+          ..where((a) => a.gid.equals(gallery.gid.value) & a.downloadStatusIndex.equals(fromStatusIndex)))
+        .write(gallery);
   }
 
   static Future<int> updateGalleryTags(int gid, String tags) {

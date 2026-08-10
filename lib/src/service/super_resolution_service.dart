@@ -70,11 +70,7 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
         SuperResolutionInfo(
           SuperResolutionType.values[data.type],
           SuperResolutionStatus.values[data.status],
-          data.imageStatuses
-              .split(SuperResolutionInfo.imageStatusesSeparator)
-              .map((e) => int.parse(e))
-              .map((index) => SuperResolutionStatus.values[index])
-              .toList(),
+          data.imageStatuses.split(SuperResolutionInfo.imageStatusesSeparator).map((e) => int.parse(e)).map((index) => SuperResolutionStatus.values[index]).toList(),
         ),
       );
     }
@@ -195,14 +191,11 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
     if (superResolutionInfo == null) {
       List<GalleryImage> rawImages;
       if (type == SuperResolutionType.gallery) {
-        /// Retain for the duration of super-resolution — [_doSuperResolve]
-        /// releases when the operation ends (success / pause / cancel).
-        /// Singleton service: onClose never fires, so explicit release is
-        /// required to avoid leaking the retain.
-        await retainGalleryImages(gid);
-        rawImages = galleryDownloadService.galleryDownloadInfos[gid]!.images!
-            .whereType<GalleryImage>()
-            .toList();
+        /// Load just to read the image count for SuperResolutionInfo init —
+        /// the actual retain is in [_doSuperResolve] so that a never-scheduled
+        /// task (executor cancelled, app shutdown) can't leak a retain.
+        await galleryDownloadService.galleryDownloadInfos[gid]!.ensureImagesLoaded();
+        rawImages = galleryDownloadService.galleryDownloadInfos[gid]!.images!.whereType<GalleryImage>().toList();
       } else {
         rawImages = await archiveDownloadService.getUnpackedImages(gid);
       }
@@ -228,9 +221,7 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
   Future<void> pauseSuperResolve(int gid, SuperResolutionType type) async {
     SuperResolutionInfo? superResolutionInfo = get(gid, type);
 
-    if (superResolutionInfo == null ||
-        superResolutionInfo.status == SuperResolutionStatus.success ||
-        superResolutionInfo.status == SuperResolutionStatus.paused) {
+    if (superResolutionInfo == null || superResolutionInfo.status == SuperResolutionStatus.success || superResolutionInfo.status == SuperResolutionStatus.paused) {
       return;
     }
 
@@ -283,17 +274,19 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
   }
 
   Future<void> _doSuperResolve(int gid, SuperResolutionType type) async {
-    /// Retain was acquired in [superResolve] for gallery type; release on
-    /// every exit path (cancel / pause / error / success). try/finally is
-    /// the only way to cover all early returns without duplicating release.
+    /// Retain is acquired here (not in [superResolve]) so that a never-
+    /// scheduled task — executor cancelled, app shutdown, etc. — can't leak
+    /// a retain. try/finally covers every exit path (cancel / pause / error
+    /// / success); release is skipped for archive type (no retain taken).
+    final bool needRetain = type == SuperResolutionType.gallery;
+    if (needRetain) {
+      await retainGalleryImages(gid);
+    }
     try {
       List<GalleryImage> rawImages;
       if (type == SuperResolutionType.gallery) {
-        /// [superResolve] already retained + loaded; images is guaranteed
-        /// resident. Re-ensuring here would be a redundant await.
-        rawImages = galleryDownloadService.galleryDownloadInfos[gid]!.images!
-            .whereType<GalleryImage>()
-            .toList();
+        /// [retainGalleryImages] above ensured images is resident.
+        rawImages = galleryDownloadService.galleryDownloadInfos[gid]!.images!.whereType<GalleryImage>().toList();
       } else {
         rawImages = await archiveDownloadService.getUnpackedImages(gid);
       }
@@ -350,7 +343,7 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
         log.info('super resolve success, gid:$gid');
       }
     } finally {
-      if (type == SuperResolutionType.gallery) {
+      if (needRetain) {
         releaseGalleryImages(gid);
       }
     }
