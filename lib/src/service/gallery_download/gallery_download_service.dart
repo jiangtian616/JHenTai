@@ -558,14 +558,12 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   Future<void> reDownloadImage(int gid, int serialNo) async {
     GalleryDownloadInfo? gallery = _findGalleryByGid(gid);
-    GalleryDownloadInfo? galleryDownloadInfo = galleryDownloadInfos[gid];
-
-    if (gallery == null || galleryDownloadInfo == null) {
+    if (gallery == null) {
       return;
     }
 
-    await galleryDownloadInfo.ensureImagesLoaded();
-    GalleryImage? image = galleryDownloadInfo.imageAtSync(serialNo);
+    await gallery.ensureImagesLoaded();
+    GalleryImage? image = gallery.imageAtSync(serialNo);
 
     if (image == null) {
       return;
@@ -573,12 +571,12 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     log.info('Re-download image, gid: $gid, index: $serialNo');
 
-    if (galleryDownloadInfo.downloadProgress.hasDownloaded[serialNo] == true) {
-      galleryDownloadInfo.downloadProgress.curCount--;
+    if (gallery.downloadProgress.hasDownloaded[serialNo] == true) {
+      gallery.downloadProgress.curCount--;
     }
-    galleryDownloadInfo.downloadProgress.hasDownloaded[serialNo] = false;
-    galleryDownloadInfo.speedComputer.resetProgress(serialNo);
-    galleryDownloadInfo.speedComputer.start();
+    gallery.downloadProgress.hasDownloaded[serialNo] = false;
+    gallery.speedComputer.resetProgress(serialNo);
+    gallery.speedComputer.start();
     await _updateImageStatus(gallery, image, serialNo, DownloadStatus.downloading);
     await _updateGalleryDownloadStatus(gallery, DownloadStatus.downloading);
     _deleteImageInDisk(image);
@@ -655,11 +653,17 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
         await _updateGalleryInDatabase(
           GalleryDownloadedCompanion(gid: Value(g.gid), groupName: Value(newGroup)),
         );
-        _saveGalleryMetadataInDisk(g);
       }
 
       await _deleteGroup(oldGroup);
     });
+
+    /// Mark dirty after the transaction commits — `_saveGalleryMetadataInDisk`
+    /// schedules a throttled disk write via timer, which must not be armed
+    /// inside a DB transaction (the write would race with rollback).
+    for (GalleryDownloadInfo g in galleriesInGroup) {
+      _saveGalleryMetadataInDisk(g);
+    }
 
     _invalidateGalleriesCache();
   }
