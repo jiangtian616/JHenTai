@@ -230,11 +230,20 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     /// `downloadProgress.downloadStatus` mid-iteration, so we can't filter
     /// lazily against the live map.
     final List<GalleryDownloadInfo> downloading = galleryDownloadInfos.values.where((g) => g.downloadProgress.downloadStatus == DownloadStatus.downloading).toList();
-    if (downloading.isEmpty) return;
+    if (downloading.isEmpty) {
+      return;
+    }
 
     /// Single transaction: bulk gallery status + bulk image status.
     /// Avoids N per-gallery DB round-trips (one UPDATE + one image-batch
     /// UPDATE per gallery × thousands of galleries).
+    ///
+    /// CAS guard: pass `fromStatusIndex: downloading` so a gallery already
+    /// flipped to `downloaded` by a concurrent `_updateProgressAfterImageDownloaded`
+    /// is NOT overwritten back to `paused` — its WHERE clause won't match.
+    /// The image-side UPDATE carries the same condition implicitly via
+    /// `WHERE downloadStatusIndex = downloading`. Memory-side re-check at
+    /// line 262 (`_liveInfoOrSkip`) catches any concurrent winner.
     await appDb.transaction(() async {
       await GalleryDao.batchUpdateGallery(
         downloading
@@ -243,6 +252,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
                   downloadStatusIndex: Value(DownloadStatus.paused.index),
                 ))
             .toList(),
+        fromStatusIndex: DownloadStatus.downloading.index,
       );
       await GalleryImageDao.updateImageStatusByGids(
         downloading.map((g) => g.gid),
@@ -253,7 +263,16 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
     /// In-memory + UI updates per gallery. No further DB writes here.
     for (final gallery in downloading) {
-      final GalleryDownloadInfo info = galleryDownloadInfos[gallery.gid]!;
+      /// Re-check status after the transaction's await. A concurrent path
+      /// (deleteGallery → _clearGalleryInfoInMemory, or a download completing
+      /// → _updateProgressAfterImageDownloaded flipping status to downloaded)
+      /// may have already mutated or removed this entry. Skip the in-memory
+      /// mutation if so — the winning path's state should be honored, and
+      /// the DB writes from the transaction above remain authoritative.
+      final GalleryDownloadInfo? info = _liveInfoOrSkip(gallery.gid, DownloadStatus.downloading);
+      if (info == null) {
+        continue;
+      }
       info.downloadProgress.downloadStatus = DownloadStatus.paused;
 
       for (AsyncTask task in info.tasks) {
@@ -276,6 +295,25 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   GalleryDownloadInfo? _findGalleryByGid(int gid) => galleryDownloadInfos[gid];
+
+  /// Concurrency-safe lookup for use at await boundaries in multi-step
+  /// operations (pauseAll / resumeAll / etc.). Returns the live info iff the
+  /// gallery is still resident AND its `downloadStatus` still matches
+  /// [expected]; otherwise null.
+  ///
+  /// A null return means a concurrent path (deleteGallery, completed
+  /// download, _pauseOnSiteError, etc.) has mutated or removed the entry —
+  /// the caller should bail out of its remaining in-memory mutations to
+  /// avoid (a) null-bang crashes from `galleryDownloadInfos[gid]!` and
+  /// (b) overwriting the winning path's state with stale values. DB writes
+  /// that already landed in the transaction remain authoritative.
+  GalleryDownloadInfo? _liveInfoOrSkip(int gid, DownloadStatus expected) {
+    final GalleryDownloadInfo? info = galleryDownloadInfos[gid];
+    if (info == null || info.downloadProgress.downloadStatus != expected) {
+      return null;
+    }
+    return info;
+  }
 
   Future<void> pauseDownloadGalleryByGid(int gid) async {
     GalleryDownloadInfo? gallery = _findGalleryByGid(gid);
@@ -335,6 +373,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     if (paused.isEmpty) return;
 
     /// Single transaction: bulk gallery status + bulk image status.
+    /// CAS guard: pass `fromStatusIndex: paused` so a gallery flipped away
+    /// from `paused` by a concurrent path (e.g. deleteGallery) is skipped.
     await appDb.transaction(() async {
       await GalleryDao.batchUpdateGallery(
         paused
@@ -343,6 +383,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
                   downloadStatusIndex: Value(DownloadStatus.downloading.index),
                 ))
             .toList(),
+        fromStatusIndex: DownloadStatus.paused.index,
       );
       await GalleryImageDao.updateImageStatusByGids(
         paused.map((g) => g.gid),
@@ -352,7 +393,10 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     });
 
     for (final gallery in paused) {
-      final GalleryDownloadInfo info = galleryDownloadInfos[gallery.gid]!;
+      final GalleryDownloadInfo? info = _liveInfoOrSkip(gallery.gid, DownloadStatus.paused);
+      if (info == null) {
+        continue;
+      }
       info.downloadProgress.downloadStatus = DownloadStatus.downloading;
 
       /// can't reuse cancelToken across pause/resume
@@ -905,7 +949,17 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   /// Shortcut for the common pattern: compute image priority, build the task, submit.
+  ///
+  /// Status-gated: refuses to submit a new task if the gallery's downloadStatus
+  /// is no longer [DownloadStatus.downloading] (paused / completed / deleted).
+  /// Without this gate, a task could be added to [info.tasks] between
+  /// pauseAll's `info.tasks.clear()` and the next iteration, becoming an
+  /// orphan tracked by the executor but not by [info.tasks] — un-cancelable.
   void _submitImageTask(GalleryDownloadInfo gallery, int serialNo, AsyncTask<void> Function() taskBuilder) {
+    final GalleryDownloadInfo? info = _liveInfoOrSkip(gallery.gid, DownloadStatus.downloading);
+    if (info == null) {
+      return;
+    }
     return _submitTask(
       gid: gallery.gid,
       priority: _computeImageTaskPriority(gallery, serialNo),
@@ -969,23 +1023,40 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   Future<void> _updateProgressAfterImageDownloaded(GalleryDownloadInfo gallery, int serialNo) async {
-    if (_taskHasBeenRemoved(gallery)) {
+    /// Status-gate at entry: if a concurrent pause / pauseAll / delete has
+    /// flipped status away from [DownloadStatus.downloading], this is a late
+    /// completion racing with the pause path — bail out without mutating
+    /// curCount / hasDownloaded / status / evicting images. The pause path
+    /// is authoritative for paused state; a late increment here would either
+    /// (a) overshoot curCount past the actual downloaded count, or (b) flip
+    /// status back to `downloaded` after pauseAll just set it to `paused`,
+    /// leaving DB (`paused`) and memory (`downloaded`) diverged.
+    final GalleryDownloadInfo? info = _liveInfoOrSkip(gallery.gid, DownloadStatus.downloading);
+    if (info == null) {
       return;
     }
 
-    GalleryDownloadProgress downloadProgress = galleryDownloadInfos[gallery.gid]!.downloadProgress;
+    GalleryDownloadProgress downloadProgress = info.downloadProgress;
     downloadProgress.curCount++;
     downloadProgress.hasDownloaded[serialNo] = true;
 
     if (downloadProgress.curCount == downloadProgress.totalCount) {
       downloadProgress.downloadStatus = DownloadStatus.downloaded;
       await _updateGalleryDownloadStatus(gallery, DownloadStatus.downloaded);
-      galleryDownloadInfos[gallery.gid]!.speedComputer.dispose();
+
+      /// Re-check after the await in [_updateGalleryDownloadStatus]: a
+      /// concurrent deleteGallery could have removed this entry. Avoid
+      /// null-bang on the post-await memory mutations.
+      final GalleryDownloadInfo? live = _liveInfoOrSkip(gallery.gid, DownloadStatus.downloaded);
+      if (live == null) {
+        return;
+      }
+      live.speedComputer.dispose();
 
       /// All images downloaded — evict the full image list. Cover image is
       /// retained for list/grid cover display; full list re-loads on next
       /// read page / detail page open.
-      galleryDownloadInfos[gallery.gid]!.evictImages();
+      live.evictImages();
       update(['$galleryDownloadSuccessId::${gallery.gid}']);
     }
 

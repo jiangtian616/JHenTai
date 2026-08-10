@@ -31,10 +31,29 @@ class GalleryDao {
     );
   }
 
-  static Future<void> batchUpdateGallery(List<GalleryDownloadedCompanion> galleries) {
+  /// Batch-update gallery rows. When [fromStatusIndex] is provided, each row
+  /// is updated only if its current `downloadStatusIndex` matches — a CAS
+  /// (compare-and-swap) guard that prevents bulk pause/resume from
+  /// overwriting a winning concurrent write (e.g. a download completing →
+  /// `downloaded` while pauseAll is mid-transaction). Mirrors the WHERE-
+  /// condition pattern used by [GalleryImageDao.updateImageStatusByGids].
+  /// Callers that don't touch `downloadStatusIndex` (e.g. tag refresh) omit
+  /// it and get an unconditional update on `gid`.
+  static Future<void> batchUpdateGallery(
+    List<GalleryDownloadedCompanion> galleries, {
+    int? fromStatusIndex,
+  }) {
     return appDb.batch((batch) async {
       for (GalleryDownloadedCompanion gallery in galleries) {
-        batch.update(appDb.galleryDownloaded, gallery, where: (a) => a.gid.equals(gallery.gid.value));
+        if (fromStatusIndex == null) {
+          batch.update(appDb.galleryDownloaded, gallery, where: (a) => a.gid.equals(gallery.gid.value));
+        } else {
+          batch.update(
+            appDb.galleryDownloaded,
+            gallery,
+            where: (a) => a.gid.equals(gallery.gid.value) & a.downloadStatusIndex.equals(fromStatusIndex),
+          );
+        }
       }
     });
   }
