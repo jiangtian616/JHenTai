@@ -226,6 +226,12 @@ class _GalleryDownloadTaskRunner {
 
       galleryDownloadInfo.upsertImage(serialNo, image);
 
+      /// Notify listeners (read page's local-mode builder watches this ID)
+      /// that a freshly parsed image is now resident. Without this, a read
+      /// page opened before this image was parsed would keep showing the
+      /// "parsing url" placeholder even after the image is available.
+      _service.update(['${_service.downloadImageId}::${gallery.gid}::$serialNo', '${_service.downloadImageUrlId}::${gallery.gid}::$serialNo']);
+
       log.download('Parse image url success, index: $serialNo, url: $downloadUrl');
 
       /// Next step: download image
