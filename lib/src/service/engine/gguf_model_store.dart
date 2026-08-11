@@ -523,7 +523,10 @@ class GgufModelDownloadManager implements ModelDownloadManager {
       },
     );
     _taskModels[task.id] = modelId;
-    task.future.whenComplete(() => _taskModels.remove(task.id));
+    task.future.then<void>(
+      (_) => _taskModels.remove(task.id),
+      onError: (Object _, StackTrace __) => _taskModels.remove(task.id),
+    );
     return task;
   }
 

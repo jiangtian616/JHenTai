@@ -1146,6 +1146,15 @@ class ru_RU {
       'imageTranslationTranslatorEngineLocal': 'Локальный GGUF',
       'imageTranslationLocalGgufHint':
           'Использует загруженную модель GGUF и настроенную локальную среду llama.cpp.',
+      'imageTranslationLocalModel': 'Локальная модель перевода',
+      'imageTranslationLocalModelDownloading': 'Загрузка @progress',
+      'imageTranslationLocalFfiRuntime': 'Локальная среда llama.cpp',
+      'imageTranslationLocalFfiRuntimeHint':
+          'Использует встроенную среду Flutter FFI, если она доступна на устройстве.',
+      'imageTranslationLlamaServerPath': 'Исполняемый файл llama-server',
+      'imageTranslationLlamaServerPathHint':
+          'Выберите локальный исполняемый файл llama-server',
+      'imageTranslationBrowseRuntime': 'Выбрать среду',
       'imageTranslationTranslatorHint':
           'Используется OpenAI-compatible Chat Completions. Ключ хранится только на этом устройстве.',
       'imageTranslationEndpoint': 'Адрес',

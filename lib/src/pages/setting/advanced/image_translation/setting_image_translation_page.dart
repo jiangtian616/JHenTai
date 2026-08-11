@@ -21,6 +21,7 @@ import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
 import 'package:jhentai/src/widget/onnx_model_tile.dart';
+import 'package:jhentai/src/widget/gguf_model_manager.dart';
 
 class _OcrModel {
   const _OcrModel(this.code, this.label);
@@ -149,7 +150,7 @@ class _SettingImageTranslationPageState
                 _buildOnDeviceTranslationHint(),
                 _buildAutoTranslateGalleryText(),
               ] else
-                _buildLocalTranslationHint(),
+                _buildLocalTranslationSettings(),
             ],
           ),
           EHAppleSettingsGroup(
@@ -539,13 +540,15 @@ class _SettingImageTranslationPageState
     );
   }
 
-  Widget _buildLocalTranslationHint() {
-    return ListTile(
-      leading: const Icon(Icons.memory_outlined, size: 20),
-      title: Text(
-        'imageTranslationLocalGgufHint'.tr,
-        style: const TextStyle(fontSize: 12),
-      ),
+  Widget _buildLocalTranslationSettings() {
+    return GgufModelManagerPanel(
+      selectedModelId: imageTranslationSetting.localModelId.value,
+      onSelectModel: (String modelId) {
+        setState(() {});
+        imageTranslationSetting.saveLocalModelId(modelId);
+      },
+      llamaServerPath: imageTranslationSetting.localLlamaServerPath.value,
+      onSaveLlamaServerPath: imageTranslationSetting.saveLocalLlamaServerPath,
     );
   }
 

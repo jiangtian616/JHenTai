@@ -12,6 +12,7 @@ import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/widget/eh_apple_button.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
+import 'package:jhentai/src/widget/gguf_model_manager.dart';
 
 class _LanguageOption {
   const _LanguageOption(this.code, this.label);
@@ -138,7 +139,7 @@ class _ImageTranslationConfigSheetState
                 if (_translatorEngine == ImageTranslationEngine.appleOnDevice)
                   _buildOnDeviceTranslationHint(),
                 if (_translatorEngine == ImageTranslationEngine.localGguf)
-                  _buildLocalTranslationHint(),
+                  _buildLocalTranslationSettings(),
                 _buildTargetLanguage(),
                 _buildTranslateScope(),
                 _buildContextBatchSize(),
@@ -263,22 +264,15 @@ class _ImageTranslationConfigSheetState
     );
   }
 
-  Widget _buildLocalTranslationHint() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Icon(Icons.memory_outlined, size: 16),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              'imageTranslationLocalGgufHint'.tr,
-              style: const TextStyle(fontSize: 12),
-            ),
-          ),
-        ],
-      ),
+  Widget _buildLocalTranslationSettings() {
+    return GgufModelManagerPanel(
+      selectedModelId: imageTranslationSetting.localModelId.value,
+      onSelectModel: (String modelId) {
+        setState(() {});
+        imageTranslationSetting.saveLocalModelId(modelId);
+      },
+      llamaServerPath: imageTranslationSetting.localLlamaServerPath.value,
+      onSaveLlamaServerPath: imageTranslationSetting.saveLocalLlamaServerPath,
     );
   }
 

@@ -1109,6 +1109,13 @@ favnote：配對收藏備註
       'imageTranslationTranslatorEngineApple': 'Apple 端側翻譯',
       'imageTranslationTranslatorEngineLocal': '本機 GGUF',
       'imageTranslationLocalGgufHint': '使用已下載的 GGUF 模型和設定好的本機 llama.cpp 執行環境。',
+      'imageTranslationLocalModel': '本機翻譯模型',
+      'imageTranslationLocalModelDownloading': '正在下載 @progress',
+      'imageTranslationLocalFfiRuntime': '端側 llama.cpp 執行環境',
+      'imageTranslationLocalFfiRuntimeHint': '裝置支援時使用軟體內建的 Flutter FFI 執行環境。',
+      'imageTranslationLlamaServerPath': 'llama-server 執行檔',
+      'imageTranslationLlamaServerPathHint': '選擇本機 llama-server 執行檔',
+      'imageTranslationBrowseRuntime': '選擇執行環境',
       'imageTranslationTranslatorHint':
           '支援 OpenAI-compatible Chat Completions 介面，金鑰僅儲存在本機。',
       'imageTranslationEndpoint': '介面位址',

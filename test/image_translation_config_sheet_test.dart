@@ -120,4 +120,30 @@ void main() {
       isNot(contains(ImageProcessingDisplayMode.translatedImage)),
     );
   });
+
+  testWidgets('local GGUF exposes model download and runtime configuration', (
+    WidgetTester tester,
+  ) async {
+    final ImageTranslationSetting setting = ImageTranslationSetting();
+    setting.translatorEngine.value = ImageTranslationEngine.localGguf;
+    imageTranslationSetting = setting;
+
+    await tester.pumpWidget(
+      const GetMaterialApp(home: Scaffold(body: ImageTranslationConfigSheet())),
+    );
+    await tester.pump();
+
+    final EHCodexStyleDropdown<String> model = tester.widget(
+      find.byKey(const ValueKey('image-translation-local-model')),
+    );
+    expect(model.value, setting.localModelId.value);
+    expect(
+      find.byKey(const ValueKey('image-translation-local-model-download')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('image-translation-llama-server-path')),
+      findsOneWidget,
+    );
+  });
 }

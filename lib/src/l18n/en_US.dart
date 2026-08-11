@@ -1220,6 +1220,15 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationTranslatorEngineLocal': 'Local GGUF',
       'imageTranslationLocalGgufHint':
           'Uses the selected downloaded GGUF model and the configured local llama.cpp runtime.',
+      'imageTranslationLocalModel': 'Local translation model',
+      'imageTranslationLocalModelDownloading': 'Downloading @progress',
+      'imageTranslationLocalFfiRuntime': 'On-device llama.cpp runtime',
+      'imageTranslationLocalFfiRuntimeHint':
+          'Uses the built-in Flutter FFI runtime when it is available on this device.',
+      'imageTranslationLlamaServerPath': 'llama-server executable',
+      'imageTranslationLlamaServerPathHint':
+          'Select the local llama-server executable',
+      'imageTranslationBrowseRuntime': 'Choose runtime',
       'imageTranslationTranslatorHint':
           'Uses an OpenAI-compatible Chat Completions endpoint. The key stays on this device.',
       'imageTranslationEndpoint': 'Endpoint',
