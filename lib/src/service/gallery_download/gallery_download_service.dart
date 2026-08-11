@@ -1750,6 +1750,7 @@ class GalleryDownloadInfo implements Comparable<GalleryDownloadInfo> {
       log.debug('evictImages skipped on gallery $gid: ${_imageResidents.length} owner(s) still retaining: ${_ownersSnapshot()}');
       return;
     }
+    log.debug('evictImages on gallery $gid');
     images = null;
   }
 
