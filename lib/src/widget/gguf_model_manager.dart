@@ -10,6 +10,7 @@ import '../service/engine/gguf_model_store.dart';
 import '../service/engine/local_translation_model_catalog.dart';
 import '../service/engine/model_catalog.dart';
 import 'eh_apple_controls.dart';
+import 'eh_apple_glass_toolbar.dart';
 import 'eh_codex_style_dropdown.dart';
 
 /// Long-lived GGUF download state. Navigating away from settings does not
@@ -265,16 +266,16 @@ class _GgufModelManagerPanelState extends State<GgufModelManagerPanel> {
                 onPressed: () => manager.cancel(model.id),
               )
               : state == ModelInstallState.ready
-              ? Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  EHAppleIconButton(
+              ? EHAppleGlassToolbar(
+                materialSpacing: 0,
+                items: <EHAppleToolbarItem>[
+                  EHAppleToolbarItem(
                     icon: const Icon(Icons.refresh),
                     tooltip: 'inferenceRefresh'.tr,
                     onPressed:
                         () => manager.download(model.id, forceUpdate: true),
                   ),
-                  EHAppleIconButton(
+                  EHAppleToolbarItem(
                     icon: const Icon(Icons.delete_outline),
                     tooltip: 'delete'.tr,
                     onPressed: () => manager.delete(model.id),

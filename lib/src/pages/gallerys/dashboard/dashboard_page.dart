@@ -11,6 +11,7 @@ import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/search_util.dart';
 import 'package:jhentai/src/widget/eh_apple_button.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
+import 'package:jhentai/src/widget/eh_apple_glass_toolbar.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:jhentai/src/widget/eh_dashboard_card.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
@@ -269,17 +270,23 @@ class DashboardPage extends BasePage {
       sliver: SliverToBoxAdapter(
         child: _GalleryListDesc(
           actions: [
-            EHAppleIconButton(
-              icon: Icon(Icons.settings, size: 22, color: UIConfig.dashboardPageGalleryDescButtonColor(context)),
-              onPressed: logic.handleTapFilterButton,
-              padding: EdgeInsets.zero,
-              visualDensity: const VisualDensity(vertical: -4),
-            ),
-            EHAppleIconButton(
-              icon: Icon(Icons.refresh, size: 25, color: UIConfig.dashboardPageGalleryDescButtonColor(context)),
-              onPressed: logic.handleClearAndRefresh,
-              padding: EdgeInsets.zero,
-              visualDensity: const VisualDensity(vertical: -4, horizontal: -4),
+            EHAppleGlassToolbar(
+              materialSpacing: 0,
+              itemPadding: const EdgeInsets.all(7),
+              items: [
+                EHAppleToolbarItem(
+                  icon: Icon(Icons.settings, size: 22, color: UIConfig.dashboardPageGalleryDescButtonColor(context)),
+                  onPressed: logic.handleTapFilterButton,
+                  padding: EdgeInsets.zero,
+                  visualDensity: const VisualDensity(vertical: -4),
+                ),
+                EHAppleToolbarItem(
+                  icon: Icon(Icons.refresh, size: 25, color: UIConfig.dashboardPageGalleryDescButtonColor(context)),
+                  onPressed: logic.handleClearAndRefresh,
+                  padding: EdgeInsets.zero,
+                  visualDensity: const VisualDensity(vertical: -4, horizontal: -4),
+                ),
+              ],
             ),
           ],
         ),

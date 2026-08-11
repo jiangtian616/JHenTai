@@ -11,6 +11,7 @@ import 'package:jhentai/src/pages/search/mixin/search_page_state_mixin.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/search_util.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
+import 'package:jhentai/src/widget/eh_apple_glass_toolbar.dart';
 
 import '../../../database/database.dart';
 import '../../../model/gallery_tag.dart';
@@ -34,36 +35,36 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
     final BoxConstraints? buttonConstraints = compactSize == null ? null : BoxConstraints.tightFor(width: compactSize, height: compactSize);
     final EdgeInsetsGeometry? buttonPadding = compactSize == null ? null : EdgeInsets.zero;
 
-    final List<Widget> buttons = [
-      EHAppleIconButton(
+    final List<EHAppleToolbarItem> buttons = [
+      EHAppleToolbarItem(
         icon: const Icon(Icons.attach_file),
         onPressed: logic.handleFileSearch,
         visualDensity: visualDensity,
         constraints: buttonConstraints,
         padding: buttonPadding,
       ),
-      EHAppleIconButton(
+      EHAppleToolbarItem(
         icon: const Icon(Icons.restore),
         onPressed: logic.handleTapJumpButton,
         visualDensity: visualDensity,
         constraints: buttonConstraints,
         padding: buttonPadding,
       ),
-      EHAppleIconButton(
+      EHAppleToolbarItem(
         icon: Icon(state.bodyType == SearchPageBodyType.gallerys ? Icons.search : Icons.image_outlined),
         onPressed: logic.toggleBodyType,
         visualDensity: visualDensity,
         constraints: buttonConstraints,
         padding: buttonPadding,
       ),
-      EHAppleIconButton(
+      EHAppleToolbarItem(
         icon: const Icon(Icons.filter_alt_outlined),
         onPressed: () => logic.handleTapFilterButton(EHSearchConfigDialogType.filter),
         visualDensity: visualDensity,
         constraints: buttonConstraints,
         padding: buttonPadding,
       ),
-      EHAppleIconButton(
+      EHAppleToolbarItem(
         icon: const Icon(Icons.more_vert),
         onPressed: () => toRoute(Routes.quickSearch),
         visualDensity: visualDensity,
@@ -72,15 +73,12 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
       ),
     ];
 
-    if (spacing == null) {
-      return buttons;
-    }
-
     return [
-      for (var i = 0; i < buttons.length; i++) ...[
-        if (i > 0) SizedBox(width: spacing),
-        buttons[i],
-      ],
+      EHAppleGlassToolbar(
+        items: buttons,
+        materialSpacing: spacing ?? 0,
+        itemPadding: EdgeInsets.all(compactSize == null ? 9 : 7),
+      ),
     ];
   }
 
