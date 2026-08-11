@@ -38,7 +38,7 @@
 2. `git worktree move .../JHenTai .../JHenTai-p5-full-acceptance`：将原有干净的 `codex/p5-full-acceptance` worktree 安全移动到要求路径；未 reset、未 checkout、未丢弃改动。
 3. `cp .../JHENTAI_MULTI_AGENT_IMPLEMENTATION_PLAN.md .../JHenTai-p5-full-acceptance/`：作为只读验收输入复制；未加入 Git。
 4. `flutter pub get`：**PASS，退出码 0**；解析到本地 path override `flutter_onnxruntime 1.8.3`。依赖工具同时报告有 182 个可升级但不兼容的包，未升级。
-5. `flutter analyze`：**PASS（无 analyzer error，退出码 0）**；仍报告 443 条既有 info/warning，不能称为零问题或证明原生运行。
+5. `flutter analyze --no-pub --no-fatal-warnings --no-fatal-infos`：**PASS（无 analyzer error，退出码 0）**；仍报告 443 条既有 info/warning，不能称为零问题或证明原生运行。主侧独立复跑默认 `flutter analyze --no-pub` 时退出码为 `1`，原因同样是这 443 条既有 info/warning 诊断，并未发现 analyzer error；因此本报告把“无 error”与“默认命令零诊断”明确区分。
 6. `flutter test > /tmp/jhentai-wave5-flutter-test.log 2>&1`：**PASS，退出码 0**；Flutter 测试报告 `00:13 +162: All tests passed!`。日志中的 `Auto-connect trusted LAN device failed: peer_device_123456` 是测试注入的失败路径，测试随后通过，不是秘密或真实 peer。
 7. `flutter build macos --debug --no-pub`：**BLOCKED**，默认入口不存在：`Target file "lib/main.dart" not found.`；仓库脚本和实际入口为 `lib/src/main.dart`。
 8. `flutter build macos --debug -t lib/src/main.dart --no-pub`：**BLOCKED**，Xcode 报 `unable to attach DB .../build/macos/Build/Intermediates.noindex/XCBuildData/build.db: database is locked`，`** BUILD FAILED **`。未重试或清理用户 build 状态，故无 macOS app binary 证据。
@@ -117,7 +117,7 @@
 ### Confirmed
 
 - 主 worktree 是 `codex/p4-integration@0e617c66...`；验收在独立 `codex/p5-full-acceptance` worktree 完成，旧 p0 worktree 未触碰。
-- `flutter pub get`、`flutter analyze`（无 error）和完整 `flutter test` 成功；测试总计 `162` 项。
+- `flutter pub get`、`flutter analyze --no-fatal-warnings --no-fatal-infos`（无 error）和完整 `flutter test` 成功；测试总计 `162` 项。默认 analyzer 命令仍会因既有 443 条 info/warning 返回非零，不能宣称零诊断。
 - `InferenceSetting` 的安全默认是 `enableNnapi == false`、`enableCpuFallback == true`；确定性测试覆盖 provider policy、canary persistence/block、像素预算和 session/task serialization。
 - `flutter_onnxruntime` 的 Dart package 版本和各 native 源码中的 ORT pins 如上表；源码存在 provider/options/version 查询链。
 - 上下文翻译和 LAN 审计文档明确写出真实 provider/model smoke、真实 LAN compute executor 和五端 runtime 仍是阻塞项；本验收没有把 unavailable 当 ready。
