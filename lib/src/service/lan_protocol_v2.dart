@@ -21,6 +21,8 @@ class LanProtocolV2 {
     'imageChunkingV1',
     'coverCacheV1',
     'serverStatusV1',
+    'loginStateV1',
+    'applicationHistoryV1',
   ];
 
   static String encodeBytes(List<int> bytes) =>
@@ -57,8 +59,8 @@ class LanProtocolV2 {
 
   static Object? _canonicalize(Object? value) {
     if (value is Map) {
-      final List<String> keys =
-          value.keys.map((Object? key) => '$key').toList()..sort();
+      final List<String> keys = value.keys.map((Object? key) => '$key').toList()
+        ..sort();
       return <String, Object?>{
         for (final String key in keys) key: _canonicalize(value[key]),
       };
@@ -143,17 +145,15 @@ class LanSecureSession {
       keyPair: localEphemeralKeyPair,
       remotePublicKey: remoteEphemeralPublicKey,
     );
-    final SecretKey derived = await Hkdf(
-      hmac: Hmac.sha256(),
-      outputLength: 96,
-    ).deriveKey(
-      secretKey: sharedSecret,
-      nonce: <int>[...clientNonce, ...serverNonce],
-      info: <int>[
-        ...utf8.encode('JHenTai LAN v2 secure session'),
-        ...transcript,
-      ],
-    );
+    final SecretKey derived = await Hkdf(hmac: Hmac.sha256(), outputLength: 96)
+        .deriveKey(
+          secretKey: sharedSecret,
+          nonce: <int>[...clientNonce, ...serverNonce],
+          info: <int>[
+            ...utf8.encode('JHenTai LAN v2 secure session'),
+            ...transcript,
+          ],
+        );
     final List<int> material = List<int>.from(await derived.extractBytes());
     sharedSecret.destroy();
     final SecretKey clientWriteKey = SecretKeyData(

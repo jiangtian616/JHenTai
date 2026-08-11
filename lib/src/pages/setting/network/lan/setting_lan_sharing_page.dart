@@ -5,6 +5,7 @@ import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/model/lan_device_trust.dart';
 import 'package:jhentai/src/service/lan_device_trust_service.dart';
+import 'package:jhentai/src/service/lan_unified_state_service.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/utils/byte_util.dart';
 import 'package:jhentai/src/utils/route_util.dart';
@@ -135,6 +136,39 @@ class SettingLanSharingPage extends StatelessWidget {
                                   '${'lanTrafficCurrentRunHint'.tr}',
                                 ),
                               ),
+                        ),
+                      ],
+                    ),
+                    EHAppleSettingsGroup(
+                      title: 'lanUnifiedState'.tr,
+                      children: [
+                        GetBuilder<LanUnifiedStateService>(
+                          id: LanUnifiedStateService.statusChangedId,
+                          builder: (sync) {
+                            if (sync.statuses.isEmpty) {
+                              return ListTile(
+                                title: Text('lanUnifiedStateEmpty'.tr),
+                                subtitle: Text('lanUnifiedStateHint'.tr),
+                              );
+                            }
+                            return Column(
+                              children:
+                                  sync.statuses.take(5).map((status) {
+                                    final String failure =
+                                        status.failureReason == null
+                                            ? ''
+                                            : ' · ${status.failureReason}';
+                                    return ListTile(
+                                      title: Text(
+                                        '${status.type} · ${status.count}',
+                                      ),
+                                      subtitle: Text(
+                                        '${status.sourceDeviceId} · ${DateFormat('yyyy-MM-dd HH:mm').format(status.at.toLocal())}$failure',
+                                      ),
+                                    );
+                                  }).toList(),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -588,6 +622,29 @@ class _TrustedDeviceTile extends StatelessWidget {
                           ),
                         )
                         .toList(),
+              ),
+            ),
+            ...[
+              LanSharePermission.loginState,
+              LanSharePermission.applicationHistory,
+            ].map(
+              (permission) => EHAppleSwitchListTile(
+                title: Text('lanPermission_${permission.name}'.tr),
+                subtitle: Text('lanPermissionRevokeHint'.tr),
+                value: device.permissions.contains(permission),
+                onChanged: (value) {
+                  final Set<LanSharePermission> updated =
+                      Set<LanSharePermission>.from(device.permissions);
+                  if (value) {
+                    updated.add(permission);
+                  } else {
+                    updated.remove(permission);
+                  }
+                  lanDeviceTrustService.setPermissions(
+                    device.deviceId,
+                    updated,
+                  );
+                },
               ),
             ),
             ListTile(

@@ -64,6 +64,7 @@ import 'network/archive_bot_request.dart';
 import 'service/inference_service.dart';
 import 'service/lan_device_trust_service.dart';
 import 'service/lan_sharing_runtime.dart';
+import 'service/lan_unified_state_service.dart';
 
 List<JHLifeCircleBean> lifeCircleBeans = [
   ehRequest,
@@ -90,6 +91,7 @@ List<JHLifeCircleBean> lifeCircleBeans = [
   superResolutionService,
   imageTranslationService,
   lanDeviceTrustService,
+  lanUnifiedStateService,
   lanSharingRuntime,
   inferenceService,
   tagTranslationService,
@@ -176,8 +178,9 @@ GlassThemeData _buildGlassTheme() {
         lightAngle: 1.5708,
         lightIntensity: isIOS ? 0.24 : 0.6,
         ambientStrength: 0,
-        specularSharpness:
-            isIOS ? GlassSpecularSharpness.soft : GlassSpecularSharpness.sharp,
+        specularSharpness: isIOS
+            ? GlassSpecularSharpness.soft
+            : GlassSpecularSharpness.sharp,
       ),
       // Kill the GlassGlow halo ring entirely — the full edge glow users saw
       // came from the glowOpacity=1 halo (glowRadius 20), not the fresnel.
@@ -191,8 +194,9 @@ GlassThemeData _buildGlassTheme() {
         lightAngle: 1.5708,
         lightIntensity: isIOS ? 0.20 : 0.55,
         ambientStrength: 0,
-        specularSharpness:
-            isIOS ? GlassSpecularSharpness.soft : GlassSpecularSharpness.sharp,
+        specularSharpness: isIOS
+            ? GlassSpecularSharpness.soft
+            : GlassSpecularSharpness.sharp,
       ),
       glowColors: GlassGlowColors(glowOpacity: 0),
     ),
@@ -208,10 +212,9 @@ Future<void> _initBeansInParallel(List<JHLifeCircleBean> sortedBeans) async {
   final Set<JHLifeCircleBean> initialized = <JHLifeCircleBean>{};
 
   while (remaining.isNotEmpty) {
-    final List<JHLifeCircleBean> wave =
-        remaining
-            .where((bean) => bean.initDependencies.every(initialized.contains))
-            .toList();
+    final List<JHLifeCircleBean> wave = remaining
+        .where((bean) => bean.initDependencies.every(initialized.contains))
+        .toList();
 
     // topologicalSort visits every dependency before its dependents, so a
     // ready wave always exists unless the graph has a cycle (which the sort
@@ -266,9 +269,9 @@ class MyApp extends StatelessWidget {
       getPages: Routes.pages,
       initialRoute:
           securitySetting.enablePasswordAuth.isTrue ||
-                  securitySetting.enableBiometricAuth.isTrue
-              ? Routes.lock
-              : Routes.home,
+              securitySetting.enableBiometricAuth.isTrue
+          ? Routes.lock
+          : Routes.home,
       navigatorObservers: [GetXRouterObserver()],
       builder: (context, child) => AppManager(child: child!),
 

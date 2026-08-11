@@ -9,6 +9,7 @@ import 'package:cryptography/cryptography.dart';
 import 'package:extended_image/extended_image.dart'
     show extendedImageDiskCacheDirectory, ExtendedNetworkImageProvider;
 import 'package:jhentai/src/model/lan_device_trust.dart';
+import 'package:jhentai/src/model/lan_unified_state.dart';
 import 'package:path/path.dart' as path;
 
 import '../model/gallery_image.dart';
@@ -21,6 +22,7 @@ import 'gallery_download_service.dart';
 import 'jh_service.dart';
 import 'lan_device_trust_service.dart';
 import 'lan_protocol_v2.dart';
+import 'lan_unified_state_service.dart';
 import 'log.dart';
 import 'path_service.dart';
 import '../database/database.dart';
@@ -634,6 +636,10 @@ class LanSharingRuntime
         onBytesReceived: trustService.recordTrafficReceived,
         secureSession: secureSession,
         supportsImageCache: true,
+        capabilities:
+            (authAck['capabilities'] as List? ?? const [])
+                .whereType<String>()
+                .toSet(),
         timerScheduler: _timerScheduler,
       );
     } on Object {
@@ -743,6 +749,10 @@ class LanSharingRuntime
         iterator,
         onBytesReceived: trustService.recordTrafficReceived,
         supportsImageCache: true,
+        capabilities:
+            (ack['capabilities'] as List? ?? const [])
+                .whereType<String>()
+                .toSet(),
         timerScheduler: _timerScheduler,
         secureSession: secureSession,
       );
@@ -1002,6 +1012,10 @@ class LanSharingRuntime
               () => _handleV2Image(channel, deviceId, requestId, message),
             ),
           );
+        } else if (operation == 'login_state') {
+          await _handleV2LoginState(channel, deviceId, requestId);
+        } else if (operation == 'application_history') {
+          await _handleV2ApplicationHistory(channel, deviceId, requestId);
         }
       }
       secureSession.close();
@@ -1132,6 +1146,70 @@ class LanSharingRuntime
       'op': 'gallery_manifest',
       'ok': manifest != null,
       if (manifest != null) 'data': manifest.toJson(),
+    });
+  }
+
+  Future<void> _handleV2LoginState(
+    _LanV2SocketChannel channel,
+    String deviceId,
+    String requestId,
+  ) async {
+    final TrustedLanDevice? device = trustService.deviceById(deviceId);
+    if (device == null ||
+        !device.permissions.contains(LanSharePermission.loginState)) {
+      await channel.send(<String, dynamic>{
+        'type': 'response',
+        'id': requestId,
+        'op': 'login_state',
+        'ok': false,
+        'error': 'permission_denied',
+      });
+      return;
+    }
+    final LanLoginStateSnapshot? snapshot = await lanUnifiedStateService
+        .exportLoginState(sourceDeviceId: trustService.localDeviceId);
+    await channel.send(<String, dynamic>{
+      'type': 'response',
+      'id': requestId,
+      'op': 'login_state',
+      'ok': snapshot != null,
+      if (snapshot != null)
+        'data':
+            LanUnifiedStatePayload(
+              capability: 'loginStateV1',
+              sourceDeviceId: trustService.localDeviceId,
+              generatedAt: DateTime.now().toUtc(),
+              loginState: snapshot,
+            ).toJson(),
+      if (snapshot == null) 'error': 'source_not_logged_in',
+    });
+  }
+
+  Future<void> _handleV2ApplicationHistory(
+    _LanV2SocketChannel channel,
+    String deviceId,
+    String requestId,
+  ) async {
+    final TrustedLanDevice? device = trustService.deviceById(deviceId);
+    if (device == null ||
+        !device.permissions.contains(LanSharePermission.applicationHistory)) {
+      await channel.send(<String, dynamic>{
+        'type': 'response',
+        'id': requestId,
+        'op': 'application_history',
+        'ok': false,
+        'error': 'permission_denied',
+      });
+      return;
+    }
+    final LanUnifiedStatePayload payload = await lanUnifiedStateService
+        .exportHistory(sourceDeviceId: trustService.localDeviceId);
+    await channel.send(<String, dynamic>{
+      'type': 'response',
+      'id': requestId,
+      'op': 'application_history',
+      'ok': true,
+      'data': payload.toJson(),
     });
   }
 
@@ -1676,10 +1754,14 @@ class _LanV2SocketChannel {
 }
 
 class _WebSocketLanPeerSession
-    implements LanPeerSession, LanGalleryManifestSession {
+    implements
+        LanPeerSession,
+        LanGalleryManifestSession,
+        LanUnifiedStateSession {
   final WebSocket _socket;
   final StreamIterator<dynamic> _iterator;
   final bool _supportsImageCache;
+  final Set<String> _capabilities;
   final void Function(int bytes) _onBytesReceived;
   final Completer<void> _closed = Completer<void>();
   final LanPendingRequestRegistry<LanSharedImage?> _pending;
@@ -1687,6 +1769,7 @@ class _WebSocketLanPeerSession
   _pendingListGalleries;
   final LanPendingRequestRegistry<LanSharedGalleryPage> _pendingGalleryPages;
   final LanPendingRequestRegistry<LanGalleryManifest?> _pendingManifests;
+  final LanPendingRequestRegistry<LanUnifiedStatePayload?> _pendingUnifiedState;
   final LanSecureSession? _secureSession;
   int _nextRequestId = 0;
   String? _pendingBinaryRequestId;
@@ -1699,9 +1782,11 @@ class _WebSocketLanPeerSession
     this._iterator, {
     required void Function(int bytes) onBytesReceived,
     required bool supportsImageCache,
+    required Set<String> capabilities,
     required LanTimerScheduler timerScheduler,
     LanSecureSession? secureSession,
   }) : _supportsImageCache = supportsImageCache,
+       _capabilities = Set.unmodifiable(capabilities),
        _onBytesReceived = onBytesReceived,
        _secureSession = secureSession,
        _pending = LanPendingRequestRegistry<LanSharedImage?>(
@@ -1720,7 +1805,12 @@ class _WebSocketLanPeerSession
        _pendingManifests = LanPendingRequestRegistry<LanGalleryManifest?>(
          timerScheduler: timerScheduler,
          timeout: LanSharingRuntime.pendingRequestTimeout,
-       ) {
+       ),
+       _pendingUnifiedState =
+           LanPendingRequestRegistry<LanUnifiedStatePayload?>(
+             timerScheduler: timerScheduler,
+             timeout: LanSharingRuntime.pendingRequestTimeout,
+           ) {
     unawaited(_drain());
   }
 
@@ -1803,6 +1893,7 @@ class _WebSocketLanPeerSession
         ),
       );
       _pendingManifests.completeAll(null);
+      _pendingUnifiedState.completeAll(null);
       _secureSession?.close();
       if (!_closed.isCompleted) {
         _closed.complete();
@@ -1931,6 +2022,45 @@ class _WebSocketLanPeerSession
     return future;
   }
 
+  @override
+  Future<LanLoginStateSnapshot?> requestLoginState() async {
+    if (_secureSession == null || !_capabilities.contains('loginStateV1')) {
+      return null;
+    }
+    final String id = 'l${++_nextRequestId}';
+    final Future<LanUnifiedStatePayload?> future = _pendingUnifiedState
+        .register(id, timeoutValue: null);
+    unawaited(
+      _sendSecure(<String, dynamic>{
+        'type': 'request',
+        'id': id,
+        'op': 'login_state',
+        'params': const <String, dynamic>{},
+      }),
+    );
+    return (await future)?.loginState;
+  }
+
+  @override
+  Future<LanUnifiedStatePayload?> requestApplicationHistory() {
+    if (_secureSession == null ||
+        !_capabilities.contains('applicationHistoryV1')) {
+      return Future<LanUnifiedStatePayload?>.value();
+    }
+    final String id = 'h${++_nextRequestId}';
+    final Future<LanUnifiedStatePayload?> future = _pendingUnifiedState
+        .register(id, timeoutValue: null);
+    unawaited(
+      _sendSecure(<String, dynamic>{
+        'type': 'request',
+        'id': id,
+        'op': 'application_history',
+        'params': const <String, dynamic>{},
+      }),
+    );
+    return future;
+  }
+
   Future<void> _sendSecure(Map<String, dynamic> payload) {
     final Future<void> next = _secureSendTail.then((_) async {
       _socket.add(jsonEncode(await _secureSession!.encrypt(payload)));
@@ -1995,6 +2125,15 @@ class _WebSocketLanPeerSession
         LanGalleryManifest.fromJson(
           Map<String, dynamic>.from(message['data'] as Map? ?? const {}),
         ),
+      );
+    } else if (op == 'login_state' || op == 'application_history') {
+      _pendingUnifiedState.complete(
+        id,
+        message['data'] is Map
+            ? LanUnifiedStatePayload.fromJson(
+              Map<String, dynamic>.from(message['data'] as Map),
+            )
+            : null,
       );
     }
   }

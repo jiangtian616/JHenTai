@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:cryptography/cryptography.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/lan_device_trust.dart';
+import 'package:jhentai/src/model/lan_unified_state.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 
 import 'jh_service.dart';
@@ -52,6 +53,15 @@ abstract interface class LanPeerSession {
 
 abstract interface class LanGalleryManifestSession {
   Future<LanGalleryManifest?> fetchGalleryManifest(String galleryUrl);
+}
+
+/// Optional v2 capability surface. Keeping this separate from the frozen
+/// image/gallery session contract lets older test doubles and peers continue
+/// to connect without widening the connection-state machine.
+abstract interface class LanUnifiedStateSession {
+  Future<LanLoginStateSnapshot?> requestLoginState();
+
+  Future<LanUnifiedStatePayload?> requestApplicationHistory();
 }
 
 abstract interface class LanScheduledTask {
@@ -311,6 +321,58 @@ class LanDeviceTrustService extends GetxController
         }
       } on Object catch (error) {
         log.warning('LAN image cache request failed: $error');
+      }
+    }
+    return null;
+  }
+
+  Future<LanLoginStateSnapshot?> requestLoginState({
+    String? sourceDeviceId,
+  }) async {
+    final Iterable<LanPeerSession> entries = _sessions.entries
+        .where((entry) => sourceDeviceId == null || entry.key == sourceDeviceId)
+        .map((entry) => entry.value);
+    for (final LanPeerSession session in entries) {
+      if (session is! LanUnifiedStateSession) {
+        continue;
+      }
+      try {
+        final LanUnifiedStateSession unified =
+            session as LanUnifiedStateSession;
+        final LanLoginStateSnapshot? snapshot = await unified
+            .requestLoginState()
+            .timeout(peerRequestTimeout);
+        if (snapshot != null) {
+          return snapshot;
+        }
+      } on Object catch (error) {
+        log.warning('LAN login-state request failed: ${error.runtimeType}');
+      }
+    }
+    return null;
+  }
+
+  Future<LanUnifiedStatePayload?> requestApplicationHistory({
+    String? sourceDeviceId,
+  }) async {
+    final Iterable<LanPeerSession> entries = _sessions.entries
+        .where((entry) => sourceDeviceId == null || entry.key == sourceDeviceId)
+        .map((entry) => entry.value);
+    for (final LanPeerSession session in entries) {
+      if (session is! LanUnifiedStateSession) {
+        continue;
+      }
+      try {
+        final LanUnifiedStateSession unified =
+            session as LanUnifiedStateSession;
+        final LanUnifiedStatePayload? payload = await unified
+            .requestApplicationHistory()
+            .timeout(peerRequestTimeout);
+        if (payload != null) {
+          return payload;
+        }
+      } on Object catch (error) {
+        log.warning('LAN history request failed: ${error.runtimeType}');
       }
     }
     return null;
@@ -683,6 +745,26 @@ class LanDeviceTrustService extends GetxController
       _retryAttempts.remove(deviceId);
       await disconnect(deviceId);
     }
+  }
+
+  /// Updates only the granted capability set. Revoking a capability closes
+  /// the current session so no already-negotiated request can start another
+  /// sync; a future reconnect observes the persisted permission set.
+  Future<void> setPermissions(
+    String deviceId,
+    Set<LanSharePermission> permissions,
+  ) async {
+    final TrustedLanDevice? existing = deviceById(deviceId);
+    if (existing == null) {
+      return;
+    }
+    final TrustedLanDevice updated = existing.copyWith(
+      permissions: Set.unmodifiable(permissions),
+    );
+    await _repository.updateDevice(updated);
+    _replaceDevice(updated);
+    await disconnect(deviceId);
+    update([devicesChangedId, connectionId(deviceId)]);
   }
 
   Future<void> revokeTrust(String deviceId) async {

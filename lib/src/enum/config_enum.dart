@@ -33,6 +33,7 @@ enum ConfigEnum {
 
   /// config
   ehCookie('eh_cookies'),
+  lanUnifiedState('lanUnifiedState'),
   searchConfig('searchConfig'),
   dismissVersion('dismissVersion'),
   readIndexRecord('readIndexRecord'),
@@ -51,13 +52,13 @@ enum ConfigEnum {
   tagTranslationServiceTimestamp('TagTranslationServiceTimestamp'),
   tagSearchOrderOptimizationServiceVersion('TagTranslationServiceVersion'),
   tagSearchOrderOptimizationServiceLoadingState(
-      'TagSearchOrderOptimizationServiceLoadingState'),
+    'TagSearchOrderOptimizationServiceLoadingState',
+  ),
   displayBlockingRulesGroup('displayBlockingRulesGroup'),
 
   /// cache
   isSpreadPage('isSpreadPage'),
-  galleryImageHash('galleryImageHash'),
-  ;
+  galleryImageHash('galleryImageHash');
 
   final String key;
 
