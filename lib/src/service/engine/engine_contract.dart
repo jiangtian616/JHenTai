@@ -317,6 +317,7 @@ class TranslationEngineRequest {
   const TranslationEngineRequest({
     required this.blocks,
     required this.targetLanguage,
+    this.imagePath,
     this.sourceLanguage,
     this.configuration = const <String, dynamic>{},
     this.promptVersion = 1,
@@ -324,6 +325,9 @@ class TranslationEngineRequest {
 
   final List<RecognizedTextBlock> blocks;
   final String targetLanguage;
+
+  /// Optional source image for a multimodal GGUF. Text-only engines ignore it.
+  final String? imagePath;
   final String? sourceLanguage;
   final Map<String, dynamic> configuration;
   final int promptVersion;

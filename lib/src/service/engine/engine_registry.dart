@@ -6,6 +6,10 @@ import 'package:jhentai/src/setting/image_translation_setting.dart';
 import 'api_translation_engine.dart';
 import 'apple_engine_adapters.dart';
 import 'engine_contract.dart';
+import 'gguf_model_store.dart';
+import 'llama_cpp_ffi_engine.dart';
+import 'llama_server_translation_engine.dart';
+import 'local_translation_model_catalog.dart';
 import 'model_catalog.dart';
 import 'manga_ocr_engine_adapter.dart';
 import 'onnx_engine_adapters.dart';
@@ -85,6 +89,8 @@ class EngineRegistry {
     registerOcr(AppleLiveTextOcrEngine());
     registerTranslation(ApiTranslationEngine(setting: _setting));
     registerTranslation(AppleTranslationEngine());
+    registerTranslation(LlamaServerTranslationEngine(setting: _setting));
+    registerTranslation(LlamaCppFfiTranslationEngine(setting: _setting));
     registerSuperResolution(
       OnnxSuperResolutionEngineAdapter(
         resolver: () => _inferenceResolver().superResolutionEngine,
@@ -92,8 +98,24 @@ class EngineRegistry {
     );
     registerDetection(const UnavailableDetectionEngine());
     registerInpaint(const UnavailableInpaintEngine());
-    _modelCatalog = OnnxModelCatalog();
-    _modelDownloadManager = OnnxModelDownloadManager();
+    final OnnxModelCatalog onnxCatalog = OnnxModelCatalog();
+    final OnnxModelDownloadManager onnxDownloads = OnnxModelDownloadManager();
+    final LocalTranslationModelCatalog localCatalog =
+        LocalTranslationModelCatalog();
+    final GgufModelDownloadManager localDownloads = GgufModelDownloadManager();
+    _modelCatalog = CompositeModelCatalog(<ModelCatalog>[
+      onnxCatalog,
+      localCatalog,
+    ]);
+    _modelDownloadManager = CompositeModelDownloadManager(
+      catalog: _modelCatalog,
+      routes: <String, ModelDownloadManager>{
+        for (final ModelDescriptor model in onnxCatalog.models)
+          model.id: onnxDownloads,
+        for (final ModelDescriptor model in localCatalog.models)
+          model.id: localDownloads,
+      },
+    );
   }
 
   final InferenceService Function() _inferenceResolver;
@@ -142,11 +164,17 @@ class EngineRegistry {
     return _ocr[id]!;
   }
 
-  TranslationEngine get selectedTranslation =>
-      _translations[_setting.translatorEngine.value ==
-              ImageTranslationEngine.appleOnDevice
-          ? 'apple-translation'
-          : 'api-translation']!;
+  TranslationEngine get selectedTranslation {
+    final String id = switch (_setting.translatorEngine.value) {
+      ImageTranslationEngine.appleOnDevice => 'apple-translation',
+      ImageTranslationEngine.api => 'api-translation',
+      ImageTranslationEngine.localGguf => switch (currentEnginePlatform) {
+        EnginePlatform.android || EnginePlatform.ios => 'llama-ffi-translation',
+        _ => 'llama-server-translation',
+      },
+    };
+    return _translations[id]!;
+  }
 
   EngineCapabilityDecision evaluateSelected({EnginePlatform? platform}) =>
       capabilityMatrix.evaluate(
