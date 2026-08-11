@@ -7,6 +7,7 @@ import 'package:jhentai/src/model/lan_device_trust.dart';
 import 'package:jhentai/src/service/engine/engine_contract.dart';
 import 'package:jhentai/src/service/lan_compute_protocol.dart';
 import 'package:jhentai/src/service/lan_compute_runtime.dart';
+import 'package:jhentai/src/service/lan_compute_scheduler.dart';
 import 'package:jhentai/src/service/lan_device_trust_service.dart';
 import 'package:jhentai/src/service/lan_sharing_runtime.dart';
 import 'package:jhentai/src/service/lan_trust_repository.dart';
@@ -359,6 +360,15 @@ class _FakeExecutor implements LanComputeExecutor {
 
   @override
   bool acceptsInput(LanComputeDataRef input) => input.hash == expectedInputHash;
+
+  @override
+  LanComputeResourceEstimate resourceEstimateFor(
+    LanComputeTaskRequest request,
+  ) => LanComputeResourceEstimate(
+    inputBytes: request.input.sizeBytes,
+    outputBytes: 4,
+    modelMemoryBytes: 64,
+  );
 
   @override
   EngineTask<LanComputeDataRef> execute(LanComputeTaskRequest request) {
