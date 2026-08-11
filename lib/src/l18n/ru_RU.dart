@@ -1082,6 +1082,9 @@ class ru_RU {
       /// image text translation
       'imageTextTranslation': 'Перевод текста на изображении',
       'translateImageText': 'Распознать и перевести страницу',
+      'currentPageSuperResolution': 'Повысить разрешение страницы',
+      'addBookmark': 'Добавить закладку',
+      'removeBookmark': 'Удалить закладку',
       'recognizingImageText': 'Распознавание текста…',
       'translatingImageText': 'Перевод текста…',
       'showTranslation': 'Показать перевод',

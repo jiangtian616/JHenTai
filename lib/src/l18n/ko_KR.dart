@@ -1014,6 +1014,9 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       /// image text translation
       'imageTextTranslation': '이미지 텍스트 번역',
       'translateImageText': '이 페이지 인식 및 번역',
+      'currentPageSuperResolution': '현재 페이지 초해상도',
+      'addBookmark': '북마크 추가',
+      'removeBookmark': '북마크 제거',
       'recognizingImageText': '이미지 텍스트 인식 중…',
       'translatingImageText': '이미지 텍스트 번역 중…',
       'showTranslation': '번역 보기',

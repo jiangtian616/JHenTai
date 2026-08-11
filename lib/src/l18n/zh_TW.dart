@@ -1057,6 +1057,9 @@ favnote：配對收藏備註
       /// image text translation
       'imageTextTranslation': '圖片文字翻譯',
       'translateImageText': '辨識並翻譯本頁',
+      'currentPageSuperResolution': '目前頁面超解析度',
+      'addBookmark': '加入書籤',
+      'removeBookmark': '移除書籤',
       'recognizingImageText': '正在辨識圖片文字…',
       'translatingImageText': '正在翻譯圖片文字…',
       'showTranslation': '查看譯文',

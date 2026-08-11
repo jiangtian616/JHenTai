@@ -170,6 +170,14 @@ abstract class BaseLayoutLogic extends GetxController
     }
   }
 
+  String _bookmarkActionLabel(int index) =>
+      readPageLogic.isPageBookmarked(index)
+          ? 'removeBookmark'.tr
+          : 'addBookmark'.tr;
+
+  Future<void> _toggleBookmark(int index) =>
+      readPageLogic.togglePageBookmark(index);
+
   /// Desktop right-click context menu for online images.
   Future<void> showOnlineDesktopContextMenu({
     required int index,
@@ -201,6 +209,10 @@ abstract class BaseLayoutLogic extends GetxController
           child: Text('currentPageSuperResolution'.tr),
         ),
         PopupMenuItem(
+          value: 'toggle_bookmark',
+          child: Text(_bookmarkActionLabel(index)),
+        ),
+        PopupMenuItem(
           value: 'save',
           child: Text('${'save'.tr}(${'resampleImage'.tr})'),
         ),
@@ -229,6 +241,9 @@ abstract class BaseLayoutLogic extends GetxController
         break;
       case 'current_page_super_resolution':
         readPageLogic.superResolveCurrentImage(index);
+        break;
+      case 'toggle_bookmark':
+        await _toggleBookmark(index);
         break;
       case 'save':
         await saveOnlineImage(index);
@@ -289,6 +304,13 @@ abstract class BaseLayoutLogic extends GetxController
                 onPressed: () {
                   backRoute();
                   readPageLogic.superResolveCurrentImage(index);
+                },
+              ),
+              CupertinoActionSheetAction(
+                child: ehActionSheetText(_bookmarkActionLabel(index)),
+                onPressed: () async {
+                  backRoute();
+                  await _toggleBookmark(index);
                 },
               ),
               CupertinoActionSheetAction(
@@ -637,6 +659,13 @@ abstract class BaseLayoutLogic extends GetxController
           (_) => CupertinoActionSheet(
             actions: [
               CupertinoActionSheetAction(
+                child: ehActionSheetText(_bookmarkActionLabel(index)),
+                onPressed: () async {
+                  backRoute();
+                  await _toggleBookmark(index);
+                },
+              ),
+              CupertinoActionSheetAction(
                 child: ehActionSheetText('currentPageSuperResolution'.tr),
                 onPressed: () {
                   backRoute();
@@ -668,13 +697,22 @@ abstract class BaseLayoutLogic extends GetxController
       ),
       items: [
         PopupMenuItem(
+          value: 'toggle_bookmark',
+          child: Text(_bookmarkActionLabel(index)),
+        ),
+        PopupMenuItem(
           value: 'current_page_super_resolution',
           child: Text('currentPageSuperResolution'.tr),
         ),
       ],
     );
-    if (selected == 'current_page_super_resolution') {
-      readPageLogic.superResolveCurrentImage(index);
+    switch (selected) {
+      case 'toggle_bookmark':
+        await _toggleBookmark(index);
+        break;
+      case 'current_page_super_resolution':
+        readPageLogic.superResolveCurrentImage(index);
+        break;
     }
   }
 
@@ -693,6 +731,13 @@ abstract class BaseLayoutLogic extends GetxController
       builder:
           (_) => CupertinoActionSheet(
             actions: [
+              CupertinoActionSheetAction(
+                child: ehActionSheetText(_bookmarkActionLabel(index)),
+                onPressed: () async {
+                  backRoute();
+                  await _toggleBookmark(index);
+                },
+              ),
               CupertinoActionSheetAction(
                 child: ehActionSheetText('share'.tr),
                 onPressed: () {
@@ -765,6 +810,13 @@ abstract class BaseLayoutLogic extends GetxController
       builder:
           (_) => CupertinoActionSheet(
             actions: [
+              CupertinoActionSheetAction(
+                child: ehActionSheetText(_bookmarkActionLabel(index)),
+                onPressed: () async {
+                  backRoute();
+                  await _toggleBookmark(index);
+                },
+              ),
               CupertinoActionSheetAction(
                 child: ehActionSheetText('share'.tr),
                 onPressed: () {
@@ -839,6 +891,10 @@ abstract class BaseLayoutLogic extends GetxController
           value: 'current_page_super_resolution',
           child: Text('currentPageSuperResolution'.tr),
         ),
+        PopupMenuItem(
+          value: 'toggle_bookmark',
+          child: Text(_bookmarkActionLabel(index)),
+        ),
         PopupMenuItem(value: 'save', child: Text('save'.tr)),
         PopupMenuItem(value: 'redownload', child: Text('reDownload'.tr)),
         PopupMenuItem(value: 'open_read_setting', child: Text('setting'.tr)),
@@ -857,6 +913,9 @@ abstract class BaseLayoutLogic extends GetxController
         break;
       case 'current_page_super_resolution':
         readPageLogic.superResolveCurrentImage(index);
+        break;
+      case 'toggle_bookmark':
+        await _toggleBookmark(index);
         break;
       case 'save':
         saveDownloadedImageFile(index);
@@ -902,6 +961,10 @@ abstract class BaseLayoutLogic extends GetxController
           value: 'current_page_super_resolution',
           child: Text('currentPageSuperResolution'.tr),
         ),
+        PopupMenuItem(
+          value: 'toggle_bookmark',
+          child: Text(_bookmarkActionLabel(index)),
+        ),
         PopupMenuItem(value: 'save', child: Text('save'.tr)),
         PopupMenuItem(value: 'open_read_setting', child: Text('setting'.tr)),
       ],
@@ -916,6 +979,9 @@ abstract class BaseLayoutLogic extends GetxController
         break;
       case 'current_page_super_resolution':
         readPageLogic.superResolveCurrentImage(index);
+        break;
+      case 'toggle_bookmark':
+        await _toggleBookmark(index);
         break;
       case 'save':
         saveArchiveImageFile(index);

@@ -2,6 +2,22 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:jhentai/src/service/reader_pipeline_scheduler.dart';
 
 void main() {
+  test('viewport tracker only reports pages that actually enter or leave', () {
+    final ReaderViewportTracker tracker = ReaderViewportTracker();
+
+    final ReaderViewportDelta first = tracker.update(<int>{4, 5});
+    expect(first.entering, <int>{4, 5});
+    expect(first.leaving, isEmpty);
+
+    final ReaderViewportDelta repeated = tracker.update(<int>{4, 5});
+    expect(repeated.entering, isEmpty);
+    expect(repeated.leaving, isEmpty);
+
+    final ReaderViewportDelta moved = tracker.update(<int>{5, 6});
+    expect(moved.entering, <int>{6});
+    expect(moved.leaving, <int>{4});
+  });
+
   test(
     'prioritizes visible pages and looks ahead in the reading direction',
     () {

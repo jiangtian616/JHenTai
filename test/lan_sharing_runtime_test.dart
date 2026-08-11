@@ -66,8 +66,10 @@ void main() {
   });
 
   test(
-    'two LAN runtimes pair by approval and establish a trusted session',
+    'mobile-like peer endpoint pairs without enabling desktop server mode',
     () async {
+      advancedSetting.lanActAsServer.value = false;
+      advancedSetting.lanServerMode.value = false;
       final Directory phoneCache = await Directory.systemTemp.createTemp(
         'jh-lan-phone-cache-',
       );

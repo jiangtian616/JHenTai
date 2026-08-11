@@ -1036,8 +1036,8 @@ class _ReadPageState extends State<ReadPage>
             builder: (_) => IconButton(
               tooltip:
                   logic.isPageBookmarked(state.readPageInfo.currentImageIndex)
-                  ? 'Remove bookmark'
-                  : 'Add bookmark',
+                  ? 'removeBookmark'.tr
+                  : 'addBookmark'.tr,
               icon: Icon(
                 logic.isPageBookmarked(state.readPageInfo.currentImageIndex)
                     ? Icons.bookmark

@@ -1074,6 +1074,9 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       /// image text translation
       'imageTextTranslation': 'Tradução de texto da imagem',
       'translateImageText': 'Reconhecer e traduzir esta página',
+      'currentPageSuperResolution': 'Super-resolução desta página',
+      'addBookmark': 'Adicionar marcador',
+      'removeBookmark': 'Remover marcador',
       'recognizingImageText': 'Reconhecendo texto da imagem…',
       'translatingImageText': 'Traduzindo texto da imagem…',
       'showTranslation': 'Mostrar tradução',

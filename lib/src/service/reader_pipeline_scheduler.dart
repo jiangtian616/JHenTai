@@ -11,6 +11,32 @@ enum ReaderPagePriority {
 typedef ReaderPageRequest =
     void Function(int imageIndex, ReaderPagePriority priority);
 
+class ReaderViewportDelta {
+  const ReaderViewportDelta({required this.entering, required this.leaving});
+
+  final Set<int> entering;
+  final Set<int> leaving;
+}
+
+/// Tracks viewport membership so frame-by-frame scroll callbacks do not
+/// repeat page-entry work such as disk-backed translation hydration.
+class ReaderViewportTracker {
+  Set<int> _visible = <int>{};
+
+  Set<int> get visible => Set<int>.unmodifiable(_visible);
+
+  ReaderViewportDelta update(Set<int> next) {
+    final ReaderViewportDelta delta = ReaderViewportDelta(
+      entering: next.difference(_visible),
+      leaving: _visible.difference(next),
+    );
+    _visible = Set<int>.of(next);
+    return delta;
+  }
+
+  void clear() => _visible = <int>{};
+}
+
 /// Converts viewport changes into a small, direction-aware page work plan.
 ///
 /// Network, decode and post-processing remain owned by their existing

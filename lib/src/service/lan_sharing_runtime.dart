@@ -298,16 +298,18 @@ class LanSharingRuntime
     if (!trustService.isEnabled) {
       throw StateError('LAN sharing is disabled');
     }
-    if (_canHostServer) {
-      _server = await HttpServer.bind(bindAddress, 0, shared: false);
-      _server!.listen(
-        (request) => unawaited(_handleRequest(request)),
-        onError: (Object error, StackTrace stack) {
-          log.warning('LAN server failed: $error');
-          log.trace(stack);
-        },
-      );
-    }
+    // Pairing and authenticated peer sessions are bidirectional. Every device
+    // therefore needs a small inbound transport endpoint, including mobile
+    // clients. `lanServerMode` only controls the desktop content/compute role;
+    // it must not disable the transport required to approve a phone pairing.
+    _server = await HttpServer.bind(bindAddress, 0, shared: false);
+    _server!.listen(
+      (request) => unawaited(_handleRequest(request)),
+      onError: (Object error, StackTrace stack) {
+        log.warning('LAN peer endpoint failed: $error');
+        log.trace(stack);
+      },
+    );
     try {
       if (useServiceDiscovery) {
         await _startServiceDiscovery();
@@ -376,10 +378,6 @@ class LanSharingRuntime
     await discovery.start();
     _discovery = discovery;
   }
-
-  bool get _canHostServer =>
-      (Platform.isWindows || Platform.isMacOS || Platform.isLinux) &&
-      advancedSetting.lanActAsServer.value;
 
   LanComputePlatform get _computePlatform => switch (Platform.operatingSystem) {
     'ios' => LanComputePlatform.ios,

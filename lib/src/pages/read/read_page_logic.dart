@@ -158,7 +158,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   /// Translation overlays are hydrated only for pages in this set. Leaving a
   /// viewport releases terminal in-memory results while the persistent cache
   /// remains available for a later visit or app restart.
-  Set<int> _visibleTranslationIndices = <int>{};
+  final ReaderViewportTracker _translationViewport = ReaderViewportTracker();
 
   /// Session-level parsed results for online galleries, so re-entering the
   /// same gallery reuses already parsed links instead of re-parsing from DB.
@@ -218,7 +218,10 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
               (index) => index >= 0 && index < state.readPageInfo.pageCount,
             )
             .toSet();
-    final Set<int> leaving = _visibleTranslationIndices.difference(nextVisible);
+    final ReaderViewportDelta viewportDelta = _translationViewport.update(
+      nextVisible,
+    );
+    final Set<int> leaving = viewportDelta.leaving;
     for (final int index in leaving) {
       final ImageTranslationRequest? request =
           state.imageTranslationRequests[index];
@@ -226,15 +229,18 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
         imageTranslationService.releaseInMemoryResult(request.cacheKey);
       }
     }
-    _visibleTranslationIndices = nextVisible;
-    for (final int index in nextVisible) {
+    // PageController and scroll-position listeners fire on every animation
+    // frame. Hydrating every still-visible page here repeatedly hits disk and
+    // rebuilds the image layer, which is especially costly on iPhone. Only a
+    // page that actually entered the viewport needs hydration.
+    for (final int index in viewportDelta.entering) {
       unawaited(_hydrateVisibleTranslation(index));
     }
 
     if (performanceSetting.enableReaderEngine2.isFalse) {
       return;
     }
-    readerPipelineScheduler.updateViewport(visibleIndices);
+    readerPipelineScheduler.updateViewport(nextVisible);
     _syncImagePrefetchPlan();
   }
 
@@ -528,7 +534,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
         in state.imageTranslationRequests.values) {
       imageTranslationService.releaseInMemoryResult(request.cacheKey);
     }
-    _visibleTranslationIndices = <int>{};
+    _translationViewport.clear();
 
     _saveSessionCache();
 
@@ -1525,7 +1531,13 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   );
 
   Future<void> toggleCurrentPageBookmark() async {
-    final int pageIndex = state.readPageInfo.currentImageIndex;
+    await togglePageBookmark(state.readPageInfo.currentImageIndex);
+  }
+
+  Future<void> togglePageBookmark(int pageIndex) async {
+    if (pageIndex < 0 || pageIndex >= state.readPageInfo.pageCount) {
+      return;
+    }
     await readerBookmarkService.toggle(
       galleryKey: readerBookmarkGalleryKey,
       pageIndex: pageIndex,
