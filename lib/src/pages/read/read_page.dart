@@ -109,19 +109,16 @@ class _ReadPageState extends State<ReadPage>
             },
             child: DefaultTextStyle(
               style: DefaultTextStyle.of(context).style.copyWith(
-                    color: UIConfig.readPageForeGroundColor,
-                    fontSize: 12,
-                    decoration: TextDecoration.none,
-                  ),
+                color: UIConfig.readPageForeGroundColor,
+                fontSize: 12,
+                decoration: TextDecoration.none,
+              ),
               child: Container(
                 color: Colors.black,
                 child: Stack(
                   children: [
                     EHReadPageStack(
-                      children: [
-                        buildGestureRegion(),
-                        buildLayout(),
-                      ],
+                      children: [buildGestureRegion(), buildLayout()],
                     ),
                     buildRightBottomInfo(context),
                     buildTopMenu(context),
@@ -152,10 +149,10 @@ class _ReadPageState extends State<ReadPage>
     return GetPlatform.isWindows
         ? buildWindowsTitle(child)
         : GetPlatform.isLinux
-            ? buildLinuxTitle(child)
-            : GetPlatform.isMacOS
-                ? buildMaxOSTitle(child)
-                : child;
+        ? buildLinuxTitle(child)
+        : GetPlatform.isMacOS
+        ? buildMaxOSTitle(child)
+        : child;
   }
 
   /// Main region to display images
@@ -166,8 +163,10 @@ class _ReadPageState extends State<ReadPage>
         return LayoutBuilder(
           builder: (context, constraints) {
             logic.clearImageContainerSized();
-            state.displayRegionSize =
-                Size(constraints.maxWidth, constraints.maxHeight);
+            state.displayRegionSize = Size(
+              constraints.maxWidth,
+              constraints.maxHeight,
+            );
 
             if (logic.effectiveReadDirection == ReadDirection.top2bottomList) {
               return VerticalListLayout();
@@ -192,46 +191,49 @@ class _ReadPageState extends State<ReadPage>
     return Positioned(
       bottom: 0,
       right: 0,
-      child: Obx(
-        () {
-          if (readSetting.showStatusInfo.isFalse) {
-            return const SizedBox();
-          }
+      child: Obx(() {
+        if (readSetting.showStatusInfo.isFalse) {
+          return const SizedBox();
+        }
 
-          Widget child = DefaultTextStyle(
-            style: DefaultTextStyle.of(context).style.copyWith(
-                  color: UIConfig.readPageForeGroundColor,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  decoration: TextDecoration.none,
-                ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: UIConfig.readPageRightBottomRegionColor,
-                borderRadius:
-                    const BorderRadius.only(topLeft: Radius.circular(8)),
-              ),
-              alignment: Alignment.center,
-              padding:
-                  const EdgeInsets.only(right: 32, bottom: 1, top: 3, left: 6),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  _buildPageNoInfo().marginOnly(right: 10),
-                  _buildCurrentTime().marginOnly(right: 10),
-                  if (!GetPlatform.isDesktop) _buildBatteryLevel(),
-                ],
+        Widget child = DefaultTextStyle(
+          style: DefaultTextStyle.of(context).style.copyWith(
+            color: UIConfig.readPageForeGroundColor,
+            fontSize: 11,
+            fontWeight: FontWeight.w500,
+            decoration: TextDecoration.none,
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: UIConfig.readPageRightBottomRegionColor,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(8),
               ),
             ),
-          );
+            alignment: Alignment.center,
+            padding: const EdgeInsets.only(
+              right: 32,
+              bottom: 1,
+              top: 3,
+              left: 6,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildPageNoInfo().marginOnly(right: 10),
+                _buildCurrentTime().marginOnly(right: 10),
+                if (!GetPlatform.isDesktop) _buildBatteryLevel(),
+              ],
+            ),
+          ),
+        );
 
-          return GetBuilder<ReadPageLogic>(
-            id: logic.rightBottomInfoId,
-            builder: (_) => state.isMenuOpen ? child.fadeOut() : child.fadeIn(),
-          );
-        },
-      ),
+        return GetBuilder<ReadPageLogic>(
+          id: logic.rightBottomInfoId,
+          builder: (_) => state.isMenuOpen ? child.fadeOut() : child.fadeIn(),
+        );
+      }),
     );
   }
 
@@ -239,7 +241,8 @@ class _ReadPageState extends State<ReadPage>
     return GetBuilder<ReadPageLogic>(
       id: logic.pageNoId,
       builder: (_) => Text(
-          '${state.readPageInfo.currentImageIndex + 1}/${state.readPageInfo.pageCount}'),
+        '${state.readPageInfo.currentImageIndex + 1}/${state.readPageInfo.pageCount}',
+      ),
     );
   }
 
@@ -265,21 +268,28 @@ class _ReadPageState extends State<ReadPage>
         Expanded(
           flex: (100 - readSetting.gestureRegionWidthRatio.value) ~/ 2,
           child: GestureDetector(
-              onTap: logic.tapLeftRegion, behavior: HitTestBehavior.opaque),
+            onTap: logic.tapLeftRegion,
+            behavior: HitTestBehavior.opaque,
+          ),
         ),
 
         /// center region
         Expanded(
           flex: readSetting.gestureRegionWidthRatio.value,
           child: GestureDetector(
-              onTap: logic.tapCenterRegion, behavior: HitTestBehavior.opaque),
+            onTap: logic.tapCenterRegion,
+            behavior: HitTestBehavior.opaque,
+          ),
         ),
 
         /// right region: toRight
         Expanded(
-            flex: (100 - readSetting.gestureRegionWidthRatio.value) ~/ 2,
-            child: GestureDetector(
-                onTap: logic.tapRightRegion, behavior: HitTestBehavior.opaque)),
+          flex: (100 - readSetting.gestureRegionWidthRatio.value) ~/ 2,
+          child: GestureDetector(
+            onTap: logic.tapRightRegion,
+            behavior: HitTestBehavior.opaque,
+          ),
+        ),
       ],
     );
   }
@@ -303,8 +313,10 @@ class _ReadPageState extends State<ReadPage>
           width: fullScreenWidth,
           child: AppBar(
             backgroundColor: UIConfig.readPageMenuColor,
-            title: Text(state.readPageInfo.galleryTitle,
-                style: const TextStyle(color: UIConfig.readPageButtonColor)),
+            title: Text(
+              state.readPageInfo.galleryTitle,
+              style: const TextStyle(color: UIConfig.readPageButtonColor),
+            ),
             // The AppBar forces the leading slot to exactly `leadingWidth`
             // (56 by default), so on macOS widen it and inset the back button
             // to clear the traffic-light window buttons.
@@ -314,7 +326,8 @@ class _ReadPageState extends State<ReadPage>
             leading: GetPlatform.isMacOS && ThemeConfig.isApple
                 ? const Padding(
                     padding: EdgeInsets.only(
-                        left: UIConfig.desktopMacOSTrafficLightLeftInset),
+                      left: UIConfig.desktopMacOSTrafficLightLeftInset,
+                    ),
                     child: BackButton(color: UIConfig.readPageButtonColor),
                   )
                 : const BackButton(color: UIConfig.readPageButtonColor),
@@ -326,7 +339,8 @@ class _ReadPageState extends State<ReadPage>
                   state.readPageInfo.useSuperResolution)
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: UIConfig.readPageTopMenuActionHPadding),
+                    horizontal: UIConfig.readPageTopMenuActionHPadding,
+                  ),
                   child: EHAppleTextButton(
                     child: GetBuilder<SuperResolutionService>(
                       id: '${SuperResolutionService.superResolutionId}::${state.readPageInfo.gid}',
@@ -352,7 +366,8 @@ class _ReadPageState extends State<ReadPage>
                 }
                 return Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: UIConfig.readPageTopMenuActionHPadding),
+                    horizontal: UIConfig.readPageTopMenuActionHPadding,
+                  ),
                   child: EHAppleElevatedButton(
                     child: Icon(
                       Icons.looks_one,
@@ -378,13 +393,16 @@ class _ReadPageState extends State<ReadPage>
                 id: logic.autoModeId,
                 builder: (_) => Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: UIConfig.readPageTopMenuActionHPadding),
+                    horizontal: UIConfig.readPageTopMenuActionHPadding,
+                  ),
                   child: EHAppleElevatedButton(
-                    child: Icon(Icons.schedule,
-                        size: 24,
-                        color: state.autoMode
-                            ? UIConfig.readPageActiveButtonColor(context)
-                            : UIConfig.readPageButtonColor),
+                    child: Icon(
+                      Icons.schedule,
+                      size: 24,
+                      color: state.autoMode
+                          ? UIConfig.readPageActiveButtonColor(context)
+                          : UIConfig.readPageButtonColor,
+                    ),
                     onPressed: logic.toggleAutoMode,
                     style: ElevatedButton.styleFrom(
                       elevation: 0,
@@ -403,76 +421,88 @@ class _ReadPageState extends State<ReadPage>
                   final bool overlayVisible = state.showImageTranslationOverlay;
                   return Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: UIConfig.readPageTopMenuActionHPadding),
+                      horizontal: UIConfig.readPageTopMenuActionHPadding,
+                    ),
                     child: Tooltip(
                       message: 'imageTextTranslation'.tr,
                       child: ThemeConfig.isApple
                           ? EHGlassMenu(
                               triggerBuilder: (context, toggle) =>
                                   EHAppleElevatedButton(
-                                key: _imageTranslationMenuKey,
-                                child: const Icon(Icons.translate,
-                                    size: 24,
-                                    color: UIConfig.readPageButtonColor),
-                                // GlassMenu's own gesture opens the menu.
-                                onPressed: toggle,
-                                style: ElevatedButton.styleFrom(
-                                  elevation: 0,
-                                  padding: const EdgeInsets.all(0),
-                                  surfaceTintColor: Colors.transparent,
-                                  backgroundColor: Colors.transparent,
-                                  shadowColor: Colors.transparent,
-                                  minimumSize: const Size(40, 40),
-                                ),
-                              ),
+                                    key: _imageTranslationMenuKey,
+                                    child: const Icon(
+                                      Icons.translate,
+                                      size: 24,
+                                      color: UIConfig.readPageButtonColor,
+                                    ),
+                                    // GlassMenu's own gesture opens the menu.
+                                    onPressed: toggle,
+                                    style: ElevatedButton.styleFrom(
+                                      elevation: 0,
+                                      padding: const EdgeInsets.all(0),
+                                      surfaceTintColor: Colors.transparent,
+                                      backgroundColor: Colors.transparent,
+                                      shadowColor: Colors.transparent,
+                                      minimumSize: const Size(40, 40),
+                                    ),
+                                  ),
                               items: [
                                 GlassMenuItem(
                                   title: 'imageTranslationStart'.tr,
                                   icon: const Icon(Icons.play_arrow),
                                   onTap: () =>
                                       _handleImageTranslationMenuAction(
-                                          context,
-                                          _ImageTranslationMenuAction.start),
+                                        context,
+                                        _ImageTranslationMenuAction.start,
+                                      ),
                                 ),
                                 GlassMenuItem(
                                   title: 'imageTranslationRetranslate'.tr,
                                   icon: const Icon(Icons.refresh),
                                   onTap: () =>
                                       _handleImageTranslationMenuAction(
-                                          context,
-                                          _ImageTranslationMenuAction
-                                              .retranslate),
+                                        context,
+                                        _ImageTranslationMenuAction.retranslate,
+                                      ),
                                 ),
                                 GlassMenuItem(
                                   title: 'imageTranslationSettings'.tr,
                                   icon: const Icon(Icons.settings),
                                   onTap: () =>
                                       _handleImageTranslationMenuAction(
-                                          context,
-                                          _ImageTranslationMenuAction.settings),
+                                        context,
+                                        _ImageTranslationMenuAction.settings,
+                                      ),
                                 ),
                                 GlassMenuItem(
-                                  title: (overlayVisible
-                                          ? 'imageTranslationHide'
-                                          : 'imageTranslationShow')
-                                      .tr,
-                                  icon: Icon(overlayVisible
-                                      ? Icons.visibility_off
-                                      : Icons.visibility),
+                                  title:
+                                      (overlayVisible
+                                              ? 'imageTranslationHide'
+                                              : 'imageTranslationShow')
+                                          .tr,
+                                  icon: Icon(
+                                    overlayVisible
+                                        ? Icons.visibility_off
+                                        : Icons.visibility,
+                                  ),
                                   onTap: () =>
                                       _handleImageTranslationMenuAction(
-                                          context,
-                                          _ImageTranslationMenuAction
-                                              .toggleOverlay),
+                                        context,
+                                        _ImageTranslationMenuAction
+                                            .toggleOverlay,
+                                      ),
                                 ),
                               ],
                             )
                           : EHAppleElevatedButton(
                               key: _imageTranslationMenuKey,
-                              child: const Icon(Icons.translate,
-                                  size: 24,
-                                  color: UIConfig.readPageButtonColor),
-                              onPressed: () => _showImageTranslationMenu(context),
+                              child: const Icon(
+                                Icons.translate,
+                                size: 24,
+                                color: UIConfig.readPageButtonColor,
+                              ),
+                              onPressed: () =>
+                                  _showImageTranslationMenu(context),
                               style: ElevatedButton.styleFrom(
                                 elevation: 0,
                                 padding: const EdgeInsets.all(0),
@@ -489,10 +519,14 @@ class _ReadPageState extends State<ReadPage>
               if (readSetting.enableBottomMenu.isFalse)
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: UIConfig.readPageTopMenuActionHPadding),
+                    horizontal: UIConfig.readPageTopMenuActionHPadding,
+                  ),
                   child: EHAppleElevatedButton(
-                    child: const Icon(Icons.settings,
-                        size: 24, color: UIConfig.readPageButtonColor),
+                    child: const Icon(
+                      Icons.settings,
+                      size: 24,
+                      color: UIConfig.readPageButtonColor,
+                    ),
                     onPressed: () => logic.openReadSetting(context),
                     style: ElevatedButton.styleFrom(
                       elevation: 0,
@@ -528,33 +562,37 @@ class _ReadPageState extends State<ReadPage>
 
     final _ImageTranslationMenuAction? selected =
         await showMenu<_ImageTranslationMenuAction>(
-      context: context,
-      useRootNavigator: true,
-      position: RelativeRect.fromRect(
-          buttonRect, Offset.zero & MediaQuery.sizeOf(context)),
-      items: [
-        _translationMenuItem(
-          _ImageTranslationMenuAction.start,
-          Icons.play_arrow,
-          'imageTranslationStart'.tr,
-        ),
-        _translationMenuItem(
-          _ImageTranslationMenuAction.retranslate,
-          Icons.refresh,
-          'imageTranslationRetranslate'.tr,
-        ),
-        _translationMenuItem(
-          _ImageTranslationMenuAction.settings,
-          Icons.settings,
-          'imageTranslationSettings'.tr,
-        ),
-        _translationMenuItem(
-          _ImageTranslationMenuAction.toggleOverlay,
-          overlayVisible ? Icons.visibility_off : Icons.visibility,
-          overlayVisible ? 'imageTranslationHide'.tr : 'imageTranslationShow'.tr,
-        ),
-      ],
-    );
+          context: context,
+          useRootNavigator: true,
+          position: RelativeRect.fromRect(
+            buttonRect,
+            Offset.zero & MediaQuery.sizeOf(context),
+          ),
+          items: [
+            _translationMenuItem(
+              _ImageTranslationMenuAction.start,
+              Icons.play_arrow,
+              'imageTranslationStart'.tr,
+            ),
+            _translationMenuItem(
+              _ImageTranslationMenuAction.retranslate,
+              Icons.refresh,
+              'imageTranslationRetranslate'.tr,
+            ),
+            _translationMenuItem(
+              _ImageTranslationMenuAction.settings,
+              Icons.settings,
+              'imageTranslationSettings'.tr,
+            ),
+            _translationMenuItem(
+              _ImageTranslationMenuAction.toggleOverlay,
+              overlayVisible ? Icons.visibility_off : Icons.visibility,
+              overlayVisible
+                  ? 'imageTranslationHide'.tr
+                  : 'imageTranslationShow'.tr,
+            ),
+          ],
+        );
     if (selected == null) {
       return;
     }
@@ -562,7 +600,9 @@ class _ReadPageState extends State<ReadPage>
   }
 
   void _handleImageTranslationMenuAction(
-      BuildContext context, _ImageTranslationMenuAction action) {
+    BuildContext context,
+    _ImageTranslationMenuAction action,
+  ) {
     switch (action) {
       case _ImageTranslationMenuAction.start:
         logic.startImageTranslation(context);
@@ -580,7 +620,10 @@ class _ReadPageState extends State<ReadPage>
   }
 
   PopupMenuItem<_ImageTranslationMenuAction> _translationMenuItem(
-      _ImageTranslationMenuAction action, IconData icon, String label) {
+    _ImageTranslationMenuAction action,
+    IconData icon,
+    String label,
+  ) {
     return PopupMenuItem(
       value: action,
       child: Row(
@@ -610,26 +653,34 @@ class _ReadPageState extends State<ReadPage>
               color: Colors.black87,
               borderRadius: BorderRadius.circular(18),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     SizedBox(
-                        width: 12,
-                        height: 12,
-                        child: ThemeConfig.isApple
-                            ? GlassProgressIndicator.circular(
-                                strokeWidth: 2, color: Colors.white)
-                            : const CircularProgressIndicator(
-                                strokeWidth: 2, color: Colors.white)),
+                      width: 12,
+                      height: 12,
+                      child: ThemeConfig.isApple
+                          ? GlassProgressIndicator.circular(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            )
+                          : const CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                    ),
                     const SizedBox(width: 8),
                     Text(
                       'translationProgress'.trParams({
                         'current': '${imageTranslationService.batchCompleted}',
                         'total': '${imageTranslationService.batchTotal}',
                         'stage': _translationStageLabel(
-                            imageTranslationService.currentStage),
+                          imageTranslationService.currentStage,
+                        ),
                       }),
                       style: const TextStyle(color: Colors.white, fontSize: 12),
                     ),
@@ -656,6 +707,8 @@ class _ReadPageState extends State<ReadPage>
     switch (stage) {
       case ImageTranslationStage.idle:
         return 'translationStageIdle'.tr;
+      case ImageTranslationStage.downloading:
+        return 'translationStageIdle'.tr;
       case ImageTranslationStage.recognizing:
         return 'translationStageRecognizing'.tr;
       case ImageTranslationStage.translating:
@@ -680,14 +733,16 @@ class _ReadPageState extends State<ReadPage>
           bottom: state.isMenuOpen
               ? 0
               : (readSetting.showThumbnails.isTrue
-                      ? -UIConfig.readPageBottomThumbnailsRegionHeight
-                      : 0) -
-                  UIConfig.readPageBottomSliderHeight -
-                  (readSetting.enableBottomMenu.isTrue
-                      ? UIConfig.readPageBottomActionHeight
-                      : 0) -
-                  max(MediaQuery.of(context).viewPadding.bottom,
-                      UIConfig.readPageBottomSpacingHeight),
+                        ? -UIConfig.readPageBottomThumbnailsRegionHeight
+                        : 0) -
+                    UIConfig.readPageBottomSliderHeight -
+                    (readSetting.enableBottomMenu.isTrue
+                        ? UIConfig.readPageBottomActionHeight
+                        : 0) -
+                    max(
+                      MediaQuery.of(context).viewPadding.bottom,
+                      UIConfig.readPageBottomSpacingHeight,
+                    ),
           child: ColoredBox(
             color: UIConfig.readPageMenuColor,
             child: Column(
@@ -695,13 +750,17 @@ class _ReadPageState extends State<ReadPage>
               children: [
                 if (readSetting.showThumbnails.isTrue)
                   Offstage(
-                      offstage: !state.isMenuOpen,
-                      child: _buildThumbnails(context)),
+                    offstage: !state.isMenuOpen,
+                    child: _buildThumbnails(context),
+                  ),
                 _buildSlider(),
                 if (readSetting.enableBottomMenu.isTrue) _buildBottomAction(),
                 SizedBox(
-                    height: max(MediaQuery.of(context).viewPadding.bottom,
-                        UIConfig.readPageBottomSpacingHeight)),
+                  height: max(
+                    MediaQuery.of(context).viewPadding.bottom,
+                    UIConfig.readPageBottomSpacingHeight,
+                  ),
+                ),
               ],
             ),
           ),
@@ -752,9 +811,9 @@ class _ReadPageState extends State<ReadPage>
                         width: 24,
                         decoration: BoxDecoration(
                           color: state.readPageInfo.currentImageIndex == index
-                              ? UIConfig
-                                  .readPageBottomCurrentImageHighlightBackgroundColor(
-                                      context)
+                              ? UIConfig.readPageBottomCurrentImageHighlightBackgroundColor(
+                                  context,
+                                )
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(4),
                         ),
@@ -764,9 +823,9 @@ class _ReadPageState extends State<ReadPage>
                           style: TextStyle(
                             fontSize: 9,
                             color: state.readPageInfo.currentImageIndex == index
-                                ? UIConfig
-                                    .readPageBottomCurrentImageHighlightForegroundColor(
-                                        context)
+                                ? UIConfig.readPageBottomCurrentImageHighlightForegroundColor(
+                                    context,
+                                  )
                                 : null,
                           ),
                         ),
@@ -838,10 +897,11 @@ class _ReadPageState extends State<ReadPage>
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(logic.isInRight2LeftDirection
-                    ? state.readPageInfo.pageCount.toString()
-                    : (state.readPageInfo.currentImageIndex + 1).toString())
-                .marginOnly(left: 36, right: 4),
+            Text(
+              logic.isInRight2LeftDirection
+                  ? state.readPageInfo.pageCount.toString()
+                  : (state.readPageInfo.currentImageIndex + 1).toString(),
+            ).marginOnly(left: 36, right: 4),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -865,10 +925,11 @@ class _ReadPageState extends State<ReadPage>
                 ],
               ),
             ),
-            Text(logic.isInRight2LeftDirection
-                    ? (state.readPageInfo.currentImageIndex + 1).toString()
-                    : state.readPageInfo.pageCount.toString())
-                .marginOnly(right: 36, left: 4),
+            Text(
+              logic.isInRight2LeftDirection
+                  ? (state.readPageInfo.currentImageIndex + 1).toString()
+                  : state.readPageInfo.pageCount.toString(),
+            ).marginOnly(right: 36, left: 4),
           ],
         ),
       ),
@@ -886,8 +947,10 @@ class _ReadPageState extends State<ReadPage>
         children: [
           ThemeConfig.isApple
               ? EHGlassMenu(
-                  trigger: const Icon(Icons.height,
-                      color: UIConfig.readPageButtonColor),
+                  trigger: const Icon(
+                    Icons.height,
+                    color: UIConfig.readPageButtonColor,
+                  ),
                   items: [
                     for (final e in ReadDirection.values)
                       GlassMenuItem(
@@ -900,12 +963,16 @@ class _ReadPageState extends State<ReadPage>
                   color: Colors.transparent,
                   child: PopupMenuButton<ReadDirection>(
                     initialValue: effectiveDirection,
-                    icon: const Icon(Icons.height,
-                        color: UIConfig.readPageButtonColor),
+                    icon: const Icon(
+                      Icons.height,
+                      color: UIConfig.readPageButtonColor,
+                    ),
                     itemBuilder: (_) => ReadDirection.values
                         .map(
                           (e) => PopupMenuItem<ReadDirection>(
-                              child: Text(e.name.tr), value: e),
+                            child: Text(e.name.tr),
+                            value: e,
+                          ),
                         )
                         .toList(),
                     onSelected: (ReadDirection value) =>
@@ -914,8 +981,10 @@ class _ReadPageState extends State<ReadPage>
                 ),
           ThemeConfig.isApple
               ? EHGlassMenu(
-                  trigger: const Icon(Icons.screen_rotation,
-                      color: UIConfig.readPageButtonColor),
+                  trigger: const Icon(
+                    Icons.screen_rotation,
+                    color: UIConfig.readPageButtonColor,
+                  ),
                   items: [
                     for (final e in DeviceDirection.values)
                       GlassMenuItem(
@@ -931,12 +1000,16 @@ class _ReadPageState extends State<ReadPage>
                   color: Colors.transparent,
                   child: PopupMenuButton<DeviceDirection>(
                     initialValue: readSetting.deviceDirection.value,
-                    icon: const Icon(Icons.screen_rotation,
-                        color: UIConfig.readPageButtonColor),
+                    icon: const Icon(
+                      Icons.screen_rotation,
+                      color: UIConfig.readPageButtonColor,
+                    ),
                     itemBuilder: (_) => DeviceDirection.values
                         .map(
                           (e) => PopupMenuItem<DeviceDirection>(
-                              child: Text(e.name.tr), value: e),
+                            child: Text(e.name.tr),
+                            value: e,
+                          ),
                         )
                         .toList(),
                     onSelected: (DeviceDirection value) {
@@ -949,15 +1022,19 @@ class _ReadPageState extends State<ReadPage>
             child: AbsorbPointer(
               child: ThemeConfig.isApple
                   ? EHGlassMenu(
-                      trigger: const Icon(Icons.settings,
-                          color: UIConfig.readPageButtonColor),
+                      trigger: const Icon(
+                        Icons.settings,
+                        color: UIConfig.readPageButtonColor,
+                      ),
                       items: [],
                     )
                   : Material(
                       color: Colors.transparent,
                       child: PopupMenuButton(
-                        icon: const Icon(Icons.settings,
-                            color: UIConfig.readPageButtonColor),
+                        icon: const Icon(
+                          Icons.settings,
+                          color: UIConfig.readPageButtonColor,
+                        ),
                         itemBuilder: (_) => [],
                       ),
                     ),

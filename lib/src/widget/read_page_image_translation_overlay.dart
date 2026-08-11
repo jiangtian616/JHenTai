@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -15,22 +16,34 @@ import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 /// progress / error chip while the task is running.
 class ReadPageImageTranslationOverlay extends StatelessWidget {
   final ImageTranslationRequest request;
+  final Future<void> Function()? onRetry;
 
-  const ReadPageImageTranslationOverlay({super.key, required this.request});
+  const ReadPageImageTranslationOverlay({
+    super.key,
+    required this.request,
+    this.onRetry,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ImageTranslationService>(
       id: imageTranslationService.taskId(request.cacheKey),
       builder: (_) {
-        final ImageTranslationResult result =
-            imageTranslationService.resultFor(request.cacheKey);
+        final ImageTranslationResult result = imageTranslationService.resultFor(
+          request.cacheKey,
+        );
         switch (result.status) {
           case ImageTranslationStatus.idle:
             return const SizedBox.shrink();
+          case ImageTranslationStatus.queued:
+          case ImageTranslationStatus.downloading:
           case ImageTranslationStatus.recognizing:
           case ImageTranslationStatus.translating:
             return _buildStatusChip(context, result);
+          case ImageTranslationStatus.downloadError:
+          case ImageTranslationStatus.ocrError:
+          case ImageTranslationStatus.noText:
+          case ImageTranslationStatus.canceled:
           case ImageTranslationStatus.failed:
             return _buildFailureChip(context, result);
           case ImageTranslationStatus.success:
@@ -41,9 +54,19 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
   }
 
   Widget _buildStatusChip(BuildContext context, ImageTranslationResult result) {
-    final String label = result.status == ImageTranslationStatus.recognizing
-        ? 'recognizingImageText'.tr
-        : 'translatingImageText'.tr;
+    final String label;
+    switch (result.status) {
+      case ImageTranslationStatus.queued:
+        label = 'loading'.tr;
+      case ImageTranslationStatus.downloading:
+        label = 'downloading'.tr;
+      case ImageTranslationStatus.recognizing:
+        label = 'recognizingImageText'.tr;
+      case ImageTranslationStatus.translating:
+        label = 'translatingImageText'.tr;
+      default:
+        label = 'loading'.tr;
+    }
     return Stack(
       alignment: Alignment.topCenter,
       children: [
@@ -58,17 +81,23 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   SizedBox(
-                      width: 12,
-                      height: 12,
-                      child: ThemeConfig.isApple
-                          ? GlassProgressIndicator.circular(
-                              strokeWidth: 2, color: Colors.white)
-                          : const CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white)),
+                    width: 12,
+                    height: 12,
+                    child: ThemeConfig.isApple
+                        ? GlassProgressIndicator.circular(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          )
+                        : const CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                  ),
                   const SizedBox(width: 8),
-                  Text(label,
-                      style:
-                          const TextStyle(color: Colors.white, fontSize: 12)),
+                  Text(
+                    label,
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                  ),
                   const SizedBox(width: 4),
                   InkWell(
                     onTap: imageTranslationService.cancelBatch,
@@ -88,7 +117,9 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
   }
 
   Widget _buildFailureChip(
-      BuildContext context, ImageTranslationResult result) {
+    BuildContext context,
+    ImageTranslationResult result,
+  ) {
     return Stack(
       alignment: Alignment.topCenter,
       children: [
@@ -98,13 +129,20 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
             color: Colors.black87,
             borderRadius: BorderRadius.circular(16),
             child: Padding(
-              padding:
-                  const EdgeInsets.only(left: 12, right: 4, top: 2, bottom: 2),
+              padding: const EdgeInsets.only(
+                left: 12,
+                right: 4,
+                top: 2,
+                bottom: 2,
+              ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.error_outline,
-                      color: Colors.orangeAccent, size: 16),
+                  const Icon(
+                    Icons.error_outline,
+                    color: Colors.orangeAccent,
+                    size: 16,
+                  ),
                   const SizedBox(width: 6),
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 260),
@@ -116,10 +154,20 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
                     ),
                   ),
                   EHAppleIconButton(
-                    onPressed: () =>
-                        imageTranslationService.translate(request, force: true),
-                    icon: const Icon(Icons.refresh,
-                        color: Colors.white, size: 18),
+                    onPressed: () {
+                      unawaited(
+                        onRetry?.call() ??
+                            imageTranslationService.translate(
+                              request,
+                              force: true,
+                            ),
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.refresh,
+                      color: Colors.white,
+                      size: 18,
+                    ),
                     tooltip: 'retry'.tr,
                     visualDensity: VisualDensity.compact,
                   ),
@@ -145,7 +193,9 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
             builder: (context, constraints) => CustomPaint(
               size: constraints.biggest,
               painter: _ImageTranslationOverlayPainter(
-                  result: result, textDirection: Directionality.of(context)),
+                result: result,
+                textDirection: Directionality.of(context),
+              ),
             ),
           ),
         ),
@@ -158,19 +208,29 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               child: InkWell(
                 borderRadius: BorderRadius.circular(16),
-                onTap: () =>
-                    imageTranslationService.translate(request, force: true),
+                onTap: () {
+                  unawaited(
+                    onRetry?.call() ??
+                        imageTranslationService.translate(request, force: true),
+                  );
+                },
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Icon(Icons.refresh, color: Colors.white, size: 14),
                       const SizedBox(width: 5),
-                      Text('imageTranslationCachedRetranslate'.tr,
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 12)),
+                      Text(
+                        'imageTranslationCachedRetranslate'.tr,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -183,6 +243,10 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
 
   String _errorMessage(ImageTranslationResult result) {
     switch (result.errorMessage) {
+      case 'IMAGE_DOWNLOAD_TIMEOUT':
+        return 'imageTranslationSourceUnavailable'.tr;
+      case 'IMAGE_SOURCE_UNAVAILABLE':
+        return 'imageTranslationSourceUnavailable'.tr;
       case 'TRANSLATOR_NOT_CONFIGURED':
         return 'imageTranslationConfigureHint'.tr;
       case 'OCR_UNSUPPORTED_PLATFORM':
@@ -195,6 +259,9 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
         return 'imageTranslationOcrFailed'.tr;
       case 'OCR_CANCELLED':
         return 'imageTranslationCancelled'.tr;
+      case 'OCR_TIMEOUT':
+      case 'OCR_WORKER_TIMEOUT':
+        return 'imageTranslationOcrFailed'.tr;
       case 'NO_TEXT':
         return 'imageTranslationNoText'.tr;
       case 'TRANSLATION_REQUEST_FAILED':
@@ -210,6 +277,10 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
             .tr;
       case 'TRANSLATION_FAILED':
         return 'imageTranslationTranslationFailed'.tr;
+      case 'TRANSLATION_TIMEOUT':
+        return 'imageTranslationTranslationFailed'.tr;
+      case 'TRANSLATION_TASK_FAILED':
+        return 'imageTranslationFailed'.tr;
       default:
         return 'imageTranslationFailed'.tr;
     }
@@ -238,8 +309,10 @@ class _ImageTranslationOverlayPainter extends CustomPainter {
 
     final double scaleX = size.width / imageWidth;
     final double scaleY = size.height / imageHeight;
-    final List<String> translations =
-        result.translatedText.split('\n').map((line) => line.trim()).toList();
+    final List<String> translations = result.translatedText
+        .split('\n')
+        .map((line) => line.trim())
+        .toList();
 
     // Adjacent lines of the same speech bubble (a group) share ONE background
     // pill AND one font size, so a merged bubble reads as a coherent block
@@ -248,14 +321,16 @@ class _ImageTranslationOverlayPainter extends CustomPainter {
     // earlier line's wrapped text overflow; text stays per-line inside.
     final List<(Rect, String, double)> entries = <(Rect, String, double)>[];
     final List<Rect> mergedBackgrounds = <Rect>[];
-    for (final RecognizedTextGroup group
-        in groupRecognizedTextBlocks(result.blocks)) {
+    for (final RecognizedTextGroup group in groupRecognizedTextBlocks(
+      result.blocks,
+    )) {
       Rect? merged;
       final List<(Rect, String)> groupEntries = <(Rect, String)>[];
       double groupFont = double.infinity;
       for (final int index in group.blockIndices) {
-        final String translation =
-            index < translations.length ? translations[index] : '';
+        final String translation = index < translations.length
+            ? translations[index]
+            : '';
         if (translation.trim().isEmpty) {
           continue;
         }

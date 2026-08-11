@@ -15,6 +15,7 @@ import 'package:jhentai/src/exception/eh_parse_exception.dart';
 import 'package:jhentai/src/exception/eh_site_exception.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
+import 'package:jhentai/src/model/image_translation.dart';
 import 'package:jhentai/src/pages/read/layout/base/base_layout_logic.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_double_column/horizontal_double_column_layout_logic.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_list/horizontal_list_layout_logic.dart';
@@ -83,12 +84,12 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
 
   BaseLayoutLogic get layoutLogic =>
       effectiveReadDirection == ReadDirection.top2bottomList
-          ? Get.find<VerticalListLayoutLogic>()
-          : isInListReadDirection
-          ? Get.find<HorizontalListLayoutLogic>()
-          : isInDoubleColumnReadDirection
-          ? Get.find<HorizontalDoubleColumnLayoutLogic>()
-          : Get.find<HorizontalPageLayoutLogic>();
+      ? Get.find<VerticalListLayoutLogic>()
+      : isInListReadDirection
+      ? Get.find<HorizontalListLayoutLogic>()
+      : isInDoubleColumnReadDirection
+      ? Get.find<HorizontalDoubleColumnLayoutLogic>()
+      : Get.find<HorizontalPageLayoutLogic>();
 
   late Timer refreshCurrentTimeAndBatteryLevelTimer;
   late Timer flushReadProgressTimer;
@@ -140,6 +141,11 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   /// progress event and cancelled as soon as the image completes or reloads.
   final Map<int, Timer> _onlineImageProgressWatchdogs = <int, Timer>{};
 
+  /// Translation overlays are hydrated only for pages in this set. Leaving a
+  /// viewport releases terminal in-memory results while the persistent cache
+  /// remains available for a later visit or app restart.
+  Set<int> _visibleTranslationIndices = <int>{};
+
   /// Session-level parsed results for online galleries, so re-entering the
   /// same gallery reuses already parsed links instead of re-parsing from DB.
   static const int maxSessionCachedGalleries = 20;
@@ -189,11 +195,38 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   }
 
   void updateReaderViewport(Iterable<int> visibleIndices) {
+    final Set<int> nextVisible = visibleIndices
+        .where((index) => index >= 0 && index < state.readPageInfo.pageCount)
+        .toSet();
+    final Set<int> leaving = _visibleTranslationIndices.difference(nextVisible);
+    for (final int index in leaving) {
+      final ImageTranslationRequest? request =
+          state.imageTranslationRequests[index];
+      if (request != null) {
+        imageTranslationService.releaseInMemoryResult(request.cacheKey);
+      }
+    }
+    _visibleTranslationIndices = nextVisible;
+    for (final int index in nextVisible) {
+      unawaited(_hydrateVisibleTranslation(index));
+    }
+
     if (performanceSetting.enableReaderEngine2.isFalse) {
       return;
     }
     readerPipelineScheduler.updateViewport(visibleIndices);
     _syncImagePrefetchPlan();
+  }
+
+  Future<void> _hydrateVisibleTranslation(int index) async {
+    try {
+      await layoutLogic.hydrateTranslation(index);
+    } catch (e, stack) {
+      // Hydration is opportunistic. A missing image file must not interrupt
+      // the reader or make an OCR/translation task appear completed.
+      log.warning('Failed to hydrate translation for page $index: $e');
+      log.trace(stack);
+    }
   }
 
   void _applyReaderPerformancePolicy(ReaderPerformancePolicy policy) {
@@ -470,6 +503,11 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     // Leaving the gallery must stop any in-flight translation batch so the
     // OCR/API work is not carried on in the background.
     imageTranslationService.cancelBatch();
+    for (final ImageTranslationRequest request
+        in state.imageTranslationRequests.values) {
+      imageTranslationService.releaseInMemoryResult(request.cacheKey);
+    }
+    _visibleTranslationIndices = <int>{};
 
     _saveSessionCache();
 
@@ -692,11 +730,8 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
         ),
         maxAttempts: 3,
         retryIf: (e) => e is DioException,
-        onRetry:
-            (e) => log.error(
-              'Get thumbnails error!',
-              (e as DioException).errorMsg,
-            ),
+        onRetry: (e) =>
+            log.error('Get thumbnails error!', (e as DioException).errorMsg),
       );
     } on DioException catch (_) {
       _markHrefPageError(requestPageIndex, 'parsePageFailed'.tr);
@@ -888,11 +923,10 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
         ),
         maxAttempts: 3,
         retryIf: (e) => e is DioException,
-        onRetry:
-            (e) => log.error(
-              'Parse gallery image failed, index: ${index.toString()}',
-              (e as DioException).errorMsg,
-            ),
+        onRetry: (e) => log.error(
+          'Parse gallery image failed, index: ${index.toString()}',
+          (e as DioException).errorMsg,
+        ),
       );
     } on DioException catch (_) {
       state.parseImageUrlStates[index] = LoadingState.error;
@@ -1192,10 +1226,9 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
 
     _lastIsPortrait = isPortrait;
 
-    final ReadDirection targetDirection =
-        isPortrait
-            ? readSetting.portraitReadDirection.value
-            : readSetting.landscapeReadDirection.value;
+    final ReadDirection targetDirection = isPortrait
+        ? readSetting.portraitReadDirection.value
+        : readSetting.landscapeReadDirection.value;
     final String directionName = targetDirection.name.tr;
     final String orientationKey = isPortrait ? 'portrait' : 'landscape';
     toast(
@@ -1450,10 +1483,9 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
 
   String getSuperResolutionProgress() {
     int gid = state.readPageInfo.gid!;
-    SuperResolutionType type =
-        state.readPageInfo.mode == ReadMode.downloaded
-            ? SuperResolutionType.gallery
-            : SuperResolutionType.archive;
+    SuperResolutionType type = state.readPageInfo.mode == ReadMode.downloaded
+        ? SuperResolutionType.gallery
+        : SuperResolutionType.archive;
     SuperResolutionInfo? superResolutionInfo = superResolutionService.get(
       gid,
       type,
@@ -1483,13 +1515,11 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   /// for some reason like slow loading of some image, [ItemPositions] may be not in index order, and even some of
   /// them are not in viewport
   List<ItemPosition> filterAndSortItems(Iterable<ItemPosition> positions) {
-    positions =
-        positions
-            .where(
-              (item) =>
-                  !(item.itemTrailingEdge < 0 || item.itemLeadingEdge > 1),
-            )
-            .toList();
+    positions = positions
+        .where(
+          (item) => !(item.itemTrailingEdge < 0 || item.itemLeadingEdge > 1),
+        )
+        .toList();
     (positions as List<ItemPosition>).sort((a, b) => a.index - b.index);
     return positions;
   }
@@ -1581,13 +1611,12 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
         context: context,
         isScrollControlled: true,
         useSafeArea: true,
-        builder:
-            (sheetContext) => FractionallySizedBox(
-              heightFactor: 0.92,
-              child: ImageTranslationConfigSheet(
-                onTranslateCurrentImage: () => _translateCurrentImage(context),
-              ),
-            ),
+        builder: (sheetContext) => FractionallySizedBox(
+          heightFactor: 0.92,
+          child: ImageTranslationConfigSheet(
+            onTranslateCurrentImage: () => _translateCurrentImage(context),
+          ),
+        ),
       );
     }
     applyCurrentImmersiveMode();
@@ -1617,18 +1646,15 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
               return _buildDrawerRoute(
                 settings: settings,
                 useCupertino: preferenceSetting.enableSwipeBackGesture.isTrue,
-                builder:
-                    (_) => ImageTranslationConfigSheet(
-                      onTranslateCurrentImage: () {
-                        Navigator.of(dialogContext).pop();
-                        _translateCurrentImage(context);
-                      },
-                      onClose: () => Navigator.of(dialogContext).pop(),
-                      onOpenAdvancedSettings:
-                          () => configNavigatorKey.currentState?.pushNamed(
-                            '/advanced',
-                          ),
-                    ),
+                builder: (_) => ImageTranslationConfigSheet(
+                  onTranslateCurrentImage: () {
+                    Navigator.of(dialogContext).pop();
+                    _translateCurrentImage(context);
+                  },
+                  onClose: () => Navigator.of(dialogContext).pop(),
+                  onOpenAdvancedSettings: () =>
+                      configNavigatorKey.currentState?.pushNamed('/advanced'),
+                ),
               );
             }
             if (settings.name == '/advanced') {
@@ -1665,66 +1691,82 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     final int startIndex = state.readPageInfo.currentImageIndex;
     final bool translateSubsequent =
         imageTranslationSetting.translateSubsequentPages.value;
-    final int total =
-        translateSubsequent ? state.readPageInfo.pageCount - startIndex : 1;
-    final int generation = imageTranslationService.beginBatch(total);
+    final List<int> order = translateSubsequent
+        ? await _buildTranslationOrder(startIndex)
+        : [startIndex];
+    final int generation = imageTranslationService.beginBatch(order.length);
     try {
-      final List<int> order = translateSubsequent
-          ? await _buildTranslationOrder(startIndex)
-          : [startIndex];
-      int completed = 0;
-
-      // Pipeline: OCR of the next page runs while the current page's
-      // translation is in flight, so OCR and translation overlap instead of
-      // serializing per page.
-      Future<void>? prevTranslate;
-      for (final int index in order) {
+      for (
+        int orderPosition = 0;
+        orderPosition < order.length;
+        orderPosition++
+      ) {
+        final int index = order[orderPosition];
         if (imageTranslationService.isCancelRequested) {
+          _cancelRemainingBatchPages(order, orderPosition, generation);
           break;
         }
-        // Kick off this page's OCR immediately — it overlaps the previous
-        // page's translation. Errors are swallowed per page so a single bad
-        // page (e.g. a failed online image fetch) doesn't abort the batch.
-        final Future<RecognizedImage?> ocrFuture =
-            _safeRecognize(index, context);
-        if (prevTranslate != null) {
-          // Only one translation at a time: wait for the previous page's
-          // translation before starting this one (this page's OCR has been
-          // running in parallel meanwhile).
-          await prevTranslate;
+
+        final RecognizedImage? recognized = await _safeRecognize(
+          index,
+          context,
+        );
+        final ImageTranslationRequest? request =
+            state.imageTranslationRequests[index];
+        final String cacheKey = request?.cacheKey ?? _batchPageKey(index);
+        if (recognized != null) {
+          try {
+            await layoutLogic.translateRecognizedImage(
+              index,
+              context,
+              recognized,
+            );
+          } catch (e, stack) {
+            log.warning('Image translation failed for page $index: $e');
+            log.trace(stack);
+            imageTranslationService.markOcrError(
+              cacheKey,
+              'TRANSLATION_TASK_FAILED',
+            );
+          }
+        } else {
+          final ImageTranslationResult result = imageTranslationService
+              .resultFor(cacheKey);
+          if (!result.isTerminal) {
+            imageTranslationService.markOcrError(
+              cacheKey,
+              'TRANSLATION_TASK_FAILED',
+            );
+          }
         }
-        prevTranslate = ocrFuture.then((recognized) async {
-          // Count every processed page (skipped pages too) so the batch
-          // progress reaches 100% even when a page has no text / was cached.
-          completed++;
-          if (recognized != null) {
-            // A single slow/errored page must not abort the whole batch.
-            try {
-              await layoutLogic.translateRecognizedImage(
-                index,
-                context,
-                recognized,
-              );
-            } catch (e, stack) {
-              log.warning('Image translation failed for page $index: $e');
-              log.trace(stack);
-            }
-          }
-          // Guard against a stale batch (cancelled, then superseded) writing
-          // its own progress over a newer batch's shared state.
-          if (imageTranslationService.isCurrentBatch(generation)) {
-            imageTranslationService.batchCompleted = completed;
-            imageTranslationService.update([
-              ImageTranslationService.batchProgressId,
-            ]);
-          }
-        });
-      }
-      if (prevTranslate != null) {
-        await prevTranslate;
+        imageTranslationService.recordBatchResult(
+          cacheKey,
+          generation: generation,
+        );
       }
     } finally {
       imageTranslationService.endBatch(generation);
+    }
+  }
+
+  String _batchPageKey(int index) => 'batch-page:$index';
+
+  void _cancelRemainingBatchPages(
+    List<int> order,
+    int fromPosition,
+    int generation,
+  ) {
+    if (!imageTranslationService.isCurrentBatch(generation)) return;
+    for (int position = fromPosition; position < order.length; position++) {
+      final int index = order[position];
+      final String cacheKey =
+          state.imageTranslationRequests[index]?.cacheKey ??
+          _batchPageKey(index);
+      imageTranslationService.markCanceled(cacheKey);
+      imageTranslationService.recordBatchResult(
+        cacheKey,
+        generation: generation,
+      );
     }
   }
 
@@ -1738,10 +1780,9 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
       for (var i = startIndex; i < state.readPageInfo.pageCount; i++) i,
     ];
     // Resolve the disk-cache directory once for all online-mode probes.
-    final String? cacheDirectory =
-        state.readPageInfo.mode == ReadMode.online
-            ? await getExtendedImageDiskCacheDirectory()
-            : null;
+    final String? cacheDirectory = state.readPageInfo.mode == ReadMode.online
+        ? await getExtendedImageDiskCacheDirectory()
+        : null;
     final List<bool> readyFlags = await Future.wait(
       indices.map((index) => _isPageImageReady(index, cacheDirectory)),
     );
@@ -1776,14 +1817,21 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     return io.File(path.join(directory, cacheKey)).exists();
   }
 
-  /// Runs a page's OCR stage, treating any thrown error as "skip this page" so
-  /// a single bad page never aborts the whole batch.
-  Future<RecognizedImage?> _safeRecognize(int index, BuildContext context) async {
+  /// Runs a page's OCR stage. Any exception is converted into a terminal
+  /// observable status so the batch never counts an OCR exception as success.
+  Future<RecognizedImage?> _safeRecognize(
+    int index,
+    BuildContext context,
+  ) async {
     try {
       return await layoutLogic.recognizeImage(index, context);
     } catch (e, stack) {
       log.warning('Image translation OCR failed for page $index: $e');
       log.trace(stack);
+      final String cacheKey =
+          state.imageTranslationRequests[index]?.cacheKey ??
+          _batchPageKey(index);
+      imageTranslationService.markOcrError(cacheKey, 'OCR_FAILED');
       return null;
     }
   }
@@ -1911,24 +1959,20 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     if (useCupertino) {
       return PageRouteBuilder(
         pageBuilder: (context, __, ___) => builder(context),
-        transitionsBuilder:
-            (_, animation, __, child) => SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(1, 0),
-                end: Offset.zero,
-              ).animate(
+        transitionsBuilder: (_, animation, __, child) => SlideTransition(
+          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero)
+              .animate(
                 CurvedAnimation(parent: animation, curve: Curves.easeInOut),
               ),
-              child: child,
-            ),
+          child: child,
+        ),
         settings: settings,
       );
     }
     return PageRouteBuilder(
       pageBuilder: (context, __, ___) => builder(context),
-      transitionsBuilder:
-          (_, animation, __, child) =>
-              FadeTransition(opacity: animation, child: child),
+      transitionsBuilder: (_, animation, __, child) =>
+          FadeTransition(opacity: animation, child: child),
       settings: settings,
     );
   }
