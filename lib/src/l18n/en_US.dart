@@ -632,6 +632,7 @@ class en_US {
       'inferenceBackendVulkan': 'Vulkan',
       'inferenceBackendXnnpack': 'XNNPACK',
       'imageTranslationOcrEngineOnnx': 'ONNX (on-device)',
+      'imageTranslationOcrEngineMangaOcr': 'manga-OCR (pending verification)',
       'imageTranslationOcrNotConfigured':
           'ONNX OCR engine is not configured yet. Integrate models in the inference backend.',
       'superResolutionEngine': 'Engine',

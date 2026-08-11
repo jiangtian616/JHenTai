@@ -30,8 +30,11 @@ ImageTranslationService imageTranslationService = ImageTranslationService();
 /// Live Text), so the overlay scales blocks in the same space the image is
 /// actually displayed in. Tesseract/Paddle return null and the caller falls
 /// back to its header-based dimension probe.
-typedef _RecognizeResult =
-    ({List<RecognizedTextBlock> blocks, int? imageWidth, int? imageHeight});
+typedef _RecognizeResult = ({
+  List<RecognizedTextBlock> blocks,
+  int? imageWidth,
+  int? imageHeight,
+});
 
 /// The recognized source of one page, produced by [ImageTranslationService.recognizeImage]
 /// and consumed by [ImageTranslationService.translateRecognizedText]. Carrying it
@@ -270,10 +273,9 @@ class ImageTranslationService extends GetxController
       _results[cacheKey] ?? const ImageTranslationResult.idle();
 
   @override
-  List<JHLifeCircleBean> get initDependencies =>
-      super.initDependencies
-        ..add(imageTranslationSetting)
-        ..add(inferenceService);
+  List<JHLifeCircleBean> get initDependencies => super.initDependencies
+    ..add(imageTranslationSetting)
+    ..add(inferenceService);
 
   @override
   Future<void> doInitBean() async {
@@ -574,8 +576,8 @@ class ImageTranslationService extends GetxController
     final TranslationEngine engine = engineRegistry.selectedTranslation;
     EngineTask<TranslationResult>? task;
     try {
-      final EngineCapabilityDecision capability =
-          engineRegistry.evaluateSelected();
+      final EngineCapabilityDecision capability = engineRegistry
+          .evaluateSelected();
       if (!capability.supported) {
         throw ImageTranslationException(
           capability.reason.contains('not ready')
@@ -586,10 +588,9 @@ class ImageTranslationService extends GetxController
       final EngineTask<TranslationResult> activeTask = engine.translate(
         TranslationEngineRequest(
           blocks: recognized.blocks,
-          targetLanguage:
-              engine.descriptor.id == 'apple-translation'
-                  ? _appleTargetLanguage()
-                  : imageTranslationSetting.targetLanguage.value,
+          targetLanguage: engine.descriptor.id == 'apple-translation'
+              ? _appleTargetLanguage()
+              : imageTranslationSetting.targetLanguage.value,
           sourceLanguage: _appleSourceLanguage(),
           configuration: <String, dynamic>{
             'provider': imageTranslationSetting.translatorProvider.value.name,
@@ -755,6 +756,7 @@ class ImageTranslationService extends GetxController
         'engine': configuration['ocrEngine'],
         'language': configuration['appleLanguage'],
         'backend': configuration['onnxBackend'],
+        'mangaAutoSuggest': imageTranslationSetting.mangaOcrAutoSuggest.value,
       },
       translationModel: configuration['model'] as String?,
       translationConfiguration: <String, dynamic>{
@@ -781,12 +783,15 @@ class ImageTranslationService extends GetxController
         'appleLanguage': imageTranslationSetting.appleLiveTextLanguage.value,
         'appleUseApi':
             imageTranslationSetting.appleLiveTextUseThirdPartyApi.value,
+        'mangaOcrAutoSuggest':
+            imageTranslationSetting.mangaOcrAutoSuggest.value,
         if (imageTranslationSetting.ocrEngine.value == ImageOcrEngine.onnx) ...{
           'onnxModel': OnnxModelStore.instance.fingerprintOf(
             imageTranslationSetting.onnxModelId.value,
           ),
-          'onnxBackend':
-              inferenceService.resolveBackendFor(InferenceDomain.ocr)?.name,
+          'onnxBackend': inferenceService
+              .resolveBackendFor(InferenceDomain.ocr)
+              ?.name,
         },
         'provider': imageTranslationSetting.translatorProvider.value.name,
         'endpoint': imageTranslationSetting.translatorEndpoint.value,
@@ -801,12 +806,14 @@ class ImageTranslationService extends GetxController
       'appleLanguage': imageTranslationSetting.appleLiveTextLanguage.value,
       'appleUseApi':
           imageTranslationSetting.appleLiveTextUseThirdPartyApi.value,
+      'mangaOcrAutoSuggest': imageTranslationSetting.mangaOcrAutoSuggest.value,
       if (imageTranslationSetting.ocrEngine.value == ImageOcrEngine.onnx) ...{
         'onnxModel': OnnxModelStore.instance.fingerprintOf(
           imageTranslationSetting.onnxModelId.value,
         ),
-        'onnxBackend':
-            inferenceService.resolveBackendFor(InferenceDomain.ocr)?.name,
+        'onnxBackend': inferenceService
+            .resolveBackendFor(InferenceDomain.ocr)
+            ?.name,
       },
       'provider': imageTranslationSetting.translatorProvider.value.name,
       'translatorEngine': imageTranslationSetting.translatorEngine.value.name,
@@ -919,22 +926,21 @@ class ImageTranslationService extends GetxController
     }
   }
 
-  String _stripReasoning(String text) =>
-      text
-          .replaceAllMapped(
-            RegExp(r'<think>[\s\S]*?</think>', caseSensitive: false),
-            (_) => '',
-          )
-          .replaceAllMapped(
-            RegExp(r'<thinking>[\s\S]*?</thinking>', caseSensitive: false),
-            (_) => '',
-          )
-          .replaceAllMapped(
-            RegExp(r'\[/?reasoning\]', caseSensitive: false),
-            (_) => '',
-          )
-          .replaceAll(RegExp(r'\n\s*\n+'), '\n')
-          .trim();
+  String _stripReasoning(String text) => text
+      .replaceAllMapped(
+        RegExp(r'<think>[\s\S]*?</think>', caseSensitive: false),
+        (_) => '',
+      )
+      .replaceAllMapped(
+        RegExp(r'<thinking>[\s\S]*?</thinking>', caseSensitive: false),
+        (_) => '',
+      )
+      .replaceAllMapped(
+        RegExp(r'\[/?reasoning\]', caseSensitive: false),
+        (_) => '',
+      )
+      .replaceAll(RegExp(r'\n\s*\n+'), '\n')
+      .trim();
 
   Future<void> _writePersistentResult(
     String key,
@@ -1021,16 +1027,14 @@ class ImageTranslationService extends GetxController
       throw const ImageTranslationException('IMAGE_SOURCE_UNAVAILABLE');
     }
     final ImageTranslationResult result = resultFor(request.cacheKey);
-    final List<String> translations =
-        const LineSplitter()
-            .convert(result.translatedText)
-            .map((line) => line.trim())
-            .where((line) => line.isNotEmpty)
-            .toList();
-    final List<RecognizedTextBlock> blocks =
-        result.blocks
-            .where((block) => block.width > 4 && block.height > 4)
-            .toList();
+    final List<String> translations = const LineSplitter()
+        .convert(result.translatedText)
+        .map((line) => line.trim())
+        .where((line) => line.isNotEmpty)
+        .toList();
+    final List<RecognizedTextBlock> blocks = result.blocks
+        .where((block) => block.width > 4 && block.height > 4)
+        .toList();
     if (result.status != ImageTranslationStatus.success ||
         translations.length != blocks.length) {
       throw const ImageTranslationException('OVERLAY_NOT_READY');
@@ -1145,15 +1149,14 @@ class ImageTranslationService extends GetxController
     final (Uint8List rgba, int width, int height) = payload;
     final BytesBuilder builder = BytesBuilder(copy: false);
     builder.add(const [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
-    final ByteData ihdr =
-        ByteData(13)
-          ..setUint32(0, width)
-          ..setUint32(4, height)
-          ..setUint8(8, 8) // bit depth
-          ..setUint8(9, 6) // color type: truecolor with alpha
-          ..setUint8(10, 0) // compression: deflate
-          ..setUint8(11, 0) // filter method
-          ..setUint8(12, 0); // interlace: none
+    final ByteData ihdr = ByteData(13)
+      ..setUint32(0, width)
+      ..setUint32(4, height)
+      ..setUint8(8, 8) // bit depth
+      ..setUint8(9, 6) // color type: truecolor with alpha
+      ..setUint8(10, 0) // compression: deflate
+      ..setUint8(11, 0) // filter method
+      ..setUint8(12, 0); // interlace: none
     _addPngChunk(builder, 'IHDR', ihdr.buffer.asUint8List());
 
     // Each scanline is prefixed with filter type 0 (None) and the whole
@@ -1175,10 +1178,9 @@ class ImageTranslationService extends GetxController
 
   static void _addPngChunk(BytesBuilder builder, String type, List<int> data) {
     final Uint8List typeBytes = ascii.encode(type);
-    final Uint8List chunk =
-        Uint8List(typeBytes.length + data.length)
-          ..setRange(0, typeBytes.length, typeBytes)
-          ..setRange(typeBytes.length, typeBytes.length + data.length, data);
+    final Uint8List chunk = Uint8List(typeBytes.length + data.length)
+      ..setRange(0, typeBytes.length, typeBytes)
+      ..setRange(typeBytes.length, typeBytes.length + data.length, data);
     final ByteData length = ByteData(4)..setUint32(0, data.length);
     final ByteData crc = ByteData(4)..setUint32(0, _pngCrc32(chunk));
     builder.add(length.buffer.asUint8List());
@@ -1212,8 +1214,9 @@ class ImageTranslationService extends GetxController
   /// framework cannot translate a group it returns the source unchanged, which
   /// re-splits back into the original lines.
   Future<List<String>> _translateAppleLines(List<String> lines) async {
-    final TranslationEngine engine =
-        engineRegistry.findTranslation('apple-translation')!;
+    final TranslationEngine engine = engineRegistry.findTranslation(
+      'apple-translation',
+    )!;
     final List<RecognizedTextBlock> blocks = lines
         .map(
           (String line) => RecognizedTextBlock(
@@ -1225,16 +1228,15 @@ class ImageTranslationService extends GetxController
         )
         .toList(growable: false);
     try {
-      final TranslationResult result =
-          await engine
-              .translate(
-                TranslationEngineRequest(
-                  blocks: blocks,
-                  targetLanguage: _appleTargetLanguage(),
-                  sourceLanguage: _appleSourceLanguage(),
-                ),
-              )
-              .future;
+      final TranslationResult result = await engine
+          .translate(
+            TranslationEngineRequest(
+              blocks: blocks,
+              targetLanguage: _appleTargetLanguage(),
+              sourceLanguage: _appleSourceLanguage(),
+            ),
+          )
+          .future;
       return result.lines;
     } on EngineException catch (error) {
       throw ImageTranslationException(switch (error.code) {
@@ -1275,18 +1277,17 @@ class ImageTranslationService extends GetxController
       imageTranslationSetting.autoTranslateGalleryText.value &&
       imageTranslationSetting.usesAppleOnDeviceTranslation;
 
-  String _galleryTextKey(String text) =>
-      sha256
-          .convert(
-            utf8.encode(
-              jsonEncode({
-                'text': text,
-                'target': imageTranslationSetting.targetLanguage.value,
-                'source': imageTranslationSetting.appleLiveTextLanguage.value,
-              }),
-            ),
-          )
-          .toString();
+  String _galleryTextKey(String text) => sha256
+      .convert(
+        utf8.encode(
+          jsonEncode({
+            'text': text,
+            'target': imageTranslationSetting.targetLanguage.value,
+            'source': imageTranslationSetting.appleLiveTextLanguage.value,
+          }),
+        ),
+      )
+      .toString();
 
   /// The current translation of [text] if cached, or null when the feature is
   /// off or the text has not been translated yet. Synchronous so widgets can
@@ -1351,8 +1352,9 @@ class ImageTranslationService extends GetxController
       if (cached != null) {
         result = cached;
       } else if (!_galleryTextFailed.contains(key)) {
-        final String translated =
-            (await _translateAppleLines(<String>[text])).first;
+        final String translated = (await _translateAppleLines(<String>[
+          text,
+        ])).first;
         if (translated.trim().isNotEmpty) {
           result = translated;
           _galleryTextCache[key] = translated;
@@ -1467,10 +1469,9 @@ class ImageTranslationService extends GetxController
     final Response<dynamic> response = await dio.get(
       _modelsEndpoint(baseUrl, provider),
       options: Options(
-        headers:
-            provider == ImageTranslationProvider.anthropic
-                ? _anthropicHeaders(apiKey)
-                : _openAIHeaders(apiKey),
+        headers: provider == ImageTranslationProvider.anthropic
+            ? _anthropicHeaders(apiKey)
+            : _openAIHeaders(apiKey),
       ),
     );
     final dynamic models = response.data is Map ? response.data['data'] : null;
@@ -1492,8 +1493,8 @@ class ImageTranslationService extends GetxController
 
   String _modelsEndpoint(String baseUrl, ImageTranslationProvider provider) =>
       provider == ImageTranslationProvider.anthropic
-          ? _appendPath(baseUrl, 'models')
-          : _appendPath(baseUrl, 'models');
+      ? _appendPath(baseUrl, 'models')
+      : _appendPath(baseUrl, 'models');
 
   String _appendPath(String baseUrl, String path) {
     final String normalized = _trimUrl(baseUrl);
@@ -1612,7 +1613,10 @@ double fitTranslationFontSize(
   while (low <= high) {
     final double mid = (low + high) / 2;
     final TextPainter probe = TextPainter(
-      text: TextSpan(text: text, style: TextStyle(fontSize: mid, height: 1.05)),
+      text: TextSpan(
+        text: text,
+        style: TextStyle(fontSize: mid, height: 1.05),
+      ),
       textAlign: TextAlign.center,
       textDirection: textDirection,
     )..layout(maxWidth: maxWidth);

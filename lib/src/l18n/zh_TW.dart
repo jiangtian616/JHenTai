@@ -571,6 +571,7 @@ class zh_TW {
       'inferenceBackendVulkan': 'Vulkan',
       'inferenceBackendXnnpack': 'XNNPACK',
       'imageTranslationOcrEngineOnnx': 'ONNX（端側）',
+      'imageTranslationOcrEngineMangaOcr': 'manga-OCR（待核實）',
       'imageTranslationOcrNotConfigured': 'ONNX OCR 引擎尚未設定，請在推理後端接入模型。',
       'superResolutionEngine': '引擎',
       'superResolutionEngineNcnnVulkan': 'ncnn-vulkan（外部）',

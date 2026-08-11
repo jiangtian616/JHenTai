@@ -12,6 +12,8 @@ import 'inference_task.dart';
 import 'inference_safety.dart';
 import 'ocr_inference_engine.dart';
 import 'onnx_runtime.dart';
+import '../../utils/ocr_layout_protocol.dart';
+import '../../utils/perspective_crop.dart';
 
 typedef OnnxProviderResolver = List<ort.OrtProvider> Function();
 
@@ -54,9 +56,10 @@ class OnnxOcrInferenceEngine implements OcrInferenceEngine {
   final OnnxOcrModelInfo model;
   final InferenceSessionSafetyConfig? safetyConfig;
 
-  static const double _detThreshold = 0.3;
-  static const double _boxThreshold = 0.5;
-  static const double _textThreshold = 0.5;
+  static const double _detThreshold = OcrScoringProtocol.detectorPixelThreshold;
+  static const double _boxThreshold = OcrScoringProtocol.detectorBoxThreshold;
+  static const double _textThreshold =
+      OcrScoringProtocol.recognitionConfidenceThreshold;
   static const int _maxInputBytes = 80 * 1024 * 1024;
   static const int _maxDetectedLines = 256;
 
@@ -324,26 +327,20 @@ class OnnxOcrInferenceEngine implements OcrInferenceEngine {
       result.add(_DetectedBox(rect, score));
     }
 
-    result.sort((_DetectedBox a, _DetectedBox b) {
-      final (double aLeft, double aTop, double aWidth, double aHeight) =
-          a.rect.bbox;
-      final (double bLeft, double bTop, double bWidth, double bHeight) =
-          b.rect.bbox;
-      final bool mostlyVertical =
-          result.where((_DetectedBox box) {
-            final (double _, double _, double width, double height) =
-                box.rect.bbox;
-            return height > width * 1.4;
-          }).length >
-          result.length / 2;
-      if (mostlyVertical) {
-        final int x = bLeft.compareTo(aLeft);
-        return x != 0 ? x : aTop.compareTo(bTop);
-      }
-      final double dy = aTop - bTop;
-      return dy.abs() < 10 ? aLeft.compareTo(bLeft) : aTop.compareTo(bTop);
-    });
-    return result.take(_maxDetectedLines).toList(growable: false);
+    final List<OcrLayoutBox> layout = <OcrLayoutBox>[
+      for (int i = 0; i < result.length; i++)
+        OcrLayoutBox(
+          sourceIndex: i,
+          left: result[i].rect.bbox.$1,
+          top: result[i].rect.bbox.$2,
+          width: result[i].rect.bbox.$3,
+          height: result[i].rect.bbox.$4,
+        ),
+    ];
+    return sortOcrReadingOrder(layout)
+        .take(_maxDetectedLines)
+        .map((_layout) => result[_layout.sourceIndex])
+        .toList(growable: false);
   }
 
   Future<image.Image> _classifyAndRotate(
@@ -609,15 +606,14 @@ class OnnxOcrInferenceEngine implements OcrInferenceEngine {
     InferenceCancellationToken token, {
     required int expectedRank,
     int? expectedChannels,
-  }) async =>
-      (await _runOutput(
-        session,
-        input,
-        shape,
-        token,
-        expectedRank: expectedRank,
-        expectedChannels: expectedChannels,
-      )).values;
+  }) async => (await _runOutput(
+    session,
+    input,
+    shape,
+    token,
+    expectedRank: expectedRank,
+    expectedChannels: expectedChannels,
+  )).values;
 
   Future<_TensorOutput> _runOutput(
     ort.OrtSession session,
@@ -691,72 +687,5 @@ class _RecognizedLine {
 /// enclosing region around the box center so the text direction becomes
 /// horizontal, then cropping the inner box. Slanted text that an axis-aligned
 /// crop would feed to the recognizer on a tilt now arrives upright.
-image.Image? straightenOcrCrop(image.Image source, OrientedRect rect) {
-  const double margin = 8;
-  final double cosA = math.cos(rect.angle);
-  final double sinA = math.sin(rect.angle);
-  final double hw = rect.width / 2;
-  final double hh = rect.height / 2;
-  // Axis-aligned half-extents of the rotated rect, plus margin so the
-  // rotated corners stay inside the region.
-  final double halfW = hw * cosA.abs() + hh * sinA.abs() + margin;
-  final double halfH = hw * sinA.abs() + hh * cosA.abs() + margin;
-  final int rx = math.max(0, (rect.cx - halfW).floor());
-  final int ry = math.max(0, (rect.cy - halfH).floor());
-  final int rw =
-      math.min(source.width, (rect.cx + halfW).ceil()).clamp(1, source.width) -
-      rx;
-  final int rh =
-      math
-          .min(source.height, (rect.cy + halfH).ceil())
-          .clamp(1, source.height) -
-      ry;
-  if (rw < 2 || rh < 2) {
-    return null;
-  }
-  final image.Image region = image.copyCrop(
-    source,
-    x: rx,
-    y: ry,
-    width: rw,
-    height: rh,
-  );
-  // image.copyRotate is clockwise for positive angles; rotating by -angle
-  // aligns the rect's long axis (at `rect.angle`) with the horizontal.
-  final image.Image rotated = image.copyRotate(
-    region,
-    angle: -rect.angle * 180 / math.pi,
-  );
-  // Where the rect center lands after rotation. copyRotate rotates around the
-  // REGION's center and returns a larger canvas, so the output center is
-  // (rotated.width/2, rotated.height/2) and the rect center's offset is
-  // relative to the region center — the two differ once the region was clamped
-  // to the image edge.
-  final double ccx = rect.cx - rx;
-  final double ccy = rect.cy - ry;
-  final double rcx = rotated.width / 2.0;
-  final double rcy = rotated.height / 2.0;
-  final double relX = ccx - region.width / 2.0;
-  final double relY = ccy - region.height / 2.0;
-  final double cosN = math.cos(-rect.angle);
-  final double sinN = math.sin(-rect.angle);
-  final double nccx = rcx + relX * cosN + relY * sinN;
-  final double nccy = rcy - relX * sinN + relY * cosN;
-  final int cropX = (nccx - rect.width / 2).floor().clamp(0, rotated.width - 1);
-  final int cropY = (nccy - rect.height / 2).floor().clamp(
-    0,
-    rotated.height - 1,
-  );
-  final int cropW = rect.width.ceil().clamp(1, rotated.width - cropX);
-  final int cropH = rect.height.ceil().clamp(1, rotated.height - cropY);
-  if (cropW < 2 || cropH < 2) {
-    return null;
-  }
-  return image.copyCrop(
-    rotated,
-    x: cropX,
-    y: cropY,
-    width: cropW,
-    height: cropH,
-  );
-}
+image.Image? straightenOcrCrop(image.Image source, OrientedRect rect) =>
+    perspectiveStraightenOcrCrop(source, rect.corners);

@@ -96,17 +96,21 @@ class _ImageTranslationConfigSheetState
             child: Row(
               children: [
                 Expanded(
-                    child: Text('imageTextTranslation'.tr,
-                        style: Theme.of(context).textTheme.titleLarge)),
+                  child: Text(
+                    'imageTextTranslation'.tr,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
                 EHAppleIconButton(
-                    onPressed: () {
-                      if (widget.onClose != null) {
-                        widget.onClose!();
-                      } else {
-                        Navigator.of(context).pop();
-                      }
-                    },
-                    icon: const Icon(Icons.close)),
+                  onPressed: () {
+                    if (widget.onClose != null) {
+                      widget.onClose!();
+                    } else {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  icon: const Icon(Icons.close),
+                ),
               ],
             ),
           ),
@@ -187,8 +191,10 @@ class _ImageTranslationConfigSheetState
   Widget _buildEnableThinking() {
     return EHAppleSwitchListTile(
       title: Text('imageTranslationEnableThinking'.tr),
-      subtitle: Text('imageTranslationEnableThinkingHint'.tr,
-          style: const TextStyle(fontSize: 12)),
+      subtitle: Text(
+        'imageTranslationEnableThinkingHint'.tr,
+        style: const TextStyle(fontSize: 12),
+      ),
       value: _enableThinking,
       onChanged: (value) {
         setState(() => _enableThinking = value);
@@ -200,8 +206,10 @@ class _ImageTranslationConfigSheetState
   Widget _buildAppleLiveTextUseApi() {
     return EHAppleSwitchListTile(
       title: Text('imageTranslationAppleLiveTextUseApi'.tr),
-      subtitle: Text('imageTranslationAppleLiveTextUseApiHint'.tr,
-          style: const TextStyle(fontSize: 12)),
+      subtitle: Text(
+        'imageTranslationAppleLiveTextUseApiHint'.tr,
+        style: const TextStyle(fontSize: 12),
+      ),
       value: _appleLiveTextUseApi,
       onChanged: (value) {
         setState(() => _appleLiveTextUseApi = value);
@@ -219,8 +227,10 @@ class _ImageTranslationConfigSheetState
           const Icon(Icons.info_outline, size: 16),
           const SizedBox(width: 8),
           Expanded(
-            child: Text('imageTranslationAppleLiveTextOnDeviceHint'.tr,
-                style: const TextStyle(fontSize: 12)),
+            child: Text(
+              'imageTranslationAppleLiveTextOnDeviceHint'.tr,
+              style: const TextStyle(fontSize: 12),
+            ),
           ),
         ],
       ),
@@ -234,8 +244,7 @@ class _ImageTranslationConfigSheetState
         value: _ocrEngine,
         onChanged: (value) {
           final ImageOcrEngine next = value!;
-          final bool wasApple =
-              _ocrEngine == ImageOcrEngine.appleLiveText;
+          final bool wasApple = _ocrEngine == ImageOcrEngine.appleLiveText;
           setState(() => _ocrEngine = next);
           if (next == ImageOcrEngine.appleLiveText) {
             imageTranslationSetting.switchToAppleLiveTextMode();
@@ -247,11 +256,17 @@ class _ImageTranslationConfigSheetState
         },
         items: [
           DropdownMenuItem(
-              value: ImageOcrEngine.onnx,
-              child: Text('imageTranslationOcrEngineOnnx'.tr)),
+            value: ImageOcrEngine.onnx,
+            child: Text('imageTranslationOcrEngineOnnx'.tr),
+          ),
           DropdownMenuItem(
-              value: ImageOcrEngine.appleLiveText,
-              child: Text('imageTranslationOcrEngineAppleLiveText'.tr)),
+            value: ImageOcrEngine.mangaOcr,
+            child: Text('imageTranslationOcrEngineMangaOcr'.tr),
+          ),
+          DropdownMenuItem(
+            value: ImageOcrEngine.appleLiveText,
+            child: Text('imageTranslationOcrEngineAppleLiveText'.tr),
+          ),
         ],
       ),
     );
@@ -264,17 +279,22 @@ class _ImageTranslationConfigSheetState
         value: _appleLiveTextLanguage,
         onChanged: (value) {
           setState(() => _appleLiveTextLanguage = value!);
-          imageTranslationSetting
-              .saveAppleLiveTextLanguage(_appleLiveTextLanguage);
+          imageTranslationSetting.saveAppleLiveTextLanguage(
+            _appleLiveTextLanguage,
+          );
         },
         items: [
-          ..._appleLanguageOptions.map((option) =>
-              DropdownMenuItem(value: option.code, child: Text(option.label))),
-          if (!_appleLanguageOptions
-              .any((option) => option.code == _appleLiveTextLanguage))
+          ..._appleLanguageOptions.map(
+            (option) =>
+                DropdownMenuItem(value: option.code, child: Text(option.label)),
+          ),
+          if (!_appleLanguageOptions.any(
+            (option) => option.code == _appleLiveTextLanguage,
+          ))
             DropdownMenuItem(
-                value: _appleLiveTextLanguage,
-                child: Text(_appleLiveTextLanguage)),
+              value: _appleLiveTextLanguage,
+              child: Text(_appleLiveTextLanguage),
+            ),
         ],
       ),
     );
@@ -290,11 +310,15 @@ class _ImageTranslationConfigSheetState
           imageTranslationSetting.saveTargetLanguage(_targetLanguage);
         },
         items: [
-          ..._targetLanguageOptions.map((language) =>
-              DropdownMenuItem(value: language, child: Text(language))),
+          ..._targetLanguageOptions.map(
+            (language) =>
+                DropdownMenuItem(value: language, child: Text(language)),
+          ),
           if (!_targetLanguageOptions.contains(_targetLanguage))
             DropdownMenuItem(
-                value: _targetLanguage, child: Text(_targetLanguage)),
+              value: _targetLanguage,
+              child: Text(_targetLanguage),
+            ),
         ],
       ),
     );
@@ -312,9 +336,13 @@ class _ImageTranslationConfigSheetState
         },
         items: [
           DropdownMenuItem(
-              value: false, child: Text('imageTranslationScopeCurrent'.tr)),
+            value: false,
+            child: Text('imageTranslationScopeCurrent'.tr),
+          ),
           DropdownMenuItem(
-              value: true, child: Text('imageTranslationScopeSubsequent'.tr)),
+            value: true,
+            child: Text('imageTranslationScopeSubsequent'.tr),
+          ),
         ],
       ),
     );
@@ -344,8 +372,9 @@ class _ImageTranslationConfigSheetState
         return;
       }
       setState(() {
-        _availableModels =
-            models.contains(_model) ? models : [_model, ...models];
+        _availableModels = models.contains(_model)
+            ? models
+            : [_model, ...models];
       });
     } catch (_) {
       // Keep the saved model; endpoint/key may not be configured here.
