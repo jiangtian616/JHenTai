@@ -47,6 +47,8 @@ class SuperResolutionService extends GetxController
   EHExecutor executor = EHExecutor(concurrency: 1);
   final Map<String, InferenceCancellationToken> _taskTokens =
       <String, InferenceCancellationToken>{};
+  final SuperResolutionPreemptionTracker _preemptionTracker =
+      SuperResolutionPreemptionTracker();
 
   util.Table<int, SuperResolutionType, SuperResolutionInfo>
   superResolutionInfoTable = util.Table();
@@ -81,7 +83,7 @@ class SuperResolutionService extends GetxController
           SuperResolutionStatus.values[data.status],
           data.imageStatuses
               .split(SuperResolutionInfo.imageStatusesSeparator)
-              .map((e) => int.parse(e))
+              .map(int.parse)
               .map((index) => SuperResolutionStatus.values[index])
               .toList(),
         ),
@@ -215,6 +217,7 @@ class SuperResolutionService extends GetxController
   }
 
   Future<bool> superResolve(int gid, SuperResolutionType type) async {
+    _preemptionTracker.recordUserAction(gid, type);
     if (type == SuperResolutionType.gallery) {
       GalleryDownloadInfo? galleryDownloadInfo =
           galleryDownloadService.galleryDownloadInfos[gid];
@@ -289,6 +292,11 @@ class SuperResolutionService extends GetxController
   }
 
   Future<void> pauseSuperResolve(int gid, SuperResolutionType type) async {
+    _preemptionTracker.recordUserAction(gid, type);
+    await _pauseSuperResolve(gid, type);
+  }
+
+  Future<void> _pauseSuperResolve(int gid, SuperResolutionType type) async {
     SuperResolutionInfo? superResolutionInfo = get(gid, type);
 
     if (superResolutionInfo == null ||
@@ -319,17 +327,37 @@ class SuperResolutionService extends GetxController
   /// Reader actions must be able to put a visible single-page request ahead
   /// of queued whole-gallery work. This only pauses existing tasks; it does
   /// not change any model/runtime implementation or delete their checkpoints.
-  Future<void> pauseAllForReaderPage() async {
+  Future<SuperResolutionPauseLease> pauseAllForReaderPage() async {
     final entries = superResolutionInfoTable
         .entries()
         .where((entry) => entry.value.status == SuperResolutionStatus.running)
         .toList();
-    for (final entry in entries) {
-      await pauseSuperResolve(entry.key1, entry.key2);
+    final List<_ReaderPagePausedTask> pausedTasks = <_ReaderPagePausedTask>[];
+    try {
+      for (final entry in entries) {
+        pausedTasks.add(
+          _ReaderPagePausedTask(
+            gid: entry.key1,
+            type: entry.key2,
+            userActionRevision: _preemptionTracker.capture(
+              entry.key1,
+              entry.key2,
+            ),
+          ),
+        );
+        await _pauseSuperResolve(entry.key1, entry.key2);
+      }
+    } on Object {
+      await _resumeAfterReaderPage(pausedTasks);
+      rethrow;
     }
+    return SuperResolutionPauseLease(
+      () => _resumeAfterReaderPage(pausedTasks),
+    );
   }
 
   Future<void> deleteSuperResolve(int gid, SuperResolutionType type) async {
+    _preemptionTracker.recordUserAction(gid, type);
     SuperResolutionInfo? superResolutionInfo = get(gid, type);
     if (superResolutionInfo == null) {
       return;
@@ -434,7 +462,7 @@ class SuperResolutionService extends GetxController
         '${'internalError'.tr}: super resolution executable unavailable',
         isShort: false,
       );
-      pauseSuperResolve(gid, type);
+      _pauseSuperResolve(gid, type);
       return;
     }
 
@@ -493,7 +521,7 @@ class SuperResolutionService extends GetxController
       }
       if (!success) {
         /// pauseSuperResolve flushes the accumulated statuses to the DB
-        await pauseSuperResolve(gid, type);
+        await _pauseSuperResolve(gid, type);
         return;
       }
 
@@ -924,6 +952,91 @@ class SuperResolutionService extends GetxController
   String computeImageOutputDirPath(String rawImagePath) {
     return join(dirname(rawImagePath), imageDirName);
   }
+
+  Future<void> _resumeAfterReaderPage(
+    List<_ReaderPagePausedTask> pausedTasks,
+  ) async {
+    Object? firstError;
+    StackTrace? firstStack;
+    for (final _ReaderPagePausedTask pausedTask in pausedTasks) {
+      if (!_preemptionTracker.isCurrent(
+        pausedTask.gid,
+        pausedTask.type,
+        pausedTask.userActionRevision,
+      )) {
+        continue;
+      }
+      final SuperResolutionInfo? info = get(pausedTask.gid, pausedTask.type);
+      if (info == null || info.status != SuperResolutionStatus.paused) {
+        continue;
+      }
+
+      try {
+        info.status = SuperResolutionStatus.running;
+        await _updateSuperResolutionInfoStatus(pausedTask.gid, info);
+        updateSafely(['$superResolutionId::${pausedTask.gid}']);
+        final String taskKey = _taskKey(pausedTask.gid, pausedTask.type);
+        _taskTokens[taskKey] = InferenceCancellationToken();
+        executor.scheduleTask(
+          0,
+          () => _doSuperResolve(pausedTask.gid, pausedTask.type),
+        );
+      } on Object catch (error, stack) {
+        info.status = SuperResolutionStatus.paused;
+        firstError ??= error;
+        firstStack ??= stack;
+      }
+    }
+    if (firstError != null) {
+      Error.throwWithStackTrace(firstError, firstStack!);
+    }
+  }
+}
+
+/// Tracks explicit user actions so a reader preemption lease cannot revive a
+/// task that the user paused, resumed or deleted while the page job was active.
+class SuperResolutionPreemptionTracker {
+  final Map<String, int> _revisions = <String, int>{};
+
+  int capture(int gid, SuperResolutionType type) =>
+      _revisions[_key(gid, type)] ?? 0;
+
+  void recordUserAction(int gid, SuperResolutionType type) {
+    final String key = _key(gid, type);
+    _revisions[key] = (_revisions[key] ?? 0) + 1;
+  }
+
+  bool isCurrent(int gid, SuperResolutionType type, int revision) =>
+      capture(gid, type) == revision;
+
+  String _key(int gid, SuperResolutionType type) => '$gid::${type.index}';
+}
+
+class SuperResolutionPauseLease {
+  SuperResolutionPauseLease(this._resumeCallback);
+
+  final Future<void> Function() _resumeCallback;
+  bool _resumed = false;
+
+  Future<void> resume() async {
+    if (_resumed) {
+      return;
+    }
+    _resumed = true;
+    await _resumeCallback();
+  }
+}
+
+class _ReaderPagePausedTask {
+  const _ReaderPagePausedTask({
+    required this.gid,
+    required this.type,
+    required this.userActionRevision,
+  });
+
+  final int gid;
+  final SuperResolutionType type;
+  final int userActionRevision;
 }
 
 class SuperResolutionInfo {

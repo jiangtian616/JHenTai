@@ -6,6 +6,7 @@ import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/service/engine/engine.dart';
+import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/utils/eh_executor.dart';
@@ -20,6 +21,8 @@ typedef ReaderPageSourceResolver =
       GalleryImage image,
       String galleryKey,
     );
+typedef ReaderPageWholeGalleryPauser =
+    Future<SuperResolutionPauseLease> Function();
 
 /// Reader-owned single-page orchestration. It uses the existing engine
 /// contract and pauses queued whole-gallery work before scheduling a page at a
@@ -28,15 +31,22 @@ class ReaderPageSuperResolutionService {
   ReaderPageSuperResolutionService({
     ReaderPageUpscaleRunner? runner,
     ReaderPageSourceResolver? sourceResolver,
+    ReaderPageWholeGalleryPauser? wholeGalleryPauser,
     String? cacheDirectoryPath,
   }) : _runner = runner ?? _runWithRegisteredEngine,
        _sourceResolver = sourceResolver,
+       _wholeGalleryPauser =
+           wholeGalleryPauser ??
+           (() => superResolutionService.pauseAllForReaderPage()),
        _cacheDirectoryPath = cacheDirectoryPath;
 
   final ReaderPageUpscaleRunner _runner;
   final ReaderPageSourceResolver? _sourceResolver;
+  final ReaderPageWholeGalleryPauser _wholeGalleryPauser;
   final String? _cacheDirectoryPath;
   final EHExecutor _executor = EHExecutor(concurrency: 1);
+  Future<SuperResolutionPauseLease>? _wholeGalleryPauseFuture;
+  int _wholeGalleryPauseUsers = 0;
 
   Future<String?> upscale({
     required String galleryKey,
@@ -59,17 +69,63 @@ class ReaderPageSuperResolutionService {
       image,
       galleryKey,
     );
-    if (inputPath == null) return null;
+    if (inputPath == null) {
+      return null;
+    }
 
+    bool pauseAcquired = false;
     try {
-      await superResolutionService.pauseAllForReaderPage();
+      await _acquireWholeGalleryPause();
+      pauseAcquired = true;
       return await _executor.scheduleTask(
         -100,
         () => _runner(inputPath, outputPath),
       );
     } on Object {
       return null;
+    } finally {
+      if (pauseAcquired) {
+        try {
+          await _releaseWholeGalleryPause();
+        } on Object catch (error, stack) {
+          log.warning(
+            'Failed to resume whole-gallery super-resolution after reader task',
+            error,
+            true,
+          );
+          log.trace(stack);
+        }
+      }
     }
+  }
+
+  Future<void> _acquireWholeGalleryPause() async {
+    _wholeGalleryPauseUsers++;
+    _wholeGalleryPauseFuture ??= _wholeGalleryPauser();
+    try {
+      await _wholeGalleryPauseFuture;
+    } on Object {
+      _wholeGalleryPauseUsers--;
+      if (_wholeGalleryPauseUsers == 0) {
+        _wholeGalleryPauseFuture = null;
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> _releaseWholeGalleryPause() async {
+    if (_wholeGalleryPauseUsers == 0) {
+      return;
+    }
+    _wholeGalleryPauseUsers--;
+    if (_wholeGalleryPauseUsers > 0) {
+      return;
+    }
+    final Future<SuperResolutionPauseLease>? pauseFuture =
+        _wholeGalleryPauseFuture;
+    _wholeGalleryPauseFuture = null;
+    final SuperResolutionPauseLease? pauseLease = await pauseFuture;
+    await pauseLease?.resume();
   }
 
   Future<void> dispose() => _executor.close();
@@ -109,12 +165,18 @@ class ReaderPageSuperResolutionService {
         ),
         ReadMode.online => image.path!,
       };
-      if (await File(sourcePath).exists()) return sourcePath;
+      if (await File(sourcePath).exists()) {
+        return sourcePath;
+      }
     }
-    if (mode != ReadMode.online || image.url.isEmpty) return null;
+    if (mode != ReadMode.online || image.url.isEmpty) {
+      return null;
+    }
 
     final bytes = await getNetworkImageData(effectiveEHImageUrl(image.url));
-    if (bytes == null || bytes.isEmpty) return null;
+    if (bytes == null || bytes.isEmpty) {
+      return null;
+    }
     final String inputPath = path.join(
       _cacheDirectoryPath ?? pathService.tempDir.path,
       'reader-super-resolution',
