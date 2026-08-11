@@ -7,6 +7,7 @@ import 'package:image/image.dart' as image;
 
 import 'inference_exception.dart';
 import 'inference_task.dart';
+import 'inference_safety.dart';
 import 'onnx_ocr_engine.dart' show OnnxProviderResolver;
 import 'onnx_runtime.dart';
 import 'super_resolution_inference_engine.dart';
@@ -39,11 +40,13 @@ class OnnxSuperResolutionInferenceEngine
     required this.runtime,
     required this.providerResolver,
     required this.model,
+    this.safetyConfig,
   });
 
   final OnnxRuntime runtime;
   final OnnxProviderResolver providerResolver;
   final OnnxSuperResolutionModelInfo model;
+  final InferenceSessionSafetyConfig? safetyConfig;
 
   static const int _modelScale = 4;
   static const int _tileCore = 128;
@@ -82,6 +85,7 @@ class OnnxSuperResolutionInferenceEngine
       model.modelPath,
       modelFingerprint: model.fingerprint,
       providers: providerResolver(),
+      safetyConfig: safetyConfig,
     );
     if (session == null) {
       throw const InferenceNotReadyException('onnx-super-resolution');

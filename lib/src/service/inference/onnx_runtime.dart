@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter_onnxruntime/flutter_onnxruntime.dart' as ort;
 import 'package:jhentai/src/service/log.dart';
 
+import 'inference_safety.dart';
+
 /// Diagnostic sink for ONNX Runtime lifecycle events.
 ///
 /// The app-wide default writes through the global [log] singleton. The OCR
@@ -55,7 +57,8 @@ const OnnxRuntimeLog noopOnnxRuntimeLog = _NoopOnnxRuntimeLog();
 /// provider list, session cache and lifecycle leases. [log] overrides where
 /// diagnostics go (the worker passes [noopOnnxRuntimeLog]).
 class OnnxRuntime {
-  OnnxRuntime({OnnxRuntimeLog? log}) : _log = log ?? const _DefaultOnnxRuntimeLog();
+  OnnxRuntime({OnnxRuntimeLog? log})
+    : _log = log ?? const _DefaultOnnxRuntimeLog();
 
   final OnnxRuntimeLog _log;
 
@@ -67,14 +70,18 @@ class OnnxRuntime {
   final Set<_SessionEntry> _allSessions = <_SessionEntry>{};
   final Map<String, Future<ort.OrtSession?>> _creatingSessions =
       <String, Future<ort.OrtSession?>>{};
+  final InferenceTaskQueue _sessionCreationQueue = InferenceTaskQueue();
   final Map<String, String> _sessionErrors = <String, String>{};
   final Map<String, Completer<void>> _pathBarriers =
       <String, Completer<void>>{};
   Future<bool>? _initializing;
   Future<void>? _closingSessions;
   bool _available = false;
+  String _runtimeVersion = 'unknown';
 
   bool get isAvailable => _available;
+
+  String get runtimeVersion => _runtimeVersion;
 
   List<ort.OrtProvider> get availableProviders =>
       List<ort.OrtProvider>.unmodifiable(_providers);
@@ -107,6 +114,16 @@ class OnnxRuntime {
       final ort.OnnxRuntime engine = ort.OnnxRuntime();
       final List<ort.OrtProvider> providers =
           await engine.getAvailableProviders();
+      try {
+        final Map<String, dynamic> runtimeInfo = await engine.getRuntimeInfo();
+        _runtimeVersion = runtimeInfo['ortVersion']?.toString() ?? 'unknown';
+      } catch (e, s) {
+        // Version reporting is diagnostic. Provider initialization remains
+        // usable when an older plugin implementation lacks this method.
+        _runtimeVersion = 'unknown';
+        _log.warning('ONNX Runtime version probe failed: $e');
+        _log.trace(s);
+      }
       _engine = engine;
       _providers
         ..clear()
@@ -120,6 +137,7 @@ class OnnxRuntime {
       _log.trace(s);
       _engine = null;
       _providers.clear();
+      _runtimeVersion = 'unknown';
       _available = false;
     }
     return _available;
@@ -129,6 +147,7 @@ class OnnxRuntime {
     String modelPath, {
     required String modelFingerprint,
     required List<ort.OrtProvider> providers,
+    InferenceSessionSafetyConfig? safetyConfig,
     int? intraOpNumThreads,
     int? interOpNumThreads,
   }) async {
@@ -156,6 +175,7 @@ class OnnxRuntime {
       modelPath,
       modelFingerprint,
       effectiveProviders,
+      safetyConfig: safetyConfig,
       intraOpNumThreads: intraOpNumThreads,
       interOpNumThreads: interOpNumThreads,
     );
@@ -167,12 +187,15 @@ class OnnxRuntime {
     if (creating != null) {
       return creating;
     }
-    final Future<ort.OrtSession?> task = _createSession(
-      cacheKey: cacheKey,
-      modelPath: modelPath,
-      providers: effectiveProviders,
-      intraOpNumThreads: intraOpNumThreads,
-      interOpNumThreads: interOpNumThreads,
+    final Future<ort.OrtSession?> task = _sessionCreationQueue.run(
+      () => _createSession(
+        cacheKey: cacheKey,
+        modelPath: modelPath,
+        providers: effectiveProviders,
+        safetyConfig: safetyConfig,
+        intraOpNumThreads: intraOpNumThreads,
+        interOpNumThreads: interOpNumThreads,
+      ),
     );
     _creatingSessions[cacheKey] = task;
     try {
@@ -186,6 +209,7 @@ class OnnxRuntime {
     required String cacheKey,
     required String modelPath,
     required List<ort.OrtProvider> providers,
+    InferenceSessionSafetyConfig? safetyConfig,
     int? intraOpNumThreads,
     int? interOpNumThreads,
   }) async {
@@ -194,7 +218,13 @@ class OnnxRuntime {
         providers: providers,
         intraOpNumThreads: intraOpNumThreads,
         interOpNumThreads: interOpNumThreads,
-        useArena: true,
+        useArena: safetyConfig?.useArena ?? true,
+        providerOptions: safetyConfig?.providerOptions,
+        sessionConfigEntries: safetyConfig?.sessionConfigEntries,
+        mlComputeUnits: safetyConfig?.mlComputeUnits,
+        requireStaticShapes: safetyConfig?.requireStaticShapes,
+        inputShape: safetyConfig?.inputShape,
+        memoryBudgetBytes: safetyConfig?.memoryBudgetBytes,
       );
       final ort.OrtSession created = await _engine!.createSession(
         modelPath,
@@ -204,6 +234,8 @@ class OnnxRuntime {
         modelPath: modelPath,
         providers: providers,
         session: created,
+        memoryBudgetBytes: safetyConfig?.memoryBudgetBytes,
+        maxInputPixels: safetyConfig?.maxInputPixels,
       );
       _sessionErrors.remove(modelPath);
       _allSessions.add(_sessions[cacheKey]!);
@@ -236,6 +268,25 @@ class OnnxRuntime {
     if (entry == null || entry.closeRequested) {
       throw StateError('ONNX session is no longer active');
     }
+    final int estimatedInputBytes = inputs.values.fold<int>(
+      0,
+      (int total, ort.OrtValue value) => total + _estimatedTensorBytes(value),
+    );
+    final int? memoryBudgetBytes = entry.memoryBudgetBytes;
+    if (memoryBudgetBytes != null &&
+        estimatedInputBytes > memoryBudgetBytes ~/ 2) {
+      throw StateError(
+        'ONNX input tensors exceed the configured memory budget: '
+        '$estimatedInputBytes bytes',
+      );
+    }
+    final int? maxInputPixels = entry.maxInputPixels;
+    if (maxInputPixels != null &&
+        inputs.values.any(
+          (ort.OrtValue value) => _exceedsPixelBudget(value, maxInputPixels),
+        )) {
+      throw StateError('ONNX input tensor exceeds the configured pixel budget');
+    }
     entry.activeRuns++;
     try {
       return await session.run(inputs);
@@ -251,10 +302,41 @@ class OnnxRuntime {
     String modelPath,
     String fingerprint,
     List<ort.OrtProvider> providers, {
+    InferenceSessionSafetyConfig? safetyConfig,
     int? intraOpNumThreads,
     int? interOpNumThreads,
   }) =>
-      '$modelPath|$fingerprint|${providers.map((ort.OrtProvider provider) => provider.name).join(',')}|${intraOpNumThreads ?? 0}|${interOpNumThreads ?? 0}';
+      '$modelPath|$fingerprint|${providers.map((ort.OrtProvider provider) => provider.name).join(',')}|${intraOpNumThreads ?? 0}|${interOpNumThreads ?? 0}|${safetyConfig?.stableId ?? 'default'}';
+
+  int _estimatedTensorBytes(ort.OrtValue value) {
+    final int elements = value.shape.fold<int>(
+      1,
+      (int product, int dimension) => dimension <= 0 ? 0 : product * dimension,
+    );
+    final int bytesPerElement = switch (value.dataType) {
+      ort.OrtDataType.float32 ||
+      ort.OrtDataType.int32 ||
+      ort.OrtDataType.uint32 ||
+      ort.OrtDataType.int16 ||
+      ort.OrtDataType.uint16 => 4,
+      ort.OrtDataType.float16 ||
+      ort.OrtDataType.int8 ||
+      ort.OrtDataType.uint8 ||
+      ort.OrtDataType.bool => 2,
+      ort.OrtDataType.int64 || ort.OrtDataType.uint64 => 8,
+      _ => 8,
+    };
+    return elements * bytesPerElement;
+  }
+
+  bool _exceedsPixelBudget(ort.OrtValue value, int maxPixels) {
+    if (value.shape.length < 2) {
+      return false;
+    }
+    final int height = value.shape[value.shape.length - 2];
+    final int width = value.shape.last;
+    return height > 0 && width > 0 && height * width > maxPixels;
+  }
 
   /// Prevents new sessions for [modelPaths], waits for active native calls,
   /// then performs [operation] while those paths remain exclusively locked.
@@ -379,6 +461,7 @@ class OnnxRuntime {
     }
     _pathBarriers.clear();
     _initializing = null;
+    _runtimeVersion = 'unknown';
     _available = false;
   }
 }
@@ -388,11 +471,15 @@ class _SessionEntry {
     required this.modelPath,
     required this.providers,
     required this.session,
+    this.memoryBudgetBytes,
+    this.maxInputPixels,
   });
 
   final String modelPath;
   final List<ort.OrtProvider> providers;
   final ort.OrtSession session;
+  final int? memoryBudgetBytes;
+  final int? maxInputPixels;
   int activeRuns = 0;
   bool closeRequested = false;
   bool closing = false;

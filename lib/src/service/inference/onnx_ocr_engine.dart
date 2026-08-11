@@ -9,6 +9,7 @@ import 'package:jhentai/src/utils/oriented_rect.dart';
 
 import 'inference_exception.dart';
 import 'inference_task.dart';
+import 'inference_safety.dart';
 import 'ocr_inference_engine.dart';
 import 'onnx_runtime.dart';
 
@@ -45,11 +46,13 @@ class OnnxOcrInferenceEngine implements OcrInferenceEngine {
     required this.runtime,
     required this.providerResolver,
     required this.model,
+    this.safetyConfig,
   });
 
   final OnnxRuntime runtime;
   final OnnxProviderResolver providerResolver;
   final OnnxOcrModelInfo model;
+  final InferenceSessionSafetyConfig? safetyConfig;
 
   static const double _detThreshold = 0.3;
   static const double _boxThreshold = 0.5;
@@ -97,16 +100,19 @@ class OnnxOcrInferenceEngine implements OcrInferenceEngine {
             model.detPath,
             modelFingerprint: '${model.fingerprint}:det',
             providers: providers,
+            safetyConfig: safetyConfig,
           ),
           runtime.session(
             model.clsPath,
             modelFingerprint: '${model.fingerprint}:cls',
             providers: providers,
+            safetyConfig: safetyConfig,
           ),
           runtime.session(
             model.recPath,
             modelFingerprint: '${model.fingerprint}:rec',
             providers: providers,
+            safetyConfig: safetyConfig,
           ),
         ]);
     final ort.OrtSession? detSession = sessions[0];
@@ -209,10 +215,13 @@ class OnnxOcrInferenceEngine implements OcrInferenceEngine {
     int height = math.max(32, (source.height * scale / 32).round() * 32);
     width = math.min(width, 2624);
     height = math.min(height, 2624);
+    final InferencePixelSize bounded = InferencePixelBudget(
+      safetyConfig?.maxInputPixels ?? 4 * 1024 * 1024,
+    ).fit(width, height, alignment: 32);
     return image.copyResize(
       source,
-      width: width,
-      height: height,
+      width: bounded.width,
+      height: bounded.height,
       interpolation: image.Interpolation.linear,
     );
   }
@@ -320,19 +329,19 @@ class OnnxOcrInferenceEngine implements OcrInferenceEngine {
           a.rect.bbox;
       final (double bLeft, double bTop, double bWidth, double bHeight) =
           b.rect.bbox;
-      final bool mostlyVertical = result.where((_DetectedBox box) {
-        final (double _, double _, double width, double height) = box.rect.bbox;
-        return height > width * 1.4;
-      }).length >
+      final bool mostlyVertical =
+          result.where((_DetectedBox box) {
+            final (double _, double _, double width, double height) =
+                box.rect.bbox;
+            return height > width * 1.4;
+          }).length >
           result.length / 2;
       if (mostlyVertical) {
         final int x = bLeft.compareTo(aLeft);
         return x != 0 ? x : aTop.compareTo(bTop);
       }
       final double dy = aTop - bTop;
-      return dy.abs() < 10
-          ? aLeft.compareTo(bLeft)
-          : aTop.compareTo(bTop);
+      return dy.abs() < 10 ? aLeft.compareTo(bLeft) : aTop.compareTo(bTop);
     });
     return result.take(_maxDetectedLines).toList(growable: false);
   }
@@ -380,9 +389,7 @@ class OnnxOcrInferenceEngine implements OcrInferenceEngine {
       const _RecognizedLine('', 0),
     );
     final List<int> order = List<int>.generate(crops.length, (int i) => i)
-      ..sort(
-        (int a, int b) => crops[a].width.compareTo(crops[b].width),
-      );
+      ..sort((int a, int b) => crops[a].width.compareTo(crops[b].width));
     for (int start = 0; start < order.length; start += _recBatchSize) {
       token.throwIfCancelled();
       final List<int> batch = order.sublist(
@@ -396,10 +403,9 @@ class OnnxOcrInferenceEngine implements OcrInferenceEngine {
           _recTargetWidth(crops[index]),
         );
       }
-      final Float32List input = _normalizedBatchNchw(
-        <image.Image>[for (final int index in batch) crops[index]],
-        maxTargetWidth,
-      );
+      final Float32List input = _normalizedBatchNchw(<image.Image>[
+        for (final int index in batch) crops[index],
+      ], maxTargetWidth);
       try {
         final _TensorOutput output = await _runOutput(
           session,
@@ -565,15 +571,10 @@ class OnnxOcrInferenceEngine implements OcrInferenceEngine {
   /// Batch [C, H, W] normalization for recognition: every crop resized to
   /// height 48 at its own aspect-preserving width, then right-padded to
   /// [targetWidth] so the batch shares one dynamic-width input tensor.
-  Float32List _normalizedBatchNchw(
-    List<image.Image> crops,
-    int targetWidth,
-  ) {
+  Float32List _normalizedBatchNchw(List<image.Image> crops, int targetWidth) {
     const int targetHeight = 48;
     final int pixels = targetHeight * targetWidth;
-    final Float32List output = Float32List(
-      crops.length * 3 * pixels,
-    );
+    final Float32List output = Float32List(crops.length * 3 * pixels);
     for (int b = 0; b < crops.length; b++) {
       final image.Image crop = crops[b];
       final double ratio = crop.width / math.max(1, crop.height);
@@ -706,7 +707,9 @@ image.Image? straightenOcrCrop(image.Image source, OrientedRect rect) {
       math.min(source.width, (rect.cx + halfW).ceil()).clamp(1, source.width) -
       rx;
   final int rh =
-      math.min(source.height, (rect.cy + halfH).ceil()).clamp(1, source.height) -
+      math
+          .min(source.height, (rect.cy + halfH).ceil())
+          .clamp(1, source.height) -
       ry;
   if (rw < 2 || rh < 2) {
     return null;
@@ -740,9 +743,10 @@ image.Image? straightenOcrCrop(image.Image source, OrientedRect rect) {
   final double nccx = rcx + relX * cosN + relY * sinN;
   final double nccy = rcy - relX * sinN + relY * cosN;
   final int cropX = (nccx - rect.width / 2).floor().clamp(0, rotated.width - 1);
-  final int cropY = (nccy - rect.height / 2)
-      .floor()
-      .clamp(0, rotated.height - 1);
+  final int cropY = (nccy - rect.height / 2).floor().clamp(
+    0,
+    rotated.height - 1,
+  );
   final int cropW = rect.width.ceil().clamp(1, rotated.width - cropX);
   final int cropH = rect.height.ceil().clamp(1, rotated.height - cropY);
   if (cropW < 2 || cropH < 2) {

@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 import 'package:flutter_onnxruntime/flutter_onnxruntime.dart' as ort;
 import 'package:jhentai/src/service/inference/inference_exception.dart';
+import 'package:jhentai/src/service/inference/inference_safety.dart';
 import 'package:jhentai/src/service/inference/inference_task.dart';
 import 'package:jhentai/src/service/inference/onnx_model_store.dart';
 import 'package:jhentai/src/service/inference/onnx_ocr_engine.dart'
@@ -32,7 +33,9 @@ class OnnxSuperResolutionWorker {
   static Future<OnnxSuperResolutionWorker> spawn() async {
     final ui.RootIsolateToken? token = ServicesBinding.rootIsolateToken;
     if (token == null) {
-      throw StateError('ONNX super-resolution worker requires a root isolate token');
+      throw StateError(
+        'ONNX super-resolution worker requires a root isolate token',
+      );
     }
     final ReceivePort handshakePort = ReceivePort();
     final Completer<OnnxSuperResolutionWorker> completer =
@@ -48,13 +51,19 @@ class OnnxSuperResolutionWorker {
       }
     });
     unawaited(
-      Isolate.spawn(onnxSuperResolutionWorkerMain, (token, handshakePort.sendPort)),
+      Isolate.spawn(onnxSuperResolutionWorkerMain, (
+        token,
+        handshakePort.sendPort,
+      )),
     );
     try {
       return await completer.future.timeout(
         const Duration(seconds: 15),
-        onTimeout: () =>
-            throw StateError('ONNX super-resolution worker failed to start'),
+        onTimeout:
+            () =>
+                throw StateError(
+                  'ONNX super-resolution worker failed to start',
+                ),
       );
     } finally {
       handshakePort.close();
@@ -72,6 +81,7 @@ class OnnxSuperResolutionWorker {
     required int scale,
     required InferenceCancellationToken cancellationToken,
     InferenceProgressCallback? onProgress,
+    required InferenceSessionSafetyConfig safetyConfig,
   }) async {
     if (_closed) {
       throw StateError('ONNX super-resolution worker is closed');
@@ -113,12 +123,12 @@ class OnnxSuperResolutionWorker {
         'modelPath': model.modelPath,
         'fingerprint': model.fingerprint,
       },
-      'providers': providers
-          .map((ort.OrtProvider provider) => provider.name)
-          .toList(),
+      'providers':
+          providers.map((ort.OrtProvider provider) => provider.name).toList(),
       'inputPath': inputPath,
       'outputPath': outputPath,
       'scale': scale,
+      'safetyConfig': safetyConfig.toMap(),
       'reply': callPort.sendPort,
     });
     pollTimer = Timer.periodic(const Duration(milliseconds: 100), (_) {
@@ -159,7 +169,9 @@ class OnnxSuperResolutionWorker {
       return;
     }
     _closed = true;
-    final Object disposeError = StateError('ONNX super-resolution worker disposed');
+    final Object disposeError = StateError(
+      'ONNX super-resolution worker disposed',
+    );
     for (final Completer<void> completer in _inflight.toList()) {
       if (!completer.isCompleted) {
         completer.completeError(disposeError);
@@ -219,6 +231,10 @@ class OnnxSuperResolutionIsolateEngine
     required this.providerResolver,
     required this.modelIdResolver,
     this.onSessionStateChanged,
+    this.safetyConfigResolver,
+    this.onCanaryStarted,
+    this.onCanarySucceeded,
+    this.onCanaryFailed,
   });
 
   final OnnxProviderResolver providerResolver;
@@ -233,16 +249,23 @@ class OnnxSuperResolutionIsolateEngine
   /// sessions now live inside the worker isolate.
   final void Function({required bool verified, String? error})?
   onSessionStateChanged;
+  final InferenceSessionSafetyConfig Function(String modelHash)?
+  safetyConfigResolver;
+  final InferenceCanaryLifecycle? onCanaryStarted;
+  final InferenceCanaryLifecycle? onCanarySucceeded;
+  final InferenceCanaryFailureLifecycle? onCanaryFailed;
 
   OnnxSuperResolutionWorker? _worker;
   Future<OnnxSuperResolutionWorker>? _spawnFuture;
+  final InferenceTaskQueue _inferenceQueue = InferenceTaskQueue();
 
   String get _activeManifestId => modelIdResolver();
 
   @override
   String get displayName {
-    final OnnxModelManifest? manifest = OnnxModelStore.instance
-        .manifestOf(_activeManifestId);
+    final OnnxModelManifest? manifest = OnnxModelStore.instance.manifestOf(
+      _activeManifestId,
+    );
     return manifest?.displayName ?? 'ONNX Super Resolution';
   }
 
@@ -254,6 +277,22 @@ class OnnxSuperResolutionIsolateEngine
 
   @override
   Future<void> upscale({
+    required String inputPath,
+    required String outputPath,
+    required int scale,
+    InferenceCancellationToken? cancellationToken,
+    InferenceProgressCallback? onProgress,
+  }) => _inferenceQueue.run(
+    () => _upscale(
+      inputPath: inputPath,
+      outputPath: outputPath,
+      scale: scale,
+      cancellationToken: cancellationToken,
+      onProgress: onProgress,
+    ),
+  );
+
+  Future<void> _upscale({
     required String inputPath,
     required String outputPath,
     required int scale,
@@ -279,8 +318,19 @@ class OnnxSuperResolutionIsolateEngine
     if (providers.isEmpty) {
       throw const InferenceNotReadyException('onnx-super-resolution');
     }
-    final OnnxSuperResolutionWorker worker = await _ensureWorker();
+    final InferenceSessionSafetyConfig safetyConfig =
+        safetyConfigResolver?.call(fingerprint) ??
+        InferenceProviderPolicy.sessionConfig(
+          backend: 'cpu',
+          maxInputPixels: 12 * 1024 * 1024,
+          memoryBudgetBytes: 256 * 1024 * 1024,
+        );
+    final bool accelerated = providers.first != ort.OrtProvider.CPU;
+    if (accelerated) {
+      await onCanaryStarted?.call(fingerprint, providers);
+    }
     try {
+      final OnnxSuperResolutionWorker worker = await _ensureWorker();
       await worker.upscale(
         model: OnnxSuperResolutionModelInfo(
           modelPath: modelPath,
@@ -292,7 +342,11 @@ class OnnxSuperResolutionIsolateEngine
         scale: scale,
         cancellationToken: token,
         onProgress: onProgress,
+        safetyConfig: safetyConfig,
       );
+      if (accelerated) {
+        await onCanarySucceeded?.call(fingerprint, providers);
+      }
       onSessionStateChanged?.call(verified: true);
     } on InferenceCancelledException {
       // The UI token was NOT cancelled: the abort came from inside the worker
@@ -306,6 +360,12 @@ class OnnxSuperResolutionIsolateEngine
     } on InferenceNotReadyException catch (e) {
       // The worker failed to build a native session. Surface it so the
       // settings page flips to "failed".
+      onSessionStateChanged?.call(verified: false, error: e.toString());
+      rethrow;
+    } catch (e) {
+      if (accelerated && e is! InferenceCancelledException) {
+        await onCanaryFailed?.call(fingerprint, providers, e);
+      }
       onSessionStateChanged?.call(verified: false, error: e.toString());
       rethrow;
     }
@@ -379,7 +439,10 @@ Future<void> onnxSuperResolutionWorkerMain(
   // root isolate).
   BackgroundIsolateBinaryMessenger.ensureInitialized(token);
   final ReceivePort commandPort = ReceivePort();
-  helloPort.send(<String, dynamic>{'op': 'ready', 'port': commandPort.sendPort});
+  helloPort.send(<String, dynamic>{
+    'op': 'ready',
+    'port': commandPort.sendPort,
+  });
   final OnnxRuntime runtime = OnnxRuntime(log: noopOnnxRuntimeLog);
   await runtime.initialize();
   final Map<int, InferenceCancellationToken> tokens =
@@ -433,7 +496,10 @@ Future<void> _reinitializeInWorker(
   } catch (_) {
     ok = false;
   }
-  (message['reply'] as SendPort?)?.send(<String, dynamic>{'done': true, 'ok': ok});
+  (message['reply'] as SendPort?)?.send(<String, dynamic>{
+    'done': true,
+    'ok': ok,
+  });
 }
 
 Future<void> _closeSessionsInWorker(
@@ -460,19 +526,23 @@ Future<void> _handleUpscale(
         (message['providers'] as List)
             .map((dynamic name) => name as String)
             .toList();
-    final List<ort.OrtProvider> providers = providerNames
-        .map(
-          (String name) => ort.OrtProvider.values.firstWhere(
-            (ort.OrtProvider provider) => provider.name == name,
-            orElse: () => ort.OrtProvider.CPU,
-          ),
-        )
-        .toList();
+    final List<ort.OrtProvider> providers =
+        providerNames
+            .map(
+              (String name) => ort.OrtProvider.values.firstWhere(
+                (ort.OrtProvider provider) => provider.name == name,
+                orElse: () => ort.OrtProvider.CPU,
+              ),
+            )
+            .toList();
     final Map<dynamic, dynamic> model = message['model'] as Map;
     final OnnxSuperResolutionInferenceEngine engine =
         OnnxSuperResolutionInferenceEngine(
           runtime: runtime,
           providerResolver: () => providers,
+          safetyConfig: InferenceSessionSafetyConfig.fromMap(
+            (message['safetyConfig'] as Map?) ?? const <String, dynamic>{},
+          ),
           model: OnnxSuperResolutionModelInfo(
             modelPath: model['modelPath'] as String,
             fingerprint: model['fingerprint'] as String,
@@ -483,8 +553,9 @@ Future<void> _handleUpscale(
       outputPath: message['outputPath'] as String,
       scale: message['scale'] as int,
       cancellationToken: token,
-      onProgress: (double progress) =>
-          reply.send(<String, dynamic>{'progress': progress}),
+      onProgress:
+          (double progress) =>
+              reply.send(<String, dynamic>{'progress': progress}),
     );
     reply.send(<String, dynamic>{'done': true, 'ok': true});
   } on InferenceCancelledException {

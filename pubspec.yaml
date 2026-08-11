@@ -143,6 +143,10 @@ dependencies:
   tray_manager: ^0.5.3
 
 dependency_overrides:
+  # Local safety patch: keeps Dart/session options and native ORT version
+  # reporting in the same audited source tree as the application.
+  flutter_onnxruntime:
+    path: third_party/flutter_onnxruntime
   test_api: 0.6.0
   matcher: 0.12.16
   chewie: 1.7.0
