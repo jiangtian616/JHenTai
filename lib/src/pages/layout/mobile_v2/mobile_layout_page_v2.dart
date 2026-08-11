@@ -172,7 +172,7 @@ class EHUserAvatar extends StatelessWidget {
               toRoute(Routes.login);
               return;
             }
-            bool? result = await Get.dialog(const EHDialog(title: 'logout ?'));
+            bool? result = await Get.dialog( EHDialog(title: '${'logout'.tr} ?'));
             if (result == true) {
               await ehRequest.requestLogout();
             }
