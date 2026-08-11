@@ -625,6 +625,8 @@ class _TrustedDeviceTile extends StatelessWidget {
               ),
             ),
             ...[
+              LanSharePermission.translationCompute,
+              LanSharePermission.ocrCompute,
               LanSharePermission.loginState,
               LanSharePermission.applicationHistory,
             ].map(

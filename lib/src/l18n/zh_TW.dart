@@ -510,6 +510,7 @@ class zh_TW {
       'lanPermission_imageCache': '圖片快取',
       'lanPermission_translationResults': '翻譯結果',
       'lanPermission_translationCompute': '翻譯運算',
+      'lanPermission_ocrCompute': 'OCR 運算',
       'oneMinute': '1 分鐘',
       'tenMinute': '10 分鐘',
       'oneHour': '1 小時',

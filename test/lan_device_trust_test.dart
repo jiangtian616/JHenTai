@@ -6,6 +6,9 @@ import 'dart:math';
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/l18n/en_US.dart';
+import 'package:jhentai/src/l18n/zh_CN.dart';
+import 'package:jhentai/src/l18n/zh_TW.dart';
 import 'package:jhentai/src/model/lan_device_trust.dart';
 import 'package:jhentai/src/service/lan_device_trust_service.dart';
 import 'package:jhentai/src/service/lan_trust_repository.dart';
@@ -72,6 +75,148 @@ void main() {
       }),
       throwsFormatException,
     );
+  });
+
+  test('OCR and translation compute permissions stay independent', () {
+    final DateTime now = DateTime.utc(2026, 8, 9, 12);
+    final TrustedLanDevice ocrOnly = TrustedLanDevice(
+      deviceId: _peerId,
+      displayName: 'Desktop',
+      identityPublicKey: _publicKey,
+      identityFingerprint: _fingerprint,
+      permissions: const {LanSharePermission.ocrCompute},
+      autoConnect: true,
+      pairedAt: now,
+      lastSeenAt: now,
+    );
+    final TrustedLanDevice translationOnly = TrustedLanDevice(
+      deviceId: _peerId,
+      displayName: 'Desktop',
+      identityPublicKey: _publicKey,
+      identityFingerprint: _fingerprint,
+      permissions: const {LanSharePermission.translationCompute},
+      autoConnect: true,
+      pairedAt: now,
+      lastSeenAt: now,
+    );
+
+    expect(ocrOnly.permissions, {LanSharePermission.ocrCompute});
+    expect(
+      ocrOnly.permissions.contains(LanSharePermission.translationCompute),
+      isFalse,
+    );
+    expect(translationOnly.permissions, {
+      LanSharePermission.translationCompute,
+    });
+    expect(
+      translationOnly.permissions.contains(LanSharePermission.ocrCompute),
+      isFalse,
+    );
+  });
+
+  test('old permission JSON keeps behavior and ignores unknown names', () {
+    final Map<String, dynamic> oldJson = {
+      ..._device().toJson(),
+      'permissions': ['translationCompute', 'futureCompute', 42],
+    };
+    final TrustedLanDevice restored = TrustedLanDevice.fromJson(oldJson);
+
+    expect(restored.permissions, {LanSharePermission.translationCompute});
+    expect(
+      restored.permissions.contains(LanSharePermission.ocrCompute),
+      isFalse,
+    );
+
+    final Map<String, dynamic> missingPermissionField =
+        _device().toJson()..remove('permissions');
+    expect(
+      TrustedLanDevice.fromJson(missingPermissionField).permissions,
+      isEmpty,
+    );
+  });
+
+  test('known permission JSON round-trips with stable ordering', () {
+    final TrustedLanDevice device = _device().copyWith(
+      permissions: const {
+        LanSharePermission.ocrCompute,
+        LanSharePermission.translationCompute,
+      },
+    );
+    final Map<String, dynamic> encoded = device.toJson();
+    final TrustedLanDevice restored = TrustedLanDevice.fromJson(encoded);
+
+    expect(restored.toJson(), encoded);
+    expect(encoded['permissions'], ['ocrCompute', 'translationCompute']);
+  });
+
+  test(
+    'revoked compute permission stays revoked in offline persisted record',
+    () async {
+      final Directory temporary = await Directory.systemTemp.createTemp(
+        'jhentai_lan_permission_revoke',
+      );
+      final _MemorySecretStore secrets = _MemorySecretStore();
+      try {
+        final FileLanTrustRepository repository = FileLanTrustRepository(
+          directory: temporary,
+          secretStore: secrets,
+        );
+        final LanDeviceTrustService service = LanDeviceTrustService(
+          repository: repository,
+          secureRandom: Random(12),
+        );
+        await service.doInitBean();
+        await service.completePairing(
+          peer: _peer(),
+          remoteAccessToken: _remoteToken,
+          permissions: const {
+            LanSharePermission.ocrCompute,
+            LanSharePermission.translationCompute,
+          },
+        );
+        await service.disconnect(_peerId);
+
+        await service.setPermissions(_peerId, const {
+          LanSharePermission.translationCompute,
+        });
+
+        final FileLanTrustRepository reloadedRepository =
+            FileLanTrustRepository(directory: temporary, secretStore: secrets);
+        final LanDeviceTrustService reloadedService = LanDeviceTrustService(
+          repository: reloadedRepository,
+          secureRandom: Random(13),
+        );
+        await reloadedService.doInitBean();
+
+        expect(reloadedService.deviceById(_peerId)!.permissions, {
+          LanSharePermission.translationCompute,
+        });
+        expect(
+          reloadedService
+              .deviceById(_peerId)!
+              .permissions
+              .contains(LanSharePermission.ocrCompute),
+          isFalse,
+        );
+      } finally {
+        await temporary.delete(recursive: true);
+      }
+    },
+  );
+
+  test('OCR permission display copy is present with translation copy', () {
+    for (final Map<String, String> locale in [
+      en_US.keys(),
+      zh_CN.keys(),
+      zh_TW.keys(),
+    ]) {
+      expect(locale['lanPermission_ocrCompute'], isNotEmpty);
+      expect(locale['lanPermission_translationCompute'], isNotEmpty);
+      expect(
+        locale['lanPermission_ocrCompute'],
+        isNot(locale['lanPermission_translationCompute']),
+      );
+    }
   });
 
   test(

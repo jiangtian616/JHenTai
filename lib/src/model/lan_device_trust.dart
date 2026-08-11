@@ -9,6 +9,7 @@ enum LanSharePermission {
   imageCache,
   translationResults,
   translationCompute,
+  ocrCompute,
   loginState,
   applicationHistory,
 }
