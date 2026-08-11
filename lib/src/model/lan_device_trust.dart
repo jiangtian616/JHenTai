@@ -2,6 +2,8 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 
+import 'gallery_thumbnail.dart';
+
 enum LanSharePermission {
   downloads,
   imageCache,
@@ -158,7 +160,7 @@ class LanDiscoveredPeer {
     required this.port,
     required this.identityPublicKey,
     required this.identityFingerprint,
-    this.protocolVersion = 1,
+    this.protocolVersion = 2,
   });
 }
 
@@ -167,6 +169,76 @@ class LanConnectionSnapshot {
   final String? errorMessage;
 
   const LanConnectionSnapshot(this.state, {this.errorMessage});
+}
+
+class LanGalleryManifestPage {
+  final int pageIndex;
+  final GalleryThumbnail thumbnail;
+
+  const LanGalleryManifestPage({
+    required this.pageIndex,
+    required this.thumbnail,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'pageIndex': pageIndex,
+    'thumbnail': thumbnail.toMap(),
+  };
+
+  factory LanGalleryManifestPage.fromJson(Map<String, dynamic> json) {
+    final Map<String, dynamic> thumbnail = Map<String, dynamic>.from(
+      json['thumbnail'] as Map? ?? const <String, dynamic>{},
+    );
+    return LanGalleryManifestPage(
+      pageIndex: (json['pageIndex'] as num?)?.toInt() ?? 0,
+      thumbnail: GalleryThumbnail(
+        href: thumbnail['href'] as String? ?? '',
+        isLarge: thumbnail['isLarge'] as bool? ?? false,
+        thumbUrl: thumbnail['thumbUrl'] as String? ?? '',
+        thumbHeight: (thumbnail['thumbHeight'] as num?)?.toDouble(),
+        thumbWidth: (thumbnail['thumbWidth'] as num?)?.toDouble(),
+        offSet: (thumbnail['offSet'] as num?)?.toDouble(),
+        originImageHash: thumbnail['originImageHash'] as String?,
+      ),
+    );
+  }
+}
+
+class LanGalleryManifest {
+  final String galleryUrl;
+  final int pageCount;
+  final int thumbnailsCountPerPage;
+  final List<LanGalleryManifestPage> pages;
+
+  const LanGalleryManifest({
+    required this.galleryUrl,
+    required this.pageCount,
+    required this.thumbnailsCountPerPage,
+    required this.pages,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'galleryUrl': galleryUrl,
+    'pageCount': pageCount,
+    'thumbnailsCountPerPage': thumbnailsCountPerPage,
+    'pages': pages.map((LanGalleryManifestPage page) => page.toJson()).toList(),
+  };
+
+  factory LanGalleryManifest.fromJson(Map<String, dynamic> json) =>
+      LanGalleryManifest(
+        galleryUrl: json['galleryUrl'] as String? ?? '',
+        pageCount: (json['pageCount'] as num?)?.toInt() ?? 0,
+        thumbnailsCountPerPage:
+            (json['thumbnailsCountPerPage'] as num?)?.toInt() ?? 0,
+        pages: (json['pages'] as List? ?? const [])
+            .whereType<Map>()
+            .map(
+              (Map page) => LanGalleryManifestPage.fromJson(
+                Map<String, dynamic>.from(page),
+              ),
+            )
+            .toList(growable: false),
+      );
 }
 
 class LanPairingAcceptance {
@@ -196,6 +268,8 @@ class LanSharedGallerySummary {
   final String category;
   final String publishTime;
   final String? coverUrl;
+  final List<int>? coverBytes;
+  final String? coverCachePath;
 
   const LanSharedGallerySummary({
     required this.deviceId,
@@ -208,12 +282,16 @@ class LanSharedGallerySummary {
     required this.category,
     required this.publishTime,
     this.coverUrl,
+    this.coverBytes,
+    this.coverCachePath,
   });
 
   LanSharedGallerySummary copyWith({
     String? deviceId,
     String? deviceName,
     String? coverUrl,
+    List<int>? coverBytes,
+    String? coverCachePath,
   }) => LanSharedGallerySummary(
     deviceId: deviceId ?? this.deviceId,
     deviceName: deviceName ?? this.deviceName,
@@ -225,6 +303,8 @@ class LanSharedGallerySummary {
     category: category,
     publishTime: publishTime,
     coverUrl: coverUrl ?? this.coverUrl,
+    coverBytes: coverBytes ?? this.coverBytes,
+    coverCachePath: coverCachePath ?? this.coverCachePath,
   );
 
   Map<String, dynamic> toJson() => {
@@ -238,20 +318,69 @@ class LanSharedGallerySummary {
     'category': category,
     'publishTime': publishTime,
     if (coverUrl != null) 'coverUrl': coverUrl,
+    if (coverBytes != null) 'coverBytes': base64UrlEncode(coverBytes!),
   };
 
-  factory LanSharedGallerySummary.fromJson(Map<String, dynamic> json) =>
-      LanSharedGallerySummary(
-        deviceId: json['deviceId'] as String? ?? '',
-        deviceName: json['deviceName'] as String? ?? '',
-        gid: (json['gid'] as num?)?.toInt() ?? 0,
-        token: json['token'] as String? ?? '',
-        title: json['title'] as String? ?? '',
-        galleryUrl: json['galleryUrl'] as String? ?? '',
-        pageCount: (json['pageCount'] as num?)?.toInt() ?? 0,
-        category: json['category'] as String? ?? '',
-        publishTime: json['publishTime'] as String? ?? '',
-        coverUrl: json['coverUrl'] as String?,
+  factory LanSharedGallerySummary.fromJson(Map<String, dynamic> json) {
+    List<int>? coverBytes;
+    final String? encodedCover = json['coverBytes'] as String?;
+    if (encodedCover != null && encodedCover.isNotEmpty) {
+      try {
+        coverBytes = base64Url.decode(base64Url.normalize(encodedCover));
+      } on FormatException {
+        coverBytes = null;
+      }
+    }
+    return LanSharedGallerySummary(
+      deviceId: json['deviceId'] as String? ?? '',
+      deviceName: json['deviceName'] as String? ?? '',
+      gid: (json['gid'] as num?)?.toInt() ?? 0,
+      token: json['token'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      galleryUrl: json['galleryUrl'] as String? ?? '',
+      pageCount: (json['pageCount'] as num?)?.toInt() ?? 0,
+      category: json['category'] as String? ?? '',
+      publishTime: json['publishTime'] as String? ?? '',
+      coverUrl: json['coverUrl'] as String?,
+      coverBytes: coverBytes,
+    );
+  }
+}
+
+class LanSharedGalleryPage {
+  final String revision;
+  final String? nextCursor;
+  final List<LanSharedGallerySummary> galleries;
+  final bool incremental;
+
+  const LanSharedGalleryPage({
+    required this.revision,
+    required this.nextCursor,
+    required this.galleries,
+    this.incremental = false,
+  });
+
+  Map<String, dynamic> toJson() => {
+    'revision': revision,
+    'nextCursor': nextCursor,
+    'incremental': incremental,
+    'galleries': galleries.map((gallery) => gallery.toJson()).toList(),
+  };
+
+  factory LanSharedGalleryPage.fromJson(Map<String, dynamic> json) =>
+      LanSharedGalleryPage(
+        revision: json['revision'] as String? ?? '',
+        nextCursor: json['nextCursor'] as String?,
+        incremental: json['incremental'] as bool? ?? false,
+        galleries:
+            (json['galleries'] as List? ?? const [])
+                .whereType<Map>()
+                .map(
+                  (gallery) => LanSharedGallerySummary.fromJson(
+                    Map<String, dynamic>.from(gallery),
+                  ),
+                )
+                .toList(),
       );
 }
 
