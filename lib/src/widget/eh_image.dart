@@ -30,6 +30,7 @@ typedef DownloadingWidgetBuilder = Widget Function();
 typedef PausedWidgetBuilder = Widget Function();
 typedef LoadingWidgetBuilder = Widget Function();
 typedef CompletedWidgetBuilder = Widget? Function(ExtendedImageState state);
+typedef ImageStateCallback = void Function(ExtendedImageState state);
 
 class EHImage extends StatefulWidget {
   final GalleryImage galleryImage;
@@ -55,8 +56,15 @@ class EHImage extends StatefulWidget {
   final int? cacheHeight;
 
   /// Network timeout for the underlying image request (milliseconds). Null
-  /// keeps the library default (no timeout).
+  /// keeps the library default. Callers that need a hard UI watchdog should
+  /// also provide [cancelToken], because the patched image library cannot
+  /// interrupt a response stream from this option alone.
   final int? timeLimit;
+  final CancellationToken? cancelToken;
+
+  final ImageStateCallback? onLoading;
+  final ImageStateCallback? onFailed;
+  final ImageStateCallback? onCompleted;
 
   final LoadingProgressWidgetBuilder? loadingProgressWidgetBuilder;
   final FailedWidgetBuilder? failedWidgetBuilder;
@@ -90,6 +98,10 @@ class EHImage extends StatefulWidget {
     this.cacheWidth,
     this.cacheHeight,
     this.timeLimit,
+    this.cancelToken,
+    this.onLoading,
+    this.onFailed,
+    this.onCompleted,
     this.disableAnimation = false,
     this.animateOnlyWhenVisible = false,
     this.loadingProgressWidgetBuilder,
@@ -118,6 +130,10 @@ class EHImage extends StatefulWidget {
     this.cacheWidth,
     this.cacheHeight,
     this.timeLimit,
+    this.cancelToken,
+    this.onLoading,
+    this.onFailed,
+    this.onCompleted,
     this.disableAnimation = false,
     this.animateOnlyWhenVisible = false,
     this.loadingProgressWidgetBuilder,
@@ -138,11 +154,31 @@ class _EHImageState extends State<EHImage> {
   // so a per-widget gate would be left permanently paused when its widget is
   // disposed while the codec is parked on it, freezing the animation even
   // after the image scrolls back into view.
-  late final EHImageAnimationGate _gate = EHImageAnimationGateRegistry.gateFor(
-    _imageKey,
-  );
+  EHImageAnimationGate? _gate;
+  String? _gateKey;
 
   String get _imageKey => widget.galleryImage.path ?? widget.galleryImage.url;
+
+  EHImageAnimationGate get gate {
+    final String key = _imageKey;
+    if (_gate == null || _gateKey != key) {
+      _gate?.setPaused(false);
+      _gate = EHImageAnimationGateRegistry.gateFor(key);
+      _gateKey = key;
+    }
+    return _gate!;
+  }
+
+  @override
+  void didUpdateWidget(covariant EHImage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if ((oldWidget.galleryImage.path ?? oldWidget.galleryImage.url) !=
+        _imageKey) {
+      _gate?.setPaused(false);
+      _gate = null;
+      _gateKey = null;
+    }
+  }
 
   @override
   void initState() {
@@ -174,7 +210,7 @@ class _EHImageState extends State<EHImage> {
         return;
       }
       final bool visible = _isVisible();
-      _gate.setPaused(!visible);
+      gate.setPaused(!visible);
       _startVisibilityCheck();
     });
   }
@@ -258,17 +294,19 @@ class _EHImageState extends State<EHImage> {
                   // survives EH's rotating keystamp token (and can be reused by
                   // the downloader later).
                   cacheKey: normalizedImageCacheKey(url),
+                  cancelToken: widget.cancelToken,
                   timeLimit:
                       timeLimit == null
                           ? null
                           : Duration(milliseconds: timeLimit),
-                  gate: _gate,
+                  gate: gate,
                 )
                 : ExtendedNetworkImageProvider(
                   url,
                   cache: true,
                   printError: kDebugMode,
                   cacheKey: normalizedImageCacheKey(url),
+                  cancelToken: widget.cancelToken,
                   timeLimit:
                       timeLimit == null
                           ? null
@@ -288,6 +326,7 @@ class _EHImageState extends State<EHImage> {
       loadStateChanged: (ExtendedImageState state) {
         switch (state.extendedImageLoadState) {
           case LoadState.loading:
+            widget.onLoading?.call(state);
             return widget.loadingProgressWidgetBuilder != null
                 ? widget.loadingProgressWidgetBuilder!.call(
                   _computeLoadingProgress(
@@ -297,6 +336,7 @@ class _EHImageState extends State<EHImage> {
                 )
                 : Center(child: UIConfig.loadingAnimation(context));
           case LoadState.failed:
+            widget.onFailed?.call(state);
             return widget.failedWidgetBuilder?.call(state) ??
                 Center(
                   child: GestureDetector(
@@ -305,6 +345,7 @@ class _EHImageState extends State<EHImage> {
                   ),
                 );
           case LoadState.completed:
+            widget.onCompleted?.call(state);
             state.returnLoadStateChangedWidget = true;
 
             Widget child =
@@ -373,7 +414,7 @@ class _EHImageState extends State<EHImage> {
     } else if (widget.animateOnlyWhenVisible &&
         !widget.disableAnimation &&
         isAnimatedFile) {
-      provider = _GateExtendedFileImageProvider(file, _gate);
+      provider = _GateExtendedFileImageProvider(file, gate);
     } else {
       provider = ExtendedFileImageProvider(file);
     }
@@ -399,10 +440,12 @@ class _EHImageState extends State<EHImage> {
       loadStateChanged: (ExtendedImageState state) {
         switch (state.extendedImageLoadState) {
           case LoadState.loading:
+            widget.onLoading?.call(state);
             return widget.loadingWidgetBuilder != null
                 ? widget.loadingWidgetBuilder!.call()
                 : Center(child: UIConfig.loadingAnimation(context));
           case LoadState.failed:
+            widget.onFailed?.call(state);
             return widget.failedWidgetBuilder?.call(state) ??
                 Center(
                   child: GestureDetector(
@@ -411,6 +454,7 @@ class _EHImageState extends State<EHImage> {
                   ),
                 );
           case LoadState.completed:
+            widget.onCompleted?.call(state);
             state.returnLoadStateChangedWidget = true;
 
             Widget child =
@@ -666,6 +710,7 @@ class _GateExtendedNetworkImageProvider
     super.printError,
     super.timeLimit,
     super.cacheKey,
+    super.cancelToken,
     required this.gate,
   });
 
