@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/routes/routes.dart';
@@ -57,9 +59,9 @@ class ImageTranslationConfigSheet extends StatefulWidget {
 class _ImageTranslationConfigSheetState
     extends State<ImageTranslationConfigSheet> {
   late ImageOcrEngine _ocrEngine;
+  late ImageTranslationEngine _translatorEngine;
   late String _model;
   late String _appleLiveTextLanguage;
-  late bool _appleLiveTextUseApi;
   late String _targetLanguage;
   late bool _enableThinking;
   late bool _translateSubsequentPages;
@@ -70,22 +72,23 @@ class _ImageTranslationConfigSheetState
   void initState() {
     super.initState();
     _ocrEngine = imageTranslationSetting.ocrEngine.value;
+    _translatorEngine = imageTranslationSetting.translatorEngine.value;
     _model = imageTranslationSetting.translatorModel.value;
     _appleLiveTextLanguage =
         imageTranslationSetting.appleLiveTextLanguage.value;
-    _appleLiveTextUseApi =
-        imageTranslationSetting.appleLiveTextUseThirdPartyApi.value;
     _targetLanguage = imageTranslationSetting.targetLanguage.value;
     _enableThinking = imageTranslationSetting.enableThinking.value;
     _translateSubsequentPages =
         imageTranslationSetting.translateSubsequentPages.value;
     _availableModels = [_model];
-    _fetchModels();
+    if (_translatorEngine == ImageTranslationEngine.api) {
+      _fetchModels();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool appleMode = _ocrEngine == ImageOcrEngine.appleLiveText;
+    final bool appleOcr = _ocrEngine == ImageOcrEngine.appleLiveText;
     return SafeArea(
       top: false,
       child: Column(
@@ -119,19 +122,18 @@ class _ImageTranslationConfigSheetState
               shrinkWrap: true,
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               children: [
-                if (!appleMode) ...[
-                  _buildModel(),
-                  _buildEnableThinking(),
-                  _buildOcrEngine(),
-                ] else if (_appleLiveTextUseApi) ...[
+                _buildOcrEngine(),
+                if (appleOcr) _buildOcrLanguage(),
+                _buildTranslatorEngine(),
+                if (_translatorEngine == ImageTranslationEngine.api) ...[
                   _buildModel(),
                   _buildEnableThinking(),
                 ],
-                if (appleMode) _buildOcrLanguage(),
-                _buildTargetLanguage(),
-                if (appleMode) _buildAppleLiveTextUseApi(),
-                if (appleMode && !_appleLiveTextUseApi)
+                if (_translatorEngine == ImageTranslationEngine.appleOnDevice)
                   _buildOnDeviceTranslationHint(),
+                if (_translatorEngine == ImageTranslationEngine.localGguf)
+                  _buildLocalTranslationHint(),
+                _buildTargetLanguage(),
                 _buildTranslateScope(),
               ],
             ),
@@ -181,9 +183,12 @@ class _ImageTranslationConfigSheetState
           setState(() => _model = value!);
           imageTranslationSetting.saveTranslatorModel(_model);
         },
-        items: _availableModels
-            .map((model) => DropdownMenuItem(value: model, child: Text(model)))
-            .toList(),
+        items:
+            _availableModels
+                .map(
+                  (model) => DropdownMenuItem(value: model, child: Text(model)),
+                )
+                .toList(),
       ),
     );
   }
@@ -199,21 +204,6 @@ class _ImageTranslationConfigSheetState
       onChanged: (value) {
         setState(() => _enableThinking = value);
         imageTranslationSetting.saveEnableThinking(value);
-      },
-    );
-  }
-
-  Widget _buildAppleLiveTextUseApi() {
-    return EHAppleSwitchListTile(
-      title: Text('imageTranslationAppleLiveTextUseApi'.tr),
-      subtitle: Text(
-        'imageTranslationAppleLiveTextUseApiHint'.tr,
-        style: const TextStyle(fontSize: 12),
-      ),
-      value: _appleLiveTextUseApi,
-      onChanged: (value) {
-        setState(() => _appleLiveTextUseApi = value);
-        imageTranslationSetting.saveAppleLiveTextUseThirdPartyApi(value);
       },
     );
   }
@@ -237,22 +227,35 @@ class _ImageTranslationConfigSheetState
     );
   }
 
+  Widget _buildLocalTranslationHint() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.memory_outlined, size: 16),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'imageTranslationLocalGgufHint'.tr,
+              style: const TextStyle(fontSize: 12),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildOcrEngine() {
     return _dropdownRow(
       'imageTranslationOcrEngine'.tr,
       EHCodexStyleDropdown<ImageOcrEngine>(
+        key: const ValueKey('image-translation-ocr-engine'),
         value: _ocrEngine,
         onChanged: (value) {
           final ImageOcrEngine next = value!;
-          final bool wasApple = _ocrEngine == ImageOcrEngine.appleLiveText;
           setState(() => _ocrEngine = next);
-          if (next == ImageOcrEngine.appleLiveText) {
-            imageTranslationSetting.switchToAppleLiveTextMode();
-          } else if (wasApple) {
-            imageTranslationSetting.switchToCustomMode();
-          } else {
-            imageTranslationSetting.saveOcrEngine(next);
-          }
+          imageTranslationSetting.saveOcrEngine(next);
         },
         items: [
           DropdownMenuItem(
@@ -265,7 +268,41 @@ class _ImageTranslationConfigSheetState
           ),
           DropdownMenuItem(
             value: ImageOcrEngine.appleLiveText,
+            enabled: Platform.isIOS || Platform.isMacOS,
             child: Text('imageTranslationOcrEngineAppleLiveText'.tr),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTranslatorEngine() {
+    return _dropdownRow(
+      'imageTranslationTranslatorEngine'.tr,
+      EHCodexStyleDropdown<ImageTranslationEngine>(
+        key: const ValueKey('image-translation-translator-engine'),
+        value: _translatorEngine,
+        onChanged: (value) {
+          final ImageTranslationEngine next = value!;
+          setState(() => _translatorEngine = next);
+          imageTranslationSetting.saveTranslatorEngine(next);
+          if (next == ImageTranslationEngine.api) {
+            _fetchModels();
+          }
+        },
+        items: [
+          DropdownMenuItem(
+            value: ImageTranslationEngine.api,
+            child: Text('imageTranslationTranslatorEngineApi'.tr),
+          ),
+          DropdownMenuItem(
+            value: ImageTranslationEngine.appleOnDevice,
+            enabled: Platform.isIOS || Platform.isMacOS,
+            child: Text('imageTranslationTranslatorEngineApple'.tr),
+          ),
+          DropdownMenuItem(
+            value: ImageTranslationEngine.localGguf,
+            child: Text('imageTranslationTranslatorEngineLocal'.tr),
           ),
         ],
       ),
@@ -372,9 +409,8 @@ class _ImageTranslationConfigSheetState
         return;
       }
       setState(() {
-        _availableModels = models.contains(_model)
-            ? models
-            : [_model, ...models];
+        _availableModels =
+            models.contains(_model) ? models : [_model, ...models];
       });
     } catch (_) {
       // Keep the saved model; endpoint/key may not be configured here.

@@ -1131,6 +1131,12 @@ class ru_RU {
       'imageTranslationOcrExecutable': 'Исполняемый файл OCR',
       'imageTranslationOcrLanguage': 'Языки OCR',
       'imageTranslationTranslatorSection': 'Переводчик',
+      'imageTranslationTranslatorEngine': 'Движок перевода',
+      'imageTranslationTranslatorEngineApi': 'Сторонний API',
+      'imageTranslationTranslatorEngineApple': 'Apple на устройстве',
+      'imageTranslationTranslatorEngineLocal': 'Локальный GGUF',
+      'imageTranslationLocalGgufHint':
+          'Использует загруженную модель GGUF и настроенную локальную среду llama.cpp.',
       'imageTranslationTranslatorHint':
           'Используется OpenAI-compatible Chat Completions. Ключ хранится только на этом устройстве.',
       'imageTranslationEndpoint': 'Адрес',
@@ -1178,12 +1184,12 @@ class ru_RU {
       'imageTranslationAppleLiveTextUseApiHint':
           'Используется тот же OpenAI-совместимый / Anthropic API, что и в пользовательском режиме, вместо встроенного перевода Apple.',
       'imageTranslationAppleLiveTextOnDeviceHint':
-          'Распознавание и перевод выполняются на устройстве Apple. Встроенный перевод требует iOS 26 / macOS 26 или новее.',
+          'Перевод выполняется Apple на устройстве независимо от OCR. Требуется iOS 26 / macOS 26 или новее.',
       'autoTranslateGalleryText': 'Авто-перевод названий и комментариев',
       'autoTranslateGalleryTextHint':
-          'При включении видимые названия и комментарии галерей переводятся на устройстве (требуются Apple Live Text и встроенный перевод Apple).',
+          'При включении видимые названия и комментарии галерей переводятся на устройстве (требуется встроенный перевод Apple).',
       'imageTranslationTranslationUnavailable':
-          'Встроенный перевод Apple требует iOS 26 / macOS 26 или новее. Включите «Использовать сторонний API для перевода» или обновите систему.',
+          'Встроенный перевод Apple требует iOS 26 / macOS 26 или новее. На этой системе выберите сторонний API.',
       'imageTranslationTranslationFailed':
           'Не удалось выполнить встроенный перевод Apple.',
       'imageTranslationShow': 'Показать перевод',

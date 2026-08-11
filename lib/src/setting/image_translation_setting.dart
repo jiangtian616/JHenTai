@@ -53,13 +53,11 @@ class ImageTranslationSetting
   /// manual engine choice.
   final RxBool appleLiveTextAutoSelected = false.obs;
 
-  /// In Apple Live Text mode, whether to translate with the shared third-party
-  /// API (the same provider/endpoint/key/model as the custom mode) instead of
-  /// Apple's on-device translation.
+  /// Legacy compatibility mirror for settings written before OCR and
+  /// translation became independent. New UI must use [translatorEngine].
   final RxBool appleLiveTextUseThirdPartyApi = false.obs;
 
-  /// The OCR engine to restore when switching back from Apple Live Text mode to
-  /// the custom mode (always ONNX now that it is the only custom engine).
+  /// Legacy compatibility value retained while older configs are migrated.
   final Rx<ImageOcrEngine> lastCustomOcrEngine = ImageOcrEngine.onnx.obs;
   final Rx<ImageTranslationProvider> translatorProvider =
       ImageTranslationProvider.openAICompatible.obs;
@@ -80,8 +78,8 @@ class ImageTranslationSetting
   final RxBool translateSubsequentPages = false.obs;
 
   /// Whether to auto-translate gallery titles and comments as they appear on
-  /// screen. Only functional in Apple Live Text mode with on-device
-  /// translation (see [usesAppleOnDeviceTranslation]).
+  /// screen. This currently requires Apple on-device translation, independent
+  /// of the selected OCR engine (see [usesAppleOnDeviceTranslation]).
   final RxBool autoTranslateGalleryText = false.obs;
 
   bool get isTranslatorConfigured =>
@@ -136,8 +134,8 @@ class ImageTranslationSetting
       // that representation to the independent translator selection.
       translatorEngine.value =
           (config['appleLiveTextUseThirdPartyApi'] as bool? ?? false)
-          ? ImageTranslationEngine.api
-          : ImageTranslationEngine.appleOnDevice;
+              ? ImageTranslationEngine.api
+              : ImageTranslationEngine.appleOnDevice;
     }
     translatorEndpoint.value = config['translatorEndpoint'];
     translatorApiKey.value = config['translatorApiKey'];
@@ -203,40 +201,14 @@ class ImageTranslationSetting
   bool get isAppleLiveTextMode =>
       ocrEngine.value == ImageOcrEngine.appleLiveText;
 
-  /// Whether translation runs entirely on-device in Apple Live Text mode:
-  /// recognition via Vision and translation via Apple's Translation framework,
-  /// with no third-party API involved.
+  /// Whether translation uses Apple's on-device Translation framework.
   bool get usesAppleOnDeviceTranslation =>
       translatorEngine.value == ImageTranslationEngine.appleOnDevice;
-
-  /// Switch to the self-contained Apple Live Text mode, remembering the current
-  /// custom engine so it can be restored later.
-  Future<void> switchToAppleLiveTextMode() async {
-    if (!isAppleLiveTextMode) {
-      lastCustomOcrEngine.value = ocrEngine.value;
-      ocrEngine.value = ImageOcrEngine.appleLiveText;
-      translatorEngine.value = ImageTranslationEngine.appleOnDevice;
-      await saveBeanConfig();
-    }
-  }
-
-  /// Switch back to the custom mode (Tesseract / PaddleOCR + API).
-  Future<void> switchToCustomMode() async {
-    final bool changed =
-        ocrEngine.value != lastCustomOcrEngine.value ||
-        translatorEngine.value != ImageTranslationEngine.api;
-    if (ocrEngine.value != lastCustomOcrEngine.value) {
-      ocrEngine.value = lastCustomOcrEngine.value;
-    }
-    translatorEngine.value = ImageTranslationEngine.api;
-    if (changed) {
-      await saveBeanConfig();
-    }
-  }
 
   Future<void> save({
     required ImageOcrEngine ocrEngine,
     required String appleLiveTextLanguage,
+    required ImageTranslationEngine translatorEngine,
     required ImageTranslationProvider translatorProvider,
     required String translatorEndpoint,
     required String translatorApiKey,
@@ -245,22 +217,22 @@ class ImageTranslationSetting
     bool? enableThinking,
     bool? translateSubsequentPages,
   }) async {
-    log.debug('Save image translation settings');
     this.ocrEngine.value = ocrEngine;
-    this.appleLiveTextLanguage.value = appleLiveTextLanguage.trim().isEmpty
-        ? 'auto'
-        : appleLiveTextLanguage.trim();
+    this.appleLiveTextLanguage.value =
+        appleLiveTextLanguage.trim().isEmpty
+            ? 'auto'
+            : appleLiveTextLanguage.trim();
+    this.translatorEngine.value = translatorEngine;
+    appleLiveTextUseThirdPartyApi.value =
+        translatorEngine == ImageTranslationEngine.api;
     this.translatorProvider.value = translatorProvider;
-    this.translatorEndpoint.value = translatorEndpoint.trim().isEmpty
-        ? null
-        : translatorEndpoint.trim();
-    this.translatorApiKey.value = translatorApiKey.trim().isEmpty
-        ? null
-        : translatorApiKey.trim();
+    this.translatorEndpoint.value =
+        translatorEndpoint.trim().isEmpty ? null : translatorEndpoint.trim();
+    this.translatorApiKey.value =
+        translatorApiKey.trim().isEmpty ? null : translatorApiKey.trim();
     this.translatorModel.value = translatorModel.trim();
-    this.targetLanguage.value = targetLanguage.trim().isEmpty
-        ? '简体中文'
-        : targetLanguage.trim();
+    this.targetLanguage.value =
+        targetLanguage.trim().isEmpty ? '简体中文' : targetLanguage.trim();
     if (enableThinking != null) {
       this.enableThinking.value = enableThinking;
     }
@@ -286,9 +258,8 @@ class ImageTranslationSetting
   }
 
   Future<void> saveTranslatorModel(String value) async {
-    translatorModel.value = value.trim().isEmpty
-        ? 'gpt-4.1-mini'
-        : value.trim();
+    translatorModel.value =
+        value.trim().isEmpty ? 'gpt-4.1-mini' : value.trim();
     await saveBeanConfig();
   }
 
@@ -302,14 +273,6 @@ class ImageTranslationSetting
     await saveBeanConfig();
   }
 
-  Future<void> saveAppleLiveTextUseThirdPartyApi(bool value) async {
-    appleLiveTextUseThirdPartyApi.value = value;
-    translatorEngine.value = value
-        ? ImageTranslationEngine.api
-        : ImageTranslationEngine.appleOnDevice;
-    await saveBeanConfig();
-  }
-
   Future<void> saveTranslatorEngine(ImageTranslationEngine value) async {
     translatorEngine.value = value;
     appleLiveTextUseThirdPartyApi.value = value == ImageTranslationEngine.api;
@@ -317,7 +280,9 @@ class ImageTranslationSetting
   }
 
   Future<void> saveLocalModelId(String value) async {
-    if (value.trim().isEmpty) return;
+    if (value.trim().isEmpty) {
+      return;
+    }
     localModelId.value = value.trim();
     await saveBeanConfig();
   }

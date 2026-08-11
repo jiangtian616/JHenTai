@@ -1209,6 +1209,12 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationOcrExecutable': 'OCR executable',
       'imageTranslationOcrLanguage': 'OCR languages',
       'imageTranslationTranslatorSection': 'Translation provider',
+      'imageTranslationTranslatorEngine': 'Translation engine',
+      'imageTranslationTranslatorEngineApi': 'Third-party API',
+      'imageTranslationTranslatorEngineApple': 'Apple on-device',
+      'imageTranslationTranslatorEngineLocal': 'Local GGUF',
+      'imageTranslationLocalGgufHint':
+          'Uses the selected downloaded GGUF model and the configured local llama.cpp runtime.',
       'imageTranslationTranslatorHint':
           'Uses an OpenAI-compatible Chat Completions endpoint. The key stays on this device.',
       'imageTranslationEndpoint': 'Endpoint',
@@ -1260,12 +1266,12 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationAppleLiveTextUseApiHint':
           'Reuse the same OpenAI-compatible / Anthropic API as the custom mode instead of Apple on-device translation.',
       'imageTranslationAppleLiveTextOnDeviceHint':
-          'Recognition and translation both run on-device via Apple. On-device translation needs iOS 26 / macOS 26 or newer.',
+          'Translation runs on-device via Apple, independently of the OCR engine. It needs iOS 26 / macOS 26 or newer.',
       'autoTranslateGalleryText': 'Auto-translate titles & comments',
       'autoTranslateGalleryTextHint':
-          'Translate the gallery titles and comments you see on-device (requires Apple Live Text + Apple on-device translation).',
+          'Translate the gallery titles and comments you see on-device (requires Apple on-device translation).',
       'imageTranslationTranslationUnavailable':
-          'Apple on-device translation needs iOS 26 / macOS 26 or newer. Turn on "Use third-party API" to translate on this system.',
+          'Apple on-device translation needs iOS 26 / macOS 26 or newer. Select the third-party API engine to translate on this system.',
       'imageTranslationTranslationFailed':
           'Apple on-device translation failed.',
       'imageTranslationShow': 'Show translation',

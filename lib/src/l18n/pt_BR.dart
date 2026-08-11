@@ -1125,6 +1125,12 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationOcrExecutable': 'Executável OCR',
       'imageTranslationOcrLanguage': 'Idiomas OCR',
       'imageTranslationTranslatorSection': 'Provedor de tradução',
+      'imageTranslationTranslatorEngine': 'Mecanismo de tradução',
+      'imageTranslationTranslatorEngineApi': 'API de terceiros',
+      'imageTranslationTranslatorEngineApple': 'Apple no dispositivo',
+      'imageTranslationTranslatorEngineLocal': 'GGUF local',
+      'imageTranslationLocalGgufHint':
+          'Usa o modelo GGUF baixado e o runtime local llama.cpp configurado.',
       'imageTranslationTranslatorHint':
           'Usa um endpoint OpenAI-compatible Chat Completions. A chave fica somente neste dispositivo.',
       'imageTranslationEndpoint': 'Endpoint',
@@ -1173,13 +1179,13 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationAppleLiveTextUseApiHint':
           'Reutiliza a mesma API compatível com OpenAI / Anthropic do modo personalizado em vez da tradução no dispositivo da Apple.',
       'imageTranslationAppleLiveTextOnDeviceHint':
-          'O reconhecimento e a tradução são feitos no dispositivo pela Apple. A tradução no dispositivo exige iOS 26 / macOS 26 ou superior.',
+          'A tradução é feita no dispositivo pela Apple, independentemente do OCR. Exige iOS 26 / macOS 26 ou superior.',
       'autoTranslateGalleryText':
           'Traduzir títulos e comentários automaticamente',
       'autoTranslateGalleryTextHint':
-          'Quando ativado, títulos e comentários de galerias visíveis são traduzidos no dispositivo (requer Apple Live Text e tradução on-device da Apple).',
+          'Quando ativado, títulos e comentários de galerias visíveis são traduzidos no dispositivo (requer tradução on-device da Apple).',
       'imageTranslationTranslationUnavailable':
-          'A tradução no dispositivo da Apple exige iOS 26 / macOS 26 ou superior. Ative "Usar API de terceiros para tradução" ou use um sistema mais recente.',
+          'A tradução no dispositivo da Apple exige iOS 26 / macOS 26 ou superior. Selecione a API de terceiros neste sistema.',
       'imageTranslationTranslationFailed':
           'Falha na tradução no dispositivo da Apple.',
       'imageTranslationShow': 'Mostrar tradução',

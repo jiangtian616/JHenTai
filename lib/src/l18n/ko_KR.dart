@@ -1057,6 +1057,12 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationOcrExecutable': 'OCR 실행 파일',
       'imageTranslationOcrLanguage': 'OCR 언어',
       'imageTranslationTranslatorSection': '번역 제공자',
+      'imageTranslationTranslatorEngine': '번역 엔진',
+      'imageTranslationTranslatorEngineApi': '타사 API',
+      'imageTranslationTranslatorEngineApple': 'Apple 온디바이스',
+      'imageTranslationTranslatorEngineLocal': '로컬 GGUF',
+      'imageTranslationLocalGgufHint':
+          '다운로드한 GGUF 모델과 구성된 로컬 llama.cpp 런타임을 사용합니다.',
       'imageTranslationTranslatorHint':
           'OpenAI 호환 Chat Completions 엔드포인트를 사용합니다. 키는 이 기기에만 저장됩니다.',
       'imageTranslationEndpoint': '엔드포인트',
@@ -1098,12 +1104,12 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationAppleLiveTextUseApiHint':
           'Apple 온디바이스 번역 대신 사용자 정의 모드와 동일한 OpenAI 호환 / Anthropic API를 사용합니다.',
       'imageTranslationAppleLiveTextOnDeviceHint':
-          '인식과 번역이 모두 Apple 온디바이스로 실행됩니다. 온디바이스 번역은 iOS 26 / macOS 26 이상이 필요합니다.',
+          '번역은 OCR 엔진과 독립적으로 Apple 온디바이스에서 실행됩니다. iOS 26 / macOS 26 이상이 필요합니다.',
       'autoTranslateGalleryText': '갤러리 제목 및 댓글 자동 번역',
       'autoTranslateGalleryTextHint':
-          '켜면 보이는 갤러리 제목과 댓글이 자동으로 번역됩니다 (Apple Live Text 및 Apple 온디바이스 번역 필요).',
+          '켜면 보이는 갤러리 제목과 댓글이 자동으로 번역됩니다 (Apple 온디바이스 번역 필요).',
       'imageTranslationTranslationUnavailable':
-          'Apple 온디바이스 번역은 iOS 26 / macOS 26 이상이 필요합니다. "타사 API로 번역"을 켜거나 최신 시스템에서 사용하세요.',
+          'Apple 온디바이스 번역은 iOS 26 / macOS 26 이상이 필요합니다. 이 시스템에서는 타사 API 엔진을 선택하세요.',
       'imageTranslationTranslationFailed': 'Apple 온디바이스 번역에 실패했습니다.',
       'imageTranslationShow': '번역 표시',
       'imageTranslationHide': '번역 숨기기',

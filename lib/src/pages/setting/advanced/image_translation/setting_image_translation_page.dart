@@ -59,10 +59,10 @@ class _SettingImageTranslationPageState
   late final TextEditingController _endpointController;
   late final TextEditingController _apiKeyController;
   late String _appleLiveTextLanguage;
-  late bool _appleLiveTextUseApi;
   late String _targetLanguage;
   late ImageTranslationProvider _provider;
   late ImageOcrEngine _ocrEngine;
+  late ImageTranslationEngine _translatorEngine;
   List<String> _availableModels = [];
   bool _fetchingModels = false;
 
@@ -77,13 +77,14 @@ class _SettingImageTranslationPageState
     );
     _appleLiveTextLanguage =
         imageTranslationSetting.appleLiveTextLanguage.value;
-    _appleLiveTextUseApi =
-        imageTranslationSetting.appleLiveTextUseThirdPartyApi.value;
     _targetLanguage = imageTranslationSetting.targetLanguage.value;
     _provider = imageTranslationSetting.translatorProvider.value;
     _ocrEngine = imageTranslationSetting.ocrEngine.value;
+    _translatorEngine = imageTranslationSetting.translatorEngine.value;
     final String savedModel = imageTranslationSetting.translatorModel.value;
-    if (savedModel.isNotEmpty) _availableModels = [savedModel];
+    if (savedModel.isNotEmpty) {
+      _availableModels = [savedModel];
+    }
   }
 
   @override
@@ -95,71 +96,58 @@ class _SettingImageTranslationPageState
 
   @override
   Widget build(BuildContext context) {
-    final bool appleMode = _ocrEngine == ImageOcrEngine.appleLiveText;
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: Text('imageTextTranslation'.tr),
-        actions: [EHAppleTextButton(onPressed: _save, child: Text('saveSetting'.tr))],
+        actions: [
+          EHAppleTextButton(onPressed: _save, child: Text('saveSetting'.tr)),
+        ],
       ),
       body: EHAppleSettingsListView(
         safeArea: true,
         groups: [
           EHAppleSettingsGroup(
             title: 'imageTranslationMethodSection'.tr,
-            children: [_buildMethodSwitch()],
+            children: [
+              _buildOcrEngineSelector(),
+              _buildTranslatorEngineSelector(),
+            ],
           ),
-          if (appleMode) ...[
-            EHAppleSettingsGroup(
-              title: 'imageTranslationOcrSection'.tr,
-              children: [
+          EHAppleSettingsGroup(
+            title: 'imageTranslationOcrSection'.tr,
+            children: [
+              if (_ocrEngine == ImageOcrEngine.appleLiveText) ...[
                 _buildAppleLiveTextLanguage(),
                 _buildAppleLiveTextAvailability(),
-              ],
-            ),
-            EHAppleSettingsGroup(
-              title: 'imageTranslationTranslatorSection'.tr,
-              children: [
-                _buildTargetLanguage(),
-                _buildAppleLiveTextUseApi(),
-                if (_appleLiveTextUseApi) ...[
-                  _buildProvider(),
-                  _buildEndpoint(),
-                  _buildApiKey(),
-                  _buildFetchModels(),
-                  _buildModel(),
-                  _buildEnableThinking(),
-                ] else ...[
-                  _buildOnDeviceTranslationHint(),
-                  _buildAutoTranslateGalleryText(),
-                ],
-              ],
-            ),
-          ] else ...[
-            EHAppleSettingsGroup(
-              title: 'imageTranslationTranslatorSection'.tr,
-              children: [
+              ] else if (_ocrEngine == ImageOcrEngine.onnx) ...[
+                _buildOnnxLanguage(),
+                _buildOnnxModelPicker(),
+                _buildOnnxModelTile(),
+                _buildOnnxRuntime(),
+              ] else
+                ListTile(title: Text('imageTranslationOcrEngineMangaOcr'.tr)),
+            ],
+          ),
+          EHAppleSettingsGroup(
+            title: 'imageTranslationTranslatorSection'.tr,
+            children: [
+              _buildTargetLanguage(),
+              if (_translatorEngine == ImageTranslationEngine.api) ...[
                 _buildProvider(),
                 _buildEndpoint(),
                 _buildApiKey(),
                 _buildFetchModels(),
                 _buildModel(),
-                _buildTargetLanguage(),
                 _buildEnableThinking(),
-              ],
-            ),
-            EHAppleSettingsGroup(
-              title: 'imageTranslationOcrSection'.tr,
-              // Custom mode is fixed to on-device ONNX (PP-OCRv6); the model
-              // tier (small vs tiny) is selectable below.
-              children: [
-                _buildOnnxLanguage(),
-                _buildOnnxModelPicker(),
-                _buildOnnxModelTile(),
-                _buildOnnxRuntime(),
-              ],
-            ),
-          ],
+              ] else if (_translatorEngine ==
+                  ImageTranslationEngine.appleOnDevice) ...[
+                _buildOnDeviceTranslationHint(),
+                _buildAutoTranslateGalleryText(),
+              ] else
+                _buildLocalTranslationHint(),
+            ],
+          ),
         ],
       ),
     );
@@ -243,12 +231,13 @@ class _SettingImageTranslationPageState
       trailing:
           _fetchingModels
               ? SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: ThemeConfig.isApple
-                      ? const GlassProgressIndicator.circular(strokeWidth: 2)
-                      : const CircularProgressIndicator(strokeWidth: 2),
-                )
+                width: 20,
+                height: 20,
+                child:
+                    ThemeConfig.isApple
+                        ? const GlassProgressIndicator.circular(strokeWidth: 2)
+                        : const CircularProgressIndicator(strokeWidth: 2),
+              )
               : const Icon(Icons.cloud_sync_outlined),
       onTap: _fetchingModels ? null : _fetchModels,
     );
@@ -377,54 +366,55 @@ class _SettingImageTranslationPageState
     );
   }
 
-  Widget _buildMethodSwitch() {
-    final bool appleMode = _ocrEngine == ImageOcrEngine.appleLiveText;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: SegmentedButton<bool>(
-        showSelectedIcon: false,
-        segments: [
-          ButtonSegment(
-            value: true,
-            icon: const Icon(Icons.apple, size: 18),
-            label: Text('imageTranslationMethodAppleLiveText'.tr),
+  Widget _buildOcrEngineSelector() {
+    return ListTile(
+      title: Text('imageTranslationOcrEngine'.tr),
+      trailing: EHCodexStyleDropdown<ImageOcrEngine>(
+        key: const ValueKey('image-translation-ocr-engine'),
+        value: _ocrEngine,
+        onChanged: (value) => setState(() => _ocrEngine = value!),
+        items: [
+          DropdownMenuItem(
+            value: ImageOcrEngine.onnx,
+            child: Text('imageTranslationOcrEngineOnnx'.tr),
           ),
-          ButtonSegment(
-            value: false,
-            icon: const Icon(Icons.tune, size: 18),
-            label: Text('imageTranslationMethodCustom'.tr),
+          DropdownMenuItem(
+            value: ImageOcrEngine.mangaOcr,
+            child: Text('imageTranslationOcrEngineMangaOcr'.tr),
+          ),
+          DropdownMenuItem(
+            value: ImageOcrEngine.appleLiveText,
+            enabled: Platform.isIOS || Platform.isMacOS,
+            child: Text('imageTranslationOcrEngineAppleLiveText'.tr),
           ),
         ],
-        selected: {appleMode},
-        onSelectionChanged: (selection) => _setMode(selection.first),
       ),
     );
   }
 
-  Future<void> _setMode(bool apple) async {
-    if (apple) {
-      await imageTranslationSetting.switchToAppleLiveTextMode();
-    } else {
-      await imageTranslationSetting.switchToCustomMode();
-    }
-    if (!mounted) return;
-    setState(() {
-      _ocrEngine = imageTranslationSetting.ocrEngine.value;
-    });
-  }
-
-  Widget _buildAppleLiveTextUseApi() {
-    return EHAppleSwitchListTile(
-      title: Text('imageTranslationAppleLiveTextUseApi'.tr),
-      subtitle: Text(
-        'imageTranslationAppleLiveTextUseApiHint'.tr,
-        style: const TextStyle(fontSize: 12),
+  Widget _buildTranslatorEngineSelector() {
+    return ListTile(
+      title: Text('imageTranslationTranslatorEngine'.tr),
+      trailing: EHCodexStyleDropdown<ImageTranslationEngine>(
+        key: const ValueKey('image-translation-translator-engine'),
+        value: _translatorEngine,
+        onChanged: (value) => setState(() => _translatorEngine = value!),
+        items: [
+          DropdownMenuItem(
+            value: ImageTranslationEngine.api,
+            child: Text('imageTranslationTranslatorEngineApi'.tr),
+          ),
+          DropdownMenuItem(
+            value: ImageTranslationEngine.appleOnDevice,
+            enabled: Platform.isIOS || Platform.isMacOS,
+            child: Text('imageTranslationTranslatorEngineApple'.tr),
+          ),
+          DropdownMenuItem(
+            value: ImageTranslationEngine.localGguf,
+            child: Text('imageTranslationTranslatorEngineLocal'.tr),
+          ),
+        ],
       ),
-      value: _appleLiveTextUseApi,
-      onChanged: (value) {
-        setState(() => _appleLiveTextUseApi = value);
-        imageTranslationSetting.saveAppleLiveTextUseThirdPartyApi(value);
-      },
     );
   }
 
@@ -433,6 +423,16 @@ class _SettingImageTranslationPageState
       leading: const Icon(Icons.phonelink_erase, size: 20),
       title: Text(
         'imageTranslationAppleLiveTextOnDeviceHint'.tr,
+        style: const TextStyle(fontSize: 12),
+      ),
+    );
+  }
+
+  Widget _buildLocalTranslationHint() {
+    return ListTile(
+      leading: const Icon(Icons.memory_outlined, size: 20),
+      title: Text(
+        'imageTranslationLocalGgufHint'.tr,
         style: const TextStyle(fontSize: 12),
       ),
     );
@@ -469,8 +469,8 @@ class _SettingImageTranslationPageState
   Widget _buildOnnxModelPicker() {
     return Obx(() {
       final String active = imageTranslationSetting.onnxModelId.value;
-      final List<OnnxModelManifest> models =
-          OnnxModelStore.instance.manifestsOfKind('ocr');
+      final List<OnnxModelManifest> models = OnnxModelStore.instance
+          .manifestsOfKind('ocr');
       final bool activeKnown = models.any(
         (OnnxModelManifest model) => model.id == active,
       );
@@ -485,8 +485,8 @@ class _SettingImageTranslationPageState
   /// 活动 ONNX OCR 模型（PP-OCRv6）的下载/删除/状态。
   Widget _buildOnnxModelTile() {
     return Obx(() {
-      final List<OnnxModelManifest> models =
-          OnnxModelStore.instance.manifestsOfKind('ocr');
+      final List<OnnxModelManifest> models = OnnxModelStore.instance
+          .manifestsOfKind('ocr');
       final String active = imageTranslationSetting.onnxModelId.value;
       final bool activeKnown = models.any(
         (OnnxModelManifest model) => model.id == active,
@@ -524,7 +524,9 @@ class _SettingImageTranslationPageState
         apiBaseUrl: _endpointController.text,
         apiKey: _apiKeyController.text,
       );
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       setState(() {
         _availableModels = models;
         if (!models.contains(imageTranslationSetting.translatorModel.value)) {
@@ -543,13 +545,14 @@ class _SettingImageTranslationPageState
         'imageTranslationApiTestFailed'.trParams({'error': 'NETWORK_ERROR'}),
       );
     } finally {
-      if (mounted) setState(() => _fetchingModels = false);
+      if (mounted) {
+        setState(() => _fetchingModels = false);
+      }
     }
   }
 
   Future<void> _save() async {
-    final bool appleMode = _ocrEngine == ImageOcrEngine.appleLiveText;
-    final bool needsApi = !appleMode || _appleLiveTextUseApi;
+    final bool needsApi = _translatorEngine == ImageTranslationEngine.api;
     if (needsApi && _availableModels.isEmpty) {
       toast('imageTranslationFetchModelsFirst'.tr);
       return;
@@ -557,6 +560,7 @@ class _SettingImageTranslationPageState
     await imageTranslationSetting.save(
       ocrEngine: _ocrEngine,
       appleLiveTextLanguage: _appleLiveTextLanguage,
+      translatorEngine: _translatorEngine,
       translatorProvider: _provider,
       translatorEndpoint: _endpointController.text,
       translatorApiKey: _apiKeyController.text,
@@ -566,6 +570,8 @@ class _SettingImageTranslationPageState
       translateSubsequentPages:
           imageTranslationSetting.translateSubsequentPages.value,
     );
-    if (mounted) toast('success'.tr);
+    if (mounted) {
+      toast('success'.tr);
+    }
   }
 }

@@ -3,6 +3,13 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jhentai/src/setting/image_translation_setting.dart';
 
+class _MemoryImageTranslationSetting extends ImageTranslationSetting {
+  int saveCount = 0;
+
+  @override
+  Future<int> saveBeanConfig() async => ++saveCount;
+}
+
 void main() {
   test('image translation settings round-trip through config JSON', () {
     final ImageTranslationSetting setting = ImageTranslationSetting();
@@ -80,4 +87,59 @@ void main() {
     );
     expect(setting.usesAppleOnDeviceTranslation, isTrue);
   });
+
+  test('changing OCR preserves the selected translation engine', () async {
+    final _MemoryImageTranslationSetting setting =
+        _MemoryImageTranslationSetting();
+    setting.translatorEngine.value = ImageTranslationEngine.appleOnDevice;
+
+    await setting.saveOcrEngine(ImageOcrEngine.appleLiveText);
+    await setting.saveOcrEngine(ImageOcrEngine.onnx);
+
+    expect(setting.ocrEngine.value, ImageOcrEngine.onnx);
+    expect(
+      setting.translatorEngine.value,
+      ImageTranslationEngine.appleOnDevice,
+    );
+    expect(setting.saveCount, 2);
+  });
+
+  test('changing translator preserves the selected OCR engine', () async {
+    final _MemoryImageTranslationSetting setting =
+        _MemoryImageTranslationSetting();
+    setting.ocrEngine.value = ImageOcrEngine.appleLiveText;
+
+    await setting.saveTranslatorEngine(ImageTranslationEngine.api);
+    await setting.saveTranslatorEngine(ImageTranslationEngine.localGguf);
+
+    expect(setting.ocrEngine.value, ImageOcrEngine.appleLiveText);
+    expect(setting.translatorEngine.value, ImageTranslationEngine.localGguf);
+    expect(setting.saveCount, 2);
+  });
+
+  test(
+    'combined save persists OCR and translator without deriving either',
+    () async {
+      final _MemoryImageTranslationSetting setting =
+          _MemoryImageTranslationSetting();
+
+      await setting.save(
+        ocrEngine: ImageOcrEngine.onnx,
+        appleLiveTextLanguage: 'auto',
+        translatorEngine: ImageTranslationEngine.appleOnDevice,
+        translatorProvider: ImageTranslationProvider.openAICompatible,
+        translatorEndpoint: '',
+        translatorApiKey: '',
+        translatorModel: 'unused',
+        targetLanguage: '简体中文',
+      );
+
+      expect(setting.ocrEngine.value, ImageOcrEngine.onnx);
+      expect(
+        setting.translatorEngine.value,
+        ImageTranslationEngine.appleOnDevice,
+      );
+      expect(setting.saveCount, 1);
+    },
+  );
 }

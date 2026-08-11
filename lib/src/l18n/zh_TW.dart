@@ -1101,6 +1101,11 @@ favnote：配對收藏備註
       'imageTranslationOcrExecutable': 'OCR 執行檔',
       'imageTranslationOcrLanguage': 'OCR 語言包',
       'imageTranslationTranslatorSection': '翻譯服務',
+      'imageTranslationTranslatorEngine': '翻譯引擎',
+      'imageTranslationTranslatorEngineApi': '第三方 API',
+      'imageTranslationTranslatorEngineApple': 'Apple 端側翻譯',
+      'imageTranslationTranslatorEngineLocal': '本機 GGUF',
+      'imageTranslationLocalGgufHint': '使用已下載的 GGUF 模型和設定好的本機 llama.cpp 執行環境。',
       'imageTranslationTranslatorHint':
           '支援 OpenAI-compatible Chat Completions 介面，金鑰僅儲存在本機。',
       'imageTranslationEndpoint': '介面位址',
@@ -1141,12 +1146,12 @@ favnote：配對收藏備註
       'imageTranslationAppleLiveTextUseApiHint':
           '沿用自訂模式的 OpenAI 相容 / Anthropic API，而非 Apple 端側翻譯。',
       'imageTranslationAppleLiveTextOnDeviceHint':
-          '辨識與翻譯皆由 Apple 於端側完成。端側翻譯需 iOS 26 / macOS 26 以上系統。',
+          '翻譯由 Apple 於端側完成，與 OCR 引擎分開選擇。需要 iOS 26 / macOS 26 以上系統。',
       'autoTranslateGalleryText': '自動翻譯圖庫標題與評論',
       'autoTranslateGalleryTextHint':
-          '開啟後，你看到的圖庫標題和評論將自動翻譯（需要 Apple Live Text 與 Apple 裝置端翻譯）。',
+          '開啟後，你看到的圖庫標題和評論將自動翻譯（需要 Apple 裝置端翻譯）。',
       'imageTranslationTranslationUnavailable':
-          'Apple 端側翻譯需 iOS 26 / macOS 26 以上系統。請開啟「使用第三方 API 翻譯」或於更高版本系統使用。',
+          'Apple 端側翻譯需 iOS 26 / macOS 26 以上系統。目前系統請改選第三方 API 翻譯。',
       'imageTranslationTranslationFailed': 'Apple 端側翻譯失敗。',
       'imageTranslationShow': '顯示翻譯',
       'imageTranslationHide': '隱藏翻譯',
