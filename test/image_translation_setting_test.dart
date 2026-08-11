@@ -32,6 +32,7 @@ void main() {
     expect(encoded['appleLiveTextLanguage'], 'ja-JP,en-US');
     expect(encoded['appleLiveTextAutoSelected'], isTrue);
     expect(encoded['appleLiveTextUseThirdPartyApi'], isTrue);
+    expect(encoded['translatorEngine'], 'api');
     expect(encoded['lastCustomOcrEngine'], 'onnx');
   });
 
@@ -61,5 +62,22 @@ void main() {
     restored.applyBeanConfig(setting.toConfigString());
 
     expect(restored.appleLiveTextLanguage.value, 'auto');
+  });
+
+  test('ONNX OCR can select Apple Translation independently', () {
+    final ImageTranslationSetting setting = ImageTranslationSetting();
+    setting.applyBeanConfig('''
+    {
+      "ocrEngine": "onnx",
+      "translatorEngine": "appleOnDevice"
+    }
+    ''');
+
+    expect(setting.isAppleLiveTextMode, isFalse);
+    expect(
+      setting.translatorEngine.value,
+      ImageTranslationEngine.appleOnDevice,
+    );
+    expect(setting.usesAppleOnDeviceTranslation, isTrue);
   });
 }

@@ -1,0 +1,154 @@
+import 'dart:io';
+
+import 'package:jhentai/src/service/inference_service.dart';
+import 'package:jhentai/src/setting/image_translation_setting.dart';
+
+import 'api_translation_engine.dart';
+import 'apple_engine_adapters.dart';
+import 'engine_contract.dart';
+import 'model_catalog.dart';
+import 'onnx_engine_adapters.dart';
+import 'unavailable_engine_adapters.dart';
+
+EnginePlatform get currentEnginePlatform {
+  if (Platform.isAndroid) return EnginePlatform.android;
+  if (Platform.isIOS) return EnginePlatform.ios;
+  if (Platform.isLinux) return EnginePlatform.linux;
+  if (Platform.isMacOS) return EnginePlatform.macos;
+  if (Platform.isWindows) return EnginePlatform.windows;
+  return EnginePlatform.unknown;
+}
+
+class EngineCapabilityDecision {
+  const EngineCapabilityDecision({
+    required this.supported,
+    required this.reason,
+  });
+
+  final bool supported;
+  final String reason;
+}
+
+/// Capability is calculated from registered adapters. There is no OCR-specific
+/// translation branch here, so a future adapter can be added without changing
+/// the read-page service or pretending an unavailable model exists.
+class EngineCapabilityMatrix {
+  const EngineCapabilityMatrix();
+
+  EngineCapabilityDecision evaluate({
+    required OcrEngine? ocr,
+    required TranslationEngine? translation,
+    EnginePlatform? platform,
+  }) {
+    if (ocr == null || translation == null) {
+      return const EngineCapabilityDecision(
+        supported: false,
+        reason: 'Required engine adapter is not registered.',
+      );
+    }
+    final EnginePlatform resolvedPlatform = platform ?? currentEnginePlatform;
+    if (!ocr.descriptor.supports(resolvedPlatform) ||
+        !translation.descriptor.supports(resolvedPlatform)) {
+      return const EngineCapabilityDecision(
+        supported: false,
+        reason:
+            'The selected engine combination is unavailable on this platform.',
+      );
+    }
+    if (!ocr.isReady || !translation.isReady) {
+      return const EngineCapabilityDecision(
+        supported: false,
+        reason: 'The selected engine is not ready for execution.',
+      );
+    }
+    return const EngineCapabilityDecision(
+      supported: true,
+      reason: 'The selected OCR and translation engines can be composed.',
+    );
+  }
+}
+
+class EngineRegistry {
+  EngineRegistry({
+    InferenceService Function()? inferenceResolver,
+    ImageTranslationSetting? setting,
+    this.capabilityMatrix = const EngineCapabilityMatrix(),
+  }) : _inferenceResolver = inferenceResolver ?? (() => inferenceService),
+       _setting = setting ?? imageTranslationSetting {
+    registerOcr(
+      OnnxOcrEngineAdapter(resolver: () => _inferenceResolver().ocrEngine),
+    );
+    registerOcr(AppleLiveTextOcrEngine());
+    registerTranslation(ApiTranslationEngine(setting: _setting));
+    registerTranslation(AppleTranslationEngine());
+    registerSuperResolution(
+      OnnxSuperResolutionEngineAdapter(
+        resolver: () => _inferenceResolver().superResolutionEngine,
+      ),
+    );
+    registerDetection(const UnavailableDetectionEngine());
+    registerInpaint(const UnavailableInpaintEngine());
+    _modelCatalog = OnnxModelCatalog();
+    _modelDownloadManager = OnnxModelDownloadManager();
+  }
+
+  final InferenceService Function() _inferenceResolver;
+  final ImageTranslationSetting _setting;
+  final EngineCapabilityMatrix capabilityMatrix;
+  final Map<String, OcrEngine> _ocr = <String, OcrEngine>{};
+  final Map<String, TranslationEngine> _translations =
+      <String, TranslationEngine>{};
+  final Map<String, DetectionEngine> _detection = <String, DetectionEngine>{};
+  final Map<String, InpaintEngine> _inpaint = <String, InpaintEngine>{};
+  final Map<String, SuperResolutionEngine> _superResolution =
+      <String, SuperResolutionEngine>{};
+  late final ModelCatalog _modelCatalog;
+  late final ModelDownloadManager _modelDownloadManager;
+
+  void registerOcr(OcrEngine engine) =>
+      _put(_ocr, engine.descriptor.id, engine);
+  void registerTranslation(TranslationEngine engine) =>
+      _put(_translations, engine.descriptor.id, engine);
+  void registerDetection(DetectionEngine engine) =>
+      _put(_detection, engine.descriptor.id, engine);
+  void registerInpaint(InpaintEngine engine) =>
+      _put(_inpaint, engine.descriptor.id, engine);
+  void registerSuperResolution(SuperResolutionEngine engine) =>
+      _put(_superResolution, engine.descriptor.id, engine);
+
+  void _put<T>(Map<String, T> target, String id, T engine) {
+    if (target.containsKey(id)) {
+      throw StateError('Engine adapter already registered: $id');
+    }
+    target[id] = engine;
+  }
+
+  OcrEngine? findOcr(String id) => _ocr[id];
+  TranslationEngine? findTranslation(String id) => _translations[id];
+  SuperResolutionEngine? findSuperResolution(String id) => _superResolution[id];
+  ModelCatalog get modelCatalog => _modelCatalog;
+  ModelDownloadManager get modelDownloadManager => _modelDownloadManager;
+
+  OcrEngine get selectedOcr {
+    final String id = switch (_setting.ocrEngine.value) {
+      ImageOcrEngine.appleLiveText => 'apple-live-text-ocr',
+      ImageOcrEngine.onnx => 'onnx-ocr',
+    };
+    return _ocr[id]!;
+  }
+
+  TranslationEngine get selectedTranslation =>
+      _translations[_setting.translatorEngine.value ==
+              ImageTranslationEngine.appleOnDevice
+          ? 'apple-translation'
+          : 'api-translation']!;
+
+  EngineCapabilityDecision evaluateSelected({EnginePlatform? platform}) =>
+      capabilityMatrix.evaluate(
+        ocr: selectedOcr,
+        translation: selectedTranslation,
+        platform: platform,
+      );
+}
+
+final EngineRegistry engineRegistry = EngineRegistry();

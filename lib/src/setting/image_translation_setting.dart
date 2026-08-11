@@ -12,6 +12,12 @@ ImageTranslationSetting imageTranslationSetting = ImageTranslationSetting();
 
 enum ImageTranslationProvider { openAICompatible, anthropic }
 
+/// Translation is selected independently from OCR. The legacy
+/// [appleLiveTextUseThirdPartyApi] flag remains serialized and synchronized so
+/// existing settings continue to load without making Apple OCR imply Apple
+/// Translation.
+enum ImageTranslationEngine { api, appleOnDevice }
+
 enum ImageOcrEngine {
   /// 端侧 ONNX 推理（PP-OCRv6，走统一"推理后端"入口）。
   onnx,
@@ -24,31 +30,39 @@ class ImageTranslationSetting
     with JHLifeCircleBeanWithConfigStorage
     implements JHLifeCircleBean {
   final Rx<ImageOcrEngine> ocrEngine = ImageOcrEngine.onnx.obs;
+
   /// The active ONNX OCR model manifest id (e.g. PP-OCRv6 small vs tiny). The
   /// engine resolves model files lazily against this id.
   final RxString onnxModelId = RxString(OnnxModelStore.ocrManifestId);
+
   /// Apple Live Text recognition languages, as a comma-separated list of
   /// BCP-47 codes, or 'auto' for on-device auto detection (iOS 16 / macOS 13+).
   final RxString appleLiveTextLanguage = 'auto'.obs;
+
   /// True once the engine has been auto-switched to [ImageOcrEngine.appleLiveText]
   /// on an Apple platform, so the one-time migration does not fight a later
   /// manual engine choice.
   final RxBool appleLiveTextAutoSelected = false.obs;
+
   /// In Apple Live Text mode, whether to translate with the shared third-party
   /// API (the same provider/endpoint/key/model as the custom mode) instead of
   /// Apple's on-device translation.
   final RxBool appleLiveTextUseThirdPartyApi = false.obs;
+
   /// The OCR engine to restore when switching back from Apple Live Text mode to
   /// the custom mode (always ONNX now that it is the only custom engine).
   final Rx<ImageOcrEngine> lastCustomOcrEngine = ImageOcrEngine.onnx.obs;
   final Rx<ImageTranslationProvider> translatorProvider =
       ImageTranslationProvider.openAICompatible.obs;
+  final Rx<ImageTranslationEngine> translatorEngine =
+      ImageTranslationEngine.api.obs;
   final RxnString translatorEndpoint = RxnString();
   final RxnString translatorApiKey = RxnString();
   final RxString translatorModel = 'gpt-4.1-mini'.obs;
   final RxString targetLanguage = '简体中文'.obs;
   final RxBool enableThinking = false.obs;
   final RxBool translateSubsequentPages = false.obs;
+
   /// Whether to auto-translate gallery titles and comments as they appear on
   /// screen. Only functional in Apple Live Text mode with on-device
   /// translation (see [usesAppleOnDeviceTranslation]).
@@ -68,23 +82,42 @@ class ImageTranslationSetting
     // Custom mode is fixed to ONNX; stored values for removed engines
     // (tesseract/paddle) fall back to the current default via orElse.
     ocrEngine.value = ImageOcrEngine.values.firstWhere(
-        (engine) => engine.name == config['ocrEngine'],
-        orElse: () => ocrEngine.value);
-    onnxModelId.value =
-        config['onnxModelId'] ?? onnxModelId.value;
+      (engine) => engine.name == config['ocrEngine'],
+      orElse: () => ocrEngine.value,
+    );
+    onnxModelId.value = config['onnxModelId'] ?? onnxModelId.value;
     appleLiveTextLanguage.value =
         config['appleLiveTextLanguage'] ?? appleLiveTextLanguage.value;
     appleLiveTextAutoSelected.value =
         config['appleLiveTextAutoSelected'] ?? appleLiveTextAutoSelected.value;
     appleLiveTextUseThirdPartyApi.value =
         config['appleLiveTextUseThirdPartyApi'] ??
-            appleLiveTextUseThirdPartyApi.value;
+        appleLiveTextUseThirdPartyApi.value;
     lastCustomOcrEngine.value = ImageOcrEngine.values.firstWhere(
-        (engine) => engine.name == config['lastCustomOcrEngine'],
-        orElse: () => lastCustomOcrEngine.value);
+      (engine) => engine.name == config['lastCustomOcrEngine'],
+      orElse: () => lastCustomOcrEngine.value,
+    );
     translatorProvider.value = ImageTranslationProvider.values.firstWhere(
-        (provider) => provider.name == config['translatorProvider'],
-        orElse: () => translatorProvider.value);
+      (provider) => provider.name == config['translatorProvider'],
+      orElse: () => translatorProvider.value,
+    );
+    final String? configuredTranslatorEngine =
+        config['translatorEngine'] as String?;
+    if (configuredTranslatorEngine != null) {
+      translatorEngine.value = ImageTranslationEngine.values.firstWhere(
+        (engine) => engine.name == configuredTranslatorEngine,
+        orElse: () => translatorEngine.value,
+      );
+      appleLiveTextUseThirdPartyApi.value =
+          translatorEngine.value == ImageTranslationEngine.api;
+    } else if (ocrEngine.value == ImageOcrEngine.appleLiveText) {
+      // P0 settings only had the Apple OCR mode plus this API toggle. Migrate
+      // that representation to the independent translator selection.
+      translatorEngine.value =
+          (config['appleLiveTextUseThirdPartyApi'] as bool? ?? false)
+              ? ImageTranslationEngine.api
+              : ImageTranslationEngine.appleOnDevice;
+    }
     translatorEndpoint.value = config['translatorEndpoint'];
     translatorApiKey.value = config['translatorApiKey'];
     translatorModel.value = config['translatorModel'] ?? translatorModel.value;
@@ -98,21 +131,22 @@ class ImageTranslationSetting
 
   @override
   String toConfigString() => jsonEncode({
-        'ocrEngine': ocrEngine.value.name,
-        'onnxModelId': onnxModelId.value,
-        'appleLiveTextLanguage': appleLiveTextLanguage.value,
-        'appleLiveTextAutoSelected': appleLiveTextAutoSelected.value,
-        'appleLiveTextUseThirdPartyApi': appleLiveTextUseThirdPartyApi.value,
-        'lastCustomOcrEngine': lastCustomOcrEngine.value.name,
-        'translatorProvider': translatorProvider.value.name,
-        'translatorEndpoint': translatorEndpoint.value,
-        'translatorApiKey': translatorApiKey.value,
-        'translatorModel': translatorModel.value,
-        'targetLanguage': targetLanguage.value,
-        'enableThinking': enableThinking.value,
-        'translateSubsequentPages': translateSubsequentPages.value,
-        'autoTranslateGalleryText': autoTranslateGalleryText.value,
-      });
+    'ocrEngine': ocrEngine.value.name,
+    'onnxModelId': onnxModelId.value,
+    'appleLiveTextLanguage': appleLiveTextLanguage.value,
+    'appleLiveTextAutoSelected': appleLiveTextAutoSelected.value,
+    'appleLiveTextUseThirdPartyApi': appleLiveTextUseThirdPartyApi.value,
+    'lastCustomOcrEngine': lastCustomOcrEngine.value.name,
+    'translatorProvider': translatorProvider.value.name,
+    'translatorEngine': translatorEngine.value.name,
+    'translatorEndpoint': translatorEndpoint.value,
+    'translatorApiKey': translatorApiKey.value,
+    'translatorModel': translatorModel.value,
+    'targetLanguage': targetLanguage.value,
+    'enableThinking': enableThinking.value,
+    'translateSubsequentPages': translateSubsequentPages.value,
+    'autoTranslateGalleryText': autoTranslateGalleryText.value,
+  });
 
   @override
   Future<void> doInitBean() async {}
@@ -147,7 +181,7 @@ class ImageTranslationSetting
   /// recognition via Vision and translation via Apple's Translation framework,
   /// with no third-party API involved.
   bool get usesAppleOnDeviceTranslation =>
-      isAppleLiveTextMode && !appleLiveTextUseThirdPartyApi.value;
+      translatorEngine.value == ImageTranslationEngine.appleOnDevice;
 
   /// Switch to the self-contained Apple Live Text mode, remembering the current
   /// custom engine so it can be restored later.
@@ -155,14 +189,21 @@ class ImageTranslationSetting
     if (!isAppleLiveTextMode) {
       lastCustomOcrEngine.value = ocrEngine.value;
       ocrEngine.value = ImageOcrEngine.appleLiveText;
+      translatorEngine.value = ImageTranslationEngine.appleOnDevice;
       await saveBeanConfig();
     }
   }
 
   /// Switch back to the custom mode (Tesseract / PaddleOCR + API).
   Future<void> switchToCustomMode() async {
+    final bool changed =
+        ocrEngine.value != lastCustomOcrEngine.value ||
+        translatorEngine.value != ImageTranslationEngine.api;
     if (ocrEngine.value != lastCustomOcrEngine.value) {
       ocrEngine.value = lastCustomOcrEngine.value;
+    }
+    translatorEngine.value = ImageTranslationEngine.api;
+    if (changed) {
       await saveBeanConfig();
     }
   }
@@ -180,9 +221,10 @@ class ImageTranslationSetting
   }) async {
     log.debug('Save image translation settings');
     this.ocrEngine.value = ocrEngine;
-    this.appleLiveTextLanguage.value = appleLiveTextLanguage.trim().isEmpty
-        ? 'auto'
-        : appleLiveTextLanguage.trim();
+    this.appleLiveTextLanguage.value =
+        appleLiveTextLanguage.trim().isEmpty
+            ? 'auto'
+            : appleLiveTextLanguage.trim();
     this.translatorProvider.value = translatorProvider;
     this.translatorEndpoint.value =
         translatorEndpoint.trim().isEmpty ? null : translatorEndpoint.trim();
@@ -233,6 +275,16 @@ class ImageTranslationSetting
 
   Future<void> saveAppleLiveTextUseThirdPartyApi(bool value) async {
     appleLiveTextUseThirdPartyApi.value = value;
+    translatorEngine.value =
+        value
+            ? ImageTranslationEngine.api
+            : ImageTranslationEngine.appleOnDevice;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveTranslatorEngine(ImageTranslationEngine value) async {
+    translatorEngine.value = value;
+    appleLiveTextUseThirdPartyApi.value = value == ImageTranslationEngine.api;
     await saveBeanConfig();
   }
 
