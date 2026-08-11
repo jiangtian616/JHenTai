@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:crypto/crypto.dart';
 import 'package:jhentai/src/model/image_translation.dart';
@@ -197,10 +198,9 @@ class EngineTask<T> {
 
   void _completeError(EngineException error, StackTrace stack) {
     _error = error;
-    _lifecycle =
-        error is EngineTaskCancelledException
-            ? EngineTaskLifecycle.cancelled
-            : EngineTaskLifecycle.failed;
+    _lifecycle = error is EngineTaskCancelledException
+        ? EngineTaskLifecycle.cancelled
+        : EngineTaskLifecycle.failed;
     if (!_completer.isCompleted) {
       _completer.completeError(error, stack);
     }
@@ -259,10 +259,75 @@ class EngineImageRequest {
   final Map<String, dynamic> configuration;
 }
 
+/// A point in the source image's upright pixel coordinate space.
+///
+/// Polygon coordinates deliberately stay in image pixels instead of being
+/// silently normalized or converted to a rectangle. The same points can be
+/// rasterized into an inpainting mask without losing the detector's shape.
+class EnginePoint {
+  const EnginePoint({required this.x, required this.y});
+
+  final double x;
+  final double y;
+
+  bool get isFinite => x.isFinite && y.isFinite;
+
+  Map<String, double> toJson() => <String, double>{'x': x, 'y': y};
+}
+
+/// A pixel-accurate text mask emitted by a detector such as CTD.
+///
+/// [points] are an ordered, closed-or-open polygon in source image pixels.
+/// Consumers must preserve the polygon when creating a mask; the bounding box
+/// is only a compatibility projection for older rectangle-only consumers.
+class PolygonMask {
+  const PolygonMask({required this.points, this.confidence = 0});
+
+  final List<EnginePoint> points;
+  final double confidence;
+
+  bool get isValid {
+    if (points.length < 3 ||
+        !confidence.isFinite ||
+        confidence < 0 ||
+        confidence > 1 ||
+        points.any((EnginePoint point) => !point.isFinite)) {
+      return false;
+    }
+    double area = 0;
+    for (int index = 0; index < points.length; index++) {
+      final EnginePoint current = points[index];
+      final EnginePoint next = points[(index + 1) % points.length];
+      area += current.x * next.y - next.x * current.y;
+    }
+    return area.abs() > 0.5;
+  }
+
+  double get left =>
+      points.map((EnginePoint point) => point.x).reduce(math.min);
+  double get top => points.map((EnginePoint point) => point.y).reduce(math.min);
+  double get right =>
+      points.map((EnginePoint point) => point.x).reduce(math.max);
+  double get bottom =>
+      points.map((EnginePoint point) => point.y).reduce(math.max);
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+    'points': points.map((EnginePoint point) => point.toJson()).toList(),
+    'confidence': confidence,
+  };
+}
+
 class DetectionResult {
-  const DetectionResult({required this.regions});
+  const DetectionResult({
+    required this.regions,
+    this.polygonMasks = const <PolygonMask>[],
+  });
 
   final List<DetectedTextRegion> regions;
+
+  /// Polygon output is authoritative for mask consumers. [regions] remains a
+  /// rectangle projection for OCR/layout code that has not adopted polygons.
+  final List<PolygonMask> polygonMasks;
 }
 
 class DetectedTextRegion {
@@ -351,9 +416,14 @@ class ImageProcessingRequest extends EngineImageRequest {
     required super.imagePath,
     required this.outputPath,
     super.configuration,
+    this.polygonMasks = const <PolygonMask>[],
   });
 
   final String outputPath;
+
+  /// Optional polygon masks in source-image pixel coordinates. Inpainting
+  /// adapters must reject an empty set instead of inventing rectangle masks.
+  final List<PolygonMask> polygonMasks;
 }
 
 abstract class InpaintEngine {
@@ -406,8 +476,8 @@ class EngineCacheKey {
 
 dynamic _canonicalize(dynamic value) {
   if (value is Map) {
-    final List<String> keys =
-        value.keys.map((Object? key) => '$key').toList()..sort();
+    final List<String> keys = value.keys.map((Object? key) => '$key').toList()
+      ..sort();
     return <String, dynamic>{
       for (final String key in keys) key: _canonicalize(value[key]),
     };

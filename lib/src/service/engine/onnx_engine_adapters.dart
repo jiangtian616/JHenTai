@@ -47,9 +47,8 @@ class OnnxOcrEngineAdapter implements OcrEngine {
               request.imagePath,
               maxDimension: request.maxDimension,
               cancellationToken: token,
-              onProgress:
-                  (double progress) =>
-                      context.report(EngineTaskStage.processing, progress),
+              onProgress: (double progress) =>
+                  context.report(EngineTaskStage.processing, progress),
             );
             context.report(EngineTaskStage.finalizing, 0.98);
             return OcrResult(
@@ -113,9 +112,8 @@ class OnnxSuperResolutionEngineAdapter implements SuperResolutionEngine {
               outputPath: request.outputPath,
               scale: scale,
               cancellationToken: token,
-              onProgress:
-                  (double progress) =>
-                      context.report(EngineTaskStage.processing, progress),
+              onProgress: (double progress) =>
+                  context.report(EngineTaskStage.processing, progress),
             );
             return request.outputPath;
           } on InferenceCancelledException catch (error) {
@@ -156,6 +154,7 @@ class OnnxModelCatalog extends ModelCatalog {
             switch (manifest.kind) {
               'ocr' => 'onnx-ocr',
               'superResolution' => 'onnx-super-resolution',
+              'inpaint' => 'onnx-migan-inpaint',
               _ => 'onnx',
             },
           ],
@@ -195,13 +194,12 @@ class OnnxModelDownloadManager implements ModelDownloadManager {
   EngineTask<ModelInstallResult> download(String modelId, {String? sourceId}) {
     final EngineTask<ModelInstallResult> task = EngineTask.start(
       operation: (EngineTaskContext context) async {
-        final OnnxModelSource? source =
-            sourceId == null
-                ? null
-                : OnnxModelSource.values.cast<OnnxModelSource?>().firstWhere(
-                  (OnnxModelSource? value) => value?.name == sourceId,
-                  orElse: () => null,
-                );
+        final OnnxModelSource? source = sourceId == null
+            ? null
+            : OnnxModelSource.values.cast<OnnxModelSource?>().firstWhere(
+                (OnnxModelSource? value) => value?.name == sourceId,
+                orElse: () => null,
+              );
         final subscription = context.cancellation.onCancel.listen(
           (_) => _store.cancelDownload(),
         );
@@ -209,11 +207,10 @@ class OnnxModelDownloadManager implements ModelDownloadManager {
           await _store.downloadManifest(
             modelId,
             source: source,
-            onProgress:
-                (String _, int received, int total) => context.report(
-                  EngineTaskStage.processing,
-                  total == 0 ? 0 : received / total,
-                ),
+            onProgress: (String _, int received, int total) => context.report(
+              EngineTaskStage.processing,
+              total == 0 ? 0 : received / total,
+            ),
           );
           context.report(EngineTaskStage.finalizing, 1);
           return ModelInstallResult(

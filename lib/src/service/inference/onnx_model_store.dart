@@ -49,6 +49,8 @@ class OnnxModelStore extends GetxController {
   static const String superResolutionFastManifestId =
       'realesrgan-x4plus-anime-4b32f';
 
+  static const String miganInpaintManifestId = 'migan-pipeline-v2';
+
   static const List<OnnxModelManifest> manifests = [
     OnnxModelManifest(
       id: ocrManifestId,
@@ -216,6 +218,32 @@ class OnnxModelStore extends GetxController {
         ),
       ],
     ),
+    OnnxModelManifest(
+      id: miganInpaintManifestId,
+      kind: 'inpaint',
+      // ModelScope API revision 78aada3f; artifact SHA-256 is pinned below.
+      version: 'ModelScope-master-78aada3f',
+      displayName: 'MI-GAN Pipeline V2（文字背景修复）',
+      description: 'Verified ModelScope MI-GAN ONNX pipeline.',
+      // The model card README declares Apache-2.0 while the structured
+      // ModelScope license fields are empty. Keep that uncertainty visible.
+      licenseName: 'Apache-2.0 (ModelScope README; metadata unset)',
+      licenseUrl: 'https://www.modelscope.cn/models/phodit/migan-pipeline-v2',
+      sourceProjectUrl: 'https://github.com/lxfater/inpaint-web',
+      files: [
+        OnnxModelFile(
+          id: 'model',
+          fileName: 'migan_pipeline_v2.onnx',
+          sizeBytes: 28079181,
+          sha256:
+              '6f1f3530a1a2324b19752018ce756088b07973cda8d7d890034ace5c8a48c40b',
+          urls: {
+            OnnxModelSource.modelScope:
+                'https://www.modelscope.cn/models/phodit/migan-pipeline-v2/resolve/master/migan_pipeline_v2.onnx',
+          },
+        ),
+      ],
+    ),
   ];
 
   final Rx<LoadingState> downloadState = LoadingState.idle.obs;
@@ -256,10 +284,9 @@ class OnnxModelStore extends GetxController {
 
   /// All manifests of [kind] (e.g. 'superResolution'), in catalog order — the
   /// list a model picker offers.
-  List<OnnxModelManifest> manifestsOfKind(String kind) =>
-      manifests
-          .where((OnnxModelManifest manifest) => manifest.kind == kind)
-          .toList();
+  List<OnnxModelManifest> manifestsOfKind(String kind) => manifests
+      .where((OnnxModelManifest manifest) => manifest.kind == kind)
+      .toList();
 
   List<OnnxModelSource> availableSources(String manifestId) =>
       manifestOf(manifestId)?.availableSources ?? const [];
@@ -455,9 +482,8 @@ class OnnxModelStore extends GetxController {
           cancelToken: cancelToken,
           options: Options(
             responseType: ResponseType.stream,
-            validateStatus:
-                (int? status) =>
-                    status != null && status >= 200 && status < 400,
+            validateStatus: (int? status) =>
+                status != null && status >= 200 && status < 400,
           ),
         );
         final IOSink sink = target.openWrite();
@@ -524,10 +550,9 @@ class OnnxModelStore extends GetxController {
         'ONNX model installed: ${manifest.displayName} from ${source.displayName}',
       );
     } on DioException catch (e, s) {
-      final String message =
-          CancelToken.isCancel(e)
-              ? 'download cancelled'
-              : (e.message ?? e.toString());
+      final String message = CancelToken.isCancel(e)
+          ? 'download cancelled'
+          : (e.message ?? e.toString());
       lastError.value = message;
       downloadState.value = LoadingState.error;
       log.error('ONNX model download failed: $manifestId', e, s);

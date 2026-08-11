@@ -1,19 +1,24 @@
 import 'dart:io';
 
+import 'package:flutter_onnxruntime/flutter_onnxruntime.dart' as ort;
 import 'package:jhentai/src/service/inference_service.dart';
 import 'package:jhentai/src/setting/image_translation_setting.dart';
 
 import 'api_translation_engine.dart';
 import 'apple_engine_adapters.dart';
+import 'ctd_engine_adapter.dart';
 import 'engine_contract.dart';
 import 'gguf_model_store.dart';
 import 'llama_cpp_ffi_engine.dart';
 import 'llama_server_translation_engine.dart';
 import 'local_translation_model_catalog.dart';
+import 'migan_inpaint_engine.dart';
 import 'model_catalog.dart';
 import 'manga_ocr_engine_adapter.dart';
 import 'onnx_engine_adapters.dart';
-import 'unavailable_engine_adapters.dart';
+import '../inference/inpainting_inference_engine.dart';
+import '../inference/onnx_model_store.dart';
+import '../inference/onnx_runtime.dart';
 
 EnginePlatform get currentEnginePlatform {
   if (Platform.isAndroid) return EnginePlatform.android;
@@ -77,6 +82,9 @@ class EngineRegistry {
   EngineRegistry({
     InferenceService Function()? inferenceResolver,
     ImageTranslationSetting? setting,
+    CtdDetectionRunner? ctdRunner,
+    DetectionEngine? detectionEngine,
+    InpaintEngine? inpaintEngine,
     this.capabilityMatrix = const EngineCapabilityMatrix(),
   }) : _inferenceResolver = inferenceResolver ?? (() => inferenceService),
        _setting = setting ?? imageTranslationSetting {
@@ -96,8 +104,38 @@ class EngineRegistry {
         resolver: () => _inferenceResolver().superResolutionEngine,
       ),
     );
-    registerDetection(const UnavailableDetectionEngine());
-    registerInpaint(const UnavailableInpaintEngine());
+    registerDetection(
+      detectionEngine ?? CtdDetectionEngineAdapter(runner: ctdRunner),
+    );
+    final MiganOnnxInpaintingInferenceEngine miganInference =
+        MiganOnnxInpaintingInferenceEngine(
+          runtime: OnnxRuntime.instance,
+          // CPU is the only provider enabled by this adapter until a CTD/
+          // inpainting-specific canary is wired into InferenceService.
+          providerResolver: () {
+            final List<ort.OrtProvider> available =
+                OnnxRuntime.instance.availableProviders;
+            return available.contains(ort.OrtProvider.CPU)
+                ? <ort.OrtProvider>[ort.OrtProvider.CPU]
+                : const <ort.OrtProvider>[];
+          },
+          modelResolver: () {
+            final Map<String, String>? files = OnnxModelStore.instance
+                .manifestFilePaths(OnnxModelStore.miganInpaintManifestId);
+            return MiganOnnxModelInfo(
+              modelPath: files?['model'],
+              fingerprint:
+                  OnnxModelStore.instance.fingerprintOf(
+                    OnnxModelStore.miganInpaintManifestId,
+                  ) ??
+                  '',
+            );
+          },
+        );
+    registerInpaint(
+      inpaintEngine ??
+          MiganOnnxInpaintEngineAdapter(resolver: () => miganInference),
+    );
     final OnnxModelCatalog onnxCatalog = OnnxModelCatalog();
     final OnnxModelDownloadManager onnxDownloads = OnnxModelDownloadManager();
     final LocalTranslationModelCatalog localCatalog =
@@ -151,6 +189,8 @@ class EngineRegistry {
 
   OcrEngine? findOcr(String id) => _ocr[id];
   TranslationEngine? findTranslation(String id) => _translations[id];
+  DetectionEngine? findDetection(String id) => _detection[id];
+  InpaintEngine? findInpaint(String id) => _inpaint[id];
   SuperResolutionEngine? findSuperResolution(String id) => _superResolution[id];
   ModelCatalog get modelCatalog => _modelCatalog;
   ModelDownloadManager get modelDownloadManager => _modelDownloadManager;
