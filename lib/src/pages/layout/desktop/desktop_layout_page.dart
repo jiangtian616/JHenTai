@@ -42,7 +42,6 @@ class DesktopLayoutPage extends StatelessWidget {
 
   Widget _leftTabBar(BuildContext context) {
     final bool isMacOS = GetPlatform.isMacOS && ThemeConfig.isApple;
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
     final double width = isMacOS
         ? UIConfig.desktopMacOSLeftTabBarWidth
         : UIConfig.desktopLeftTabBarWidth;
@@ -52,9 +51,8 @@ class DesktopLayoutPage extends StatelessWidget {
         width: width,
         color: isMacOS
             ? UIConfig.desktopSideBarColor(context).withValues(
-                alpha: isDark
-                    ? UIConfig.desktopMacOSSideBarDarkAlpha
-                    : UIConfig.desktopMacOSSideBarLightAlpha)
+                alpha: UIConfig.desktopMacOSSideBarAlpha(
+                    Theme.of(context).brightness))
             : (ThemeConfig.isApple
                 ? UIConfig.desktopSideBarColor(context)
                 : UIConfig.backGroundColor(context)),
@@ -80,7 +78,11 @@ class DesktopLayoutPage extends StatelessWidget {
     if (isMacOS) {
       /// Native macOS translucent sidebar (NSVisualEffectView .sidebar material),
       /// showing the desktop through a frosted surface.
-      bar = TransparentMacOSSidebar(child: bar);
+      bar = TransparentMacOSSidebar(
+        alphaValue: UIConfig.desktopMacOSVisualEffectAlpha(
+            Theme.of(context).brightness),
+        child: bar,
+      );
     }
     return bar;
   }

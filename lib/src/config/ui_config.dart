@@ -227,7 +227,19 @@ class UIConfig {
   static const Color desktopSideBarColorLight = Color(0xFFECECEC);
   static const Color desktopSideBarColorDark = Color(0xFF1E1E1E);
   static const double desktopMacOSSideBarLightAlpha = 0.45;
-  static const double desktopMacOSSideBarDarkAlpha = 0.60;
+  static const double desktopMacOSSideBarDarkAlpha = 0.88;
+  static const double desktopMacOSVisualEffectLightAlpha = 1.0;
+  static const double desktopMacOSVisualEffectDarkAlpha = 0.32;
+
+  static double desktopMacOSSideBarAlpha(Brightness brightness) =>
+      brightness == Brightness.dark
+          ? desktopMacOSSideBarDarkAlpha
+          : desktopMacOSSideBarLightAlpha;
+
+  static double desktopMacOSVisualEffectAlpha(Brightness brightness) =>
+      brightness == Brightness.dark
+          ? desktopMacOSVisualEffectDarkAlpha
+          : desktopMacOSVisualEffectLightAlpha;
 
   static Color desktopSideBarColor(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
