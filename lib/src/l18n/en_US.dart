@@ -561,6 +561,7 @@ class en_US {
       'lanPermission_imageCache': 'Image cache',
       'lanPermission_translationResults': 'Translation results',
       'lanPermission_translationCompute': 'Translation compute',
+      'lanPermission_ocrCompute': 'OCR compute',
       'lanPermission_loginState': 'Login state',
       'lanPermission_applicationHistory': 'Application history',
       'lanUnifiedState': 'Unified state sync',

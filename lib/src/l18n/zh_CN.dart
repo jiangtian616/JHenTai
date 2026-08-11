@@ -510,6 +510,7 @@ class zh_CN {
       'lanPermission_imageCache': '图片缓存',
       'lanPermission_translationResults': '翻译结果',
       'lanPermission_translationCompute': '翻译算力',
+      'lanPermission_ocrCompute': 'OCR 算力',
       'lanPermission_loginState': '登录状态',
       'lanPermission_applicationHistory': '应用历史',
       'lanUnifiedState': '统一状态同步',
