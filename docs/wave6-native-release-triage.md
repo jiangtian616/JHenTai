@@ -1,7 +1,7 @@
 # Wave 6B：macOS native build 与 ONNX Runtime 发布链核查
 
-日期：2026-08-11（Asia/Shanghai）  
-基线：`97c21f1d`（Wave 5 集成提交）  
+日期：2026-08-11（Asia/Shanghai）
+基线：`97c21f1d`（Wave 5 集成提交）
 工作区：独立 detached worktree `/Users/zhangxuanning/.codex/worktrees/592f/JHenTai`；主线未修改
 
 ## 结论
