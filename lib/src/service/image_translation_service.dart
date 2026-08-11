@@ -44,6 +44,7 @@ class RecognizedImage {
   const RecognizedImage({
     required this.cacheKey,
     required this.persistentKey,
+    required this.sourceHash,
     required this.sourcePath,
     required this.sourceText,
     required this.blocks,
@@ -53,6 +54,7 @@ class RecognizedImage {
 
   final String cacheKey;
   final String persistentKey;
+  final String sourceHash;
   final String sourcePath;
   final String sourceText;
   final List<RecognizedTextBlock> blocks;
@@ -357,6 +359,55 @@ class ImageTranslationService extends GetxController
     _set(cacheKey, result);
   }
 
+  /// Publishes a result produced by an independent pipeline while keeping the
+  /// existing overlay/GetX notification path. Context translation uses this
+  /// instead of reaching into the service's result map.
+  void publishResult(String cacheKey, ImageTranslationResult result) {
+    _set(cacheKey, result);
+  }
+
+  /// Context batches use a cache key that is different from the ordinary
+  /// single-page key. These narrow methods keep the existing gzip cache and
+  /// hydrate behavior as the single persistence implementation.
+  Future<ImageTranslationResult?> readPersistentResultForKey(String key) =>
+      _readPersistentResult(key);
+
+  Future<void> writePersistentResultForKey(
+    String key,
+    ImageTranslationResult result,
+  ) => _writePersistentResult(key, result);
+
+  Future<bool> hydratePersistentResult({
+    required String displayCacheKey,
+    required String persistentKey,
+  }) async {
+    final ImageTranslationResult? result = await _readPersistentResult(
+      persistentKey,
+    );
+    if (result == null) return false;
+    _set(displayCacheKey, result.copyWith(fromCache: true));
+    return true;
+  }
+
+  /// Allows an independent batch orchestrator to participate in the existing
+  /// cancel button. The concrete engine remains owned by its adapter.
+  void attachExternalBatchTask(
+    EngineTask<dynamic> task, {
+    String? activeCacheKey,
+  }) {
+    _activeEngineTask = task;
+    _activeCacheKey = activeCacheKey;
+  }
+
+  void detachExternalBatchTask(EngineTask<dynamic> task) {
+    if (identical(_activeEngineTask, task)) {
+      _activeEngineTask = null;
+      _activeCacheKey = null;
+    }
+  }
+
+  void setBatchStage(ImageTranslationStage stage) => _setStage(stage);
+
   Future<bool> hydrateResult(ImageTranslationRequest request) {
     final ImageTranslationResult current = resultFor(request.cacheKey);
     if (current.status == ImageTranslationStatus.success ||
@@ -502,6 +553,7 @@ class ImageTranslationService extends GetxController
       return RecognizedImage(
         cacheKey: request.cacheKey,
         persistentKey: persistentKey,
+        sourceHash: imageHash,
         sourcePath: imagePath,
         sourceText: sourceText,
         blocks: blocks,

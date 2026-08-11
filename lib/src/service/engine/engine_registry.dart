@@ -7,6 +7,7 @@ import 'package:jhentai/src/setting/image_translation_setting.dart';
 import 'api_translation_engine.dart';
 import 'apple_engine_adapters.dart';
 import 'ctd_engine_adapter.dart';
+import 'context_translation_contract.dart';
 import 'engine_contract.dart';
 import 'gguf_model_store.dart';
 import 'llama_cpp_ffi_engine.dart';
@@ -162,6 +163,8 @@ class EngineRegistry {
   final Map<String, OcrEngine> _ocr = <String, OcrEngine>{};
   final Map<String, TranslationEngine> _translations =
       <String, TranslationEngine>{};
+  final Map<String, ContextTranslationEngine> _contextTranslations =
+      <String, ContextTranslationEngine>{};
   final Map<String, DetectionEngine> _detection = <String, DetectionEngine>{};
   final Map<String, InpaintEngine> _inpaint = <String, InpaintEngine>{};
   final Map<String, SuperResolutionEngine> _superResolution =
@@ -173,6 +176,8 @@ class EngineRegistry {
       _put(_ocr, engine.descriptor.id, engine);
   void registerTranslation(TranslationEngine engine) =>
       _put(_translations, engine.descriptor.id, engine);
+  void registerContextTranslation(ContextTranslationEngine engine) =>
+      _put(_contextTranslations, engine.descriptor.id, engine);
   void registerDetection(DetectionEngine engine) =>
       _put(_detection, engine.descriptor.id, engine);
   void registerInpaint(InpaintEngine engine) =>
@@ -189,6 +194,8 @@ class EngineRegistry {
 
   OcrEngine? findOcr(String id) => _ocr[id];
   TranslationEngine? findTranslation(String id) => _translations[id];
+  ContextTranslationEngine? findContextTranslation(String id) =>
+      _contextTranslations[id];
   DetectionEngine? findDetection(String id) => _detection[id];
   InpaintEngine? findInpaint(String id) => _inpaint[id];
   SuperResolutionEngine? findSuperResolution(String id) => _superResolution[id];
@@ -215,6 +222,11 @@ class EngineRegistry {
     };
     return _translations[id]!;
   }
+
+  /// Context translation is an independent capability. A regular
+  /// [TranslationEngine] is never treated as context-capable implicitly.
+  ContextTranslationEngine? get selectedContextTranslation =>
+      findContextTranslation(selectedTranslation.descriptor.id);
 
   EngineCapabilityDecision evaluateSelected({EnginePlatform? platform}) =>
       capabilityMatrix.evaluate(
