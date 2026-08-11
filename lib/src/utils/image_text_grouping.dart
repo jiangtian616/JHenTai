@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 
 import '../model/image_translation.dart';
+import 'ocr_layout_protocol.dart';
 
 /// A cluster of recognized text lines that together form one utterance —
 /// typically the lines inside a single speech bubble or caption box. Built by
@@ -30,8 +31,9 @@ class RecognizedTextGroup {
   double get height => bottom - top;
 
   /// The member blocks in reading order.
-  List<RecognizedTextBlock> blocksOf(List<RecognizedTextBlock> all) =>
-      [for (final int index in blockIndices) all[index]];
+  List<RecognizedTextBlock> blocksOf(List<RecognizedTextBlock> all) => [
+    for (final int index in blockIndices) all[index],
+  ];
 
   /// The group's text with its lines joined by newlines — the unit a
   /// translator should translate as one utterance.
@@ -84,13 +86,18 @@ List<String> splitGroupTranslationIntoLines({
   final List<int> weights = sourceLines
       .map((String line) => math.max(1, line.trim().length))
       .toList();
-  final int totalWeight = weights.fold<int>(0, (int sum, int weight) => sum + weight);
+  final int totalWeight = weights.fold<int>(
+    0,
+    (int sum, int weight) => sum + weight,
+  );
   final List<int> cuts = <int>[];
   int accumulated = 0;
   for (int i = 0; i < lineCount - 1; i++) {
     accumulated += weights[i];
-    final int ideal =
-        (text.length * accumulated / totalWeight).round().clamp(1, text.length - 1);
+    final int ideal = (text.length * accumulated / totalWeight).round().clamp(
+      1,
+      text.length - 1,
+    );
     cuts.add(_nearestLineBreak(text, ideal));
   }
   int start = 0;
@@ -198,10 +205,8 @@ List<RecognizedTextGroup> groupRecognizedTextBlocks(
     groupIndices[group].add(blockIndex);
     groupLeft[group] = math.min(groupLeft[group], block.left);
     groupTop[group] = math.min(groupTop[group], block.top);
-    groupRight[group] =
-        math.max(groupRight[group], block.left + block.width);
-    groupBottom[group] =
-        math.max(groupBottom[group], block.top + block.height);
+    groupRight[group] = math.max(groupRight[group], block.left + block.width);
+    groupBottom[group] = math.max(groupBottom[group], block.top + block.height);
     groupLast[group] = block;
   }
 
@@ -268,7 +273,7 @@ bool _isMostlyVertical(List<RecognizedTextBlock> blocks) {
       continue;
     }
     total++;
-    if (block.height > block.width * 1.4) {
+    if (block.height > block.width * OcrScoringProtocol.verticalAspectRatio) {
       vertical++;
     }
   }
@@ -290,7 +295,8 @@ double? _horizontalGroupMatchScore(
   // detector split one line into pieces, not a stacked utterance.
   final double verticalOverlap =
       math.min(lastBottom, candidateBottom) - math.max(last.top, candidate.top);
-  if (verticalOverlap > _maxVerticalOverlapRatio * math.min(last.height, candidate.height)) {
+  if (verticalOverlap >
+      _maxVerticalOverlapRatio * math.min(last.height, candidate.height)) {
     return null;
   }
 
@@ -307,8 +313,8 @@ double? _horizontalGroupMatchScore(
   final double lastRight = last.left + last.width;
   final double candidateLeft = candidate.left;
   final double candidateRight = candidate.left + candidate.width;
-  final double overlap = math.min(lastRight, candidateRight) -
-      math.max(lastLeft, candidateLeft);
+  final double overlap =
+      math.min(lastRight, candidateRight) - math.max(lastLeft, candidateLeft);
   final double overlapRatio = overlap / math.min(last.width, candidate.width);
   if (overlapRatio >= _minOverlapRatio) {
     return overlapRatio;
@@ -318,7 +324,8 @@ double? _horizontalGroupMatchScore(
   final double centerDistance = (candidateCenter - lastCenter).abs();
   if (centerDistance <=
       _maxCenterOffsetRatio * math.max(last.width, candidate.width)) {
-    final double fit = 1 - centerDistance / math.max(last.width, candidate.width);
+    final double fit =
+        1 - centerDistance / math.max(last.width, candidate.width);
     return 0.1 + 0.5 * fit;
   }
   return null;
@@ -337,10 +344,9 @@ double? _verticalGroupMatchScore(
   final double candidateRight = candidate.left + candidate.width;
 
   // Must overlap vertically (side-by-side columns, not stacked bubbles).
-  final double verticalOverlap = math.min(lastBottom, candidateBottom) -
-      math.max(last.top, candidate.top);
-  if (verticalOverlap <
-      0.5 * math.min(last.height, candidate.height)) {
+  final double verticalOverlap =
+      math.min(lastBottom, candidateBottom) - math.max(last.top, candidate.top);
+  if (verticalOverlap < 0.5 * math.min(last.height, candidate.height)) {
     return null;
   }
 

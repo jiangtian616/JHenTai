@@ -22,6 +22,10 @@ enum ImageOcrEngine {
   /// 端侧 ONNX 推理（PP-OCRv6，走统一"推理后端"入口）。
   onnx,
 
+  /// Independent manga-OCR adapter. It currently falls back to ONNX until
+  /// the official vocabulary hash and five-platform runtime are verified.
+  mangaOcr,
+
   /// Apple Vision framework 的 Live Text 识别（仅 Apple 平台）。
   appleLiveText,
 }
@@ -34,6 +38,11 @@ class ImageTranslationSetting
   /// The active ONNX OCR model manifest id (e.g. PP-OCRv6 small vs tiny). The
   /// engine resolves model files lazily against this id.
   final RxString onnxModelId = RxString(OnnxModelStore.ocrManifestId);
+
+  /// Allows the service to offer manga-OCR for Japanese tategaki once the
+  /// adapter reports ready. The current blocked adapter leaves existing OCR
+  /// results untouched.
+  final RxBool mangaOcrAutoSuggest = true.obs;
 
   /// Apple Live Text recognition languages, as a comma-separated list of
   /// BCP-47 codes, or 'auto' for on-device auto detection (iOS 16 / macOS 13+).
@@ -86,6 +95,8 @@ class ImageTranslationSetting
       orElse: () => ocrEngine.value,
     );
     onnxModelId.value = config['onnxModelId'] ?? onnxModelId.value;
+    mangaOcrAutoSuggest.value =
+        config['mangaOcrAutoSuggest'] ?? mangaOcrAutoSuggest.value;
     appleLiveTextLanguage.value =
         config['appleLiveTextLanguage'] ?? appleLiveTextLanguage.value;
     appleLiveTextAutoSelected.value =
@@ -115,8 +126,8 @@ class ImageTranslationSetting
       // that representation to the independent translator selection.
       translatorEngine.value =
           (config['appleLiveTextUseThirdPartyApi'] as bool? ?? false)
-              ? ImageTranslationEngine.api
-              : ImageTranslationEngine.appleOnDevice;
+          ? ImageTranslationEngine.api
+          : ImageTranslationEngine.appleOnDevice;
     }
     translatorEndpoint.value = config['translatorEndpoint'];
     translatorApiKey.value = config['translatorApiKey'];
@@ -133,6 +144,7 @@ class ImageTranslationSetting
   String toConfigString() => jsonEncode({
     'ocrEngine': ocrEngine.value.name,
     'onnxModelId': onnxModelId.value,
+    'mangaOcrAutoSuggest': mangaOcrAutoSuggest.value,
     'appleLiveTextLanguage': appleLiveTextLanguage.value,
     'appleLiveTextAutoSelected': appleLiveTextAutoSelected.value,
     'appleLiveTextUseThirdPartyApi': appleLiveTextUseThirdPartyApi.value,
@@ -221,18 +233,20 @@ class ImageTranslationSetting
   }) async {
     log.debug('Save image translation settings');
     this.ocrEngine.value = ocrEngine;
-    this.appleLiveTextLanguage.value =
-        appleLiveTextLanguage.trim().isEmpty
-            ? 'auto'
-            : appleLiveTextLanguage.trim();
+    this.appleLiveTextLanguage.value = appleLiveTextLanguage.trim().isEmpty
+        ? 'auto'
+        : appleLiveTextLanguage.trim();
     this.translatorProvider.value = translatorProvider;
-    this.translatorEndpoint.value =
-        translatorEndpoint.trim().isEmpty ? null : translatorEndpoint.trim();
-    this.translatorApiKey.value =
-        translatorApiKey.trim().isEmpty ? null : translatorApiKey.trim();
+    this.translatorEndpoint.value = translatorEndpoint.trim().isEmpty
+        ? null
+        : translatorEndpoint.trim();
+    this.translatorApiKey.value = translatorApiKey.trim().isEmpty
+        ? null
+        : translatorApiKey.trim();
     this.translatorModel.value = translatorModel.trim();
-    this.targetLanguage.value =
-        targetLanguage.trim().isEmpty ? '简体中文' : targetLanguage.trim();
+    this.targetLanguage.value = targetLanguage.trim().isEmpty
+        ? '简体中文'
+        : targetLanguage.trim();
     if (enableThinking != null) {
       this.enableThinking.value = enableThinking;
     }
@@ -258,8 +272,9 @@ class ImageTranslationSetting
   }
 
   Future<void> saveTranslatorModel(String value) async {
-    translatorModel.value =
-        value.trim().isEmpty ? 'gpt-4.1-mini' : value.trim();
+    translatorModel.value = value.trim().isEmpty
+        ? 'gpt-4.1-mini'
+        : value.trim();
     await saveBeanConfig();
   }
 
@@ -275,10 +290,9 @@ class ImageTranslationSetting
 
   Future<void> saveAppleLiveTextUseThirdPartyApi(bool value) async {
     appleLiveTextUseThirdPartyApi.value = value;
-    translatorEngine.value =
-        value
-            ? ImageTranslationEngine.api
-            : ImageTranslationEngine.appleOnDevice;
+    translatorEngine.value = value
+        ? ImageTranslationEngine.api
+        : ImageTranslationEngine.appleOnDevice;
     await saveBeanConfig();
   }
 
@@ -296,6 +310,11 @@ class ImageTranslationSetting
   Future<void> saveOnnxModelId(String modelId) async {
     log.debug('saveOnnxModelId:$modelId');
     onnxModelId.value = modelId;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveMangaOcrAutoSuggest(bool value) async {
+    mangaOcrAutoSuggest.value = value;
     await saveBeanConfig();
   }
 }

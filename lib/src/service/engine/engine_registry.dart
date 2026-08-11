@@ -7,6 +7,7 @@ import 'api_translation_engine.dart';
 import 'apple_engine_adapters.dart';
 import 'engine_contract.dart';
 import 'model_catalog.dart';
+import 'manga_ocr_engine_adapter.dart';
 import 'onnx_engine_adapters.dart';
 import 'unavailable_engine_adapters.dart';
 
@@ -78,6 +79,9 @@ class EngineRegistry {
     registerOcr(
       OnnxOcrEngineAdapter(resolver: () => _inferenceResolver().ocrEngine),
     );
+    registerOcr(
+      MangaOcrEngineAdapter(fallbackResolver: () => _ocr['onnx-ocr']!),
+    );
     registerOcr(AppleLiveTextOcrEngine());
     registerTranslation(ApiTranslationEngine(setting: _setting));
     registerTranslation(AppleTranslationEngine());
@@ -133,6 +137,7 @@ class EngineRegistry {
     final String id = switch (_setting.ocrEngine.value) {
       ImageOcrEngine.appleLiveText => 'apple-live-text-ocr',
       ImageOcrEngine.onnx => 'onnx-ocr',
+      ImageOcrEngine.mangaOcr => 'manga-ocr',
     };
     return _ocr[id]!;
   }
