@@ -11,7 +11,7 @@ class EHImageException implements Exception {
 
   @override
   String toString() {
-    return message;
+    return 'EHImageException(type: $type, message: $message, operation: $operation)';
   }
 }
 
