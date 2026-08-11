@@ -33,8 +33,11 @@ ImageTranslationService imageTranslationService = ImageTranslationService();
 /// Live Text), so the overlay scales blocks in the same space the image is
 /// actually displayed in. Tesseract/Paddle return null and the caller falls
 /// back to its header-based dimension probe.
-typedef _RecognizeResult =
-    ({List<RecognizedTextBlock> blocks, int? imageWidth, int? imageHeight});
+typedef _RecognizeResult = ({
+  List<RecognizedTextBlock> blocks,
+  int? imageWidth,
+  int? imageHeight,
+});
 
 /// The recognized source of one page, produced by [ImageTranslationService.recognizeImage]
 /// and consumed by [ImageTranslationService.translateRecognizedText]. Carrying it
@@ -72,6 +75,11 @@ class ImageTranslationService extends GetxController
   bool isBatchTranslating = false;
   int batchTotal = 0;
   int batchCompleted = 0;
+  int batchSucceeded = 0;
+  int batchFailed = 0;
+  int batchCanceled = 0;
+  int batchSkipped = 0;
+  final List<String> batchFailedKeys = <String>[];
   ImageTranslationStage currentStage = ImageTranslationStage.idle;
   bool _cancelRequested = false;
 
@@ -80,9 +88,13 @@ class ImageTranslationService extends GetxController
   /// when its captured generation is still current, so it can never clobber a
   /// newer batch's banner/progress.
   int _batchGeneration = 0;
+  final Set<String> _batchRecordedKeys = <String>{};
   Process? _activeProcess;
   CancelToken? _activeCancelToken;
   InferenceCancellationToken? _activeInferenceToken;
+  String? _activeCacheKey;
+  final Map<String, Future<bool>> _hydrateTasks = <String, Future<bool>>{};
+  Directory? _translationCacheDirectoryOverride;
 
   /// Apple Live Text OCR (Vision framework) is exposed over a platform channel
   /// registered natively in ios/Runner and macos/Runner.
@@ -96,6 +108,12 @@ class ImageTranslationService extends GetxController
     isBatchTranslating = true;
     batchTotal = total;
     batchCompleted = 0;
+    batchSucceeded = 0;
+    batchFailed = 0;
+    batchCanceled = 0;
+    batchSkipped = 0;
+    batchFailedKeys.clear();
+    _batchRecordedKeys.clear();
     currentStage = ImageTranslationStage.idle;
     update([batchProgressId]);
     return _batchGeneration;
@@ -108,7 +126,6 @@ class ImageTranslationService extends GetxController
       return;
     }
     isBatchTranslating = false;
-    batchCompleted = batchTotal;
     currentStage = ImageTranslationStage.done;
     _cancelRequested = false;
     update([batchProgressId]);
@@ -116,6 +133,16 @@ class ImageTranslationService extends GetxController
 
   void cancelBatch() {
     _cancelRequested = true;
+    final String? activeCacheKey = _activeCacheKey;
+    if (activeCacheKey != null) {
+      _set(
+        activeCacheKey,
+        resultFor(activeCacheKey).copyWith(
+          status: ImageTranslationStatus.canceled,
+          errorMessage: 'CANCELED',
+        ),
+      );
+    }
     _activeProcess?.kill();
     _activeProcess = null;
     _activeCancelToken?.cancel();
@@ -142,9 +169,108 @@ class ImageTranslationService extends GetxController
     _cancelRequested = false;
   }
 
+  void queue(String cacheKey) {
+    final ImageTranslationResult current = resultFor(cacheKey);
+    if (!current.isTerminal ||
+        current.status == ImageTranslationStatus.canceled) {
+      _set(cacheKey, current.copyWith(status: ImageTranslationStatus.queued));
+    }
+  }
+
+  void markDownloading(String cacheKey) {
+    _set(
+      cacheKey,
+      resultFor(cacheKey).copyWith(status: ImageTranslationStatus.downloading),
+    );
+    _setStage(ImageTranslationStage.downloading);
+  }
+
+  void markDownloadError(String cacheKey, String errorMessage) {
+    _set(
+      cacheKey,
+      resultFor(cacheKey).copyWith(
+        status: ImageTranslationStatus.downloadError,
+        errorMessage: errorMessage,
+      ),
+    );
+  }
+
+  void markOcrError(String cacheKey, String errorMessage) {
+    _set(
+      cacheKey,
+      resultFor(cacheKey).copyWith(
+        status: ImageTranslationStatus.ocrError,
+        errorMessage: errorMessage,
+      ),
+    );
+  }
+
+  void markNoText(String cacheKey, {int? imageWidth, int? imageHeight}) {
+    _set(
+      cacheKey,
+      resultFor(cacheKey).copyWith(
+        status: ImageTranslationStatus.noText,
+        errorMessage: 'NO_TEXT',
+        imageWidth: imageWidth,
+        imageHeight: imageHeight,
+      ),
+    );
+  }
+
+  void markCanceled(String cacheKey, [String errorMessage = 'CANCELED']) {
+    _set(
+      cacheKey,
+      resultFor(cacheKey).copyWith(
+        status: ImageTranslationStatus.canceled,
+        errorMessage: errorMessage,
+      ),
+    );
+  }
+
+  /// Records a page only after its OCR/translation future has unwound. This
+  /// prevents an exception that is logged by a batch caller from looking like
+  /// a successful completion.
+  void recordBatchResult(String cacheKey, {int? generation}) {
+    if (!isBatchTranslating ||
+        (generation != null && !isCurrentBatch(generation)) ||
+        !_batchRecordedKeys.add(cacheKey)) {
+      return;
+    }
+    final ImageTranslationResult result = resultFor(cacheKey);
+    batchCompleted++;
+    if (result.status == ImageTranslationStatus.success) {
+      batchSucceeded++;
+    } else if (result.status == ImageTranslationStatus.canceled) {
+      batchCanceled++;
+    } else if (result.status == ImageTranslationStatus.noText) {
+      batchSkipped++;
+    } else if (result.isFailure) {
+      batchFailed++;
+      if (!batchFailedKeys.contains(cacheKey)) batchFailedKeys.add(cacheKey);
+    } else if (result.status == ImageTranslationStatus.idle ||
+        result.status == ImageTranslationStatus.queued ||
+        result.status == ImageTranslationStatus.downloading ||
+        result.status == ImageTranslationStatus.recognizing ||
+        result.status == ImageTranslationStatus.translating) {
+      batchFailed++;
+      if (!batchFailedKeys.contains(cacheKey)) batchFailedKeys.add(cacheKey);
+    }
+    update([batchProgressId]);
+  }
+
   /// Removes an in-memory result. Used when the source image is reloaded so a
   /// stale overlay is not drawn over the new image.
   void removeResult(String cacheKey) => _removeResult(cacheKey);
+
+  /// Releases only the decoded/paintable in-memory result. Persistent result
+  /// files are deliberately untouched so a later viewport entry, a reopened
+  /// gallery, or an app restart can hydrate the overlay again.
+  void releaseInMemoryResult(String cacheKey) {
+    final ImageTranslationResult? current = _results[cacheKey];
+    if (current != null && current.isTerminal) {
+      _removeResult(cacheKey);
+    }
+  }
 
   void _setStage(ImageTranslationStage stage) {
     currentStage = stage;
@@ -154,16 +280,16 @@ class ImageTranslationService extends GetxController
   String taskId(String cacheKey) => '$taskIdPrefix::$cacheKey';
 
   Directory get _translationCacheDirectory =>
+      _translationCacheDirectoryOverride ??
       Directory(join(pathService.jhOcrModelDir.path, 'cache'));
 
   ImageTranslationResult resultFor(String cacheKey) =>
       _results[cacheKey] ?? const ImageTranslationResult.idle();
 
   @override
-  List<JHLifeCircleBean> get initDependencies =>
-      super.initDependencies
-        ..add(imageTranslationSetting)
-        ..add(inferenceService);
+  List<JHLifeCircleBean> get initDependencies => super.initDependencies
+    ..add(imageTranslationSetting)
+    ..add(inferenceService);
 
   @override
   Future<void> doInitBean() async {
@@ -172,6 +298,96 @@ class ImageTranslationService extends GetxController
 
   @override
   Future<void> doAfterBeanReady() async {}
+
+  @visibleForTesting
+  Future<String?> persistentKeyForRequest(
+    ImageTranslationRequest request,
+  ) async {
+    final String? imagePath = request.imagePath;
+    if (imagePath == null) {
+      return null;
+    }
+    try {
+      final List<int> sourceBytes = await File(imagePath).readAsBytes();
+      final String imageHash = await compute(_sha256Hex, sourceBytes);
+      return _persistentCacheKey(request, imageHash);
+    } on FileSystemException {
+      return null;
+    }
+  }
+
+  @visibleForTesting
+  void setTranslationCacheDirectoryForTesting(Directory? directory) {
+    _translationCacheDirectoryOverride = directory;
+  }
+
+  @visibleForTesting
+  Future<String?> legacyPersistentKeyForRequest(
+    ImageTranslationRequest request, {
+    int promptVersion = 2,
+  }) async {
+    final String? imagePath = request.imagePath;
+    if (imagePath == null) return null;
+    try {
+      final List<int> sourceBytes = await File(imagePath).readAsBytes();
+      final String imageHash = await compute(_sha256Hex, sourceBytes);
+      return _persistentCacheKey(
+        request,
+        imageHash,
+        promptVersion: promptVersion,
+        legacy: true,
+      );
+    } on FileSystemException {
+      return null;
+    }
+  }
+
+  @visibleForTesting
+  Future<void> writePersistentResultForRequest(
+    ImageTranslationRequest request,
+    ImageTranslationResult result,
+  ) async {
+    final String? key = await persistentKeyForRequest(request);
+    if (key == null) {
+      throw ArgumentError.value(
+        request.imagePath,
+        'request.imagePath',
+        'Image path is required to persist a translation result.',
+      );
+    }
+    await _writePersistentResult(key, result);
+  }
+
+  @visibleForTesting
+  Future<void> writePersistentResultForKeyForTesting(
+    String key,
+    ImageTranslationResult result,
+  ) => _writePersistentResult(key, result);
+
+  @visibleForTesting
+  void setResultForTesting(String cacheKey, ImageTranslationResult result) {
+    _set(cacheKey, result);
+  }
+
+  Future<bool> hydrateResult(ImageTranslationRequest request) {
+    final ImageTranslationResult current = resultFor(request.cacheKey);
+    if (current.status == ImageTranslationStatus.success ||
+        current.status == ImageTranslationStatus.recognizing ||
+        current.status == ImageTranslationStatus.translating) {
+      return Future.value(current.status == ImageTranslationStatus.success);
+    }
+    final Future<bool>? existing = _hydrateTasks[request.cacheKey];
+    if (existing != null) {
+      return existing;
+    }
+    final Future<bool> task = _hydrateResultInternal(request);
+    _hydrateTasks[request.cacheKey] = task;
+    return task.whenComplete(() {
+      if (identical(_hydrateTasks[request.cacheKey], task)) {
+        _hydrateTasks.remove(request.cacheKey);
+      }
+    });
+  }
 
   /// OCR stage of a translation: reads the image, runs recognition and returns
   /// the recognized source for the translation stage. Returns null when the
@@ -182,6 +398,14 @@ class ImageTranslationService extends GetxController
     ImageTranslationRequest request, {
     bool force = false,
   }) async {
+    final String? imagePath = request.imagePath;
+    if (imagePath == null) {
+      if (resultFor(request.cacheKey).status !=
+          ImageTranslationStatus.downloadError) {
+        markDownloadError(request.cacheKey, 'IMAGE_SOURCE_UNAVAILABLE');
+      }
+      return null;
+    }
     final ImageTranslationResult existing = resultFor(request.cacheKey);
     if (!force &&
         (existing.status == ImageTranslationStatus.recognizing ||
@@ -195,49 +419,30 @@ class ImageTranslationService extends GetxController
       const ImageTranslationResult(status: ImageTranslationStatus.recognizing),
     );
     _setStage(ImageTranslationStage.recognizing);
+    _activeCacheKey = request.cacheKey;
 
-    String? temporaryPath;
+    List<int> sourceBytes = <int>[];
     try {
       if (_cancelRequested) {
-        _removeResult(request.cacheKey);
+        markCanceled(request.cacheKey);
         return null;
       }
       // Read the image bytes exactly once: they feed the persistent-cache
-      // hash and (for bytes-based requests) the OCR subprocess file.
-      // Previously the file was read again inside _persistentCacheKey and a
-      // just-written temporary file was read back.
-      final List<int> sourceBytes =
-          request.imageBytes == null
-              ? await File(request.imagePath!).readAsBytes()
-              : request.imageBytes!;
+      // hash and the image-dimension fallback probe.
+      sourceBytes = await File(imagePath).readAsBytes();
 
       // Hashing the full image on the UI isolate drops frames on every page
       // (SHA-256 over a few MB is tens of ms); run it off-isolate. The single
-      // hash also names the bytes-path temp file below, avoiding a second
-      // full-image hash.
+      // hash names the persistent cache entry as well.
       final String imageHash = await compute(_sha256Hex, sourceBytes);
       final String persistentKey = _persistentCacheKey(request, imageHash);
-      final ImageTranslationResult? cached = await _readPersistentResult(
-        persistentKey,
+      final ImageTranslationResult? cached = await _readPersistentResultForHash(
+        request,
+        imageHash,
       );
       if (!force && cached != null) {
         _set(request.cacheKey, cached.copyWith(fromCache: true));
         return null;
-      }
-
-      // The OCR subprocess needs a real file path; only bytes-based requests
-      // materialize one, and only once a translation is actually about to run.
-      final String imagePath;
-      if (request.imagePath != null) {
-        imagePath = request.imagePath!;
-      } else {
-        final String fileName = 'image_translation_$imageHash.png';
-        final File temporaryFile = File(
-          join(pathService.tempDir.path, fileName),
-        );
-        await temporaryFile.writeAsBytes(sourceBytes, flush: true);
-        temporaryPath = temporaryFile.path;
-        imagePath = temporaryFile.path;
       }
 
       final _RecognizeResult recognized = await _recognize(imagePath);
@@ -258,7 +463,7 @@ class ImageTranslationService extends GetxController
         imageHeight = height;
       }
       if (_cancelRequested) {
-        _removeResult(request.cacheKey);
+        markCanceled(request.cacheKey);
         return null;
       }
       final String sourceText = blocks
@@ -266,7 +471,12 @@ class ImageTranslationService extends GetxController
           .where((text) => text.isNotEmpty)
           .join('\n');
       if (sourceText.isEmpty) {
-        throw const ImageTranslationException('NO_TEXT');
+        markNoText(
+          request.cacheKey,
+          imageWidth: imageWidth,
+          imageHeight: imageHeight,
+        );
+        return null;
       }
 
       if (!imageTranslationSetting.usesAppleOnDeviceTranslation &&
@@ -296,7 +506,6 @@ class ImageTranslationService extends GetxController
           imageHeight: imageHeight,
         ),
       );
-      await _writePersistentResult(persistentKey, resultFor(request.cacheKey));
       _setStage(ImageTranslationStage.translating);
       return RecognizedImage(
         cacheKey: request.cacheKey,
@@ -308,47 +517,63 @@ class ImageTranslationService extends GetxController
       );
     } on ImageTranslationException catch (e, stack) {
       if (_cancelRequested) {
-        _removeResult(request.cacheKey);
+        markCanceled(request.cacheKey);
         return null;
       }
       log.warning('Image translation failed: ${e.code}');
-      _set(
-        request.cacheKey,
-        resultFor(
+      if (e.code == 'OCR_CANCELLED') {
+        markCanceled(request.cacheKey, e.code);
+      } else if (e.code == 'NO_TEXT') {
+        markNoText(request.cacheKey);
+      } else if (e.code.startsWith('OCR_')) {
+        markOcrError(request.cacheKey, e.code);
+      } else {
+        _set(
           request.cacheKey,
-        ).copyWith(status: ImageTranslationStatus.failed, errorMessage: e.code),
-      );
+          resultFor(request.cacheKey).copyWith(
+            status: ImageTranslationStatus.failed,
+            errorMessage: e.code,
+          ),
+        );
+      }
       log.trace(stack);
     } on ProcessException catch (e, stack) {
       if (_cancelRequested) {
-        _removeResult(request.cacheKey);
+        markCanceled(request.cacheKey);
         return null;
       }
       log.warning('Image OCR executable is unavailable: ${e.executable}');
-      _set(
-        request.cacheKey,
-        resultFor(request.cacheKey).copyWith(
-          status: ImageTranslationStatus.failed,
-          errorMessage: 'OCR_UNAVAILABLE',
-        ),
-      );
+      markOcrError(request.cacheKey, 'OCR_UNAVAILABLE');
+      log.trace(stack);
+    } on TimeoutException catch (e, stack) {
+      if (_cancelRequested) {
+        markCanceled(request.cacheKey);
+        return null;
+      }
+      markOcrError(request.cacheKey, 'OCR_TIMEOUT');
+      log.warning('Image OCR timed out: $e');
+      log.trace(stack);
+    } on FileSystemException catch (e, stack) {
+      if (_cancelRequested) {
+        markCanceled(request.cacheKey);
+        return null;
+      }
+      markDownloadError(request.cacheKey, 'IMAGE_SOURCE_UNAVAILABLE');
+      log.warning('Image source is unavailable: $e');
       log.trace(stack);
     } catch (e, stack) {
       if (_cancelRequested) {
-        _removeResult(request.cacheKey);
+        markCanceled(request.cacheKey);
         return null;
       }
       log.error('Image translation failed', e, stack);
-      _set(
-        request.cacheKey,
-        resultFor(request.cacheKey).copyWith(
-          status: ImageTranslationStatus.failed,
-          errorMessage: 'TRANSLATION_FAILED',
-        ),
-      );
+      markOcrError(request.cacheKey, 'OCR_FAILED');
     } finally {
-      if (temporaryPath != null) {
-        File(temporaryPath).delete().ignore();
+      // RecognizedImage carries only text/boxes and the source path. Never let
+      // a completed, failed, or cancelled page retain its full image buffer.
+      sourceBytes.clear();
+      if (_activeCacheKey == request.cacheKey) {
+        _activeCacheKey = null;
       }
     }
     return null;
@@ -361,13 +586,20 @@ class ImageTranslationService extends GetxController
     ImageTranslationRequest request,
     RecognizedImage recognized,
   ) async {
+    _activeCacheKey = request.cacheKey;
     try {
       final String translatedText =
-          imageTranslationSetting.usesAppleOnDeviceTranslation
-              ? await _translateWithApple(recognized.blocks)
-              : await _translate(recognized.blocks);
+          await (imageTranslationSetting.usesAppleOnDeviceTranslation
+                  ? _translateWithApple(recognized.blocks)
+                  : _translate(recognized.blocks))
+              .timeout(
+                const Duration(minutes: 2),
+                onTimeout: () => throw const ImageTranslationException(
+                  'TRANSLATION_TIMEOUT',
+                ),
+              );
       if (_cancelRequested) {
-        _removeResult(request.cacheKey);
+        markCanceled(request.cacheKey);
         return;
       }
       _setStage(ImageTranslationStage.masking);
@@ -385,28 +617,35 @@ class ImageTranslationService extends GetxController
           imageHeight: recognized.imageHeight,
         ),
       );
-      await _writePersistentResult(
-        recognized.persistentKey,
-        resultFor(request.cacheKey),
-      );
+      try {
+        await _writePersistentResult(
+          recognized.persistentKey,
+          resultFor(request.cacheKey),
+        );
+      } on FileSystemException catch (e, stack) {
+        // The visible result is already complete. A cache write failure must
+        // be reported in logs without converting a successful translation
+        // into a false translation failure.
+        log.warning('Failed to persist image translation: $e');
+        log.trace(stack);
+      }
       _setStage(ImageTranslationStage.done);
     } on ImageTranslationException catch (e, stack) {
       if (_cancelRequested) {
-        _removeResult(request.cacheKey);
+        markCanceled(request.cacheKey);
         return;
       }
       log.warning('Image translation failed: ${e.code}');
       _set(
         request.cacheKey,
-        resultFor(request.cacheKey).copyWith(
-          status: ImageTranslationStatus.failed,
-          errorMessage: e.code,
-        ),
+        resultFor(
+          request.cacheKey,
+        ).copyWith(status: ImageTranslationStatus.failed, errorMessage: e.code),
       );
       log.trace(stack);
     } on DioException catch (e, stack) {
       if (_cancelRequested) {
-        _removeResult(request.cacheKey);
+        markCanceled(request.cacheKey);
         return;
       }
       log.warning('Image translation request failed: ${e.message}');
@@ -418,9 +657,23 @@ class ImageTranslationService extends GetxController
         ),
       );
       log.trace(stack);
+    } on TimeoutException catch (e, stack) {
+      if (_cancelRequested) {
+        markCanceled(request.cacheKey);
+        return;
+      }
+      _set(
+        request.cacheKey,
+        resultFor(request.cacheKey).copyWith(
+          status: ImageTranslationStatus.failed,
+          errorMessage: 'TRANSLATION_TIMEOUT',
+        ),
+      );
+      log.warning('Image translation timed out: $e');
+      log.trace(stack);
     } catch (e, stack) {
       if (_cancelRequested) {
-        _removeResult(request.cacheKey);
+        markCanceled(request.cacheKey);
         return;
       }
       log.error('Image translation failed', e, stack);
@@ -431,6 +684,10 @@ class ImageTranslationService extends GetxController
           errorMessage: 'TRANSLATION_FAILED',
         ),
       );
+    } finally {
+      if (_activeCacheKey == request.cacheKey) {
+        _activeCacheKey = null;
+      }
     }
   }
 
@@ -462,9 +719,48 @@ class ImageTranslationService extends GetxController
 
   String _persistentCacheKey(
     ImageTranslationRequest request,
-    String imageHash,
-  ) {
-    final String configFingerprint = jsonEncode({
+    String imageHash, {
+    int promptVersion = 3,
+    bool legacy = false,
+  }) {
+    final String configFingerprint = _translationConfigFingerprint(
+      promptVersion: promptVersion,
+      legacy: legacy,
+    );
+    return sha256
+        .convert(utf8.encode('$imageHash:$configFingerprint'))
+        .toString();
+  }
+
+  String _translationConfigFingerprint({
+    int promptVersion = 3,
+    bool legacy = false,
+  }) {
+    if (legacy) {
+      final Map<String, dynamic> oldFingerprint = {
+        'ocrEngine': imageTranslationSetting.ocrEngine.value.name,
+        'ocrLanguage': 'jpn+eng',
+        'paddleLanguage': 'japan',
+        'appleLanguage': imageTranslationSetting.appleLiveTextLanguage.value,
+        'appleUseApi':
+            imageTranslationSetting.appleLiveTextUseThirdPartyApi.value,
+        if (imageTranslationSetting.ocrEngine.value == ImageOcrEngine.onnx) ...{
+          'onnxModel': OnnxModelStore.instance.fingerprintOf(
+            imageTranslationSetting.onnxModelId.value,
+          ),
+          'onnxBackend': inferenceService
+              .resolveBackendFor(InferenceDomain.ocr)
+              ?.name,
+        },
+        'provider': imageTranslationSetting.translatorProvider.value.name,
+        'endpoint': imageTranslationSetting.translatorEndpoint.value,
+        'model': imageTranslationSetting.translatorModel.value,
+        'target': imageTranslationSetting.targetLanguage.value,
+        'promptVersion': promptVersion,
+      };
+      return jsonEncode(oldFingerprint);
+    }
+    return jsonEncode({
       'ocrEngine': imageTranslationSetting.ocrEngine.value.name,
       'appleLanguage': imageTranslationSetting.appleLiveTextLanguage.value,
       'appleUseApi':
@@ -473,19 +769,76 @@ class ImageTranslationService extends GetxController
         'onnxModel': OnnxModelStore.instance.fingerprintOf(
           imageTranslationSetting.onnxModelId.value,
         ),
-        'onnxBackend':
-            inferenceService.resolveBackendFor(InferenceDomain.ocr)?.name,
+        'onnxBackend': inferenceService
+            .resolveBackendFor(InferenceDomain.ocr)
+            ?.name,
       },
       'provider': imageTranslationSetting.translatorProvider.value.name,
       'endpoint': imageTranslationSetting.translatorEndpoint.value,
       'model': imageTranslationSetting.translatorModel.value,
       'target': imageTranslationSetting.targetLanguage.value,
       // Group-aware translation (speech bubbles translated as one utterance).
-      'promptVersion': 3,
+      'promptVersion': promptVersion,
     });
-    return sha256
-        .convert(utf8.encode('$imageHash:$configFingerprint'))
-        .toString();
+  }
+
+  List<String> _persistentCacheKeysForHash(
+    ImageTranslationRequest request,
+    String imageHash,
+  ) {
+    final String current = _persistentCacheKey(request, imageHash);
+    final List<String> candidates = <String>[
+      current,
+      _persistentCacheKey(request, imageHash, promptVersion: 2, legacy: true),
+      _persistentCacheKey(request, imageHash, promptVersion: 1, legacy: true),
+    ];
+    return candidates.toSet().toList();
+  }
+
+  Future<ImageTranslationResult?> _readPersistentResultForHash(
+    ImageTranslationRequest request,
+    String imageHash,
+  ) async {
+    final List<String> keys = _persistentCacheKeysForHash(request, imageHash);
+    final String currentKey = keys.first;
+    for (final String key in keys) {
+      final ImageTranslationResult? cached = await _readPersistentResult(key);
+      if (cached == null) continue;
+      if (key != currentKey) {
+        try {
+          await _writePersistentResult(currentKey, cached);
+        } on FileSystemException catch (e, stack) {
+          log.warning('Failed to migrate image translation cache: $e');
+          log.trace(stack);
+        }
+      }
+      return cached;
+    }
+    return null;
+  }
+
+  Future<bool> _hydrateResultInternal(ImageTranslationRequest request) async {
+    final String? imagePath = request.imagePath;
+    if (imagePath == null) {
+      return false;
+    }
+    List<int> sourceBytes;
+    try {
+      sourceBytes = await File(imagePath).readAsBytes();
+    } on FileSystemException {
+      return false;
+    }
+    final String imageHash = await compute(_sha256Hex, sourceBytes);
+    sourceBytes.clear();
+    final ImageTranslationResult? cached = await _readPersistentResultForHash(
+      request,
+      imageHash,
+    );
+    if (cached == null) {
+      return false;
+    }
+    _set(request.cacheKey, cached.copyWith(fromCache: true));
+    return true;
   }
 
   /// Probes the encoded image dimensions from its header. Only used as a
@@ -531,6 +884,9 @@ class ImageTranslationService extends GetxController
     String key,
     ImageTranslationResult result,
   ) async {
+    if (result.status != ImageTranslationStatus.success) {
+      return;
+    }
     await _translationCacheDirectory.create(recursive: true);
     final File cacheFile = File(
       join(_translationCacheDirectory.path, '$key.json'),
@@ -562,12 +918,23 @@ class ImageTranslationService extends GetxController
   static String _sha256Hex(List<int> bytes) => sha256.convert(bytes).toString();
 
   Future<_RecognizeResult> _recognize(String imagePath) async {
-    if (imageTranslationSetting.ocrEngine.value ==
-        ImageOcrEngine.appleLiveText) {
-      return _recognizeWithAppleLiveText(imagePath);
+    try {
+      if (imageTranslationSetting.ocrEngine.value ==
+          ImageOcrEngine.appleLiveText) {
+        return await _recognizeWithAppleLiveText(
+          imagePath,
+        ).timeout(const Duration(minutes: 2));
+      }
+      // Custom mode is fixed to ONNX. The service-level timeout is shorter
+      // than the worker's own upper bound and cancels the active token so a
+      // stalled worker is visible to the batch immediately.
+      return await _recognizeWithOnnx(
+        imagePath,
+      ).timeout(const Duration(minutes: 2));
+    } on TimeoutException {
+      _activeInferenceToken?.cancel('image translation OCR timeout');
+      throw const ImageTranslationException('OCR_TIMEOUT');
     }
-    // Custom mode is fixed to ONNX.
-    return _recognizeWithOnnx(imagePath);
   }
 
   /// On-device PP-OCRv6 through the unified inference backend.
@@ -629,12 +996,11 @@ class ImageTranslationService extends GetxController
       }
       final List<dynamic> rawLines =
           response['lines'] as List<dynamic>? ?? const [];
-      final List<RecognizedTextBlock> blocks =
-          rawLines
-              .whereType<Map>()
-              .map((raw) => _appleLiveTextBlock(Map<String, dynamic>.from(raw)))
-              .where((block) => block.text.trim().isNotEmpty)
-              .toList();
+      final List<RecognizedTextBlock> blocks = rawLines
+          .whereType<Map>()
+          .map((raw) => _appleLiveTextBlock(Map<String, dynamic>.from(raw)))
+          .where((block) => block.text.trim().isNotEmpty)
+          .toList();
       if (blocks.isEmpty) {
         throw const ImageTranslationException('NO_TEXT');
       }
@@ -663,12 +1029,11 @@ class ImageTranslationService extends GetxController
     if (value.trim().isEmpty || value.trim() == 'auto') {
       return const <String>['ja-JP', 'zh-Hans', 'zh-Hant', 'ko-KR', 'en-US'];
     }
-    final List<String> languages =
-        value
-            .split(',')
-            .map((language) => language.trim())
-            .where((language) => language.isNotEmpty)
-            .toList();
+    final List<String> languages = value
+        .split(',')
+        .map((language) => language.trim())
+        .where((language) => language.isNotEmpty)
+        .toList();
     return languages.isEmpty ? null : languages;
   }
 
@@ -683,23 +1048,25 @@ class ImageTranslationService extends GetxController
       );
 
   Future<File> exportOverlay(ImageTranslationRequest request) async {
+    final String? imagePath = request.imagePath;
+    if (imagePath == null) {
+      throw const ImageTranslationException('IMAGE_SOURCE_UNAVAILABLE');
+    }
     final ImageTranslationResult result = resultFor(request.cacheKey);
-    final List<String> translations =
-        const LineSplitter()
-            .convert(result.translatedText)
-            .map((line) => line.trim())
-            .where((line) => line.isNotEmpty)
-            .toList();
-    final List<RecognizedTextBlock> blocks =
-        result.blocks
-            .where((block) => block.width > 4 && block.height > 4)
-            .toList();
+    final List<String> translations = const LineSplitter()
+        .convert(result.translatedText)
+        .map((line) => line.trim())
+        .where((line) => line.isNotEmpty)
+        .toList();
+    final List<RecognizedTextBlock> blocks = result.blocks
+        .where((block) => block.width > 4 && block.height > 4)
+        .toList();
     if (result.status != ImageTranslationStatus.success ||
         translations.length != blocks.length) {
       throw const ImageTranslationException('OVERLAY_NOT_READY');
     }
     final Uint8List source = Uint8List.fromList(
-      request.imageBytes ?? await File(request.imagePath!).readAsBytes(),
+      await File(imagePath).readAsBytes(),
     );
     final ui.Codec codec = await ui.instantiateImageCodec(source);
     final ui.FrameInfo frame = await codec.getNextFrame();
@@ -808,15 +1175,14 @@ class ImageTranslationService extends GetxController
     final (Uint8List rgba, int width, int height) = payload;
     final BytesBuilder builder = BytesBuilder(copy: false);
     builder.add(const [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
-    final ByteData ihdr =
-        ByteData(13)
-          ..setUint32(0, width)
-          ..setUint32(4, height)
-          ..setUint8(8, 8) // bit depth
-          ..setUint8(9, 6) // color type: truecolor with alpha
-          ..setUint8(10, 0) // compression: deflate
-          ..setUint8(11, 0) // filter method
-          ..setUint8(12, 0); // interlace: none
+    final ByteData ihdr = ByteData(13)
+      ..setUint32(0, width)
+      ..setUint32(4, height)
+      ..setUint8(8, 8) // bit depth
+      ..setUint8(9, 6) // color type: truecolor with alpha
+      ..setUint8(10, 0) // compression: deflate
+      ..setUint8(11, 0) // filter method
+      ..setUint8(12, 0); // interlace: none
     _addPngChunk(builder, 'IHDR', ihdr.buffer.asUint8List());
 
     // Each scanline is prefixed with filter type 0 (None) and the whole
@@ -838,10 +1204,9 @@ class ImageTranslationService extends GetxController
 
   static void _addPngChunk(BytesBuilder builder, String type, List<int> data) {
     final Uint8List typeBytes = ascii.encode(type);
-    final Uint8List chunk =
-        Uint8List(typeBytes.length + data.length)
-          ..setRange(0, typeBytes.length, typeBytes)
-          ..setRange(typeBytes.length, typeBytes.length + data.length, data);
+    final Uint8List chunk = Uint8List(typeBytes.length + data.length)
+      ..setRange(0, typeBytes.length, typeBytes)
+      ..setRange(typeBytes.length, typeBytes.length + data.length, data);
     final ByteData length = ByteData(4)..setUint32(0, data.length);
     final ByteData crc = ByteData(4)..setUint32(0, _pngCrc32(chunk));
     builder.add(length.buffer.asUint8List());
@@ -920,8 +1285,9 @@ class ImageTranslationService extends GetxController
           });
       final List<dynamic> rawLines =
           response?['lines'] as List<dynamic>? ?? const [];
-      final List<String> translatedLines =
-          rawLines.map((line) => line?.toString() ?? '').toList();
+      final List<String> translatedLines = rawLines
+          .map((line) => line?.toString() ?? '')
+          .toList();
       if (translatedLines.join('\n').trim().isEmpty) {
         throw const ImageTranslationException('TRANSLATION_FAILED');
       }
@@ -977,18 +1343,17 @@ class ImageTranslationService extends GetxController
       imageTranslationSetting.autoTranslateGalleryText.value &&
       imageTranslationSetting.usesAppleOnDeviceTranslation;
 
-  String _galleryTextKey(String text) =>
-      sha256
-          .convert(
-            utf8.encode(
-              jsonEncode({
-                'text': text,
-                'target': imageTranslationSetting.targetLanguage.value,
-                'source': imageTranslationSetting.appleLiveTextLanguage.value,
-              }),
-            ),
-          )
-          .toString();
+  String _galleryTextKey(String text) => sha256
+      .convert(
+        utf8.encode(
+          jsonEncode({
+            'text': text,
+            'target': imageTranslationSetting.targetLanguage.value,
+            'source': imageTranslationSetting.appleLiveTextLanguage.value,
+          }),
+        ),
+      )
+      .toString();
 
   /// The current translation of [text] if cached, or null when the feature is
   /// off or the text has not been translated yet. Synchronous so widgets can
@@ -1053,8 +1418,9 @@ class ImageTranslationService extends GetxController
       if (cached != null) {
         result = cached;
       } else if (!_galleryTextFailed.contains(key)) {
-        final String translated =
-            (await _translateAppleLines(<String>[text])).first;
+        final String translated = (await _translateAppleLines(<String>[
+          text,
+        ])).first;
         if (translated.trim().isNotEmpty) {
           result = translated;
           _galleryTextCache[key] = translated;
@@ -1158,8 +1524,9 @@ class ImageTranslationService extends GetxController
     // blocks into utterances and mark the group boundaries in the source so
     // the model has the full bubble as context while still emitting exactly
     // one translated line per input line for the 1:1 overlay mapping.
-    final List<String> sourceLines =
-        blocks.map((block) => block.text.trim()).toList();
+    final List<String> sourceLines = blocks
+        .map((block) => block.text.trim())
+        .toList();
     final List<RecognizedTextGroup> groups = groupRecognizedTextBlocks(blocks);
     final StringBuffer numberedSource = StringBuffer();
     for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
@@ -1212,16 +1579,16 @@ class ImageTranslationService extends GetxController
             ...?_thinkingParam(),
           },
         );
-        final dynamic blocks =
-            response.data is Map ? response.data['content'] : null;
+        final dynamic blocks = response.data is Map
+            ? response.data['content']
+            : null;
         if (blocks is List) {
-          final String content =
-              blocks
-                  .whereType<Map>()
-                  .map((block) => block['text'])
-                  .whereType<String>()
-                  .join('\n')
-                  .trim();
+          final String content = blocks
+              .whereType<Map>()
+              .map((block) => block['text'])
+              .whereType<String>()
+              .join('\n')
+              .trim();
           if (content.isNotEmpty) {
             return _parseNumberedTranslations(
               _stripReasoning(content),
@@ -1248,8 +1615,9 @@ class ImageTranslationService extends GetxController
             ...?_thinkingParam(),
           },
         );
-        final dynamic choices =
-            response.data is Map ? response.data['choices'] : null;
+        final dynamic choices = response.data is Map
+            ? response.data['choices']
+            : null;
         if (choices is List && choices.isNotEmpty && choices.first is Map) {
           final dynamic message = choices.first['message'];
           final dynamic content = message is Map ? message['content'] : null;
@@ -1325,17 +1693,16 @@ class ImageTranslationService extends GetxController
   /// MiniMax-M3 accepts thinking.type adaptive/disabled; other models keep
   /// their default behavior.
   Map<String, dynamic>? _thinkingParam() {
-    final String model =
-        imageTranslationSetting.translatorModel.value.toLowerCase();
+    final String model = imageTranslationSetting.translatorModel.value
+        .toLowerCase();
     if (!model.contains('minimax') && !model.contains('m3')) {
       return null;
     }
     return {
       'thinking': {
-        'type':
-            imageTranslationSetting.enableThinking.value
-                ? 'adaptive'
-                : 'disabled',
+        'type': imageTranslationSetting.enableThinking.value
+            ? 'adaptive'
+            : 'disabled',
       },
     };
   }
@@ -1358,10 +1725,9 @@ class ImageTranslationService extends GetxController
     final Response<dynamic> response = await dio.get(
       _modelsEndpoint(baseUrl, provider),
       options: Options(
-        headers:
-            provider == ImageTranslationProvider.anthropic
-                ? _anthropicHeaders(apiKey)
-                : _openAIHeaders(apiKey),
+        headers: provider == ImageTranslationProvider.anthropic
+            ? _anthropicHeaders(apiKey)
+            : _openAIHeaders(apiKey),
       ),
     );
     final dynamic models = response.data is Map ? response.data['data'] : null;
@@ -1383,8 +1749,8 @@ class ImageTranslationService extends GetxController
 
   String _modelsEndpoint(String baseUrl, ImageTranslationProvider provider) =>
       provider == ImageTranslationProvider.anthropic
-          ? _appendPath(baseUrl, 'models')
-          : _appendPath(baseUrl, 'models');
+      ? _appendPath(baseUrl, 'models')
+      : _appendPath(baseUrl, 'models');
 
   String _translationEndpoint(
     String baseUrl,
@@ -1470,13 +1836,9 @@ void paintTranslationBubbleText(
 }) {
   final double maxWidth = math.max(1, rect.width - 4);
   final double maxHeight = rect.height;
-  final double resolvedFontSize = fontSize ??
-      fitTranslationFontSize(
-        translation,
-        maxWidth,
-        maxHeight,
-        textDirection,
-      );
+  final double resolvedFontSize =
+      fontSize ??
+      fitTranslationFontSize(translation, maxWidth, maxHeight, textDirection);
   final int maxLines = math.max(
     1,
     (maxHeight / (resolvedFontSize * 1.05)).floor(),

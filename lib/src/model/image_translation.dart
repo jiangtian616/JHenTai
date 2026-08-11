@@ -1,12 +1,31 @@
-enum ImageTranslationStatus { idle, recognizing, translating, success, failed }
+/// Lifecycle of one page in the translation pipeline.
+///
+/// [failed] is retained for compatibility with callers that only know about a
+/// generic translation failure. Download and OCR failures are deliberately
+/// represented separately so a batch cannot mistake an OCR exception for a
+/// completed page.
+enum ImageTranslationStatus {
+  idle,
+  queued,
+  downloading,
+  downloadError,
+  recognizing,
+  ocrError,
+  noText,
+  translating,
+  success,
+  canceled,
+  failed,
+}
 
 enum ImageTranslationStage {
   idle,
+  downloading,
   recognizing,
   translating,
   masking,
   embedding,
-  done
+  done,
 }
 
 class RecognizedTextBlock {
@@ -27,22 +46,23 @@ class RecognizedTextBlock {
   });
 
   Map<String, dynamic> toJson() => {
-        'text': text,
-        'confidence': confidence,
-        'left': left,
-        'top': top,
-        'width': width,
-        'height': height,
-      };
+    'text': text,
+    'confidence': confidence,
+    'left': left,
+    'top': top,
+    'width': width,
+    'height': height,
+  };
 
   factory RecognizedTextBlock.fromJson(Map<String, dynamic> json) =>
       RecognizedTextBlock(
-          text: json['text'] as String? ?? '',
-          confidence: (json['confidence'] as num?)?.toDouble() ?? 0,
-          left: (json['left'] as num?)?.toDouble() ?? 0,
-          top: (json['top'] as num?)?.toDouble() ?? 0,
-          width: (json['width'] as num?)?.toDouble() ?? 0,
-          height: (json['height'] as num?)?.toDouble() ?? 0);
+        text: json['text'] as String? ?? '',
+        confidence: (json['confidence'] as num?)?.toDouble() ?? 0,
+        left: (json['left'] as num?)?.toDouble() ?? 0,
+        top: (json['top'] as num?)?.toDouble() ?? 0,
+        width: (json['width'] as num?)?.toDouble() ?? 0,
+        height: (json['height'] as num?)?.toDouble() ?? 0,
+      );
 }
 
 class ImageTranslationResult {
@@ -69,7 +89,20 @@ class ImageTranslationResult {
   });
 
   const ImageTranslationResult.idle()
-      : this(status: ImageTranslationStatus.idle);
+    : this(status: ImageTranslationStatus.idle);
+
+  bool get isTerminal =>
+      status == ImageTranslationStatus.success ||
+      status == ImageTranslationStatus.downloadError ||
+      status == ImageTranslationStatus.ocrError ||
+      status == ImageTranslationStatus.noText ||
+      status == ImageTranslationStatus.canceled ||
+      status == ImageTranslationStatus.failed;
+
+  bool get isFailure =>
+      status == ImageTranslationStatus.downloadError ||
+      status == ImageTranslationStatus.ocrError ||
+      status == ImageTranslationStatus.failed;
 
   ImageTranslationResult copyWith({
     ImageTranslationStatus? status,
@@ -96,33 +129,56 @@ class ImageTranslationResult {
   }
 
   Map<String, dynamic> toJson() => {
-        'sourceText': sourceText,
-        'translatedText': translatedText,
-        'blocks': blocks.map((block) => block.toJson()).toList(),
-        if (imageWidth != null) 'imageWidth': imageWidth,
-        if (imageHeight != null) 'imageHeight': imageHeight,
-      };
+    'sourceText': sourceText,
+    'translatedText': translatedText,
+    'blocks': blocks.map((block) => block.toJson()).toList(),
+    if (imageWidth != null) 'imageWidth': imageWidth,
+    if (imageHeight != null) 'imageHeight': imageHeight,
+  };
 
-  factory ImageTranslationResult.successFromJson(Map<String, dynamic> json) =>
-      ImageTranslationResult(
-          status: ImageTranslationStatus.success,
-          sourceText: json['sourceText'] as String? ?? '',
-          translatedText: json['translatedText'] as String? ?? '',
-          blocks: (json['blocks'] as List? ?? const [])
-              .whereType<Map>()
-              .map((block) => RecognizedTextBlock.fromJson(
-                  Map<String, dynamic>.from(block)))
-              .toList(),
-          imageWidth: (json['imageWidth'] as num?)?.toInt(),
-          imageHeight: (json['imageHeight'] as num?)?.toInt());
+  factory ImageTranslationResult.successFromJson(
+    Map<String, dynamic> json,
+  ) => ImageTranslationResult(
+    status: ImageTranslationStatus.success,
+    sourceText: json['sourceText'] as String? ?? '',
+    translatedText: json['translatedText'] as String? ?? '',
+    blocks: (json['blocks'] as List? ?? const [])
+        .whereType<Map>()
+        .map(
+          (block) =>
+              RecognizedTextBlock.fromJson(Map<String, dynamic>.from(block)),
+        )
+        .toList(),
+    imageWidth: (json['imageWidth'] as num?)?.toInt(),
+    imageHeight: (json['imageHeight'] as num?)?.toInt(),
+  );
 }
 
 class ImageTranslationRequest {
   final String cacheKey;
   final String? imagePath;
-  final List<int>? imageBytes;
+  final String? sourceUrl;
 
-  const ImageTranslationRequest(
-      {required this.cacheKey, this.imagePath, this.imageBytes})
-      : assert(imagePath != null || imageBytes != null);
+  /// A request is a durable description of where the source image lives. It
+  /// must not own a page-sized byte buffer because read-page state outlives an
+  /// OCR/translation attempt and may keep hundreds of requests alive. Online
+  /// pages may know only the logical cache key at first; [imagePath] is filled
+  /// once the shared disk cache has the actual image file.
+  const ImageTranslationRequest({
+    required this.cacheKey,
+    this.imagePath,
+    this.sourceUrl,
+  });
+
+  ImageTranslationRequest copyWith({
+    String? cacheKey,
+    String? imagePath,
+    String? sourceUrl,
+  }) {
+    return ImageTranslationRequest(
+      cacheKey: cacheKey ?? this.cacheKey,
+      imagePath: imagePath ?? this.imagePath,
+      sourceUrl: sourceUrl ?? this.sourceUrl,
+    );
+  }
 }
