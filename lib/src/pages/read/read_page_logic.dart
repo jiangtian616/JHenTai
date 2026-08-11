@@ -24,6 +24,7 @@ import 'package:jhentai/src/pages/read/layout/vertical_list/vertical_list_layout
 import 'package:jhentai/src/pages/read/read_page_state.dart';
 import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/service/image_translation_service.dart';
+import 'package:jhentai/src/service/image_inpainting_service.dart';
 import 'package:jhentai/src/service/context_translation_service.dart';
 import 'package:jhentai/src/service/engine/context_translation_contract.dart';
 import 'package:jhentai/src/service/reader_image_prefetch_queue.dart';
@@ -522,6 +523,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     // Leaving the gallery must stop any in-flight translation batch so the
     // OCR/API work is not carried on in the background.
     imageTranslationService.cancelBatch();
+    _cancelInpaintingTasks();
     for (final ImageTranslationRequest request
         in state.imageTranslationRequests.values) {
       imageTranslationService.releaseInMemoryResult(request.cacheKey);
@@ -1572,6 +1574,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   Future<void> toggleFloatingTranslation(BuildContext context) async {
     if (imageTranslationService.isBatchTranslating) {
       imageTranslationService.cancelBatch();
+      _cancelInpaintingTasks();
       state.showImageTranslationOverlay = false;
       updateSafely([translationMenuId, readerFloatingBallId]);
       layoutLogic.updateSafely([BaseLayoutLogic.pageId]);
@@ -1581,6 +1584,13 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     updateSafely([translationMenuId, readerFloatingBallId]);
     layoutLogic.updateSafely([BaseLayoutLogic.pageId]);
     await startImageTranslation(context);
+  }
+
+  void _cancelInpaintingTasks() {
+    for (final ImageTranslationRequest request
+        in state.imageTranslationRequests.values) {
+      imageInpaintingService.cancel(request.cacheKey);
+    }
   }
 
   String getSuperResolutionProgress() {
@@ -1859,6 +1869,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
             context,
             recognized,
           );
+          await layoutLogic.repairTranslatedImage(index);
         } catch (e, stack) {
           log.warning('Image translation failed for page $index: $e');
           log.trace(stack);
@@ -1871,6 +1882,9 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
         final ImageTranslationResult result = imageTranslationService.resultFor(
           cacheKey,
         );
+        if (result.status == ImageTranslationStatus.success) {
+          await layoutLogic.repairTranslatedImage(index);
+        }
         if (!result.isTerminal) {
           imageTranslationService.markOcrError(
             cacheKey,
@@ -1971,6 +1985,12 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
         ),
         batchGeneration: generation,
       );
+      for (final ContextTranslationPage page in pages) {
+        final int? index = int.tryParse(page.pageId.substring('page-'.length));
+        if (index != null) {
+          await layoutLogic.repairTranslatedImage(index);
+        }
+      }
       layoutLogic.updateSafely([BaseLayoutLogic.pageId]);
     }
   }

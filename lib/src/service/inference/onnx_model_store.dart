@@ -50,6 +50,7 @@ class OnnxModelStore extends GetxController {
       'realesrgan-x4plus-anime-4b32f';
 
   static const String miganInpaintManifestId = 'migan-pipeline-v2';
+  static const String ctdDetectionManifestId = 'comic-text-detector-beta-0.3';
 
   static const List<OnnxModelManifest> manifests = [
     OnnxModelManifest(
@@ -214,6 +215,32 @@ class OnnxModelStore extends GetxController {
                 'https://www.modelscope.cn/models/deepghs/imgutils-models/resolve/master/real_esrgan/RealESRGAN_x4plus_anime_4B32F.onnx',
             OnnxModelSource.huggingFace:
                 'https://huggingface.co/deepghs/imgutils-models/resolve/main/real_esrgan/RealESRGAN_x4plus_anime_4B32F.onnx?download=true',
+          },
+        ),
+      ],
+    ),
+    OnnxModelManifest(
+      id: ctdDetectionManifestId,
+      kind: 'detection',
+      version: 'beta-0.3-2022-04-23',
+      displayName: 'Comic Text Detector · CTD',
+      description: 'onnxModelDescComicTextDetector',
+      // The model is downloaded at runtime and is never bundled into the
+      // Apache-2.0 application. Keep the upstream copyleft terms visible.
+      licenseName: 'GPL-3.0-only (runtime download)',
+      licenseUrl:
+          'https://github.com/dmMaze/comic-text-detector/blob/master/LICENSE',
+      sourceProjectUrl: 'https://github.com/dmMaze/comic-text-detector',
+      files: [
+        OnnxModelFile(
+          id: 'model',
+          fileName: 'comictextdetector.pt.onnx',
+          sizeBytes: 94669756,
+          sha256:
+              '1a86ace74961413cbd650002e7bb4dcec4980ffa21b2f19b86933372071d718f',
+          urls: {
+            OnnxModelSource.github:
+                'https://github.com/zyddnys/manga-image-translator/releases/download/beta-0.3/comictextdetector.pt.onnx',
           },
         ),
       ],

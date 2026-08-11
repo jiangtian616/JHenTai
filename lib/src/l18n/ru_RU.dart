@@ -1186,6 +1186,20 @@ class ru_RU {
       'imageTranslationAppleLiveTextUnavailable':
           'Apple Live Text доступен только на iOS и macOS.',
       'imageTranslationMethodSection': 'Способ перевода',
+      'onnxModelDescComicTextDetector':
+          'Обнаруживает текст в комиксах и создаёт точные маски. Модель загружается отдельно по GPL-3.0.',
+      'imageTranslationImageProcessingSection': 'Обработка изображения',
+      'imageTranslationImageProcessingMode': 'Отображение перевода',
+      'imageTranslationImageProcessingHint':
+          'Исходник всегда сохраняется. При ошибке автоматически используется наложение.',
+      'imageTranslationDisplayOverlay': 'Текстовое наложение',
+      'imageTranslationDisplayCtdMigan': 'Восстановленный фон CTD + MI-GAN',
+      'imageTranslationCtdModel': 'Детектор текста комиксов (CTD)',
+      'imageTranslationMiganModel': 'Модель восстановления фона (MI-GAN)',
+      'imageTranslationCtdLicenseNotice':
+          'Модель CTD GPL-3.0 загружается во время работы и не входит в приложение',
+      'imageTranslationCtdFallbackHint':
+          'Нужны CTD и MI-GAN. При любой ошибке безопасно используется текстовое наложение.',
       'imageTranslationMethodAppleLiveText': 'Apple Live Text',
       'imageTranslationMethodCustom': 'Пользовательский',
       'imageTranslationAppleLiveTextUseApi':

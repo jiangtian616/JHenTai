@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import '../enum/config_enum.dart';
 import '../service/engine/context_translation_contract.dart';
+import '../service/engine/engine_contract.dart';
 import '../service/inference/onnx_model_store.dart';
 import '../service/jh_service.dart';
 import '../service/log.dart';
@@ -78,6 +79,8 @@ class ImageTranslationSetting
   final RxBool enableThinking = false.obs;
   final RxBool translateSubsequentPages = false.obs;
   final Rx<ContextBatchSize> contextBatchSize = ContextBatchSize.one.obs;
+  final Rx<ImageProcessingDisplayMode> imageProcessingDisplayMode =
+      ImageProcessingDisplayMode.overlay.obs;
 
   /// Whether to auto-translate gallery titles and comments as they appear on
   /// screen. This currently requires Apple on-device translation, independent
@@ -152,6 +155,13 @@ class ImageTranslationSetting
       (ContextBatchSize size) => size.name == config['contextBatchSize'],
       orElse: () => ContextBatchSize.one,
     );
+    imageProcessingDisplayMode.value = ImageProcessingDisplayMode.values
+        .firstWhere(
+          (ImageProcessingDisplayMode mode) =>
+              mode.name == config['imageProcessingDisplayMode'] &&
+              mode != ImageProcessingDisplayMode.translatedImage,
+          orElse: () => ImageProcessingDisplayMode.overlay,
+        );
     if (translatorEngine.value == ImageTranslationEngine.appleOnDevice) {
       contextBatchSize.value = ContextBatchSize.one;
     }
@@ -179,6 +189,7 @@ class ImageTranslationSetting
     'enableThinking': enableThinking.value,
     'translateSubsequentPages': translateSubsequentPages.value,
     'contextBatchSize': contextBatchSize.value.name,
+    'imageProcessingDisplayMode': imageProcessingDisplayMode.value.name,
     'autoTranslateGalleryText': autoTranslateGalleryText.value,
   });
 
@@ -267,6 +278,16 @@ class ImageTranslationSetting
 
   Future<void> saveContextBatchSize(ContextBatchSize value) async {
     contextBatchSize.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveImageProcessingDisplayMode(
+    ImageProcessingDisplayMode value,
+  ) async {
+    imageProcessingDisplayMode.value =
+        value == ImageProcessingDisplayMode.translatedImage
+            ? ImageProcessingDisplayMode.overlay
+            : value;
     await saveBeanConfig();
   }
 

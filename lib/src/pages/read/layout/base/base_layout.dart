@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:extended_image/extended_image.dart';
@@ -15,6 +16,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../../../config/ui_config.dart';
 import '../../../../service/gallery_download_service.dart';
+import '../../../../service/image_inpainting_service.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../service/super_resolution_service.dart';
 import '../../../../service/log.dart';
@@ -642,16 +644,38 @@ abstract class BaseLayout extends StatelessWidget {
     if (request == null || !readPageState.showImageTranslationOverlay) {
       return child;
     }
-    return Stack(
-      children: [
-        child,
-        Positioned.fill(
-          child: ReadPageImageTranslationOverlay(
-            request: request,
-            onRetry: () => logic.translateImage(index, context, force: true),
-          ),
-        ),
-      ],
+    return GetBuilder<ImageInpaintingService>(
+      id: request.cacheKey,
+      builder: (ImageInpaintingService inpainting) {
+        final String? repairedPath = inpainting.displayPathFor(
+          request.cacheKey,
+        );
+        return Stack(
+          children: [
+            child,
+            if (repairedPath != null)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: Image.file(
+                    File(repairedPath),
+                    fit: BoxFit.fill,
+                    gaplessPlayback: true,
+                    filterQuality: FilterQuality.medium,
+                    errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                  ),
+                ),
+              ),
+            if (inpainting.shouldDrawTranslationOverlay(request.cacheKey))
+              Positioned.fill(
+                child: ReadPageImageTranslationOverlay(
+                  request: request,
+                  onRetry:
+                      () => logic.translateImage(index, context, force: true),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 

@@ -1181,6 +1181,20 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationAppleLiveTextUnavailable':
           'O Apple Live Text está disponível apenas em iOS e macOS.',
       'imageTranslationMethodSection': 'Método de tradução',
+      'onnxModelDescComicTextDetector':
+          'Detecta texto em quadrinhos e gera máscaras precisas. O modelo é baixado separadamente sob GPL-3.0.',
+      'imageTranslationImageProcessingSection': 'Processamento de imagem',
+      'imageTranslationImageProcessingMode': 'Exibição da tradução',
+      'imageTranslationImageProcessingHint':
+          'A imagem original é sempre preservada. Falhas usam automaticamente a sobreposição.',
+      'imageTranslationDisplayOverlay': 'Sobreposição de texto',
+      'imageTranslationDisplayCtdMigan': 'Fundo restaurado com CTD + MI-GAN',
+      'imageTranslationCtdModel': 'Detector de texto de quadrinhos (CTD)',
+      'imageTranslationMiganModel': 'Modelo de restauração de fundo (MI-GAN)',
+      'imageTranslationCtdLicenseNotice':
+          'O modelo CTD GPL-3.0 é baixado em tempo de execução e não acompanha o app',
+      'imageTranslationCtdFallbackHint':
+          'CTD e MI-GAN são necessários. Qualquer falha retorna com segurança à sobreposição.',
       'imageTranslationMethodAppleLiveText': 'Apple Live Text',
       'imageTranslationMethodCustom': 'Personalizado',
       'imageTranslationAppleLiveTextUseApi':

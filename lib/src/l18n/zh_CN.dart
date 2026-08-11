@@ -1156,6 +1156,17 @@ favnote：匹配收藏备注
       'imageTranslationAppleLiveTextUnavailable':
           'Apple Live Text 仅在 iOS 和 macOS 上可用。',
       'imageTranslationMethodSection': '翻译方式',
+      'onnxModelDescComicTextDetector': '检测漫画文字区域并生成精确修复遮罩，模型按 GPL-3.0 条款单独下载。',
+      'imageTranslationImageProcessingSection': '图片处理',
+      'imageTranslationImageProcessingMode': '翻译显示方式',
+      'imageTranslationImageProcessingHint': '原图始终保留；模型未就绪或处理失败时自动使用覆盖层。',
+      'imageTranslationDisplayOverlay': '文字覆盖层',
+      'imageTranslationDisplayCtdMigan': 'CTD + MI-GAN 修复背景',
+      'imageTranslationCtdModel': '漫画文字检测模型（CTD）',
+      'imageTranslationMiganModel': '背景修复模型（MI-GAN）',
+      'imageTranslationCtdLicenseNotice': 'CTD 模型按 GPL-3.0 条款运行时下载，不随应用分发',
+      'imageTranslationCtdFallbackHint':
+          '需要同时下载 CTD 与 MI-GAN；任何步骤失败都会安全退回文字覆盖层。',
       'imageTranslationMethodAppleLiveText': 'Apple Live Text',
       'imageTranslationMethodCustom': '自定义',
       'imageTranslationAppleLiveTextUseApi': '使用第三方 API 翻译',

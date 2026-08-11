@@ -5,7 +5,9 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/image_translation_service.dart';
+import 'package:jhentai/src/service/image_inpainting_service.dart';
 import 'package:jhentai/src/service/engine/context_translation_contract.dart';
+import 'package:jhentai/src/service/engine/engine_contract.dart';
 import 'package:jhentai/src/service/inference/onnx_model_store.dart';
 import 'package:jhentai/src/service/inference_service.dart';
 import 'package:jhentai/src/setting/image_translation_setting.dart';
@@ -150,6 +152,40 @@ class _SettingImageTranslationPageState
                 _buildLocalTranslationHint(),
             ],
           ),
+          EHAppleSettingsGroup(
+            title: 'imageTranslationImageProcessingSection'.tr,
+            children: [
+              _buildImageProcessingDisplayMode(),
+              Obx(
+                () =>
+                    imageTranslationSetting.imageProcessingDisplayMode.value ==
+                            ImageProcessingDisplayMode
+                                .repairedBackgroundEmbeddedText
+                        ? Column(
+                          children: [
+                            OnnxModelTile(
+                              manifestId: OnnxModelStore.ctdDetectionManifestId,
+                              title: 'imageTranslationCtdModel'.tr,
+                            ),
+                            OnnxModelTile(
+                              manifestId: OnnxModelStore.miganInpaintManifestId,
+                              title: 'imageTranslationMiganModel'.tr,
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.info_outline),
+                              title: Text(
+                                'imageTranslationCtdLicenseNotice'.tr,
+                              ),
+                              subtitle: Text(
+                                'imageTranslationCtdFallbackHint'.tr,
+                              ),
+                            ),
+                          ],
+                        )
+                        : const SizedBox.shrink(),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -181,6 +217,37 @@ class _SettingImageTranslationPageState
             child: Text('Anthropic Messages API'),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildImageProcessingDisplayMode() {
+    return Obx(
+      () => ListTile(
+        title: Text('imageTranslationImageProcessingMode'.tr),
+        subtitle: Text(
+          'imageTranslationImageProcessingHint'.tr,
+          style: const TextStyle(fontSize: 12),
+        ),
+        trailing: EHCodexStyleDropdown<ImageProcessingDisplayMode>(
+          value: imageTranslationSetting.imageProcessingDisplayMode.value,
+          onChanged: (ImageProcessingDisplayMode? value) {
+            if (value != null) {
+              imageTranslationSetting.saveImageProcessingDisplayMode(value);
+              imageInpaintingService.setDisplayMode(value);
+            }
+          },
+          items: <DropdownMenuItem<ImageProcessingDisplayMode>>[
+            DropdownMenuItem(
+              value: ImageProcessingDisplayMode.overlay,
+              child: Text('imageTranslationDisplayOverlay'.tr),
+            ),
+            DropdownMenuItem(
+              value: ImageProcessingDisplayMode.repairedBackgroundEmbeddedText,
+              child: Text('imageTranslationDisplayCtdMigan'.tr),
+            ),
+          ],
+        ),
       ),
     );
   }

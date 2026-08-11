@@ -8,13 +8,9 @@ import 'package:get/get.dart';
 import 'package:path/path.dart';
 
 import 'engine/engine.dart';
+import 'inference_service.dart';
+import 'jh_service.dart';
 import 'path_service.dart';
-
-enum ImageProcessingDisplayMode {
-  overlay,
-  repairedBackgroundEmbeddedText,
-  translatedImage,
-}
 
 enum InpaintingStatus { idle, queued, running, success, canceled, failed }
 
@@ -60,7 +56,9 @@ class InpaintingResult {
 
 /// Owns only derived inpainting artifacts. It never replaces or writes the
 /// source image, so switching display modes cannot destroy the original page.
-class ImageInpaintingService extends GetxController {
+class ImageInpaintingService extends GetxController
+    with JHLifeCircleBeanErrorCatch
+    implements JHLifeCircleBean {
   ImageInpaintingService({EngineRegistry? registry})
     : engineRegistry = registry ?? EngineRegistry();
 
@@ -69,6 +67,8 @@ class ImageInpaintingService extends GetxController {
   final Map<String, String> _artifactKeys = <String, String>{};
   final Map<String, EngineTask<String>> _activeTasks =
       <String, EngineTask<String>>{};
+  final Map<String, EngineTask<DetectionResult>> _activeDetectionTasks =
+      <String, EngineTask<DetectionResult>>{};
   final Map<String, String> _translatedImagePaths = <String, String>{};
   Directory? _cacheDirectoryOverride;
 
@@ -77,6 +77,18 @@ class ImageInpaintingService extends GetxController {
   Directory get _cacheDirectory =>
       _cacheDirectoryOverride ??
       Directory(join(pathService.jhOcrModelDir.path, 'inpainting-cache'));
+
+  @override
+  List<JHLifeCircleBean> get initDependencies =>
+      super.initDependencies..add(inferenceService);
+
+  @override
+  Future<void> doInitBean() async {
+    Get.put(this, permanent: true);
+  }
+
+  @override
+  Future<void> doAfterBeanReady() async {}
 
   InpaintingResult resultFor(String requestKey) =>
       _results[requestKey] ?? const InpaintingResult.idle();
@@ -95,12 +107,15 @@ class ImageInpaintingService extends GetxController {
   /// normal overlay rendering must remain the fallback.
   String? displayPathFor(String requestKey) {
     final InpaintingResult result = resultFor(requestKey);
-    if (displayMode == ImageProcessingDisplayMode.overlay) return null;
+    if (displayMode == ImageProcessingDisplayMode.overlay) {
+      return null;
+    }
     if (displayMode == ImageProcessingDisplayMode.translatedImage) {
       final String? translated =
           _translatedImagePaths[requestKey] ?? result.translatedImagePath;
-      if (translated != null && File(translated).existsSync())
+      if (translated != null && File(translated).existsSync()) {
         return translated;
+      }
     }
     final String? repaired = result.outputPath;
     return result.status == InpaintingStatus.success &&
@@ -116,11 +131,67 @@ class ImageInpaintingService extends GetxController {
           _translatedImagePaths[requestKey] != null);
 
   void publishTranslatedImage(String requestKey, String path) {
-    if (!File(path).existsSync()) return;
+    if (!File(path).existsSync()) {
+      return;
+    }
     _translatedImagePaths[requestKey] = path;
     final InpaintingResult current = resultFor(requestKey);
     _results[requestKey] = current.copyWith(translatedImagePath: path);
     update([requestKey]);
+  }
+
+  /// Runs the complete optional CTD -> MI-GAN pipeline. CTD polygons are the
+  /// only accepted masks: OCR rectangles are never substituted because that
+  /// would erase artwork outside the actual text glyphs.
+  Future<InpaintingResult> detectAndRepair({
+    required String requestKey,
+    required String sourcePath,
+    bool force = false,
+  }) async {
+    _set(requestKey, const InpaintingResult(status: InpaintingStatus.queued));
+    final File source = File(sourcePath);
+    if (!await source.exists()) {
+      return _fail(requestKey, 'source_unavailable');
+    }
+    final DetectionEngine? detector = engineRegistry.findDetection(
+      'ctd-detection',
+    );
+    if (detector == null || !detector.isReady) {
+      return _fail(requestKey, 'ctd_not_ready');
+    }
+    final EngineTask<DetectionResult> task = detector.detect(
+      EngineImageRequest(imagePath: sourcePath),
+    );
+    _activeDetectionTasks[requestKey] = task;
+    _set(requestKey, const InpaintingResult(status: InpaintingStatus.running));
+    try {
+      final DetectionResult detection = await task.future;
+      if (detection.polygonMasks.isEmpty) {
+        return _fail(requestKey, 'ctd_no_text');
+      }
+      return repair(
+        requestKey: requestKey,
+        sourcePath: sourcePath,
+        polygonMasks: detection.polygonMasks,
+        force: force,
+      );
+    } on EngineTaskCancelledException {
+      const InpaintingResult result = InpaintingResult(
+        status: InpaintingStatus.canceled,
+        errorCode: 'canceled',
+        fallbackToOverlay: true,
+      );
+      _set(requestKey, result);
+      return result;
+    } on EngineException catch (error) {
+      return _fail(requestKey, error.code);
+    } catch (_) {
+      return _fail(requestKey, 'ctd_failed');
+    } finally {
+      if (identical(_activeDetectionTasks[requestKey], task)) {
+        _activeDetectionTasks.remove(requestKey);
+      }
+    }
   }
 
   Future<InpaintingResult> repair({
@@ -235,6 +306,7 @@ class ImageInpaintingService extends GetxController {
   }
 
   void cancel(String requestKey) {
+    _activeDetectionTasks[requestKey]?.cancel('detection cancelled');
     _activeTasks[requestKey]?.cancel('inpainting cancelled');
   }
 
@@ -260,7 +332,9 @@ class ImageInpaintingService extends GetxController {
         final File file = File(
           join(_cacheDirectory.path, '$artifactKey$suffix'),
         );
-        if (await file.exists()) await file.delete();
+        if (await file.exists()) {
+          await file.delete();
+        }
       }
     }
     _results.remove(requestKey);
@@ -291,7 +365,9 @@ class ImageInpaintingService extends GetxController {
     required String maskHash,
     required String modelFingerprint,
   }) async {
-    if (!await metadata.exists() || !await output.exists()) return null;
+    if (!await metadata.exists() || !await output.exists()) {
+      return null;
+    }
     try {
       final dynamic decoded = jsonDecode(await metadata.readAsString());
       if (decoded is! Map ||
@@ -301,7 +377,9 @@ class ImageInpaintingService extends GetxController {
           decoded['outputPath'] != output.path) {
         return null;
       }
-      if (decoded['outputHash'] != await _sha256(output)) return null;
+      if (decoded['outputHash'] != await _sha256(output)) {
+        return null;
+      }
       return InpaintingResult(
         status: InpaintingStatus.success,
         outputPath: output.path,
@@ -318,10 +396,14 @@ class ImageInpaintingService extends GetxController {
     final File temporary = File('${file.path}.tmp');
     try {
       await temporary.writeAsString(jsonEncode(value), flush: true);
-      if (await file.exists()) await file.delete();
+      if (await file.exists()) {
+        await file.delete();
+      }
       await temporary.rename(file.path);
     } finally {
-      if (await temporary.exists()) await temporary.delete();
+      if (await temporary.exists()) {
+        await temporary.delete();
+      }
     }
   }
 

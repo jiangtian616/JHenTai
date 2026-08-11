@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jhentai/src/service/engine/context_translation_contract.dart';
+import 'package:jhentai/src/service/engine/engine_contract.dart';
 import 'package:jhentai/src/setting/image_translation_setting.dart';
 
 class _MemoryImageTranslationSetting extends ImageTranslationSetting {
@@ -73,6 +74,35 @@ void main() {
     restored.applyBeanConfig('{"contextBatchSize":"unsupported"}');
     expect(restored.contextBatchSize.value, ContextBatchSize.one);
   });
+
+  test(
+    'image-processing mode persists and rejects unavailable raster mode',
+    () {
+      final ImageTranslationSetting setting = ImageTranslationSetting();
+      expect(
+        setting.imageProcessingDisplayMode.value,
+        ImageProcessingDisplayMode.overlay,
+        reason: 'CTD and MI-GAN must remain opt-in',
+      );
+      setting.imageProcessingDisplayMode.value =
+          ImageProcessingDisplayMode.repairedBackgroundEmbeddedText;
+
+      final ImageTranslationSetting restored = ImageTranslationSetting();
+      restored.applyBeanConfig(setting.toConfigString());
+      expect(
+        restored.imageProcessingDisplayMode.value,
+        ImageProcessingDisplayMode.repairedBackgroundEmbeddedText,
+      );
+
+      restored.applyBeanConfig(
+        '{"imageProcessingDisplayMode":"translatedImage"}',
+      );
+      expect(
+        restored.imageProcessingDisplayMode.value,
+        ImageProcessingDisplayMode.overlay,
+      );
+    },
+  );
 
   test('Apple translator resets unsupported context batching', () async {
     final _MemoryImageTranslationSetting setting =

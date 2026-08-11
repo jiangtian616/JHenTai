@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/engine/context_translation_contract.dart';
+import 'package:jhentai/src/service/engine/engine_contract.dart';
 import 'package:jhentai/src/service/image_translation_service.dart';
+import 'package:jhentai/src/service/image_inpainting_service.dart';
 import 'package:jhentai/src/setting/image_translation_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/widget/eh_apple_button.dart';
@@ -66,6 +68,7 @@ class _ImageTranslationConfigSheetState
   late String _targetLanguage;
   late bool _enableThinking;
   late bool _translateSubsequentPages;
+  late ImageProcessingDisplayMode _imageProcessingDisplayMode;
 
   List<String> _availableModels = [];
 
@@ -81,6 +84,8 @@ class _ImageTranslationConfigSheetState
     _enableThinking = imageTranslationSetting.enableThinking.value;
     _translateSubsequentPages =
         imageTranslationSetting.translateSubsequentPages.value;
+    _imageProcessingDisplayMode =
+        imageTranslationSetting.imageProcessingDisplayMode.value;
     _availableModels = [_model];
     if (_translatorEngine == ImageTranslationEngine.api) {
       _fetchModels();
@@ -137,6 +142,7 @@ class _ImageTranslationConfigSheetState
                 _buildTargetLanguage(),
                 _buildTranslateScope(),
                 _buildContextBatchSize(),
+                _buildImageProcessingMode(),
               ],
             ),
           ),
@@ -207,6 +213,34 @@ class _ImageTranslationConfigSheetState
         setState(() => _enableThinking = value);
         imageTranslationSetting.saveEnableThinking(value);
       },
+    );
+  }
+
+  Widget _buildImageProcessingMode() {
+    return _dropdownRow(
+      'imageTranslationImageProcessingMode'.tr,
+      EHCodexStyleDropdown<ImageProcessingDisplayMode>(
+        key: const ValueKey('image-translation-image-processing-mode'),
+        value: _imageProcessingDisplayMode,
+        onChanged: (ImageProcessingDisplayMode? value) {
+          if (value == null) {
+            return;
+          }
+          setState(() => _imageProcessingDisplayMode = value);
+          imageTranslationSetting.saveImageProcessingDisplayMode(value);
+          imageInpaintingService.setDisplayMode(value);
+        },
+        items: <DropdownMenuItem<ImageProcessingDisplayMode>>[
+          DropdownMenuItem(
+            value: ImageProcessingDisplayMode.overlay,
+            child: Text('imageTranslationDisplayOverlay'.tr),
+          ),
+          DropdownMenuItem(
+            value: ImageProcessingDisplayMode.repairedBackgroundEmbeddedText,
+            child: Text('imageTranslationDisplayCtdMigan'.tr),
+          ),
+        ],
+      ),
     );
   }
 

@@ -27,9 +27,11 @@ const Set<EnginePlatform> _ctdPlatforms = <EnginePlatform>{
 /// adapter remains unavailable and reports a concrete error; it never turns a
 /// detector rectangle into a pretend polygon mask.
 class CtdDetectionEngineAdapter implements DetectionEngine {
-  CtdDetectionEngineAdapter({this.runner});
+  CtdDetectionEngineAdapter({this.runner, bool Function()? ready})
+    : _ready = ready;
 
   final CtdDetectionRunner? runner;
+  final bool Function()? _ready;
 
   @override
   final EngineDescriptor descriptor = const EngineDescriptor(
@@ -40,7 +42,7 @@ class CtdDetectionEngineAdapter implements DetectionEngine {
   );
 
   @override
-  bool get isReady => runner != null;
+  bool get isReady => runner != null && (_ready?.call() ?? true);
 
   @override
   EngineTask<DetectionResult> detect(

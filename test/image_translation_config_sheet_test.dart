@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/setting/advanced/image_translation/setting_image_translation_page.dart';
 import 'package:jhentai/src/service/engine/context_translation_contract.dart';
+import 'package:jhentai/src/service/engine/engine_contract.dart';
 import 'package:jhentai/src/setting/image_translation_setting.dart';
 import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
 import 'package:jhentai/src/widget/image_translation_config_sheet.dart';
@@ -89,6 +90,34 @@ void main() {
     expect(
       find.text('imageTranslationContextAppleUnsupported'),
       findsOneWidget,
+    );
+  });
+
+  testWidgets('CTD and MI-GAN display mode is opt-in', (
+    WidgetTester tester,
+  ) async {
+    final ImageTranslationSetting setting = ImageTranslationSetting();
+    imageTranslationSetting = setting;
+
+    await tester.pumpWidget(
+      const GetMaterialApp(home: Scaffold(body: ImageTranslationConfigSheet())),
+    );
+    await tester.drag(find.byType(ListView), const Offset(0, -500));
+    await tester.pumpAndSettle();
+
+    final EHCodexStyleDropdown<ImageProcessingDisplayMode> processing = tester
+        .widget(
+          find.byKey(const ValueKey('image-translation-image-processing-mode')),
+        );
+    expect(processing.value, ImageProcessingDisplayMode.overlay);
+    final List<DropdownMenuItem<ImageProcessingDisplayMode>> items =
+        processing.items.cast<DropdownMenuItem<ImageProcessingDisplayMode>>();
+    expect(items, hasLength(2));
+    expect(
+      items.map(
+        (DropdownMenuItem<ImageProcessingDisplayMode> item) => item.value,
+      ),
+      isNot(contains(ImageProcessingDisplayMode.translatedImage)),
     );
   });
 }

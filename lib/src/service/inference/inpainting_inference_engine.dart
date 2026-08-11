@@ -134,6 +134,8 @@ class MiganOnnxInpaintingInferenceEngine implements InpaintingInferenceEngine {
       modelFingerprint: model.fingerprint,
       providers: providers,
       safetyConfig: safetyConfig,
+      intraOpNumThreads: 2,
+      interOpNumThreads: 1,
     );
     if (session == null) {
       throw const InferenceNotReadyException(modelId);

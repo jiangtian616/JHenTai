@@ -18,6 +18,9 @@ import 'model_catalog.dart';
 import 'manga_ocr_engine_adapter.dart';
 import 'onnx_engine_adapters.dart';
 import '../inference/inpainting_inference_engine.dart';
+import '../inference/ctd_onnx_inference_engine.dart';
+import '../inference/inference_task.dart';
+import '../inference/inference_safety.dart';
 import '../inference/onnx_model_store.dart';
 import '../inference/onnx_runtime.dart';
 
@@ -126,8 +129,55 @@ class EngineRegistry {
         resolver: () => _inferenceResolver().superResolutionEngine,
       ),
     );
+    final CtdOnnxInferenceEngine ctdInference = CtdOnnxInferenceEngine(
+      runtime: OnnxRuntime.instance,
+      providerResolver: () {
+        final List<ort.OrtProvider> available =
+            OnnxRuntime.instance.availableProviders;
+        return available.contains(ort.OrtProvider.CPU)
+            ? <ort.OrtProvider>[ort.OrtProvider.CPU]
+            : const <ort.OrtProvider>[];
+      },
+      modelResolver: () {
+        final Map<String, String>? files = OnnxModelStore.instance
+            .manifestFilePaths(OnnxModelStore.ctdDetectionManifestId);
+        return CtdOnnxModelInfo(
+          modelPath: files?['model'],
+          fingerprint:
+              OnnxModelStore.instance.fingerprintOf(
+                OnnxModelStore.ctdDetectionManifestId,
+              ) ??
+              '',
+        );
+      },
+    );
     registerDetection(
-      detectionEngine ?? CtdDetectionEngineAdapter(runner: ctdRunner),
+      detectionEngine ??
+          CtdDetectionEngineAdapter(
+            ready: ctdRunner == null ? () => ctdInference.isReady : null,
+            runner:
+                ctdRunner ??
+                (
+                  String imagePath,
+                  EngineCancellationToken cancellation,
+                  void Function(double progress) onProgress,
+                ) async {
+                  final InferenceCancellationToken token =
+                      InferenceCancellationToken();
+                  final subscription = cancellation.onCancel.listen(
+                    token.cancel,
+                  );
+                  try {
+                    return await ctdInference.detect(
+                      imagePath,
+                      cancellationToken: token,
+                      onProgress: onProgress,
+                    );
+                  } finally {
+                    await subscription.cancel();
+                  }
+                },
+          ),
     );
     final MiganOnnxInpaintingInferenceEngine miganInference =
         MiganOnnxInpaintingInferenceEngine(
@@ -153,6 +203,16 @@ class EngineRegistry {
                   '',
             );
           },
+          safetyConfig: const InferenceSessionSafetyConfig(
+            useArena: false,
+            providerOptions: <String, Map<String, String>>{},
+            sessionConfigEntries: <String, String>{
+              'session.enable_cpu_mem_arena': '0',
+            },
+            requireStaticShapes: false,
+            memoryBudgetBytes: 512 * 1024 * 1024,
+            maxInputPixels: 12 * 1024 * 1024,
+          ),
         );
     registerInpaint(
       inpaintEngine ??

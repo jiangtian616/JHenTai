@@ -1105,6 +1105,20 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationAppleLiveTextUnavailable':
           'Apple Live Text는 iOS 및 macOS에서만 사용할 수 있습니다.',
       'imageTranslationMethodSection': '번역 방식',
+      'onnxModelDescComicTextDetector':
+          '만화 텍스트를 감지해 정밀 복원 마스크를 만듭니다. 모델은 GPL-3.0 조건으로 별도 다운로드됩니다.',
+      'imageTranslationImageProcessingSection': '이미지 처리',
+      'imageTranslationImageProcessingMode': '번역 표시 방식',
+      'imageTranslationImageProcessingHint':
+          '원본은 항상 보존되며 모델이 없거나 처리에 실패하면 오버레이로 자동 전환됩니다.',
+      'imageTranslationDisplayOverlay': '텍스트 오버레이',
+      'imageTranslationDisplayCtdMigan': 'CTD + MI-GAN 배경 복원',
+      'imageTranslationCtdModel': '만화 텍스트 감지 모델 (CTD)',
+      'imageTranslationMiganModel': '배경 복원 모델 (MI-GAN)',
+      'imageTranslationCtdLicenseNotice':
+          'GPL-3.0 CTD 모델은 실행 중 다운로드되며 앱에 포함되지 않습니다',
+      'imageTranslationCtdFallbackHint':
+          'CTD와 MI-GAN이 모두 필요합니다. 실패 시 안전하게 텍스트 오버레이로 전환됩니다.',
       'imageTranslationMethodAppleLiveText': 'Apple Live Text',
       'imageTranslationMethodCustom': '사용자 정의',
       'imageTranslationAppleLiveTextUseApi': '타사 API로 번역',

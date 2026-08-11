@@ -155,6 +155,7 @@ class OnnxModelCatalog extends ModelCatalog {
               'ocr' => 'onnx-ocr',
               'superResolution' => 'onnx-super-resolution',
               'inpaint' => 'onnx-migan-inpaint',
+              'detection' => 'ctd-detection',
               _ => 'onnx',
             },
           ],

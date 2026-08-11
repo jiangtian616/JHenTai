@@ -20,8 +20,11 @@ import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/gallery_download_service.dart';
 import 'package:jhentai/src/service/image_translation_service.dart';
+import 'package:jhentai/src/service/image_inpainting_service.dart';
+import 'package:jhentai/src/service/engine/engine_contract.dart';
 import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
+import 'package:jhentai/src/setting/image_translation_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/image_cache_util.dart';
@@ -374,6 +377,30 @@ abstract class BaseLayoutLogic extends GetxController
     updateSafely([BaseLayoutLogic.pageId]);
   }
 
+  /// Produces an optional repaired-background derivative after translation.
+  /// It runs after OCR/translation so large native inference sessions do not
+  /// overlap on memory-constrained mobile devices.
+  Future<void> repairTranslatedImage(int index, {bool force = false}) async {
+    final ImageProcessingDisplayMode mode =
+        imageTranslationSetting.imageProcessingDisplayMode.value;
+    if (mode == ImageProcessingDisplayMode.overlay) return;
+    final ImageTranslationRequest? request =
+        readPageState.imageTranslationRequests[index];
+    final String? sourcePath = request?.imagePath;
+    if (request == null || sourcePath == null) return;
+    if (imageTranslationService.resultFor(request.cacheKey).status !=
+        ImageTranslationStatus.success) {
+      return;
+    }
+    imageInpaintingService.setDisplayMode(mode);
+    await imageInpaintingService.detectAndRepair(
+      requestKey: request.cacheKey,
+      sourcePath: sourcePath,
+      force: force,
+    );
+    updateSafely([BaseLayoutLogic.pageId]);
+  }
+
   /// Hydrates a persistent result when a page enters the viewport. This only
   /// reads an already cached source file; it never downloads an image and
   /// never removes the persistent translation result.
@@ -527,10 +554,12 @@ abstract class BaseLayoutLogic extends GetxController
       force: force,
     );
     if (recognized == null) {
+      await repairTranslatedImage(index, force: force);
       _hintIfAlreadyTranslated(index, force);
       return;
     }
     await translateRecognizedImage(index, context, recognized);
+    await repairTranslatedImage(index, force: force);
   }
 
   /// When a single-page translate has nothing to do, explain why if the page

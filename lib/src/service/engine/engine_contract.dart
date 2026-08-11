@@ -22,6 +22,15 @@ enum EngineTaskLifecycle { queued, running, succeeded, cancelled, failed }
 
 enum EngineTaskStage { queued, loading, processing, finalizing, completed }
 
+/// Selects how translated pages are rendered without ever mutating the source
+/// image. Only the first two modes are user-facing until a translated raster
+/// compositor is available.
+enum ImageProcessingDisplayMode {
+  overlay,
+  repairedBackgroundEmbeddedText,
+  translatedImage,
+}
+
 class EngineTaskProgress {
   const EngineTaskProgress({
     required this.taskId,

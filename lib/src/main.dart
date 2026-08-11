@@ -62,6 +62,7 @@ import 'package:jhentai/src/widget/app_manager.dart';
 import 'config/theme_config.dart';
 import 'network/archive_bot_request.dart';
 import 'service/inference_service.dart';
+import 'service/image_inpainting_service.dart';
 import 'service/lan_device_trust_service.dart';
 import 'service/lan_sharing_runtime.dart';
 import 'service/lan_unified_state_service.dart';
@@ -90,6 +91,7 @@ List<JHLifeCircleBean> lifeCircleBeans = [
   storageService,
   superResolutionService,
   imageTranslationService,
+  imageInpaintingService,
   lanDeviceTrustService,
   lanUnifiedStateService,
   lanSharingRuntime,
