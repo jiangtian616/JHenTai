@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/model/jh_layout.dart';
+import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/widget/eh_alert_dialog.dart';
@@ -37,6 +38,60 @@ void main() {
 
     ThemeConfig.appleVisualStyleEnabled = true;
     expect(preferenceSetting.effectiveHideBottomBar, isFalse);
+  });
+
+  test(
+    'enabling Apple style persistently clears the legacy hidden bar value',
+    () async {
+      final PreferenceSetting originalPreferenceSetting = preferenceSetting;
+      final StyleSetting originalStyleSetting = styleSetting;
+      final LogService originalLog = log;
+      final _TestPreferenceSetting testPreferenceSetting =
+          _TestPreferenceSetting()..hideBottomBar.value = true;
+      final _TestStyleSetting testStyleSetting = _TestStyleSetting();
+      preferenceSetting = testPreferenceSetting;
+      styleSetting = testStyleSetting;
+      log = _TestLogService();
+      try {
+        await testStyleSetting.saveAppleVisualStyle(true);
+
+        expect(testPreferenceSetting.hideBottomBar.value, isFalse);
+        expect(testPreferenceSetting.saveHideBottomBarCalls, 1);
+        expect(testStyleSetting.appleVisualStyle.value, isTrue);
+
+        await testStyleSetting.saveAppleVisualStyle(false);
+        expect(testPreferenceSetting.hideBottomBar.value, isFalse);
+        expect(testPreferenceSetting.saveHideBottomBarCalls, 1);
+      } finally {
+        preferenceSetting = originalPreferenceSetting;
+        styleSetting = originalStyleSetting;
+        log = originalLog;
+      }
+    },
+  );
+
+  test('loaded Apple config migrates the legacy hidden bar value', () async {
+    final PreferenceSetting originalPreferenceSetting = preferenceSetting;
+    final StyleSetting originalStyleSetting = styleSetting;
+    final LogService originalLog = log;
+    final _TestPreferenceSetting testPreferenceSetting =
+        _TestPreferenceSetting()..hideBottomBar.value = true;
+    final _TestStyleSetting testStyleSetting =
+        _TestStyleSetting()..appleVisualStyle.value = true;
+    preferenceSetting = testPreferenceSetting;
+    styleSetting = testStyleSetting;
+    log = _TestLogService();
+    try {
+      testStyleSetting.doAfterBeanReady();
+      await Future<void>.delayed(Duration.zero);
+
+      expect(testPreferenceSetting.hideBottomBar.value, isFalse);
+      expect(testPreferenceSetting.saveHideBottomBarCalls, 1);
+    } finally {
+      preferenceSetting = originalPreferenceSetting;
+      styleSetting = originalStyleSetting;
+      log = originalLog;
+    }
   });
 
   testWidgets('Apple hide-bottom-bar switch is disabled and visually off', (
@@ -118,4 +173,24 @@ void main() {
     expect(find.text('Delete'), findsOneWidget);
     expect(find.byType(CupertinoActionSheet), findsNothing);
   });
+}
+
+class _TestPreferenceSetting extends PreferenceSetting {
+  int saveHideBottomBarCalls = 0;
+
+  @override
+  Future<void> saveHideBottomBar(bool hideBottomBar) async {
+    saveHideBottomBarCalls++;
+    this.hideBottomBar.value = hideBottomBar;
+  }
+}
+
+class _TestStyleSetting extends StyleSetting {
+  @override
+  Future<int> saveBeanConfig() async => 1;
+}
+
+class _TestLogService extends LogService {
+  @override
+  void debug(Object msg, [bool withStack = false]) {}
 }

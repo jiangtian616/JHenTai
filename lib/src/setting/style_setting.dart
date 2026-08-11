@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 
@@ -8,6 +9,7 @@ import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/service/jh_service.dart';
 import 'package:jhentai/src/service/log.dart';
+import 'package:jhentai/src/setting/preference_setting.dart';
 
 import '../model/jh_layout.dart';
 
@@ -140,6 +142,10 @@ class StyleSetting
 
   @override
   void doAfterBeanReady() {
+    // Migrate configurations created before Apple navigation made the bottom
+    // bar mandatory. The in-memory value is cleared synchronously; the config
+    // write is allowed to finish after the first frame.
+    unawaited(_migrateAppleNavigationPreference());
     ever(themeMode, (_) {
       Get.changeThemeMode(themeMode.value);
     });
@@ -228,8 +234,25 @@ class StyleSetting
 
   Future<void> saveAppleVisualStyle(bool enabled) async {
     log.debug('saveAppleVisualStyle:$enabled');
+    await _resetAppleNavigationPreference(enabled);
     appleVisualStyle.value = enabled;
     await saveBeanConfig();
+  }
+
+  Future<void> _resetAppleNavigationPreference(bool appleStyleEnabled) async {
+    if (!appleStyleEnabled || !preferenceSetting.hideBottomBar.value) {
+      return;
+    }
+    await preferenceSetting.saveHideBottomBar(false);
+  }
+
+  Future<void> _migrateAppleNavigationPreference() async {
+    try {
+      await _resetAppleNavigationPreference(appleVisualStyle.value);
+    } catch (error, stack) {
+      log.warning('Failed to migrate Apple navigation preference', error, true);
+      log.trace(stack);
+    }
   }
 
   Future<void> saveLayoutMode(LayoutMode layoutMode) async {
