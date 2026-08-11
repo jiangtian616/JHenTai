@@ -76,7 +76,7 @@ class _WebviewPageState extends State<WebviewPage> {
         title: LoadingStateIndicator(
           loadingState: loadingState,
           successWidgetBuilder: () => Text(title),
-        ).paddingOnly(right: 40),
+        ),
       ),
       body: WebViewWidget(controller: controller),
     );
