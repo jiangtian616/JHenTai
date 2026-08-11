@@ -271,8 +271,6 @@ class _ImageTranslationConfigSheetState
         setState(() {});
         imageTranslationSetting.saveLocalModelId(modelId);
       },
-      llamaServerPath: imageTranslationSetting.localLlamaServerPath.value,
-      onSaveLlamaServerPath: imageTranslationSetting.saveLocalLlamaServerPath,
     );
   }
 

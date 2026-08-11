@@ -65,6 +65,7 @@ void main() {
 
     expect(ocr.value, ImageOcrEngine.appleLiveText);
     expect(translator.value, ImageTranslationEngine.api);
+    expect(find.text('imageTranslationMethodSection'), findsNothing);
   });
 
   testWidgets('Apple translator exposes only one-page context mode', (
@@ -142,7 +143,7 @@ void main() {
       findsOneWidget,
     );
     expect(
-      find.byKey(const ValueKey('image-translation-llama-server-path')),
+      find.byKey(const ValueKey('image-translation-managed-llama-runtime')),
       findsOneWidget,
     );
   });

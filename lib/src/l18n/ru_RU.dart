@@ -1155,6 +1155,11 @@ class ru_RU {
       'imageTranslationLlamaServerPathHint':
           'Выберите локальный исполняемый файл llama-server',
       'imageTranslationBrowseRuntime': 'Выбрать среду',
+      'imageTranslationLlamaRuntime': 'Управляемая среда llama.cpp',
+      'imageTranslationLlamaRuntimeHint':
+          'Автоматически загружается и проверяется вместе с локальными моделями перевода.',
+      'imageTranslationLlamaRuntimeUnsupported':
+          'Для этой платформы нет управляемой среды llama.cpp.',
       'imageTranslationTranslatorHint':
           'Используется OpenAI-compatible Chat Completions. Ключ хранится только на этом устройстве.',
       'imageTranslationEndpoint': 'Адрес',

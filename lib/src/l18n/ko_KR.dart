@@ -1078,6 +1078,11 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationLlamaServerPath': 'llama-server 실행 파일',
       'imageTranslationLlamaServerPathHint': '로컬 llama-server 실행 파일 선택',
       'imageTranslationBrowseRuntime': '런타임 선택',
+      'imageTranslationLlamaRuntime': '관리형 llama.cpp 런타임',
+      'imageTranslationLlamaRuntimeHint':
+          '로컬 번역 모델과 함께 자동으로 다운로드하고 검증합니다.',
+      'imageTranslationLlamaRuntimeUnsupported':
+          '이 플랫폼에서는 관리형 llama.cpp 런타임을 사용할 수 없습니다.',
       'imageTranslationTranslatorHint':
           'OpenAI 호환 Chat Completions 엔드포인트를 사용합니다. 키는 이 기기에만 저장됩니다.',
       'imageTranslationEndpoint': '엔드포인트',

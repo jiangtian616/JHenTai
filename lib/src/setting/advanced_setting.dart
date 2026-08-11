@@ -35,8 +35,7 @@ class AdvancedSetting
   /// Whether this device publishes a LAN server endpoint. This is intentionally
   /// desktop-only; mobile can remain a foreground client without claiming a
   /// resident server.
-  RxBool lanActAsServer =
-      (GetPlatform.isWindows || GetPlatform.isMacOS || GetPlatform.isLinux).obs;
+  RxBool lanActAsServer = false.obs;
 
   /// Empty means no fixed server was selected. A non-empty value is the only
   /// peer eligible for automatic LAN gallery/image requests.
@@ -60,9 +59,10 @@ class AdvancedSetting
     enableLanSharing.value = map['enableLanSharing'] ?? enableLanSharing.value;
     lanLocalTabAsLan.value = map['lanLocalTabAsLan'] ?? lanLocalTabAsLan.value;
     lanStayResident.value = map['lanStayResident'] ?? lanStayResident.value;
-    lanServerMode.value = map['lanServerMode'] ?? lanServerMode.value;
-    lanActAsServer.value =
-        map['lanActAsServer'] ?? map['lanServerMode'] ?? lanActAsServer.value;
+    final bool mergedServerMode =
+        map['lanServerMode'] == true || map['lanActAsServer'] == true;
+    lanServerMode.value = mergedServerMode;
+    lanActAsServer.value = mergedServerMode;
     lanPreferredServerDeviceId.value =
         map['lanPreferredServerDeviceId'] as String? ??
         lanPreferredServerDeviceId.value;
@@ -136,13 +136,14 @@ class AdvancedSetting
   Future<void> saveLanServerMode(bool value) async {
     log.debug('saveLanServerMode:$value');
     lanServerMode.value = value;
+    lanActAsServer.value = value;
     await saveBeanConfig();
   }
 
+  /// Compatibility entry point for older callers. Publishing a LAN endpoint
+  /// and providing its storage/cache role are now one user-facing mode.
   Future<void> saveLanActAsServer(bool value) async {
-    log.debug('saveLanActAsServer:$value');
-    lanActAsServer.value = value;
-    await saveBeanConfig();
+    await saveLanServerMode(value);
   }
 
   Future<void> saveLanPreferredServerDeviceId(String value) async {

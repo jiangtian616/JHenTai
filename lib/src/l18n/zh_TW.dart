@@ -1116,6 +1116,9 @@ favnote：配對收藏備註
       'imageTranslationLlamaServerPath': 'llama-server 執行檔',
       'imageTranslationLlamaServerPathHint': '選擇本機 llama-server 執行檔',
       'imageTranslationBrowseRuntime': '選擇執行環境',
+      'imageTranslationLlamaRuntime': '軟體管理的 llama.cpp 執行環境',
+      'imageTranslationLlamaRuntimeHint': '下載本機翻譯模型時自動下載並驗證，無需選擇本機檔案。',
+      'imageTranslationLlamaRuntimeUnsupported': '目前平台暫無可管理的 llama.cpp 執行環境。',
       'imageTranslationTranslatorHint':
           '支援 OpenAI-compatible Chat Completions 介面，金鑰僅儲存在本機。',
       'imageTranslationEndpoint': '介面位址',

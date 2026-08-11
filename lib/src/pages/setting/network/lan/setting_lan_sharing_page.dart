@@ -77,34 +77,30 @@ class SettingLanSharingPage extends StatelessWidget {
                         if (GetPlatform.isDesktop)
                           Obx(
                             () => EHAppleSwitchListTile(
-                              title: Text('lanActAsServer'.tr),
-                              subtitle: Text('lanActAsServerHint'.tr),
-                              value: advancedSetting.lanActAsServer.value,
-                              onChanged: advancedSetting.saveLanActAsServer,
+                              title: Text('lanServerMode'.tr),
+                              subtitle: Text('lanServerModeHint'.tr),
+                              value: advancedSetting.lanServerMode.value,
+                              onChanged: advancedSetting.saveLanServerMode,
                             ),
                           ),
                         Obx(
-                          () => EHAppleSwitchListTile(
-                            title: Text('lanServerMode'.tr),
-                            subtitle: Text('lanServerModeHint'.tr),
-                            value: advancedSetting.lanServerMode.value,
-                            onChanged: advancedSetting.saveLanServerMode,
-                          ),
-                        ),
-                        GetBuilder<LanDeviceTrustService>(
-                          id: LanDeviceTrustService.devicesChangedId,
-                          builder:
-                              (service) => ListTile(
-                                leading: const Icon(Icons.dns_outlined),
-                                title: Text('lanPreferredServer'.tr),
-                                subtitle: Text(_preferredServerLabel(service)),
-                                trailing: const Icon(Icons.chevron_right),
-                                onTap:
-                                    () => _selectPreferredServer(
+                          () => advancedSetting.lanServerMode.value
+                              ? const SizedBox.shrink()
+                              : GetBuilder<LanDeviceTrustService>(
+                                  id: LanDeviceTrustService.devicesChangedId,
+                                  builder: (service) => ListTile(
+                                    leading: const Icon(Icons.dns_outlined),
+                                    title: Text('lanPreferredServer'.tr),
+                                    subtitle: Text(
+                                      _preferredServerLabel(service),
+                                    ),
+                                    trailing: const Icon(Icons.chevron_right),
+                                    onTap: () => _selectPreferredServer(
                                       context,
                                       service,
                                     ),
-                              ),
+                                  ),
+                                ),
                         ),
                         if (GetPlatform.isDesktop)
                           Obx(

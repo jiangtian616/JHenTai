@@ -12,9 +12,17 @@ import 'package:jhentai/src/utils/image_cache_util.dart';
 import 'package:path/path.dart' as path;
 
 void main() {
-  setUp(() => advancedSetting.enableLanSharing.value = true);
+  setUp(() {
+    advancedSetting.enableLanSharing.value = true;
+    advancedSetting.lanActAsServer.value = true;
+    advancedSetting.lanServerMode.value = false;
+  });
 
-  tearDown(() => advancedSetting.enableLanSharing.value = false);
+  tearDown(() {
+    advancedSetting.enableLanSharing.value = false;
+    advancedSetting.lanActAsServer.value = false;
+    advancedSetting.lanServerMode.value = false;
+  });
 
   test(
     'pending LAN requests are completed and removed by a fake timeout',

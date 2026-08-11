@@ -7,6 +7,7 @@ import 'package:jhentai/src/setting/image_translation_setting.dart';
 import 'engine_contract.dart';
 import 'context_translation_contract.dart';
 import 'gguf_model_store.dart';
+import 'llama_runtime_store.dart';
 import 'local_translation_prompt.dart';
 import 'model_catalog.dart';
 
@@ -18,13 +19,16 @@ class LlamaServerTranslationEngine
   LlamaServerTranslationEngine({
     ImageTranslationSetting? setting,
     GgufModelStore? store,
+    LlamaRuntimeStore? runtimeStore,
     HttpClient? client,
   }) : _setting = setting ?? imageTranslationSetting,
        _store = store ?? GgufModelStore.instance,
+       _runtimeStore = runtimeStore ?? LlamaRuntimeStore.instance,
        _client = client ?? HttpClient();
 
   final ImageTranslationSetting _setting;
   final GgufModelStore _store;
+  final LlamaRuntimeStore _runtimeStore;
   final HttpClient _client;
 
   @override
@@ -431,6 +435,10 @@ class LlamaServerTranslationEngine
   }
 
   String? _resolveExecutable() {
+    final String? managed = _runtimeStore.managedExecutablePathSync();
+    if (managed != null) {
+      return managed;
+    }
     final String configured = _setting.localLlamaServerPath.value?.trim() ?? '';
     if (configured.isNotEmpty && File(configured).existsSync()) {
       return configured;

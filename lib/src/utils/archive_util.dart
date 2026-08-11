@@ -1,7 +1,5 @@
 import 'dart:io';
-import 'dart:typed_data';
 
-import 'package:archive/archive.dart';
 import 'package:archive/archive_io.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
@@ -46,6 +44,70 @@ Future<bool> extractZipArchive(String archivePath, String extractPath) {
       }
     },
     [archivePath, extractPath],
+  );
+}
+
+/// Extract a `.tar.gz` archive with the same traversal guard and atomic
+/// directory promotion used by [extractZipArchive].
+Future<bool> extractTarGZipArchive(String archivePath, String extractPath) {
+  return compute(
+    (List<String> paths) async {
+      final String temporaryPath = '${paths[1]}.tmp';
+      final Directory temporaryDirectory = Directory(temporaryPath);
+      try {
+        if (temporaryDirectory.existsSync()) {
+          temporaryDirectory.deleteSync(recursive: true);
+        }
+        temporaryDirectory.createSync(recursive: true);
+        final InputFileStream input = InputFileStream(paths[0]);
+        late final List<int> tarBytes;
+        try {
+          tarBytes = GZipDecoder().decodeBuffer(input);
+        } finally {
+          input.close();
+        }
+        final Archive archive = TarDecoder().decodeBytes(tarBytes);
+        for (final ArchiveFile entry in archive.files) {
+          final String entryName = entry.name.replaceAll('\\', '/');
+          final String outputPath = p.join(
+            temporaryPath,
+            p.normalize(entryName),
+          );
+          if (!isWithinOutputPath(temporaryPath, outputPath)) {
+            throw ArchiveException('Invalid tar entry path: $entryName');
+          }
+          if (entry.isSymbolicLink) {
+            final String linkTarget = p.normalize(
+              p.join(p.dirname(outputPath), entry.nameOfLinkedFile),
+            );
+            if (!isWithinOutputPath(temporaryPath, linkTarget)) {
+              throw ArchiveException(
+                'Invalid tar symbolic link: $entryName',
+              );
+            }
+            Directory(p.dirname(outputPath)).createSync(recursive: true);
+            Link(outputPath).createSync(entry.nameOfLinkedFile);
+          } else if (entry.isFile) {
+            final File file = File(outputPath)..createSync(recursive: true);
+            file.writeAsBytesSync(entry.content as List<int>);
+          } else {
+            Directory(outputPath).createSync(recursive: true);
+          }
+        }
+        final Directory finalDirectory = Directory(paths[1]);
+        if (finalDirectory.existsSync()) {
+          finalDirectory.deleteSync(recursive: true);
+        }
+        await temporaryDirectory.rename(paths[1]);
+        return true;
+      } on Object {
+        if (temporaryDirectory.existsSync()) {
+          temporaryDirectory.deleteSync(recursive: true);
+        }
+        return false;
+      }
+    },
+    <String>[archivePath, extractPath],
   );
 }
 

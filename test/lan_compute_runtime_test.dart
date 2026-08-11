@@ -16,6 +16,7 @@ import 'package:jhentai/src/setting/advanced_setting.dart';
 void main() {
   test('authenticated v2 session advertises and runs fake compute', () async {
     advancedSetting.enableLanSharing.value = true;
+    advancedSetting.lanActAsServer.value = true;
     final LanDeviceTrustService clientTrust = LanDeviceTrustService(
       repository: _MemoryTrustRepository(),
       secureRandom: Random(501),
@@ -116,6 +117,7 @@ void main() {
       clientTrust.onClose();
       hostTrust.onClose();
       advancedSetting.enableLanSharing.value = false;
+      advancedSetting.lanActAsServer.value = false;
     }
   });
 
@@ -428,7 +430,9 @@ class _ManualTask implements LanComputeScheduledTask {
   void cancel() => cancelled = true;
 
   void fire() {
-    if (!cancelled) callback();
+    if (!cancelled) {
+      callback();
+    }
   }
 }
 

@@ -112,15 +112,9 @@ class _SettingImageTranslationPageState
         safeArea: true,
         groups: [
           EHAppleSettingsGroup(
-            title: 'imageTranslationMethodSection'.tr,
-            children: [
-              _buildOcrEngineSelector(),
-              _buildTranslatorEngineSelector(),
-            ],
-          ),
-          EHAppleSettingsGroup(
             title: 'imageTranslationOcrSection'.tr,
             children: [
+              _buildOcrEngineSelector(),
               if (_ocrEngine == ImageOcrEngine.appleLiveText) ...[
                 _buildAppleLiveTextLanguage(),
                 _buildAppleLiveTextAvailability(),
@@ -136,6 +130,7 @@ class _SettingImageTranslationPageState
           EHAppleSettingsGroup(
             title: 'imageTranslationTranslatorSection'.tr,
             children: [
+              _buildTranslatorEngineSelector(),
               _buildTargetLanguage(),
               _buildContextBatchSize(),
               if (_translatorEngine == ImageTranslationEngine.api) ...[
@@ -547,8 +542,6 @@ class _SettingImageTranslationPageState
         setState(() {});
         imageTranslationSetting.saveLocalModelId(modelId);
       },
-      llamaServerPath: imageTranslationSetting.localLlamaServerPath.value,
-      onSaveLlamaServerPath: imageTranslationSetting.saveLocalLlamaServerPath,
     );
   }
 

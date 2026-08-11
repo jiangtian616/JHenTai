@@ -1125,6 +1125,9 @@ favnote：匹配收藏备注
       'imageTranslationLlamaServerPath': 'llama-server 可执行文件',
       'imageTranslationLlamaServerPathHint': '选择本机 llama-server 可执行文件',
       'imageTranslationBrowseRuntime': '选择运行时',
+      'imageTranslationLlamaRuntime': '软件托管的 llama.cpp 运行时',
+      'imageTranslationLlamaRuntimeHint': '下载本地翻译模型时自动下载并校验，无需选择本地文件。',
+      'imageTranslationLlamaRuntimeUnsupported': '当前平台暂无可托管的 llama.cpp 运行时。',
       'imageTranslationTranslatorHint':
           '支持 OpenAI-compatible Chat Completions 接口；密钥仅保存在本机。',
       'imageTranslationEndpoint': '接口地址',

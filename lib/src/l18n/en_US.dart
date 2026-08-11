@@ -1229,6 +1229,11 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationLlamaServerPathHint':
           'Select the local llama-server executable',
       'imageTranslationBrowseRuntime': 'Choose runtime',
+      'imageTranslationLlamaRuntime': 'Managed llama.cpp runtime',
+      'imageTranslationLlamaRuntimeHint':
+          'Downloaded and verified automatically with local translation models.',
+      'imageTranslationLlamaRuntimeUnsupported':
+          'No managed llama.cpp runtime is available for this platform.',
       'imageTranslationTranslatorHint':
           'Uses an OpenAI-compatible Chat Completions endpoint. The key stays on this device.',
       'imageTranslationEndpoint': 'Endpoint',

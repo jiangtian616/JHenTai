@@ -1149,6 +1149,11 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationLlamaServerPathHint':
           'Selecione o executável llama-server local',
       'imageTranslationBrowseRuntime': 'Selecionar runtime',
+      'imageTranslationLlamaRuntime': 'Runtime llama.cpp gerenciado',
+      'imageTranslationLlamaRuntimeHint':
+          'Baixado e verificado automaticamente com os modelos de tradução local.',
+      'imageTranslationLlamaRuntimeUnsupported':
+          'Não há runtime llama.cpp gerenciado para esta plataforma.',
       'imageTranslationTranslatorHint':
           'Usa um endpoint OpenAI-compatible Chat Completions. A chave fica somente neste dispositivo.',
       'imageTranslationEndpoint': 'Endpoint',
