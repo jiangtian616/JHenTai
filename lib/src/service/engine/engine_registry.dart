@@ -22,11 +22,21 @@ import '../inference/onnx_model_store.dart';
 import '../inference/onnx_runtime.dart';
 
 EnginePlatform get currentEnginePlatform {
-  if (Platform.isAndroid) return EnginePlatform.android;
-  if (Platform.isIOS) return EnginePlatform.ios;
-  if (Platform.isLinux) return EnginePlatform.linux;
-  if (Platform.isMacOS) return EnginePlatform.macos;
-  if (Platform.isWindows) return EnginePlatform.windows;
+  if (Platform.isAndroid) {
+    return EnginePlatform.android;
+  }
+  if (Platform.isIOS) {
+    return EnginePlatform.ios;
+  }
+  if (Platform.isLinux) {
+    return EnginePlatform.linux;
+  }
+  if (Platform.isMacOS) {
+    return EnginePlatform.macos;
+  }
+  if (Platform.isWindows) {
+    return EnginePlatform.windows;
+  }
   return EnginePlatform.unknown;
 }
 
@@ -96,10 +106,21 @@ class EngineRegistry {
       MangaOcrEngineAdapter(fallbackResolver: () => _ocr['onnx-ocr']!),
     );
     registerOcr(AppleLiveTextOcrEngine());
-    registerTranslation(ApiTranslationEngine(setting: _setting));
+    final ApiTranslationEngine apiTranslation = ApiTranslationEngine(
+      setting: _setting,
+    );
+    registerTranslation(apiTranslation);
+    registerContextTranslation(apiTranslation);
     registerTranslation(AppleTranslationEngine());
-    registerTranslation(LlamaServerTranslationEngine(setting: _setting));
-    registerTranslation(LlamaCppFfiTranslationEngine(setting: _setting));
+    final LlamaServerTranslationEngine llamaServer =
+        LlamaServerTranslationEngine(setting: _setting);
+    registerTranslation(llamaServer);
+    registerContextTranslation(llamaServer);
+    final LlamaCppFfiTranslationEngine llamaFfi = LlamaCppFfiTranslationEngine(
+      setting: _setting,
+    );
+    registerTranslation(llamaFfi);
+    registerContextTranslation(llamaFfi);
     registerSuperResolution(
       OnnxSuperResolutionEngineAdapter(
         resolver: () => _inferenceResolver().superResolutionEngine,

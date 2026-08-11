@@ -175,6 +175,7 @@ class ContextTranslationBatch {
     targetLanguage: targetLanguage,
     sourceLanguage: sourceLanguage,
     ocrConfiguration: ocrConfiguration,
+    translationConfiguration: configuration,
   );
 
   ContextTranslationEngineRequest toEngineRequest(List<String> targetPageIds) =>
@@ -191,7 +192,9 @@ class ContextTranslationBatch {
       );
 
   static List<List<T>> partition<T>(List<T> values, ContextBatchSize size) {
-    if (values.isEmpty) return <List<T>>[];
+    if (values.isEmpty) {
+      return <List<T>>[];
+    }
     final List<List<T>> result = <List<T>>[];
     for (int offset = 0; offset < values.length; offset += size.pageCount) {
       final int end = (offset + size.pageCount).clamp(0, values.length);
@@ -209,6 +212,7 @@ class ContextTranslationCacheKey {
     required this.promptVersion,
     required this.targetLanguage,
     required this.ocrConfiguration,
+    this.translationConfiguration = const <String, dynamic>{},
     this.sourceLanguage,
   });
 
@@ -219,6 +223,7 @@ class ContextTranslationCacheKey {
   final String targetLanguage;
   final String? sourceLanguage;
   final Map<String, dynamic> ocrConfiguration;
+  final Map<String, dynamic> translationConfiguration;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
     'pipelineVersion': 'context-translation-v1',
@@ -230,6 +235,7 @@ class ContextTranslationCacheKey {
     'targetLanguage': targetLanguage,
     'sourceLanguage': sourceLanguage,
     'ocrConfiguration': _canonicalize(ocrConfiguration),
+    'translationConfiguration': _canonicalize(translationConfiguration),
   };
 
   String get canonicalJson => jsonEncode(toJson());
@@ -254,7 +260,9 @@ dynamic _canonicalize(dynamic value) {
       for (final String key in keys) key: _canonicalize(value[key]),
     };
   }
-  if (value is Iterable) return value.map(_canonicalize).toList();
+  if (value is Iterable) {
+    return value.map(_canonicalize).toList();
+  }
   return value;
 }
 
@@ -323,6 +331,7 @@ class ContextTranslationService {
     ContextTranslationBatch batch, {
     bool force = false,
     Set<String>? targetPageIds,
+    int? batchGeneration,
   }) async {
     _validateBatch(batch);
     final List<String> targets = _targetPageIds(batch, targetPageIds);
@@ -334,7 +343,9 @@ class ContextTranslationService {
     final List<ContextTranslationPage> pending = <ContextTranslationPage>[];
     final List<ContextTranslationPageOutcome> outcomes =
         <ContextTranslationPageOutcome>[];
-    final int generation = imageTranslationService.beginBatch(targets.length);
+    final bool ownsBatchLifecycle = batchGeneration == null;
+    final int generation =
+        batchGeneration ?? imageTranslationService.beginBatch(targets.length);
     final ContextTranslationCacheKey cacheKey = batch.cacheKey;
     EngineTask<ContextTranslationResult>? task;
     bool engineCalled = false;
@@ -402,8 +413,11 @@ class ContextTranslationService {
             task,
             activeCacheKey: pending.first.displayCacheKey,
           );
+          final Duration timeout = Duration(
+            minutes: batch.batchSize.pageCount >= 4 ? 5 : 2,
+          );
           final ContextTranslationResult result = await task.future.timeout(
-            const Duration(minutes: 2),
+            timeout,
             onTimeout: () {
               task!.cancel('context translation timeout');
               throw const EngineException(
@@ -460,7 +474,9 @@ class ContextTranslationService {
       if (task != null) {
         imageTranslationService.detachExternalBatchTask(task);
       }
-      imageTranslationService.endBatch(generation);
+      if (ownsBatchLifecycle) {
+        imageTranslationService.endBatch(generation);
+      }
     }
 
     return ContextTranslationBatchOutcome(
@@ -482,8 +498,9 @@ class ContextTranslationService {
 
   Future<ContextTranslationBatchOutcome?> retryBatch() {
     final ContextTranslationBatch? batch = _lastBatch;
-    if (batch == null)
+    if (batch == null) {
       return Future<ContextTranslationBatchOutcome?>.value(null);
+    }
     return translateBatch(batch, force: true);
   }
 
@@ -615,7 +632,9 @@ class ContextTranslationService {
   }) {
     for (final ContextTranslationPage page in pages) {
       final String persistentKey = cacheKey.pageKey(page.pageId);
-      if (outcomes.any((outcome) => outcome.pageId == page.pageId)) continue;
+      if (outcomes.any((outcome) => outcome.pageId == page.pageId)) {
+        continue;
+      }
       _publishPageFailure(
         page,
         outcomes,
@@ -671,7 +690,9 @@ class ContextTranslationService {
     Set<String>? requested,
   ) {
     final List<String> all = batch.pages.map((page) => page.pageId).toList();
-    if (requested == null) return all;
+    if (requested == null) {
+      return all;
+    }
     final Set<String> known = all.toSet();
     if (requested.isEmpty || requested.any((id) => !known.contains(id))) {
       throw ArgumentError.value(requested, 'targetPageIds');

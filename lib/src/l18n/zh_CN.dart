@@ -1095,6 +1095,9 @@ favnote：匹配收藏备注
       'imageTranslationTranslateScope': '翻译范围',
       'imageTranslationScopeCurrent': '仅当前页',
       'imageTranslationScopeSubsequent': '当前页及后续页',
+      'imageTranslationContextPages': '每批上下文页数',
+      'imageTranslationContextPagesValue': '@count 页',
+      'imageTranslationContextAppleUnsupported': 'Apple 翻译目前仅支持单页请求。',
       'imageTranslationCachedRetranslate': '缓存结果 · 重新翻译',
       'translationProgress': '翻译中 @current/@total · @stage',
       'translationStageIdle': '准备中',
@@ -1161,8 +1164,7 @@ favnote：匹配收藏备注
       'imageTranslationAppleLiveTextOnDeviceHint':
           '翻译由 Apple 在端侧完成，与 OCR 引擎独立选择。需要 iOS 26 / macOS 26 及以上系统。',
       'autoTranslateGalleryText': '自动翻译图库标题与评论',
-      'autoTranslateGalleryTextHint':
-          '开启后，你看到的图库标题和评论将自动翻译（需要 Apple 端侧翻译）。',
+      'autoTranslateGalleryTextHint': '开启后，你看到的图库标题和评论将自动翻译（需要 Apple 端侧翻译）。',
       'imageTranslationTranslationUnavailable':
           'Apple 端侧翻译需要 iOS 26 / macOS 26 及以上系统。当前系统请改选第三方 API 翻译。',
       'imageTranslationTranslationFailed': 'Apple 端侧翻译失败。',

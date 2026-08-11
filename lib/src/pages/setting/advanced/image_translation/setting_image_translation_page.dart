@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/image_translation_service.dart';
+import 'package:jhentai/src/service/engine/context_translation_contract.dart';
 import 'package:jhentai/src/service/inference/onnx_model_store.dart';
 import 'package:jhentai/src/service/inference_service.dart';
 import 'package:jhentai/src/setting/image_translation_setting.dart';
@@ -133,6 +134,7 @@ class _SettingImageTranslationPageState
             title: 'imageTranslationTranslatorSection'.tr,
             children: [
               _buildTargetLanguage(),
+              _buildContextBatchSize(),
               if (_translatorEngine == ImageTranslationEngine.api) ...[
                 _buildProvider(),
                 _buildEndpoint(),
@@ -297,6 +299,48 @@ class _SettingImageTranslationPageState
                       DropdownMenuItem(value: language, child: Text(language)),
                 )
                 .toList(),
+      ),
+    );
+  }
+
+  Widget _buildContextBatchSize() {
+    return ListTile(
+      title: Text('imageTranslationContextPages'.tr),
+      subtitle:
+          _translatorEngine == ImageTranslationEngine.appleOnDevice
+              ? Text('imageTranslationContextAppleUnsupported'.tr)
+              : null,
+      trailing: EHCodexStyleDropdown<ContextBatchSize>(
+        key: const ValueKey('image-translation-context-batch-size'),
+        value:
+            _translatorEngine == ImageTranslationEngine.appleOnDevice
+                ? ContextBatchSize.one
+                : imageTranslationSetting.contextBatchSize.value,
+        onChanged: (value) {
+          if (value != null &&
+              (_translatorEngine != ImageTranslationEngine.appleOnDevice ||
+                  value == ContextBatchSize.one)) {
+            setState(() {
+              imageTranslationSetting.contextBatchSize.value = value;
+            });
+            imageTranslationSetting.saveContextBatchSize(value);
+          }
+        },
+        items: ContextBatchSize.values
+            .map(
+              (ContextBatchSize size) => DropdownMenuItem<ContextBatchSize>(
+                value: size,
+                enabled:
+                    _translatorEngine != ImageTranslationEngine.appleOnDevice ||
+                    size == ContextBatchSize.one,
+                child: Text(
+                  'imageTranslationContextPagesValue'.trParams({
+                    'count': '${size.pageCount}',
+                  }),
+                ),
+              ),
+            )
+            .toList(growable: false),
       ),
     );
   }

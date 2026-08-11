@@ -1,17 +1,24 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:jhentai/src/model/image_translation.dart';
 import 'package:jhentai/src/setting/image_translation_setting.dart';
 import 'package:jhentai/src/utils/image_text_grouping.dart';
 
+import 'context_translation_contract.dart';
 import 'engine_contract.dart';
 
-class ApiTranslationEngine implements TranslationEngine {
-  ApiTranslationEngine({ImageTranslationSetting? setting})
-    : _setting = setting ?? imageTranslationSetting;
+class ApiTranslationEngine
+    implements TranslationEngine, ContextTranslationEngine {
+  ApiTranslationEngine({
+    ImageTranslationSetting? setting,
+    Dio Function(BaseOptions options)? dioFactory,
+  }) : _setting = setting ?? imageTranslationSetting,
+       _dioFactory = dioFactory ?? Dio.new;
 
   final ImageTranslationSetting _setting;
+  final Dio Function(BaseOptions options) _dioFactory;
 
   @override
   final EngineDescriptor descriptor = const EngineDescriptor(
@@ -58,7 +65,7 @@ class ApiTranslationEngine implements TranslationEngine {
           );
         }
       }
-      final String instruction =
+      const String instruction =
           'You translate comic dialogue accurately. The input lines are grouped into numbered groups; each group is one '
           'speech bubble or utterance. Translate each group as a single coherent utterance, combining its line fragments '
           'into natural phrasing. Preserve line order and line count within each group. '
@@ -67,7 +74,7 @@ class ApiTranslationEngine implements TranslationEngine {
           'Do not add headings, group labels, numbering, or reasoning/think blocks.';
       final String prompt =
           'Translate the following comic text into ${request.targetLanguage}. Keep the same line numbers:\n\n$numberedSource';
-      final Dio dio = Dio(
+      final Dio dio = _dioFactory(
         BaseOptions(
           connectTimeout: const Duration(seconds: 20),
           receiveTimeout: const Duration(seconds: 90),
@@ -160,6 +167,135 @@ class ApiTranslationEngine implements TranslationEngine {
     },
   );
 
+  @override
+  EngineTask<ContextTranslationResult> translateContext(
+    ContextTranslationEngineRequest request,
+  ) => EngineTask<ContextTranslationResult>.start(
+    operation: (EngineTaskContext context) async {
+      if (!isReady) {
+        throw const EngineException(
+          code: 'not_configured',
+          message: 'A translation API endpoint, key and model are required.',
+          engineId: 'api-translation',
+        );
+      }
+      final int lineCount = request.pages.fold<int>(
+        0,
+        (int total, ContextTranslationPageRequest page) =>
+            total + page.lines.length,
+      );
+      final int maxTokens = (lineCount * 128 + 512).clamp(2048, 8192);
+      const String instruction =
+          'Translate comic dialogue using neighboring pages as context. '
+          'Return only one JSON object with a translations array. Every item must contain the exact input pageId and lineId plus translated text. '
+          'Return items only for targetPageIds, preserve every target line exactly once, and never add markdown, commentary, or reasoning.';
+      final String prompt = jsonEncode(<String, dynamic>{
+        'targetLanguage': request.targetLanguage,
+        'sourceLanguage': request.sourceLanguage,
+        'targetPageIds': request.targetPageIds,
+        'pages': request.pages
+            .map((ContextTranslationPageRequest page) => page.toJson())
+            .toList(growable: false),
+        'responseSchema': <String, dynamic>{
+          'translations': <Map<String, String>>[
+            <String, String>{
+              'pageId': 'exact input pageId',
+              'lineId': 'exact input lineId',
+              'text': 'translated text',
+            },
+          ],
+        },
+      });
+      final Dio dio = _dioFactory(
+        BaseOptions(
+          connectTimeout: const Duration(seconds: 20),
+          receiveTimeout: const Duration(seconds: 120),
+        ),
+      );
+      final CancelToken cancelToken = CancelToken();
+      final StreamSubscription<String> subscription = context
+          .cancellation
+          .onCancel
+          .listen((_) => cancelToken.cancel('engine task cancelled'));
+      context.report(EngineTaskStage.processing, 0.1);
+      try {
+        final String endpoint = _translationEndpoint(
+          _setting.translatorEndpoint.value!,
+          _setting.translatorProvider.value,
+        );
+        final Response<dynamic> response;
+        if (_setting.translatorProvider.value ==
+            ImageTranslationProvider.anthropic) {
+          response = await dio.post(
+            endpoint,
+            options: Options(
+              headers: _anthropicHeaders(_setting.translatorApiKey.value!),
+            ),
+            cancelToken: cancelToken,
+            data: <String, dynamic>{
+              'model': _setting.translatorModel.value,
+              'max_tokens': maxTokens,
+              'system': instruction,
+              'messages': <Map<String, String>>[
+                <String, String>{'role': 'user', 'content': prompt},
+              ],
+              ...?_thinkingParam(),
+            },
+          );
+        } else {
+          response = await dio.post(
+            endpoint,
+            options: Options(
+              headers: _openAIHeaders(_setting.translatorApiKey.value!),
+            ),
+            cancelToken: cancelToken,
+            data: <String, dynamic>{
+              'model': _setting.translatorModel.value,
+              'temperature': 0.2,
+              'max_tokens': maxTokens,
+              'messages': <Map<String, String>>[
+                <String, String>{'role': 'system', 'content': instruction},
+                <String, String>{'role': 'user', 'content': prompt},
+              ],
+              ...?_thinkingParam(),
+            },
+          );
+        }
+        final String? content = _contentFromResponse(response.data);
+        if (content == null || content.trim().isEmpty) {
+          throw const EngineException(
+            code: 'invalid_response',
+            message: 'The context translation API returned no text.',
+            engineId: 'api-translation',
+          );
+        }
+        context.report(EngineTaskStage.finalizing, 0.98);
+        return ContextTranslationResult.fromJson(
+          jsonDecode(_extractJsonObject(_stripReasoning(content))),
+        );
+      } on DioException catch (error) {
+        if (CancelToken.isCancel(error) || context.cancellation.isCancelled) {
+          throw EngineTaskCancelledException(context.cancellation.reason);
+        }
+        throw EngineException(
+          code: 'request_failed',
+          message: error.message ?? error.toString(),
+          engineId: descriptor.id,
+          cause: error,
+        );
+      } on FormatException catch (error) {
+        throw EngineException(
+          code: 'invalid_response',
+          message: error.message,
+          engineId: descriptor.id,
+          cause: error,
+        );
+      } finally {
+        await subscription.cancel();
+      }
+    },
+  );
+
   Future<List<String>> fetchModels({
     required ImageTranslationProvider provider,
     required String apiBaseUrl,
@@ -173,7 +309,7 @@ class ApiTranslationEngine implements TranslationEngine {
         engineId: 'api-translation',
       );
     }
-    final Dio dio = Dio(
+    final Dio dio = _dioFactory(
       BaseOptions(
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 30),
@@ -229,8 +365,9 @@ class ApiTranslationEngine implements TranslationEngine {
           : null;
     }
     final dynamic choices = data is Map ? data['choices'] : null;
-    if (choices is! List || choices.isEmpty || choices.first is! Map)
+    if (choices is! List || choices.isEmpty || choices.first is! Map) {
       return null;
+    }
     final dynamic message = choices.first['message'];
     final dynamic content = message is Map ? message['content'] : null;
     return content is String ? content.trim() : null;
@@ -256,7 +393,9 @@ class ApiTranslationEngine implements TranslationEngine {
       while (fallbackIndex < lineCount && result[fallbackIndex] != null) {
         fallbackIndex++;
       }
-      if (fallbackIndex < lineCount) result[fallbackIndex++] = line;
+      if (fallbackIndex < lineCount) {
+        result[fallbackIndex++] = line;
+      }
     }
     return result.map((String? line) => line ?? '').toList(growable: false);
   }
@@ -278,9 +417,30 @@ class ApiTranslationEngine implements TranslationEngine {
           .replaceAll(RegExp(r'\n\s*\n+'), '\n')
           .trim();
 
+  String _extractJsonObject(String text) {
+    final String withoutFence =
+        text
+            .replaceFirst(
+              RegExp(r'^\s*```(?:json)?\s*', caseSensitive: false),
+              '',
+            )
+            .replaceFirst(RegExp(r'\s*```\s*$'), '')
+            .trim();
+    final int start = withoutFence.indexOf('{');
+    final int end = withoutFence.lastIndexOf('}');
+    if (start < 0 || end < start) {
+      throw const FormatException(
+        'Context translation response did not contain a JSON object.',
+      );
+    }
+    return withoutFence.substring(start, end + 1);
+  }
+
   Map<String, dynamic>? _thinkingParam() {
     final String model = _setting.translatorModel.value.toLowerCase();
-    if (!model.contains('minimax') && !model.contains('m3')) return null;
+    if (!model.contains('minimax') && !model.contains('m3')) {
+      return null;
+    }
     return <String, dynamic>{
       'thinking': <String, String>{
         'type': _setting.enableThinking.value ? 'adaptive' : 'disabled',

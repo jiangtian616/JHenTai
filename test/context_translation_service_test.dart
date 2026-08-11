@@ -42,7 +42,9 @@ class _FakeContextEngine implements ContextTranslationEngine {
               .cancellation
               .onCancel
               .listen((_) {
-                if (!gate.isCompleted) gate.complete();
+                if (!gate.isCompleted) {
+                  gate.complete();
+                }
               });
           try {
             await gate.future;
@@ -55,7 +57,9 @@ class _FakeContextEngine implements ContextTranslationEngine {
         final List<ContextTranslationLineResult> lines =
             <ContextTranslationLineResult>[];
         for (final ContextTranslationPageRequest page in request.pages) {
-          if (page.pageId == omitPageId) continue;
+          if (page.pageId == omitPageId) {
+            continue;
+          }
           for (final ContextTranslationLineRequest line
               in page.lines.reversed) {
             lines.add(
@@ -152,7 +156,7 @@ void main() {
   });
 
   test(
-    'context cache key includes ordered hashes, strategy, model, prompt and OCR config',
+    'context cache key includes ordered hashes, strategy, model, prompt and engine configs',
     () {
       final ContextTranslationBatch batch = _batch(
         ContextBatchSize.two,
@@ -171,6 +175,7 @@ void main() {
             targetLanguage: key.targetLanguage,
             sourceLanguage: key.sourceLanguage,
             ocrConfiguration: key.ocrConfiguration,
+            translationConfiguration: key.translationConfiguration,
           ).value,
         ),
       );
@@ -185,6 +190,7 @@ void main() {
             targetLanguage: key.targetLanguage,
             sourceLanguage: key.sourceLanguage,
             ocrConfiguration: key.ocrConfiguration,
+            translationConfiguration: key.translationConfiguration,
           ).value,
         ),
       );
@@ -199,6 +205,24 @@ void main() {
             targetLanguage: key.targetLanguage,
             sourceLanguage: key.sourceLanguage,
             ocrConfiguration: const <String, dynamic>{'language': 'eng'},
+            translationConfiguration: key.translationConfiguration,
+          ).value,
+        ),
+      );
+      expect(
+        key.value,
+        isNot(
+          ContextTranslationCacheKey(
+            contextPageHashes: key.contextPageHashes,
+            batchSize: key.batchSize,
+            modelVersion: key.modelVersion,
+            promptVersion: key.promptVersion,
+            targetLanguage: key.targetLanguage,
+            sourceLanguage: key.sourceLanguage,
+            ocrConfiguration: key.ocrConfiguration,
+            translationConfiguration: const <String, dynamic>{
+              'provider': 'different-provider',
+            },
           ).value,
         ),
       );
@@ -374,4 +398,34 @@ void main() {
       await temp.delete(recursive: true);
     }
   });
+
+  test(
+    'external reader batch lifecycle remains active after a context chunk',
+    () async {
+      final Directory temp = await Directory.systemTemp.createTemp(
+        'context-translation-external-batch',
+      );
+      final ImageTranslationService imageService = ImageTranslationService();
+      imageService.setTranslationCacheDirectoryForTesting(temp);
+      final ContextTranslationService service = ContextTranslationService(
+        imageTranslationService: imageService,
+        engine: _FakeContextEngine(),
+      );
+      final int generation = imageService.beginBatch(2);
+
+      try {
+        final ContextTranslationBatchOutcome outcome = await service
+            .translateBatch(
+              _batch(ContextBatchSize.two, pageCount: 2),
+              batchGeneration: generation,
+            );
+        expect(outcome.allSucceeded, isTrue);
+        expect(imageService.isBatchTranslating, isTrue);
+      } finally {
+        imageService.endBatch(generation);
+        await temp.delete(recursive: true);
+      }
+      expect(imageService.isBatchTranslating, isFalse);
+    },
+  );
 }

@@ -556,11 +556,16 @@ class pt_BR {
       'superResolutionEngine': 'Motor',
       'superResolutionEngineNcnnVulkan': 'ncnn-vulkan (externo)',
       'superResolutionEngineOnnx': 'ONNX (no aplicativo)',
-      'onnxModelDescRapidOcrSmall': 'Dicionário multilíngue completo do PP-OCRv6 com alta precisão de reconhecimento em tamanho e velocidade moderados. Bom para a maioria dos quadrinhos e imagens.',
-      'onnxModelDescRapidOcrTiny': 'Dicionário reduzido e redes leves: a camada mais rápida e menor, mas com um conjunto de caracteres menor e precisão ligeiramente menor em glifos complexos. Ideal para dispositivos fracos ou uso focado em velocidade.',
-      'onnxModelDescRealEsrgan6B': 'Camada de alta qualidade: mais detalhes e melhor qualidade, mais lenta.',
-      'onnxModelDescRealEsrgan4B32F': 'Camada rápida: cerca de 3-4x mais rápida com um pouco menos de detalhes; ideal para processamento em lote.',
-      'superResolutionModelPickerHint': 'Trocar de modelo reprocessa páginas ampliadas',
+      'onnxModelDescRapidOcrSmall':
+          'Dicionário multilíngue completo do PP-OCRv6 com alta precisão de reconhecimento em tamanho e velocidade moderados. Bom para a maioria dos quadrinhos e imagens.',
+      'onnxModelDescRapidOcrTiny':
+          'Dicionário reduzido e redes leves: a camada mais rápida e menor, mas com um conjunto de caracteres menor e precisão ligeiramente menor em glifos complexos. Ideal para dispositivos fracos ou uso focado em velocidade.',
+      'onnxModelDescRealEsrgan6B':
+          'Camada de alta qualidade: mais detalhes e melhor qualidade, mais lenta.',
+      'onnxModelDescRealEsrgan4B32F':
+          'Camada rápida: cerca de 3-4x mais rápida com um pouco menos de detalhes; ideal para processamento em lote.',
+      'superResolutionModelPickerHint':
+          'Trocar de modelo reprocessa páginas ampliadas',
       'stopSuperResolution': 'Stop Super Resolution',
       'deleteSuperResolvedImage': 'Delete Super Resolved Image',
       'superResolveOriginalImageHint':
@@ -1108,6 +1113,10 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationTranslateScope': 'Escopo da tradução',
       'imageTranslationScopeCurrent': 'Apenas a página atual',
       'imageTranslationScopeSubsequent': 'Página atual e seguintes',
+      'imageTranslationContextPages': 'Páginas por solicitação de contexto',
+      'imageTranslationContextPagesValue': '@count página(s)',
+      'imageTranslationContextAppleUnsupported':
+          'A Tradução da Apple atualmente aceita uma página por solicitação.',
       'imageTranslationCachedRetranslate': 'Em cache · Retraduzir',
       'translationProgress': 'Traduzindo @current/@total · @stage',
       'translationStageIdle': 'Preparando',

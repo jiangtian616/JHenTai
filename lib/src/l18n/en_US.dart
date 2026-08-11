@@ -566,7 +566,8 @@ class en_US {
       'lanPermission_applicationHistory': 'Application history',
       'lanUnifiedState': 'Unified state sync',
       'lanUnifiedStateEmpty': 'No unified-state sync yet',
-      'lanUnifiedStateHint': 'Login state and application history are separate permissions.',
+      'lanUnifiedStateHint':
+          'Login state and application history are separate permissions.',
       'lanPermissionRevokeHint': 'Revoking stops new sync requests.',
       'oneMinute': '1 Minute',
       'tenMinute': '10 Minute',
@@ -1193,6 +1194,10 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationTranslateScope': 'Translate Scope',
       'imageTranslationScopeCurrent': 'Current page only',
       'imageTranslationScopeSubsequent': 'Current and following pages',
+      'imageTranslationContextPages': 'Pages per context request',
+      'imageTranslationContextPagesValue': '@count page(s)',
+      'imageTranslationContextAppleUnsupported':
+          'Apple Translation currently supports one page per request.',
       'imageTranslationCachedRetranslate': 'Cached · Retranslate',
       'translationProgress': 'Translating @current/@total · @stage',
       'translationStageIdle': 'Preparing',

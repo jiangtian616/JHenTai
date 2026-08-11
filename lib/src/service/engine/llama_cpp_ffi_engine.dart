@@ -6,6 +6,7 @@ import 'package:ffi/ffi.dart';
 import 'package:jhentai/src/setting/image_translation_setting.dart';
 
 import 'engine_contract.dart';
+import 'context_translation_contract.dart';
 import 'gguf_model_store.dart';
 import 'local_translation_prompt.dart';
 import 'model_catalog.dart';
@@ -40,7 +41,9 @@ class LlamaCppFfiBridge {
   }
 
   int? get version {
-    if (!isAvailable) return null;
+    if (!isAvailable) {
+      return null;
+    }
     try {
       return _version!();
     } on Object {
@@ -62,12 +65,16 @@ class LlamaCppFfiBridge {
       return output.toDartString();
     } finally {
       calloc.free(input);
-      if (output != null && output.address != 0) _free!(output);
+      if (output != null && output.address != 0) {
+        _free!(output);
+      }
     }
   }
 
   void _load() {
-    if (_attempted) return;
+    if (_attempted) {
+      return;
+    }
     _attempted = true;
     try {
       final ffi.DynamicLibrary library =
@@ -98,7 +105,8 @@ class LlamaCppFfiBridge {
   }
 }
 
-class LlamaCppFfiTranslationEngine implements TranslationEngine {
+class LlamaCppFfiTranslationEngine
+    implements TranslationEngine, ContextTranslationEngine {
   LlamaCppFfiTranslationEngine({
     ImageTranslationSetting? setting,
     GgufModelStore? store,
@@ -180,6 +188,65 @@ class LlamaCppFfiTranslationEngine implements TranslationEngine {
           translatedText: lines.join('\n'),
           lines: lines,
         );
+      } on EngineException {
+        rethrow;
+      } on Object catch (error) {
+        if (context.cancellation.isCancelled) {
+          throw EngineTaskCancelledException(context.cancellation.reason);
+        }
+        throw EngineException(
+          code: 'ffi_failed',
+          message: error.toString(),
+          engineId: descriptor.id,
+          cause: error,
+        );
+      }
+    },
+  );
+
+  @override
+  EngineTask<ContextTranslationResult> translateContext(
+    ContextTranslationEngineRequest request,
+  ) => EngineTask<ContextTranslationResult>.start(
+    operation: (EngineTaskContext context) async {
+      if (!isReady) {
+        throw const EngineException(
+          code: 'runtime_unavailable',
+          message:
+              'The maintained llama.cpp FFI bridge is not compiled/loaded on this device.',
+          engineId: 'llama-ffi-translation',
+        );
+      }
+      final String modelId = _setting.localModelId.value;
+      final ModelDescriptor model =
+          _store.catalog.find(modelId) ??
+          (throw const EngineException(
+            code: 'model_not_found',
+            message: 'The selected GGUF is not in the verified catalog.',
+            engineId: 'llama-ffi-translation',
+          ));
+      try {
+        context.report(EngineTaskStage.loading, 0.05);
+        await _store.validateInstalled(modelId);
+        context.cancellation.throwIfCancelled();
+        final LocalContextTranslationPrompt prompt =
+            buildLocalContextTranslationPrompt(request);
+        final String raw = _bridge.translateJson(<String, dynamic>{
+          'modelPath': _store.artifactPath(modelId, model.artifacts.first.id),
+          'instruction': prompt.instruction,
+          'prompt': prompt.prompt,
+          'targetLanguage': request.targetLanguage,
+          'contextRequest': request.toJson(),
+        });
+        context.cancellation.throwIfCancelled();
+        context.report(EngineTaskStage.finalizing, 0.98);
+        dynamic response;
+        try {
+          response = jsonDecode(raw);
+        } on FormatException {
+          response = raw;
+        }
+        return parseLocalContextTranslationResponse(response);
       } on EngineException {
         rethrow;
       } on Object catch (error) {

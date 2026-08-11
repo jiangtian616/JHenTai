@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:jhentai/src/service/engine/context_translation_contract.dart';
 import 'package:jhentai/src/setting/image_translation_setting.dart';
 
 class _MemoryImageTranslationSetting extends ImageTranslationSetting {
@@ -59,6 +60,28 @@ void main() {
     final ImageTranslationSetting restored = ImageTranslationSetting();
     restored.applyBeanConfig(config);
     expect(restored.autoTranslateGalleryText.value, isTrue);
+  });
+
+  test('context batch size round-trips only through fixed values', () {
+    final ImageTranslationSetting setting = ImageTranslationSetting();
+    setting.contextBatchSize.value = ContextBatchSize.eight;
+
+    final ImageTranslationSetting restored = ImageTranslationSetting();
+    restored.applyBeanConfig(setting.toConfigString());
+    expect(restored.contextBatchSize.value, ContextBatchSize.eight);
+
+    restored.applyBeanConfig('{"contextBatchSize":"unsupported"}');
+    expect(restored.contextBatchSize.value, ContextBatchSize.one);
+  });
+
+  test('Apple translator resets unsupported context batching', () async {
+    final _MemoryImageTranslationSetting setting =
+        _MemoryImageTranslationSetting();
+    setting.contextBatchSize.value = ContextBatchSize.four;
+
+    await setting.saveTranslatorEngine(ImageTranslationEngine.appleOnDevice);
+
+    expect(setting.contextBatchSize.value, ContextBatchSize.one);
   });
 
   test('Apple Live Text auto language survives a config round-trip', () {

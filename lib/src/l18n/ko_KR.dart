@@ -521,10 +521,13 @@ class ko_KR {
       'superResolutionEngine': '엔진',
       'superResolutionEngineNcnnVulkan': 'ncnn-vulkan (외부)',
       'superResolutionEngineOnnx': 'ONNX (앱 내장)',
-      'onnxModelDescRapidOcrSmall': '완전한 PP-OCRv6 다국어 사전, 인식 정확도가 높고 크기와 속도가 적절합니다. 대부분의 만화와 이미지에 적합합니다.',
-      'onnxModelDescRapidOcrTiny': '축소 사전과 경량 네트워크: 가장 빠르고 용량이 작지만 문자 세트가 작고 복잡한 글자의 인식률이 약간 낮습니다. 저사양 기기 또는 속도 우선 사용에 적합합니다.',
+      'onnxModelDescRapidOcrSmall':
+          '완전한 PP-OCRv6 다국어 사전, 인식 정확도가 높고 크기와 속도가 적절합니다. 대부분의 만화와 이미지에 적합합니다.',
+      'onnxModelDescRapidOcrTiny':
+          '축소 사전과 경량 네트워크: 가장 빠르고 용량이 작지만 문자 세트가 작고 복잡한 글자의 인식률이 약간 낮습니다. 저사양 기기 또는 속도 우선 사용에 적합합니다.',
       'onnxModelDescRealEsrgan6B': '고품질 옵션: 디테일이 가장 풍부하고 화질이 가장 좋지만 속도가 느립니다.',
-      'onnxModelDescRealEsrgan4B32F': '빠른 옵션: 약 3-4배 빠르며 디테일이 약간 적습니다. 일괄 처리에 적합합니다.',
+      'onnxModelDescRealEsrgan4B32F':
+          '빠른 옵션: 약 3-4배 빠르며 디테일이 약간 적습니다. 일괄 처리에 적합합니다.',
       'superResolutionModelPickerHint': '모델을 전환하면 완료된 초고해상도 페이지를 다시 처리합니다',
       'stopSuperResolution': '초고해상도 이미지 생성 취소',
       'deleteSuperResolvedImage': '초고해상도 이미지 삭제',
@@ -1041,6 +1044,10 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationTranslateScope': '번역 범위',
       'imageTranslationScopeCurrent': '현재 페이지만',
       'imageTranslationScopeSubsequent': '현재 및 이후 페이지',
+      'imageTranslationContextPages': '컨텍스트 요청당 페이지',
+      'imageTranslationContextPagesValue': '@count페이지',
+      'imageTranslationContextAppleUnsupported':
+          'Apple 번역은 현재 요청당 한 페이지만 지원합니다.',
       'imageTranslationCachedRetranslate': '캐시 결과 · 다시 번역',
       'translationProgress': '번역 중 @current/@total · @stage',
       'translationStageIdle': '준비 중',

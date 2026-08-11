@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/service/engine/context_translation_contract.dart';
 import 'package:jhentai/src/service/image_translation_service.dart';
 import 'package:jhentai/src/setting/image_translation_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
@@ -135,6 +136,7 @@ class _ImageTranslationConfigSheetState
                   _buildLocalTranslationHint(),
                 _buildTargetLanguage(),
                 _buildTranslateScope(),
+                _buildContextBatchSize(),
               ],
             ),
           ),
@@ -382,6 +384,58 @@ class _ImageTranslationConfigSheetState
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildContextBatchSize() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _dropdownRow(
+          'imageTranslationContextPages'.tr,
+          EHCodexStyleDropdown<ContextBatchSize>(
+            key: const ValueKey('image-translation-context-batch-size'),
+            value:
+                _translatorEngine == ImageTranslationEngine.appleOnDevice
+                    ? ContextBatchSize.one
+                    : imageTranslationSetting.contextBatchSize.value,
+            onChanged: (value) {
+              if (value != null &&
+                  (_translatorEngine != ImageTranslationEngine.appleOnDevice ||
+                      value == ContextBatchSize.one)) {
+                setState(() {
+                  imageTranslationSetting.contextBatchSize.value = value;
+                });
+                imageTranslationSetting.saveContextBatchSize(value);
+              }
+            },
+            items: ContextBatchSize.values
+                .map(
+                  (ContextBatchSize size) => DropdownMenuItem<ContextBatchSize>(
+                    value: size,
+                    enabled:
+                        _translatorEngine !=
+                            ImageTranslationEngine.appleOnDevice ||
+                        size == ContextBatchSize.one,
+                    child: Text(
+                      'imageTranslationContextPagesValue'.trParams({
+                        'count': '${size.pageCount}',
+                      }),
+                    ),
+                  ),
+                )
+                .toList(growable: false),
+          ),
+        ),
+        if (_translatorEngine == ImageTranslationEngine.appleOnDevice)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(
+              'imageTranslationContextAppleUnsupported'.tr,
+              style: const TextStyle(fontSize: 12),
+            ),
+          ),
+      ],
     );
   }
 
