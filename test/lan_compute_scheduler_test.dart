@@ -147,6 +147,146 @@ void main() {
   );
 
   test(
+    'synchronous submissions reserve slots before their start microtasks run',
+    () async {
+      final LanComputeScheduler scheduler = LanComputeScheduler(
+        limits: LanComputeSchedulerLimits(
+          maxConcurrent: 2,
+          maxQueued: 2,
+          maxInputBytes: 8,
+          maxOutputBytes: 8,
+          maxModelMemoryBytes: 100,
+        ),
+      );
+      final List<Completer<void>> releases = List<Completer<void>>.generate(
+        4,
+        (_) => Completer<void>(),
+      );
+      final List<String> starts = <String>[];
+      int active = 0;
+      int maxActive = 0;
+
+      LanComputeScheduledExecution submit(int index) {
+        final String id = 'synchronous-$index';
+        final LanComputeTaskRequest request = _request(id);
+        return scheduler.schedule(
+          request: request,
+          estimate: _estimate(request, memory: 10),
+          start: () {
+            starts.add(id);
+            active++;
+            if (active > maxActive) {
+              maxActive = active;
+            }
+            return EngineTask<LanComputeDataRef>.start(
+              id: id,
+              operation: (EngineTaskContext context) async {
+                try {
+                  await releases[index].future;
+                  return _output(id);
+                } finally {
+                  active--;
+                }
+              },
+            );
+          },
+        );
+      }
+
+      final List<LanComputeScheduledExecution> executions =
+          <LanComputeScheduledExecution>[
+            submit(0),
+            submit(1),
+            submit(2),
+            submit(3),
+          ];
+
+      expect(
+        executions.map((LanComputeScheduledExecution item) => item.wasQueued),
+        <bool>[false, false, true, true],
+      );
+      expect(scheduler.queuedCount, 2);
+      await _settle();
+      expect(starts, <String>['synchronous-0', 'synchronous-1']);
+      expect(scheduler.runningCount, 2);
+      expect(maxActive, 2);
+
+      releases[0].complete();
+      await executions[0].future;
+      await _waitFor(() => starts.length == 3);
+      expect(starts, <String>[
+        'synchronous-0',
+        'synchronous-1',
+        'synchronous-2',
+      ]);
+      expect(maxActive, 2);
+
+      releases[1].complete();
+      await executions[1].future;
+      await _waitFor(() => starts.length == 4);
+      expect(maxActive, 2);
+
+      releases[2].complete();
+      releases[3].complete();
+      await Future.wait<LanComputeDataRef>(<Future<LanComputeDataRef>>[
+        executions[2].future,
+        executions[3].future,
+      ]);
+      expect(scheduler.runningCount, 0);
+      expect(scheduler.activeCount, 0);
+      await scheduler.close();
+    },
+  );
+
+  test('cancelling a reserved start releases its slot immediately', () async {
+    final LanComputeScheduler scheduler = LanComputeScheduler(
+      limits: LanComputeSchedulerLimits(
+        maxConcurrent: 1,
+        maxQueued: 0,
+        maxInputBytes: 8,
+        maxOutputBytes: 8,
+        maxModelMemoryBytes: 100,
+      ),
+    );
+    final List<String> starts = <String>[];
+    final LanComputeTaskRequest cancelledRequest = _request(
+      'reserved-cancelled',
+    );
+    final LanComputeScheduledExecution cancelled = scheduler.schedule(
+      request: cancelledRequest,
+      estimate: _estimate(cancelledRequest, memory: 10),
+      start: () {
+        starts.add(cancelledRequest.taskId);
+        return _completedTask(cancelledRequest.taskId);
+      },
+    );
+
+    cancelled.cancel('cancel-before-start');
+    await expectLater(
+      cancelled.future,
+      throwsA(isA<EngineTaskCancelledException>()),
+    );
+
+    final LanComputeTaskRequest replacementRequest = _request(
+      'reserved-replacement',
+    );
+    final LanComputeScheduledExecution replacement = scheduler.schedule(
+      request: replacementRequest,
+      estimate: _estimate(replacementRequest, memory: 10),
+      start: () {
+        starts.add(replacementRequest.taskId);
+        return _completedTask(replacementRequest.taskId);
+      },
+    );
+    expect(replacement.wasQueued, isFalse);
+    await replacement.future;
+    expect(starts, <String>['reserved-replacement']);
+    expect(scheduler.activeCount, 0);
+    expect(scheduler.reservedModelMemoryBytes, 0);
+    await scheduler.close();
+  });
+
+  test(
     'task cache key is canonical and isolated by every remote dimension',
     () {
       final LanComputeTaskRequest request = _request('cache-task');
@@ -573,7 +713,9 @@ Future<void> _settle() => Future<void>.delayed(Duration.zero);
 
 Future<void> _waitFor(bool Function() condition) async {
   for (int index = 0; index < 100; index++) {
-    if (condition()) return;
+    if (condition()) {
+      return;
+    }
     await _settle();
   }
   fail('condition did not become true');
@@ -604,7 +746,9 @@ class _ManualTimer implements LanComputeScheduledTask {
   void cancel() => cancelled = true;
 
   void fire() {
-    if (!cancelled) callback();
+    if (!cancelled) {
+      callback();
+    }
   }
 }
 

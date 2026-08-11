@@ -159,6 +159,7 @@ class LanComputeScheduler {
   final List<_LanComputeScheduledEntry> _queue = <_LanComputeScheduledEntry>[];
   bool _closed = false;
   bool _pumpScheduled = false;
+  int _starting = 0;
   int _running = 0;
   int _reservedModelMemoryBytes = 0;
 
@@ -170,6 +171,8 @@ class LanComputeScheduler {
   int get queuedCount => _queue.length;
   int get activeCount => _entries.length;
   int get reservedModelMemoryBytes => _reservedModelMemoryBytes;
+
+  int get _occupiedSlotCount => _starting + _running;
 
   LanComputeScheduledExecution schedule({
     required LanComputeTaskRequest request,
@@ -183,7 +186,7 @@ class LanComputeScheduler {
       estimate: estimate,
       start: start,
       onEvent: onEvent ?? this.onEvent,
-      wasQueued: _running >= limits.maxConcurrent,
+      wasQueued: _occupiedSlotCount >= limits.maxConcurrent,
     );
     _entries[request.taskId] = entry;
     _reservedModelMemoryBytes += estimate.modelMemoryBytes;
@@ -192,7 +195,7 @@ class LanComputeScheduler {
       _queue.add(entry);
       _notify(entry, LanComputeSchedulerState.queued);
     } else {
-      _scheduleStart(entry);
+      _reserveStart(entry);
     }
     return LanComputeScheduledExecution(
       future: entry.completer.future,
@@ -249,7 +252,8 @@ class LanComputeScheduler {
         'reserved model memory exceeds the LAN compute memory budget',
       );
     }
-    if (_running >= limits.maxConcurrent && _queue.length >= limits.maxQueued) {
+    if (_occupiedSlotCount >= limits.maxConcurrent &&
+        _queue.length >= limits.maxQueued) {
       throw const LanComputeAdmissionException(
         LanComputeAdmissionReason.queueFull,
         'LAN compute queue is full',
@@ -257,13 +261,24 @@ class LanComputeScheduler {
     }
   }
 
-  void _scheduleStart(_LanComputeScheduledEntry entry) {
+  void _reserveStart(_LanComputeScheduledEntry entry) {
+    entry.slotReserved = true;
+    _starting++;
     scheduleMicrotask(() => _start(entry));
   }
 
   void _start(_LanComputeScheduledEntry entry) {
-    if (_closed || entry.terminal || entry.cancelRequested) return;
-    if (!identical(_entries[entry.request.taskId], entry)) return;
+    if (!entry.slotReserved) {
+      return;
+    }
+    if (_closed || entry.terminal || entry.cancelRequested) {
+      return;
+    }
+    if (!identical(_entries[entry.request.taskId], entry)) {
+      return;
+    }
+    entry.slotReserved = false;
+    _starting--;
     entry.running = true;
     _running++;
     _notify(entry, LanComputeSchedulerState.running);
@@ -301,7 +316,9 @@ class LanComputeScheduler {
   }
 
   void _cancel(_LanComputeScheduledEntry entry, String reason) {
-    if (entry.terminal || entry.cancelRequested) return;
+    if (entry.terminal || entry.cancelRequested) {
+      return;
+    }
     entry.cancelRequested = true;
     if (!entry.running) {
       _removeQueued(entry);
@@ -327,7 +344,9 @@ class LanComputeScheduler {
   }
 
   void _complete(_LanComputeScheduledEntry entry, LanComputeDataRef output) {
-    if (entry.terminal) return;
+    if (entry.terminal) {
+      return;
+    }
     _release(entry);
     _notify(entry, LanComputeSchedulerState.completed);
     if (!entry.completer.isCompleted) {
@@ -342,7 +361,9 @@ class LanComputeScheduler {
     Object error,
     StackTrace stack,
   ) {
-    if (entry.terminal) return;
+    if (entry.terminal) {
+      return;
+    }
     _release(entry);
     final bool cancelled =
         error is EngineTaskCancelledException || entry.cancelRequested;
@@ -361,12 +382,17 @@ class LanComputeScheduler {
   }
 
   void _release(_LanComputeScheduledEntry entry) {
-    if (entry.terminal) return;
+    if (entry.terminal) {
+      return;
+    }
     entry.terminal = true;
     _entries.remove(entry.request.taskId);
     _removeQueued(entry);
     if (entry.running) {
       _running--;
+    } else if (entry.slotReserved) {
+      entry.slotReserved = false;
+      _starting--;
     }
     _reservedModelMemoryBytes -= entry.estimate.modelMemoryBytes;
     if (_reservedModelMemoryBytes < 0) {
@@ -382,14 +408,20 @@ class LanComputeScheduler {
   }
 
   void _pumpLater() {
-    if (_pumpScheduled || _closed) return;
+    if (_pumpScheduled || _closed) {
+      return;
+    }
     _pumpScheduled = true;
     scheduleMicrotask(() {
       _pumpScheduled = false;
-      while (!_closed && _running < limits.maxConcurrent && _queue.isNotEmpty) {
+      while (!_closed &&
+          _occupiedSlotCount < limits.maxConcurrent &&
+          _queue.isNotEmpty) {
         final _LanComputeScheduledEntry entry = _queue.removeAt(0);
-        if (entry.terminal || entry.cancelRequested) continue;
-        _scheduleStart(entry);
+        if (entry.terminal || entry.cancelRequested) {
+          continue;
+        }
+        _reserveStart(entry);
       }
     });
   }
@@ -409,7 +441,9 @@ class LanComputeScheduler {
   }
 
   Future<void> close() async {
-    if (_closed) return;
+    if (_closed) {
+      return;
+    }
     _closed = true;
     for (final _LanComputeScheduledEntry entry in _entries.values.toList()) {
       _cancel(entry, LanComputeCancelReason.shutdown.wireName);
@@ -429,6 +463,7 @@ class _LanComputeScheduledEntry {
       StreamController<EngineTaskProgress>.broadcast();
   EngineTask<LanComputeDataRef>? engineTask;
   StreamSubscription<EngineTaskProgress>? progressSubscription;
+  bool slotReserved = false;
   bool running = false;
   bool terminal = false;
   bool cancelRequested = false;
@@ -465,7 +500,9 @@ class LanComputeTaskCacheKey {
     _assertHash(inputHash, 'inputHash');
     _assertHash(modelHash, 'modelHash');
     _assertHash(configHash, 'configHash');
-    if (promptHash != null) _assertHash(promptHash!, 'promptHash');
+    if (promptHash != null) {
+      _assertHash(promptHash!, 'promptHash');
+    }
     if (schemaHash != LanComputeProtocol.schemaHash) {
       throw ArgumentError.value(schemaHash, 'schemaHash');
     }
@@ -510,7 +547,9 @@ class LanComputeTaskCache {
   LanComputeDataRef? read(LanComputeTaskCacheKey key) => _values[key.hash];
 
   bool writeIfAbsent(LanComputeTaskCacheKey key, LanComputeDataRef output) {
-    if (_values.containsKey(key.hash)) return false;
+    if (_values.containsKey(key.hash)) {
+      return false;
+    }
     _values[key.hash] = output;
     return true;
   }
