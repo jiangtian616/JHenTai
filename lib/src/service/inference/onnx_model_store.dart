@@ -257,7 +257,9 @@ class OnnxModelStore extends GetxController {
   /// All manifests of [kind] (e.g. 'superResolution'), in catalog order — the
   /// list a model picker offers.
   List<OnnxModelManifest> manifestsOfKind(String kind) =>
-      manifests.where((OnnxModelManifest manifest) => manifest.kind == kind).toList();
+      manifests
+          .where((OnnxModelManifest manifest) => manifest.kind == kind)
+          .toList();
 
   List<OnnxModelSource> availableSources(String manifestId) =>
       manifestOf(manifestId)?.availableSources ?? const [];
@@ -385,7 +387,11 @@ class OnnxModelStore extends GetxController {
     }
   }
 
-  Future<void> downloadManifest(String manifestId, {OnnxModelSource? source}) {
+  Future<void> downloadManifest(
+    String manifestId, {
+    OnnxModelSource? source,
+    void Function(String fileId, int receivedBytes, int totalBytes)? onProgress,
+  }) {
     final Future<void>? active = _activeDownload;
     if (active != null) {
       return Future<void>.error(
@@ -395,6 +401,7 @@ class OnnxModelStore extends GetxController {
     final Future<void> task = _downloadManifest(
       manifestId,
       source: preferredSource(manifestId, requested: source),
+      onProgress: onProgress,
     );
     _activeDownload = task;
     return task.whenComplete(() {
@@ -407,6 +414,7 @@ class OnnxModelStore extends GetxController {
   Future<void> _downloadManifest(
     String manifestId, {
     required OnnxModelSource source,
+    void Function(String fileId, int receivedBytes, int totalBytes)? onProgress,
   }) async {
     final OnnxModelManifest? manifest = manifestOf(manifestId);
     if (manifest == null) {
@@ -464,6 +472,7 @@ class OnnxModelStore extends GetxController {
             final int overall = completedBytes + received;
             downloadProgress.value =
                 '${(overall / totalBytes * 100).toStringAsFixed(1)}%';
+            onProgress?.call(file.id, overall, totalBytes);
             update();
           }
           await sink.flush();

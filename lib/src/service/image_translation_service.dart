@@ -9,22 +9,19 @@ import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:path/path.dart';
 
 import '../model/image_translation.dart';
 import '../setting/image_translation_setting.dart';
 import '../setting/inference_setting.dart';
-import 'inference/inference_exception.dart';
-import 'inference/inference_task.dart';
-import 'inference/ocr_inference_engine.dart';
 import 'inference/onnx_model_store.dart';
 import 'inference_service.dart';
 import 'jh_service.dart';
 import 'log.dart';
 import 'path_service.dart';
 import '../utils/image_text_grouping.dart';
+import 'engine/engine.dart';
 
 ImageTranslationService imageTranslationService = ImageTranslationService();
 
@@ -33,11 +30,8 @@ ImageTranslationService imageTranslationService = ImageTranslationService();
 /// Live Text), so the overlay scales blocks in the same space the image is
 /// actually displayed in. Tesseract/Paddle return null and the caller falls
 /// back to its header-based dimension probe.
-typedef _RecognizeResult = ({
-  List<RecognizedTextBlock> blocks,
-  int? imageWidth,
-  int? imageHeight,
-});
+typedef _RecognizeResult =
+    ({List<RecognizedTextBlock> blocks, int? imageWidth, int? imageHeight});
 
 /// The recognized source of one page, produced by [ImageTranslationService.recognizeImage]
 /// and consumed by [ImageTranslationService.translateRecognizedText]. Carrying it
@@ -89,18 +83,11 @@ class ImageTranslationService extends GetxController
   /// newer batch's banner/progress.
   int _batchGeneration = 0;
   final Set<String> _batchRecordedKeys = <String>{};
-  Process? _activeProcess;
-  CancelToken? _activeCancelToken;
-  InferenceCancellationToken? _activeInferenceToken;
+  EngineTask<dynamic>? _activeEngineTask;
   String? _activeCacheKey;
   final Map<String, Future<bool>> _hydrateTasks = <String, Future<bool>>{};
   Directory? _translationCacheDirectoryOverride;
-
-  /// Apple Live Text OCR (Vision framework) is exposed over a platform channel
-  /// registered natively in ios/Runner and macos/Runner.
-  late final MethodChannel _liveTextChannel = MethodChannel(
-    liveTextOcrChannelName,
-  );
+  final EngineRegistry engineRegistry = EngineRegistry();
 
   int beginBatch(int total) {
     _batchGeneration++;
@@ -143,12 +130,8 @@ class ImageTranslationService extends GetxController
         ),
       );
     }
-    _activeProcess?.kill();
-    _activeProcess = null;
-    _activeCancelToken?.cancel();
-    _activeCancelToken = null;
-    _activeInferenceToken?.cancel('image translation cancelled');
-    _activeInferenceToken = null;
+    _activeEngineTask?.cancel('image translation cancelled');
+    _activeEngineTask = null;
     update([batchProgressId]);
   }
 
@@ -287,9 +270,10 @@ class ImageTranslationService extends GetxController
       _results[cacheKey] ?? const ImageTranslationResult.idle();
 
   @override
-  List<JHLifeCircleBean> get initDependencies => super.initDependencies
-    ..add(imageTranslationSetting)
-    ..add(inferenceService);
+  List<JHLifeCircleBean> get initDependencies =>
+      super.initDependencies
+        ..add(imageTranslationSetting)
+        ..add(inferenceService);
 
   @override
   Future<void> doInitBean() async {
@@ -587,17 +571,45 @@ class ImageTranslationService extends GetxController
     RecognizedImage recognized,
   ) async {
     _activeCacheKey = request.cacheKey;
+    final TranslationEngine engine = engineRegistry.selectedTranslation;
+    EngineTask<TranslationResult>? task;
     try {
-      final String translatedText =
-          await (imageTranslationSetting.usesAppleOnDeviceTranslation
-                  ? _translateWithApple(recognized.blocks)
-                  : _translate(recognized.blocks))
-              .timeout(
-                const Duration(minutes: 2),
-                onTimeout: () => throw const ImageTranslationException(
-                  'TRANSLATION_TIMEOUT',
-                ),
-              );
+      final EngineCapabilityDecision capability =
+          engineRegistry.evaluateSelected();
+      if (!capability.supported) {
+        throw ImageTranslationException(
+          capability.reason.contains('not ready')
+              ? 'ENGINE_NOT_READY'
+              : 'UNSUPPORTED_COMBINATION',
+        );
+      }
+      final EngineTask<TranslationResult> activeTask = engine.translate(
+        TranslationEngineRequest(
+          blocks: recognized.blocks,
+          targetLanguage:
+              engine.descriptor.id == 'apple-translation'
+                  ? _appleTargetLanguage()
+                  : imageTranslationSetting.targetLanguage.value,
+          sourceLanguage: _appleSourceLanguage(),
+          configuration: <String, dynamic>{
+            'provider': imageTranslationSetting.translatorProvider.value.name,
+            'model': imageTranslationSetting.translatorModel.value,
+            'thinking': imageTranslationSetting.enableThinking.value,
+          },
+          promptVersion: 3,
+        ),
+      );
+      task = activeTask;
+      _activeEngineTask = activeTask;
+      _setStage(ImageTranslationStage.translating);
+      final TranslationResult translation = await activeTask.future.timeout(
+        const Duration(minutes: 2),
+        onTimeout: () {
+          activeTask.cancel('translation timeout');
+          throw const ImageTranslationException('TRANSLATION_TIMEOUT');
+        },
+      );
+      final String translatedText = translation.translatedText;
       if (_cancelRequested) {
         markCanceled(request.cacheKey);
         return;
@@ -643,33 +655,30 @@ class ImageTranslationService extends GetxController
         ).copyWith(status: ImageTranslationStatus.failed, errorMessage: e.code),
       );
       log.trace(stack);
-    } on DioException catch (e, stack) {
+    } on EngineTaskCancelledException {
+      markCanceled(request.cacheKey);
+    } on EngineException catch (e, stack) {
       if (_cancelRequested) {
         markCanceled(request.cacheKey);
         return;
       }
-      log.warning('Image translation request failed: ${e.message}');
+      final String code = switch (e.code) {
+        'not_ready' => 'ENGINE_NOT_READY',
+        'unsupported_platform' => 'UNSUPPORTED_COMBINATION',
+        'invalid_response' => 'TRANSLATION_INVALID_RESPONSE',
+        'request_failed' => 'TRANSLATION_REQUEST_FAILED',
+        'timeout' => 'TRANSLATION_TIMEOUT',
+        'translation_unavailable' => 'TRANSLATION_UNAVAILABLE',
+        'translation_not_installed' => 'TRANSLATION_NOT_INSTALLED',
+        _ => 'TRANSLATION_FAILED',
+      };
       _set(
         request.cacheKey,
-        resultFor(request.cacheKey).copyWith(
-          status: ImageTranslationStatus.failed,
-          errorMessage: 'TRANSLATION_REQUEST_FAILED',
-        ),
+        resultFor(
+          request.cacheKey,
+        ).copyWith(status: ImageTranslationStatus.failed, errorMessage: code),
       );
-      log.trace(stack);
-    } on TimeoutException catch (e, stack) {
-      if (_cancelRequested) {
-        markCanceled(request.cacheKey);
-        return;
-      }
-      _set(
-        request.cacheKey,
-        resultFor(request.cacheKey).copyWith(
-          status: ImageTranslationStatus.failed,
-          errorMessage: 'TRANSLATION_TIMEOUT',
-        ),
-      );
-      log.warning('Image translation timed out: $e');
+      log.warning('Image translation engine failed: $e');
       log.trace(stack);
     } catch (e, stack) {
       if (_cancelRequested) {
@@ -685,6 +694,9 @@ class ImageTranslationService extends GetxController
         ),
       );
     } finally {
+      if (task != null && identical(_activeEngineTask, task)) {
+        _activeEngineTask = null;
+      }
       if (_activeCacheKey == request.cacheKey) {
         _activeCacheKey = null;
       }
@@ -727,9 +739,34 @@ class ImageTranslationService extends GetxController
       promptVersion: promptVersion,
       legacy: legacy,
     );
-    return sha256
-        .convert(utf8.encode('$imageHash:$configFingerprint'))
-        .toString();
+    if (legacy) {
+      return sha256
+          .convert(utf8.encode('$imageHash:$configFingerprint'))
+          .toString();
+    }
+    final Map<String, dynamic> configuration =
+        jsonDecode(configFingerprint) as Map<String, dynamic>;
+    return EngineCacheKey(
+      sourceHash: imageHash,
+      ocrModel:
+          configuration['onnxModel'] as String? ??
+          configuration['ocrEngine'] as String?,
+      ocrConfiguration: <String, dynamic>{
+        'engine': configuration['ocrEngine'],
+        'language': configuration['appleLanguage'],
+        'backend': configuration['onnxBackend'],
+      },
+      translationModel: configuration['model'] as String?,
+      translationConfiguration: <String, dynamic>{
+        'engine': configuration['translatorEngine'],
+        'provider': configuration['provider'],
+        'endpoint': configuration['endpoint'],
+        'target': configuration['target'],
+        'thinking': imageTranslationSetting.enableThinking.value,
+      },
+      promptVersion: promptVersion,
+      pipelineVersion: 'image-translation-v2',
+    ).value;
   }
 
   String _translationConfigFingerprint({
@@ -748,9 +785,8 @@ class ImageTranslationService extends GetxController
           'onnxModel': OnnxModelStore.instance.fingerprintOf(
             imageTranslationSetting.onnxModelId.value,
           ),
-          'onnxBackend': inferenceService
-              .resolveBackendFor(InferenceDomain.ocr)
-              ?.name,
+          'onnxBackend':
+              inferenceService.resolveBackendFor(InferenceDomain.ocr)?.name,
         },
         'provider': imageTranslationSetting.translatorProvider.value.name,
         'endpoint': imageTranslationSetting.translatorEndpoint.value,
@@ -769,11 +805,11 @@ class ImageTranslationService extends GetxController
         'onnxModel': OnnxModelStore.instance.fingerprintOf(
           imageTranslationSetting.onnxModelId.value,
         ),
-        'onnxBackend': inferenceService
-            .resolveBackendFor(InferenceDomain.ocr)
-            ?.name,
+        'onnxBackend':
+            inferenceService.resolveBackendFor(InferenceDomain.ocr)?.name,
       },
       'provider': imageTranslationSetting.translatorProvider.value.name,
+      'translatorEngine': imageTranslationSetting.translatorEngine.value.name,
       'endpoint': imageTranslationSetting.translatorEndpoint.value,
       'model': imageTranslationSetting.translatorModel.value,
       'target': imageTranslationSetting.targetLanguage.value,
@@ -782,6 +818,9 @@ class ImageTranslationService extends GetxController
     });
   }
 
+  /// Removes reasoning markers before a result is persisted or embedded. The
+  /// API adapter also sanitizes its response, while this boundary keeps old
+  /// cache files safe when they are hydrated through the service.
   List<String> _persistentCacheKeysForHash(
     ImageTranslationRequest request,
     String imageHash,
@@ -880,6 +919,23 @@ class ImageTranslationService extends GetxController
     }
   }
 
+  String _stripReasoning(String text) =>
+      text
+          .replaceAllMapped(
+            RegExp(r'<think>[\s\S]*?</think>', caseSensitive: false),
+            (_) => '',
+          )
+          .replaceAllMapped(
+            RegExp(r'<thinking>[\s\S]*?</thinking>', caseSensitive: false),
+            (_) => '',
+          )
+          .replaceAllMapped(
+            RegExp(r'\[/?reasoning\]', caseSensitive: false),
+            (_) => '',
+          )
+          .replaceAll(RegExp(r'\n\s*\n+'), '\n')
+          .trim();
+
   Future<void> _writePersistentResult(
     String key,
     ImageTranslationResult result,
@@ -918,134 +974,46 @@ class ImageTranslationService extends GetxController
   static String _sha256Hex(List<int> bytes) => sha256.convert(bytes).toString();
 
   Future<_RecognizeResult> _recognize(String imagePath) async {
+    final OcrEngine engine = engineRegistry.selectedOcr;
+    final EngineTask<OcrResult> task = engine.recognize(
+      OcrEngineRequest(
+        imagePath: imagePath,
+        configuration: <String, dynamic>{
+          'language': imageTranslationSetting.appleLiveTextLanguage.value,
+        },
+      ),
+    );
+    _activeEngineTask = task;
     try {
-      if (imageTranslationSetting.ocrEngine.value ==
-          ImageOcrEngine.appleLiveText) {
-        return await _recognizeWithAppleLiveText(
-          imagePath,
-        ).timeout(const Duration(minutes: 2));
-      }
-      // Custom mode is fixed to ONNX. The service-level timeout is shorter
-      // than the worker's own upper bound and cancels the active token so a
-      // stalled worker is visible to the batch immediately.
-      return await _recognizeWithOnnx(
-        imagePath,
-      ).timeout(const Duration(minutes: 2));
-    } on TimeoutException {
-      _activeInferenceToken?.cancel('image translation OCR timeout');
-      throw const ImageTranslationException('OCR_TIMEOUT');
-    }
-  }
-
-  /// On-device PP-OCRv6 through the unified inference backend.
-  Future<_RecognizeResult> _recognizeWithOnnx(String imagePath) async {
-    final OcrInferenceEngine engine = inferenceService.ocrEngine;
-    // No isReady pre-check here: recognize() itself throws
-    // InferenceNotReadyException when the manifest/backend is unavailable and
-    // the catch below maps it to OCR_NOT_CONFIGURED. Checking isReady first
-    // would re-run the same synchronous manifest validation (sync disk I/O on
-    // the UI isolate) a second time per page.
-    final InferenceCancellationToken token = InferenceCancellationToken();
-    _activeInferenceToken = token;
-    try {
-      final OcrInferenceResult result = await engine.recognize(
-        imagePath,
-        cancellationToken: token,
+      _setStage(ImageTranslationStage.recognizing);
+      final OcrResult result = await task.future.timeout(
+        const Duration(minutes: 2),
       );
       return (
         blocks: result.blocks,
         imageWidth: result.imageWidth,
         imageHeight: result.imageHeight,
       );
-    } on InferenceNotReadyException {
-      throw const ImageTranslationException('OCR_NOT_CONFIGURED');
-    } on InferenceCancelledException {
+    } on EngineTaskCancelledException {
       throw const ImageTranslationException('OCR_CANCELLED');
+    } on EngineException catch (error) {
+      if (error.code == 'not_ready') {
+        throw const ImageTranslationException('OCR_NOT_CONFIGURED');
+      }
+      throw ImageTranslationException(
+        error.code == 'unsupported_platform'
+            ? 'OCR_UNSUPPORTED_PLATFORM'
+            : error.code == 'no_text'
+            ? 'NO_TEXT'
+            : 'OCR_FAILED',
+      );
+    } on TimeoutException {
+      task.cancel('image translation OCR timeout');
+      throw const ImageTranslationException('OCR_TIMEOUT');
     } finally {
-      if (identical(_activeInferenceToken, token)) {
-        _activeInferenceToken = null;
-      }
+      if (identical(_activeEngineTask, task)) _activeEngineTask = null;
     }
   }
-
-  /// On-device OCR through Apple's Vision framework (Live Text). The native
-  /// side runs VNRecognizeTextRequest off the main thread and returns text
-  /// lines as top-left-origin pixel rectangles in the original upright image
-  /// space, matching the [RecognizedTextBlock] convention. It also returns the
-  /// upright pixel dimensions, which the caller must use for overlay scaling:
-  /// the header-based dimension probe does not apply EXIF orientation, so on
-  /// rotated pages it disagrees with the block coordinate space.
-  Future<_RecognizeResult> _recognizeWithAppleLiveText(String imagePath) async {
-    if (!Platform.isIOS && !Platform.isMacOS) {
-      throw const ImageTranslationException('OCR_UNSUPPORTED_PLATFORM');
-    }
-    try {
-      final Map<dynamic, dynamic>? response = await _liveTextChannel
-          .invokeMethod<Map<dynamic, dynamic>>('recognizeText', {
-            'path': imagePath,
-            // Always an explicit list (a curated default for 'auto') so Vision
-            // recognizes vertical CJK — its automatic language detection does
-            // not reliably trigger vertical-text recognition.
-            'languages': _appleLiveTextLanguages(),
-            'automaticallyDetectsLanguage': false,
-            'recognitionLevel': 'accurate',
-            'maxDimension': 2200,
-          });
-      if (response == null) {
-        throw const ImageTranslationException('OCR_FAILED');
-      }
-      final List<dynamic> rawLines =
-          response['lines'] as List<dynamic>? ?? const [];
-      final List<RecognizedTextBlock> blocks = rawLines
-          .whereType<Map>()
-          .map((raw) => _appleLiveTextBlock(Map<String, dynamic>.from(raw)))
-          .where((block) => block.text.trim().isNotEmpty)
-          .toList();
-      if (blocks.isEmpty) {
-        throw const ImageTranslationException('NO_TEXT');
-      }
-      return (
-        blocks: blocks,
-        imageWidth: (response['width'] as num?)?.toInt(),
-        imageHeight: (response['height'] as num?)?.toInt(),
-      );
-    } on ImageTranslationException {
-      rethrow;
-    } catch (e, stack) {
-      log.warning('Apple Live Text OCR failed: $e');
-      log.trace(stack);
-      throw const ImageTranslationException('OCR_FAILED');
-    }
-  }
-
-  /// Comma-separated BCP-47 codes from the Apple Live Text setting.
-  ///
-  /// For 'auto' a curated CJK + English default is used instead of Vision's
-  /// automatic language detection, because auto-detection is unreliable for
-  /// VERTICAL Japanese text — Apple requires the vertical-capable languages
-  /// (Japanese / Chinese / Korean) to be set explicitly on the request.
-  List<String>? _appleLiveTextLanguages() {
-    final String value = imageTranslationSetting.appleLiveTextLanguage.value;
-    if (value.trim().isEmpty || value.trim() == 'auto') {
-      return const <String>['ja-JP', 'zh-Hans', 'zh-Hant', 'ko-KR', 'en-US'];
-    }
-    final List<String> languages = value
-        .split(',')
-        .map((language) => language.trim())
-        .where((language) => language.isNotEmpty)
-        .toList();
-    return languages.isEmpty ? null : languages;
-  }
-
-  RecognizedTextBlock _appleLiveTextBlock(Map<String, dynamic> raw) =>
-      RecognizedTextBlock(
-        text: raw['text'] as String? ?? '',
-        confidence: (raw['confidence'] as num?)?.toDouble() ?? 0,
-        left: (raw['left'] as num?)?.toDouble() ?? 0,
-        top: (raw['top'] as num?)?.toDouble() ?? 0,
-        width: (raw['width'] as num?)?.toDouble() ?? 0,
-        height: (raw['height'] as num?)?.toDouble() ?? 0,
-      );
 
   Future<File> exportOverlay(ImageTranslationRequest request) async {
     final String? imagePath = request.imagePath;
@@ -1053,14 +1021,16 @@ class ImageTranslationService extends GetxController
       throw const ImageTranslationException('IMAGE_SOURCE_UNAVAILABLE');
     }
     final ImageTranslationResult result = resultFor(request.cacheKey);
-    final List<String> translations = const LineSplitter()
-        .convert(result.translatedText)
-        .map((line) => line.trim())
-        .where((line) => line.isNotEmpty)
-        .toList();
-    final List<RecognizedTextBlock> blocks = result.blocks
-        .where((block) => block.width > 4 && block.height > 4)
-        .toList();
+    final List<String> translations =
+        const LineSplitter()
+            .convert(result.translatedText)
+            .map((line) => line.trim())
+            .where((line) => line.isNotEmpty)
+            .toList();
+    final List<RecognizedTextBlock> blocks =
+        result.blocks
+            .where((block) => block.width > 4 && block.height > 4)
+            .toList();
     if (result.status != ImageTranslationStatus.success ||
         translations.length != blocks.length) {
       throw const ImageTranslationException('OVERLAY_NOT_READY');
@@ -1175,14 +1145,15 @@ class ImageTranslationService extends GetxController
     final (Uint8List rgba, int width, int height) = payload;
     final BytesBuilder builder = BytesBuilder(copy: false);
     builder.add(const [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
-    final ByteData ihdr = ByteData(13)
-      ..setUint32(0, width)
-      ..setUint32(4, height)
-      ..setUint8(8, 8) // bit depth
-      ..setUint8(9, 6) // color type: truecolor with alpha
-      ..setUint8(10, 0) // compression: deflate
-      ..setUint8(11, 0) // filter method
-      ..setUint8(12, 0); // interlace: none
+    final ByteData ihdr =
+        ByteData(13)
+          ..setUint32(0, width)
+          ..setUint32(4, height)
+          ..setUint8(8, 8) // bit depth
+          ..setUint8(9, 6) // color type: truecolor with alpha
+          ..setUint8(10, 0) // compression: deflate
+          ..setUint8(11, 0) // filter method
+          ..setUint8(12, 0); // interlace: none
     _addPngChunk(builder, 'IHDR', ihdr.buffer.asUint8List());
 
     // Each scanline is prefixed with filter type 0 (None) and the whole
@@ -1204,9 +1175,10 @@ class ImageTranslationService extends GetxController
 
   static void _addPngChunk(BytesBuilder builder, String type, List<int> data) {
     final Uint8List typeBytes = ascii.encode(type);
-    final Uint8List chunk = Uint8List(typeBytes.length + data.length)
-      ..setRange(0, typeBytes.length, typeBytes)
-      ..setRange(typeBytes.length, typeBytes.length + data.length, data);
+    final Uint8List chunk =
+        Uint8List(typeBytes.length + data.length)
+          ..setRange(0, typeBytes.length, typeBytes)
+          ..setRange(typeBytes.length, typeBytes.length + data.length, data);
     final ByteData length = ByteData(4)..setUint32(0, data.length);
     final ByteData crc = ByteData(4)..setUint32(0, _pngCrc32(chunk));
     builder.add(length.buffer.asUint8List());
@@ -1239,77 +1211,37 @@ class ImageTranslationService extends GetxController
   /// a 1:1 mapping between recognized blocks and translated lines; when the
   /// framework cannot translate a group it returns the source unchanged, which
   /// re-splits back into the original lines.
-  Future<String> _translateWithApple(List<RecognizedTextBlock> blocks) async {
-    // One request per group (its lines joined by newlines) gives the whole
-    // utterance cross-line context; the translated group is re-split back into
-    // the group's line count afterwards.
-    final List<RecognizedTextGroup> groups = groupRecognizedTextBlocks(blocks);
-    final List<String> groupSources = groups
-        .map((RecognizedTextGroup group) => group.textOf(blocks))
-        .toList();
-    final List<String> rawGroupTexts = await _translateAppleLines(groupSources);
-    final List<String> translatedLines = <String>[];
-    for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
-      final String groupTranslation = groupIndex < rawGroupTexts.length
-          ? rawGroupTexts[groupIndex]
-          : '';
-      final List<String> sourceLines = groups[groupIndex].blockIndices
-          .map((int index) => blocks[index].text.trim())
-          .toList();
-      translatedLines.addAll(
-        splitGroupTranslationIntoLines(
-          // When the framework cannot translate a group it returns the source
-          // unchanged, which re-splits back into the original lines.
-          translation: groupTranslation.isEmpty
-              ? groupSources[groupIndex]
-              : groupTranslation,
-          sourceLines: sourceLines,
-        ),
-      );
-    }
-    return translatedLines.join('\n');
-  }
-
-  /// Translates [lines] through Apple's on-device Translation framework, one
-  /// translated string per input line (an input line may itself be a group's
-  /// newline-joined text). Throws [ImageTranslationException] when the
-  /// framework is unavailable, a language pack is missing, or nothing came
-  /// back — callers decide how to fall back.
   Future<List<String>> _translateAppleLines(List<String> lines) async {
+    final TranslationEngine engine =
+        engineRegistry.findTranslation('apple-translation')!;
+    final List<RecognizedTextBlock> blocks = lines
+        .map(
+          (String line) => RecognizedTextBlock(
+            text: line,
+            confidence: 1,
+            width: 1,
+            height: 1,
+          ),
+        )
+        .toList(growable: false);
     try {
-      final Map<dynamic, dynamic>? response = await _liveTextChannel
-          .invokeMethod<Map<dynamic, dynamic>>('translateText', {
-            'lines': lines,
-            'target': _appleTargetLanguage(),
-            'source': _appleSourceLanguage(),
-          });
-      final List<dynamic> rawLines =
-          response?['lines'] as List<dynamic>? ?? const [];
-      final List<String> translatedLines = rawLines
-          .map((line) => line?.toString() ?? '')
-          .toList();
-      if (translatedLines.join('\n').trim().isEmpty) {
-        throw const ImageTranslationException('TRANSLATION_FAILED');
-      }
-      return translatedLines;
-    } on PlatformException catch (e) {
-      if (e.code == 'TRANSLATION_UNAVAILABLE') {
-        throw const ImageTranslationException('TRANSLATION_UNAVAILABLE');
-      }
-      if (e.code == 'TRANSLATION_NOT_INSTALLED') {
-        log.warning(
-          'Apple on-device translation language pack missing: ${e.details}',
-        );
-        throw const ImageTranslationException('TRANSLATION_NOT_INSTALLED');
-      }
-      log.warning('Apple on-device translation failed: ${e.code} ${e.message}');
-      throw const ImageTranslationException('TRANSLATION_FAILED');
-    } on ImageTranslationException {
-      rethrow;
-    } catch (e, stack) {
-      log.warning('Apple on-device translation failed: $e');
-      log.trace(stack);
-      throw const ImageTranslationException('TRANSLATION_FAILED');
+      final TranslationResult result =
+          await engine
+              .translate(
+                TranslationEngineRequest(
+                  blocks: blocks,
+                  targetLanguage: _appleTargetLanguage(),
+                  sourceLanguage: _appleSourceLanguage(),
+                ),
+              )
+              .future;
+      return result.lines;
+    } on EngineException catch (error) {
+      throw ImageTranslationException(switch (error.code) {
+        'translation_unavailable' => 'TRANSLATION_UNAVAILABLE',
+        'translation_not_installed' => 'TRANSLATION_NOT_INSTALLED',
+        _ => 'TRANSLATION_FAILED',
+      });
     }
   }
 
@@ -1343,17 +1275,18 @@ class ImageTranslationService extends GetxController
       imageTranslationSetting.autoTranslateGalleryText.value &&
       imageTranslationSetting.usesAppleOnDeviceTranslation;
 
-  String _galleryTextKey(String text) => sha256
-      .convert(
-        utf8.encode(
-          jsonEncode({
-            'text': text,
-            'target': imageTranslationSetting.targetLanguage.value,
-            'source': imageTranslationSetting.appleLiveTextLanguage.value,
-          }),
-        ),
-      )
-      .toString();
+  String _galleryTextKey(String text) =>
+      sha256
+          .convert(
+            utf8.encode(
+              jsonEncode({
+                'text': text,
+                'target': imageTranslationSetting.targetLanguage.value,
+                'source': imageTranslationSetting.appleLiveTextLanguage.value,
+              }),
+            ),
+          )
+          .toString();
 
   /// The current translation of [text] if cached, or null when the feature is
   /// off or the text has not been translated yet. Synchronous so widgets can
@@ -1418,9 +1351,8 @@ class ImageTranslationService extends GetxController
       if (cached != null) {
         result = cached;
       } else if (!_galleryTextFailed.contains(key)) {
-        final String translated = (await _translateAppleLines(<String>[
-          text,
-        ])).first;
+        final String translated =
+            (await _translateAppleLines(<String>[text])).first;
         if (translated.trim().isNotEmpty) {
           result = translated;
           _galleryTextCache[key] = translated;
@@ -1517,196 +1449,6 @@ class ImageTranslationService extends GetxController
     return value.split(',').first.trim();
   }
 
-  Future<String> _translate(List<RecognizedTextBlock> blocks) async {
-    // Multi-line speech bubbles must be translated as one coherent utterance,
-    // not line by line: the OCR stage reports one block per visual line, so a
-    // bubble that spans several lines arrives as several blocks. Group the
-    // blocks into utterances and mark the group boundaries in the source so
-    // the model has the full bubble as context while still emitting exactly
-    // one translated line per input line for the 1:1 overlay mapping.
-    final List<String> sourceLines = blocks
-        .map((block) => block.text.trim())
-        .toList();
-    final List<RecognizedTextGroup> groups = groupRecognizedTextBlocks(blocks);
-    final StringBuffer numberedSource = StringBuffer();
-    for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
-      numberedSource.writeln('Group ${groupIndex + 1}:');
-      for (final int blockIndex in groups[groupIndex].blockIndices) {
-        numberedSource.writeln('${blockIndex + 1}: ${sourceLines[blockIndex]}');
-      }
-    }
-    final Dio dio = Dio(
-      BaseOptions(
-        connectTimeout: const Duration(seconds: 20),
-        receiveTimeout: const Duration(seconds: 90),
-      ),
-    );
-    final CancelToken cancelToken = CancelToken();
-    _activeCancelToken = cancelToken;
-    final ImageTranslationProvider provider =
-        imageTranslationSetting.translatorProvider.value;
-    final String endpoint = _translationEndpoint(
-      imageTranslationSetting.translatorEndpoint.value!,
-      provider,
-    );
-    final String instruction =
-        'You translate comic dialogue accurately. The input lines are grouped into numbered groups; each group is one '
-        'speech bubble or utterance. Translate each group as a single coherent utterance, combining its line fragments '
-        'into natural phrasing. Preserve line order and line count within each group. '
-        'Return exactly one translated line per input line, numbered the same as the input (e.g. "1: ..."). '
-        'Use continuous numbering across all groups — do not restart the numbers per group. '
-        'Do not add headings, group labels, numbering, or reasoning/think blocks.';
-    final String prompt =
-        'Translate the following comic text into ${imageTranslationSetting.targetLanguage.value}. '
-        'Keep the same line numbers:\n\n$numberedSource';
-    try {
-      if (provider == ImageTranslationProvider.anthropic) {
-        final Response<dynamic> response = await dio.post(
-          endpoint,
-          options: Options(
-            headers: _anthropicHeaders(
-              imageTranslationSetting.translatorApiKey.value!,
-            ),
-          ),
-          cancelToken: cancelToken,
-          data: {
-            'model': imageTranslationSetting.translatorModel.value,
-            'max_tokens': 2048,
-            'system': instruction,
-            'messages': [
-              {'role': 'user', 'content': prompt},
-            ],
-            ...?_thinkingParam(),
-          },
-        );
-        final dynamic blocks = response.data is Map
-            ? response.data['content']
-            : null;
-        if (blocks is List) {
-          final String content = blocks
-              .whereType<Map>()
-              .map((block) => block['text'])
-              .whereType<String>()
-              .join('\n')
-              .trim();
-          if (content.isNotEmpty) {
-            return _parseNumberedTranslations(
-              _stripReasoning(content),
-              sourceLines.length,
-            ).join('\n');
-          }
-        }
-      } else {
-        final Response<dynamic> response = await dio.post(
-          endpoint,
-          options: Options(
-            headers: _openAIHeaders(
-              imageTranslationSetting.translatorApiKey.value!,
-            ),
-          ),
-          cancelToken: cancelToken,
-          data: {
-            'model': imageTranslationSetting.translatorModel.value,
-            'temperature': 0.2,
-            'messages': [
-              {'role': 'system', 'content': instruction},
-              {'role': 'user', 'content': prompt},
-            ],
-            ...?_thinkingParam(),
-          },
-        );
-        final dynamic choices = response.data is Map
-            ? response.data['choices']
-            : null;
-        if (choices is List && choices.isNotEmpty && choices.first is Map) {
-          final dynamic message = choices.first['message'];
-          final dynamic content = message is Map ? message['content'] : null;
-          if (content is String && content.trim().isNotEmpty) {
-            return _parseNumberedTranslations(
-              _stripReasoning(content.trim()),
-              sourceLines.length,
-            ).join('\n');
-          }
-        }
-      }
-      throw const ImageTranslationException('TRANSLATION_INVALID_RESPONSE');
-    } finally {
-      _activeCancelToken = null;
-    }
-  }
-
-  /// Parses numbered model output back into source-line order. Lines that
-  /// cannot be parsed fall back to sequential order, which prevents a model
-  /// reordering or skipping a line from shifting every later bubble.
-  List<String> _parseNumberedTranslations(String text, int lineCount) {
-    final List<String?> result = List.filled(lineCount, null);
-    int fallbackIndex = 0;
-    for (final String rawLine in const LineSplitter().convert(text)) {
-      final String line = rawLine.trim();
-      if (line.isEmpty) {
-        continue;
-      }
-      // The group-aware prompt marks speech-bubble boundaries with "Group N:";
-      // a model that echoes those labels back must not consume a line slot.
-      if (RegExp(r'^\s*group\s*\d+', caseSensitive: false).hasMatch(line)) {
-        continue;
-      }
-      final RegExpMatch? match = RegExp(
-        r'^\s*(\d+)\s*[:：.]?\s*(.*)$',
-      ).firstMatch(line);
-      if (match != null) {
-        final int? index = int.tryParse(match.group(1)!);
-        if (index != null && index >= 1 && index <= lineCount) {
-          result[index - 1] = match.group(2)!.trim();
-          continue;
-        }
-      }
-      while (fallbackIndex < lineCount && result[fallbackIndex] != null) {
-        fallbackIndex++;
-      }
-      if (fallbackIndex < lineCount) {
-        result[fallbackIndex] = line;
-        fallbackIndex++;
-      }
-    }
-    return result.map((line) => line ?? '').toList();
-  }
-
-  /// Removes model reasoning artifacts such as <think>...</think> so only the
-  /// actual translation is embedded onto the image.
-  String _stripReasoning(String text) {
-    String result = text.replaceAllMapped(
-      RegExp(r'<think>[\s\S]*?</think>', caseSensitive: false),
-      (_) => '',
-    );
-    result = result.replaceAllMapped(
-      RegExp(r'<thinking>[\s\S]*?</thinking>', caseSensitive: false),
-      (_) => '',
-    );
-    result = result.replaceAllMapped(
-      RegExp(r'\[/?reasoning\]', caseSensitive: false),
-      (_) => '',
-    );
-    return result.replaceAll(RegExp(r'\n\s*\n+'), '\n').trim();
-  }
-
-  /// MiniMax-M3 accepts thinking.type adaptive/disabled; other models keep
-  /// their default behavior.
-  Map<String, dynamic>? _thinkingParam() {
-    final String model = imageTranslationSetting.translatorModel.value
-        .toLowerCase();
-    if (!model.contains('minimax') && !model.contains('m3')) {
-      return null;
-    }
-    return {
-      'thinking': {
-        'type': imageTranslationSetting.enableThinking.value
-            ? 'adaptive'
-            : 'disabled',
-      },
-    };
-  }
-
   Future<List<String>> fetchModels({
     required ImageTranslationProvider provider,
     required String apiBaseUrl,
@@ -1725,9 +1467,10 @@ class ImageTranslationService extends GetxController
     final Response<dynamic> response = await dio.get(
       _modelsEndpoint(baseUrl, provider),
       options: Options(
-        headers: provider == ImageTranslationProvider.anthropic
-            ? _anthropicHeaders(apiKey)
-            : _openAIHeaders(apiKey),
+        headers:
+            provider == ImageTranslationProvider.anthropic
+                ? _anthropicHeaders(apiKey)
+                : _openAIHeaders(apiKey),
       ),
     );
     final dynamic models = response.data is Map ? response.data['data'] : null;
@@ -1749,18 +1492,8 @@ class ImageTranslationService extends GetxController
 
   String _modelsEndpoint(String baseUrl, ImageTranslationProvider provider) =>
       provider == ImageTranslationProvider.anthropic
-      ? _appendPath(baseUrl, 'models')
-      : _appendPath(baseUrl, 'models');
-
-  String _translationEndpoint(
-    String baseUrl,
-    ImageTranslationProvider provider,
-  ) => _appendPath(
-    baseUrl,
-    provider == ImageTranslationProvider.anthropic
-        ? 'messages'
-        : 'chat/completions',
-  );
+          ? _appendPath(baseUrl, 'models')
+          : _appendPath(baseUrl, 'models');
 
   String _appendPath(String baseUrl, String path) {
     final String normalized = _trimUrl(baseUrl);
@@ -1879,10 +1612,7 @@ double fitTranslationFontSize(
   while (low <= high) {
     final double mid = (low + high) / 2;
     final TextPainter probe = TextPainter(
-      text: TextSpan(
-        text: text,
-        style: TextStyle(fontSize: mid, height: 1.05),
-      ),
+      text: TextSpan(text: text, style: TextStyle(fontSize: mid, height: 1.05)),
       textAlign: TextAlign.center,
       textDirection: textDirection,
     )..layout(maxWidth: maxWidth);

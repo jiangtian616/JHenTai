@@ -19,8 +19,8 @@ import '../database/dao/super_resolution_info_dao.dart';
 import '../model/gallery_image.dart';
 import 'inference/inference_exception.dart';
 import 'inference/inference_task.dart';
-import 'inference/super_resolution_inference_engine.dart';
 import 'inference_service.dart';
+import 'engine/engine.dart' as engine_lib;
 import 'jh_service.dart';
 import 'path_service.dart';
 import '../utils/archive_util.dart';
@@ -585,16 +585,16 @@ class SuperResolutionService extends GetxController
     return true;
   }
 
-  /// ONNX 超分：通过统一"推理后端"入口执行。引擎由 [InferenceService] 托管；
-  /// 未接入模型时（[SuperResolutionInferenceEngine.isReady] 为 false）给出友好
+  /// ONNX 超分：通过稳定 engine contract 执行。适配器仍由 [InferenceService] 提供；
+  /// 未接入模型时（[SuperResolutionEngine.isReady] 为 false）给出友好
   /// 提示并让任务保持可暂停/重试状态，而不是崩溃。
   Future<bool> _handleOnnx(
     GalleryImage rawImage,
     InferenceCancellationToken token,
   ) async {
-    final SuperResolutionInferenceEngine engine =
-        inferenceService.superResolutionEngine;
-    if (!engine.isReady) {
+    final engine_lib.SuperResolutionEngine? engine = engine_lib.engineRegistry
+        .findSuperResolution('onnx-super-resolution');
+    if (engine == null || !engine.isReady) {
       toast('inferenceModelNotIntegrated'.tr, isShort: false);
       return false;
     }
@@ -606,14 +606,25 @@ class SuperResolutionService extends GetxController
       rawImage.path!,
     );
     try {
-      await engine.upscale(
-        inputPath: inputAbsolutePath,
-        outputPath: outputAbsolutePath,
+      final engine_lib.EngineTask<String> task = engine.upscale(
+        engine_lib.ImageProcessingRequest(
+          imagePath: inputAbsolutePath,
+          outputPath: outputAbsolutePath,
+        ),
         scale: 4,
-        cancellationToken: token,
       );
+      token.addListener(task.cancel);
+      await task.future;
       return true;
-    } on InferenceCancelledException {
+    } on engine_lib.EngineTaskCancelledException {
+      return false;
+    } on engine_lib.EngineException catch (error) {
+      if (error.code == 'not_ready') {
+        toast('inferenceModelNotIntegrated'.tr, isShort: false);
+        return false;
+      }
+      log.error('ONNX super resolution failed', error);
+      toast('internalError'.tr, isShort: false);
       return false;
     } on InferenceNotReadyException {
       toast('inferenceModelNotIntegrated'.tr, isShort: false);

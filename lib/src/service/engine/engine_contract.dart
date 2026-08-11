@@ -1,0 +1,415 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
+import 'package:jhentai/src/model/image_translation.dart';
+
+/// Stable names for the independent stages of the image pipeline.
+enum EngineKind {
+  detection,
+  ocr,
+  translation,
+  inpaint,
+  superResolution,
+  modelCatalog,
+  modelDownload,
+}
+
+enum EnginePlatform { android, ios, linux, macos, web, windows, unknown }
+
+enum EngineTaskLifecycle { queued, running, succeeded, cancelled, failed }
+
+enum EngineTaskStage { queued, loading, processing, finalizing, completed }
+
+class EngineTaskProgress {
+  const EngineTaskProgress({
+    required this.taskId,
+    required this.stage,
+    required this.fraction,
+    this.message,
+  });
+
+  final String taskId;
+  final EngineTaskStage stage;
+  final double fraction;
+  final String? message;
+}
+
+/// Cancellation is deliberately independent from inference/HTTP implementations.
+/// Adapters bridge this token to their native, isolate, or Dio cancellation.
+class EngineCancellationToken {
+  final StreamController<String> _cancelController =
+      StreamController<String>.broadcast(sync: true);
+  bool _cancelled = false;
+  String _reason = 'cancelled';
+
+  bool get isCancelled => _cancelled;
+  String get reason => _reason;
+  Stream<String> get onCancel => _cancelController.stream;
+
+  void cancel([String reason = 'cancelled']) {
+    if (_cancelled) return;
+    _cancelled = true;
+    _reason = reason;
+    _cancelController.add(reason);
+  }
+
+  void throwIfCancelled() {
+    if (_cancelled) {
+      throw EngineTaskCancelledException(reason);
+    }
+  }
+
+  Future<void> dispose() => _cancelController.close();
+}
+
+class EngineException implements Exception {
+  const EngineException({
+    required this.code,
+    required this.message,
+    required this.engineId,
+    this.cause,
+  });
+
+  final String code;
+  final String message;
+  final String engineId;
+  final Object? cause;
+
+  @override
+  String toString() => 'EngineException[$engineId/$code]: $message';
+}
+
+class EngineTaskCancelledException extends EngineException {
+  EngineTaskCancelledException([String reason = 'cancelled'])
+    : super(code: 'cancelled', message: reason, engineId: 'engine-task');
+}
+
+typedef EngineTaskOperation<T> = Future<T> Function(EngineTaskContext context);
+
+/// A task is the only lifecycle surface an adapter exposes to callers.
+/// It gives every stage the same id, progress stream, cancellation and error
+/// semantics while keeping the underlying implementation free to use isolates,
+/// native channels, or HTTP.
+class EngineTask<T> {
+  EngineTask._({required this.id, required EngineCancellationToken token})
+    : cancellation = token {
+    _emit(
+      const EngineTaskProgress(
+        taskId: 'pending',
+        stage: EngineTaskStage.queued,
+        fraction: 0,
+      ),
+    );
+  }
+
+  static int _nextSequence = 0;
+
+  factory EngineTask.start({
+    String? id,
+    required EngineTaskOperation<T> operation,
+  }) {
+    final EngineTask<T> task = EngineTask<T>._(
+      id: id ?? _newId(),
+      token: EngineCancellationToken(),
+    );
+    unawaited(Future<void>.microtask(() => task._run(operation)));
+    return task;
+  }
+
+  static String _newId() =>
+      'engine-task-${DateTime.now().microsecondsSinceEpoch}-${++_nextSequence}';
+
+  final String id;
+  final EngineCancellationToken cancellation;
+  final Completer<T> _completer = Completer<T>();
+  final StreamController<EngineTaskProgress> _progressController =
+      StreamController<EngineTaskProgress>.broadcast(sync: true);
+  late final Future<T> future = _completer.future;
+  EngineTaskLifecycle _lifecycle = EngineTaskLifecycle.queued;
+  EngineException? _error;
+
+  EngineTaskLifecycle get lifecycle => _lifecycle;
+  EngineException? get error => _error;
+  Stream<EngineTaskProgress> get progress => _progressController.stream;
+
+  void cancel([String reason = 'cancelled']) => cancellation.cancel(reason);
+
+  void _emit(EngineTaskProgress progress) {
+    if (_progressController.isClosed) return;
+    _progressController.add(
+      EngineTaskProgress(
+        taskId: id,
+        stage: progress.stage,
+        fraction: progress.fraction.clamp(0, 1).toDouble(),
+        message: progress.message,
+      ),
+    );
+  }
+
+  Future<void> _run(EngineTaskOperation<T> operation) async {
+    _lifecycle = EngineTaskLifecycle.running;
+    _emit(
+      const EngineTaskProgress(
+        taskId: 'pending',
+        stage: EngineTaskStage.loading,
+        fraction: 0,
+      ),
+    );
+    try {
+      final T result = await operation(
+        EngineTaskContext._(id: id, cancellation: cancellation, report: _emit),
+      );
+      cancellation.throwIfCancelled();
+      _lifecycle = EngineTaskLifecycle.succeeded;
+      _emit(
+        const EngineTaskProgress(
+          taskId: 'pending',
+          stage: EngineTaskStage.completed,
+          fraction: 1,
+        ),
+      );
+      _completer.complete(result);
+    } on EngineException catch (error, stack) {
+      _completeError(error, stack);
+    } catch (error, stack) {
+      if (cancellation.isCancelled) {
+        _completeError(
+          EngineTaskCancelledException(cancellation.reason),
+          stack,
+        );
+      } else {
+        _completeError(
+          EngineException(
+            code: 'unexpected',
+            message: error.toString(),
+            engineId: 'engine-task',
+            cause: error,
+          ),
+          stack,
+        );
+      }
+    } finally {
+      await cancellation.dispose();
+      await _progressController.close();
+    }
+  }
+
+  void _completeError(EngineException error, StackTrace stack) {
+    _error = error;
+    _lifecycle =
+        error is EngineTaskCancelledException
+            ? EngineTaskLifecycle.cancelled
+            : EngineTaskLifecycle.failed;
+    if (!_completer.isCompleted) {
+      _completer.completeError(error, stack);
+    }
+  }
+}
+
+class EngineTaskContext {
+  const EngineTaskContext._({
+    required this.id,
+    required this.cancellation,
+    required void Function(EngineTaskProgress progress) report,
+  }) : _report = report;
+
+  final String id;
+  final EngineCancellationToken cancellation;
+  final void Function(EngineTaskProgress progress) _report;
+
+  void report(EngineTaskStage stage, double fraction, {String? message}) {
+    cancellation.throwIfCancelled();
+    _report(
+      EngineTaskProgress(
+        taskId: id,
+        stage: stage,
+        fraction: fraction,
+        message: message,
+      ),
+    );
+  }
+}
+
+class EngineDescriptor {
+  const EngineDescriptor({
+    required this.id,
+    required this.kind,
+    required this.displayName,
+    required this.platforms,
+    this.modelId,
+  });
+
+  final String id;
+  final EngineKind kind;
+  final String displayName;
+  final Set<EnginePlatform> platforms;
+  final String? modelId;
+
+  bool supports(EnginePlatform platform) => platforms.contains(platform);
+}
+
+class EngineImageRequest {
+  const EngineImageRequest({
+    required this.imagePath,
+    this.configuration = const <String, dynamic>{},
+  });
+
+  final String imagePath;
+  final Map<String, dynamic> configuration;
+}
+
+class DetectionResult {
+  const DetectionResult({required this.regions});
+
+  final List<DetectedTextRegion> regions;
+}
+
+class DetectedTextRegion {
+  const DetectedTextRegion({
+    required this.left,
+    required this.top,
+    required this.width,
+    required this.height,
+    this.confidence = 0,
+  });
+
+  final double left;
+  final double top;
+  final double width;
+  final double height;
+  final double confidence;
+}
+
+abstract class DetectionEngine {
+  EngineDescriptor get descriptor;
+  bool get isReady;
+  EngineTask<DetectionResult> detect(EngineImageRequest request);
+}
+
+class OcrEngineRequest extends EngineImageRequest {
+  const OcrEngineRequest({
+    required super.imagePath,
+    super.configuration,
+    this.maxDimension = 2200,
+    this.regions = const <DetectedTextRegion>[],
+  });
+
+  final int maxDimension;
+  final List<DetectedTextRegion> regions;
+}
+
+class OcrResult {
+  const OcrResult({required this.blocks, this.imageWidth, this.imageHeight});
+
+  final List<RecognizedTextBlock> blocks;
+  final int? imageWidth;
+  final int? imageHeight;
+}
+
+abstract class OcrEngine {
+  EngineDescriptor get descriptor;
+  bool get isReady;
+  EngineTask<OcrResult> recognize(OcrEngineRequest request);
+}
+
+class TranslationEngineRequest {
+  const TranslationEngineRequest({
+    required this.blocks,
+    required this.targetLanguage,
+    this.sourceLanguage,
+    this.configuration = const <String, dynamic>{},
+    this.promptVersion = 1,
+  });
+
+  final List<RecognizedTextBlock> blocks;
+  final String targetLanguage;
+  final String? sourceLanguage;
+  final Map<String, dynamic> configuration;
+  final int promptVersion;
+}
+
+class TranslationResult {
+  const TranslationResult({required this.translatedText, required this.lines});
+
+  final String translatedText;
+  final List<String> lines;
+}
+
+abstract class TranslationEngine {
+  EngineDescriptor get descriptor;
+  bool get isReady;
+  EngineTask<TranslationResult> translate(TranslationEngineRequest request);
+}
+
+class ImageProcessingRequest extends EngineImageRequest {
+  const ImageProcessingRequest({
+    required super.imagePath,
+    required this.outputPath,
+    super.configuration,
+  });
+
+  final String outputPath;
+}
+
+abstract class InpaintEngine {
+  EngineDescriptor get descriptor;
+  bool get isReady;
+  EngineTask<String> inpaint(ImageProcessingRequest request);
+}
+
+abstract class SuperResolutionEngine {
+  EngineDescriptor get descriptor;
+  bool get isReady;
+  EngineTask<String> upscale(ImageProcessingRequest request, {int scale = 4});
+}
+
+/// A deterministic key for every persisted translation/image-processing result.
+/// It intentionally includes all inputs that can change the output.
+class EngineCacheKey {
+  const EngineCacheKey({
+    required this.sourceHash,
+    required this.ocrModel,
+    required this.ocrConfiguration,
+    required this.translationModel,
+    required this.translationConfiguration,
+    required this.promptVersion,
+    required this.pipelineVersion,
+  });
+
+  final String sourceHash;
+  final String? ocrModel;
+  final Map<String, dynamic> ocrConfiguration;
+  final String? translationModel;
+  final Map<String, dynamic> translationConfiguration;
+  final int promptVersion;
+  final String pipelineVersion;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+    'sourceHash': sourceHash,
+    'ocrModel': ocrModel,
+    'ocrConfiguration': _canonicalize(ocrConfiguration),
+    'translationModel': translationModel,
+    'translationConfiguration': _canonicalize(translationConfiguration),
+    'promptVersion': promptVersion,
+    'pipelineVersion': pipelineVersion,
+  };
+
+  String get canonicalJson => jsonEncode(toJson());
+
+  String get value => sha256.convert(utf8.encode(canonicalJson)).toString();
+}
+
+dynamic _canonicalize(dynamic value) {
+  if (value is Map) {
+    final List<String> keys =
+        value.keys.map((Object? key) => '$key').toList()..sort();
+    return <String, dynamic>{
+      for (final String key in keys) key: _canonicalize(value[key]),
+    };
+  }
+  if (value is Iterable) {
+    return value.map(_canonicalize).toList();
+  }
+  return value;
+}
