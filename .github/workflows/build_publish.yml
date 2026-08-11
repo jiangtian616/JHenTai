@@ -102,15 +102,15 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
           cache: gradle
-      # Xcodebuild
-      - name: Build Xcode
-        if: matrix.os == 'macos-latest'
-        run: xcodebuild -resolvePackageDependencies -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release
       # Flutter Pub Get
       - name: Flutter Pub Get
         run: |
           git config --global core.longpaths true
           flutter pub get
+      # Xcodebuild
+      - name: Build Xcode
+        if: matrix.os == 'macos-latest'
+        run: xcodebuild -resolvePackageDependencies -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release
       # Get app version
       - name: Get app version
         id: get_version
