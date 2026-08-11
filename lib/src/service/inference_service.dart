@@ -62,6 +62,31 @@ InferenceSessionState classifyInferenceSessionState({
       : InferenceSessionState.notTested;
 }
 
+/// Resolves one backend from an already platform-sorted, domain-filtered list.
+/// Kept pure so auto/manual/CPU semantics are testable on every host platform.
+InferenceBackend? selectResolvedInferenceBackend({
+  required InferenceBackendMode mode,
+  required InferenceBackend preferred,
+  required List<InferenceBackend> detected,
+  required bool enableCpuFallback,
+}) {
+  if (mode == InferenceBackendMode.cpu) {
+    return detected.contains(InferenceBackend.cpu)
+        ? InferenceBackend.cpu
+        : null;
+  }
+  if (mode == InferenceBackendMode.manual &&
+      preferred != InferenceBackend.auto) {
+    if (detected.contains(preferred)) {
+      return preferred;
+    }
+    return enableCpuFallback && detected.contains(InferenceBackend.cpu)
+        ? InferenceBackend.cpu
+        : null;
+  }
+  return detected.isEmpty ? null : detected.first;
+}
+
 /// Unified AI Core for OCR and image super-resolution.
 ///
 /// The service owns native runtime detection, provider policy, model/session
@@ -303,28 +328,15 @@ class InferenceService extends GetxController
         )
         .toList(growable: false);
 
-    if (inferenceSetting.mode.value == InferenceBackendMode.cpu) {
-      return detected.contains(InferenceBackend.cpu)
-          ? InferenceBackend.cpu
-          : null;
-    }
-    if (inferenceSetting.mode.value == InferenceBackendMode.manual &&
-        inferenceSetting.preferredBackend.value != InferenceBackend.auto) {
-      final InferenceBackend preferred =
-          inferenceSetting.preferredBackend.value;
-      if (detected.contains(preferred)) {
-        return preferred;
-      }
-      return inferenceSetting.enableCpuFallback.value &&
-              detected.contains(InferenceBackend.cpu)
-          ? InferenceBackend.cpu
-          : null;
-    }
-    // Zero-argument/auto mode is deliberately CPU-only. Accelerators require
-    // an explicit preference and a persisted canary attempt.
-    return detected.contains(InferenceBackend.cpu)
-        ? InferenceBackend.cpu
-        : null;
+    // Auto follows the platform-specific priority already established by
+    // [_refreshAvailableBackends]. Accelerated attempts are still guarded by
+    // the persisted canary in [providersFor], and CPU remains the final item.
+    return selectResolvedInferenceBackend(
+      mode: inferenceSetting.mode.value,
+      preferred: inferenceSetting.preferredBackend.value,
+      detected: detected,
+      enableCpuFallback: inferenceSetting.enableCpuFallback.value,
+    );
   }
 
   List<ort.OrtProvider> providersFor(InferenceDomain domain) {
@@ -655,5 +667,4 @@ class InferenceService extends GetxController
         ort.OrtProvider.XNNPACK => InferenceBackend.xnnpack,
         _ => null,
       };
-
 }

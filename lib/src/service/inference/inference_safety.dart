@@ -281,8 +281,9 @@ typedef InferenceCanaryFailureLifecycle =
     );
 
 /// Conservative policy shared by the settings service and both worker
-/// engines. Auto mode is CPU-only; an accelerator is an explicit opt-in and
-/// remains blocked after an interrupted/failed canary for the same key.
+/// engines. Platform auto-selection may choose an accelerator; an interrupted
+/// or failed canary blocks the same device/runtime/model configuration and
+/// keeps the CPU fallback available.
 class InferenceProviderPolicy {
   static const Set<String> highRiskBackends = <String>{
     'coreml',

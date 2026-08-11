@@ -136,6 +136,34 @@ void main() {
     },
   );
 
+  test('auto backend uses platform priority instead of forcing CPU', () {
+    expect(
+      selectResolvedInferenceBackend(
+        mode: InferenceBackendMode.auto,
+        preferred: InferenceBackend.auto,
+        detected: const <InferenceBackend>[
+          InferenceBackend.coreml,
+          InferenceBackend.xnnpack,
+          InferenceBackend.cpu,
+        ],
+        enableCpuFallback: true,
+      ),
+      InferenceBackend.coreml,
+    );
+    expect(
+      selectResolvedInferenceBackend(
+        mode: InferenceBackendMode.auto,
+        preferred: InferenceBackend.auto,
+        detected: const <InferenceBackend>[
+          InferenceBackend.directml,
+          InferenceBackend.cpu,
+        ],
+        enableCpuFallback: true,
+      ),
+      InferenceBackend.directml,
+    );
+  });
+
   test('canary running state round-trips and blocks the same key', () {
     const InferenceCanaryKey key = InferenceCanaryKey(
       deviceModel: 'test-device',
