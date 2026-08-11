@@ -449,7 +449,7 @@ class zh_CN {
       'lanGalleryListFailed': '加载局域网图库失败',
       'lanGalleryListEmpty': '暂无可用图库',
       'lanGalleryListEmptyHint': '需要设备授予你“下载”权限并已连接，才会出现在这里',
-      'lanGalleryPageCount': '{count} 页',
+      'lanGalleryPageCount': '@count 页',
       'lanGalleryOpenFailed': '无法打开该图库',
       'lanUnknownDevice': '未知设备',
       'lanSharingHint': '配对并自动重连已信任的设备',

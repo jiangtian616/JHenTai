@@ -483,7 +483,7 @@ class en_US {
       'lanGalleryListFailed': 'Failed to load LAN galleries',
       'lanGalleryListEmpty': 'No galleries available',
       'lanGalleryListEmptyHint': 'Connected devices must grant you the Downloads permission to appear here',
-      'lanGalleryPageCount': '{count} pages',
+      'lanGalleryPageCount': '@count pages',
       'lanGalleryOpenFailed': 'Unable to open this gallery',
       'lanUnknownDevice': 'Unknown device',
       'lanSharingHint': 'Pair and automatically reconnect to trusted devices',
