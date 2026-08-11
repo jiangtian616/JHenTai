@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'engine/engine_contract.dart';
 import 'lan_compute_protocol.dart';
+import 'lan_compute_scheduler.dart';
 import 'lan_protocol_v2.dart';
 
 typedef LanComputeMessageSender =
@@ -10,6 +11,19 @@ typedef LanComputeMessageSender =
 typedef LanComputeAuditSink = void Function(LanComputeAuditEvent event);
 
 typedef LanComputeClock = DateTime Function();
+
+typedef LanComputeFallbackHandler =
+    EngineTask<LanComputeDataRef> Function(
+      LanComputeTaskRequest request,
+      LanComputeCancelReason reason,
+    );
+
+typedef LanComputeFallbackCommitHandler =
+    void Function(
+      LanComputeTaskRequest request,
+      LanComputeDataRef output,
+      LanComputeCancelReason reason,
+    );
 
 /// The scheduler boundary is deliberately independent from Dart's Future
 /// timeout. A timeout callback can send an application-level cancel while the
@@ -173,6 +187,10 @@ abstract interface class LanComputeExecutor {
   /// This is request-time input verification, not a UI capability check.
   bool acceptsInput(LanComputeDataRef input);
 
+  /// Native/model adapters must provide an explicit reservation. The runtime
+  /// never derives model memory from a model name or from Dart task count.
+  LanComputeResourceEstimate resourceEstimateFor(LanComputeTaskRequest request);
+
   EngineTask<LanComputeDataRef> execute(LanComputeTaskRequest request);
 }
 
@@ -189,18 +207,28 @@ class LanComputeEngineTaskAdapter implements LanComputeExecutor {
   final String? expectedPromptHash;
 
   final bool Function(LanComputeDataRef input) _inputValidator;
+  final LanComputeResourceEstimate Function(LanComputeTaskRequest request)
+  _resourceEstimator;
   final LanComputeEngineTaskFactory _factory;
 
   LanComputeEngineTaskAdapter({
     required this.descriptor,
     required this.expectedPromptHash,
     required bool Function(LanComputeDataRef input) inputValidator,
+    required LanComputeResourceEstimate Function(LanComputeTaskRequest request)
+    resourceEstimator,
     required LanComputeEngineTaskFactory factory,
   }) : _inputValidator = inputValidator,
+       _resourceEstimator = resourceEstimator,
        _factory = factory;
 
   @override
   bool acceptsInput(LanComputeDataRef input) => _inputValidator(input);
+
+  @override
+  LanComputeResourceEstimate resourceEstimateFor(
+    LanComputeTaskRequest request,
+  ) => _resourceEstimator(request);
 
   @override
   EngineTask<LanComputeDataRef> execute(LanComputeTaskRequest request) =>
@@ -217,6 +245,7 @@ class LanComputeHostRuntime {
   final String remoteDeviceId;
   final bool Function(LanComputeCapability capability) isAuthorized;
   final LanComputeTimerScheduler timerScheduler;
+  final LanComputeScheduler scheduler;
   final LanComputeClock clock;
   final LanComputeAuditSink? onAudit;
   final Map<LanComputeCapability, LanComputeExecutor> _executors;
@@ -230,14 +259,18 @@ class LanComputeHostRuntime {
     required this.isAuthorized,
     required Iterable<LanComputeExecutor> executors,
     required this.timerScheduler,
+    LanComputeScheduler? scheduler,
     this.clock = DateTime.now,
     this.onAudit,
   }) : _executors = <LanComputeCapability, LanComputeExecutor>{
          for (final LanComputeExecutor executor in executors)
            executor.descriptor.capability: executor,
-       };
+       },
+       scheduler = scheduler ?? LanComputeScheduler();
 
   bool get isClosed => _closed;
+
+  int get activeTaskCount => _active.length;
 
   List<LanComputeCapabilityDescriptor> get descriptors =>
       LanComputeCapability.values.map(_descriptorFor).toList(growable: false);
@@ -354,6 +387,13 @@ class LanComputeHostRuntime {
     try {
       if (!isAuthorized(request.capability)) {
         rejection = LanComputeErrorCode.notAuthorized;
+        _audit(
+          taskId: request.taskId,
+          capability: request.capability.wireName,
+          status: 'unauthorized',
+          hash: request.input.hash,
+          errorCode: rejection.wireName,
+        );
       } else if (!descriptor.ready) {
         rejection = LanComputeErrorCode.notReady;
       } else if (!_sameExecutor(request.executor, executorIdentity)) {
@@ -372,6 +412,14 @@ class LanComputeHostRuntime {
       if (rejection == null &&
           request.deadlineEpochMs <= clock().millisecondsSinceEpoch) {
         rejection = LanComputeErrorCode.deadlineExceeded;
+      }
+      if (rejection == null) {
+        _audit(
+          taskId: request.taskId,
+          capability: request.capability.wireName,
+          status: 'authorized',
+          hash: request.input.hash,
+        );
       }
     } on Object {
       rejection = LanComputeErrorCode.hashMismatch;
@@ -395,20 +443,78 @@ class LanComputeHostRuntime {
       return;
     }
 
-    final EngineTask<LanComputeDataRef> task;
+    final LanComputeExecutor selectedExecutor = executor;
+    final LanComputeResourceEstimate estimate;
     try {
-      task = executor.execute(request);
+      estimate = selectedExecutor.resourceEstimateFor(request);
+    } on LanComputeAdmissionException catch (error) {
+      _audit(
+        taskId: request.taskId,
+        capability: request.capability.wireName,
+        status: 'admission_denied',
+        hash: request.input.hash,
+        errorCode: error.code,
+      );
+      await _sendError(
+        request,
+        LanComputeErrorCode.resourceExhausted,
+        retryable: true,
+        send: send,
+      );
+      return;
     } on Object {
       _audit(
         taskId: request.taskId,
         capability: request.capability.wireName,
-        status: 'executor_unavailable',
+        status: 'admission_denied',
         hash: request.input.hash,
-        errorCode: LanComputeErrorCode.executorUnavailable.wireName,
+        errorCode: LanComputeAdmissionReason.invalidEstimate.wireName,
       );
       await _sendError(
         request,
-        LanComputeErrorCode.executorUnavailable,
+        LanComputeErrorCode.resourceExhausted,
+        retryable: true,
+        send: send,
+      );
+      return;
+    }
+
+    final LanComputeScheduledExecution execution;
+    try {
+      execution = scheduler.schedule(
+        request: request,
+        estimate: estimate,
+        start: () => selectedExecutor.execute(request),
+        onEvent: (LanComputeSchedulerEvent event) {
+          _handleSchedulerEvent(request, event);
+        },
+      );
+    } on LanComputeAdmissionException catch (error) {
+      _audit(
+        taskId: request.taskId,
+        capability: request.capability.wireName,
+        status: 'admission_denied',
+        hash: request.input.hash,
+        errorCode: error.code,
+      );
+      await _sendError(
+        request,
+        LanComputeErrorCode.resourceExhausted,
+        retryable: true,
+        send: send,
+      );
+      return;
+    } on Object {
+      _audit(
+        taskId: request.taskId,
+        capability: request.capability.wireName,
+        status: 'admission_denied',
+        hash: request.input.hash,
+        errorCode: LanComputeAdmissionReason.invalidEstimate.wireName,
+      );
+      await _sendError(
+        request,
+        LanComputeErrorCode.resourceExhausted,
         retryable: true,
         send: send,
       );
@@ -416,13 +522,19 @@ class LanComputeHostRuntime {
     }
     final _LanComputeHostTask entry = _LanComputeHostTask(
       request: request,
-      task: task,
+      execution: execution,
     );
     _active[request.taskId] = entry;
     _audit(
       taskId: request.taskId,
       capability: request.capability.wireName,
-      status: 'accepted',
+      status: 'admitted',
+      hash: request.input.hash,
+    );
+    _audit(
+      taskId: request.taskId,
+      capability: request.capability.wireName,
+      status: 'queued',
       hash: request.input.hash,
     );
     await _sendProgress(
@@ -431,9 +543,13 @@ class LanComputeHostRuntime {
       progress: 0,
       send: send,
     );
-    entry.progressSubscription = task.progress.listen((EngineTaskProgress p) {
+    entry.progressSubscription = execution.progress.listen((
+      EngineTaskProgress p,
+    ) {
       final LanComputeProgressStage? stage = _progressStage(p.stage);
-      if (stage == null || _closed || !identical(_active[p.taskId], entry)) {
+      if (stage == null ||
+          _closed ||
+          !identical(_active[entry.request.taskId], entry)) {
         return;
       }
       unawaited(
@@ -453,7 +569,7 @@ class LanComputeHostRuntime {
         () {
           if (!identical(_active[request.taskId], entry)) return;
           entry.deadlineExceeded = true;
-          task.cancel(LanComputeCancelReason.deadline.wireName);
+          entry.execution.cancel(LanComputeCancelReason.deadline.wireName);
         },
       );
     }
@@ -489,7 +605,7 @@ class LanComputeHostRuntime {
     // controller while it is still dispatching.
     scheduleMicrotask(() {
       if (identical(_active[cancel.taskId], entry)) {
-        entry.task.cancel(cancel.reason.wireName);
+        entry.execution.cancel(cancel.reason.wireName);
       }
     });
     _audit(
@@ -504,7 +620,7 @@ class LanComputeHostRuntime {
     LanComputeMessageSender send,
   ) async {
     try {
-      final LanComputeDataRef output = await entry.task.future;
+      final LanComputeDataRef output = await entry.execution.future;
       if (_closed || !identical(_active[entry.request.taskId], entry)) {
         return;
       }
@@ -547,6 +663,46 @@ class LanComputeHostRuntime {
     } finally {
       entry.progressSubscription?.cancel();
       entry.deadlineTimer?.cancel();
+    }
+  }
+
+  void _handleSchedulerEvent(
+    LanComputeTaskRequest request,
+    LanComputeSchedulerEvent event,
+  ) {
+    final String? reason = event.reason;
+    switch (event.state) {
+      case LanComputeSchedulerState.admitted:
+        _audit(
+          taskId: request.taskId,
+          capability: request.capability.wireName,
+          status: 'admitted',
+          hash: request.input.hash,
+        );
+      case LanComputeSchedulerState.queued:
+        // The host emits one queued event for every admitted request so the
+        // wire lifecycle is deterministic even when a task starts at once.
+        break;
+      case LanComputeSchedulerState.running:
+        _audit(
+          taskId: request.taskId,
+          capability: request.capability.wireName,
+          status: 'running',
+          hash: request.input.hash,
+        );
+      case LanComputeSchedulerState.cancelled:
+        final bool deadline =
+            reason == LanComputeCancelReason.deadline.wireName;
+        _audit(
+          taskId: request.taskId,
+          capability: request.capability.wireName,
+          status: deadline ? 'timeout' : 'cancelled',
+          hash: request.input.hash,
+          errorCode: reason,
+        );
+      case LanComputeSchedulerState.completed:
+      case LanComputeSchedulerState.failed:
+        break;
     }
   }
 
@@ -649,9 +805,16 @@ class LanComputeHostRuntime {
     for (final _LanComputeHostTask entry in _active.values.toList()) {
       entry.deadlineTimer?.cancel();
       entry.progressSubscription?.cancel();
-      entry.task.cancel(LanComputeCancelReason.disconnected.wireName);
+      _audit(
+        taskId: entry.request.taskId,
+        capability: entry.request.capability.wireName,
+        status: 'disconnected',
+        hash: entry.request.input.hash,
+        errorCode: LanComputeCancelReason.disconnected.wireName,
+      );
     }
     _active.clear();
+    await scheduler.close();
   }
 
   static bool _isRetryable(LanComputeErrorCode code) => switch (code) {
@@ -703,13 +866,13 @@ class LanComputeHostRuntime {
 
 class _LanComputeHostTask {
   final LanComputeTaskRequest request;
-  final EngineTask<LanComputeDataRef> task;
+  final LanComputeScheduledExecution execution;
   StreamSubscription<EngineTaskProgress>? progressSubscription;
   LanComputeScheduledTask? deadlineTimer;
   bool deadlineExceeded = false;
   bool cancelRequested = false;
 
-  _LanComputeHostTask({required this.request, required this.task});
+  _LanComputeHostTask({required this.request, required this.execution});
 }
 
 /// Client-side session surface exposed only after authenticated v2 setup.
@@ -740,6 +903,10 @@ class LanComputeClientRuntime implements LanComputeSession {
   final LanComputeClock clock;
   final LanComputeAuditSink? onAudit;
   final void Function(LanComputeTerminalResult result)? onCommit;
+  final LanComputeFallbackHandler? fallback;
+  final LanComputeFallbackCommitHandler? onFallbackCommit;
+  final LanComputeTaskCache? cache;
+  final bool Function(LanComputeCommitGate gate)? isCommitGateCurrent;
   final Map<LanComputeCapability, LanComputeCapabilityDescriptor> _descriptors =
       <LanComputeCapability, LanComputeCapabilityDescriptor>{};
   final Map<String, _LanComputeClientTask> _pending =
@@ -753,9 +920,15 @@ class LanComputeClientRuntime implements LanComputeSession {
     this.clock = DateTime.now,
     this.onAudit,
     this.onCommit,
+    this.fallback,
+    this.onFallbackCommit,
+    this.cache,
+    this.isCommitGateCurrent,
   }) : _send = send;
 
   bool get isClosed => _closed;
+
+  int get pendingTaskCount => _pending.length;
 
   @override
   LanComputeCapabilityDescriptor? computeDescriptor(
@@ -890,9 +1063,18 @@ class LanComputeClientRuntime implements LanComputeSession {
     if (_pending.containsKey(taskId)) {
       throw _clientError('invalidRequest', 'duplicate task id');
     }
+    final LanComputeTaskCacheKey cacheKey = LanComputeTaskCacheKey.fromRequest(
+      request,
+    );
+    final LanComputeDataRef? cached = cache?.read(cacheKey);
+    if (cached != null) {
+      context.report(EngineTaskStage.finalizing, 0.99, message: 'cache hit');
+      return cached;
+    }
     final _LanComputeClientTask pending = _LanComputeClientTask(
       request: request,
       context: context,
+      cacheKey: cacheKey,
     );
     _pending[taskId] = pending;
     try {
@@ -912,8 +1094,9 @@ class LanComputeClientRuntime implements LanComputeSession {
         );
       }
       pending.cancelSubscription = context.cancellation.onCancel.listen(
-        (String reason) =>
-            unawaited(_cancelPending(taskId, _cancelReason(reason))),
+        (String reason) => scheduleMicrotask(
+          () => unawaited(_cancelPending(taskId, _cancelReason(reason))),
+        ),
       );
       if (context.cancellation.isCancelled) {
         await _cancelPending(
@@ -922,12 +1105,18 @@ class LanComputeClientRuntime implements LanComputeSession {
         );
       }
       return await pending.completer.future;
-    } on Object {
+    } on Object catch (error, stack) {
       if (identical(_pending[taskId], pending)) {
-        _pending.remove(taskId);
-        pending.deadlineTimer?.cancel();
+        _removePending(taskId, pending);
+        await _completeWithFallback(
+          pending,
+          LanComputeCancelReason.disconnected,
+          sendCancel: false,
+          primaryError: error,
+        );
+        return await pending.completer.future;
       }
-      rethrow;
+      Error.throwWithStackTrace(error, stack);
     } finally {
       await pending.cancelSubscription?.cancel();
       pending.deadlineTimer?.cancel();
@@ -990,8 +1179,34 @@ class LanComputeClientRuntime implements LanComputeSession {
       );
       return;
     }
+    if (!_isCommitGateCurrent(pending.request.commitGate)) {
+      _removePending(result.taskId, pending);
+      pending.completer.completeError(
+        _clientError(
+          LanComputeErrorCode.staleGeneration.wireName,
+          'remote result is from a stale task generation',
+        ),
+      );
+      _audit(
+        taskId: result.taskId,
+        capability: result.capability.wireName,
+        status: 'stale_result',
+        hash: result.output.hash,
+        errorCode: LanComputeErrorCode.staleGeneration.wireName,
+      );
+      return;
+    }
     _removePending(result.taskId, pending);
-    onCommit?.call(result);
+    if (!_claimCommit(pending)) {
+      pending.completer.completeError(
+        _clientError(
+          LanComputeErrorCode.staleGeneration.wireName,
+          'result commit was already claimed',
+        ),
+      );
+      return;
+    }
+    _commitRemoteResult(pending, result);
     pending.completer.complete(result.output);
     _audit(
       taskId: result.taskId,
@@ -1018,6 +1233,24 @@ class LanComputeClientRuntime implements LanComputeSession {
         capability: error.capability.wireName,
         status: 'stale_error',
         errorCode: LanComputeErrorCode.staleGeneration.wireName,
+      );
+      return;
+    }
+    if (error.code == LanComputeErrorCode.deadlineExceeded ||
+        error.code == LanComputeErrorCode.cancelled) {
+      _removePending(error.taskId, pending);
+      unawaited(
+        _completeWithFallback(
+          pending,
+          error.code == LanComputeErrorCode.deadlineExceeded
+              ? LanComputeCancelReason.deadline
+              : LanComputeCancelReason.user,
+          sendCancel: false,
+          primaryError: _clientError(
+            error.code.wireName,
+            'remote compute ended before fallback',
+          ),
+        ),
       );
       return;
     }
@@ -1068,18 +1301,14 @@ class LanComputeClientRuntime implements LanComputeSession {
     final _LanComputeClientTask? pending = _pending[taskId];
     if (pending == null || pending.completer.isCompleted) return;
     _removePending(taskId, pending);
-    await _sendCancel(pending, LanComputeCancelReason.deadline);
-    pending.completer.completeError(
-      _clientError(
+    await _completeWithFallback(
+      pending,
+      LanComputeCancelReason.deadline,
+      sendCancel: true,
+      primaryError: _clientError(
         LanComputeErrorCode.deadlineExceeded.wireName,
         'compute deadline exceeded',
       ),
-    );
-    _audit(
-      taskId: taskId,
-      capability: pending.request.capability.wireName,
-      status: 'timeout',
-      errorCode: LanComputeErrorCode.deadlineExceeded.wireName,
     );
   }
 
@@ -1090,26 +1319,145 @@ class LanComputeClientRuntime implements LanComputeSession {
     final _LanComputeClientTask? pending = _pending[taskId];
     if (pending == null || pending.completer.isCompleted) return;
     _removePending(taskId, pending);
-    await _sendCancel(pending, reason);
-    if (reason == LanComputeCancelReason.deadline) {
-      pending.completer.completeError(
-        _clientError(
-          LanComputeErrorCode.deadlineExceeded.wireName,
-          'compute deadline exceeded',
-        ),
-      );
-    } else {
-      pending.completer.completeError(
-        EngineTaskCancelledException(reason.wireName),
-      );
-    }
-    _audit(
-      taskId: taskId,
-      capability: pending.request.capability.wireName,
-      status: 'cancelled',
-      errorCode: reason.wireName,
+    await _completeWithFallback(
+      pending,
+      reason,
+      sendCancel: true,
+      primaryError: EngineTaskCancelledException(reason.wireName),
     );
   }
+
+  Future<void> _completeWithFallback(
+    _LanComputeClientTask pending,
+    LanComputeCancelReason reason, {
+    required bool sendCancel,
+    required Object primaryError,
+  }) async {
+    if (pending.fallbackStarted || pending.completer.isCompleted) return;
+    pending.fallbackStarted = true;
+    if (sendCancel) {
+      await _sendCancel(pending, reason);
+    }
+    _audit(
+      taskId: pending.request.taskId,
+      capability: pending.request.capability.wireName,
+      status: 'fallback_requested',
+      errorCode: _errorCode(primaryError),
+    );
+    _audit(
+      taskId: pending.request.taskId,
+      capability: pending.request.capability.wireName,
+      status:
+          reason == LanComputeCancelReason.deadline
+              ? 'timeout'
+              : reason == LanComputeCancelReason.disconnected
+              ? 'disconnected'
+              : 'cancelled',
+      errorCode: reason.wireName,
+    );
+
+    final EngineTask<LanComputeDataRef> fallbackTask;
+    try {
+      fallbackTask =
+          fallback?.call(pending.request, reason) ??
+          _unavailableFallback(pending.request, reason);
+    } on Object catch (error, stack) {
+      pending.completer.completeError(error, stack);
+      _audit(
+        taskId: pending.request.taskId,
+        capability: pending.request.capability.wireName,
+        status: 'fallback_error',
+        errorCode: _errorCode(error),
+      );
+      return;
+    }
+
+    try {
+      final LanComputeDataRef output = await fallbackTask.future;
+      if (!_isCommitGateCurrent(pending.request.commitGate) ||
+          !_claimCommit(pending)) {
+        pending.completer.completeError(
+          _clientError(
+            LanComputeErrorCode.staleGeneration.wireName,
+            'local fallback result is from a stale task generation',
+          ),
+        );
+        _audit(
+          taskId: pending.request.taskId,
+          capability: pending.request.capability.wireName,
+          status: 'stale_fallback',
+          errorCode: LanComputeErrorCode.staleGeneration.wireName,
+        );
+        return;
+      }
+      cache?.writeIfAbsent(pending.cacheKey, output);
+      onFallbackCommit?.call(pending.request, output, reason);
+      pending.completer.complete(output);
+      _audit(
+        taskId: pending.request.taskId,
+        capability: pending.request.capability.wireName,
+        status: 'fallback',
+        hash: output.hash,
+      );
+    } on Object catch (error, stack) {
+      pending.completer.completeError(error, stack);
+      _audit(
+        taskId: pending.request.taskId,
+        capability: pending.request.capability.wireName,
+        status: 'fallback_error',
+        errorCode: _errorCode(error),
+      );
+    }
+  }
+
+  EngineTask<LanComputeDataRef> _unavailableFallback(
+    LanComputeTaskRequest request,
+    LanComputeCancelReason reason,
+  ) => EngineTask<LanComputeDataRef>.start(
+    id: '${request.taskId}-fallback',
+    operation: (EngineTaskContext context) async {
+      context.cancellation.throwIfCancelled();
+      throw EngineException(
+        code: 'fallbackUnavailable',
+        message:
+            'local ${request.capability.wireName} fallback is unavailable; '
+            'no verified adapter is registered after ${reason.wireName}',
+        engineId: 'lan-compute-fallback',
+      );
+    },
+  );
+
+  bool _isCommitGateCurrent(LanComputeCommitGate gate) =>
+      isCommitGateCurrent?.call(gate) ?? true;
+
+  bool _claimCommit(_LanComputeClientTask pending) {
+    if (pending.commitClaimed ||
+        !_isCommitGateCurrent(pending.request.commitGate)) {
+      return false;
+    }
+    pending.commitClaimed = true;
+    return true;
+  }
+
+  void _commitRemoteResult(
+    _LanComputeClientTask pending,
+    LanComputeTerminalResult result,
+  ) {
+    cache?.writeIfAbsent(pending.cacheKey, result.output);
+    try {
+      onCommit?.call(result);
+    } on Object {
+      _audit(
+        taskId: result.taskId,
+        capability: result.capability.wireName,
+        status: 'commit_failed',
+        errorCode: 'commitFailed',
+      );
+    }
+  }
+
+  String _errorCode(Object error) =>
+      error is EngineException ? error.code : 'failed';
 
   Future<void> _sendCancel(
     _LanComputeClientTask pending,
@@ -1209,16 +1557,20 @@ class LanComputeClientRuntime implements LanComputeSession {
   Future<void> close() async {
     if (_closed) return;
     _closed = true;
+    final List<Future<void>> fallbacks = <Future<void>>[];
     for (final _LanComputeClientTask pending in _pending.values.toList()) {
-      pending.deadlineTimer?.cancel();
-      await pending.cancelSubscription?.cancel();
-      if (!pending.completer.isCompleted) {
-        pending.completer.completeError(
-          _clientError('disconnected', 'secure session closed'),
-        );
-      }
+      _removePending(pending.request.taskId, pending);
+      fallbacks.add(
+        _completeWithFallback(
+          pending,
+          LanComputeCancelReason.disconnected,
+          sendCancel: false,
+          primaryError: _clientError('disconnected', 'secure session closed'),
+        ),
+      );
     }
     _pending.clear();
+    await Future.wait(fallbacks);
   }
 
   static String _rawTaskId(Map<String, dynamic> payload) {
@@ -1264,9 +1616,28 @@ class LanComputeClientRuntime implements LanComputeSession {
 class _LanComputeClientTask {
   final LanComputeTaskRequest request;
   final EngineTaskContext context;
+  final LanComputeTaskCacheKey cacheKey;
   final Completer<LanComputeDataRef> completer = Completer<LanComputeDataRef>();
   LanComputeScheduledTask? deadlineTimer;
   StreamSubscription<String>? cancelSubscription;
+  bool fallbackStarted = false;
+  bool commitClaimed = false;
 
-  _LanComputeClientTask({required this.request, required this.context});
+  _LanComputeClientTask({
+    required this.request,
+    required this.context,
+    required this.cacheKey,
+  }) {
+    // A host test double (and an in-process transport) may answer while the
+    // request send callback is still on the stack. Keep the original future's
+    // error observed until _runRequest reaches its await; callers still see
+    // the same terminal error, but synchronous response delivery cannot turn
+    // into an unhandled-error report.
+    unawaited(
+      completer.future.then<void>(
+        (_) {},
+        onError: (Object _, StackTrace __) {},
+      ),
+    );
+  }
 }

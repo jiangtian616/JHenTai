@@ -43,6 +43,7 @@ class EngineCancellationToken {
       StreamController<String>.broadcast(sync: true);
   bool _cancelled = false;
   String _reason = 'cancelled';
+  Future<void>? _disposeFuture;
 
   bool get isCancelled => _cancelled;
   String get reason => _reason;
@@ -61,7 +62,26 @@ class EngineCancellationToken {
     }
   }
 
-  Future<void> dispose() => _cancelController.close();
+  /// A synchronous controller cannot be closed while a cancellation event is
+  /// being delivered. Native/fake adapters may complete their cancellation
+  /// future from that event, so defer close to the next microtask and make
+  /// disposal idempotent. This preserves the token API while avoiding the
+  /// documented synchronous-controller re-entrancy failure.
+  Future<void> dispose() {
+    final Future<void>? existing = _disposeFuture;
+    if (existing != null) return existing;
+    final Completer<void> completer = Completer<void>();
+    _disposeFuture = completer.future;
+    scheduleMicrotask(() async {
+      try {
+        await _cancelController.close();
+        completer.complete();
+      } on Object catch (error, stack) {
+        completer.completeError(error, stack);
+      }
+    });
+    return completer.future;
+  }
 }
 
 class EngineException implements Exception {
