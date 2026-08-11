@@ -26,21 +26,24 @@ class LogService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   Logger? _downloadFileLogger;
 
   LogPrinter devPrinter = PrettyPrinter(
-      stackTraceBeginIndex: 0,
-      methodCount: 6,
-      levelEmojis: {Level.trace: '✔ '});
+    stackTraceBeginIndex: 0,
+    methodCount: 6,
+    levelEmojis: {Level.trace: '✔ '},
+  );
   LogPrinter prodPrinterWithBox = PrettyPrinter(
-      stackTraceBeginIndex: 0,
-      methodCount: 6,
-      colors: false,
-      printTime: true,
-      levelEmojis: {Level.trace: '✔ '});
+    stackTraceBeginIndex: 0,
+    methodCount: 6,
+    colors: false,
+    printTime: true,
+    levelEmojis: {Level.trace: '✔ '},
+  );
   LogPrinter prodPrinterWithoutBox = PrettyPrinter(
-      stackTraceBeginIndex: 0,
-      methodCount: 6,
-      colors: false,
-      noBoxingByDefault: true,
-      levelEmojis: {Level.trace: '✔ '});
+    stackTraceBeginIndex: 0,
+    methodCount: 6,
+    colors: false,
+    noBoxingByDefault: true,
+    levelEmojis: {Level.trace: '✔ '},
+  );
 
   @override
   List<JHLifeCircleBean> get initDependencies => [pathService];
@@ -69,71 +72,92 @@ class LogService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   Future<void> doAfterBeanReady() async {}
 
   /// For actions that print params
-  void trace(Object msg, [bool withStack = false]) async {
+  Future<void> trace(Object msg, [bool withStack = false]) async {
     await _initLogger();
     _consoleLogger?.t(msg, stackTrace: withStack ? null : StackTrace.empty);
     _verboseFileLogger?.t(msg, stackTrace: withStack ? null : StackTrace.empty);
   }
 
   /// For actions that is invisible to user
-  void debug(Object msg, [bool withStack = false]) async {
+  Future<void> debug(Object msg, [bool withStack = false]) async {
     await _initLogger();
     _consoleLogger?.d(msg, stackTrace: withStack ? null : StackTrace.empty);
     _verboseFileLogger?.d(msg, stackTrace: withStack ? null : StackTrace.empty);
   }
 
   /// For actions that is visible to user
-  void info(Object msg, [bool withStack = false]) async {
+  Future<void> info(Object msg, [bool withStack = false]) async {
     await _initLogger();
     _consoleLogger?.i(msg, stackTrace: withStack ? null : StackTrace.empty);
     _verboseFileLogger?.i(msg, stackTrace: withStack ? null : StackTrace.empty);
   }
 
-  void warning(Object msg, [Object? error, bool withStack = false]) async {
+  Future<void> warning(
+    Object msg, [
+    Object? error,
+    bool withStack = false,
+  ]) async {
     await _initLogger();
-    _consoleLogger?.w(msg,
-        error: error, stackTrace: withStack ? null : StackTrace.empty);
-    _verboseFileLogger?.w(msg,
-        error: error, stackTrace: withStack ? null : StackTrace.empty);
-    _warningFileLogger?.w(msg,
-        error: error, stackTrace: withStack ? null : StackTrace.empty);
+    _consoleLogger?.w(
+      msg,
+      error: error,
+      stackTrace: withStack ? null : StackTrace.empty,
+    );
+    _verboseFileLogger?.w(
+      msg,
+      error: error,
+      stackTrace: withStack ? null : StackTrace.empty,
+    );
+    _warningFileLogger?.w(
+      msg,
+      error: error,
+      stackTrace: withStack ? null : StackTrace.empty,
+    );
   }
 
-  void error(Object msg, [Object? error, StackTrace? stackTrace]) async {
+  Future<void> error(
+    Object msg, [
+    Object? error,
+    StackTrace? stackTrace,
+  ]) async {
     await _initLogger();
     _consoleLogger?.e(msg, error: error, stackTrace: stackTrace);
     _verboseFileLogger?.e(msg, error: error, stackTrace: stackTrace);
     _warningFileLogger?.e(msg, error: error, stackTrace: stackTrace);
   }
 
-  void download(Object msg) async {
+  Future<void> download(Object msg) async {
     await _initLogger();
     _consoleLogger?.t(msg, stackTrace: StackTrace.empty);
     _downloadFileLogger?.t(msg, stackTrace: StackTrace.empty);
   }
 
-  Future<void> uploadError(dynamic throwable,
-      {dynamic stackTrace, Map<String, dynamic>? extraInfos}) async {
+  Future<void> uploadError(
+    dynamic throwable, {
+    dynamic stackTrace,
+    Map<String, dynamic>? extraInfos,
+  }) async {
     /// sentry is removed
   }
 
   Future<String> getSize() async {
-    return compute(
-      (logDirPath) {
-        Directory logDirectory = Directory(logDirPath!);
-        return logDirectory.exists().then<int>((exist) {
-          if (!exist) {
-            return 0;
-          }
+    return compute((logDirPath) {
+      Directory logDirectory = Directory(logDirPath!);
+      return logDirectory
+          .exists()
+          .then<int>((exist) {
+            if (!exist) {
+              return 0;
+            }
 
-          return logDirectory.list().fold<int>(
+            return logDirectory.list().fold<int>(
               0,
               (previousValue, element) =>
-                  previousValue += (element as File).lengthSync());
-        }).then<String>((totalBytes) => byte2String(totalBytes.toDouble()));
-      },
-      logDirPath,
-    );
+                  previousValue += (element as File).lengthSync(),
+            );
+          })
+          .then<String>((totalBytes) => byte2String(totalBytes.toDouble()));
+    }, logDirPath);
   }
 
   Future<void> clear() async {
@@ -151,11 +175,10 @@ class LogService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   }
 
   Future<void> _initLogDir() async {
-    if (logDirPath == null) {
-      logDirPath = path.join(pathService.tempDir.path, 'logs');
-      if (!await Directory(logDirPath!).exists()) {
-        await Directory(logDirPath!).create();
-      }
+    logDirPath ??= path.join(pathService.tempDir.path, 'logs');
+    final Directory logDirectory = Directory(logDirPath!);
+    if (!await logDirectory.exists()) {
+      await logDirectory.create(recursive: true);
     }
   }
 
@@ -166,10 +189,12 @@ class LogService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     String fileName = DateFormat('yyyy-MM-dd_HH-mm-ss').format(DateTime.now());
 
     _verboseFileLogger ??= Logger(
-      printer: HybridPrinter(prodPrinterWithBox,
-          trace: prodPrinterWithoutBox,
-          debug: prodPrinterWithoutBox,
-          info: prodPrinterWithoutBox),
+      printer: HybridPrinter(
+        prodPrinterWithBox,
+        trace: prodPrinterWithoutBox,
+        debug: prodPrinterWithoutBox,
+        info: prodPrinterWithoutBox,
+      ),
       filter: EHLogFilter(),
       output: FileOutput(file: File(path.join(logDirPath!, '$fileName.log'))),
     );
@@ -179,13 +204,15 @@ class LogService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
         printer: prodPrinterWithBox,
         filter: ProductionFilter(),
         output: FileOutput(
-            file: File(path.join(logDirPath!, '${fileName}_error.log'))),
+          file: File(path.join(logDirPath!, '${fileName}_error.log')),
+        ),
       );
       _downloadFileLogger ??= Logger(
         printer: prodPrinterWithoutBox,
         filter: ProductionFilter(),
         output: FileOutput(
-            file: File(path.join(logDirPath!, '${fileName}_download.log'))),
+          file: File(path.join(logDirPath!, '${fileName}_download.log')),
+        ),
       );
     }
 
@@ -208,8 +235,11 @@ class EHLogFilter extends LogFilter {
   }
 }
 
-T callWithParamsUploadIfErrorOccurs<T>(T Function() func,
-    {dynamic params, T? defaultValue}) {
+T callWithParamsUploadIfErrorOccurs<T>(
+  T Function() func, {
+  dynamic params,
+  T? defaultValue,
+}) {
   try {
     return func.call();
   } on Exception catch (e) {

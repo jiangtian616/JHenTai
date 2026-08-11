@@ -192,5 +192,5 @@ class _TestStyleSetting extends StyleSetting {
 
 class _TestLogService extends LogService {
   @override
-  void debug(Object msg, [bool withStack = false]) {}
+  Future<void> debug(Object msg, [bool withStack = false]) async {}
 }

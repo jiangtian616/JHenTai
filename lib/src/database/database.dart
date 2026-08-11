@@ -76,12 +76,12 @@ class AppDb extends _$AppDb {
   MigrationStrategy get migration {
     return MigrationStrategy(
       beforeOpen: (OpeningDetails details) async {
-        log.info(
+        await log.info(
           'Database version before: ${details.versionBefore}, now: ${details.versionNow}',
         );
       },
       onUpgrade: (Migrator m, int from, int to) async {
-        log.warning('Database version: $from -> $to');
+        await log.warning('Database version: $from -> $to');
         if (from > to) {
           return;
         }
