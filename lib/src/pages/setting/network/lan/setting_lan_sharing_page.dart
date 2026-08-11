@@ -465,10 +465,23 @@ class _TrustedDeviceTile extends StatelessWidget {
         final LanConnectionSnapshot connection = service.connectionFor(
           device.deviceId,
         );
+        final String? errorMessage = connection.errorMessage;
         return ExpansionTile(
           leading: Icon(_statusIcon(connection.state)),
           title: Text(device.displayName),
-          subtitle: Text(_statusLabel(connection.state)),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(_statusLabel(connection.state)),
+              if (errorMessage != null && errorMessage.isNotEmpty)
+                Text(
+                  errorMessage,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+            ],
+          ),
           childrenPadding: const EdgeInsets.only(left: 16, right: 8, bottom: 8),
           children: [
             EHAppleSwitchListTile(

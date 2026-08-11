@@ -34,6 +34,31 @@ abstract interface class LanPeerSession {
   Future<void> close();
 }
 
+abstract interface class LanScheduledTask {
+  void cancel();
+}
+
+abstract interface class LanTimerScheduler {
+  LanScheduledTask schedule(Duration delay, void Function() callback);
+}
+
+class RealLanTimerScheduler implements LanTimerScheduler {
+  const RealLanTimerScheduler();
+
+  @override
+  LanScheduledTask schedule(Duration delay, void Function() callback) =>
+      _RealLanScheduledTask(Timer(delay, callback));
+}
+
+class _RealLanScheduledTask implements LanScheduledTask {
+  final Timer _timer;
+
+  const _RealLanScheduledTask(this._timer);
+
+  @override
+  void cancel() => _timer.cancel();
+}
+
 class LanSharedImage {
   final Map<String, dynamic> image;
   final List<int> bytes;
@@ -103,6 +128,9 @@ class LanDeviceTrustService extends GetxController
   static const String trafficChangedId = 'lanTraffic';
   static const String connectionIdPrefix = 'lanConnection';
   static const Duration retryCooldown = Duration(seconds: 10);
+  static const Duration maxRetryCooldown = Duration(minutes: 5);
+  static const Duration peerRequestTimeout = Duration(seconds: 3);
+  static const Duration incomingPairingTimeout = Duration(minutes: 2);
 
   final LanTrustRepository? _repositoryOverride;
   final bool _registerWithGet;
@@ -111,13 +139,21 @@ class LanDeviceTrustService extends GetxController
   StreamSubscription<LanDiscoveredPeer>? _discoverySubscription;
   final Map<String, LanPeerSession> _sessions = {};
   final Map<String, Future<void>> _connecting = {};
-  final Map<String, DateTime> _retryAfter = {};
+  final Map<String, LanScheduledTask> _retryTimers = {};
+  final Map<String, int> _retryAttempts = {};
   final Map<String, LanConnectionSnapshot> _connectionStates = {};
   final Map<String, LanDiscoveredPeer> _discoveredPeers = {};
   final Map<String, DateTime> _discoveredAt = {};
   final Map<String, _PendingIncomingPairing> _incomingPairings = {};
   final Set<String> _pairingDeviceIds = {};
+  final Map<String, LanScheduledTask> _incomingPairingTimers = {};
   final Random _secureRandom;
+  final LanTimerScheduler _timerScheduler;
+  final DateTime Function() _clock;
+  final Duration _retryDelay;
+  final Duration _maxRetryDelay;
+  final Duration _incomingPairingDelay;
+  final Set<String> _disconnectRequested = {};
 
   late LanTrustRepository _repository;
   SimpleKeyPair? _localIdentityKeyPair;
@@ -137,12 +173,22 @@ class LanDeviceTrustService extends GetxController
     LanPeerConnector? connector,
     LanPeerPairer? pairer,
     Random? secureRandom,
+    LanTimerScheduler? timerScheduler,
+    DateTime Function()? clock,
+    Duration retryDelay = retryCooldown,
+    Duration maxRetryDelay = maxRetryCooldown,
+    Duration incomingPairingDelay = incomingPairingTimeout,
     bool registerWithGet = true,
   }) : _repositoryOverride = repository,
        _registerWithGet = registerWithGet,
        _connector = connector,
        _pairer = pairer,
-       _secureRandom = secureRandom ?? Random.secure();
+       _secureRandom = secureRandom ?? Random.secure(),
+       _timerScheduler = timerScheduler ?? const RealLanTimerScheduler(),
+       _clock = clock ?? DateTime.now,
+       _retryDelay = retryDelay,
+       _maxRetryDelay = maxRetryDelay,
+       _incomingPairingDelay = incomingPairingDelay;
 
   @override
   List<JHLifeCircleBean> get initDependencies => [
@@ -182,9 +228,18 @@ class LanDeviceTrustService extends GetxController
 
   String connectionId(String deviceId) => '$connectionIdPrefix::$deviceId';
 
-  LanConnectionSnapshot connectionFor(String deviceId) =>
-      _connectionStates[deviceId] ??
-      const LanConnectionSnapshot(LanPeerConnectionState.offline);
+  LanConnectionSnapshot connectionFor(String deviceId) {
+    if (_sessions.containsKey(deviceId)) {
+      return const LanConnectionSnapshot(LanPeerConnectionState.connected);
+    }
+    if (_connecting.containsKey(deviceId)) {
+      return const LanConnectionSnapshot(LanPeerConnectionState.connecting);
+    }
+    return _connectionStates[deviceId] ??
+        const LanConnectionSnapshot(LanPeerConnectionState.offline);
+  }
+
+  DateTime get _now => _clock().toUtc();
 
   List<LanDiscoveredPeer> get discoveredPeers {
     final List<LanDiscoveredPeer> peers = _discoveredPeers.values.toList();
@@ -214,9 +269,13 @@ class LanDeviceTrustService extends GetxController
     String imagePageHref, {
     String? galleryUrl,
     int? pageIndex,
+    String? sourceDeviceId,
   }) async {
-    for (final MapEntry<String, LanPeerSession> entry
-        in _sessions.entries.toList()) {
+    final Iterable<MapEntry<String, LanPeerSession>> entries =
+        sourceDeviceId == null
+            ? _sessions.entries
+            : _sessions.entries.where((entry) => entry.key == sourceDeviceId);
+    for (final MapEntry<String, LanPeerSession> entry in entries.toList()) {
       try {
         final LanSharedImage? image = await entry.value
             .requestImageCache(
@@ -224,7 +283,7 @@ class LanDeviceTrustService extends GetxController
               galleryUrl: galleryUrl,
               pageIndex: pageIndex,
             )
-            .timeout(const Duration(seconds: 3));
+            .timeout(peerRequestTimeout);
         if (image != null) {
           return image;
         }
@@ -244,8 +303,10 @@ class LanDeviceTrustService extends GetxController
       try {
         final List<LanSharedGallerySummary> galleries = await entry.value
             .listDownloadedGalleries()
-            .timeout(const Duration(seconds: 3));
-        result.addAll(galleries);
+            .timeout(peerRequestTimeout);
+        result.addAll(
+          galleries.map((gallery) => gallery.copyWith(deviceId: entry.key)),
+        );
       } on Object catch (error) {
         log.warning('LAN gallery list request failed: $error');
       }
@@ -277,6 +338,12 @@ class LanDeviceTrustService extends GetxController
       for (final String deviceId in _sessions.keys.toList()) {
         await disconnect(deviceId);
       }
+      _disconnectRequested.addAll(_connecting.keys);
+      for (final LanScheduledTask timer in _retryTimers.values) {
+        timer.cancel();
+      }
+      _retryTimers.clear();
+      _retryAttempts.clear();
       _discoveredPeers.clear();
       _discoveredAt.clear();
       for (final _PendingIncomingPairing pending in _incomingPairings.values) {
@@ -284,6 +351,10 @@ class LanDeviceTrustService extends GetxController
           pending.completer.complete(null);
         }
       }
+      for (final LanScheduledTask timer in _incomingPairingTimers.values) {
+        timer.cancel();
+      }
+      _incomingPairingTimers.clear();
       _incomingPairings.clear();
     }
     update([
@@ -349,7 +420,7 @@ class LanDeviceTrustService extends GetxController
     }
     await _loadOrCreateLocalIdentity();
     _validatePeer(peer);
-    final DateTime now = DateTime.now().toUtc();
+    final DateTime now = _now;
     final String inboundToken =
         localInboundAccessToken ?? _generateAccessToken();
     final TrustedLanDevice device = TrustedLanDevice(
@@ -372,10 +443,6 @@ class LanDeviceTrustService extends GetxController
       inboundAccessToken: inboundToken,
     );
     _replaceDevice(device);
-    _setConnection(
-      device.deviceId,
-      const LanConnectionSnapshot(LanPeerConnectionState.discovered),
-    );
     return LanPairingAcceptance(
       localDeviceId: localDeviceId,
       localIdentityPublicKey: localIdentityPublicKey,
@@ -447,11 +514,12 @@ class LanDeviceTrustService extends GetxController
     final LanIncomingPairingRequest request = LanIncomingPairingRequest(
       requestId: requestId,
       peer: peer,
-      requestedAt: DateTime.now().toUtc(),
+      requestedAt: _now,
     );
     final _PendingIncomingPairing? previous = _incomingPairings.remove(
       peer.deviceId,
     );
+    _incomingPairingTimers.remove(peer.deviceId)?.cancel();
     if (previous != null && !previous.completer.isCompleted) {
       previous.completer.complete(null);
     }
@@ -460,6 +528,7 @@ class LanDeviceTrustService extends GetxController
         (a, b) => a.request.requestedAt.isBefore(b.request.requestedAt) ? a : b,
       );
       _incomingPairings.remove(oldest.request.peer.deviceId);
+      _incomingPairingTimers.remove(oldest.request.peer.deviceId)?.cancel();
       if (!oldest.completer.isCompleted) {
         oldest.completer.complete(null);
       }
@@ -469,12 +538,25 @@ class LanDeviceTrustService extends GetxController
       remoteAccessToken: remoteAccessToken,
       completer: completer,
     );
+    _incomingPairingTimers[peer.deviceId]?.cancel();
+    _incomingPairingTimers[peer
+        .deviceId] = _timerScheduler.schedule(_incomingPairingDelay, () {
+      final _PendingIncomingPairing? current = _incomingPairings[peer.deviceId];
+      if (!identical(current?.completer, completer)) {
+        return;
+      }
+      _incomingPairings.remove(peer.deviceId);
+      _incomingPairingTimers.remove(peer.deviceId);
+      if (!completer.isCompleted) {
+        completer.complete(null);
+      }
+      update([incomingPairingsChangedId]);
+    });
     update([incomingPairingsChangedId]);
     try {
-      return await completer.future.timeout(const Duration(minutes: 2));
-    } on TimeoutException {
-      return null;
+      return await completer.future;
     } finally {
+      _incomingPairingTimers.remove(peer.deviceId)?.cancel();
       if (identical(_incomingPairings[peer.deviceId]?.completer, completer)) {
         _incomingPairings.remove(peer.deviceId);
         update([incomingPairingsChangedId]);
@@ -507,6 +589,7 @@ class LanDeviceTrustService extends GetxController
 
   void declineIncomingPairing(String deviceId) {
     final _PendingIncomingPairing? pending = _incomingPairings.remove(deviceId);
+    _incomingPairingTimers.remove(deviceId)?.cancel();
     if (pending != null && !pending.completer.isCompleted) {
       pending.completer.complete(null);
     }
@@ -528,6 +611,8 @@ class LanDeviceTrustService extends GetxController
     await _repository.updateDevice(updated);
     _replaceDevice(updated);
     if (!value) {
+      _retryTimers.remove(deviceId)?.cancel();
+      _retryAttempts.remove(deviceId);
       await disconnect(deviceId);
     }
   }
@@ -537,7 +622,8 @@ class LanDeviceTrustService extends GetxController
     await _repository.revokeDevice(deviceId);
     trustedDevices.removeWhere((device) => device.deviceId == deviceId);
     _connectionStates.remove(deviceId);
-    _retryAfter.remove(deviceId);
+    _retryTimers.remove(deviceId)?.cancel();
+    _retryAttempts.remove(deviceId);
     update([devicesChangedId, connectionId(deviceId)]);
   }
 
@@ -643,7 +729,7 @@ class LanDeviceTrustService extends GetxController
       return;
     }
 
-    final DateTime now = DateTime.now().toUtc();
+    final DateTime now = _now;
     final TrustedLanDevice seen = device.copyWith(
       displayName:
           peer.displayName.trim().isEmpty
@@ -665,18 +751,13 @@ class LanDeviceTrustService extends GetxController
     if (now.difference(device.lastSeenAt).abs() > const Duration(minutes: 5)) {
       await _repository.updateDevice(seen);
     }
-    _setConnection(
-      peer.deviceId,
-      const LanConnectionSnapshot(LanPeerConnectionState.discovered),
-    );
-
     if (!seen.autoConnect ||
         _connector == null ||
-        _sessions.containsKey(peer.deviceId)) {
+        _sessions.containsKey(peer.deviceId) ||
+        _connecting.containsKey(peer.deviceId)) {
       return;
     }
-    final DateTime? retryAfter = _retryAfter[peer.deviceId];
-    if (retryAfter != null && now.isBefore(retryAfter)) {
+    if (_retryTimers.containsKey(peer.deviceId)) {
       return;
     }
     await _connecting.putIfAbsent(
@@ -686,6 +767,13 @@ class LanDeviceTrustService extends GetxController
   }
 
   Future<void> disconnect(String deviceId) async {
+    _retryTimers.remove(deviceId)?.cancel();
+    _retryAttempts.remove(deviceId);
+    if (_connecting.containsKey(deviceId)) {
+      _disconnectRequested.add(deviceId);
+    } else {
+      _disconnectRequested.remove(deviceId);
+    }
     final LanPeerSession? session = _sessions.remove(deviceId);
     await session?.close();
     _setConnection(
@@ -714,11 +802,21 @@ class LanDeviceTrustService extends GetxController
         expectedIdentityPublicKey: device.identityPublicKey,
         expectedIdentityFingerprint: device.identityFingerprint,
       );
+      if (_disconnectRequested.remove(peer.deviceId)) {
+        await session.close();
+        _setConnection(
+          peer.deviceId,
+          const LanConnectionSnapshot(LanPeerConnectionState.offline),
+        );
+        return;
+      }
       _sessions[peer.deviceId] = session;
-      _retryAfter.remove(peer.deviceId);
+      _retryTimers.remove(peer.deviceId)?.cancel();
+      _retryAttempts.remove(peer.deviceId);
+      final DateTime connectedAt = _now;
       final TrustedLanDevice connected = device.copyWith(
-        lastSeenAt: DateTime.now().toUtc(),
-        lastConnectedAt: DateTime.now().toUtc(),
+        lastSeenAt: connectedAt,
+        lastConnectedAt: connectedAt,
       );
       await _repository.updateDevice(connected);
       _replaceDevice(connected);
@@ -732,25 +830,74 @@ class LanDeviceTrustService extends GetxController
             _sessions.remove(peer.deviceId);
             _setConnection(
               peer.deviceId,
-              const LanConnectionSnapshot(LanPeerConnectionState.offline),
+              const LanConnectionSnapshot(
+                LanPeerConnectionState.failed,
+                errorMessage: 'LAN_SESSION_CLOSED',
+              ),
             );
+            _scheduleRetry(peer.deviceId);
           }
         }),
       );
     } on Object catch (error, stack) {
-      _retryAfter[peer.deviceId] = DateTime.now().toUtc().add(retryCooldown);
+      final bool cancelled =
+          _disconnectRequested.remove(peer.deviceId) || !isEnabled;
       _setConnection(
         peer.deviceId,
-        LanConnectionSnapshot(
-          LanPeerConnectionState.failed,
-          errorMessage: error.toString(),
-        ),
+        cancelled
+            ? const LanConnectionSnapshot(LanPeerConnectionState.offline)
+            : LanConnectionSnapshot(
+                LanPeerConnectionState.failed,
+                errorMessage: error.toString(),
+              ),
       );
+      if (!cancelled) {
+        _scheduleRetry(peer.deviceId);
+      }
       log.warning('Auto-connect trusted LAN device failed: ${peer.deviceId}');
       log.trace(stack);
     } finally {
       _connecting.remove(peer.deviceId);
     }
+  }
+
+  void _scheduleRetry(String deviceId) {
+    final TrustedLanDevice? device = deviceById(deviceId);
+    if (!isEnabled || device == null || !device.autoConnect) {
+      return;
+    }
+    if (_retryTimers.containsKey(deviceId)) {
+      return;
+    }
+    final int attempt = (_retryAttempts[deviceId] ?? 0) + 1;
+    _retryAttempts[deviceId] = attempt;
+    _retryTimers[deviceId] = _timerScheduler.schedule(
+      _retryDelayFor(attempt),
+      () {
+      _retryTimers.remove(deviceId);
+      final LanDiscoveredPeer? peer = _discoveredPeers[deviceId];
+      final TrustedLanDevice? device = deviceById(deviceId);
+      if (!isEnabled ||
+          peer == null ||
+          device == null ||
+          !device.autoConnect ||
+          _connector == null ||
+          _sessions.containsKey(deviceId) ||
+          _connecting.containsKey(deviceId)) {
+        return;
+      }
+      unawaited(handlePeerDiscovered(peer));
+      },
+    );
+  }
+
+  Duration _retryDelayFor(int attempt) {
+    Duration delay = _retryDelay;
+    for (int index = 1; index < attempt && delay < _maxRetryDelay; index++) {
+      final Duration doubled = delay * 2;
+      delay = doubled > _maxRetryDelay ? _maxRetryDelay : doubled;
+    }
+    return delay > _maxRetryDelay ? _maxRetryDelay : delay;
   }
 
   void _replaceDevice(TrustedLanDevice device, {bool notify = true}) {
@@ -809,7 +956,7 @@ class LanDeviceTrustService extends GetxController
   }
 
   void _rememberDiscoveredPeer(LanDiscoveredPeer peer) {
-    final DateTime now = DateTime.now().toUtc();
+    final DateTime now = _now;
     // Broadcasts from the same device repeat; only rebuild the discovered
     // section when the peer's visible fields actually changed, so a busy LAN
     // does not rebuild the page on every heartbeat.
@@ -947,10 +1094,20 @@ class LanDeviceTrustService extends GetxController
     _discoverySubscription?.cancel();
     _trafficUpdateTimer?.cancel();
     _trafficUpdateTimer = null;
+    for (final LanScheduledTask timer in _retryTimers.values) {
+      timer.cancel();
+    }
+    _retryTimers.clear();
+    _retryAttempts.clear();
+    for (final LanScheduledTask timer in _incomingPairingTimers.values) {
+      timer.cancel();
+    }
+    _incomingPairingTimers.clear();
     for (final LanPeerSession session in _sessions.values) {
       unawaited(session.close());
     }
     _sessions.clear();
+    _disconnectRequested.clear();
     _localIdentityKeyPair?.destroy();
     super.onClose();
   }

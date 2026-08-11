@@ -210,6 +210,23 @@ class LanSharedGallerySummary {
     this.coverUrl,
   });
 
+  LanSharedGallerySummary copyWith({
+    String? deviceId,
+    String? deviceName,
+    String? coverUrl,
+  }) => LanSharedGallerySummary(
+    deviceId: deviceId ?? this.deviceId,
+    deviceName: deviceName ?? this.deviceName,
+    gid: gid,
+    token: token,
+    title: title,
+    galleryUrl: galleryUrl,
+    pageCount: pageCount,
+    category: category,
+    publishTime: publishTime,
+    coverUrl: coverUrl ?? this.coverUrl,
+  );
+
   Map<String, dynamic> toJson() => {
     'deviceId': deviceId,
     'deviceName': deviceName,

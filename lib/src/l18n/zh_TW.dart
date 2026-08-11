@@ -449,7 +449,7 @@ class zh_TW {
       'lanGalleryListFailed': '載入區域網路圖庫失敗',
       'lanGalleryListEmpty': '暫無可用圖庫',
       'lanGalleryListEmptyHint': '需要裝置授予你「下載」權限並已連接，才會出現在這裡',
-      'lanGalleryPageCount': '{count} 頁',
+      'lanGalleryPageCount': '@count 頁',
       'lanGalleryOpenFailed': '無法開啟該圖庫',
       'lanUnknownDevice': '未知裝置',
       'lanSharingHint': '配對並自動重新連線已信任的裝置',

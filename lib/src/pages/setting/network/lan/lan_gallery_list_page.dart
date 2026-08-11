@@ -87,6 +87,7 @@ class _LanGalleryListPageState extends State<LanGalleryListPage> {
         token: gallery.token,
         galleryTitle: gallery.title,
         galleryUrl: gallery.galleryUrl,
+        sourceDeviceId: gallery.deviceId,
         initialIndex: 0,
         pageCount: gallery.pageCount,
         readProgressRecordStorageKey: gallery.gid.toString(),
@@ -184,7 +185,7 @@ class _LanGalleryListPageState extends State<LanGalleryListPage> {
           for (final LanSharedGallerySummary gallery in galleries)
             ListTile(
               key: ValueKey('${gallery.deviceId}:${gallery.gid}'),
-              leading: const Icon(Icons.book_outlined),
+              leading: LanGalleryCover(coverUrl: gallery.coverUrl),
               title: Text(
                 gallery.title,
                 maxLines: 2,
@@ -206,6 +207,90 @@ class _LanGalleryListPageState extends State<LanGalleryListPage> {
             ),
         ],
       ],
+    );
+  }
+}
+
+class LanGalleryCover extends StatefulWidget {
+  final String? coverUrl;
+
+  const LanGalleryCover({super.key, required this.coverUrl});
+
+  @override
+  State<LanGalleryCover> createState() => _LanGalleryCoverState();
+}
+
+class LanGalleryCoverController {
+  int attempt = 0;
+  bool failed = false;
+
+  void markFailed() => failed = true;
+
+  void reset() {
+    failed = false;
+    attempt = 0;
+  }
+
+  void retry() {
+    failed = false;
+    attempt++;
+  }
+}
+
+class _LanGalleryCoverState extends State<LanGalleryCover> {
+  final LanGalleryCoverController _controller = LanGalleryCoverController();
+
+  @override
+  void didUpdateWidget(covariant LanGalleryCover oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.coverUrl != widget.coverUrl) {
+      _controller.reset();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final String? url = widget.coverUrl?.trim();
+    if (url == null || url.isEmpty) {
+      return _placeholder(context, retryable: false);
+    }
+    return SizedBox(
+      width: 56,
+      height: 80,
+      child: Image.network(
+        url,
+        key: ValueKey('$url:${_controller.attempt}'),
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) {
+          _controller.markFailed();
+          return _placeholder(context, retryable: _controller.failed);
+        },
+      ),
+    );
+  }
+
+  Widget _placeholder(BuildContext context, {required bool retryable}) {
+    final Widget icon = Icon(
+      retryable ? Icons.refresh : Icons.image_not_supported_outlined,
+      size: 24,
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
+    );
+    final Widget child =
+        retryable
+            ? IconButton(
+              key: const ValueKey('lanGalleryCoverRetry'),
+              tooltip: 'retry'.tr,
+              onPressed: () => setState(_controller.retry),
+              icon: icon,
+            )
+            : icon;
+    return SizedBox(
+      width: 56,
+      height: 80,
+      child: ColoredBox(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        child: Center(child: child),
+      ),
     );
   }
 }

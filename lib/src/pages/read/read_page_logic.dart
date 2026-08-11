@@ -849,6 +849,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
           // DOWNLOADED copy, not just the online image cache.
           galleryUrl: state.readPageInfo.galleryUrl,
           pageIndex: index,
+          sourceDeviceId: state.readPageInfo.sourceDeviceId,
         );
         if (lanImage != null) {
           state.images[index] = lanImage;

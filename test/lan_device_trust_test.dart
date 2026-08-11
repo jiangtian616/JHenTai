@@ -9,6 +9,8 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/model/lan_device_trust.dart';
 import 'package:jhentai/src/service/lan_device_trust_service.dart';
 import 'package:jhentai/src/service/lan_trust_repository.dart';
+import 'package:jhentai/src/service/log.dart';
+import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 
 const String _peerId = 'peer_device_123456';
@@ -189,6 +191,7 @@ void main() {
         secureRandom: Random(1),
       );
       await service.doInitBean();
+      pathService.tempDir = Directory.systemTemp;
 
       final LanPairingAcceptance acceptance = await service.completePairing(
         peer: _peer(),
@@ -264,6 +267,10 @@ void main() {
         secureRandom: Random(2),
       );
       await service.doInitBean();
+      final Directory logDirectory = Directory(
+        '${Directory.systemTemp.path}/jhentai-lan-test-logs',
+      )..createSync(recursive: true);
+      log.logDirPath = logDirectory.path;
       await service.completePairing(
         peer: _peer(),
         remoteAccessToken: _remoteToken,
@@ -313,6 +320,182 @@ void main() {
       LanPeerConnectionState.offline,
     );
   });
+
+  test(
+    'duplicate discovery keeps a failed session state until its retry timer fires',
+    () async {
+      final _FakeTimerScheduler scheduler = _FakeTimerScheduler();
+      final _SequenceConnector connector = _SequenceConnector([
+        StateError('connection refused'),
+        StateError('still refused'),
+        _FakeSession(),
+      ]);
+      final LanDeviceTrustService service = LanDeviceTrustService(
+        repository: _MemoryTrustRepository(),
+        connector: connector,
+        timerScheduler: scheduler,
+        retryDelay: const Duration(minutes: 10),
+        maxRetryDelay: const Duration(minutes: 30),
+        secureRandom: Random(6),
+      );
+      await service.doInitBean();
+      await service.completePairing(
+        peer: _peer(),
+        remoteAccessToken: _remoteToken,
+        permissions: const {LanSharePermission.imageCache},
+      );
+
+      await service.handlePeerDiscovered(_peer());
+      expect(connector.connectCount, 1);
+      expect(
+        service.connectionFor(_peerId).state,
+        LanPeerConnectionState.failed,
+      );
+      expect(service.connectionFor(_peerId).errorMessage, contains('refused'));
+
+      await service.handlePeerDiscovered(_peer());
+      expect(connector.connectCount, 1);
+      expect(
+        service.connectionFor(_peerId).state,
+        LanPeerConnectionState.failed,
+      );
+
+      scheduler.fireNext();
+      await _flushMicrotasks();
+      expect(connector.connectCount, 2);
+      expect(scheduler.delays, [
+        const Duration(minutes: 10),
+        const Duration(minutes: 20),
+      ]);
+      expect(
+        service.connectionFor(_peerId).state,
+        LanPeerConnectionState.failed,
+      );
+
+      await service.handlePeerDiscovered(_peer());
+      expect(connector.connectCount, 2);
+      scheduler.fireNext();
+      await _flushMicrotasks();
+      expect(connector.connectCount, 3);
+      expect(
+        service.connectionFor(_peerId).state,
+        LanPeerConnectionState.connected,
+      );
+    },
+  );
+
+  test(
+    'discovery churn does not replace an in-flight authenticated session',
+    () async {
+      final _BlockingConnector connector = _BlockingConnector();
+      final LanDeviceTrustService service = LanDeviceTrustService(
+        repository: _MemoryTrustRepository(),
+        connector: connector,
+        secureRandom: Random(8),
+      );
+      await service.doInitBean();
+      await service.completePairing(
+        peer: _peer(),
+        remoteAccessToken: _remoteToken,
+        permissions: const {LanSharePermission.imageCache},
+      );
+
+      final Future<void> first = service.handlePeerDiscovered(_peer());
+      await _flushMicrotasks();
+      expect(connector.connectCount, 1);
+      expect(
+        service.connectionFor(_peerId).state,
+        LanPeerConnectionState.connecting,
+      );
+
+      final Future<void> duplicate = service.handlePeerDiscovered(
+        _peer(host: '192.168.1.9', port: 43822),
+      );
+      await _flushMicrotasks();
+      expect(connector.connectCount, 1);
+      expect(
+        service.connectionFor(_peerId).state,
+        LanPeerConnectionState.connecting,
+      );
+
+      final _FakeSession session = _FakeSession();
+      connector.complete(session);
+      await Future.wait([first, duplicate]);
+      expect(
+        service.connectionFor(_peerId).state,
+        LanPeerConnectionState.connected,
+      );
+    },
+  );
+
+  test(
+    'a closed session becomes failed and reconnects through its own timer',
+    () async {
+      final _FakeTimerScheduler scheduler = _FakeTimerScheduler();
+      final _FakeSession firstSession = _FakeSession();
+      final _FakeSession secondSession = _FakeSession();
+      final _SequenceConnector connector = _SequenceConnector([
+        firstSession,
+        secondSession,
+      ]);
+      final LanDeviceTrustService service = LanDeviceTrustService(
+        repository: _MemoryTrustRepository(),
+        connector: connector,
+        timerScheduler: scheduler,
+        retryDelay: const Duration(minutes: 10),
+        maxRetryDelay: const Duration(minutes: 10),
+        secureRandom: Random(9),
+      );
+      await service.doInitBean();
+      await service.completePairing(
+        peer: _peer(),
+        remoteAccessToken: _remoteToken,
+        permissions: const {LanSharePermission.imageCache},
+      );
+
+      await service.handlePeerDiscovered(_peer());
+      firstSession.closeRemotely();
+      await _flushMicrotasks();
+      expect(
+        service.connectionFor(_peerId).state,
+        LanPeerConnectionState.failed,
+      );
+      expect(scheduler.delays, [const Duration(minutes: 10)]);
+
+      scheduler.fireNext();
+      await _flushMicrotasks();
+      expect(connector.connectCount, 2);
+      expect(
+        service.connectionFor(_peerId).state,
+        LanPeerConnectionState.connected,
+      );
+    },
+  );
+
+  test(
+    'expired incoming pairing requests are removed by the controllable timer',
+    () async {
+      final _FakeTimerScheduler scheduler = _FakeTimerScheduler();
+      final LanDeviceTrustService service = LanDeviceTrustService(
+        repository: _MemoryTrustRepository(),
+        timerScheduler: scheduler,
+        incomingPairingDelay: const Duration(minutes: 2),
+        secureRandom: Random(7),
+      );
+      await service.doInitBean();
+
+      final Future<LanPairingAcceptance?> approval = service
+          .requestIncomingPairingApproval(
+            peer: _peer(),
+            remoteAccessToken: _remoteToken,
+          );
+      expect(service.incomingPairingRequests, hasLength(1));
+
+      scheduler.fireNext();
+      expect(await approval, isNull);
+      expect(service.incomingPairingRequests, isEmpty);
+    },
+  );
 
   test('an untrusted discovery requires an explicit trust decision', () async {
     final _MemoryTrustRepository repository = _MemoryTrustRepository();
@@ -371,14 +554,24 @@ TrustedLanDevice _device() {
   );
 }
 
-LanDiscoveredPeer _peer({String? fingerprint}) => LanDiscoveredPeer(
+LanDiscoveredPeer _peer({
+  String? fingerprint,
+  String host = '192.168.1.8',
+  int port = 43821,
+}) => LanDiscoveredPeer(
   deviceId: _peerId,
   displayName: 'Desktop',
-  host: '192.168.1.8',
-  port: 43821,
+  host: host,
+  port: port,
   identityPublicKey: _publicKey,
   identityFingerprint: fingerprint ?? _fingerprint,
 );
+
+Future<void> _flushMicrotasks() async {
+  for (int index = 0; index < 3; index++) {
+    await Future<void>.value();
+  }
+}
 
 class _MemorySecretStore implements LanSecretStore {
   final Map<String, String> values = {};
@@ -414,7 +607,6 @@ class _MemoryTrustRepository implements LanTrustRepository {
   Future<void> saveLocalDeviceName(String name) async {
     localDeviceName = name;
   }
-
 
   @override
   Future<void> init() async {}
@@ -517,8 +709,86 @@ class _FakeSession implements LanPeerSession {
   @override
   Future<void> close() async {
     closedByClient = true;
+    closeRemotely();
+  }
+
+  void closeRemotely() {
     if (!_closed.isCompleted) {
       _closed.complete();
+    }
+  }
+}
+
+class _BlockingConnector implements LanPeerConnector {
+  final Completer<LanPeerSession> _result = Completer<LanPeerSession>();
+  int connectCount = 0;
+
+  @override
+  Future<LanPeerSession> connect({
+    required LanDiscoveredPeer peer,
+    required String accessToken,
+    required String expectedIdentityPublicKey,
+    required String expectedIdentityFingerprint,
+  }) {
+    connectCount++;
+    return _result.future;
+  }
+
+  void complete(LanPeerSession session) => _result.complete(session);
+}
+
+class _SequenceConnector implements LanPeerConnector {
+  final List<Object> _outcomes;
+  int connectCount = 0;
+
+  _SequenceConnector(this._outcomes);
+
+  @override
+  Future<LanPeerSession> connect({
+    required LanDiscoveredPeer peer,
+    required String accessToken,
+    required String expectedIdentityPublicKey,
+    required String expectedIdentityFingerprint,
+  }) async {
+    connectCount++;
+    final Object outcome = _outcomes.removeAt(0);
+    if (outcome is LanPeerSession) {
+      return outcome;
+    }
+    throw outcome;
+  }
+}
+
+class _FakeTimerScheduler implements LanTimerScheduler {
+  final List<_FakeScheduledTask> _tasks = [];
+  final List<Duration> delays = [];
+
+  @override
+  LanScheduledTask schedule(Duration delay, void Function() callback) {
+    delays.add(delay);
+    final _FakeScheduledTask task = _FakeScheduledTask(callback);
+    _tasks.add(task);
+    return task;
+  }
+
+  void fireNext() {
+    final _FakeScheduledTask task = _tasks.removeAt(0);
+    task.fire();
+  }
+}
+
+class _FakeScheduledTask implements LanScheduledTask {
+  final void Function() _callback;
+  bool _cancelled = false;
+
+  _FakeScheduledTask(this._callback);
+
+  @override
+  void cancel() => _cancelled = true;
+
+  void fire() {
+    if (!_cancelled) {
+      _callback();
     }
   }
 }

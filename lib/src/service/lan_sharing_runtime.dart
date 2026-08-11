@@ -25,6 +25,70 @@ import '../database/database.dart';
 
 LanSharingRuntime lanSharingRuntime = LanSharingRuntime();
 
+/// Tracks requests that are waiting for a response from an authenticated LAN
+/// session. The scheduler is injectable so timeout cleanup can be tested
+/// without waiting for wall-clock time.
+class LanPendingRequestRegistry<T> {
+  final LanTimerScheduler _timerScheduler;
+  final Duration _timeout;
+  final Map<String, Completer<T>> _pending = {};
+  final Map<String, LanScheduledTask> _timers = {};
+
+  LanPendingRequestRegistry({
+    required LanTimerScheduler timerScheduler,
+    required Duration timeout,
+  }) : _timerScheduler = timerScheduler,
+       _timeout = timeout;
+
+  int get length => _pending.length;
+
+  Future<T> register(
+    String id, {
+    required T timeoutValue,
+    void Function()? onTimeout,
+  }) {
+    if (_pending.containsKey(id)) {
+      throw StateError('Duplicate LAN request id: $id');
+    }
+    final Completer<T> completer = Completer<T>();
+    _pending[id] = completer;
+    _timers[id] = _timerScheduler.schedule(_timeout, () {
+      final Completer<T>? current = _pending.remove(id);
+      _timers.remove(id);
+      onTimeout?.call();
+      if (current != null && !current.isCompleted) {
+        current.complete(timeoutValue);
+      }
+    });
+    return completer.future;
+  }
+
+  bool complete(String id, T value) {
+    final Completer<T>? completer = _pending.remove(id);
+    if (completer == null) {
+      return false;
+    }
+    _timers.remove(id)?.cancel();
+    if (!completer.isCompleted) {
+      completer.complete(value);
+    }
+    return true;
+  }
+
+  void completeAll(T value) {
+    for (final LanScheduledTask timer in _timers.values) {
+      timer.cancel();
+    }
+    _timers.clear();
+    for (final Completer<T> completer in _pending.values) {
+      if (!completer.isCompleted) {
+        completer.complete(value);
+      }
+    }
+    _pending.clear();
+  }
+}
+
 class LanSharingRuntime
     with JHLifeCircleBeanErrorCatch
     implements JHLifeCircleBean, LanPeerPairer, LanPeerConnector {
@@ -36,6 +100,7 @@ class LanSharingRuntime
   final bool useServiceDiscovery;
   final InternetAddress bindAddress;
   final Random _secureRandom;
+  final LanTimerScheduler _timerScheduler;
   final String? _imageCacheDirectoryOverride;
   final bool _persistImagePageManifest;
   final Future<LanSharedImage?> Function(String imagePageHref)?
@@ -47,6 +112,7 @@ class LanSharingRuntime
 
   /// Test hook that replaces the host's downloaded-gallery catalog.
   final List<LanSharedGallerySummary> Function()? _galleryListOverride;
+  static const Duration pendingRequestTimeout = Duration(seconds: 3);
   final Map<String, GalleryImage> _imagePageManifest = {};
   Future<void> _manifestWrite = Future<void>.value();
 
@@ -61,6 +127,7 @@ class LanSharingRuntime
     this.useServiceDiscovery = true,
     InternetAddress? bindAddress,
     Random? secureRandom,
+    LanTimerScheduler? timerScheduler,
     Future<LanSharedImage?> Function(String imagePageHref)? imageCacheResolver,
     Future<LanSharedImage?> Function(String galleryUrl, int pageIndex)?
     downloadResolver,
@@ -69,6 +136,7 @@ class LanSharingRuntime
   }) : trustService = trustService ?? lanDeviceTrustService,
        bindAddress = bindAddress ?? InternetAddress.anyIPv4,
        _secureRandom = secureRandom ?? Random.secure(),
+       _timerScheduler = timerScheduler ?? const RealLanTimerScheduler(),
        _imageCacheDirectoryOverride = imageCacheDirectory,
        _persistImagePageManifest = trustService == null,
        _imageCacheResolverOverride = imageCacheResolver,
@@ -98,6 +166,7 @@ class LanSharingRuntime
     String imagePageHref, {
     String? galleryUrl,
     int? pageIndex,
+    String? sourceDeviceId,
   }) async {
     if (!_started || !trustService.isEnabled) {
       return null;
@@ -106,6 +175,7 @@ class LanSharingRuntime
       imagePageHref,
       galleryUrl: galleryUrl,
       pageIndex: pageIndex,
+      sourceDeviceId: sourceDeviceId,
     );
     if (shared == null || shared.bytes.isEmpty) {
       return null;
@@ -487,6 +557,7 @@ class LanSharingRuntime
         onBytesReceived: trustService.recordTrafficReceived,
         supportsImageCache: (response['capabilities'] as List? ?? const [])
             .contains('imageCacheV1'),
+        timerScheduler: _timerScheduler,
       );
     } on Object {
       await iterator.cancel();
@@ -681,18 +752,17 @@ class LanSharingRuntime
         // when the peer has the downloads permission.
         LanSharedImage? shared;
         if (allowCache) {
-          shared = await (_imageCacheResolverOverride?.call(href) ??
-              _resolveLocalImageCache(href));
+          shared =
+              await (_imageCacheResolverOverride?.call(href) ??
+                  _resolveLocalImageCache(href));
         }
         if ((shared == null || shared.bytes.isEmpty) &&
             allowDownloads &&
             galleryUrl.isNotEmpty &&
             pageIndex != null) {
-          shared = await (_downloadResolverOverride?.call(
-                galleryUrl,
-                pageIndex,
-              ) ??
-              _resolveLocalDownload(galleryUrl, pageIndex));
+          shared =
+              await (_downloadResolverOverride?.call(galleryUrl, pageIndex) ??
+                  _resolveLocalDownload(galleryUrl, pageIndex));
         }
         if (shared == null || shared.bytes.isEmpty) {
           socket.add(jsonEncode({'type': 'cache_image_miss', 'id': requestId}));
@@ -727,15 +797,18 @@ class LanSharingRuntime
     final TrustedLanDevice? device = trustService.deviceById(deviceId);
     if (device != null &&
         device.permissions.contains(LanSharePermission.downloads)) {
-      summaries.addAll(_galleryListOverride?.call() ?? _localGallerySummaries());
+      summaries.addAll(
+        _galleryListOverride?.call() ?? _localGallerySummaries(),
+      );
     }
     socket.add(
       jsonEncode({
         'type': 'list_galleries_result',
         'id': requestId,
-        'galleries': summaries
-            .map((LanSharedGallerySummary summary) => summary.toJson())
-            .toList(),
+        'galleries':
+            summaries
+                .map((LanSharedGallerySummary summary) => summary.toJson())
+                .toList(),
       }),
     );
   }
@@ -812,9 +885,7 @@ class LanSharingRuntime
         try {
           await target.parent.create(recursive: true);
           await target.writeAsBytes(bytes, flush: true);
-          log.debug(
-            'LAN server mode cached: ${_canonicalImagePageKey(href)}',
-          );
+          log.debug('LAN server mode cached: ${_canonicalImagePageKey(href)}');
           return LanSharedImage(image: image.toJson(), bytes: bytes);
         } on Object catch (error, stack) {
           log.warning('LAN server mode cache write failed: $error');
@@ -832,11 +903,11 @@ class LanSharingRuntime
     try {
       final ExtendedNetworkImageProvider provider =
           ExtendedNetworkImageProvider(
-        url,
-        cache: false,
-        retries: 1,
-        printError: false,
-      );
+            url,
+            cache: false,
+            retries: 1,
+            printError: false,
+          );
       return await provider.getNetworkImageData();
     } on Object catch (error, stack) {
       log.warning('LAN server mode image download failed: $error');
@@ -881,16 +952,18 @@ class LanSharingRuntime
     return LanSharedImage(
       // The peer must treat the image as a plain online image, not inherit the
       // host's on-disk path.
-      image: image
-          .copyWith(path: null, downloadStatus: DownloadStatus.none)
-          .toJson(),
+      image:
+          image
+              .copyWith(path: null, downloadStatus: DownloadStatus.none)
+              .toJson(),
       bytes: await file.readAsBytes(),
     );
   }
 
   GalleryDownloadedData? _findDownloadedGallery(String galleryUrl) {
     final String normalized = _normalizeGalleryUrl(galleryUrl);
-    for (final GalleryDownloadedData gallery in galleryDownloadService.gallerys) {
+    for (final GalleryDownloadedData gallery
+        in galleryDownloadService.gallerys) {
       if (_normalizeGalleryUrl(gallery.galleryUrl) == normalized ||
           (gallery.oldVersionGalleryUrl != null &&
               _normalizeGalleryUrl(gallery.oldVersionGalleryUrl!) ==
@@ -1117,9 +1190,9 @@ class _WebSocketLanPeerSession implements LanPeerSession {
   final bool _supportsImageCache;
   final void Function(int bytes) _onBytesReceived;
   final Completer<void> _closed = Completer<void>();
-  final Map<String, Completer<LanSharedImage?>> _pending = {};
-  final Map<String, Completer<List<LanSharedGallerySummary>>>
-      _pendingListGalleries = {};
+  final LanPendingRequestRegistry<LanSharedImage?> _pending;
+  final LanPendingRequestRegistry<List<LanSharedGallerySummary>>
+  _pendingListGalleries;
   int _nextRequestId = 0;
   String? _pendingBinaryRequestId;
   Map<String, dynamic>? _pendingBinaryImage;
@@ -1129,8 +1202,18 @@ class _WebSocketLanPeerSession implements LanPeerSession {
     this._iterator, {
     required void Function(int bytes) onBytesReceived,
     required bool supportsImageCache,
+    required LanTimerScheduler timerScheduler,
   }) : _supportsImageCache = supportsImageCache,
-       _onBytesReceived = onBytesReceived {
+       _onBytesReceived = onBytesReceived,
+       _pending = LanPendingRequestRegistry<LanSharedImage?>(
+         timerScheduler: timerScheduler,
+         timeout: LanSharingRuntime.pendingRequestTimeout,
+       ),
+       _pendingListGalleries =
+           LanPendingRequestRegistry<List<LanSharedGallerySummary>>(
+             timerScheduler: timerScheduler,
+             timeout: LanSharingRuntime.pendingRequestTimeout,
+           ) {
     unawaited(_drain());
   }
 
@@ -1147,10 +1230,13 @@ class _WebSocketLanPeerSession implements LanPeerSession {
           _pendingBinaryRequestId = null;
           _pendingBinaryImage = null;
           if (id != null && image != null) {
-            _onBytesReceived(message.length);
-            _pending
-                .remove(id)
-                ?.complete(LanSharedImage(image: image, bytes: message));
+            final bool completed = _pending.complete(
+              id,
+              LanSharedImage(image: image, bytes: message),
+            );
+            if (completed) {
+              _onBytesReceived(message.length);
+            }
           }
           continue;
         }
@@ -1163,7 +1249,7 @@ class _WebSocketLanPeerSession implements LanPeerSession {
         }
         final String id = decoded['id'] as String? ?? '';
         if (decoded['type'] == 'cache_image_miss') {
-          _pending.remove(id)?.complete(null);
+          _pending.complete(id, null);
         } else if (decoded['type'] == 'cache_image_hit' &&
             decoded['image'] is Map) {
           _pendingBinaryRequestId = id;
@@ -1172,7 +1258,8 @@ class _WebSocketLanPeerSession implements LanPeerSession {
           );
         } else if (decoded['type'] == 'list_galleries_result' &&
             decoded['galleries'] is List) {
-          _pendingListGalleries.remove(id)?.complete(
+          _pendingListGalleries.complete(
+            id,
             (decoded['galleries'] as List)
                 .whereType<Map>()
                 .map(
@@ -1186,19 +1273,8 @@ class _WebSocketLanPeerSession implements LanPeerSession {
       }
     } finally {
       await _iterator.cancel();
-      for (final Completer<LanSharedImage?> pending in _pending.values) {
-        if (!pending.isCompleted) {
-          pending.complete(null);
-        }
-      }
-      _pending.clear();
-      for (final Completer<List<LanSharedGallerySummary>> pending
-          in _pendingListGalleries.values) {
-        if (!pending.isCompleted) {
-          pending.complete(const <LanSharedGallerySummary>[]);
-        }
-      }
-      _pendingListGalleries.clear();
+      _pending.completeAll(null);
+      _pendingListGalleries.completeAll(const <LanSharedGallerySummary>[]);
       if (!_closed.isCompleted) {
         _closed.complete();
       }
@@ -1215,8 +1291,16 @@ class _WebSocketLanPeerSession implements LanPeerSession {
       return Future<LanSharedImage?>.value();
     }
     final String id = '${++_nextRequestId}';
-    final Completer<LanSharedImage?> completer = Completer<LanSharedImage?>();
-    _pending[id] = completer;
+    final Future<LanSharedImage?> future = _pending.register(
+      id,
+      timeoutValue: null,
+      onTimeout: () {
+        if (_pendingBinaryRequestId == id) {
+          _pendingBinaryRequestId = null;
+          _pendingBinaryImage = null;
+        }
+      },
+    );
     _socket.add(
       jsonEncode({
         'type': 'cache_image',
@@ -1226,17 +1310,16 @@ class _WebSocketLanPeerSession implements LanPeerSession {
         if (pageIndex != null) 'pageIndex': pageIndex,
       }),
     );
-    return completer.future;
+    return future;
   }
 
   @override
   Future<List<LanSharedGallerySummary>> listDownloadedGalleries() {
     final String id = 'g${++_nextRequestId}';
-    final Completer<List<LanSharedGallerySummary>> completer =
-        Completer<List<LanSharedGallerySummary>>();
-    _pendingListGalleries[id] = completer;
+    final Future<List<LanSharedGallerySummary>> future = _pendingListGalleries
+        .register(id, timeoutValue: const <LanSharedGallerySummary>[]);
     _socket.add(jsonEncode({'type': 'list_galleries', 'id': id}));
-    return completer.future;
+    return future;
   }
 
   @override

@@ -17,6 +17,47 @@ void main() {
   tearDown(() => advancedSetting.enableLanSharing.value = false);
 
   test(
+    'pending LAN requests are completed and removed by a fake timeout',
+    () async {
+      final _FakeTimerScheduler scheduler = _FakeTimerScheduler();
+      final LanPendingRequestRegistry<String> registry =
+          LanPendingRequestRegistry<String>(
+            timerScheduler: scheduler,
+            timeout: const Duration(minutes: 10),
+          );
+
+      final Future<String> pending = registry.register(
+        'request-1',
+        timeoutValue: 'timed out',
+      );
+      expect(registry.length, 1);
+      expect(scheduler.delays, [const Duration(minutes: 10)]);
+
+      scheduler.fireNext();
+      expect(await pending, 'timed out');
+      expect(registry.length, 0);
+    },
+  );
+
+  test('completing a LAN request cancels its timeout task', () async {
+    final _FakeTimerScheduler scheduler = _FakeTimerScheduler();
+    final LanPendingRequestRegistry<String> registry =
+        LanPendingRequestRegistry<String>(
+          timerScheduler: scheduler,
+          timeout: const Duration(seconds: 3),
+        );
+
+    final Future<String> pending = registry.register(
+      'request-2',
+      timeoutValue: 'timed out',
+    );
+    expect(registry.complete('request-2', 'response'), isTrue);
+    scheduler.fireNext();
+    expect(await pending, 'response');
+    expect(registry.length, 0);
+  });
+
+  test(
     'two LAN runtimes pair by approval and establish a trusted session',
     () async {
       final Directory phoneCache = await Directory.systemTemp.createTemp(
@@ -237,88 +278,94 @@ void main() {
     },
   );
 
-  test('peer lists the host\'s downloaded galleries with the downloads permission', () async {
-    final Directory phoneCache = await Directory.systemTemp.createTemp(
-      'jh-lan-list-cache-',
-    );
-    final LanDeviceTrustService deviceA = LanDeviceTrustService(
-      repository: _MemoryTrustRepository(),
-      secureRandom: Random(151),
-      registerWithGet: false,
-    );
-    final LanDeviceTrustService deviceB = LanDeviceTrustService(
-      repository: _MemoryTrustRepository(),
-      secureRandom: Random(252),
-      registerWithGet: false,
-    );
-    await deviceA.doInitBean();
-    await deviceB.doInitBean();
+  test(
+    'peer lists the host\'s downloaded galleries with the downloads permission',
+    () async {
+      final Directory phoneCache = await Directory.systemTemp.createTemp(
+        'jh-lan-list-cache-',
+      );
+      final LanDeviceTrustService deviceA = LanDeviceTrustService(
+        repository: _MemoryTrustRepository(),
+        secureRandom: Random(151),
+        registerWithGet: false,
+      );
+      final LanDeviceTrustService deviceB = LanDeviceTrustService(
+        repository: _MemoryTrustRepository(),
+        secureRandom: Random(252),
+        registerWithGet: false,
+      );
+      await deviceA.doInitBean();
+      await deviceB.doInitBean();
 
-    final LanSharedGallerySummary summary = LanSharedGallerySummary(
-      deviceId: deviceB.localDeviceId,
-      deviceName: deviceB.localDisplayName,
-      gid: 123456,
-      token: 'abcdefghijklmnop',
-      title: 'Test Gallery',
-      galleryUrl: 'https://e-hentai.org/g/123456/abcdefgh/',
-      pageCount: 12,
-      category: 'Manga',
-      publishTime: '2026-01-01 00:00',
-    );
-    final LanSharingRuntime runtimeA = LanSharingRuntime(
-      trustService: deviceA,
-      useServiceDiscovery: false,
-      bindAddress: InternetAddress.loopbackIPv4,
-      secureRandom: Random(303),
-      imageCacheDirectory: phoneCache.path,
-    );
-    final LanSharingRuntime runtimeB = LanSharingRuntime(
-      trustService: deviceB,
-      useServiceDiscovery: false,
-      bindAddress: InternetAddress.loopbackIPv4,
-      secureRandom: Random(404),
-      imageCacheDirectory: phoneCache.path,
-      galleryListOverride: () => <LanSharedGallerySummary>[summary],
-    );
-    await runtimeA.doInitBean();
-    await runtimeB.doInitBean();
+      final LanSharedGallerySummary summary = LanSharedGallerySummary(
+        deviceId: deviceB.localDeviceId,
+        deviceName: deviceB.localDisplayName,
+        gid: 123456,
+        token: 'abcdefghijklmnop',
+        title: 'Test Gallery',
+        galleryUrl: 'https://e-hentai.org/g/123456/abcdefgh/',
+        pageCount: 12,
+        category: 'Manga',
+        publishTime: '2026-01-01 00:00',
+        coverUrl: 'https://example.test/cover.jpg',
+      );
+      final LanSharingRuntime runtimeA = LanSharingRuntime(
+        trustService: deviceA,
+        useServiceDiscovery: false,
+        bindAddress: InternetAddress.loopbackIPv4,
+        secureRandom: Random(303),
+        imageCacheDirectory: phoneCache.path,
+      );
+      final LanSharingRuntime runtimeB = LanSharingRuntime(
+        trustService: deviceB,
+        useServiceDiscovery: false,
+        bindAddress: InternetAddress.loopbackIPv4,
+        secureRandom: Random(404),
+        imageCacheDirectory: phoneCache.path,
+        galleryListOverride: () => <LanSharedGallerySummary>[summary],
+      );
+      await runtimeA.doInitBean();
+      await runtimeB.doInitBean();
 
-    final LanDiscoveredPeer peerB = _peerFor(deviceB, runtimeB.serverPort!);
-    await deviceA.handlePeerDiscovered(peerB);
-    final Future<LanPairingAcceptance> pairing = deviceA
-        .trustDiscoveredDevice(
-          deviceId: deviceB.localDeviceId,
-          permissions: const {LanSharePermission.imageCache},
-        );
-    await _waitUntil(() => deviceB.incomingPairingRequests.isNotEmpty);
-    // Host B grants A the downloads permission so the catalog opens.
-    await deviceB.acceptIncomingPairing(
-      deviceId: deviceA.localDeviceId,
-      permissions: const {
-        LanSharePermission.downloads,
-        LanSharePermission.imageCache,
-      },
-    );
-    await pairing;
-    expect(
-      deviceA.connectionFor(deviceB.localDeviceId).state,
-      LanPeerConnectionState.connected,
-    );
+      final LanDiscoveredPeer peerB = _peerFor(deviceB, runtimeB.serverPort!);
+      await deviceA.handlePeerDiscovered(peerB);
+      final Future<LanPairingAcceptance> pairing = deviceA
+          .trustDiscoveredDevice(
+            deviceId: deviceB.localDeviceId,
+            permissions: const {LanSharePermission.imageCache},
+          );
+      await _waitUntil(() => deviceB.incomingPairingRequests.isNotEmpty);
+      // Host B grants A the downloads permission so the catalog opens.
+      await deviceB.acceptIncomingPairing(
+        deviceId: deviceA.localDeviceId,
+        permissions: const {
+          LanSharePermission.downloads,
+          LanSharePermission.imageCache,
+        },
+      );
+      await pairing;
+      expect(
+        deviceA.connectionFor(deviceB.localDeviceId).state,
+        LanPeerConnectionState.connected,
+      );
 
-    final List<LanSharedGallerySummary> galleries =
-        await deviceA.listDownloadedGalleries();
-    expect(galleries, hasLength(1));
-    expect(galleries.single.gid, summary.gid);
-    expect(galleries.single.token, summary.token);
-    expect(galleries.single.title, 'Test Gallery');
-    expect(galleries.single.galleryUrl, summary.galleryUrl);
+      final List<LanSharedGallerySummary> galleries =
+          await deviceA.listDownloadedGalleries();
+      expect(galleries, hasLength(1));
+      expect(galleries.single.gid, summary.gid);
+      expect(galleries.single.token, summary.token);
+      expect(galleries.single.title, 'Test Gallery');
+      expect(galleries.single.galleryUrl, summary.galleryUrl);
+      expect(galleries.single.deviceId, deviceB.localDeviceId);
+      expect(galleries.single.coverUrl, summary.coverUrl);
 
-    await runtimeA.stop();
-    await runtimeB.stop();
-    deviceA.onClose();
-    deviceB.onClose();
-    await phoneCache.delete(recursive: true);
-  });
+      await runtimeA.stop();
+      await runtimeB.stop();
+      deviceA.onClose();
+      deviceB.onClose();
+      await phoneCache.delete(recursive: true);
+    },
+  );
 }
 
 LanDiscoveredPeer _peerFor(LanDeviceTrustService service, int port) =>
@@ -337,7 +384,41 @@ Future<void> _waitUntil(bool Function() predicate) async {
     if (DateTime.now().isAfter(deadline)) {
       throw TimeoutException('Condition was not met');
     }
-    await Future<void>.delayed(const Duration(milliseconds: 10));
+    await Future<void>.delayed(Duration.zero);
+  }
+}
+
+class _FakeTimerScheduler implements LanTimerScheduler {
+  final List<_FakeScheduledTask> _tasks = [];
+  final List<Duration> delays = [];
+
+  @override
+  LanScheduledTask schedule(Duration delay, void Function() callback) {
+    delays.add(delay);
+    final _FakeScheduledTask task = _FakeScheduledTask(callback);
+    _tasks.add(task);
+    return task;
+  }
+
+  void fireNext() {
+    final _FakeScheduledTask task = _tasks.removeAt(0);
+    task.fire();
+  }
+}
+
+class _FakeScheduledTask implements LanScheduledTask {
+  final void Function() _callback;
+  bool _cancelled = false;
+
+  _FakeScheduledTask(this._callback);
+
+  @override
+  void cancel() => _cancelled = true;
+
+  void fire() {
+    if (!_cancelled) {
+      _callback();
+    }
   }
 }
 
@@ -362,7 +443,6 @@ class _MemoryTrustRepository implements LanTrustRepository {
   Future<void> saveLocalDeviceName(String name) async {
     localDeviceName = name;
   }
-
 
   @override
   Future<void> init() async {}
