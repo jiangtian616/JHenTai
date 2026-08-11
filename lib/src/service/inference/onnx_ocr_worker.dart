@@ -12,6 +12,77 @@ import 'package:jhentai/src/service/inference/onnx_model_store.dart';
 import 'package:jhentai/src/service/inference/onnx_ocr_engine.dart';
 import 'package:jhentai/src/service/inference/onnx_runtime.dart';
 
+typedef OnnxOcrProviderAttempt<T> =
+    Future<T> Function({
+      required List<ort.OrtProvider> providers,
+      required InferenceSessionSafetyConfig safetyConfig,
+    });
+
+/// Runs one accelerated OCR attempt and, when that attempt fails in a
+/// catchable way, retries the same public task exactly once on CPU.
+///
+/// A native process kill is intentionally outside this boundary; the persisted
+/// `running` canary handles that case on the next launch. Keeping the fallback
+/// here still prevents ordinary provider/session failures from discarding the
+/// current page. The caller remains responsible for publishing the single
+/// returned result.
+Future<T> runOnnxOcrWithCpuFallback<T>({
+  required List<ort.OrtProvider> primaryProviders,
+  required InferenceSessionSafetyConfig primarySafetyConfig,
+  required InferenceCancellationToken cancellationToken,
+  required OnnxOcrProviderAttempt<T> attempt,
+  required Future<void> Function() resetAcceleratedSessions,
+  InferenceCanaryLifecycle? onAcceleratorStarted,
+  InferenceCanaryLifecycle? onAcceleratorSucceeded,
+  InferenceCanaryFailureLifecycle? onAcceleratorFailed,
+  required String modelHash,
+}) async {
+  final bool accelerated =
+      primaryProviders.isNotEmpty &&
+      primaryProviders.first != ort.OrtProvider.CPU;
+  if (!accelerated) {
+    return attempt(
+      providers: primaryProviders,
+      safetyConfig: primarySafetyConfig,
+    );
+  }
+
+  await onAcceleratorStarted?.call(modelHash, primaryProviders);
+  try {
+    final T result = await attempt(
+      providers: primaryProviders,
+      safetyConfig: primarySafetyConfig,
+    );
+    await onAcceleratorSucceeded?.call(modelHash, primaryProviders);
+    return result;
+  } catch (error, stackTrace) {
+    if (error is InferenceCancelledException) {
+      Error.throwWithStackTrace(error, stackTrace);
+    }
+
+    await onAcceleratorFailed?.call(modelHash, primaryProviders, error);
+    if (!primaryProviders.contains(ort.OrtProvider.CPU)) {
+      Error.throwWithStackTrace(error, stackTrace);
+    }
+
+    cancellationToken.throwIfCancelled();
+    await resetAcceleratedSessions();
+    cancellationToken.throwIfCancelled();
+
+    final InferenceSessionSafetyConfig cpuSafetyConfig =
+        InferenceProviderPolicy.sessionConfig(
+          backend: 'cpu',
+          maxInputPixels: primarySafetyConfig.maxInputPixels,
+          memoryBudgetBytes: primarySafetyConfig.memoryBudgetBytes,
+          inputShape: primarySafetyConfig.inputShape,
+        );
+    return attempt(
+      providers: const <ort.OrtProvider>[ort.OrtProvider.CPU],
+      safetyConfig: cpuSafetyConfig,
+    );
+  }
+}
+
 /// Runs the entire ONNX OCR pipeline on a dedicated background isolate.
 ///
 /// The pipeline (image decode, resize, normalization, connected-component
@@ -325,42 +396,45 @@ class OnnxOcrIsolateEngine implements OcrInferenceEngine {
           maxInputPixels: 4 * 1024 * 1024,
           memoryBudgetBytes: 128 * 1024 * 1024,
         );
-    final bool accelerated =
-        providers.isNotEmpty && providers.first != ort.OrtProvider.CPU;
-    if (accelerated) {
-      await onCanaryStarted?.call(fingerprint, providers);
-    }
+    OnnxOcrWorker? worker;
+    final OnnxOcrModelInfo model = OnnxOcrModelInfo(
+      detPath: files['det']!,
+      clsPath: files['cls']!,
+      recPath: files['rec']!,
+      dictPath: files['dict']!,
+      fingerprint: fingerprint,
+    );
     try {
-      final OnnxOcrWorker worker = await _ensureWorker();
-      final OcrInferenceResult result = await worker.recognize(
-        model: OnnxOcrModelInfo(
-          detPath: files['det']!,
-          clsPath: files['cls']!,
-          recPath: files['rec']!,
-          dictPath: files['dict']!,
-          fingerprint: fingerprint,
-        ),
-        providers: providers,
-        imagePath: imagePath,
-        maxDimension: maxDimension,
+      final OcrInferenceResult result = await runOnnxOcrWithCpuFallback(
+        primaryProviders: providers,
+        primarySafetyConfig: safetyConfig,
         cancellationToken: token,
-        onProgress: onProgress,
-        safetyConfig: safetyConfig,
+        modelHash: fingerprint,
+        onAcceleratorStarted: onCanaryStarted,
+        onAcceleratorSucceeded: onCanarySucceeded,
+        onAcceleratorFailed: onCanaryFailed,
+        resetAcceleratedSessions: () async {
+          await worker?.closeSessions();
+        },
+        attempt: ({
+          required List<ort.OrtProvider> providers,
+          required InferenceSessionSafetyConfig safetyConfig,
+        }) async {
+          worker ??= await _ensureWorker();
+          return worker!.recognize(
+            model: model,
+            providers: providers,
+            imagePath: imagePath,
+            maxDimension: maxDimension,
+            cancellationToken: token,
+            onProgress: onProgress,
+            safetyConfig: safetyConfig,
+          );
+        },
       );
-      if (accelerated) {
-        await onCanarySucceeded?.call(fingerprint, providers);
-      }
       onSessionStateChanged?.call(verified: true);
       return result;
-    } on InferenceNotReadyException catch (e) {
-      // The worker failed to build a native session (e.g. provider rejected
-      // the model). Surface it so the settings page flips to "failed".
-      onSessionStateChanged?.call(verified: false, error: e.toString());
-      rethrow;
     } catch (e) {
-      if (accelerated && e is! InferenceCancelledException) {
-        await onCanaryFailed?.call(fingerprint, providers, e);
-      }
       onSessionStateChanged?.call(verified: false, error: e.toString());
       rethrow;
     }
