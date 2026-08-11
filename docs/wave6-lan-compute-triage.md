@@ -181,7 +181,7 @@ git status --short --branch
 
 实际结果
 
-- `flutter test ...`：通过，`33` 项，终端输出 `All tests passed!`。测试覆盖 v2 capability/AEAD/replay、两端 loopback host session、权限/重连/撤销、统一状态 guard/merge，以及 engine task cancellation/cache/ONNX manifest。
+- `flutter test ...`：通过，`32` 项，终端输出 `All tests passed!`。测试覆盖 v2 capability/AEAD/replay、两端 loopback host session、权限/重连/撤销、统一状态 guard/merge，以及 engine task cancellation/cache/ONNX manifest。
 - 测试输出包含两条预期的 `Auto-connect trusted LAN device failed` warning，来自故障重连测试；没有 test failure。
 - `git diff --check`：通过。
 - `git diff --cached --check`：暂存提交前通过。
