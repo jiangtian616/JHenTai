@@ -8,7 +8,9 @@ import '../service/jh_service.dart';
 
 UserSetting userSetting = UserSetting();
 
-class UserSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
+class UserSetting
+    with JHLifeCircleBeanWithConfigStorage
+    implements JHLifeCircleBean {
   RxnString userName = RxnString();
   RxnInt ipbMemberId = RxnInt();
   RxnString ipbPassHash = RxnString();
@@ -61,7 +63,11 @@ class UserSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     String? avatarImgUrl,
     String? nickName,
   }) async {
-    log.debug('saveUserInfo: $userName, $ipbMemberId, $ipbPassHash, $avatarImgUrl, $nickName');
+    // Never put the credential-bearing pass hash in logs. LAN login-state
+    // import calls this method after an encrypted, revalidated transfer.
+    log.debug(
+      'saveUserInfo: $userName, $ipbMemberId, $avatarImgUrl, $nickName',
+    );
     this.userName.value = userName;
     this.ipbPassHash.value = ipbPassHash;
     this.ipbMemberId.value = ipbMemberId;

@@ -9,6 +9,8 @@ enum LanSharePermission {
   imageCache,
   translationResults,
   translationCompute,
+  loginState,
+  applicationHistory,
 }
 
 enum LanPeerConnectionState {
@@ -77,8 +79,8 @@ class TrustedLanDevice {
     'displayName': displayName,
     'identityPublicKey': identityPublicKey,
     'identityFingerprint': identityFingerprint,
-    'permissions':
-        permissions.map((permission) => permission.name).toList()..sort(),
+    'permissions': permissions.map((permission) => permission.name).toList()
+      ..sort(),
     'autoConnect': autoConnect,
     'pairedAt': pairedAt.toUtc().toIso8601String(),
     'lastSeenAt': lastSeenAt.toUtc().toIso8601String(),
@@ -90,8 +92,8 @@ class TrustedLanDevice {
   factory TrustedLanDevice.fromJson(Map<String, dynamic> json) {
     final String deviceId = json['deviceId'] as String? ?? '';
     final String publicKey = json['identityPublicKey'] as String? ?? '';
-    final String fingerprint =
-        (json['identityFingerprint'] as String? ?? '').toLowerCase();
+    final String fingerprint = (json['identityFingerprint'] as String? ?? '')
+        .toLowerCase();
     if (!deviceIdPattern.hasMatch(deviceId)) {
       throw const FormatException('Invalid LAN device id');
     }
@@ -105,10 +107,9 @@ class TrustedLanDevice {
         (json['permissions'] as List? ?? const [])
             .whereType<String>()
             .map(
-              (name) =>
-                  LanSharePermission.values
-                      .where((permission) => permission.name == name)
-                      .firstOrNull,
+              (name) => LanSharePermission.values
+                  .where((permission) => permission.name == name)
+                  .firstOrNull,
             )
             .whereType<LanSharePermission>()
             .toSet();
@@ -122,18 +123,16 @@ class TrustedLanDevice {
       autoConnect: json['autoConnect'] as bool? ?? true,
       pairedAt: DateTime.parse(json['pairedAt'] as String).toUtc(),
       lastSeenAt: DateTime.parse(json['lastSeenAt'] as String).toUtc(),
-      lastConnectedAt:
-          json['lastConnectedAt'] == null
-              ? null
-              : DateTime.parse(json['lastConnectedAt'] as String).toUtc(),
+      lastConnectedAt: json['lastConnectedAt'] == null
+          ? null
+          : DateTime.parse(json['lastConnectedAt'] as String).toUtc(),
       protocolVersion: json['protocolVersion'] as int? ?? 1,
     );
   }
 
-  static String fingerprintForPublicKey(String publicKey) =>
-      sha256
-          .convert(base64Url.decode(base64Url.normalize(publicKey)))
-          .toString();
+  static String fingerprintForPublicKey(String publicKey) => sha256
+      .convert(base64Url.decode(base64Url.normalize(publicKey)))
+      .toString();
 
   static bool _isValidPublicKey(String publicKey) {
     try {
@@ -372,15 +371,14 @@ class LanSharedGalleryPage {
         revision: json['revision'] as String? ?? '',
         nextCursor: json['nextCursor'] as String?,
         incremental: json['incremental'] as bool? ?? false,
-        galleries:
-            (json['galleries'] as List? ?? const [])
-                .whereType<Map>()
-                .map(
-                  (gallery) => LanSharedGallerySummary.fromJson(
-                    Map<String, dynamic>.from(gallery),
-                  ),
-                )
-                .toList(),
+        galleries: (json['galleries'] as List? ?? const [])
+            .whereType<Map>()
+            .map(
+              (gallery) => LanSharedGallerySummary.fromJson(
+                Map<String, dynamic>.from(gallery),
+              ),
+            )
+            .toList(),
       );
 }
 
