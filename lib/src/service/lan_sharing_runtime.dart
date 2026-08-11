@@ -20,12 +20,15 @@ import '../utils/eh_spider_parser.dart';
 import '../utils/image_cache_util.dart';
 import 'gallery_download_service.dart';
 import 'jh_service.dart';
+import 'lan_compute_protocol.dart';
+import 'lan_compute_runtime.dart';
 import 'lan_device_trust_service.dart';
 import 'lan_protocol_v2.dart';
 import 'lan_unified_state_service.dart';
 import 'log.dart';
 import 'path_service.dart';
 import '../database/database.dart';
+import 'engine/engine_contract.dart';
 
 LanSharingRuntime lanSharingRuntime = LanSharingRuntime();
 
@@ -93,6 +96,25 @@ class LanPendingRequestRegistry<T> {
   }
 }
 
+class _LanComputeScheduledTaskAdapter implements LanComputeScheduledTask {
+  final LanScheduledTask _delegate;
+
+  const _LanComputeScheduledTaskAdapter(this._delegate);
+
+  @override
+  void cancel() => _delegate.cancel();
+}
+
+class _LanComputeTimerSchedulerAdapter implements LanComputeTimerScheduler {
+  final LanTimerScheduler _delegate;
+
+  const _LanComputeTimerSchedulerAdapter(this._delegate);
+
+  @override
+  LanComputeScheduledTask schedule(Duration delay, void Function() callback) =>
+      _LanComputeScheduledTaskAdapter(_delegate.schedule(delay, callback));
+}
+
 class LanSharingRuntime
     with JHLifeCircleBeanErrorCatch
     implements JHLifeCircleBean, LanPeerPairer, LanPeerConnector {
@@ -105,6 +127,8 @@ class LanSharingRuntime
   final InternetAddress bindAddress;
   final Random _secureRandom;
   final LanTimerScheduler _timerScheduler;
+  final List<LanComputeExecutor> _computeExecutors;
+  final String _computeExecutorId;
   final String? _imageCacheDirectoryOverride;
   final bool _persistImagePageManifest;
   final Future<LanSharedImage?> Function(String imagePageHref)?
@@ -134,6 +158,9 @@ class LanSharingRuntime
     InternetAddress? bindAddress,
     Random? secureRandom,
     LanTimerScheduler? timerScheduler,
+    Iterable<LanComputeExecutor> computeExecutors =
+        const <LanComputeExecutor>[],
+    String computeExecutorId = 'lan-compute-runtime',
     Future<LanSharedImage?> Function(String imagePageHref)? imageCacheResolver,
     Future<LanSharedImage?> Function(String galleryUrl, int pageIndex)?
     downloadResolver,
@@ -143,6 +170,10 @@ class LanSharingRuntime
        bindAddress = bindAddress ?? InternetAddress.anyIPv4,
        _secureRandom = secureRandom ?? Random.secure(),
        _timerScheduler = timerScheduler ?? const RealLanTimerScheduler(),
+       _computeExecutors = List<LanComputeExecutor>.unmodifiable(
+         computeExecutors,
+       ),
+       _computeExecutorId = computeExecutorId,
        _imageCacheDirectoryOverride = imageCacheDirectory,
        _persistImagePageManifest = trustService == null,
        _imageCacheResolverOverride = imageCacheResolver,
@@ -318,7 +349,7 @@ class LanSharingRuntime
           'name': trustService.localDisplayName,
           'pk': trustService.localIdentityPublicKey,
           'fp': trustService.localIdentityFingerprint,
-          'caps': LanProtocolV2.capabilities.join(','),
+          'caps': LanComputeRuntime.sessionCapabilities.join(','),
         },
       );
       final BonsoirBroadcast broadcast = BonsoirBroadcast(
@@ -349,6 +380,15 @@ class LanSharingRuntime
   bool get _canHostServer =>
       (Platform.isWindows || Platform.isMacOS || Platform.isLinux) &&
       advancedSetting.lanActAsServer.value;
+
+  LanComputePlatform get _computePlatform => switch (Platform.operatingSystem) {
+    'ios' => LanComputePlatform.ios,
+    'android' => LanComputePlatform.android,
+    'macos' => LanComputePlatform.macos,
+    'windows' => LanComputePlatform.windows,
+    'linux' => LanComputePlatform.linux,
+    _ => LanComputePlatform.unknown,
+  };
 
   Future<void> _handleDiscoveryEventSafely(
     BonsoirDiscovery discovery,
@@ -559,7 +599,7 @@ class LanSharingRuntime
           clientEphemeralPublic.bytes,
         ),
         'nonce': LanProtocolV2.encodeBytes(clientNonce),
-        'capabilities': LanProtocolV2.capabilities,
+        'capabilities': LanComputeRuntime.sessionCapabilities,
       };
       final List<int> clientSignature = await trustService.signChallenge(
         utf8.encode(LanProtocolV2.canonicalJson(clientHello)),
@@ -677,7 +717,7 @@ class LanSharingRuntime
         'identityFingerprint': trustService.localIdentityFingerprint,
         'ephemeralPublicKey': _encodeBytes(ephemeralPublic.bytes),
         'nonce': _randomBase64Url(32),
-        'capabilities': LanProtocolV2.capabilities,
+        'capabilities': LanComputeRuntime.sessionCapabilities,
       };
       final List<int> clientSignature = await trustService.signChallenge(
         utf8.encode(LanProtocolV2.canonicalJson(clientHello)),
@@ -921,6 +961,7 @@ class LanSharingRuntime
       return;
     }
     final SimpleKeyPair ephemeral = await X25519().newKeyPair();
+    LanComputeHostRuntime? computeRuntime;
     try {
       final SimplePublicKey ephemeralPublic =
           await ephemeral.extractPublicKey();
@@ -939,7 +980,7 @@ class LanSharingRuntime
         'capabilities': LanProtocolV2.negotiateCapabilities(
           (clientHello['capabilities'] as List? ?? const [])
               .whereType<String>(),
-          LanProtocolV2.capabilities,
+          LanComputeRuntime.sessionCapabilities,
         ),
       };
       final List<int> serverSignature = await trustService.signChallenge(
@@ -989,10 +1030,53 @@ class LanSharingRuntime
         'type': 'auth_ack',
         'capabilities': serverHello['capabilities'],
       });
+      if ((serverHello['capabilities'] as List? ?? const [])
+          .whereType<String>()
+          .contains(LanComputeRuntime.sessionCapability)) {
+        computeRuntime = LanComputeHostRuntime(
+          executorIdentity: LanComputeExecutorIdentity(
+            deviceId: trustService.localDeviceId,
+            executorId: _computeExecutorId,
+            platform: _computePlatform,
+          ),
+          remoteDeviceId: deviceId,
+          isAuthorized: (LanComputeCapability capability) {
+            final TrustedLanDevice? current = trustService.deviceById(deviceId);
+            final LanSharePermission permission = switch (capability) {
+              LanComputeCapability.ocr => LanSharePermission.ocrCompute,
+              LanComputeCapability.translation =>
+                LanSharePermission.translationCompute,
+            };
+            return current?.permissions.contains(permission) ?? false;
+          },
+          executors: _computeExecutors,
+          timerScheduler: _LanComputeTimerSchedulerAdapter(_timerScheduler),
+        );
+        await computeRuntime.advertise(
+          (LanComputeMessage message) =>
+              channel.send(LanComputeRuntime.envelope(message)),
+        );
+      }
       while (true) {
         final Map<String, dynamic>? message = await channel.receive();
         if (message == null) {
           break;
+        }
+        if (message['type'] == LanComputeRuntime.envelopeType) {
+          if (computeRuntime == null) {
+            await channel.send(
+              LanComputeRuntime.envelope(
+                LanComputeRuntime.unsupportedFor(message),
+              ),
+            );
+          } else {
+            await computeRuntime.handleEnvelope(
+              message,
+              (LanComputeMessage response) =>
+                  channel.send(LanComputeRuntime.envelope(response)),
+            );
+          }
+          continue;
         }
         if (message['type'] != 'request') {
           continue;
@@ -1020,6 +1104,7 @@ class LanSharingRuntime
       }
       secureSession.close();
     } finally {
+      await computeRuntime?.close();
       ephemeral.destroy();
     }
   }
@@ -1757,7 +1842,8 @@ class _WebSocketLanPeerSession
     implements
         LanPeerSession,
         LanGalleryManifestSession,
-        LanUnifiedStateSession {
+        LanUnifiedStateSession,
+        LanComputeSession {
   final WebSocket _socket;
   final StreamIterator<dynamic> _iterator;
   final bool _supportsImageCache;
@@ -1771,6 +1857,7 @@ class _WebSocketLanPeerSession
   final LanPendingRequestRegistry<LanGalleryManifest?> _pendingManifests;
   final LanPendingRequestRegistry<LanUnifiedStatePayload?> _pendingUnifiedState;
   final LanSecureSession? _secureSession;
+  late final LanComputeClientRuntime _computeRuntime;
   int _nextRequestId = 0;
   String? _pendingBinaryRequestId;
   Map<String, dynamic>? _pendingBinaryImage;
@@ -1811,6 +1898,15 @@ class _WebSocketLanPeerSession
              timerScheduler: timerScheduler,
              timeout: LanSharingRuntime.pendingRequestTimeout,
            ) {
+    _computeRuntime = LanComputeClientRuntime(
+      peerSupportsCompute: _capabilities.contains(
+        LanComputeRuntime.sessionCapability,
+      ),
+      send:
+          (LanComputeMessage message) =>
+              _sendSecure(LanComputeRuntime.envelope(message)),
+      timerScheduler: _LanComputeTimerSchedulerAdapter(timerScheduler),
+    );
     unawaited(_drain());
   }
 
@@ -1894,6 +1990,7 @@ class _WebSocketLanPeerSession
       );
       _pendingManifests.completeAll(null);
       _pendingUnifiedState.completeAll(null);
+      await _computeRuntime.close();
       _secureSession?.close();
       if (!_closed.isCompleted) {
         _closed.complete();
@@ -2070,6 +2167,10 @@ class _WebSocketLanPeerSession
   }
 
   Future<void> _handleSecureMessage(Map<String, dynamic> message) async {
+    if (message['type'] == LanComputeRuntime.envelopeType) {
+      await _computeRuntime.handleEnvelope(message);
+      return;
+    }
     final String type = message['type'] as String? ?? '';
     final String id = message['id'] as String? ?? '';
     if (type == 'image_miss') {
@@ -2145,6 +2246,32 @@ class _WebSocketLanPeerSession
       await closed;
     }
   }
+
+  @override
+  LanComputeCapabilityDescriptor? computeDescriptor(
+    LanComputeCapability capability,
+  ) => _computeRuntime.computeDescriptor(capability);
+
+  @override
+  EngineTask<LanComputeDataRef> requestCompute({
+    required String taskId,
+    required LanComputeCapability capability,
+    required String modelHash,
+    required String configHash,
+    String? promptHash,
+    required LanComputeDataRef input,
+    required int deadlineEpochMs,
+    required LanComputeCommitGate commitGate,
+  }) => _computeRuntime.requestCompute(
+    taskId: taskId,
+    capability: capability,
+    modelHash: modelHash,
+    configHash: configHash,
+    promptHash: promptHash,
+    input: input,
+    deadlineEpochMs: deadlineEpochMs,
+    commitGate: commitGate,
+  );
 
   List<int> _decodeBytes(String value) =>
       base64Url.decode(base64Url.normalize(value));

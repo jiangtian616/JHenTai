@@ -10,6 +10,7 @@ import 'package:jhentai/src/model/lan_unified_state.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 
 import 'jh_service.dart';
+import 'lan_compute_runtime.dart';
 import 'lan_trust_repository.dart';
 import 'log.dart';
 import 'path_service.dart';
@@ -293,6 +294,14 @@ class LanDeviceTrustService extends GetxController
       }
     }
     return null;
+  }
+
+  /// Returns the compute surface only for an already-authenticated session.
+  /// The caller still supplies the task hashes and commit gate; permissions
+  /// are checked again by the host runtime at request time.
+  LanComputeSession? computeSession(String deviceId) {
+    final LanPeerSession? session = _sessions[deviceId];
+    return session is LanComputeSession ? session as LanComputeSession : null;
   }
 
   Future<LanSharedImage?> requestImageCache(
