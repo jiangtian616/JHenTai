@@ -800,11 +800,8 @@ class RenameGallerysPageLogicKeyHandler implements UpdateHandler {
   }
 
   @override
-  Future<void> onInit() async {}
-
-  @override
-  Future<void> onReady() async {
-    log.info('RenameGallerysPageLogicKeyHandler onReady');
+  Future<void> onInit() async {
+    log.info('RenameGallerysPageLogicKeyHandler onInit');
 
     String? oldValue = await localConfigService.read(configKey: ConfigEnum.searchConfig, subConfigKey: 'GallerysPageLogic');
     if (oldValue != null) {
@@ -814,4 +811,7 @@ class RenameGallerysPageLogicKeyHandler implements UpdateHandler {
 
     await localConfigService.write(configKey: ConfigEnum.renameGallerysPageLogicKey, value: 'true');
   }
+
+  @override
+  Future<void> onReady() async {}
 }
