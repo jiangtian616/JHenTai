@@ -243,6 +243,10 @@ class OnnxModelDownloadManager implements ModelDownloadManager {
   }
 
   @override
+  EngineTask<ModelInstallResult> update(String modelId, {String? sourceId}) =>
+      download(modelId, sourceId: sourceId);
+
+  @override
   Future<void> cancel(String taskId) async {
     _tasks[taskId]?.cancel('model download cancelled');
     _store.cancelDownload();

@@ -16,7 +16,7 @@ enum ImageTranslationProvider { openAICompatible, anthropic }
 /// [appleLiveTextUseThirdPartyApi] flag remains serialized and synchronized so
 /// existing settings continue to load without making Apple OCR imply Apple
 /// Translation.
-enum ImageTranslationEngine { api, appleOnDevice }
+enum ImageTranslationEngine { api, appleOnDevice, localGguf }
 
 enum ImageOcrEngine {
   /// 端侧 ONNX 推理（PP-OCRv6，走统一"推理后端"入口）。
@@ -56,6 +56,13 @@ class ImageTranslationSetting
       ImageTranslationProvider.openAICompatible.obs;
   final Rx<ImageTranslationEngine> translatorEngine =
       ImageTranslationEngine.api.obs;
+
+  /// Verified GGUF catalog id used by the local llama.cpp adapter.
+  final RxString localModelId = 'qwen35-0.8b-q4-k-m'.obs;
+
+  /// Desktop llama-server executable. Mobile never reads this path and uses
+  /// the maintained FFI bridge instead.
+  final RxnString localLlamaServerPath = RxnString();
   final RxnString translatorEndpoint = RxnString();
   final RxnString translatorApiKey = RxnString();
   final RxString translatorModel = 'gpt-4.1-mini'.obs;
@@ -72,6 +79,9 @@ class ImageTranslationSetting
       translatorEndpoint.value?.trim().isNotEmpty == true &&
       translatorApiKey.value?.trim().isNotEmpty == true &&
       translatorModel.value.trim().isNotEmpty;
+
+  bool get isLocalTranslationSelected =>
+      translatorEngine.value == ImageTranslationEngine.localGguf;
 
   @override
   ConfigEnum get configEnum => ConfigEnum.imageTranslationSetting;
@@ -121,6 +131,8 @@ class ImageTranslationSetting
     translatorEndpoint.value = config['translatorEndpoint'];
     translatorApiKey.value = config['translatorApiKey'];
     translatorModel.value = config['translatorModel'] ?? translatorModel.value;
+    localModelId.value = config['localModelId'] ?? localModelId.value;
+    localLlamaServerPath.value = config['localLlamaServerPath'];
     targetLanguage.value = config['targetLanguage'] ?? targetLanguage.value;
     enableThinking.value = config['enableThinking'] ?? enableThinking.value;
     translateSubsequentPages.value =
@@ -142,6 +154,8 @@ class ImageTranslationSetting
     'translatorEndpoint': translatorEndpoint.value,
     'translatorApiKey': translatorApiKey.value,
     'translatorModel': translatorModel.value,
+    'localModelId': localModelId.value,
+    'localLlamaServerPath': localLlamaServerPath.value,
     'targetLanguage': targetLanguage.value,
     'enableThinking': enableThinking.value,
     'translateSubsequentPages': translateSubsequentPages.value,
@@ -285,6 +299,17 @@ class ImageTranslationSetting
   Future<void> saveTranslatorEngine(ImageTranslationEngine value) async {
     translatorEngine.value = value;
     appleLiveTextUseThirdPartyApi.value = value == ImageTranslationEngine.api;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveLocalModelId(String value) async {
+    if (value.trim().isEmpty) return;
+    localModelId.value = value.trim();
+    await saveBeanConfig();
+  }
+
+  Future<void> saveLocalLlamaServerPath(String value) async {
+    localLlamaServerPath.value = value.trim().isEmpty ? null : value.trim();
     await saveBeanConfig();
   }
 

@@ -41,6 +41,7 @@ class RecognizedImage {
   const RecognizedImage({
     required this.cacheKey,
     required this.persistentKey,
+    required this.sourcePath,
     required this.sourceText,
     required this.blocks,
     required this.imageWidth,
@@ -49,6 +50,7 @@ class RecognizedImage {
 
   final String cacheKey;
   final String persistentKey;
+  final String sourcePath;
   final String sourceText;
   final List<RecognizedTextBlock> blocks;
   final int imageWidth;
@@ -463,7 +465,11 @@ class ImageTranslationService extends GetxController
         return null;
       }
 
+      final bool usesLocalTranslation =
+          imageTranslationSetting.translatorEngine.value ==
+          ImageTranslationEngine.localGguf;
       if (!imageTranslationSetting.usesAppleOnDeviceTranslation &&
+          !usesLocalTranslation &&
           !imageTranslationSetting.isTranslatorConfigured) {
         _set(
           request.cacheKey,
@@ -494,6 +500,7 @@ class ImageTranslationService extends GetxController
       return RecognizedImage(
         cacheKey: request.cacheKey,
         persistentKey: persistentKey,
+        sourcePath: imagePath,
         sourceText: sourceText,
         blocks: blocks,
         imageWidth: imageWidth,
@@ -586,6 +593,7 @@ class ImageTranslationService extends GetxController
       final EngineTask<TranslationResult> activeTask = engine.translate(
         TranslationEngineRequest(
           blocks: recognized.blocks,
+          imagePath: recognized.sourcePath,
           targetLanguage:
               engine.descriptor.id == 'apple-translation'
                   ? _appleTargetLanguage()
@@ -593,7 +601,11 @@ class ImageTranslationService extends GetxController
           sourceLanguage: _appleSourceLanguage(),
           configuration: <String, dynamic>{
             'provider': imageTranslationSetting.translatorProvider.value.name,
-            'model': imageTranslationSetting.translatorModel.value,
+            'model':
+                imageTranslationSetting.translatorEngine.value ==
+                        ImageTranslationEngine.localGguf
+                    ? imageTranslationSetting.localModelId.value
+                    : imageTranslationSetting.translatorModel.value,
             'thinking': imageTranslationSetting.enableThinking.value,
           },
           promptVersion: 3,
@@ -811,7 +823,11 @@ class ImageTranslationService extends GetxController
       'provider': imageTranslationSetting.translatorProvider.value.name,
       'translatorEngine': imageTranslationSetting.translatorEngine.value.name,
       'endpoint': imageTranslationSetting.translatorEndpoint.value,
-      'model': imageTranslationSetting.translatorModel.value,
+      'model':
+          imageTranslationSetting.translatorEngine.value ==
+                  ImageTranslationEngine.localGguf
+              ? imageTranslationSetting.localModelId.value
+              : imageTranslationSetting.translatorModel.value,
       'target': imageTranslationSetting.targetLanguage.value,
       // Group-aware translation (speech bubbles translated as one utterance).
       'promptVersion': promptVersion,

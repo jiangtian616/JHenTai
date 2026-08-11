@@ -28,6 +28,10 @@ class PathService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   /// Documents/JHTData/OCRmodel.
   late Directory jhOcrModelDir;
 
+  /// Independently replaceable GGUF translation models:
+  /// Documents/JHTData/TranslationModel.
+  late Directory jhTranslationModelDir;
+
   /// Gallery download directory: Documents/JHTData/download.
   late Directory jhDownloadDir;
 
@@ -86,6 +90,7 @@ class PathService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
     tempDir = Directory(join(jhDataDir.path, 'temp'));
     jhSrModelDir = Directory(join(jhDataDir.path, 'SRmodel'));
     jhOcrModelDir = Directory(join(jhDataDir.path, 'OCRmodel'));
+    jhTranslationModelDir = Directory(join(jhDataDir.path, 'TranslationModel'));
     jhDownloadDir = Directory(join(jhDataDir.path, 'download'));
     jhLanDir = Directory(join(jhDataDir.path, 'lan'));
     jhLanSecretDir = Directory(
@@ -100,6 +105,7 @@ class PathService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
       ).create(recursive: true),
       jhSrModelDir.create(recursive: true),
       jhOcrModelDir.create(recursive: true),
+      jhTranslationModelDir.create(recursive: true),
       jhDownloadDir.create(recursive: true),
       jhLanDir.create(recursive: true),
       jhLanSecretDir.create(recursive: true),

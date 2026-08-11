@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'engine_contract.dart';
 
 const int modelCatalogSchemaVersion = 1;
@@ -26,6 +28,7 @@ class ModelArtifactDescriptor {
     required this.sizeBytes,
     required this.sha256,
     required this.sources,
+    this.sizeLabel,
   });
 
   final String id;
@@ -34,10 +37,16 @@ class ModelArtifactDescriptor {
   final String sha256;
   final List<ModelSourceDescriptor> sources;
 
+  /// Human-readable upstream size when the repository only publishes a
+  /// rounded value. A zero [sizeBytes] means the downloader must resolve the
+  /// exact Content-Length before reserving disk space.
+  final String? sizeLabel;
+
   Map<String, dynamic> toJson() => <String, dynamic>{
     'id': id,
     'fileName': fileName,
     'sizeBytes': sizeBytes,
+    if (sizeLabel != null) 'sizeLabel': sizeLabel,
     'sha256': sha256,
     'sources':
         sources.map((ModelSourceDescriptor source) => source.toJson()).toList(),
@@ -49,6 +58,7 @@ class ModelArtifactDescriptor {
         fileName: json['fileName']?.toString() ?? '',
         sizeBytes: (json['sizeBytes'] as num?)?.toInt() ?? 0,
         sha256: json['sha256']?.toString() ?? '',
+        sizeLabel: json['sizeLabel']?.toString(),
         sources: (json['sources'] as List? ?? const [])
             .whereType<Map>()
             .map(ModelSourceDescriptor.fromJson)
@@ -68,6 +78,12 @@ class ModelDescriptor {
     required this.sourceProjectUrl,
     required this.artifacts,
     required this.engineIds,
+    this.quantization,
+    this.languages = const <String>[],
+    this.supportsImages = false,
+    this.minimumMemoryHint,
+    this.imageProjectorArtifactId,
+    this.runtimeRequirements = const <String>[],
   });
 
   final String id;
@@ -80,6 +96,12 @@ class ModelDescriptor {
   final String sourceProjectUrl;
   final List<ModelArtifactDescriptor> artifacts;
   final List<String> engineIds;
+  final String? quantization;
+  final List<String> languages;
+  final bool supportsImages;
+  final String? minimumMemoryHint;
+  final String? imageProjectorArtifactId;
+  final List<String> runtimeRequirements;
 
   int get totalBytes => artifacts.fold<int>(
     0,
@@ -102,6 +124,13 @@ class ModelDescriptor {
     'artifacts':
         artifacts.map((ModelArtifactDescriptor a) => a.toJson()).toList(),
     'engineIds': engineIds,
+    if (quantization != null) 'quantization': quantization,
+    'languages': languages,
+    'supportsImages': supportsImages,
+    if (minimumMemoryHint != null) 'minimumMemoryHint': minimumMemoryHint,
+    if (imageProjectorArtifactId != null)
+      'imageProjectorArtifactId': imageProjectorArtifactId,
+    'runtimeRequirements': runtimeRequirements,
   };
 
   factory ModelDescriptor.fromJson(Map<dynamic, dynamic> json) =>
@@ -120,6 +149,18 @@ class ModelDescriptor {
             .toList(growable: false),
         engineIds: (json['engineIds'] as List? ?? const [])
             .whereType<String>()
+            .toList(growable: false),
+        quantization: json['quantization']?.toString(),
+        languages: (json['languages'] as List? ?? const [])
+            .map((Object? value) => value?.toString() ?? '')
+            .where((String value) => value.isNotEmpty)
+            .toList(growable: false),
+        supportsImages: json['supportsImages'] == true,
+        minimumMemoryHint: json['minimumMemoryHint']?.toString(),
+        imageProjectorArtifactId: json['imageProjectorArtifactId']?.toString(),
+        runtimeRequirements: (json['runtimeRequirements'] as List? ?? const [])
+            .map((Object? value) => value?.toString() ?? '')
+            .where((String value) => value.isNotEmpty)
             .toList(growable: false),
       );
 }
@@ -145,6 +186,77 @@ class ModelInstallResult {
 abstract class ModelDownloadManager {
   EngineTask<ModelInstallResult> download(String modelId, {String? sourceId});
 
+  /// Re-fetches the pinned artifact set while preserving the previous
+  /// installed directory until the replacement has passed validation.
+  EngineTask<ModelInstallResult> update(String modelId, {String? sourceId}) =>
+      download(modelId, sourceId: sourceId);
+
   Future<void> cancel(String taskId);
   Future<void> delete(String modelId);
+}
+
+/// Keeps the existing ONNX catalog and the GGUF catalog behind the single
+/// wave-1 contract. A caller cannot accidentally request an artifact from the
+/// wrong store because routing is by the verified descriptor id.
+class CompositeModelCatalog extends ModelCatalog {
+  CompositeModelCatalog(this.catalogs);
+
+  final List<ModelCatalog> catalogs;
+
+  @override
+  List<ModelDescriptor> get models => catalogs
+      .expand((ModelCatalog catalog) => catalog.models)
+      .toList(growable: false);
+}
+
+class CompositeModelDownloadManager implements ModelDownloadManager {
+  CompositeModelDownloadManager({
+    required this.catalog,
+    required Map<String, ModelDownloadManager> routes,
+  }) : routes = Map<String, ModelDownloadManager>.unmodifiable(routes);
+
+  final ModelCatalog catalog;
+  final Map<String, ModelDownloadManager> routes;
+  final Map<String, ModelDownloadManager> _taskManagers =
+      <String, ModelDownloadManager>{};
+
+  ModelDownloadManager _managerFor(String modelId) {
+    final ModelDownloadManager? manager = routes[modelId];
+    if (manager == null || catalog.find(modelId) == null) {
+      throw ArgumentError.value(modelId, 'modelId', 'Unknown model id.');
+    }
+    return manager;
+  }
+
+  @override
+  EngineTask<ModelInstallResult> download(String modelId, {String? sourceId}) {
+    final ModelDownloadManager manager = _managerFor(modelId);
+    final EngineTask<ModelInstallResult> task = manager.download(
+      modelId,
+      sourceId: sourceId,
+    );
+    _taskManagers[task.id] = manager;
+    unawaited(task.future.whenComplete(() => _taskManagers.remove(task.id)));
+    return task;
+  }
+
+  @override
+  EngineTask<ModelInstallResult> update(String modelId, {String? sourceId}) {
+    final ModelDownloadManager manager = _managerFor(modelId);
+    final EngineTask<ModelInstallResult> task = manager.update(
+      modelId,
+      sourceId: sourceId,
+    );
+    _taskManagers[task.id] = manager;
+    unawaited(task.future.whenComplete(() => _taskManagers.remove(task.id)));
+    return task;
+  }
+
+  @override
+  Future<void> cancel(String taskId) async {
+    await _taskManagers[taskId]?.cancel(taskId);
+  }
+
+  @override
+  Future<void> delete(String modelId) => _managerFor(modelId).delete(modelId);
 }
