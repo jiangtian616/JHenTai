@@ -47,7 +47,6 @@ class _AutoModeIntervalDialogState extends State<AutoModeIntervalDialog> {
               readSetting.saveAutoModeInterval(interval);
               backRoute(result: true);
             },
-            isPrimary: true,
           ),
         ],
       );

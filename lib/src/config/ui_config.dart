@@ -61,7 +61,7 @@ class UIConfig {
   static double liquidGlassNavBarRaise(BuildContext context) {
     if (!ThemeConfig.isApple ||
         styleSetting.isInDesktopLayout ||
-        preferenceSetting.hideBottomBar.value) {
+        preferenceSetting.effectiveHideBottomBar) {
       return 0;
     }
     return liquidGlassNavBarHeight + liquidGlassNavBarMarginBottom;

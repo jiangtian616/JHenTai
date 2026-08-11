@@ -213,17 +213,22 @@ class EHAppleSwitchListTile extends StatelessWidget {
       );
     }
 
+    final Widget switchWidget = GlassSwitch(
+      value: value,
+      onChanged: enabled && onChanged != null ? onChanged! : (_) {},
+      // Classic iOS switch: white thumb on a green-on / gray-off track.
+      activeColor: CupertinoColors.systemGreen,
+      inactiveColor: CupertinoColors.systemGrey,
+      thumbColor: CupertinoColors.white,
+    );
+
     return CupertinoListTile(
       title: title,
       subtitle: subtitle,
       onTap: enabled && onChanged != null ? () => onChanged!(!value) : null,
-      trailing: GlassSwitch(
-        value: value,
-        onChanged: enabled && onChanged != null ? onChanged! : (_) {},
-        // Classic iOS switch: white thumb on a green-on / gray-off track.
-        activeColor: CupertinoColors.systemGreen,
-        inactiveColor: CupertinoColors.systemGrey,
-        thumbColor: CupertinoColors.white,
+      trailing: Opacity(
+        opacity: enabled ? 1 : 0.45,
+        child: IgnorePointer(child: switchWidget),
       ),
     );
   }

@@ -54,7 +54,6 @@ class _EHFavoriteSortOrderDialogState extends State<EHFavoriteSortOrderDialog> {
           GlassDialogAction(
             label: 'OK'.tr,
             onPressed: () => backRoute(result: _sortOrder),
-            isPrimary: true,
           ),
         ],
       );

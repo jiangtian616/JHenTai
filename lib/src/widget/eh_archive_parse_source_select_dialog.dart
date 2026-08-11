@@ -48,7 +48,6 @@ class _EHArchiveParseSourceSelectDialogState extends State<EHArchiveParseSourceS
           GlassDialogAction(
             label: 'OK'.tr,
             onPressed: () => backRoute(result: _archiveParseSource),
-            isPrimary: true,
           ),
         ],
       );

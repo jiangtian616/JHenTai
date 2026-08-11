@@ -31,7 +31,6 @@ class EHDialog extends StatelessWidget {
           GlassDialogAction(
             label: 'OK'.tr,
             onPressed: () => backRoute(result: true),
-            isPrimary: true,
           ),
         ],
       );
