@@ -1055,6 +1055,10 @@ favnote：匹配收藏备注
       /// image text translation
       'imageTextTranslation': '图片文字翻译',
       'translateImageText': '识别并翻译本页',
+      'currentPageSuperResolution': '当前页超分',
+      'addBookmark': '添加书签',
+      'removeBookmark': '删除书签',
+      'readerTranslation': '阅读页翻译',
       'recognizingImageText': '正在识别图片文字…',
       'translatingImageText': '正在翻译图片文字…',
       'showTranslation': '查看译文',

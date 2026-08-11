@@ -15,6 +15,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../../../config/ui_config.dart';
 import '../../../../service/gallery_download_service.dart';
+import '../../../../model/gallery_image.dart';
 import '../../../../service/super_resolution_service.dart';
 import '../../../../service/log.dart';
 import '../../../../widget/eh_image.dart';
@@ -68,12 +69,14 @@ abstract class BaseLayout extends StatelessWidget {
             id: BaseLayoutLogic.pageId,
             global: false,
             init: logic,
-            builder: (_) => ScrollConfiguration(
-              behavior: readSetting.showScrollBar.isTrue
-                  ? UIConfig.scrollBehaviourWithScrollBarWithMouse
-                  : UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
-              child: buildBody(context),
-            ),
+            builder:
+                (_) => ScrollConfiguration(
+                  behavior:
+                      readSetting.showScrollBar.isTrue
+                          ? UIConfig.scrollBehaviourWithScrollBarWithMouse
+                          : UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
+                  child: buildBody(context),
+                ),
           );
         }
 
@@ -126,27 +129,32 @@ abstract class BaseLayout extends StatelessWidget {
         width: placeHolderSize.width,
         child: GetBuilder<ReadPageLogic>(
           id: '${readPageLogic.parseImageHrefsStateId}::$index',
-          builder: (_) => Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              LoadingStateIndicator(
-                loadingState: readPageState.parseImageHrefsStates[index],
-                idleWidgetBuilder: () => ThemeConfig.isApple
-                    ? GlassProgressIndicator.circular()
-                    : const CircularProgressIndicator(),
-                errorWidgetBuilder: () => const Icon(
-                  Icons.warning,
-                  color: UIConfig.readPageWarningButtonColor,
-                ),
+          builder:
+              (_) => Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  LoadingStateIndicator(
+                    loadingState: readPageState.parseImageHrefsStates[index],
+                    idleWidgetBuilder:
+                        () =>
+                            ThemeConfig.isApple
+                                ? GlassProgressIndicator.circular()
+                                : const CircularProgressIndicator(),
+                    errorWidgetBuilder:
+                        () => const Icon(
+                          Icons.warning,
+                          color: UIConfig.readPageWarningButtonColor,
+                        ),
+                  ),
+                  Text(
+                    readPageState.parseImageHrefsStates[index] ==
+                            LoadingState.error
+                        ? readPageState.parseImageHrefErrorMsg!
+                        : 'parsingPage'.tr,
+                  ).marginOnly(top: 8),
+                  Text((index + 1).toString()).marginOnly(top: 4),
+                ],
               ),
-              Text(
-                readPageState.parseImageHrefsStates[index] == LoadingState.error
-                    ? readPageState.parseImageHrefErrorMsg!
-                    : 'parsingPage'.tr,
-              ).marginOnly(top: 8),
-              Text((index + 1).toString()).marginOnly(top: 4),
-            ],
-          ),
         ),
       ),
     );
@@ -163,30 +171,35 @@ abstract class BaseLayout extends StatelessWidget {
         width: placeHolderSize.width,
         child: GetBuilder<ReadPageLogic>(
           id: '${readPageLogic.parseImageUrlStateId}::$index',
-          builder: (_) => _wrapWithProgressiveThumbnail(
-            index,
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                LoadingStateIndicator(
-                  loadingState: readPageState.parseImageUrlStates[index],
-                  idleWidgetBuilder: () => ThemeConfig.isApple
-                      ? GlassProgressIndicator.circular()
-                      : const CircularProgressIndicator(),
-                  errorWidgetBuilder: () => const Icon(
-                    Icons.warning,
-                    color: UIConfig.readPageWarningButtonColor,
-                  ),
+          builder:
+              (_) => _wrapWithProgressiveThumbnail(
+                index,
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    LoadingStateIndicator(
+                      loadingState: readPageState.parseImageUrlStates[index],
+                      idleWidgetBuilder:
+                          () =>
+                              ThemeConfig.isApple
+                                  ? GlassProgressIndicator.circular()
+                                  : const CircularProgressIndicator(),
+                      errorWidgetBuilder:
+                          () => const Icon(
+                            Icons.warning,
+                            color: UIConfig.readPageWarningButtonColor,
+                          ),
+                    ),
+                    Text(
+                      readPageState.parseImageUrlStates[index] ==
+                              LoadingState.error
+                          ? readPageState.parseImageUrlErrorMsg[index]!
+                          : 'parsingURL'.tr,
+                    ).marginOnly(top: 8),
+                    Text((index + 1).toString()).marginOnly(top: 4),
+                  ],
                 ),
-                Text(
-                  readPageState.parseImageUrlStates[index] == LoadingState.error
-                      ? readPageState.parseImageUrlErrorMsg[index]!
-                      : 'parsingURL'.tr,
-                ).marginOnly(top: 8),
-                Text((index + 1).toString()).marginOnly(top: 4),
-              ],
-            ),
-          ),
+              ),
         ),
       ),
     );
@@ -200,8 +213,10 @@ abstract class BaseLayout extends StatelessWidget {
         logic.readPageState.imageContainerSizes[index]?.height ??
         logic.getPlaceHolderSize(index).height;
 
+    final String? readerOverride = _readerSuperResolutionPath(index);
     Widget image = EHImage(
-      galleryImage: readPageState.images[index]!,
+      galleryImage: _readerDisplayImage(index),
+      absoluteFilePath: readerOverride,
       containerWidth: containerWidth,
       containerHeight: containerHeight,
       clearMemoryCacheWhenDispose: true,
@@ -209,14 +224,15 @@ abstract class BaseLayout extends StatelessWidget {
         readPageLogic.watchOnlineImageLoading(index);
         return _loadingProgressWidgetBuilder(index, progress);
       },
-      failedWidgetBuilder: (ExtendedImageState state) =>
-          _failedWidgetBuilder(index, state),
-      completedWidgetBuilder: (state) =>
-          completedWidgetBuilderCallBack(index, state),
+      failedWidgetBuilder:
+          (ExtendedImageState state) => _failedWidgetBuilder(index, state),
+      completedWidgetBuilder:
+          (state) => completedWidgetBuilderCallBack(index, state),
       animateOnlyWhenVisible: true,
-      maxBytes: readSetting.enableMaxImageKilobyte.isTrue
-          ? readSetting.maxImageKilobyte.toInt() * 1024
-          : null,
+      maxBytes:
+          readSetting.enableMaxImageKilobyte.isTrue
+              ? readSetting.maxImageKilobyte.toInt() * 1024
+              : null,
     );
 
     if (performanceSetting.enableProgressiveImagePipeline.isTrue &&
@@ -238,16 +254,18 @@ abstract class BaseLayout extends StatelessWidget {
     }
 
     return GestureDetector(
-      onLongPressStart: (details) => logic.showOnlineImageContextMenu(
-        index,
-        context,
-        position: details.globalPosition,
-      ),
-      onSecondaryTapDown: (details) => logic.showOnlineImageContextMenu(
-        index,
-        context,
-        position: details.globalPosition,
-      ),
+      onLongPressStart:
+          (details) => logic.showOnlineImageContextMenu(
+            index,
+            context,
+            position: details.globalPosition,
+          ),
+      onSecondaryTapDown:
+          (details) => logic.showOnlineImageContextMenu(
+            index,
+            context,
+            position: details.globalPosition,
+          ),
       child: _wrapWithTranslationOverlay(context, image, index),
     );
   }
@@ -311,8 +329,8 @@ abstract class BaseLayout extends StatelessWidget {
             'networkError'.tr,
             style: const TextStyle(color: UIConfig.readPageButtonColor),
           ),
-          onPressed: () =>
-              logic.readPageLogic.retryFailedImages(fromIndex: index),
+          onPressed:
+              () => logic.readPageLogic.retryFailedImages(fromIndex: index),
         ),
         Text((index + 1).toString()),
       ],
@@ -354,7 +372,8 @@ abstract class BaseLayout extends StatelessWidget {
   /// local mode: wait for download service to parse and download
   Widget buildItemInLocalMode(BuildContext context, int index) {
     return GetBuilder<GalleryDownloadService>(
-      id: '${galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$index',
+      id:
+          '${galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$index',
       builder: (_) {
         /// step 1: wait for parsing image's href for this image. But if image's url has been parsed,
         /// we don't need to wait parsing thumbnail.
@@ -369,6 +388,10 @@ abstract class BaseLayout extends StatelessWidget {
         }
 
         /// step 3: check if we are using super resolution
+        if (_readerSuperResolutionPath(index) != null) {
+          return _buildReaderSuperResolutionImage(context, index);
+        }
+
         if (logic.readPageState.useSuperResolution) {
           return _buildLocalSuperResolutionImage(context, index);
         }
@@ -381,29 +404,32 @@ abstract class BaseLayout extends StatelessWidget {
 
   Widget _buildLocalSuperResolutionImage(BuildContext context, int index) {
     return GetBuilder<SuperResolutionService>(
-      id: '${SuperResolutionService.superResolutionImageId}::${readPageState.readPageInfo.gid!}::$index',
+      id:
+          '${SuperResolutionService.superResolutionImageId}::${readPageState.readPageInfo.gid!}::$index',
       builder: (_) {
         int gid = readPageState.readPageInfo.gid!;
         SuperResolutionType type =
             readPageState.readPageInfo.mode == ReadMode.downloaded
-            ? SuperResolutionType.gallery
-            : SuperResolutionType.archive;
+                ? SuperResolutionType.gallery
+                : SuperResolutionType.archive;
         if (superResolutionService.get(gid, type)?.imageStatuses[index] !=
             SuperResolutionStatus.success) {
           return _buildLocalImage(context, index);
         }
 
         return GestureDetector(
-          onLongPressStart: (details) => logic.showLocalImageContextMenu(
-            index,
-            context,
-            position: details.globalPosition,
-          ),
-          onSecondaryTapDown: (details) => logic.showLocalImageContextMenu(
-            index,
-            context,
-            position: details.globalPosition,
-          ),
+          onLongPressStart:
+              (details) => logic.showLocalImageContextMenu(
+                index,
+                context,
+                position: details.globalPosition,
+              ),
+          onSecondaryTapDown:
+              (details) => logic.showLocalImageContextMenu(
+                index,
+                context,
+                position: details.globalPosition,
+              ),
           child: _wrapWithTranslationOverlay(
             context,
             EHImage(
@@ -420,14 +446,16 @@ abstract class BaseLayout extends StatelessWidget {
                   logic.getPlaceHolderSize(index).height,
               clearMemoryCacheWhenDispose: true,
               loadingWidgetBuilder: () => _loadingWidgetBuilder(context, index),
-              failedWidgetBuilder: (state) =>
-                  _failedWidgetBuilderForLocalMode(index, state),
-              completedWidgetBuilder: (state) =>
-                  completedWidgetBuilderForLocalModeCallBack(index, state),
+              failedWidgetBuilder:
+                  (state) => _failedWidgetBuilderForLocalMode(index, state),
+              completedWidgetBuilder:
+                  (state) =>
+                      completedWidgetBuilderForLocalModeCallBack(index, state),
               animateOnlyWhenVisible: true,
-              maxBytes: readSetting.enableMaxImageKilobyte.isTrue
-                  ? readSetting.maxImageKilobyte.toInt() * 1024
-                  : null,
+              maxBytes:
+                  readSetting.enableMaxImageKilobyte.isTrue
+                      ? readSetting.maxImageKilobyte.toInt() * 1024
+                      : null,
             ),
             index,
           ),
@@ -436,12 +464,68 @@ abstract class BaseLayout extends StatelessWidget {
     );
   }
 
+  Widget _buildReaderSuperResolutionImage(BuildContext context, int index) {
+    final String outputPath = _readerSuperResolutionPath(index)!;
+    return GestureDetector(
+      onLongPressStart:
+          (details) => logic.showLocalImageContextMenu(
+            index,
+            context,
+            position: details.globalPosition,
+          ),
+      onSecondaryTapDown:
+          (details) => logic.showLocalImageContextMenu(
+            index,
+            context,
+            position: details.globalPosition,
+          ),
+      child: _wrapWithTranslationOverlay(
+        context,
+        EHImage(
+          galleryImage: _readerDisplayImage(index),
+          absoluteFilePath: outputPath,
+          containerWidth:
+              logic.readPageState.imageContainerSizes[index]?.width ??
+              logic.getPlaceHolderSize(index).width,
+          containerHeight:
+              logic.readPageState.imageContainerSizes[index]?.height ??
+              logic.getPlaceHolderSize(index).height,
+          clearMemoryCacheWhenDispose: true,
+          loadingWidgetBuilder: () => _loadingWidgetBuilder(context, index),
+          failedWidgetBuilder:
+              (state) => _failedWidgetBuilderForLocalMode(index, state),
+          completedWidgetBuilder:
+              (state) =>
+                  completedWidgetBuilderForLocalModeCallBack(index, state),
+          animateOnlyWhenVisible: true,
+        ),
+        index,
+      ),
+    );
+  }
+
+  String? _readerSuperResolutionPath(int index) {
+    if (!readPageState.showReaderSuperResolution) return null;
+    return readPageState.readerSuperResolutionPaths[index];
+  }
+
+  GalleryImage _readerDisplayImage(int index) {
+    final GalleryImage image = readPageState.images[index]!;
+    final String? override = _readerSuperResolutionPath(index);
+    if (override == null) return image;
+    return image.copyWith(
+      path: override,
+      downloadStatus: DownloadStatus.downloaded,
+    );
+  }
+
   /// wait for [GalleryDownloadService] to parse image href in local mode
   Widget _buildWaitParsingHrefsIndicator(BuildContext context, int index) {
-    DownloadStatus downloadStatus = galleryDownloadService
-        .galleryDownloadInfos[readPageState.readPageInfo.gid]!
-        .downloadProgress
-        .downloadStatus;
+    DownloadStatus downloadStatus =
+        galleryDownloadService
+            .galleryDownloadInfos[readPageState.readPageInfo.gid]!
+            .downloadProgress
+            .downloadStatus;
     Size placeHolderSize = logic.getPlaceHolderSize(index);
 
     return SizedBox(
@@ -472,10 +556,11 @@ abstract class BaseLayout extends StatelessWidget {
 
   /// wait for [GalleryDownloadService] to parse image url in local mode
   Widget _buildWaitParsingUrlIndicator(BuildContext context, int index) {
-    DownloadStatus downloadStatus = galleryDownloadService
-        .galleryDownloadInfos[readPageState.readPageInfo.gid]!
-        .downloadProgress
-        .downloadStatus;
+    DownloadStatus downloadStatus =
+        galleryDownloadService
+            .galleryDownloadInfos[readPageState.readPageInfo.gid]!
+            .downloadProgress
+            .downloadStatus;
     Size placeHolderSize = logic.getPlaceHolderSize(index);
     return SizedBox(
       height: placeHolderSize.height,
@@ -505,16 +590,18 @@ abstract class BaseLayout extends StatelessWidget {
 
   Widget _buildLocalImage(BuildContext context, int index) {
     return GestureDetector(
-      onLongPressStart: (details) => logic.showLocalImageContextMenu(
-        index,
-        context,
-        position: details.globalPosition,
-      ),
-      onSecondaryTapDown: (details) => logic.showLocalImageContextMenu(
-        index,
-        context,
-        position: details.globalPosition,
-      ),
+      onLongPressStart:
+          (details) => logic.showLocalImageContextMenu(
+            index,
+            context,
+            position: details.globalPosition,
+          ),
+      onSecondaryTapDown:
+          (details) => logic.showLocalImageContextMenu(
+            index,
+            context,
+            position: details.globalPosition,
+          ),
       child: _wrapWithTranslationOverlay(
         context,
         EHImage(
@@ -529,14 +616,16 @@ abstract class BaseLayout extends StatelessWidget {
           downloadingWidgetBuilder: () => _downloadingWidgetBuilder(index),
           pausedWidgetBuilder: () => _pausedWidgetBuilder(index),
           loadingWidgetBuilder: () => _loadingWidgetBuilder(context, index),
-          failedWidgetBuilder: (state) =>
-              _failedWidgetBuilderForLocalMode(index, state),
-          completedWidgetBuilder: (state) =>
-              completedWidgetBuilderForLocalModeCallBack(index, state),
+          failedWidgetBuilder:
+              (state) => _failedWidgetBuilderForLocalMode(index, state),
+          completedWidgetBuilder:
+              (state) =>
+                  completedWidgetBuilderForLocalModeCallBack(index, state),
           animateOnlyWhenVisible: true,
-          maxBytes: readSetting.enableMaxImageKilobyte.isTrue
-              ? readSetting.maxImageKilobyte.toInt() * 1024
-              : null,
+          maxBytes:
+              readSetting.enableMaxImageKilobyte.isTrue
+                  ? readSetting.maxImageKilobyte.toInt() * 1024
+                  : null,
         ),
         index,
       ),
@@ -569,11 +658,13 @@ abstract class BaseLayout extends StatelessWidget {
   /// downloading for local mode
   Widget _downloadingWidgetBuilder(int index) {
     return GetBuilder<GalleryDownloadService>(
-      id: '${galleryDownloadService.galleryDownloadSpeedComputerId}::${readPageState.readPageInfo.gid}',
+      id:
+          '${galleryDownloadService.galleryDownloadSpeedComputerId}::${readPageState.readPageInfo.gid}',
       builder: (_) {
-        GalleryDownloadSpeedComputer speedComputer = galleryDownloadService
-            .galleryDownloadInfos[readPageState.readPageInfo.gid]!
-            .speedComputer;
+        GalleryDownloadSpeedComputer speedComputer =
+            galleryDownloadService
+                .galleryDownloadInfos[readPageState.readPageInfo.gid]!
+                .speedComputer;
         int downloadedBytes = speedComputer.imageDownloadedBytes[index];
         int totalBytes = speedComputer.imageTotalBytes[index];
 
@@ -582,11 +673,11 @@ abstract class BaseLayout extends StatelessWidget {
           children: [
             ThemeConfig.isApple
                 ? GlassProgressIndicator.circular(
-                    value: max(downloadedBytes / totalBytes, 0.01),
-                  )
+                  value: max(downloadedBytes / totalBytes, 0.01),
+                )
                 : CircularProgressIndicator(
-                    value: max(downloadedBytes / totalBytes, 0.01),
-                  ),
+                  value: max(downloadedBytes / totalBytes, 0.01),
+                ),
             Text('downloading'.tr).marginOnly(top: 8),
             Text((index + 1).toString()),
           ],

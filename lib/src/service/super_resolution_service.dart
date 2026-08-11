@@ -54,11 +54,10 @@ class SuperResolutionService extends GetxController
   static const String imageDirName = 'super_resolution';
 
   @override
-  List<JHLifeCircleBean> get initDependencies =>
-      super.initDependencies
-        ..add(galleryDownloadService)
-        ..add(archiveDownloadService)
-        ..add(inferenceService);
+  List<JHLifeCircleBean> get initDependencies => super.initDependencies
+    ..add(galleryDownloadService)
+    ..add(archiveDownloadService)
+    ..add(inferenceService);
 
   @override
   Future<void> doInitBean() async {
@@ -148,9 +147,8 @@ class SuperResolutionService extends GetxController
         ),
         maxAttempts: 5,
         delayFactor: const Duration(milliseconds: 500),
-        onRetry:
-            (error) =>
-                log.warning('Download super-resolution model failed, retry.'),
+        onRetry: (error) =>
+            log.warning('Download super-resolution model failed, retry.'),
       );
     } on DioException catch (e) {
       log.error(
@@ -193,10 +191,9 @@ class SuperResolutionService extends GetxController
     /// so the ncnn-vulkan binary comes out non-executable and the shell would
     /// refuse to run it (exit code 126). Make it executable right away.
     if (!GetPlatform.isWindows) {
-      final String executableName =
-          GetPlatform.isMacOS
-              ? model.macOSExecutableName
-              : model.linuxExecutableName;
+      final String executableName = GetPlatform.isMacOS
+          ? model.macOSExecutableName
+          : model.linuxExecutableName;
       final String executablePath = join(dirPath, executableName);
       try {
         if (File(executablePath).existsSync()) {
@@ -246,8 +243,8 @@ class SuperResolutionService extends GetxController
     if (superResolutionInfo == null) {
       List<GalleryImage> rawImages;
       if (type == SuperResolutionType.gallery) {
-        rawImages =
-            galleryDownloadService.galleryDownloadInfos[gid]!.images.cast();
+        rawImages = galleryDownloadService.galleryDownloadInfos[gid]!.images
+            .cast();
       } else {
         rawImages = await archiveDownloadService.getUnpackedImages(gid);
       }
@@ -317,6 +314,19 @@ class SuperResolutionService extends GetxController
     }
     await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
     updateSafely(['$superResolutionId::$gid']);
+  }
+
+  /// Reader actions must be able to put a visible single-page request ahead
+  /// of queued whole-gallery work. This only pauses existing tasks; it does
+  /// not change any model/runtime implementation or delete their checkpoints.
+  Future<void> pauseAllForReaderPage() async {
+    final entries = superResolutionInfoTable
+        .entries()
+        .where((entry) => entry.value.status == SuperResolutionStatus.running)
+        .toList();
+    for (final entry in entries) {
+      await pauseSuperResolve(entry.key1, entry.key2);
+    }
   }
 
   Future<void> deleteSuperResolve(int gid, SuperResolutionType type) async {

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/mixin/scroll_status_listener_state.dart';
 import 'package:jhentai/src/model/image_translation.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
+import 'package:jhentai/src/model/reader_bookmark.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -48,6 +49,9 @@ class ReadPageState with ScrollStatusListerState {
   Battery battery = Battery();
   int batteryLevel = 100;
   bool useSuperResolution = false;
+  final Map<int, String> readerSuperResolutionPaths = <int, String>{};
+  bool showReaderSuperResolution = true;
+  List<ReaderBookmark> readerBookmarks = <ReaderBookmark>[];
   bool displayFirstPageAlone = readSetting.displayFirstPageAlone.value;
   FocusNode focusNode = FocusNode();
 
@@ -61,8 +65,11 @@ class ReadPageState with ScrollStatusListerState {
       ScrollOffsetController();
 
   ReadPageState() {
-    thumbnails =
-        List.generate(readPageInfo.pageCount, (_) => null, growable: true);
+    thumbnails = List.generate(
+      readPageInfo.pageCount,
+      (_) => null,
+      growable: true,
+    );
 
     if (readPageInfo.mode == ReadMode.online) {
       images = List.generate(readPageInfo.pageCount, (_) => null);
@@ -78,10 +85,14 @@ class ReadPageState with ScrollStatusListerState {
       images = readPageInfo.images!.cast<GalleryImage?>();
     }
 
-    parseImageHrefsStates =
-        List.generate(readPageInfo.pageCount, (_) => LoadingState.idle);
-    parseImageUrlStates =
-        List.generate(readPageInfo.pageCount, (_) => LoadingState.idle);
+    parseImageHrefsStates = List.generate(
+      readPageInfo.pageCount,
+      (_) => LoadingState.idle,
+    );
+    parseImageUrlStates = List.generate(
+      readPageInfo.pageCount,
+      (_) => LoadingState.idle,
+    );
     imageContainerSizes = List.generate(readPageInfo.pageCount, (_) => null);
     parseImageUrlErrorMsg = List.generate(readPageInfo.pageCount, (_) => null);
     parseImageUrlErrorMsg = List.generate(readPageInfo.pageCount, (_) => null);

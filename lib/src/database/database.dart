@@ -22,6 +22,7 @@ import 'package:jhentai/src/database/table/image.dart';
 import 'package:jhentai/src/database/table/local_config.dart';
 import 'package:jhentai/src/database/table/smart_cache_stat.dart';
 import 'package:jhentai/src/database/table/super_resolution_info.dart';
+import 'package:jhentai/src/database/table/reader_bookmark.dart';
 import 'package:jhentai/src/database/table/tag.dart';
 import 'package:jhentai/src/database/table/tag_count.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
@@ -62,20 +63,22 @@ part 'database.g.dart';
     BlockRule,
     LocalConfig,
     SmartCacheStat,
+    ReaderBookmarkTable,
   ],
 )
 class AppDb extends _$AppDb {
-  AppDb() : super(_openConnection());
+  AppDb({QueryExecutor? executor}) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 25;
+  int get schemaVersion => 26;
 
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
       beforeOpen: (OpeningDetails details) async {
         log.info(
-            'Database version before: ${details.versionBefore}, now: ${details.versionNow}');
+          'Database version before: ${details.versionBefore}, now: ${details.versionNow}',
+        );
       },
       onUpgrade: (Migrator m, int from, int to) async {
         log.warning('Database version: $from -> $to');
@@ -89,18 +92,26 @@ class AppDb extends _$AppDb {
               await m.alterTable(TableMigration(image));
             }
             if (from < 3) {
-              await m.addColumn(galleryDownloadedOld,
-                  galleryDownloadedOld.downloadOriginalImage);
+              await m.addColumn(
+                galleryDownloadedOld,
+                galleryDownloadedOld.downloadOriginalImage,
+              );
             }
             if (from < 4) {
               await m.addColumn(
-                  galleryDownloadedOld, galleryDownloadedOld.priority);
+                galleryDownloadedOld,
+                galleryDownloadedOld.priority,
+              );
             }
             if (from < 5) {
               await m.addColumn(
-                  galleryDownloadedOld, galleryDownloadedOld.groupName);
+                galleryDownloadedOld,
+                galleryDownloadedOld.groupName,
+              );
               await m.addColumn(
-                  archiveDownloadedOld, archiveDownloadedOld.groupName);
+                archiveDownloadedOld,
+                archiveDownloadedOld.groupName,
+              );
               await _updateArchive(m);
             }
             if (from < 6) {
@@ -108,9 +119,13 @@ class AppDb extends _$AppDb {
             }
             if (5 <= from && from < 7) {
               await m.addColumn(
-                  galleryDownloadedOld, galleryDownloadedOld.groupName);
+                galleryDownloadedOld,
+                galleryDownloadedOld.groupName,
+              );
               await m.addColumn(
-                  archiveDownloadedOld, archiveDownloadedOld.groupName);
+                archiveDownloadedOld,
+                archiveDownloadedOld.groupName,
+              );
             }
             if (from < 8) {
               await _createGroupTable(m);
@@ -123,10 +138,14 @@ class AppDb extends _$AppDb {
             }
             if (from < 11) {
               await m.addColumn(
-                  galleryDownloadedOld, galleryDownloadedOld.sortOrder);
+                galleryDownloadedOld,
+                galleryDownloadedOld.sortOrder,
+              );
               await m.addColumn(galleryGroup, galleryGroup.sortOrder);
               await m.addColumn(
-                  archiveDownloadedOld, archiveDownloadedOld.sortOrder);
+                archiveDownloadedOld,
+                archiveDownloadedOld.sortOrder,
+              );
               await m.addColumn(archiveGroup, archiveGroup.sortOrder);
             }
             if (from < 13) {
@@ -158,14 +177,24 @@ class AppDb extends _$AppDb {
               await m.createTable(blockRule);
             }
             if (17 <= from && from < 21) {
-              await m.alterTable(TableMigration(galleryDownloaded, newColumns: [
-                galleryDownloaded.tags,
-                galleryDownloaded.tagRefreshTime
-              ]));
-              await m.alterTable(TableMigration(archiveDownloaded, newColumns: [
-                archiveDownloaded.tags,
-                archiveDownloaded.tagRefreshTime
-              ]));
+              await m.alterTable(
+                TableMigration(
+                  galleryDownloaded,
+                  newColumns: [
+                    galleryDownloaded.tags,
+                    galleryDownloaded.tagRefreshTime,
+                  ],
+                ),
+              );
+              await m.alterTable(
+                TableMigration(
+                  archiveDownloaded,
+                  newColumns: [
+                    archiveDownloaded.tags,
+                    archiveDownloaded.tagRefreshTime,
+                  ],
+                ),
+              );
             }
             if (from < 21) {
               await m.createIndex(gIdxTagRefreshTime).ignoreDuplicateIndex();
@@ -176,18 +205,33 @@ class AppDb extends _$AppDb {
               await m.createTable(localConfig);
             }
             if (17 <= from && from < 23) {
-              await m.alterTable(TableMigration(archiveDownloaded,
-                  newColumns: [archiveDownloaded.parseSource]));
+              await m.alterTable(
+                TableMigration(
+                  archiveDownloaded,
+                  newColumns: [archiveDownloaded.parseSource],
+                ),
+              );
             }
             if (from < 24) {
-              await m.alterTable(TableMigration(archiveDownloaded,
-                  newColumns: [archiveDownloaded.sanitizedTitle]));
-              await m.alterTable(TableMigration(galleryDownloaded,
-                  newColumns: [galleryDownloaded.sanitizedTitle]));
+              await m.alterTable(
+                TableMigration(
+                  archiveDownloaded,
+                  newColumns: [archiveDownloaded.sanitizedTitle],
+                ),
+              );
+              await m.alterTable(
+                TableMigration(
+                  galleryDownloaded,
+                  newColumns: [galleryDownloaded.sanitizedTitle],
+                ),
+              );
               await _backfillSanitizedTitles();
             }
             if (from < 25) {
               await m.createTable(smartCacheStat);
+            }
+            if (from < 26) {
+              await m.createTable(readerBookmarkTable);
             }
           });
         } on Exception catch (e) {
@@ -225,40 +269,47 @@ class AppDb extends _$AppDb {
       await m.createTable(galleryHistory);
 
       if (Get.isRegistered<StorageService>()) {
-        List<Gallery>? gallerys = storageService
-            .read<List>(ConfigEnum.oldGalleryHistory.key)
-            ?.map((e) => Gallery.fromJson(e))
-            .toList();
+        List<Gallery>? gallerys =
+            storageService
+                .read<List>(ConfigEnum.oldGalleryHistory.key)
+                ?.map((e) => Gallery.fromJson(e))
+                .toList();
 
-        List<GalleryHistoryModel>? historyModels = gallerys
-            ?.map(
-              (g) => GalleryHistoryModel(
-                galleryUrl: g.galleryUrl,
-                title: g.title,
-                category: g.category,
-                coverUrl: g.cover.url,
-                pageCount: g.pageCount ?? 0,
-                rating: g.rating,
-                language: g.language ?? '',
-                uploader: g.uploader ?? '',
-                publishTime: g.publishTime,
-                isExpunged: g.isExpunged,
-                tags: g.tags.values.flattened
-                    .map((tag) => '${tag.tagData.namespace}:${tag.tagData.key}')
-                    .toList(),
-              ),
-            )
-            .toList();
+        List<GalleryHistoryModel>? historyModels =
+            gallerys
+                ?.map(
+                  (g) => GalleryHistoryModel(
+                    galleryUrl: g.galleryUrl,
+                    title: g.title,
+                    category: g.category,
+                    coverUrl: g.cover.url,
+                    pageCount: g.pageCount ?? 0,
+                    rating: g.rating,
+                    language: g.language ?? '',
+                    uploader: g.uploader ?? '',
+                    publishTime: g.publishTime,
+                    isExpunged: g.isExpunged,
+                    tags:
+                        g.tags.values.flattened
+                            .map(
+                              (tag) =>
+                                  '${tag.tagData.namespace}:${tag.tagData.key}',
+                            )
+                            .toList(),
+                  ),
+                )
+                .toList();
 
-        List<GalleryHistoryV2Data>? historyV2Datas = historyModels
-            ?.map(
-              (h) => GalleryHistoryV2Data(
-                gid: h.galleryUrl.gid,
-                jsonBody: jsonEncode(h),
-                lastReadTime: DateTime.now().toString(),
-              ),
-            )
-            .toList();
+        List<GalleryHistoryV2Data>? historyV2Datas =
+            historyModels
+                ?.map(
+                  (h) => GalleryHistoryV2Data(
+                    gid: h.galleryUrl.gid,
+                    jsonBody: jsonEncode(h),
+                    lastReadTime: DateTime.now().toString(),
+                  ),
+                )
+                .toList();
 
         if (historyV2Datas != null) {
           await GalleryHistoryDao.batchReplaceHistory(historyV2Datas);
@@ -278,12 +329,14 @@ class AppDb extends _$AppDb {
       await m.createTable(galleryGroup);
       await m.createTable(archiveGroup);
 
-      Set<String> galleryGroups = (await GalleryDao.selectOldGallerys())
-          .map((g) => g.groupName ?? 'default'.tr)
-          .toSet();
-      Set<String> archiveGroups = (await ArchiveDao.selectOldArchives())
-          .map((g) => g.groupName ?? 'default'.tr)
-          .toSet();
+      Set<String> galleryGroups =
+          (await GalleryDao.selectOldGallerys())
+              .map((g) => g.groupName ?? 'default'.tr)
+              .toSet();
+      Set<String> archiveGroups =
+          (await ArchiveDao.selectOldArchives())
+              .map((g) => g.groupName ?? 'default'.tr)
+              .toSet();
 
       log.info('Migrate gallery groups: $galleryGroups');
       log.info('Migrate archive groups: $archiveGroups');
@@ -291,11 +344,13 @@ class AppDb extends _$AppDb {
       await appDb.transaction(() async {
         for (String groupName in galleryGroups) {
           await GalleryGroupDao.insertGalleryGroup(
-              GalleryGroupData(groupName: groupName, sortOrder: 0));
+            GalleryGroupData(groupName: groupName, sortOrder: 0),
+          );
         }
         for (String groupName in archiveGroups) {
           await ArchiveGroupDao.insertArchiveGroup(
-              ArchiveGroupData(groupName: groupName, sortOrder: 0));
+            ArchiveGroupData(groupName: groupName, sortOrder: 0),
+          );
         }
       });
     } on Exception catch (e) {
@@ -412,27 +467,45 @@ class AppDb extends _$AppDb {
 
   Future<void> _migrateArchiveStatus(Migrator m) async {
     await ArchiveDao.updateArchiveStatus(
-        OldArchiveStatus.none.index, ArchiveStatus.unlocking.code);
+      OldArchiveStatus.none.index,
+      ArchiveStatus.unlocking.code,
+    );
     await ArchiveDao.updateArchiveStatus(
-        OldArchiveStatus.needReUnlock.index, ArchiveStatus.needReUnlock.code);
+      OldArchiveStatus.needReUnlock.index,
+      ArchiveStatus.needReUnlock.code,
+    );
     await ArchiveDao.updateArchiveStatus(
-        OldArchiveStatus.paused.index, ArchiveStatus.paused.code);
+      OldArchiveStatus.paused.index,
+      ArchiveStatus.paused.code,
+    );
     await ArchiveDao.updateArchiveStatus(
-        OldArchiveStatus.unlocking.index, ArchiveStatus.unlocking.code);
+      OldArchiveStatus.unlocking.index,
+      ArchiveStatus.unlocking.code,
+    );
     await ArchiveDao.updateArchiveStatus(
-        OldArchiveStatus.parsingDownloadPageUrl.index,
-        ArchiveStatus.parsingDownloadPageUrl.code);
+      OldArchiveStatus.parsingDownloadPageUrl.index,
+      ArchiveStatus.parsingDownloadPageUrl.code,
+    );
     await ArchiveDao.updateArchiveStatus(
-        OldArchiveStatus.parsingDownloadUrl.index,
-        ArchiveStatus.parsingDownloadUrl.code);
+      OldArchiveStatus.parsingDownloadUrl.index,
+      ArchiveStatus.parsingDownloadUrl.code,
+    );
     await ArchiveDao.updateArchiveStatus(
-        OldArchiveStatus.downloading.index, ArchiveStatus.downloading.code);
+      OldArchiveStatus.downloading.index,
+      ArchiveStatus.downloading.code,
+    );
     await ArchiveDao.updateArchiveStatus(
-        OldArchiveStatus.downloaded.index, ArchiveStatus.downloaded.code);
+      OldArchiveStatus.downloaded.index,
+      ArchiveStatus.downloaded.code,
+    );
     await ArchiveDao.updateArchiveStatus(
-        OldArchiveStatus.unpacking.index, ArchiveStatus.unpacking.code);
+      OldArchiveStatus.unpacking.index,
+      ArchiveStatus.unpacking.code,
+    );
     await ArchiveDao.updateArchiveStatus(
-        OldArchiveStatus.completed.index, ArchiveStatus.completed.code);
+      OldArchiveStatus.completed.index,
+      ArchiveStatus.completed.code,
+    );
   }
 
   /// Back-fill [sanitizedTitle] for existing rows using the old character-count
@@ -461,10 +534,11 @@ class AppDb extends _$AppDb {
         await ArchiveDao.selectArchives();
     await transaction(() async {
       for (final ArchiveDownloadedData a in archives) {
-        await (update(archiveDownloaded)..where((t) => t.gid.equals(a.gid)))
-            .write(
+        await (update(archiveDownloaded)
+          ..where((t) => t.gid.equals(a.gid))).write(
           ArchiveDownloadedCompanion(
-              sanitizedTitle: Value(legacyArchiveTitle(a.title))),
+            sanitizedTitle: Value(legacyArchiveTitle(a.title)),
+          ),
         );
       }
     });
@@ -473,10 +547,11 @@ class AppDb extends _$AppDb {
         await GalleryDao.selectGallerys();
     await transaction(() async {
       for (final GalleryDownloadedData g in galleries) {
-        await (update(galleryDownloaded)..where((t) => t.gid.equals(g.gid)))
-            .write(
+        await (update(galleryDownloaded)
+          ..where((t) => t.gid.equals(g.gid))).write(
           GalleryDownloadedCompanion(
-              sanitizedTitle: Value(legacyGalleryTitle(g.title))),
+            sanitizedTitle: Value(legacyGalleryTitle(g.title)),
+          ),
         );
       }
     });

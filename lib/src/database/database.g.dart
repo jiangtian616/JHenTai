@@ -7121,6 +7121,411 @@ class SmartCacheStatCompanion extends UpdateCompanion<SmartCacheStatData> {
   }
 }
 
+class $ReaderBookmarkTableTable extends ReaderBookmarkTable
+    with TableInfo<$ReaderBookmarkTableTable, ReaderBookmarkTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ReaderBookmarkTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _galleryKeyMeta =
+      const VerificationMeta('galleryKey');
+  @override
+  late final GeneratedColumn<String> galleryKey = GeneratedColumn<String>(
+      'gallery_key', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _pageIndexMeta =
+      const VerificationMeta('pageIndex');
+  @override
+  late final GeneratedColumn<int> pageIndex = GeneratedColumn<int>(
+      'page_index', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<String> createdAt = GeneratedColumn<String>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<String> updatedAt = GeneratedColumn<String>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+      'note', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sourceDeviceIdMeta =
+      const VerificationMeta('sourceDeviceId');
+  @override
+  late final GeneratedColumn<String> sourceDeviceId = GeneratedColumn<String>(
+      'source_device_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<String> deletedAt = GeneratedColumn<String>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        galleryKey,
+        pageIndex,
+        createdAt,
+        updatedAt,
+        note,
+        sourceDeviceId,
+        deletedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'reader_bookmark';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ReaderBookmarkTableData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('gallery_key')) {
+      context.handle(
+          _galleryKeyMeta,
+          galleryKey.isAcceptableOrUnknown(
+              data['gallery_key']!, _galleryKeyMeta));
+    } else if (isInserting) {
+      context.missing(_galleryKeyMeta);
+    }
+    if (data.containsKey('page_index')) {
+      context.handle(_pageIndexMeta,
+          pageIndex.isAcceptableOrUnknown(data['page_index']!, _pageIndexMeta));
+    } else if (isInserting) {
+      context.missing(_pageIndexMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+          _noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
+    }
+    if (data.containsKey('source_device_id')) {
+      context.handle(
+          _sourceDeviceIdMeta,
+          sourceDeviceId.isAcceptableOrUnknown(
+              data['source_device_id']!, _sourceDeviceIdMeta));
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {galleryKey, pageIndex};
+  @override
+  ReaderBookmarkTableData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ReaderBookmarkTableData(
+      galleryKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}gallery_key'])!,
+      pageIndex: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}page_index'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}updated_at'])!,
+      note: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}note']),
+      sourceDeviceId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}source_device_id']),
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}deleted_at']),
+    );
+  }
+
+  @override
+  $ReaderBookmarkTableTable createAlias(String alias) {
+    return $ReaderBookmarkTableTable(attachedDatabase, alias);
+  }
+}
+
+class ReaderBookmarkTableData extends DataClass
+    implements Insertable<ReaderBookmarkTableData> {
+  final String galleryKey;
+  final int pageIndex;
+  final String createdAt;
+  final String updatedAt;
+  final String? note;
+  final String? sourceDeviceId;
+  final String? deletedAt;
+  const ReaderBookmarkTableData(
+      {required this.galleryKey,
+      required this.pageIndex,
+      required this.createdAt,
+      required this.updatedAt,
+      this.note,
+      this.sourceDeviceId,
+      this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['gallery_key'] = Variable<String>(galleryKey);
+    map['page_index'] = Variable<int>(pageIndex);
+    map['created_at'] = Variable<String>(createdAt);
+    map['updated_at'] = Variable<String>(updatedAt);
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    if (!nullToAbsent || sourceDeviceId != null) {
+      map['source_device_id'] = Variable<String>(sourceDeviceId);
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<String>(deletedAt);
+    }
+    return map;
+  }
+
+  ReaderBookmarkTableCompanion toCompanion(bool nullToAbsent) {
+    return ReaderBookmarkTableCompanion(
+      galleryKey: Value(galleryKey),
+      pageIndex: Value(pageIndex),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      sourceDeviceId: sourceDeviceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceDeviceId),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory ReaderBookmarkTableData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ReaderBookmarkTableData(
+      galleryKey: serializer.fromJson<String>(json['galleryKey']),
+      pageIndex: serializer.fromJson<int>(json['pageIndex']),
+      createdAt: serializer.fromJson<String>(json['createdAt']),
+      updatedAt: serializer.fromJson<String>(json['updatedAt']),
+      note: serializer.fromJson<String?>(json['note']),
+      sourceDeviceId: serializer.fromJson<String?>(json['sourceDeviceId']),
+      deletedAt: serializer.fromJson<String?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'galleryKey': serializer.toJson<String>(galleryKey),
+      'pageIndex': serializer.toJson<int>(pageIndex),
+      'createdAt': serializer.toJson<String>(createdAt),
+      'updatedAt': serializer.toJson<String>(updatedAt),
+      'note': serializer.toJson<String?>(note),
+      'sourceDeviceId': serializer.toJson<String?>(sourceDeviceId),
+      'deletedAt': serializer.toJson<String?>(deletedAt),
+    };
+  }
+
+  ReaderBookmarkTableData copyWith(
+          {String? galleryKey,
+          int? pageIndex,
+          String? createdAt,
+          String? updatedAt,
+          Value<String?> note = const Value.absent(),
+          Value<String?> sourceDeviceId = const Value.absent(),
+          Value<String?> deletedAt = const Value.absent()}) =>
+      ReaderBookmarkTableData(
+        galleryKey: galleryKey ?? this.galleryKey,
+        pageIndex: pageIndex ?? this.pageIndex,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        note: note.present ? note.value : this.note,
+        sourceDeviceId:
+            sourceDeviceId.present ? sourceDeviceId.value : this.sourceDeviceId,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+      );
+  ReaderBookmarkTableData copyWithCompanion(ReaderBookmarkTableCompanion data) {
+    return ReaderBookmarkTableData(
+      galleryKey:
+          data.galleryKey.present ? data.galleryKey.value : this.galleryKey,
+      pageIndex: data.pageIndex.present ? data.pageIndex.value : this.pageIndex,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      note: data.note.present ? data.note.value : this.note,
+      sourceDeviceId: data.sourceDeviceId.present
+          ? data.sourceDeviceId.value
+          : this.sourceDeviceId,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReaderBookmarkTableData(')
+          ..write('galleryKey: $galleryKey, ')
+          ..write('pageIndex: $pageIndex, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('note: $note, ')
+          ..write('sourceDeviceId: $sourceDeviceId, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(galleryKey, pageIndex, createdAt, updatedAt,
+      note, sourceDeviceId, deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ReaderBookmarkTableData &&
+          other.galleryKey == this.galleryKey &&
+          other.pageIndex == this.pageIndex &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.note == this.note &&
+          other.sourceDeviceId == this.sourceDeviceId &&
+          other.deletedAt == this.deletedAt);
+}
+
+class ReaderBookmarkTableCompanion
+    extends UpdateCompanion<ReaderBookmarkTableData> {
+  final Value<String> galleryKey;
+  final Value<int> pageIndex;
+  final Value<String> createdAt;
+  final Value<String> updatedAt;
+  final Value<String?> note;
+  final Value<String?> sourceDeviceId;
+  final Value<String?> deletedAt;
+  final Value<int> rowid;
+  const ReaderBookmarkTableCompanion({
+    this.galleryKey = const Value.absent(),
+    this.pageIndex = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.note = const Value.absent(),
+    this.sourceDeviceId = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ReaderBookmarkTableCompanion.insert({
+    required String galleryKey,
+    required int pageIndex,
+    required String createdAt,
+    required String updatedAt,
+    this.note = const Value.absent(),
+    this.sourceDeviceId = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : galleryKey = Value(galleryKey),
+        pageIndex = Value(pageIndex),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt);
+  static Insertable<ReaderBookmarkTableData> custom({
+    Expression<String>? galleryKey,
+    Expression<int>? pageIndex,
+    Expression<String>? createdAt,
+    Expression<String>? updatedAt,
+    Expression<String>? note,
+    Expression<String>? sourceDeviceId,
+    Expression<String>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (galleryKey != null) 'gallery_key': galleryKey,
+      if (pageIndex != null) 'page_index': pageIndex,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (note != null) 'note': note,
+      if (sourceDeviceId != null) 'source_device_id': sourceDeviceId,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ReaderBookmarkTableCompanion copyWith(
+      {Value<String>? galleryKey,
+      Value<int>? pageIndex,
+      Value<String>? createdAt,
+      Value<String>? updatedAt,
+      Value<String?>? note,
+      Value<String?>? sourceDeviceId,
+      Value<String?>? deletedAt,
+      Value<int>? rowid}) {
+    return ReaderBookmarkTableCompanion(
+      galleryKey: galleryKey ?? this.galleryKey,
+      pageIndex: pageIndex ?? this.pageIndex,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      note: note ?? this.note,
+      sourceDeviceId: sourceDeviceId ?? this.sourceDeviceId,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (galleryKey.present) {
+      map['gallery_key'] = Variable<String>(galleryKey.value);
+    }
+    if (pageIndex.present) {
+      map['page_index'] = Variable<int>(pageIndex.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<String>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<String>(updatedAt.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (sourceDeviceId.present) {
+      map['source_device_id'] = Variable<String>(sourceDeviceId.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<String>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReaderBookmarkTableCompanion(')
+          ..write('galleryKey: $galleryKey, ')
+          ..write('pageIndex: $pageIndex, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('note: $note, ')
+          ..write('sourceDeviceId: $sourceDeviceId, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDb extends GeneratedDatabase {
   _$AppDb(QueryExecutor e) : super(e);
   $AppDbManager get managers => $AppDbManager(this);
@@ -7148,6 +7553,8 @@ abstract class _$AppDb extends GeneratedDatabase {
   late final $BlockRuleTable blockRule = $BlockRuleTable(this);
   late final $LocalConfigTable localConfig = $LocalConfigTable(this);
   late final $SmartCacheStatTable smartCacheStat = $SmartCacheStatTable(this);
+  late final $ReaderBookmarkTableTable readerBookmarkTable =
+      $ReaderBookmarkTableTable(this);
   late final Index idxKey =
       Index('idx_key', 'CREATE INDEX idx_key ON tag (_key)');
   late final Index idxTagName =
@@ -7182,6 +7589,9 @@ abstract class _$AppDb extends GeneratedDatabase {
       Index('idx_target', 'CREATE INDEX idx_target ON block_rule (target)');
   late final Index lIdxUTime = Index(
       'l_idx_u_time', 'CREATE INDEX l_idx_u_time ON local_config (utime)');
+  late final Index idxReaderBookmarkGalleryPage = Index(
+      'idx_reader_bookmark_gallery_page',
+      'CREATE INDEX idx_reader_bookmark_gallery_page ON reader_bookmark (gallery_key, page_index)');
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -7204,6 +7614,7 @@ abstract class _$AppDb extends GeneratedDatabase {
         blockRule,
         localConfig,
         smartCacheStat,
+        readerBookmarkTable,
         idxKey,
         idxTagName,
         aIdxInsertTime,
@@ -7220,7 +7631,8 @@ abstract class _$AppDb extends GeneratedDatabase {
         idxUrl,
         idxGroupId,
         idxTarget,
-        lIdxUTime
+        lIdxUTime,
+        idxReaderBookmarkGalleryPage
       ];
 }
 
@@ -10979,6 +11391,216 @@ typedef $$SmartCacheStatTableProcessedTableManager = ProcessedTableManager<
     ),
     SmartCacheStatData,
     PrefetchHooks Function()>;
+typedef $$ReaderBookmarkTableTableCreateCompanionBuilder
+    = ReaderBookmarkTableCompanion Function({
+  required String galleryKey,
+  required int pageIndex,
+  required String createdAt,
+  required String updatedAt,
+  Value<String?> note,
+  Value<String?> sourceDeviceId,
+  Value<String?> deletedAt,
+  Value<int> rowid,
+});
+typedef $$ReaderBookmarkTableTableUpdateCompanionBuilder
+    = ReaderBookmarkTableCompanion Function({
+  Value<String> galleryKey,
+  Value<int> pageIndex,
+  Value<String> createdAt,
+  Value<String> updatedAt,
+  Value<String?> note,
+  Value<String?> sourceDeviceId,
+  Value<String?> deletedAt,
+  Value<int> rowid,
+});
+
+class $$ReaderBookmarkTableTableFilterComposer
+    extends Composer<_$AppDb, $ReaderBookmarkTableTable> {
+  $$ReaderBookmarkTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get galleryKey => $composableBuilder(
+      column: $table.galleryKey, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get pageIndex => $composableBuilder(
+      column: $table.pageIndex, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourceDeviceId => $composableBuilder(
+      column: $table.sourceDeviceId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$ReaderBookmarkTableTableOrderingComposer
+    extends Composer<_$AppDb, $ReaderBookmarkTableTable> {
+  $$ReaderBookmarkTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get galleryKey => $composableBuilder(
+      column: $table.galleryKey, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get pageIndex => $composableBuilder(
+      column: $table.pageIndex, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourceDeviceId => $composableBuilder(
+      column: $table.sourceDeviceId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ReaderBookmarkTableTableAnnotationComposer
+    extends Composer<_$AppDb, $ReaderBookmarkTableTable> {
+  $$ReaderBookmarkTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get galleryKey => $composableBuilder(
+      column: $table.galleryKey, builder: (column) => column);
+
+  GeneratedColumn<int> get pageIndex =>
+      $composableBuilder(column: $table.pageIndex, builder: (column) => column);
+
+  GeneratedColumn<String> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceDeviceId => $composableBuilder(
+      column: $table.sourceDeviceId, builder: (column) => column);
+
+  GeneratedColumn<String> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$ReaderBookmarkTableTableTableManager extends RootTableManager<
+    _$AppDb,
+    $ReaderBookmarkTableTable,
+    ReaderBookmarkTableData,
+    $$ReaderBookmarkTableTableFilterComposer,
+    $$ReaderBookmarkTableTableOrderingComposer,
+    $$ReaderBookmarkTableTableAnnotationComposer,
+    $$ReaderBookmarkTableTableCreateCompanionBuilder,
+    $$ReaderBookmarkTableTableUpdateCompanionBuilder,
+    (
+      ReaderBookmarkTableData,
+      BaseReferences<_$AppDb, $ReaderBookmarkTableTable,
+          ReaderBookmarkTableData>
+    ),
+    ReaderBookmarkTableData,
+    PrefetchHooks Function()> {
+  $$ReaderBookmarkTableTableTableManager(
+      _$AppDb db, $ReaderBookmarkTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ReaderBookmarkTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ReaderBookmarkTableTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ReaderBookmarkTableTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> galleryKey = const Value.absent(),
+            Value<int> pageIndex = const Value.absent(),
+            Value<String> createdAt = const Value.absent(),
+            Value<String> updatedAt = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<String?> sourceDeviceId = const Value.absent(),
+            Value<String?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ReaderBookmarkTableCompanion(
+            galleryKey: galleryKey,
+            pageIndex: pageIndex,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            note: note,
+            sourceDeviceId: sourceDeviceId,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String galleryKey,
+            required int pageIndex,
+            required String createdAt,
+            required String updatedAt,
+            Value<String?> note = const Value.absent(),
+            Value<String?> sourceDeviceId = const Value.absent(),
+            Value<String?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ReaderBookmarkTableCompanion.insert(
+            galleryKey: galleryKey,
+            pageIndex: pageIndex,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            note: note,
+            sourceDeviceId: sourceDeviceId,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ReaderBookmarkTableTableProcessedTableManager = ProcessedTableManager<
+    _$AppDb,
+    $ReaderBookmarkTableTable,
+    ReaderBookmarkTableData,
+    $$ReaderBookmarkTableTableFilterComposer,
+    $$ReaderBookmarkTableTableOrderingComposer,
+    $$ReaderBookmarkTableTableAnnotationComposer,
+    $$ReaderBookmarkTableTableCreateCompanionBuilder,
+    $$ReaderBookmarkTableTableUpdateCompanionBuilder,
+    (
+      ReaderBookmarkTableData,
+      BaseReferences<_$AppDb, $ReaderBookmarkTableTable,
+          ReaderBookmarkTableData>
+    ),
+    ReaderBookmarkTableData,
+    PrefetchHooks Function()>;
 
 class $AppDbManager {
   final _$AppDb _db;
@@ -11017,4 +11639,6 @@ class $AppDbManager {
       $$LocalConfigTableTableManager(_db, _db.localConfig);
   $$SmartCacheStatTableTableManager get smartCacheStat =>
       $$SmartCacheStatTableTableManager(_db, _db.smartCacheStat);
+  $$ReaderBookmarkTableTableTableManager get readerBookmarkTable =>
+      $$ReaderBookmarkTableTableTableManager(_db, _db.readerBookmarkTable);
 }

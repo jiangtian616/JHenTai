@@ -36,6 +36,7 @@ enum ConfigEnum {
   searchConfig('searchConfig'),
   dismissVersion('dismissVersion'),
   readIndexRecord('readIndexRecord'),
+  readerActionPosition('readerActionPosition'),
   quickSearch('quickSearch'),
   oldGalleryHistory('history'),
   searchHistory('searchHistory'),
@@ -51,13 +52,13 @@ enum ConfigEnum {
   tagTranslationServiceTimestamp('TagTranslationServiceTimestamp'),
   tagSearchOrderOptimizationServiceVersion('TagTranslationServiceVersion'),
   tagSearchOrderOptimizationServiceLoadingState(
-      'TagSearchOrderOptimizationServiceLoadingState'),
+    'TagSearchOrderOptimizationServiceLoadingState',
+  ),
   displayBlockingRulesGroup('displayBlockingRulesGroup'),
 
   /// cache
   isSpreadPage('isSpreadPage'),
-  galleryImageHash('galleryImageHash'),
-  ;
+  galleryImageHash('galleryImageHash');
 
   final String key;
 

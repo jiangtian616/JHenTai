@@ -1145,6 +1145,10 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       /// image text translation
       'imageTextTranslation': 'Image Text Translation',
       'translateImageText': 'Recognize and Translate This Page',
+      'currentPageSuperResolution': 'Super-resolve This Page',
+      'addBookmark': 'Add bookmark',
+      'removeBookmark': 'Remove bookmark',
+      'readerTranslation': 'Reader translation',
       'recognizingImageText': 'Recognizing image text…',
       'translatingImageText': 'Translating image text…',
       'showTranslation': 'Show Translation',

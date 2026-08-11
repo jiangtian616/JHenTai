@@ -47,6 +47,10 @@ class EHImage extends StatefulWidget {
   final bool forceFadeIn;
   final int? maxBytes;
 
+  /// Optional absolute path for reader-generated images that are not part of
+  /// the gallery-download tree (for example a current-page SR cache).
+  final String? absoluteFilePath;
+
   /// Optional decode-size bound for the cached image. When set, the image is
   /// decoded at approximately this pixel width/height instead of its native
   /// resolution, cutting decode time and memory-cache footprint. Only used by
@@ -95,6 +99,7 @@ class EHImage extends StatefulWidget {
     this.shadows,
     this.forceFadeIn = false,
     this.maxBytes,
+    this.absoluteFilePath,
     this.cacheWidth,
     this.cacheHeight,
     this.timeLimit,
@@ -127,6 +132,7 @@ class EHImage extends StatefulWidget {
     this.shadows,
     this.forceFadeIn = false,
     this.maxBytes,
+    this.absoluteFilePath,
     this.cacheWidth,
     this.cacheHeight,
     this.timeLimit,
@@ -239,12 +245,11 @@ class _EHImageState extends State<EHImage> {
 
   @override
   Widget build(BuildContext context) {
-    Widget child =
-        advancedSetting.inNoImageMode.isTrue
-            ? const SizedBox()
-            : widget.galleryImage.path == null
-            ? buildNetworkImage(context)
-            : buildFileImage(context);
+    Widget child = advancedSetting.inNoImageMode.isTrue
+        ? const SizedBox()
+        : widget.galleryImage.path == null
+        ? buildNetworkImage(context)
+        : buildFileImage(context);
 
     if (widget.heroTag != null && styleSetting.isInMobileLayout) {
       child = Hero(tag: widget.heroTag!, child: child);
@@ -252,16 +257,15 @@ class _EHImageState extends State<EHImage> {
 
     if (widget.autoLayout) {
       return LayoutBuilder(
-        builder:
-            (_, constraints) => Container(
-              height: constraints.maxHeight,
-              width: constraints.maxWidth,
-              decoration: BoxDecoration(
-                color: widget.containerColor,
-                borderRadius: widget.borderRadius,
-              ),
-              child: child,
-            ),
+        builder: (_, constraints) => Container(
+          height: constraints.maxHeight,
+          width: constraints.maxWidth,
+          decoration: BoxDecoration(
+            color: widget.containerColor,
+            borderRadius: widget.borderRadius,
+          ),
+          child: child,
+        ),
       );
     }
 
@@ -284,34 +288,31 @@ class _EHImageState extends State<EHImage> {
 
     return ExtendedImage(
       image: ExtendedResizeImage.resizeIfNeeded(
-        provider:
-            useGate
-                ? _GateExtendedNetworkImageProvider(
-                  url,
-                  cache: true,
-                  printError: kDebugMode,
-                  // Key the disk cache by the stable image identity so it
-                  // survives EH's rotating keystamp token (and can be reused by
-                  // the downloader later).
-                  cacheKey: normalizedImageCacheKey(url),
-                  cancelToken: widget.cancelToken,
-                  timeLimit:
-                      timeLimit == null
-                          ? null
-                          : Duration(milliseconds: timeLimit),
-                  gate: gate,
-                )
-                : ExtendedNetworkImageProvider(
-                  url,
-                  cache: true,
-                  printError: kDebugMode,
-                  cacheKey: normalizedImageCacheKey(url),
-                  cancelToken: widget.cancelToken,
-                  timeLimit:
-                      timeLimit == null
-                          ? null
-                          : Duration(milliseconds: timeLimit),
-                ),
+        provider: useGate
+            ? _GateExtendedNetworkImageProvider(
+                url,
+                cache: true,
+                printError: kDebugMode,
+                // Key the disk cache by the stable image identity so it
+                // survives EH's rotating keystamp token (and can be reused by
+                // the downloader later).
+                cacheKey: normalizedImageCacheKey(url),
+                cancelToken: widget.cancelToken,
+                timeLimit: timeLimit == null
+                    ? null
+                    : Duration(milliseconds: timeLimit),
+                gate: gate,
+              )
+            : ExtendedNetworkImageProvider(
+                url,
+                cache: true,
+                printError: kDebugMode,
+                cacheKey: normalizedImageCacheKey(url),
+                cancelToken: widget.cancelToken,
+                timeLimit: timeLimit == null
+                    ? null
+                    : Duration(milliseconds: timeLimit),
+              ),
         maxBytes: widget.maxBytes,
         cacheWidth: widget.cacheWidth,
         cacheHeight: widget.cacheHeight,
@@ -329,11 +330,11 @@ class _EHImageState extends State<EHImage> {
             widget.onLoading?.call(state);
             return widget.loadingProgressWidgetBuilder != null
                 ? widget.loadingProgressWidgetBuilder!.call(
-                  _computeLoadingProgress(
-                    state.loadingProgress,
-                    state.extendedImageInfo,
-                  ),
-                )
+                    _computeLoadingProgress(
+                      state.loadingProgress,
+                      state.extendedImageInfo,
+                    ),
+                  )
                 : Center(child: UIConfig.loadingAnimation(context));
           case LoadState.failed:
             widget.onFailed?.call(state);
@@ -400,9 +401,10 @@ class _EHImageState extends State<EHImage> {
     }
 
     final io.File file = io.File(
-      GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
-        widget.galleryImage.path!,
-      ),
+      widget.absoluteFilePath ??
+          GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
+            widget.galleryImage.path!,
+          ),
     );
     final String lowerPath = widget.galleryImage.path!.toLowerCase();
     final bool isAnimatedFile =
@@ -516,14 +518,12 @@ class _EHImageState extends State<EHImage> {
 
     return ExtendedRawImage(
       image: state.extendedImageInfo?.image,
-      height:
-          fittedSizes.destination.height == 0
-              ? null
-              : fittedSizes.destination.height,
-      width:
-          fittedSizes.destination.width == 0
-              ? null
-              : fittedSizes.destination.width,
+      height: fittedSizes.destination.height == 0
+          ? null
+          : fittedSizes.destination.height,
+      width: fittedSizes.destination.width == 0
+          ? null
+          : fittedSizes.destination.width,
       scale: state.extendedImageInfo?.scale ?? 1.0,
       fit: widget.fit,
     );

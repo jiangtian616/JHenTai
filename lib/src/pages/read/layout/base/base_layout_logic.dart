@@ -194,6 +194,10 @@ abstract class BaseLayoutLogic extends GetxController
           child: Text('translateImageText'.tr),
         ),
         PopupMenuItem(
+          value: 'current_page_super_resolution',
+          child: Text('currentPageSuperResolution'.tr),
+        ),
+        PopupMenuItem(
           value: 'save',
           child: Text('${'save'.tr}(${'resampleImage'.tr})'),
         ),
@@ -220,6 +224,9 @@ abstract class BaseLayoutLogic extends GetxController
       case 'translate_image':
         translateImage(index, context);
         break;
+      case 'current_page_super_resolution':
+        readPageLogic.superResolveCurrentImage(index);
+        break;
       case 'save':
         await saveOnlineImage(index);
         break;
@@ -236,65 +243,75 @@ abstract class BaseLayoutLogic extends GetxController
   void showOnlineMobileBottomMenu(int index, BuildContext context) {
     showCupertinoModalPopup(
       context: context,
-      builder: (_) => CupertinoActionSheet(
-        actions: <CupertinoActionSheetAction>[
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('reload'.tr),
-            onPressed: () {
-              backRoute();
-              readPageLogic.reloadImage(index);
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('share'.tr),
-            onPressed: () async {
-              backRoute();
-              shareOnlineImage(index);
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('copyImage'.tr),
-            onPressed: () async {
-              backRoute();
-              copyOnlineImage(index);
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('copyEHPageUrl'.tr),
-            onPressed: () async {
-              backRoute();
-              copyEHPageUrl(index);
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('translateImageText'.tr),
-            onPressed: () {
-              backRoute();
-              translateImage(index, context);
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('${'save'.tr}(${'resampleImage'.tr})'),
-            onPressed: () async {
-              backRoute();
-              saveOnlineImage(index);
-            },
-          ),
-          if (readPageState.images[index]!.originalImageUrl != null &&
-              userSetting.hasLoggedIn())
-            CupertinoActionSheetAction(
-              child: ehActionSheetText('${'save'.tr}(${'originalImage'.tr})'),
-              onPressed: () async {
-                backRoute();
-                saveOriginalOnlineImage(index);
-              },
+      builder:
+          (_) => CupertinoActionSheet(
+            actions: <CupertinoActionSheetAction>[
+              CupertinoActionSheetAction(
+                child: ehActionSheetText('reload'.tr),
+                onPressed: () {
+                  backRoute();
+                  readPageLogic.reloadImage(index);
+                },
+              ),
+              CupertinoActionSheetAction(
+                child: ehActionSheetText('share'.tr),
+                onPressed: () async {
+                  backRoute();
+                  shareOnlineImage(index);
+                },
+              ),
+              CupertinoActionSheetAction(
+                child: ehActionSheetText('copyImage'.tr),
+                onPressed: () async {
+                  backRoute();
+                  copyOnlineImage(index);
+                },
+              ),
+              CupertinoActionSheetAction(
+                child: ehActionSheetText('copyEHPageUrl'.tr),
+                onPressed: () async {
+                  backRoute();
+                  copyEHPageUrl(index);
+                },
+              ),
+              CupertinoActionSheetAction(
+                child: ehActionSheetText('translateImageText'.tr),
+                onPressed: () {
+                  backRoute();
+                  translateImage(index, context);
+                },
+              ),
+              CupertinoActionSheetAction(
+                child: ehActionSheetText('currentPageSuperResolution'.tr),
+                onPressed: () {
+                  backRoute();
+                  readPageLogic.superResolveCurrentImage(index);
+                },
+              ),
+              CupertinoActionSheetAction(
+                child: ehActionSheetText('${'save'.tr}(${'resampleImage'.tr})'),
+                onPressed: () async {
+                  backRoute();
+                  saveOnlineImage(index);
+                },
+              ),
+              if (readPageState.images[index]!.originalImageUrl != null &&
+                  userSetting.hasLoggedIn())
+                CupertinoActionSheetAction(
+                  child: ehActionSheetText(
+                    '${'save'.tr}(${'originalImage'.tr})',
+                  ),
+                  onPressed: () async {
+                    backRoute();
+                    saveOriginalOnlineImage(index);
+                  },
+                ),
+            ],
+            cancelButton: CupertinoActionSheetAction(
+              child: ehActionSheetText('cancel'.tr),
+              onPressed: backRoute,
             ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          child: ehActionSheetText('cancel'.tr),
-          onPressed: backRoute,
-        ),
-      ),
+          ),
     );
   }
 
@@ -543,7 +560,19 @@ abstract class BaseLayoutLogic extends GetxController
     Offset? position,
   }) {
     final mode = readPageState.readPageInfo.mode;
-    if (mode == ReadMode.online || mode == ReadMode.local) {
+    if (mode == ReadMode.online) {
+      return;
+    }
+    if (mode == ReadMode.local) {
+      if (styleSetting.isInDesktopLayout && position != null) {
+        showLocalDesktopContextMenu(
+          index: index,
+          context: context,
+          position: position,
+        );
+      } else {
+        showLocalMobileBottomMenu(index, context);
+      }
       return;
     }
 
@@ -572,6 +601,54 @@ abstract class BaseLayoutLogic extends GetxController
     }
   }
 
+  void showLocalMobileBottomMenu(int index, BuildContext context) {
+    showCupertinoModalPopup(
+      context: context,
+      builder:
+          (_) => CupertinoActionSheet(
+            actions: [
+              CupertinoActionSheetAction(
+                child: ehActionSheetText('currentPageSuperResolution'.tr),
+                onPressed: () {
+                  backRoute();
+                  readPageLogic.superResolveCurrentImage(index);
+                },
+              ),
+            ],
+            cancelButton: CupertinoActionSheetAction(
+              child: ehActionSheetText('cancel'.tr),
+              onPressed: backRoute,
+            ),
+          ),
+    );
+  }
+
+  Future<void> showLocalDesktopContextMenu({
+    required int index,
+    required BuildContext context,
+    required Offset position,
+  }) async {
+    final String? selected = await showMenu<String>(
+      context: context,
+      popUpAnimationStyle: AnimationStyle.noAnimation,
+      position: RelativeRect.fromLTRB(
+        position.dx,
+        position.dy,
+        position.dx,
+        position.dy,
+      ),
+      items: [
+        PopupMenuItem(
+          value: 'current_page_super_resolution',
+          child: Text('currentPageSuperResolution'.tr),
+        ),
+      ],
+    );
+    if (selected == 'current_page_super_resolution') {
+      readPageLogic.superResolveCurrentImage(index);
+    }
+  }
+
   /// Mobile bottom action sheet for downloaded-mode images.
   void showDownloadedMobileBottomMenu(int index, BuildContext context) {
     if (galleryDownloadService
@@ -584,59 +661,67 @@ abstract class BaseLayoutLogic extends GetxController
 
     showCupertinoModalPopup(
       context: context,
-      builder: (_) => CupertinoActionSheet(
-        actions: [
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('share'.tr),
-            onPressed: () {
-              backRoute();
-              shareDownloadedImageFile(index);
-            },
+      builder:
+          (_) => CupertinoActionSheet(
+            actions: [
+              CupertinoActionSheetAction(
+                child: ehActionSheetText('share'.tr),
+                onPressed: () {
+                  backRoute();
+                  shareDownloadedImageFile(index);
+                },
+              ),
+              CupertinoActionSheetAction(
+                child: ehActionSheetText('copyImage'.tr),
+                onPressed: () {
+                  backRoute();
+                  copyDownloadedImageFile(index);
+                },
+              ),
+              CupertinoActionSheetAction(
+                child: ehActionSheetText('copyEHPageUrl'.tr),
+                onPressed: () async {
+                  backRoute();
+                  copyEHPageUrl(index);
+                },
+              ),
+              CupertinoActionSheetAction(
+                child: ehActionSheetText('translateImageText'.tr),
+                onPressed: () {
+                  backRoute();
+                  translateImage(index, context);
+                },
+              ),
+              CupertinoActionSheetAction(
+                child: ehActionSheetText('currentPageSuperResolution'.tr),
+                onPressed: () {
+                  backRoute();
+                  readPageLogic.superResolveCurrentImage(index);
+                },
+              ),
+              CupertinoActionSheetAction(
+                child: ehActionSheetText('save'.tr),
+                onPressed: () {
+                  backRoute();
+                  saveDownloadedImageFile(index);
+                },
+              ),
+              CupertinoActionSheetAction(
+                child: ehActionSheetText('reDownload'.tr),
+                onPressed: () {
+                  backRoute();
+                  galleryDownloadService.reDownloadImage(
+                    readPageState.readPageInfo.gid!,
+                    index,
+                  );
+                },
+              ),
+            ],
+            cancelButton: CupertinoActionSheetAction(
+              child: ehActionSheetText('cancel'.tr),
+              onPressed: backRoute,
+            ),
           ),
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('copyImage'.tr),
-            onPressed: () {
-              backRoute();
-              copyDownloadedImageFile(index);
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('copyEHPageUrl'.tr),
-            onPressed: () async {
-              backRoute();
-              copyEHPageUrl(index);
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('translateImageText'.tr),
-            onPressed: () {
-              backRoute();
-              translateImage(index, context);
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('save'.tr),
-            onPressed: () {
-              backRoute();
-              saveDownloadedImageFile(index);
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('reDownload'.tr),
-            onPressed: () {
-              backRoute();
-              galleryDownloadService.reDownloadImage(
-                readPageState.readPageInfo.gid!,
-                index,
-              );
-            },
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          child: ehActionSheetText('cancel'.tr),
-          onPressed: backRoute,
-        ),
-      ),
     );
   }
 
@@ -648,42 +733,43 @@ abstract class BaseLayoutLogic extends GetxController
 
     showCupertinoModalPopup(
       context: context,
-      builder: (_) => CupertinoActionSheet(
-        actions: [
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('share'.tr),
-            onPressed: () {
-              backRoute();
-              shareArchiveImageFile(index);
-            },
+      builder:
+          (_) => CupertinoActionSheet(
+            actions: [
+              CupertinoActionSheetAction(
+                child: ehActionSheetText('share'.tr),
+                onPressed: () {
+                  backRoute();
+                  shareArchiveImageFile(index);
+                },
+              ),
+              CupertinoActionSheetAction(
+                child: ehActionSheetText('copyImage'.tr),
+                onPressed: () {
+                  backRoute();
+                  copyArchiveImageFile(index);
+                },
+              ),
+              CupertinoActionSheetAction(
+                child: ehActionSheetText('translateImageText'.tr),
+                onPressed: () {
+                  backRoute();
+                  translateImage(index, context);
+                },
+              ),
+              CupertinoActionSheetAction(
+                child: ehActionSheetText('save'.tr),
+                onPressed: () {
+                  backRoute();
+                  saveArchiveImageFile(index);
+                },
+              ),
+            ],
+            cancelButton: CupertinoActionSheetAction(
+              child: ehActionSheetText('cancel'.tr),
+              onPressed: backRoute,
+            ),
           ),
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('copyImage'.tr),
-            onPressed: () {
-              backRoute();
-              copyArchiveImageFile(index);
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('translateImageText'.tr),
-            onPressed: () {
-              backRoute();
-              translateImage(index, context);
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: ehActionSheetText('save'.tr),
-            onPressed: () {
-              backRoute();
-              saveArchiveImageFile(index);
-            },
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          child: ehActionSheetText('cancel'.tr),
-          onPressed: backRoute,
-        ),
-      ),
     );
   }
 
@@ -720,6 +806,10 @@ abstract class BaseLayoutLogic extends GetxController
           value: 'translate_image',
           child: Text('translateImageText'.tr),
         ),
+        PopupMenuItem(
+          value: 'current_page_super_resolution',
+          child: Text('currentPageSuperResolution'.tr),
+        ),
         PopupMenuItem(value: 'save', child: Text('save'.tr)),
         PopupMenuItem(value: 'redownload', child: Text('reDownload'.tr)),
         PopupMenuItem(value: 'open_read_setting', child: Text('setting'.tr)),
@@ -735,6 +825,9 @@ abstract class BaseLayoutLogic extends GetxController
         break;
       case 'translate_image':
         translateImage(index, context);
+        break;
+      case 'current_page_super_resolution':
+        readPageLogic.superResolveCurrentImage(index);
         break;
       case 'save':
         saveDownloadedImageFile(index);
@@ -776,6 +869,10 @@ abstract class BaseLayoutLogic extends GetxController
           value: 'translate_image',
           child: Text('translateImageText'.tr),
         ),
+        PopupMenuItem(
+          value: 'current_page_super_resolution',
+          child: Text('currentPageSuperResolution'.tr),
+        ),
         PopupMenuItem(value: 'save', child: Text('save'.tr)),
         PopupMenuItem(value: 'open_read_setting', child: Text('setting'.tr)),
       ],
@@ -787,6 +884,9 @@ abstract class BaseLayoutLogic extends GetxController
         break;
       case 'translate_image':
         translateImage(index, context);
+        break;
+      case 'current_page_super_resolution':
+        readPageLogic.superResolveCurrentImage(index);
         break;
       case 'save':
         saveArchiveImageFile(index);
