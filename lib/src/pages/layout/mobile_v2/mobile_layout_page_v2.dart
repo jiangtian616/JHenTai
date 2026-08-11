@@ -67,7 +67,7 @@ class MobileLayoutPageV2 extends StatelessWidget {
               : buildBody(),
           bottomNavigationBar: ThemeConfig.isApple
               ? null
-              : (preferenceSetting.hideBottomBar.isTrue
+              : (preferenceSetting.effectiveHideBottomBar
                   ? null
                   : buildBottomNavigationBar(context)),
         ),
@@ -183,7 +183,7 @@ class MobileLayoutPageV2 extends StatelessWidget {
           buildBody(),
           // Hide the floating nav while the on-screen keyboard is up so it
           // never sits on top of the keyboard (e.g. quick-search typing).
-          if (!preferenceSetting.hideBottomBar.value &&
+          if (!preferenceSetting.effectiveHideBottomBar &&
               MediaQuery.viewInsetsOf(context).bottom == 0)
             buildLiquidGlassBottomNavigationBar(context),
         ],

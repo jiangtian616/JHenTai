@@ -53,7 +53,6 @@ class UpdateDialog extends StatelessWidget {
               backRoute();
               launchUrlString('https://github.com/jiangtian616/JHenTai/releases', mode: LaunchMode.externalApplication);
             },
-            isPrimary: true,
           ),
         ],
       );

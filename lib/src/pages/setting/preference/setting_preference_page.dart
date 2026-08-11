@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/tab_bar_icon.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
@@ -270,8 +271,9 @@ class SettingPreferencePage extends StatelessWidget {
   Widget _buildShowBottomNavigation() {
     return EHAppleSwitchListTile(
       title: Text('hideBottomBar'.tr),
-      value: preferenceSetting.hideBottomBar.value,
+      value: preferenceSetting.effectiveHideBottomBar,
       onChanged: preferenceSetting.saveHideBottomBar,
+      enabled: !ThemeConfig.isApple,
     );
   }
 

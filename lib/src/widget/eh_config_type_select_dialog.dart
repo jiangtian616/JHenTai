@@ -50,7 +50,6 @@ class _EHConfigTypeSelectDialogState extends State<EHConfigTypeSelectDialog> {
           GlassDialogAction(
             label: 'OK'.tr,
             onPressed: () => backRoute(result: selected),
-            isPrimary: true,
           ),
         ],
       );

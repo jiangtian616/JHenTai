@@ -556,7 +556,6 @@ class _TrustedDeviceTile extends StatelessWidget {
               GlassDialogAction(
                 label: 'OK'.tr,
                 onPressed: () => backRoute(result: true),
-                isPrimary: true,
               ),
             ],
           )

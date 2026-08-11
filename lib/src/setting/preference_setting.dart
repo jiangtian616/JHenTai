@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/model/tab_bar_icon.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
@@ -19,6 +20,11 @@ class PreferenceSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
   Rx<TabBarIconNameEnum> defaultTab = TabBarIconNameEnum.home.obs;
   RxBool simpleDashboardMode = false.obs;
   RxBool hideBottomBar = false.obs;
+
+  /// Apple navigation is a persistent part of the Apple layout and cannot be
+  /// removed by the legacy hide-bottom-bar preference.
+  bool get effectiveHideBottomBar =>
+      !ThemeConfig.isApple && hideBottomBar.value;
   Rx<Scroll2TopButtonModeEnum> hideScroll2TopButton = Scroll2TopButtonModeEnum.scrollDown.obs;
   RxBool preloadGalleryCover = false.obs;
   RxBool enableSwipeBackGesture = true.obs;

@@ -10,10 +10,9 @@ class ThemeConfig {
   static const WidgetStatePropertyAll<MouseCursor> clickableMouseCursor =
       WidgetStatePropertyAll(WidgetStateMouseCursor.clickable);
 
-  static bool get isApplePlatform => GetPlatform.isIOS || GetPlatform.isMacOS;
-
   /// Apple visual style takes effect after the user enables it in Style
-  /// settings, on every platform.
+  /// settings, on every native platform. The setting is intentionally not
+  /// gated by the host platform so Android, Windows and Linux can opt in too.
   static bool get isApple => appleVisualStyleEnabled;
 
   static ThemeData theme(Color color, Brightness brightness) {

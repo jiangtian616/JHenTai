@@ -1,8 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
+import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 import 'eh_action_sheet_text.dart';
 
@@ -23,7 +26,8 @@ class EHContextMenuAction {
   });
 }
 
-/// Unified context menu: [CupertinoActionSheet] on mobile, [showMenu] next to the cursor on desktop.
+/// Unified context menu: a glass action sheet for Apple mode, the original
+/// [CupertinoActionSheet] otherwise, and [showMenu] next to the cursor on desktop.
 ///
 /// [position] is the desktop menu anchor (cursor global position); falls back to the bottom of the [context] RenderBox when null.
 Future<void> showEHContextMenu(
@@ -70,6 +74,23 @@ Future<void> showEHContextMenu(
     if (selected != null) {
       actions[selected].onTap?.call();
     }
+  } else if (ThemeConfig.isApple) {
+    await showGlassActionSheet<void>(
+      context: context,
+      settings: UIConfig.glassDialogSettings(context),
+      actions: [
+        for (final action in actions)
+          GlassActionSheetAction(
+            label: action.text,
+            icon: action.icon,
+            style: action.color == UIConfig.alertColor(context)
+                ? GlassActionSheetStyle.destructive
+                : GlassActionSheetStyle.defaultStyle,
+            onPressed: () => action.onTap?.call(),
+          ),
+      ],
+      cancelLabel: 'cancel'.tr,
+    );
   } else {
     showCupertinoModalPopup(
       context: context,
