@@ -32,6 +32,16 @@ class AdvancedSetting
   /// peer keeps almost no cache of its own.
   RxBool lanServerMode = false.obs;
 
+  /// Whether this device publishes a LAN server endpoint. This is intentionally
+  /// desktop-only; mobile can remain a foreground client without claiming a
+  /// resident server.
+  RxBool lanActAsServer =
+      (GetPlatform.isWindows || GetPlatform.isMacOS || GetPlatform.isLinux).obs;
+
+  /// Empty means no fixed server was selected. A non-empty value is the only
+  /// peer eligible for automatic LAN gallery/image requests.
+  RxString lanPreferredServerDeviceId = ''.obs;
+
   @override
   ConfigEnum get configEnum => ConfigEnum.advancedSetting;
 
@@ -48,11 +58,14 @@ class AdvancedSetting
         map['enableCheckClipboard'] ?? enableCheckClipboard.value;
     inNoImageMode.value = map['inNoImageMode'] ?? inNoImageMode.value;
     enableLanSharing.value = map['enableLanSharing'] ?? enableLanSharing.value;
-    lanLocalTabAsLan.value =
-        map['lanLocalTabAsLan'] ?? lanLocalTabAsLan.value;
-    lanStayResident.value =
-        map['lanStayResident'] ?? lanStayResident.value;
+    lanLocalTabAsLan.value = map['lanLocalTabAsLan'] ?? lanLocalTabAsLan.value;
+    lanStayResident.value = map['lanStayResident'] ?? lanStayResident.value;
     lanServerMode.value = map['lanServerMode'] ?? lanServerMode.value;
+    lanActAsServer.value =
+        map['lanActAsServer'] ?? map['lanServerMode'] ?? lanActAsServer.value;
+    lanPreferredServerDeviceId.value =
+        map['lanPreferredServerDeviceId'] as String? ??
+        lanPreferredServerDeviceId.value;
   }
 
   @override
@@ -67,6 +80,8 @@ class AdvancedSetting
       'lanLocalTabAsLan': lanLocalTabAsLan.value,
       'lanStayResident': lanStayResident.value,
       'lanServerMode': lanServerMode.value,
+      'lanActAsServer': lanActAsServer.value,
+      'lanPreferredServerDeviceId': lanPreferredServerDeviceId.value,
     });
   }
 
@@ -121,6 +136,18 @@ class AdvancedSetting
   Future<void> saveLanServerMode(bool value) async {
     log.debug('saveLanServerMode:$value');
     lanServerMode.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveLanActAsServer(bool value) async {
+    log.debug('saveLanActAsServer:$value');
+    lanActAsServer.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveLanPreferredServerDeviceId(String value) async {
+    log.debug('saveLanPreferredServerDeviceId:$value');
+    lanPreferredServerDeviceId.value = value;
     await saveBeanConfig();
   }
 

@@ -12,6 +12,7 @@ import 'package:jhentai/src/model/lan_device_trust.dart';
 import 'package:path/path.dart' as path;
 
 import '../model/gallery_image.dart';
+import '../model/gallery_thumbnail.dart';
 import '../network/eh_request.dart';
 import '../setting/advanced_setting.dart';
 import '../utils/eh_spider_parser.dart';
@@ -19,6 +20,7 @@ import '../utils/image_cache_util.dart';
 import 'gallery_download_service.dart';
 import 'jh_service.dart';
 import 'lan_device_trust_service.dart';
+import 'lan_protocol_v2.dart';
 import 'log.dart';
 import 'path_service.dart';
 import '../database/database.dart';
@@ -93,7 +95,7 @@ class LanSharingRuntime
     with JHLifeCircleBeanErrorCatch
     implements JHLifeCircleBean, LanPeerPairer, LanPeerConnector {
   static const String serviceType = '_jhentai-lan._tcp';
-  static const int protocolVersion = 1;
+  static const int protocolVersion = LanProtocolV2.version;
   static const int _maxRequestBytes = 64 * 1024;
 
   final LanDeviceTrustService trustService;
@@ -115,6 +117,8 @@ class LanSharingRuntime
   static const Duration pendingRequestTimeout = Duration(seconds: 3);
   final Map<String, GalleryImage> _imagePageManifest = {};
   Future<void> _manifestWrite = Future<void>.value();
+  final LanTaskQueue _imageTasks = LanTaskQueue(maxConcurrent: 2);
+  Future<void> _secureSendChain = Future<void>.value();
 
   HttpServer? _server;
   BonsoirBroadcast? _broadcast;
@@ -144,6 +148,8 @@ class LanSharingRuntime
        _galleryListOverride = galleryListOverride;
 
   bool get isRunning => _started;
+
+  bool get isServerRunning => _server != null;
 
   int? get serverPort => _server?.port;
 
@@ -259,14 +265,16 @@ class LanSharingRuntime
     if (!trustService.isEnabled) {
       throw StateError('LAN sharing is disabled');
     }
-    _server = await HttpServer.bind(bindAddress, 0, shared: false);
-    _server!.listen(
-      (request) => unawaited(_handleRequest(request)),
-      onError: (Object error, StackTrace stack) {
-        log.warning('LAN server failed: $error');
-        log.trace(stack);
-      },
-    );
+    if (_canHostServer) {
+      _server = await HttpServer.bind(bindAddress, 0, shared: false);
+      _server!.listen(
+        (request) => unawaited(_handleRequest(request)),
+        onError: (Object error, StackTrace stack) {
+          log.warning('LAN server failed: $error');
+          log.trace(stack);
+        },
+      );
+    }
     try {
       if (useServiceDiscovery) {
         await _startServiceDiscovery();
@@ -297,25 +305,28 @@ class LanSharingRuntime
   }
 
   Future<void> _startServiceDiscovery() async {
-    final BonsoirService service = BonsoirService(
-      name: trustService.localDeviceId,
-      type: serviceType,
-      port: _server!.port,
-      attributes: {
-        'v': '$protocolVersion',
-        'id': trustService.localDeviceId,
-        'name': trustService.localDisplayName,
-        'pk': trustService.localIdentityPublicKey,
-        'fp': trustService.localIdentityFingerprint,
-      },
-    );
-    final BonsoirBroadcast broadcast = BonsoirBroadcast(
-      service: service,
-      printLogs: false,
-    );
-    await broadcast.initialize();
-    await broadcast.start();
-    _broadcast = broadcast;
+    if (_server != null) {
+      final BonsoirService service = BonsoirService(
+        name: trustService.localDeviceId,
+        type: serviceType,
+        port: _server!.port,
+        attributes: {
+          'v': '$protocolVersion',
+          'id': trustService.localDeviceId,
+          'name': trustService.localDisplayName,
+          'pk': trustService.localIdentityPublicKey,
+          'fp': trustService.localIdentityFingerprint,
+          'caps': LanProtocolV2.capabilities.join(','),
+        },
+      );
+      final BonsoirBroadcast broadcast = BonsoirBroadcast(
+        service: service,
+        printLogs: false,
+      );
+      await broadcast.initialize();
+      await broadcast.start();
+      _broadcast = broadcast;
+    }
 
     final BonsoirDiscovery discovery = BonsoirDiscovery(
       type: serviceType,
@@ -332,6 +343,10 @@ class LanSharingRuntime
     await discovery.start();
     _discovery = discovery;
   }
+
+  bool get _canHostServer =>
+      (Platform.isWindows || Platform.isMacOS || Platform.isLinux) &&
+      advancedSetting.lanActAsServer.value;
 
   Future<void> _handleDiscoveryEventSafely(
     BonsoirDiscovery discovery,
@@ -495,6 +510,23 @@ class LanSharingRuntime
     required String expectedIdentityPublicKey,
     required String expectedIdentityFingerprint,
   }) async {
+    if (peer.protocolVersion != LanProtocolV2.version) {
+      throw const FormatException('LAN_PROTOCOL_UPGRADE_REQUIRED');
+    }
+    return _connectV2(
+      peer: peer,
+      accessToken: accessToken,
+      expectedIdentityPublicKey: expectedIdentityPublicKey,
+      expectedIdentityFingerprint: expectedIdentityFingerprint,
+    );
+  }
+
+  Future<LanPeerSession> _connectLegacy({
+    required LanDiscoveredPeer peer,
+    required String accessToken,
+    required String expectedIdentityPublicKey,
+    required String expectedIdentityFingerprint,
+  }) async {
     if (peer.identityPublicKey != expectedIdentityPublicKey ||
         peer.identityFingerprint != expectedIdentityFingerprint) {
       throw const FormatException('LAN peer identity changed');
@@ -511,55 +543,211 @@ class LanSharingRuntime
     socket.pingInterval = const Duration(seconds: 20);
     final StreamIterator<dynamic> iterator = StreamIterator(socket);
     try {
-      final String clientChallenge = _randomBase64Url(32);
+      final X25519 x25519 = X25519();
+      final SimpleKeyPair clientEphemeral = await x25519.newKeyPair();
+      final SimplePublicKey clientEphemeralPublic =
+          await clientEphemeral.extractPublicKey();
+      final List<int> clientNonce = _randomBytes(32);
+      final Map<String, dynamic> clientHello = {
+        'type': 'hello',
+        'versions': [LanProtocolV2.version, LanProtocolV2.legacyVersion],
+        'deviceId': trustService.localDeviceId,
+        'identityFingerprint': trustService.localIdentityFingerprint,
+        'ephemeralPublicKey': LanProtocolV2.encodeBytes(
+          clientEphemeralPublic.bytes,
+        ),
+        'nonce': LanProtocolV2.encodeBytes(clientNonce),
+        'capabilities': LanProtocolV2.capabilities,
+      };
       final List<int> clientSignature = await trustService.signChallenge(
-        _decodeBytes(clientChallenge),
+        utf8.encode(LanProtocolV2.canonicalJson(clientHello)),
       );
       socket.add(
         jsonEncode({
-          'type': 'auth',
-          'deviceId': trustService.localDeviceId,
-          'identityFingerprint': trustService.localIdentityFingerprint,
-          'accessToken': accessToken,
-          'challenge': clientChallenge,
-          'signature': _encodeBytes(clientSignature),
+          ...clientHello,
+          'signature': LanProtocolV2.encodeBytes(clientSignature),
         }),
       );
-      final Map<String, dynamic> response = await _nextSocketJson(iterator);
-      if (response['type'] != 'auth_challenge') {
-        throw const FormatException('Invalid LAN session response');
+      final Map<String, dynamic> serverHelloWithSignature =
+          await _nextSocketJson(iterator);
+      if (serverHelloWithSignature['type'] != 'hello_ack' ||
+          serverHelloWithSignature['version'] != LanProtocolV2.version ||
+          serverHelloWithSignature['deviceId'] != peer.deviceId ||
+          serverHelloWithSignature['identityFingerprint'] !=
+              peer.identityFingerprint) {
+        throw const FormatException('Invalid LAN v2 session hello');
       }
-      final String serverChallenge = response['challenge'] as String? ?? '';
-      final List<int> proofPayload = _sessionProofPayload(
-        clientChallenge,
-        serverChallenge,
-      );
-      final bool valid = await trustService.verifyPeerChallenge(
+      final Map<String, dynamic> serverHello = Map<String, dynamic>.from(
+        serverHelloWithSignature,
+      )..remove('signature');
+      final bool validServerSignature = await trustService.verifyPeerChallenge(
         deviceId: peer.deviceId,
-        challenge: proofPayload,
-        signature: _decodeBytes(response['signature'] as String? ?? ''),
+        challenge: utf8.encode(LanProtocolV2.canonicalJson(serverHello)),
+        signature: LanProtocolV2.decodeBytes(
+          serverHelloWithSignature['signature'] as String? ?? '',
+        ),
       );
-      if (!valid) {
-        throw const FormatException('Invalid LAN server proof');
+      if (!validServerSignature) {
+        throw const FormatException('Invalid LAN v2 server identity proof');
       }
-      final List<int> ackSignature = await trustService.signChallenge(
-        _decodeBytes(serverChallenge),
+      final List<int> serverNonce = LanProtocolV2.decodeBytes(
+        serverHello['nonce'] as String? ?? '',
       );
+      final SimplePublicKey serverEphemeralPublic = SimplePublicKey(
+        LanProtocolV2.decodeBytes(
+          serverHello['ephemeralPublicKey'] as String? ?? '',
+        ),
+        type: KeyPairType.x25519,
+      );
+      final LanSecureSession secureSession = await LanSecureSession.derive(
+        localEphemeralKeyPair: clientEphemeral,
+        remoteEphemeralPublicKey: serverEphemeralPublic,
+        clientNonce: clientNonce,
+        serverNonce: serverNonce,
+        transcript: utf8.encode(
+          LanProtocolV2.canonicalJson({
+            'client': clientHello,
+            'server': serverHello,
+          }),
+        ),
+        isClient: true,
+      );
+      clientEphemeral.destroy();
       socket.add(
-        jsonEncode({
-          'type': 'auth_ack',
-          'signature': _encodeBytes(ackSignature),
-        }),
+        jsonEncode(
+          await secureSession.encrypt({
+            'type': 'auth',
+            'deviceId': trustService.localDeviceId,
+            'accessToken': accessToken,
+          }),
+        ),
       );
+      final Map<String, dynamic> authAck = await secureSession.decrypt(
+        await _nextSocketJson(iterator),
+      );
+      if (authAck['type'] != 'auth_ack') {
+        throw const FormatException('LAN v2 authentication was not accepted');
+      }
       return _WebSocketLanPeerSession(
         socket,
         iterator,
         onBytesReceived: trustService.recordTrafficReceived,
-        supportsImageCache: (response['capabilities'] as List? ?? const [])
-            .contains('imageCacheV1'),
+        secureSession: secureSession,
+        supportsImageCache: true,
         timerScheduler: _timerScheduler,
       );
     } on Object {
+      await iterator.cancel();
+      await socket.close();
+      rethrow;
+    }
+  }
+
+  Future<LanPeerSession> _connectV2({
+    required LanDiscoveredPeer peer,
+    required String accessToken,
+    required String expectedIdentityPublicKey,
+    required String expectedIdentityFingerprint,
+  }) async {
+    final Uri uri = Uri(
+      scheme: 'ws',
+      host: peer.host,
+      port: peer.port,
+      path: '/v1/session',
+    );
+    final WebSocket socket = await WebSocket.connect(
+      uri.toString(),
+    ).timeout(const Duration(seconds: 10));
+    socket.pingInterval = const Duration(seconds: 20);
+    final StreamIterator<dynamic> iterator = StreamIterator(socket);
+    final SimpleKeyPair ephemeral = await X25519().newKeyPair();
+    try {
+      final SimplePublicKey ephemeralPublic =
+          await ephemeral.extractPublicKey();
+      final Map<String, dynamic> clientHello = <String, dynamic>{
+        'type': 'hello',
+        'versions': [LanProtocolV2.version, LanProtocolV2.legacyVersion],
+        'deviceId': trustService.localDeviceId,
+        'identityFingerprint': trustService.localIdentityFingerprint,
+        'ephemeralPublicKey': _encodeBytes(ephemeralPublic.bytes),
+        'nonce': _randomBase64Url(32),
+        'capabilities': LanProtocolV2.capabilities,
+      };
+      final List<int> clientSignature = await trustService.signChallenge(
+        utf8.encode(LanProtocolV2.canonicalJson(clientHello)),
+      );
+      socket.add(
+        jsonEncode(<String, dynamic>{
+          ...clientHello,
+          'signature': _encodeBytes(clientSignature),
+        }),
+      );
+      final Map<String, dynamic> serverHelloWithSignature =
+          await _nextSocketJson(iterator);
+      if (serverHelloWithSignature['type'] != 'hello_ack' ||
+          serverHelloWithSignature['version'] != LanProtocolV2.version ||
+          serverHelloWithSignature['deviceId'] != peer.deviceId ||
+          serverHelloWithSignature['identityFingerprint'] !=
+              expectedIdentityFingerprint) {
+        throw const FormatException(
+          'LAN v2 server identity or version mismatch',
+        );
+      }
+      final Map<String, dynamic> serverHello = Map<String, dynamic>.from(
+        serverHelloWithSignature,
+      )..remove('signature');
+      if (!await trustService.verifyPeerChallenge(
+        deviceId: peer.deviceId,
+        challenge: utf8.encode(LanProtocolV2.canonicalJson(serverHello)),
+        signature: _decodeBytes(
+          serverHelloWithSignature['signature'] as String? ?? '',
+        ),
+      )) {
+        throw const FormatException('LAN v2 server hello signature invalid');
+      }
+      final List<int> clientNonce = _decodeBytes(
+        clientHello['nonce'] as String,
+      );
+      final List<int> serverNonce = _decodeBytes(
+        serverHello['nonce'] as String? ?? '',
+      );
+      final List<int> transcript = _v2Transcript(clientHello, serverHello);
+      final LanSecureSession secureSession = await LanSecureSession.derive(
+        localEphemeralKeyPair: ephemeral,
+        remoteEphemeralPublicKey: SimplePublicKey(
+          _decodeBytes(serverHello['ephemeralPublicKey'] as String? ?? ''),
+          type: KeyPairType.x25519,
+        ),
+        clientNonce: clientNonce,
+        serverNonce: serverNonce,
+        transcript: transcript,
+        isClient: true,
+      );
+      socket.add(
+        jsonEncode(
+          await secureSession.encrypt({
+            'type': 'auth',
+            'deviceId': trustService.localDeviceId,
+            'accessToken': accessToken,
+          }),
+        ),
+      );
+      final Map<String, dynamic> ack = await secureSession.decrypt(
+        await _nextSocketJson(iterator),
+      );
+      if (ack['type'] != 'auth_ack') {
+        throw const FormatException('LAN v2 authentication failed');
+      }
+      return _WebSocketLanPeerSession(
+        socket,
+        iterator,
+        onBytesReceived: trustService.recordTrafficReceived,
+        supportsImageCache: true,
+        timerScheduler: _timerScheduler,
+        secureSession: secureSession,
+      );
+    } on Object {
+      ephemeral.destroy();
       await iterator.cancel();
       await socket.close();
       rethrow;
@@ -675,114 +863,150 @@ class LanSharingRuntime
     final StreamIterator<dynamic> iterator = StreamIterator(socket);
     try {
       final Map<String, dynamic> auth = await _nextSocketJson(iterator);
-      if (auth['type'] != 'auth') {
-        throw const FormatException('LAN session auth required');
-      }
-      final String deviceId = auth['deviceId'] as String? ?? '';
-      final String clientChallenge = auth['challenge'] as String? ?? '';
-      final bool accepted = await trustService.authenticateInbound(
-        deviceId: deviceId,
-        identityFingerprint: auth['identityFingerprint'] as String? ?? '',
-        presentedToken: auth['accessToken'] as String? ?? '',
-        challenge: _decodeBytes(clientChallenge),
-        challengeSignature: _decodeBytes(auth['signature'] as String? ?? ''),
-      );
-      if (!accepted) {
-        await socket.close(WebSocketStatus.policyViolation, 'auth_failed');
-        return;
-      }
-      final String serverChallenge = _randomBase64Url(32);
-      final List<int> serverSignature = await trustService.signChallenge(
-        _sessionProofPayload(clientChallenge, serverChallenge),
-      );
-      socket.add(
-        jsonEncode({
-          'type': 'auth_challenge',
-          'challenge': serverChallenge,
-          'signature': _encodeBytes(serverSignature),
-          'capabilities': const ['imageCacheV1'],
-        }),
-      );
-      final Map<String, dynamic> ack = await _nextSocketJson(iterator);
-      if (ack['type'] != 'auth_ack' ||
-          !await trustService.verifyPeerChallenge(
-            deviceId: deviceId,
-            challenge: _decodeBytes(serverChallenge),
-            signature: _decodeBytes(ack['signature'] as String? ?? ''),
+      if (auth['type'] == 'hello' &&
+          (auth['versions'] as List? ?? const []).whereType<num>().any(
+            (num version) => version.toInt() == LanProtocolV2.version,
           )) {
-        await socket.close(WebSocketStatus.policyViolation, 'proof_failed');
+        await _handleV2Session(socket, iterator, auth);
         return;
       }
-      while (await iterator.moveNext()) {
-        final dynamic message = iterator.current;
-        if (message is! String || message.length > _maxRequestBytes) {
-          continue;
-        }
-        final dynamic decoded = jsonDecode(message);
-        if (decoded is! Map) {
-          continue;
-        }
-        final String requestId = decoded['id'] as String? ?? '';
-        if (decoded['type'] == 'list_galleries') {
-          await _handleListGalleries(socket, deviceId, requestId);
-          continue;
-        }
-        if (decoded['type'] != 'cache_image') {
-          continue;
-        }
-        final TrustedLanDevice? device = trustService.deviceById(deviceId);
-        if (requestId.isEmpty || device == null) {
-          socket.add(jsonEncode({'type': 'cache_image_miss', 'id': requestId}));
-          continue;
-        }
-        final bool allowCache = device.permissions.contains(
-          LanSharePermission.imageCache,
-        );
-        final bool allowDownloads = device.permissions.contains(
-          LanSharePermission.downloads,
-        );
-        if (!allowCache && !allowDownloads) {
-          socket.add(jsonEncode({'type': 'cache_image_miss', 'id': requestId}));
-          continue;
-        }
-        final String href = decoded['href'] as String? ?? '';
-        final String galleryUrl = decoded['galleryUrl'] as String? ?? '';
-        final int? pageIndex = (decoded['pageIndex'] as num?)?.toInt();
-        // Image cache first (online pages), then the host's downloaded gallery
-        // when the peer has the downloads permission.
-        LanSharedImage? shared;
-        if (allowCache) {
-          shared =
-              await (_imageCacheResolverOverride?.call(href) ??
-                  _resolveLocalImageCache(href));
-        }
-        if ((shared == null || shared.bytes.isEmpty) &&
-            allowDownloads &&
-            galleryUrl.isNotEmpty &&
-            pageIndex != null) {
-          shared =
-              await (_downloadResolverOverride?.call(galleryUrl, pageIndex) ??
-                  _resolveLocalDownload(galleryUrl, pageIndex));
-        }
-        if (shared == null || shared.bytes.isEmpty) {
-          socket.add(jsonEncode({'type': 'cache_image_miss', 'id': requestId}));
-          continue;
-        }
-        socket.add(
-          jsonEncode({
-            'type': 'cache_image_hit',
-            'id': requestId,
-            'image': shared.image,
-            'byteLength': shared.bytes.length,
-          }),
-        );
-        socket.add(shared.bytes);
-        trustService.recordTrafficSent(shared.bytes.length);
-      }
+      throw const FormatException('LAN_PROTOCOL_UPGRADE_REQUIRED');
     } on Object catch (error) {
       await socket.close(WebSocketStatus.protocolError, error.toString());
     } finally {
       await iterator.cancel();
+    }
+  }
+
+  Future<void> _handleV2Session(
+    WebSocket socket,
+    StreamIterator<dynamic> iterator,
+    Map<String, dynamic> clientHello,
+  ) async {
+    final String deviceId = clientHello['deviceId'] as String? ?? '';
+    final TrustedLanDevice? device = trustService.deviceById(deviceId);
+    final Map<String, dynamic> unsignedClient = Map<String, dynamic>.from(
+      clientHello,
+    )..remove('signature');
+    final String presentedFingerprint =
+        clientHello['identityFingerprint'] as String? ?? '';
+    final LanProtocolNegotiation? negotiation =
+        LanProtocolNegotiation.negotiate(
+          offered: (clientHello['versions'] as List? ?? const [])
+              .whereType<num>()
+              .map((num value) => value.toInt()),
+          supported: const [LanProtocolV2.version],
+        );
+    final bool identityValid =
+        device != null &&
+        device.identityFingerprint == presentedFingerprint &&
+        negotiation != null &&
+        await trustService.verifyPeerChallenge(
+          deviceId: deviceId,
+          challenge: utf8.encode(LanProtocolV2.canonicalJson(unsignedClient)),
+          signature: _decodeBytes(clientHello['signature'] as String? ?? ''),
+        );
+    if (!identityValid) {
+      await socket.close(WebSocketStatus.policyViolation, 'auth_failed');
+      return;
+    }
+    final SimpleKeyPair ephemeral = await X25519().newKeyPair();
+    try {
+      final SimplePublicKey ephemeralPublic =
+          await ephemeral.extractPublicKey();
+      final List<int> clientNonce = _decodeBytes(
+        clientHello['nonce'] as String? ?? '',
+      );
+      final List<int> serverNonce = _randomBytes(32);
+      final Map<String, dynamic> serverHello = <String, dynamic>{
+        'type': 'hello_ack',
+        'version': negotiation!.version,
+        'deviceId': trustService.localDeviceId,
+        'identityFingerprint': trustService.localIdentityFingerprint,
+        'ephemeralPublicKey': _encodeBytes(ephemeralPublic.bytes),
+        'nonce': _encodeBytes(serverNonce),
+        'cipherSuite': LanProtocolV2.cipherSuite,
+        'capabilities': LanProtocolV2.negotiateCapabilities(
+          (clientHello['capabilities'] as List? ?? const [])
+              .whereType<String>(),
+          LanProtocolV2.capabilities,
+        ),
+      };
+      final List<int> serverSignature = await trustService.signChallenge(
+        utf8.encode(LanProtocolV2.canonicalJson(serverHello)),
+      );
+      socket.add(
+        jsonEncode(<String, dynamic>{
+          ...serverHello,
+          'signature': _encodeBytes(serverSignature),
+        }),
+      );
+      final List<int> transcript = _v2Transcript(unsignedClient, serverHello);
+      final LanSecureSession secureSession = await LanSecureSession.derive(
+        localEphemeralKeyPair: ephemeral,
+        remoteEphemeralPublicKey: SimplePublicKey(
+          _decodeBytes(clientHello['ephemeralPublicKey'] as String? ?? ''),
+          type: KeyPairType.x25519,
+        ),
+        clientNonce: clientNonce,
+        serverNonce: serverNonce,
+        transcript: transcript,
+        isClient: false,
+      );
+      final Map<String, dynamic> auth = await secureSession.decrypt(
+        await _nextSocketJson(iterator),
+      );
+      final bool accepted = await trustService.authenticateInbound(
+        deviceId: deviceId,
+        identityFingerprint: presentedFingerprint,
+        presentedToken: auth['accessToken'] as String? ?? '',
+        challenge: utf8.encode(LanProtocolV2.canonicalJson(unsignedClient)),
+        challengeSignature: _decodeBytes(
+          clientHello['signature'] as String? ?? '',
+        ),
+      );
+      if (!accepted || auth['type'] != 'auth' || auth['deviceId'] != deviceId) {
+        secureSession.close();
+        await socket.close(WebSocketStatus.policyViolation, 'auth_failed');
+        return;
+      }
+      final _LanV2SocketChannel channel = _LanV2SocketChannel(
+        socket: socket,
+        iterator: iterator,
+        secureSession: secureSession,
+      );
+      await channel.send(<String, dynamic>{
+        'type': 'auth_ack',
+        'capabilities': serverHello['capabilities'],
+      });
+      while (true) {
+        final Map<String, dynamic>? message = await channel.receive();
+        if (message == null) {
+          break;
+        }
+        if (message['type'] != 'request') {
+          continue;
+        }
+        final String requestId = message['id'] as String? ?? '';
+        final String operation = message['op'] as String? ?? '';
+        if (requestId.isEmpty) {
+          throw const FormatException('LAN v2 request id is missing');
+        }
+        if (operation == 'list_galleries') {
+          await _handleV2ListGalleries(channel, deviceId, requestId, message);
+        } else if (operation == 'gallery_manifest') {
+          await _handleV2GalleryManifest(channel, deviceId, requestId, message);
+        } else if (operation == 'cache_image') {
+          unawaited(
+            _imageTasks.run(
+              () => _handleV2Image(channel, deviceId, requestId, message),
+            ),
+          );
+        }
+      }
+      secureSession.close();
+    } finally {
+      ephemeral.destroy();
     }
   }
 
@@ -810,6 +1034,211 @@ class LanSharingRuntime
                 .map((LanSharedGallerySummary summary) => summary.toJson())
                 .toList(),
       }),
+    );
+  }
+
+  Future<void> _handleV2ListGalleries(
+    _LanV2SocketChannel channel,
+    String deviceId,
+    String requestId,
+    Map<String, dynamic> request,
+  ) async {
+    final TrustedLanDevice? device = trustService.deviceById(deviceId);
+    if (device == null ||
+        !device.permissions.contains(LanSharePermission.downloads)) {
+      await channel.send(<String, dynamic>{
+        'type': 'response',
+        'id': requestId,
+        'op': 'list_galleries',
+        'ok': true,
+        'data': const <String, dynamic>{
+          'revision': '',
+          'nextCursor': null,
+          'galleries': <dynamic>[],
+        },
+      });
+      return;
+    }
+    final List<LanSharedGallerySummary> summaries =
+        _galleryListOverride?.call() ?? _localGallerySummaries();
+    final String revision = summaries
+        .map(
+          (LanSharedGallerySummary gallery) =>
+              '${gallery.gid}:${gallery.pageCount}',
+        )
+        .join('|');
+    final Map<String, dynamic> params = Map<String, dynamic>.from(
+      request['params'] as Map? ?? const <String, dynamic>{},
+    );
+    if (params['knownRevision'] == revision) {
+      await channel.send(<String, dynamic>{
+        'type': 'response',
+        'id': requestId,
+        'op': 'list_galleries',
+        'ok': true,
+        'data':
+            LanSharedGalleryPage(
+              revision: revision,
+              nextCursor: null,
+              galleries: const [],
+              incremental: true,
+            ).toJson(),
+      });
+      return;
+    }
+    final int cursor = max(0, (params['cursor'] as num?)?.toInt() ?? 0);
+    final int limit = ((params['limit'] as num?)?.toInt() ?? 50).clamp(1, 100);
+    final int end = min(cursor + limit, summaries.length);
+    final LanSharedGalleryPage page = LanSharedGalleryPage(
+      revision: revision,
+      nextCursor: end < summaries.length ? '$end' : null,
+      galleries: summaries.sublist(cursor.clamp(0, summaries.length), end),
+    );
+    await channel.send(<String, dynamic>{
+      'type': 'response',
+      'id': requestId,
+      'op': 'list_galleries',
+      'ok': true,
+      'data': page.toJson(),
+    });
+  }
+
+  Future<void> _handleV2GalleryManifest(
+    _LanV2SocketChannel channel,
+    String deviceId,
+    String requestId,
+    Map<String, dynamic> request,
+  ) async {
+    final TrustedLanDevice? device = trustService.deviceById(deviceId);
+    final String galleryUrl =
+        (request['params'] as Map?)?['galleryUrl'] as String? ?? '';
+    if (device == null ||
+        !device.permissions.contains(LanSharePermission.downloads) ||
+        galleryUrl.isEmpty) {
+      await channel.send(<String, dynamic>{
+        'type': 'response',
+        'id': requestId,
+        'op': 'gallery_manifest',
+        'ok': false,
+      });
+      return;
+    }
+    final LanGalleryManifest? manifest = await _buildGalleryManifest(
+      galleryUrl,
+    );
+    await channel.send(<String, dynamic>{
+      'type': 'response',
+      'id': requestId,
+      'op': 'gallery_manifest',
+      'ok': manifest != null,
+      if (manifest != null) 'data': manifest.toJson(),
+    });
+  }
+
+  Future<void> _handleV2Image(
+    _LanV2SocketChannel channel,
+    String deviceId,
+    String requestId,
+    Map<String, dynamic> request,
+  ) async {
+    final TrustedLanDevice? device = trustService.deviceById(deviceId);
+    if (device == null) {
+      await channel.send(<String, dynamic>{
+        'type': 'image_miss',
+        'id': requestId,
+      });
+      return;
+    }
+    final bool allowCache = device.permissions.contains(
+      LanSharePermission.imageCache,
+    );
+    final bool allowDownloads = device.permissions.contains(
+      LanSharePermission.downloads,
+    );
+    if (!allowCache && !allowDownloads) {
+      await channel.send(<String, dynamic>{
+        'type': 'image_miss',
+        'id': requestId,
+      });
+      return;
+    }
+    final Map<String, dynamic> params = Map<String, dynamic>.from(
+      request['params'] as Map? ?? const <String, dynamic>{},
+    );
+    final String href = params['href'] as String? ?? '';
+    final String galleryUrl = params['galleryUrl'] as String? ?? '';
+    final int? pageIndex = (params['pageIndex'] as num?)?.toInt();
+    LanSharedImage? shared;
+    if (allowCache) {
+      shared =
+          await (_imageCacheResolverOverride?.call(href) ??
+              _resolveLocalImageCache(href));
+    }
+    if ((shared == null || shared.bytes.isEmpty) &&
+        allowDownloads &&
+        galleryUrl.isNotEmpty &&
+        pageIndex != null) {
+      shared =
+          await (_downloadResolverOverride?.call(galleryUrl, pageIndex) ??
+              _resolveLocalDownload(galleryUrl, pageIndex));
+    }
+    if (shared == null || shared.bytes.isEmpty) {
+      await channel.send(<String, dynamic>{
+        'type': 'image_miss',
+        'id': requestId,
+      });
+      return;
+    }
+    await channel.send(<String, dynamic>{
+      'type': 'image_begin',
+      'id': requestId,
+      'image': shared.image,
+      'byteLength': shared.bytes.length,
+    });
+    for (
+      int offset = 0, chunkIndex = 0;
+      offset < shared.bytes.length;
+      offset += LanProtocolV2.maxImageChunkBytes, chunkIndex++
+    ) {
+      final int end = min(
+        offset + LanProtocolV2.maxImageChunkBytes,
+        shared.bytes.length,
+      );
+      await channel.send(<String, dynamic>{
+        'type': 'image_chunk',
+        'id': requestId,
+        'index': chunkIndex,
+        'final': end == shared.bytes.length,
+        'data': _encodeBytes(shared.bytes.sublist(offset, end)),
+      });
+    }
+    trustService.recordTrafficSent(shared.bytes.length);
+  }
+
+  Future<LanGalleryManifest?> _buildGalleryManifest(String galleryUrl) async {
+    final GalleryDownloadedData? gallery = _findDownloadedGallery(galleryUrl);
+    if (gallery == null) {
+      return null;
+    }
+    final GalleryDownloadInfo? info =
+        galleryDownloadService.galleryDownloadInfos[gallery.gid];
+    if (info == null) {
+      return null;
+    }
+    final List<LanGalleryManifestPage> pages = [];
+    for (int index = 0; index < info.imageHrefs.length; index++) {
+      final GalleryThumbnail? thumbnail = info.imageHrefs[index];
+      if (thumbnail != null) {
+        pages.add(
+          LanGalleryManifestPage(pageIndex: index, thumbnail: thumbnail),
+        );
+      }
+    }
+    return LanGalleryManifest(
+      galleryUrl: gallery.galleryUrl,
+      pageCount: gallery.pageCount,
+      thumbnailsCountPerPage: info.thumbnailsCountPerPage,
+      pages: pages,
     );
   }
 
@@ -1177,14 +1606,77 @@ class LanSharingRuntime
     ),
   );
 
+  List<int> _randomBytes(int byteCount) => List<int>.generate(
+    byteCount,
+    (_) => _secureRandom.nextInt(256),
+    growable: false,
+  );
+
   String _encodeBytes(List<int> bytes) =>
       base64UrlEncode(bytes).replaceAll('=', '');
 
   List<int> _decodeBytes(String value) =>
       base64Url.decode(base64Url.normalize(value));
+
+  List<int> _v2Transcript(
+    Map<String, dynamic> clientHello,
+    Map<String, dynamic> serverHello,
+  ) => utf8.encode(
+    LanProtocolV2.canonicalJson(<String, dynamic>{
+      'client': clientHello,
+      'server': serverHello,
+    }),
+  );
+
+  bool _constantTimeBytesEqual(List<int> left, List<int> right) {
+    int difference = left.length ^ right.length;
+    final int length = max(left.length, right.length);
+    for (int index = 0; index < length; index++) {
+      difference |=
+          (index < left.length ? left[index] : 0) ^
+          (index < right.length ? right[index] : 0);
+    }
+    return difference == 0;
+  }
 }
 
-class _WebSocketLanPeerSession implements LanPeerSession {
+class _LanV2SocketChannel {
+  final WebSocket socket;
+  final StreamIterator<dynamic> iterator;
+  final LanSecureSession secureSession;
+  Future<void> _sendTail = Future<void>.value();
+
+  _LanV2SocketChannel({
+    required this.socket,
+    required this.iterator,
+    required this.secureSession,
+  });
+
+  Future<void> send(Map<String, dynamic> payload) {
+    final Future<void> next = _sendTail.then((_) async {
+      socket.add(jsonEncode(await secureSession.encrypt(payload)));
+    });
+    _sendTail = next.catchError((Object _) {});
+    return next;
+  }
+
+  Future<Map<String, dynamic>?> receive() async {
+    if (!await iterator.moveNext()) {
+      return null;
+    }
+    if (iterator.current is! String) {
+      throw const FormatException('LAN v2 record must be JSON text');
+    }
+    final dynamic decoded = jsonDecode(iterator.current as String);
+    if (decoded is! Map) {
+      throw const FormatException('LAN v2 record must be an object');
+    }
+    return secureSession.decrypt(Map<String, dynamic>.from(decoded));
+  }
+}
+
+class _WebSocketLanPeerSession
+    implements LanPeerSession, LanGalleryManifestSession {
   final WebSocket _socket;
   final StreamIterator<dynamic> _iterator;
   final bool _supportsImageCache;
@@ -1193,9 +1685,14 @@ class _WebSocketLanPeerSession implements LanPeerSession {
   final LanPendingRequestRegistry<LanSharedImage?> _pending;
   final LanPendingRequestRegistry<List<LanSharedGallerySummary>>
   _pendingListGalleries;
+  final LanPendingRequestRegistry<LanSharedGalleryPage> _pendingGalleryPages;
+  final LanPendingRequestRegistry<LanGalleryManifest?> _pendingManifests;
+  final LanSecureSession? _secureSession;
   int _nextRequestId = 0;
   String? _pendingBinaryRequestId;
   Map<String, dynamic>? _pendingBinaryImage;
+  final Map<String, _LanImageAssembly> _pendingSecureImages = {};
+  Future<void> _secureSendTail = Future<void>.value();
 
   _WebSocketLanPeerSession(
     this._socket,
@@ -1203,8 +1700,10 @@ class _WebSocketLanPeerSession implements LanPeerSession {
     required void Function(int bytes) onBytesReceived,
     required bool supportsImageCache,
     required LanTimerScheduler timerScheduler,
+    LanSecureSession? secureSession,
   }) : _supportsImageCache = supportsImageCache,
        _onBytesReceived = onBytesReceived,
+       _secureSession = secureSession,
        _pending = LanPendingRequestRegistry<LanSharedImage?>(
          timerScheduler: timerScheduler,
          timeout: LanSharingRuntime.pendingRequestTimeout,
@@ -1213,7 +1712,15 @@ class _WebSocketLanPeerSession implements LanPeerSession {
            LanPendingRequestRegistry<List<LanSharedGallerySummary>>(
              timerScheduler: timerScheduler,
              timeout: LanSharingRuntime.pendingRequestTimeout,
-           ) {
+           ),
+       _pendingGalleryPages = LanPendingRequestRegistry<LanSharedGalleryPage>(
+         timerScheduler: timerScheduler,
+         timeout: LanSharingRuntime.pendingRequestTimeout,
+       ),
+       _pendingManifests = LanPendingRequestRegistry<LanGalleryManifest?>(
+         timerScheduler: timerScheduler,
+         timeout: LanSharingRuntime.pendingRequestTimeout,
+       ) {
     unawaited(_drain());
   }
 
@@ -1224,6 +1731,19 @@ class _WebSocketLanPeerSession implements LanPeerSession {
     try {
       while (await _iterator.moveNext()) {
         final dynamic message = _iterator.current;
+        if (_secureSession != null) {
+          if (message is! String) {
+            throw const FormatException('LAN v2 response must be JSON text');
+          }
+          final dynamic decoded = jsonDecode(message);
+          if (decoded is! Map) {
+            throw const FormatException('LAN v2 response record is invalid');
+          }
+          await _handleSecureMessage(
+            await _secureSession.decrypt(Map<String, dynamic>.from(decoded)),
+          );
+          continue;
+        }
         if (message is List<int>) {
           final String? id = _pendingBinaryRequestId;
           final Map<String, dynamic>? image = _pendingBinaryImage;
@@ -1275,6 +1795,15 @@ class _WebSocketLanPeerSession implements LanPeerSession {
       await _iterator.cancel();
       _pending.completeAll(null);
       _pendingListGalleries.completeAll(const <LanSharedGallerySummary>[]);
+      _pendingGalleryPages.completeAll(
+        const LanSharedGalleryPage(
+          revision: '',
+          nextCursor: null,
+          galleries: <LanSharedGallerySummary>[],
+        ),
+      );
+      _pendingManifests.completeAll(null);
+      _secureSession?.close();
       if (!_closed.isCompleted) {
         _closed.complete();
       }
@@ -1301,25 +1830,173 @@ class _WebSocketLanPeerSession implements LanPeerSession {
         }
       },
     );
-    _socket.add(
-      jsonEncode({
-        'type': 'cache_image',
+    if (_secureSession != null) {
+      unawaited(
+        _sendSecure(<String, dynamic>{
+          'type': 'request',
+          'id': id,
+          'op': 'cache_image',
+          'params': <String, dynamic>{
+            'href': imagePageHref,
+            if (galleryUrl != null) 'galleryUrl': galleryUrl,
+            if (pageIndex != null) 'pageIndex': pageIndex,
+          },
+        }),
+      );
+    } else {
+      _socket.add(
+        jsonEncode({
+          'type': 'cache_image',
+          'id': id,
+          'href': imagePageHref,
+          if (galleryUrl != null) 'galleryUrl': galleryUrl,
+          if (pageIndex != null) 'pageIndex': pageIndex,
+        }),
+      );
+    }
+    return future;
+  }
+
+  @override
+  Future<List<LanSharedGallerySummary>> listDownloadedGalleries() {
+    if (_secureSession != null) {
+      return listDownloadedGalleriesPage().then(
+        (LanSharedGalleryPage page) => page.galleries,
+      );
+    }
+    final String id = 'g${++_nextRequestId}';
+    final Future<List<LanSharedGallerySummary>> future = _pendingListGalleries
+        .register(id, timeoutValue: const <LanSharedGallerySummary>[]);
+    _socket.add(jsonEncode({'type': 'list_galleries', 'id': id}));
+    return future;
+  }
+
+  @override
+  Future<LanSharedGalleryPage> listDownloadedGalleriesPage({
+    String? cursor,
+    int limit = 50,
+    String? knownRevision,
+  }) {
+    if (_secureSession == null) {
+      return listDownloadedGalleries().then(
+        (List<LanSharedGallerySummary> galleries) => LanSharedGalleryPage(
+          revision: '',
+          nextCursor: null,
+          galleries: galleries,
+        ),
+      );
+    }
+    final String id = 'g${++_nextRequestId}';
+    final Future<LanSharedGalleryPage> future = _pendingGalleryPages.register(
+      id,
+      timeoutValue: const LanSharedGalleryPage(
+        revision: '',
+        nextCursor: null,
+        galleries: <LanSharedGallerySummary>[],
+      ),
+    );
+    unawaited(
+      _sendSecure(<String, dynamic>{
+        'type': 'request',
         'id': id,
-        'href': imagePageHref,
-        if (galleryUrl != null) 'galleryUrl': galleryUrl,
-        if (pageIndex != null) 'pageIndex': pageIndex,
+        'op': 'list_galleries',
+        'params': <String, dynamic>{
+          if (cursor != null) 'cursor': int.tryParse(cursor) ?? 0,
+          'limit': limit,
+          if (knownRevision != null) 'knownRevision': knownRevision,
+        },
       }),
     );
     return future;
   }
 
   @override
-  Future<List<LanSharedGallerySummary>> listDownloadedGalleries() {
-    final String id = 'g${++_nextRequestId}';
-    final Future<List<LanSharedGallerySummary>> future = _pendingListGalleries
-        .register(id, timeoutValue: const <LanSharedGallerySummary>[]);
-    _socket.add(jsonEncode({'type': 'list_galleries', 'id': id}));
+  Future<LanGalleryManifest?> fetchGalleryManifest(String galleryUrl) {
+    if (_secureSession == null) {
+      return Future<LanGalleryManifest?>.value();
+    }
+    final String id = 'm${++_nextRequestId}';
+    final Future<LanGalleryManifest?> future = _pendingManifests.register(
+      id,
+      timeoutValue: null,
+    );
+    unawaited(
+      _sendSecure(<String, dynamic>{
+        'type': 'request',
+        'id': id,
+        'op': 'gallery_manifest',
+        'params': <String, dynamic>{'galleryUrl': galleryUrl},
+      }),
+    );
     return future;
+  }
+
+  Future<void> _sendSecure(Map<String, dynamic> payload) {
+    final Future<void> next = _secureSendTail.then((_) async {
+      _socket.add(jsonEncode(await _secureSession!.encrypt(payload)));
+    });
+    _secureSendTail = next.catchError((Object _) {});
+    return next;
+  }
+
+  Future<void> _handleSecureMessage(Map<String, dynamic> message) async {
+    final String type = message['type'] as String? ?? '';
+    final String id = message['id'] as String? ?? '';
+    if (type == 'image_miss') {
+      _pendingSecureImages.remove(id);
+      _pending.complete(id, null);
+      return;
+    }
+    if (type == 'image_begin') {
+      _pendingSecureImages[id] = _LanImageAssembly(
+        image: Map<String, dynamic>.from(message['image'] as Map? ?? const {}),
+        byteLength: (message['byteLength'] as num?)?.toInt() ?? 0,
+      );
+      return;
+    }
+    if (type == 'image_chunk') {
+      final _LanImageAssembly? assembly = _pendingSecureImages[id];
+      if (assembly == null) {
+        throw const FormatException('LAN v2 image chunk has no begin record');
+      }
+      final int index = (message['index'] as num?)?.toInt() ?? -1;
+      if (index != assembly.nextIndex) {
+        throw const FormatException('LAN v2 image chunks are out of order');
+      }
+      assembly.bytes.addAll(_decodeBytes(message['data'] as String? ?? ''));
+      assembly.nextIndex++;
+      if (message['final'] == true) {
+        if (assembly.bytes.length != assembly.byteLength) {
+          throw const FormatException('LAN v2 image byte length mismatch');
+        }
+        _pendingSecureImages.remove(id);
+        final bool completed = _pending.complete(
+          id,
+          LanSharedImage(image: assembly.image, bytes: assembly.bytes),
+        );
+        if (completed) {
+          _onBytesReceived(assembly.bytes.length);
+        }
+      }
+      return;
+    }
+    if (type != 'response' || message['ok'] != true) {
+      return;
+    }
+    final String op = message['op'] as String? ?? '';
+    if (op == 'list_galleries') {
+      final LanSharedGalleryPage page = LanSharedGalleryPage.fromJson(
+        Map<String, dynamic>.from(message['data'] as Map? ?? const {}),
+      );
+      _pendingGalleryPages.complete(id, page);
+    } else if (op == 'gallery_manifest') {
+      _pendingManifests.complete(
+        id,
+        LanGalleryManifest.fromJson(
+          Map<String, dynamic>.from(message['data'] as Map? ?? const {}),
+        ),
+      );
+    }
   }
 
   @override
@@ -1329,4 +2006,16 @@ class _WebSocketLanPeerSession implements LanPeerSession {
       await closed;
     }
   }
+
+  List<int> _decodeBytes(String value) =>
+      base64Url.decode(base64Url.normalize(value));
+}
+
+class _LanImageAssembly {
+  final Map<String, dynamic> image;
+  final int byteLength;
+  final List<int> bytes = <int>[];
+  int nextIndex = 0;
+
+  _LanImageAssembly({required this.image, required this.byteLength});
 }

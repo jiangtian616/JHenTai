@@ -707,6 +707,17 @@ class _FakeSession implements LanPeerSession {
       const <LanSharedGallerySummary>[];
 
   @override
+  Future<LanSharedGalleryPage> listDownloadedGalleriesPage({
+    String? cursor,
+    int limit = 50,
+    String? knownRevision,
+  }) async => const LanSharedGalleryPage(
+    revision: '',
+    nextCursor: null,
+    galleries: <LanSharedGallerySummary>[],
+  );
+
+  @override
   Future<void> close() async {
     closedByClient = true;
     closeRemotely();

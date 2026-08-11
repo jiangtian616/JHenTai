@@ -31,7 +31,27 @@ abstract interface class LanPeerSession {
   /// permission on the host side).
   Future<List<LanSharedGallerySummary>> listDownloadedGalleries();
 
+  Future<LanSharedGalleryPage> listDownloadedGalleriesPage({
+    String? cursor,
+    int limit = 50,
+    String? knownRevision,
+  }) async {
+    // Keep older test doubles and third-party session adapters source
+    // compatible while allowing v2 peers to provide a real cursor page.
+    final List<LanSharedGallerySummary> galleries =
+        await listDownloadedGalleries();
+    return LanSharedGalleryPage(
+      revision: '',
+      nextCursor: null,
+      galleries: galleries,
+    );
+  }
+
   Future<void> close();
+}
+
+abstract interface class LanGalleryManifestSession {
+  Future<LanGalleryManifest?> fetchGalleryManifest(String galleryUrl);
 }
 
 abstract interface class LanScheduledTask {
@@ -271,10 +291,12 @@ class LanDeviceTrustService extends GetxController
     int? pageIndex,
     String? sourceDeviceId,
   }) async {
+    final String? preferred =
+        sourceDeviceId ?? advancedSetting.lanPreferredServerDeviceId.value;
     final Iterable<MapEntry<String, LanPeerSession>> entries =
-        sourceDeviceId == null
+        preferred == null || preferred.isEmpty
             ? _sessions.entries
-            : _sessions.entries.where((entry) => entry.key == sourceDeviceId);
+            : _sessions.entries.where((entry) => entry.key == preferred);
     for (final MapEntry<String, LanPeerSession> entry in entries.toList()) {
       try {
         final LanSharedImage? image = await entry.value
@@ -298,20 +320,66 @@ class LanDeviceTrustService extends GetxController
   /// A peer only appears here if it granted us the `downloads` permission.
   Future<List<LanSharedGallerySummary>> listDownloadedGalleries() async {
     final List<LanSharedGallerySummary> result = [];
-    for (final MapEntry<String, LanPeerSession> entry
-        in _sessions.entries.toList()) {
+    final String? preferred = advancedSetting.lanPreferredServerDeviceId.value;
+    final Iterable<MapEntry<String, LanPeerSession>> entries =
+        preferred == null || preferred.isEmpty
+            ? _sessions.entries
+            : _sessions.entries.where((entry) => entry.key == preferred);
+    for (final MapEntry<String, LanPeerSession> entry in entries.toList()) {
       try {
-        final List<LanSharedGallerySummary> galleries = await entry.value
-            .listDownloadedGalleries()
-            .timeout(peerRequestTimeout);
-        result.addAll(
-          galleries.map((gallery) => gallery.copyWith(deviceId: entry.key)),
-        );
+        String? cursor;
+        String? revision;
+        do {
+          final LanSharedGalleryPage page = await entry.value
+              .listDownloadedGalleriesPage(
+                cursor: cursor,
+                knownRevision: revision,
+              )
+              .timeout(peerRequestTimeout);
+          revision = page.revision;
+          result.addAll(
+            page.galleries.map(
+              (gallery) => gallery.copyWith(deviceId: entry.key),
+            ),
+          );
+          cursor = page.nextCursor;
+        } while (cursor != null);
       } on Object catch (error) {
         log.warning('LAN gallery list request failed: $error');
       }
     }
     return result;
+  }
+
+  Future<LanGalleryManifest?> fetchGalleryManifest({
+    required String galleryUrl,
+    String? sourceDeviceId,
+  }) async {
+    final String? preferred =
+        sourceDeviceId ?? advancedSetting.lanPreferredServerDeviceId.value;
+    final Iterable<MapEntry<String, LanPeerSession>> entries =
+        preferred == null || preferred.isEmpty
+            ? _sessions.entries
+            : _sessions.entries.where((entry) => entry.key == preferred);
+    for (final MapEntry<String, LanPeerSession> entry in entries.toList()) {
+      final LanPeerSession session = entry.value;
+      if (session is! LanGalleryManifestSession) {
+        continue;
+      }
+      final LanGalleryManifestSession manifestSession =
+          session as LanGalleryManifestSession;
+      try {
+        final LanGalleryManifest? manifest = await manifestSession
+            .fetchGalleryManifest(galleryUrl)
+            .timeout(peerRequestTimeout);
+        if (manifest != null) {
+          return manifest;
+        }
+      } on Object catch (error) {
+        log.warning('LAN gallery manifest request failed: $error');
+      }
+    }
+    return null;
   }
 
   void attachConnector(LanPeerConnector connector) {
@@ -847,9 +915,9 @@ class LanDeviceTrustService extends GetxController
         cancelled
             ? const LanConnectionSnapshot(LanPeerConnectionState.offline)
             : LanConnectionSnapshot(
-                LanPeerConnectionState.failed,
-                errorMessage: error.toString(),
-              ),
+              LanPeerConnectionState.failed,
+              errorMessage: error.toString(),
+            ),
       );
       if (!cancelled) {
         _scheduleRetry(peer.deviceId);
@@ -874,19 +942,19 @@ class LanDeviceTrustService extends GetxController
     _retryTimers[deviceId] = _timerScheduler.schedule(
       _retryDelayFor(attempt),
       () {
-      _retryTimers.remove(deviceId);
-      final LanDiscoveredPeer? peer = _discoveredPeers[deviceId];
-      final TrustedLanDevice? device = deviceById(deviceId);
-      if (!isEnabled ||
-          peer == null ||
-          device == null ||
-          !device.autoConnect ||
-          _connector == null ||
-          _sessions.containsKey(deviceId) ||
-          _connecting.containsKey(deviceId)) {
-        return;
-      }
-      unawaited(handlePeerDiscovered(peer));
+        _retryTimers.remove(deviceId);
+        final LanDiscoveredPeer? peer = _discoveredPeers[deviceId];
+        final TrustedLanDevice? device = deviceById(deviceId);
+        if (!isEnabled ||
+            peer == null ||
+            device == null ||
+            !device.autoConnect ||
+            _connector == null ||
+            _sessions.containsKey(deviceId) ||
+            _connecting.containsKey(deviceId)) {
+          return;
+        }
+        unawaited(handlePeerDiscovered(peer));
       },
     );
   }
@@ -1059,7 +1127,7 @@ class LanDeviceTrustService extends GetxController
     if (peer.port < 1 || peer.port > 65535) {
       throw const FormatException('Invalid LAN peer port');
     }
-    if (peer.protocolVersion != 1) {
+    if (peer.protocolVersion != 1 && peer.protocolVersion != 2) {
       throw const FormatException('Unsupported LAN protocol version');
     }
   }
