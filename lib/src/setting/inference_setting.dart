@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 
 import '../service/jh_service.dart';
+import '../service/inference/inference_safety.dart';
 import '../service/log.dart';
 
 /// 全局"推理后端"设置：OCR 与图像超分共用一个入口。
@@ -69,7 +70,10 @@ class InferenceSetting
   final Rx<InferenceBackend> preferredBackend = InferenceBackend.auto.obs;
 
   /// Android 上是否允许 NNAPI 硬件加速（不可用时自动回退 CPU）。
-  final RxBool enableNnapi = true.obs;
+  ///
+  /// It is opt-in because NNAPI faults can terminate native code before Dart
+  /// gets a chance to catch an exception.
+  final RxBool enableNnapi = false.obs;
 
   /// 后端不可用时是否允许回退 CPU。
   final RxBool enableCpuFallback = true.obs;
@@ -79,6 +83,10 @@ class InferenceSetting
 
   /// 最近一次实际运行时/模型探测耗时摘要。
   final RxnString benchmarkSummary = RxnString();
+
+  /// Last accelerated-provider canary. A `running` record is treated like a
+  /// failure after an app/process interruption.
+  final Rxn<InferenceCanaryRecord> canaryRecord = Rxn<InferenceCanaryRecord>();
 
   @override
   ConfigEnum get configEnum => ConfigEnum.inferenceSetting;
@@ -94,10 +102,14 @@ class InferenceSetting
       (value) => value.name == config['preferredBackend'],
       orElse: () => InferenceBackend.auto,
     );
-    enableNnapi.value = config['enableNnapi'] ?? true;
+    // Missing legacy values are migrated to the safe CPU-only default.
+    enableNnapi.value = config['enableNnapi'] ?? false;
     enableCpuFallback.value = config['enableCpuFallback'] ?? true;
     detectedDeviceLabel.value = config['detectedDeviceLabel'];
     benchmarkSummary.value = config['benchmarkSummary'];
+    final dynamic rawCanary = config['canary'];
+    canaryRecord.value =
+        rawCanary is Map ? InferenceCanaryRecord.fromJson(rawCanary) : null;
   }
 
   @override
@@ -108,6 +120,7 @@ class InferenceSetting
     'enableCpuFallback': enableCpuFallback.value,
     'detectedDeviceLabel': detectedDeviceLabel.value,
     'benchmarkSummary': benchmarkSummary.value,
+    'canary': canaryRecord.value?.toJson(),
   });
 
   @override
@@ -149,6 +162,39 @@ class InferenceSetting
   Future<void> saveBenchmarkSummary(String? value) async {
     log.debug('saveInferenceBenchmarkSummary:$value');
     benchmarkSummary.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveCanaryStarted(InferenceCanaryKey key) async {
+    canaryRecord.value = InferenceCanaryRecord(
+      status: InferenceCanaryStatus.running,
+      key: key,
+      timestamp: DateTime.now().toUtc().toIso8601String(),
+    );
+    await saveBeanConfig();
+  }
+
+  Future<void> saveCanarySucceeded(InferenceCanaryKey key) async {
+    canaryRecord.value = InferenceCanaryRecord(
+      status: InferenceCanaryStatus.succeeded,
+      key: key,
+      timestamp: DateTime.now().toUtc().toIso8601String(),
+    );
+    await saveBeanConfig();
+  }
+
+  Future<void> saveCanaryFailed(InferenceCanaryKey key, Object error) async {
+    canaryRecord.value = InferenceCanaryRecord(
+      status: InferenceCanaryStatus.failed,
+      key: key,
+      failureReason: error.toString(),
+      timestamp: DateTime.now().toUtc().toIso8601String(),
+    );
+    await saveBeanConfig();
+  }
+
+  Future<void> clearCanary() async {
+    canaryRecord.value = null;
     await saveBeanConfig();
   }
 }

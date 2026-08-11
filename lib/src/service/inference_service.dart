@@ -1,13 +1,18 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_onnxruntime/flutter_onnxruntime.dart' as ort;
 import 'package:get/get.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/setting/image_translation_setting.dart';
 import 'package:jhentai/src/setting/inference_setting.dart';
 import 'package:jhentai/src/setting/super_resolution_setting.dart';
 
 import 'inference/ocr_inference_engine.dart';
+import 'inference/inference_safety.dart';
 import 'inference/onnx_model_store.dart';
 import 'inference/onnx_ocr_worker.dart';
 import 'inference/onnx_runtime.dart';
@@ -16,6 +21,18 @@ import 'inference/super_resolution_inference_engine.dart';
 import 'jh_service.dart';
 
 InferenceService inferenceService = InferenceService();
+
+class _InferenceCanaryEnvironment {
+  const _InferenceCanaryEnvironment({
+    required this.deviceModel,
+    required this.systemVersion,
+    required this.appVersion,
+  });
+
+  final String deviceModel;
+  final String systemVersion;
+  final String appVersion;
+}
 
 enum InferenceSessionState {
   backendUnavailable,
@@ -67,6 +84,12 @@ class InferenceService extends GetxController
   final RxnString _ocrSessionError = RxnString();
   final RxBool _srSessionsVerified = false.obs;
   final RxnString _srSessionError = RxnString();
+  _InferenceCanaryEnvironment _canaryEnvironment =
+      const _InferenceCanaryEnvironment(
+        deviceModel: 'unknown',
+        systemVersion: 'unknown',
+        appVersion: 'unknown',
+      );
 
   @override
   List<JHLifeCircleBean> get initDependencies =>
@@ -78,12 +101,24 @@ class InferenceService extends GetxController
     Get.put(OnnxModelStore.instance, permanent: true);
 
     runtimeReady.value = await OnnxRuntime.instance.initialize();
+    _canaryEnvironment = await _readCanaryEnvironment();
     _refreshAvailableBackends();
     await OnnxModelStore.instance.refreshInstalledState();
 
     _ocrEngine = OnnxOcrIsolateEngine(
       providerResolver: () => providersFor(InferenceDomain.ocr),
       modelIdResolver: () => imageTranslationSetting.onnxModelId.value,
+      safetyConfigResolver:
+          (String hash) => sessionConfigFor(InferenceDomain.ocr, hash),
+      onCanaryStarted:
+          (String hash, List<ort.OrtProvider> providers) =>
+              _canaryStarted(InferenceDomain.ocr, hash, providers),
+      onCanarySucceeded:
+          (String hash, List<ort.OrtProvider> providers) =>
+              _canarySucceeded(InferenceDomain.ocr, hash, providers),
+      onCanaryFailed:
+          (String hash, List<ort.OrtProvider> providers, Object error) =>
+              _canaryFailed(InferenceDomain.ocr, hash, providers, error),
       onSessionStateChanged: ({required bool verified, String? error}) {
         _ocrSessionsVerified.value = verified;
         _ocrSessionError.value = error;
@@ -93,6 +128,26 @@ class InferenceService extends GetxController
     _superResolutionEngine = OnnxSuperResolutionIsolateEngine(
       providerResolver: () => providersFor(InferenceDomain.superResolution),
       modelIdResolver: () => superResolutionSetting.onnxModelId.value,
+      safetyConfigResolver:
+          (String hash) =>
+              sessionConfigFor(InferenceDomain.superResolution, hash),
+      onCanaryStarted:
+          (String hash, List<ort.OrtProvider> providers) =>
+              _canaryStarted(InferenceDomain.superResolution, hash, providers),
+      onCanarySucceeded:
+          (String hash, List<ort.OrtProvider> providers) => _canarySucceeded(
+            InferenceDomain.superResolution,
+            hash,
+            providers,
+          ),
+      onCanaryFailed:
+          (String hash, List<ort.OrtProvider> providers, Object error) =>
+              _canaryFailed(
+                InferenceDomain.superResolution,
+                hash,
+                providers,
+                error,
+              ),
       onSessionStateChanged: ({required bool verified, String? error}) {
         _srSessionsVerified.value = verified;
         _srSessionError.value = error;
@@ -265,7 +320,11 @@ class InferenceService extends GetxController
           ? InferenceBackend.cpu
           : null;
     }
-    return detected.isEmpty ? null : detected.first;
+    // Zero-argument/auto mode is deliberately CPU-only. Accelerators require
+    // an explicit preference and a persisted canary attempt.
+    return detected.contains(InferenceBackend.cpu)
+        ? InferenceBackend.cpu
+        : null;
   }
 
   List<ort.OrtProvider> providersFor(InferenceDomain domain) {
@@ -273,17 +332,151 @@ class InferenceService extends GetxController
     if (backend == null) {
       return const <ort.OrtProvider>[];
     }
-    final ort.OrtProvider? primary = _providerForBackend(backend);
-    if (primary == null) {
-      return const <ort.OrtProvider>[];
+    final String modelHash =
+        onnxModels.fingerprintOf(_manifestIdFor(domain)) ?? 'unknown';
+    final InferenceSessionSafetyConfig config = sessionConfigFor(
+      domain,
+      modelHash,
+    );
+    final List<ort.OrtProvider> candidateProviders =
+        InferenceProviderPolicy.providers(
+          backend: backend.name,
+          available: OnnxRuntime.instance.availableProviders,
+          enableNnapi: inferenceSetting.enableNnapi.value,
+          enableCpuFallback: inferenceSetting.enableCpuFallback.value,
+          canaryBlocked: false,
+        );
+    final InferenceCanaryKey key = _canaryKey(
+      domain,
+      modelHash,
+      candidateProviders,
+      config,
+    );
+    final bool blocked = InferenceProviderPolicy.isCanaryBlocked(
+      key,
+      inferenceSetting.canaryRecord.value,
+    );
+    return InferenceProviderPolicy.providers(
+      backend: backend.name,
+      available: OnnxRuntime.instance.availableProviders,
+      enableNnapi: inferenceSetting.enableNnapi.value,
+      enableCpuFallback: inferenceSetting.enableCpuFallback.value,
+      canaryBlocked: blocked,
+    );
+  }
+
+  InferenceSessionSafetyConfig sessionConfigFor(
+    InferenceDomain domain,
+    String modelHash,
+  ) {
+    final String backend = resolveBackendFor(domain)?.name ?? 'cpu';
+    final bool mobile = GetPlatform.isAndroid || GetPlatform.isIOS;
+    return InferenceProviderPolicy.sessionConfig(
+      backend: backend,
+      maxInputPixels:
+          domain == InferenceDomain.ocr
+              ? (mobile ? 4 * 1024 * 1024 : 6 * 1024 * 1024)
+              : (mobile ? 12 * 1024 * 1024 : 24 * 1024 * 1024),
+      memoryBudgetBytes:
+          domain == InferenceDomain.ocr
+              ? (mobile ? 128 : 256) * 1024 * 1024
+              : (mobile ? 192 : 512) * 1024 * 1024,
+    );
+  }
+
+  InferenceCanaryKey _canaryKey(
+    InferenceDomain domain,
+    String modelHash,
+    List<ort.OrtProvider> providers,
+    InferenceSessionSafetyConfig config,
+  ) {
+    final InferenceBackend backend =
+        resolveBackendFor(domain) ?? InferenceBackend.cpu;
+    return InferenceCanaryKey(
+      deviceModel: _canaryEnvironment.deviceModel,
+      systemVersion: _canaryEnvironment.systemVersion,
+      appVersion: _canaryEnvironment.appVersion,
+      ortVersion: OnnxRuntime.instance.runtimeVersion,
+      modelHash: modelHash,
+      epConfig: jsonEncode(<String, dynamic>{
+        'backend': backend.name,
+        'providers': providers.map((ort.OrtProvider p) => p.name).toList(),
+        'session': config.stableId,
+      }),
+    );
+  }
+
+  Future<void> _canaryStarted(
+    InferenceDomain domain,
+    String modelHash,
+    List<ort.OrtProvider> providers,
+  ) async {
+    if (providers.isEmpty || providers.first == ort.OrtProvider.CPU) return;
+    final InferenceSessionSafetyConfig config = sessionConfigFor(
+      domain,
+      modelHash,
+    );
+    await inferenceSetting.saveCanaryStarted(
+      _canaryKey(domain, modelHash, providers, config),
+    );
+  }
+
+  Future<void> _canarySucceeded(
+    InferenceDomain domain,
+    String modelHash,
+    List<ort.OrtProvider> providers,
+  ) async {
+    if (providers.isEmpty || providers.first == ort.OrtProvider.CPU) return;
+    final InferenceSessionSafetyConfig config = sessionConfigFor(
+      domain,
+      modelHash,
+    );
+    await inferenceSetting.saveCanarySucceeded(
+      _canaryKey(domain, modelHash, providers, config),
+    );
+  }
+
+  Future<void> _canaryFailed(
+    InferenceDomain domain,
+    String modelHash,
+    List<ort.OrtProvider> providers,
+    Object error,
+  ) async {
+    if (providers.isEmpty || providers.first == ort.OrtProvider.CPU) return;
+    final InferenceSessionSafetyConfig config = sessionConfigFor(
+      domain,
+      modelHash,
+    );
+    await inferenceSetting.saveCanaryFailed(
+      _canaryKey(domain, modelHash, providers, config),
+      error,
+    );
+  }
+
+  Future<_InferenceCanaryEnvironment> _readCanaryEnvironment() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      final deviceInfo = DeviceInfoPlugin();
+      String model = Platform.operatingSystem;
+      if (Platform.isAndroid) {
+        model = (await deviceInfo.androidInfo).model;
+      } else if (Platform.isIOS) {
+        model = (await deviceInfo.iosInfo).utsname.machine;
+      } else if (Platform.isMacOS) {
+        model = (await deviceInfo.macOsInfo).model;
+      } else if (Platform.isWindows) {
+        model = (await deviceInfo.windowsInfo).computerName;
+      } else if (Platform.isLinux) {
+        model = (await deviceInfo.linuxInfo).name;
+      }
+      return _InferenceCanaryEnvironment(
+        deviceModel: model,
+        systemVersion: Platform.operatingSystemVersion,
+        appVersion: '${packageInfo.version}+${packageInfo.buildNumber}',
+      );
+    } catch (_) {
+      return _canaryEnvironment;
     }
-    final List<ort.OrtProvider> providers = <ort.OrtProvider>[primary];
-    if (primary != ort.OrtProvider.CPU &&
-        inferenceSetting.enableCpuFallback.value &&
-        OnnxRuntime.instance.availableProviders.contains(ort.OrtProvider.CPU)) {
-      providers.add(ort.OrtProvider.CPU);
-    }
-    return providers;
   }
 
   InferenceSessionState sessionStateFor(InferenceDomain domain) {
@@ -463,15 +656,4 @@ class InferenceService extends GetxController
         _ => null,
       };
 
-  ort.OrtProvider? _providerForBackend(InferenceBackend backend) =>
-      switch (backend) {
-        InferenceBackend.cpu => ort.OrtProvider.CPU,
-        InferenceBackend.directml => ort.OrtProvider.DIRECT_ML,
-        InferenceBackend.cuda => ort.OrtProvider.CUDA,
-        InferenceBackend.openvino => ort.OrtProvider.OPEN_VINO,
-        InferenceBackend.nnapi => ort.OrtProvider.NNAPI,
-        InferenceBackend.coreml => ort.OrtProvider.CORE_ML,
-        InferenceBackend.xnnpack => ort.OrtProvider.XNNPACK,
-        InferenceBackend.auto || InferenceBackend.vulkan => null,
-      };
 }

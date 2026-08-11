@@ -1,0 +1,50 @@
+name: flutter_onnxruntime
+description: "A lightweight plugin that provides native wrappers for running ONNX Runtime on multiple platforms"
+version: 1.8.3
+homepage: https://github.com/masicai/flutter_onnxruntime
+repository: https://github.com/masicai/flutter_onnxruntime
+
+environment:
+  sdk: ^3.7.0
+  flutter: '>=3.3.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_web_plugins:
+   sdk: flutter
+  path_provider: ^2.1.5
+  plugin_platform_interface: ^2.0.2
+  web: ^1.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  # Used only by tests to fake getTemporaryDirectory() (already a transitive dep of path_provider).
+  path_provider_platform_interface: ^2.1.2
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.masicai.flutteronnxruntime
+        pluginClass: FlutterOnnxruntimePlugin
+      ios:
+        pluginClass: FlutterOnnxruntimePlugin
+      linux:
+        pluginClass: FlutterOnnxruntimePlugin
+      macos:
+        pluginClass: FlutterOnnxruntimePlugin
+      web:
+        pluginClass: FlutterOnnxruntimeWebPlugin
+        fileName: web/flutter_onnxruntime_web_plugin.dart
+      windows:
+        pluginClass: FlutterOnnxruntimePlugin
+
+topics:
+ - onnx
+ - onnxruntime
+ - machine-learning
+ - deep-learning
+ - model-inference

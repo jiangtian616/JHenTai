@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 import 'package:flutter_onnxruntime/flutter_onnxruntime.dart' as ort;
 import 'package:jhentai/src/service/inference/inference_exception.dart';
+import 'package:jhentai/src/service/inference/inference_safety.dart';
 import 'package:jhentai/src/service/inference/inference_task.dart';
 import 'package:jhentai/src/service/inference/ocr_inference_engine.dart';
 import 'package:jhentai/src/service/inference/onnx_model_store.dart';
@@ -77,6 +78,7 @@ class OnnxOcrWorker {
     int maxDimension = 2200,
     required InferenceCancellationToken cancellationToken,
     InferenceProgressCallback? onProgress,
+    required InferenceSessionSafetyConfig safetyConfig,
   }) async {
     if (_closed) {
       throw StateError('ONNX OCR worker is closed');
@@ -124,11 +126,11 @@ class OnnxOcrWorker {
         'dict': model.dictPath,
         'fingerprint': model.fingerprint,
       },
-      'providers': providers
-          .map((ort.OrtProvider provider) => provider.name)
-          .toList(),
+      'providers':
+          providers.map((ort.OrtProvider provider) => provider.name).toList(),
       'imagePath': imagePath,
       'maxDimension': maxDimension,
+      'safetyConfig': safetyConfig.toMap(),
       'reply': callPort.sendPort,
     });
     // A pipeline stage can run for a while without emitting progress, so poll
@@ -234,6 +236,10 @@ class OnnxOcrIsolateEngine implements OcrInferenceEngine {
     required this.providerResolver,
     required this.modelIdResolver,
     this.onSessionStateChanged,
+    this.safetyConfigResolver,
+    this.onCanaryStarted,
+    this.onCanarySucceeded,
+    this.onCanaryFailed,
   });
 
   final OnnxProviderResolver providerResolver;
@@ -248,16 +254,23 @@ class OnnxOcrIsolateEngine implements OcrInferenceEngine {
   /// sessions now live inside the worker isolate.
   final void Function({required bool verified, String? error})?
   onSessionStateChanged;
+  final InferenceSessionSafetyConfig Function(String modelHash)?
+  safetyConfigResolver;
+  final InferenceCanaryLifecycle? onCanaryStarted;
+  final InferenceCanaryLifecycle? onCanarySucceeded;
+  final InferenceCanaryFailureLifecycle? onCanaryFailed;
 
   OnnxOcrWorker? _worker;
   Future<OnnxOcrWorker>? _spawnFuture;
+  final InferenceTaskQueue _inferenceQueue = InferenceTaskQueue();
 
   String get _activeManifestId => modelIdResolver();
 
   @override
   String get displayName {
-    final OnnxModelManifest? manifest = OnnxModelStore.instance
-        .manifestOf(_activeManifestId);
+    final OnnxModelManifest? manifest = OnnxModelStore.instance.manifestOf(
+      _activeManifestId,
+    );
     return manifest?.displayName ?? 'ONNX OCR';
   }
 
@@ -273,6 +286,20 @@ class OnnxOcrIsolateEngine implements OcrInferenceEngine {
     int maxDimension = 2200,
     InferenceCancellationToken? cancellationToken,
     InferenceProgressCallback? onProgress,
+  }) => _inferenceQueue.run(
+    () => _recognize(
+      imagePath,
+      maxDimension: maxDimension,
+      cancellationToken: cancellationToken,
+      onProgress: onProgress,
+    ),
+  );
+
+  Future<OcrInferenceResult> _recognize(
+    String imagePath, {
+    int maxDimension = 2200,
+    InferenceCancellationToken? cancellationToken,
+    InferenceProgressCallback? onProgress,
   }) async {
     final InferenceCancellationToken token =
         cancellationToken ?? InferenceCancellationToken();
@@ -281,8 +308,9 @@ class OnnxOcrIsolateEngine implements OcrInferenceEngine {
     // would validate the model twice per page for no benefit.
     final Map<String, String>? files = OnnxModelStore.instance
         .manifestFilePaths(_activeManifestId);
-    final String? fingerprint = OnnxModelStore.instance
-        .fingerprintOf(_activeManifestId);
+    final String? fingerprint = OnnxModelStore.instance.fingerprintOf(
+      _activeManifestId,
+    );
     final List<ort.OrtProvider> providers = providerResolver();
     if (!OnnxRuntime.instance.isAvailable ||
         files == null ||
@@ -290,8 +318,20 @@ class OnnxOcrIsolateEngine implements OcrInferenceEngine {
         providers.isEmpty) {
       throw const InferenceNotReadyException('onnx-ocr');
     }
-    final OnnxOcrWorker worker = await _ensureWorker();
+    final InferenceSessionSafetyConfig safetyConfig =
+        safetyConfigResolver?.call(fingerprint) ??
+        InferenceProviderPolicy.sessionConfig(
+          backend: 'cpu',
+          maxInputPixels: 4 * 1024 * 1024,
+          memoryBudgetBytes: 128 * 1024 * 1024,
+        );
+    final bool accelerated =
+        providers.isNotEmpty && providers.first != ort.OrtProvider.CPU;
+    if (accelerated) {
+      await onCanaryStarted?.call(fingerprint, providers);
+    }
     try {
+      final OnnxOcrWorker worker = await _ensureWorker();
       final OcrInferenceResult result = await worker.recognize(
         model: OnnxOcrModelInfo(
           detPath: files['det']!,
@@ -305,12 +345,22 @@ class OnnxOcrIsolateEngine implements OcrInferenceEngine {
         maxDimension: maxDimension,
         cancellationToken: token,
         onProgress: onProgress,
+        safetyConfig: safetyConfig,
       );
+      if (accelerated) {
+        await onCanarySucceeded?.call(fingerprint, providers);
+      }
       onSessionStateChanged?.call(verified: true);
       return result;
     } on InferenceNotReadyException catch (e) {
       // The worker failed to build a native session (e.g. provider rejected
       // the model). Surface it so the settings page flips to "failed".
+      onSessionStateChanged?.call(verified: false, error: e.toString());
+      rethrow;
+    } catch (e) {
+      if (accelerated && e is! InferenceCancelledException) {
+        await onCanaryFailed?.call(fingerprint, providers, e);
+      }
       onSessionStateChanged?.call(verified: false, error: e.toString());
       rethrow;
     }
@@ -325,12 +375,12 @@ class OnnxOcrIsolateEngine implements OcrInferenceEngine {
     if (pending != null) {
       return pending;
     }
-    final Future<OnnxOcrWorker> task = OnnxOcrWorker.spawn().then(
-      (OnnxOcrWorker worker) {
-        _worker = worker;
-        return worker;
-      },
-    );
+    final Future<OnnxOcrWorker> task = OnnxOcrWorker.spawn().then((
+      OnnxOcrWorker worker,
+    ) {
+      _worker = worker;
+      return worker;
+    });
     _spawnFuture = task;
     return task.whenComplete(() {
       if (identical(_spawnFuture, task)) {
@@ -383,7 +433,10 @@ Future<void> onnxOcrWorkerMain((ui.RootIsolateToken, SendPort) args) async {
   // callback and the engine rejects UI operations off the root isolate.
   BackgroundIsolateBinaryMessenger.ensureInitialized(token);
   final ReceivePort commandPort = ReceivePort();
-  helloPort.send(<String, dynamic>{'op': 'ready', 'port': commandPort.sendPort});
+  helloPort.send(<String, dynamic>{
+    'op': 'ready',
+    'port': commandPort.sendPort,
+  });
   // The global `log` singleton depends on UI-isolate services (pathService),
   // so the worker uses a no-op diagnostics sink.
   final OnnxRuntime runtime = OnnxRuntime(log: noopOnnxRuntimeLog);
@@ -417,9 +470,7 @@ Future<void> onnxOcrWorkerMain((ui.RootIsolateToken, SendPort) args) async {
       case 'closeSessions':
         // Handle off the message loop so a queued cancel/recognize is not
         // delayed while sessions drain; in-flight OCR aborts cooperatively.
-        unawaited(
-          _closeSessionsInWorker(runtime, message, tokens),
-        );
+        unawaited(_closeSessionsInWorker(runtime, message, tokens));
       case 'reinitialize':
         unawaited(_reinitializeInWorker(runtime, message));
       case 'dispose':
@@ -441,7 +492,10 @@ Future<void> _reinitializeInWorker(
   } catch (_) {
     ok = false;
   }
-  (message['reply'] as SendPort?)?.send(<String, dynamic>{'done': true, 'ok': ok});
+  (message['reply'] as SendPort?)?.send(<String, dynamic>{
+    'done': true,
+    'ok': ok,
+  });
 }
 
 Future<void> _closeSessionsInWorker(
@@ -470,18 +524,22 @@ Future<void> _handleRecognize(
         (message['providers'] as List)
             .map((dynamic name) => name as String)
             .toList();
-    final List<ort.OrtProvider> providers = providerNames
-        .map(
-          (String name) => ort.OrtProvider.values.firstWhere(
-            (ort.OrtProvider provider) => provider.name == name,
-            orElse: () => ort.OrtProvider.CPU,
-          ),
-        )
-        .toList();
+    final List<ort.OrtProvider> providers =
+        providerNames
+            .map(
+              (String name) => ort.OrtProvider.values.firstWhere(
+                (ort.OrtProvider provider) => provider.name == name,
+                orElse: () => ort.OrtProvider.CPU,
+              ),
+            )
+            .toList();
     final Map<dynamic, dynamic> model = message['model'] as Map;
     final OnnxOcrInferenceEngine engine = OnnxOcrInferenceEngine(
       runtime: runtime,
       providerResolver: () => providers,
+      safetyConfig: InferenceSessionSafetyConfig.fromMap(
+        (message['safetyConfig'] as Map?) ?? const <String, dynamic>{},
+      ),
       model: OnnxOcrModelInfo(
         detPath: model['det'] as String,
         clsPath: model['cls'] as String,
@@ -494,14 +552,11 @@ Future<void> _handleRecognize(
       message['imagePath'] as String,
       maxDimension: message['maxDimension'] as int? ?? 2200,
       cancellationToken: token,
-      onProgress: (double progress) =>
-          reply.send(<String, dynamic>{'progress': progress}),
+      onProgress:
+          (double progress) =>
+              reply.send(<String, dynamic>{'progress': progress}),
     );
-    reply.send(<String, dynamic>{
-      'done': true,
-      'ok': true,
-      'result': result,
-    });
+    reply.send(<String, dynamic>{'done': true, 'ok': true, 'result': result});
   } on InferenceCancelledException {
     reply.send(<String, dynamic>{
       'done': true,
