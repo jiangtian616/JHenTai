@@ -146,8 +146,7 @@ jobs:
           curl --fail --location --retry 3 \
             "https://github.com/gsmlg-app/lib_llama_cpp/releases/download/v0.7.3/lib_llama_cpp-source-0.7.3.tar.gz" \
             --output "$source_bundle"
-          pub_cache="${PUB_CACHE:-$HOME/.pub-cache}"
-          tar -xzf "$source_bundle" -C "$pub_cache" \
+          tar -xzf "$source_bundle" -C "$GITHUB_WORKSPACE" \
             ./packages/cmake \
             ./packages/lib_llama_cpp_ffi \
             ./third_party/llama.cpp
