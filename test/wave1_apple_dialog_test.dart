@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/model/jh_layout.dart';
+import 'package:jhentai/src/pages/setting/network/lan/setting_lan_sharing_page.dart';
 import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
@@ -141,6 +142,80 @@ void main() {
     );
     expect(dialog.actions, hasLength(2));
     expect(dialog.actions.last.isPrimary, isFalse);
+  });
+
+  testWidgets('Apple LAN revoke dialog returns from both actions', (
+    tester,
+  ) async {
+    ThemeConfig.appleVisualStyleEnabled = true;
+    bool? result;
+
+    await tester.pumpWidget(
+      LiquidGlassWidgets.wrap(
+        child: MaterialApp(
+          theme: ThemeConfig.theme(Colors.black, Brightness.light),
+          darkTheme: ThemeConfig.theme(Colors.white, Brightness.dark),
+          themeMode: ThemeMode.dark,
+          home: Builder(
+            builder:
+                (context) => Scaffold(
+                  body: TextButton(
+                    onPressed: () async {
+                      result = await showLanRevokeTrustConfirmationDialog(
+                        context,
+                        deviceName: 'Mac',
+                      );
+                    },
+                    child: const Text('Open'),
+                  ),
+                ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(GlassDialog), findsNothing);
+    expect(find.byType(GlassButton), findsNothing);
+    expect(find.byType(GlassCard), findsOneWidget);
+
+    final Finder titleFinder = find.byKey(
+      const Key('lanRevokeDialogTitle'),
+    );
+    final Finder messageFinder = find.byKey(
+      const Key('lanRevokeDialogMessage'),
+    );
+    expect(
+      tester.widget<Text>(titleFinder).style?.color,
+      const Color(0xFFF5F5F7),
+    );
+    expect(
+      tester.widget<Text>(messageFinder).style?.color,
+      const Color(0xFFB0B0B5),
+    );
+    expect(
+      find.ancestor(
+        of: titleFinder,
+        matching: find.byType(AdaptiveLiquidGlassLayer),
+      ),
+      findsNothing,
+    );
+
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    expect(result, isTrue);
+    expect(find.byType(GlassDialog), findsNothing);
+
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('cancel'));
+    await tester.pumpAndSettle();
+
+    expect(result, isFalse);
+    expect(find.byType(GlassDialog), findsNothing);
   });
 
   testWidgets('Apple context menu uses the glass action sheet', (tester) async {

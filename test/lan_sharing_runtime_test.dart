@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/model/lan_device_trust.dart';
 import 'package:jhentai/src/service/lan_device_trust_service.dart';
 import 'package:jhentai/src/service/lan_sharing_runtime.dart';
@@ -580,10 +581,13 @@ void main() {
   );
 
   test(
-    'peer pushes a cache file to a host that granted imageCache',
+    'indexed cache upload can be fetched later by its image-page URL',
     () async {
-      final Directory phoneCache = await Directory.systemTemp.createTemp(
-        'jh-lan-cache-push-',
+      final Directory sourceCache = await Directory.systemTemp.createTemp(
+        'jh-lan-cache-push-source-',
+      );
+      final Directory serverCache = await Directory.systemTemp.createTemp(
+        'jh-lan-cache-push-server-',
       );
       final LanDeviceTrustService deviceA = LanDeviceTrustService(
         repository: _MemoryTrustRepository(),
@@ -602,14 +606,14 @@ void main() {
         useServiceDiscovery: false,
         bindAddress: InternetAddress.loopbackIPv4,
         secureRandom: Random(303),
-        imageCacheDirectory: phoneCache.path,
+        imageCacheDirectory: sourceCache.path,
       );
       final LanSharingRuntime runtimeB = LanSharingRuntime(
         trustService: deviceB,
         useServiceDiscovery: false,
         bindAddress: InternetAddress.loopbackIPv4,
         secureRandom: Random(404),
-        imageCacheDirectory: phoneCache.path,
+        imageCacheDirectory: serverCache.path,
       );
       await runtimeA.doInitBean();
       await runtimeB.doInitBean();
@@ -632,22 +636,36 @@ void main() {
         LanPeerConnectionState.connected,
       );
 
+      const String imagePageHref = 'https://e-hentai.org/s/hash/123-1';
+      const String imageUrl =
+          'https://example.test/image.jpg?fileindex=42&keystamp=old';
+      final GalleryImage image = GalleryImage(
+        url: imageUrl,
+        width: 800,
+        height: 1200,
+      );
       final List<int> bytes = List<int>.generate(64, (index) => index % 251);
-      final bool stored = await deviceA.pushCacheFileToServer(
-        'pushed-cache-key',
-        bytes,
-      );
-      expect(stored, isTrue);
-      final File target = File(
-        path.join(phoneCache.path, 'pushed-cache-key'),
-      );
+      final String cacheKey = normalizedImageCacheKey(imageUrl);
+      await File(path.join(sourceCache.path, cacheKey)).writeAsBytes(bytes);
+      await runtimeA.recordImagePage(imagePageHref, image);
+
+      final int uploaded = await runtimeA.pushIndexedImageCacheToServer();
+      expect(uploaded, 1);
+      final File target = File(path.join(serverCache.path, cacheKey));
       expect(await target.readAsBytes(), bytes);
+      final LanSharedImage? fetched = await deviceA.requestImageCache(
+        imagePageHref,
+      );
+      expect(fetched, isNotNull);
+      expect(fetched!.bytes, bytes);
+      expect(fetched.image['url'], imageUrl);
 
       await runtimeA.stop();
       await runtimeB.stop();
       deviceA.onClose();
       deviceB.onClose();
-      await phoneCache.delete(recursive: true);
+      await sourceCache.delete(recursive: true);
+      await serverCache.delete(recursive: true);
     },
   );
 

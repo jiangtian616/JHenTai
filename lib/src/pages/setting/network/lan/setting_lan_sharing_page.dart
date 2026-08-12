@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -9,13 +10,214 @@ import 'package:jhentai/src/service/lan_device_trust_service.dart';
 import 'package:jhentai/src/service/lan_unified_state_service.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/utils/byte_util.dart';
-import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/eh_apple_button.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
 import 'package:jhentai/src/widget/lan_trust_dialog.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
+
+Future<bool?> showLanRevokeTrustConfirmationDialog(
+  BuildContext context, {
+  required String deviceName,
+}) {
+  if (ThemeConfig.isApple) {
+    final NavigatorState navigator = Navigator.of(context, rootNavigator: true);
+    final Brightness brightness = Theme.of(context).brightness;
+    return showCupertinoDialog<bool>(
+      context: context,
+      builder: (_) => _AppleLanRevokeTrustDialog(
+        brightness: brightness,
+        settings: UIConfig.glassDialogSettings(context),
+        title: 'lanRevokeTrust'.tr,
+        message: 'lanRevokeTrustHint'.trParams({'name': deviceName}),
+        cancelLabel: 'cancel'.tr,
+        confirmLabel: 'OK'.tr,
+        onCancel: () => navigator.pop(false),
+        onConfirm: () => navigator.pop(true),
+      ),
+    );
+  }
+  return showDialog<bool>(
+    context: context,
+    builder:
+        (dialogContext) => AlertDialog(
+          title: Text('lanRevokeTrust'.tr),
+          content: Text('lanRevokeTrustHint'.trParams({'name': deviceName})),
+          actions: [
+            EHAppleTextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text('cancel'.tr),
+            ),
+            EHAppleFilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text('OK'.tr),
+            ),
+          ],
+        ),
+  );
+}
+
+class _AppleLanRevokeTrustDialog extends StatelessWidget {
+  const _AppleLanRevokeTrustDialog({
+    required this.brightness,
+    required this.settings,
+    required this.title,
+    required this.message,
+    required this.cancelLabel,
+    required this.confirmLabel,
+    required this.onCancel,
+    required this.onConfirm,
+  });
+
+  final Brightness brightness;
+  final LiquidGlassSettings settings;
+  final String title;
+  final String message;
+  final String cancelLabel;
+  final String confirmLabel;
+  final VoidCallback onCancel;
+  final VoidCallback onConfirm;
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isDark = brightness == Brightness.dark;
+    final Color primaryText =
+        isDark ? const Color(0xFFF5F5F7) : const Color(0xFF1D1D1F);
+    final Color secondaryText =
+        isDark ? const Color(0xFFB0B0B5) : const Color(0xFF6E6E73);
+    final Color buttonFill =
+        isDark
+            ? Colors.white.withValues(alpha: 0.12)
+            : Colors.black.withValues(alpha: 0.06);
+    final Color buttonBorder =
+        isDark
+            ? Colors.white.withValues(alpha: 0.20)
+            : Colors.black.withValues(alpha: 0.10);
+
+    return Center(
+      child: Material(
+        type: MaterialType.transparency,
+        child: SizedBox(
+          width: 280,
+          child: Stack(
+            children: [
+              // Keep the refractive surface behind the foreground. GlassDialog
+              // nests its text and GlassButtons inside the shader layer, which
+              // can recapture glyphs as bright coloured baseline-like ghosts.
+              Positioned.fill(
+                child: GlassCard(
+                  useOwnLayer: true,
+                  settings: settings,
+                  shape: const LiquidRoundedSuperellipse(borderRadius: 22),
+                  padding: EdgeInsets.zero,
+                  child: const SizedBox.expand(),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      key: const Key('lanRevokeDialogTitle'),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: primaryText,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      message,
+                      key: const Key('lanRevokeDialogMessage'),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: secondaryText,
+                        fontSize: 14,
+                        height: 1.4,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _AppleDialogAction(
+                            label: cancelLabel,
+                            foregroundColor: primaryText,
+                            backgroundColor: buttonFill,
+                            borderColor: buttonBorder,
+                            onPressed: onCancel,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _AppleDialogAction(
+                            label: confirmLabel,
+                            foregroundColor: primaryText,
+                            backgroundColor: buttonFill,
+                            borderColor: buttonBorder,
+                            onPressed: onConfirm,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AppleDialogAction extends StatelessWidget {
+  const _AppleDialogAction({
+    required this.label,
+    required this.foregroundColor,
+    required this.backgroundColor,
+    required this.borderColor,
+    required this.onPressed,
+  });
+
+  final String label;
+  final Color foregroundColor;
+  final Color backgroundColor;
+  final Color borderColor;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        border: Border.all(color: borderColor, width: 0.8),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: CupertinoButton(
+        minimumSize: const Size(0, 44),
+        padding: EdgeInsets.zero,
+        borderRadius: BorderRadius.circular(12),
+        onPressed: onPressed,
+        child: Text(
+          label,
+          style: TextStyle(
+            color: foregroundColor,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            decoration: TextDecoration.none,
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class SettingLanSharingPage extends StatelessWidget {
   const SettingLanSharingPage({super.key});
@@ -602,49 +804,10 @@ class _TrustedDeviceTile extends StatelessWidget {
   }
 
   Future<void> _confirmRevoke(BuildContext context) async {
-    final bool? confirmed =
-        ThemeConfig.isApple
-            ? await GlassDialog.show<bool>(
-              context: context,
-              settings: UIConfig.glassDialogSettings(context),
-              title: 'lanRevokeTrust'.tr,
-              message: 'lanRevokeTrustHint'.trParams({
-                'name': device.displayName,
-              }),
-              actions: [
-                GlassDialogAction(
-                  label: 'cancel'.tr,
-                  onPressed: () => backRoute(result: false),
-                ),
-                GlassDialogAction(
-                  label: 'OK'.tr,
-                  onPressed: () => backRoute(result: true),
-                  isPrimary: true,
-                ),
-              ],
-            )
-            : await showDialog<bool>(
-              context: context,
-              builder:
-                  (dialogContext) => AlertDialog(
-                    title: Text('lanRevokeTrust'.tr),
-                    content: Text(
-                      'lanRevokeTrustHint'.trParams({
-                        'name': device.displayName,
-                      }),
-                    ),
-                    actions: [
-                      EHAppleTextButton(
-                        onPressed: () => Navigator.of(dialogContext).pop(false),
-                        child: Text('cancel'.tr),
-                      ),
-                      EHAppleFilledButton(
-                        onPressed: () => Navigator.of(dialogContext).pop(true),
-                        child: Text('OK'.tr),
-                      ),
-                    ],
-                  ),
-            );
+    final bool? confirmed = await showLanRevokeTrustConfirmationDialog(
+      context,
+      deviceName: device.displayName,
+    );
     if (confirmed == true) {
       await lanDeviceTrustService.revokeTrust(device.deviceId);
     }

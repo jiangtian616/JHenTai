@@ -10,7 +10,6 @@ import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2_logic.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2_state.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/notification/tap_menu_button_notification.dart';
-import 'package:jhentai/src/pages/layout/mobile_v2/notification/tap_quick_search_drawer_notification.dart';
 import 'package:jhentai/src/pages/search/quick_search/quick_search_page.dart';
 import 'package:jhentai/src/pages/setting/setting_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
@@ -30,10 +29,6 @@ import '../../../widget/eh_alert_dialog.dart';
 import 'notification/tap_tab_bat_button_notification.dart';
 
 class MobileLayoutPageV2 extends StatelessWidget {
-  static VoidCallback? _openQuickSearchDrawer;
-
-  static void openQuickSearchDrawer() => _openQuickSearchDrawer?.call();
-
   final MobileLayoutPageV2Logic logic =
       Get.put(MobileLayoutPageV2Logic(), permanent: true);
   final MobileLayoutPageV2State state =
@@ -44,18 +39,19 @@ class MobileLayoutPageV2 extends StatelessWidget {
   static const double _drawerWidth = 278;
   final GlobalKey<EHAppleContentShiftDrawerState> _drawerKey =
       GlobalKey<EHAppleContentShiftDrawerState>();
-  final GlobalKey<EHAppleContentShiftDrawerState> _quickSearchDrawerKey =
-      GlobalKey<EHAppleContentShiftDrawerState>();
-
   void _toggleDrawer() => _drawerKey.currentState?.toggle();
-  void _toggleQuickSearchDrawer() =>
-      _quickSearchDrawerKey.currentState?.toggle();
+
+  void _handleAppleDrawerItemTap(int index) {
+    logic.handleTapTabBarButton(index);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _drawerKey.currentState?.close();
+    });
+  }
 
   MobileLayoutPageV2({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    _openQuickSearchDrawer = _toggleQuickSearchDrawer;
     return Obx(
       () => WillPopInterceptor(
         child: Scaffold(
@@ -70,10 +66,9 @@ class MobileLayoutPageV2 extends StatelessWidget {
               ThemeConfig.isApple
                   ? false
                   : preferenceSetting.enableLeftMenuDrawerGesture.isTrue,
-          endDrawer: ThemeConfig.isApple ? null : buildRightDrawer(),
+          endDrawer: buildRightDrawer(),
           endDrawerEnableOpenDragGesture:
-              !ThemeConfig.isApple &&
-                  preferenceSetting.enableQuickSearchDrawerGesture.isTrue,
+              preferenceSetting.enableQuickSearchDrawerGesture.isTrue,
           body: ThemeConfig.isApple
               ? _buildAppleBody(context)
               : buildBody(),
@@ -94,7 +89,7 @@ class MobileLayoutPageV2 extends StatelessWidget {
   /// Settings/Download entries are hidden (they live in the bottom tab bar).
   Widget buildLeftDrawerPanel(
     BuildContext context, {
-    VoidCallback? onItemTapped,
+    ValueChanged<int>? onItemTapped,
   }) {
     // Displayed indices map back to the full state.icons list the logic uses.
     final List<int> visibleIndices = ThemeConfig.isApple
@@ -153,8 +148,11 @@ class MobileLayoutPageV2 extends StatelessWidget {
                             bottomEnd: Radius.circular(32)),
                       ),
                       onTap: () {
-                        logic.handleTapTabBarButton(index);
-                        onItemTapped?.call();
+                        if (onItemTapped != null) {
+                          onItemTapped(index);
+                        } else {
+                          logic.handleTapTabBarButton(index);
+                        }
                       },
                     ).marginOnly(right: 8, top: 2);
                   },
@@ -187,25 +185,18 @@ class MobileLayoutPageV2 extends StatelessWidget {
       width: _drawerWidth,
       panel: buildLeftDrawerPanel(
         context,
-        onItemTapped: () => _drawerKey.currentState?.close(),
+        onItemTapped: _handleAppleDrawerItemTap,
       ),
-      content: EHAppleContentShiftDrawer(
-        key: _quickSearchDrawerKey,
-        side: EHAppleContentShiftDrawerSide.right,
-        panel: QuickSearchPage(
-          scrollController: quickSearchService.drawerScrollController,
-        ),
-        content: Stack(
-          fit: StackFit.expand,
-          children: [
-            buildBody(),
-            // Hide the floating nav while the on-screen keyboard is up so it
-            // never sits on top of the keyboard (e.g. quick-search typing).
-            if (!preferenceSetting.effectiveHideBottomBar &&
-                MediaQuery.viewInsetsOf(context).bottom == 0)
-              buildLiquidGlassBottomNavigationBar(context),
-          ],
-        ),
+      content: Stack(
+        fit: StackFit.expand,
+        children: [
+          buildBody(),
+          // Hide the floating nav while the on-screen keyboard is up so it
+          // never sits on top of the keyboard (e.g. quick-search typing).
+          if (!preferenceSetting.effectiveHideBottomBar &&
+              MediaQuery.viewInsetsOf(context).bottom == 0)
+            buildLiquidGlassBottomNavigationBar(context),
+        ],
       ),
     );
   }
@@ -293,8 +284,7 @@ class MobileLayoutPageV2 extends StatelessWidget {
   Widget buildBody() {
     return NotificationListener<TapTabBarButtonNotification>(
       child: NotificationListener<TapMenuButtonNotification>(
-        child: NotificationListener<TapQuickSearchDrawerNotification>(
-          child: GetBuilder<MobileLayoutPageV2Logic>(
+        child: GetBuilder<MobileLayoutPageV2Logic>(
           id: logic.bodyId,
           builder: (_) => Stack(
             children: [
@@ -309,11 +299,6 @@ class MobileLayoutPageV2 extends StatelessWidget {
                   child: const SettingPage()),
             ],
           ),
-          ),
-          onNotification: (_) {
-            _toggleQuickSearchDrawer();
-            return true;
-          },
         ),
         onNotification: (_) {
           if (ThemeConfig.isApple) {

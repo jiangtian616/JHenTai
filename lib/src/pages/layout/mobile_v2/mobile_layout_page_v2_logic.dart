@@ -49,23 +49,33 @@ class MobileLayoutPageV2Logic extends GetxController with DoubleTapToRefreshLogi
       return;
     }
 
-    // make sure we are at the home tab
-    if (state.selectedNavigationIndex != 0) {
+    final bool navigationChanged = state.selectedNavigationIndex != 0;
+    final int previousIndex = state.selectedDrawerTabIndex;
+    final bool drawerTabChanged = previousIndex != index;
+
+    // Make sure we are at the home tab before selecting a page from the
+    // sidebar. Apply all state changes before issuing one GetX update so the
+    // body never rebuilds with only half of the navigation state changed.
+    if (navigationChanged) {
       state.selectedNavigationIndex = 0;
-      updateSafely([bodyId, bottomNavigationBarId]);
     }
 
     state.icons[index].shouldRender = true;
-
-    int prevIndex = state.selectedDrawerTabIndex;
     state.selectedDrawerTabIndex = index;
 
-    if (prevIndex != index) {
+    if (drawerTabChanged) {
       MobileLayoutPageV2State.scaffoldKey.currentState?.closeDrawer();
-      // Also rebuild the sidebar so its highlight follows the selected tab;
-      // without tabBarId the drawer's GetBuilder keeps the initial highlight
-      // (home) even after navigating to another page.
-      update([bodyId, tabBarId]);
+    }
+
+    if (navigationChanged || drawerTabChanged) {
+      final List<Object> updateIds = [bodyId];
+      if (navigationChanged) {
+        updateIds.add(bottomNavigationBarId);
+      }
+      if (drawerTabChanged) {
+        updateIds.add(tabBarId);
+      }
+      updateSafely(updateIds);
     }
   }
 

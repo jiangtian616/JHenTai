@@ -19,7 +19,6 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import '../../../config/ui_config.dart';
 import '../../layout/mobile_v2/mobile_layout_page_v2_state.dart';
 import '../../layout/mobile_v2/notification/tap_tab_bat_button_notification.dart';
-import '../../layout/mobile_v2/mobile_layout_page_v2.dart';
 import 'dashboard_page_logic.dart';
 
 /// For mobile v2 layout
@@ -84,7 +83,7 @@ class DashboardPage extends BasePage {
       if (ThemeConfig.isApple)
         IconButton(
           onPressed:
-              MobileLayoutPageV2.openQuickSearchDrawer,
+              MobileLayoutPageV2State.scaffoldKey.currentState?.openEndDrawer,
           icon: const Icon(Icons.door_front_door_outlined, size: 24),
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,

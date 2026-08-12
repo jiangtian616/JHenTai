@@ -3,14 +3,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 
 void main() {
-  test('dark macOS sidebar suppresses the pale native material', () {
+  test('macOS sidebar keeps the native material visibly transparent', () {
     expect(
       UIConfig.desktopMacOSSideBarAlpha(Brightness.dark),
-      greaterThan(UIConfig.desktopMacOSSideBarAlpha(Brightness.light)),
+      lessThan(UIConfig.desktopMacOSSideBarAlpha(Brightness.light)),
     );
-    expect(UIConfig.desktopMacOSSideBarAlpha(Brightness.light), 0.55);
-    expect(UIConfig.desktopMacOSVisualEffectAlpha(Brightness.light), 1.0);
-    expect(UIConfig.desktopMacOSVisualEffectAlpha(Brightness.dark), 0.32);
+    expect(UIConfig.desktopMacOSSideBarAlpha(Brightness.light), 0.18);
+    expect(UIConfig.desktopMacOSSideBarAlpha(Brightness.dark), 0.08);
+    expect(UIConfig.desktopMacOSVisualEffectAlpha(Brightness.light), 0.70);
+    expect(UIConfig.desktopMacOSVisualEffectAlpha(Brightness.dark), 0.65);
 
     final Color lightComposite = Color.alphaBlend(
       UIConfig.desktopSideBarColorLight.withValues(
@@ -18,7 +19,7 @@ void main() {
       ),
       Colors.black,
     );
-    expect(lightComposite.computeLuminance(), greaterThan(0.2));
+    expect(lightComposite.computeLuminance(), lessThan(0.04));
 
     final Color darkComposite = Color.alphaBlend(
       UIConfig.desktopSideBarColorDark.withValues(
@@ -26,6 +27,6 @@ void main() {
       ),
       Colors.white,
     );
-    expect(darkComposite.computeLuminance(), lessThan(0.08));
+    expect(darkComposite.computeLuminance(), greaterThan(0.7));
   });
 }

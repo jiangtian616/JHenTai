@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:extended_image/extended_image.dart';
+import 'package:extended_image/extended_image.dart' show clearDiskCachedImages;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +10,7 @@ import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/database/dao/dio_cache_dao.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/lan_device_trust_service.dart';
+import 'package:jhentai/src/service/lan_sharing_runtime.dart';
 import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
@@ -199,35 +200,8 @@ class SettingNetworkPage extends StatelessWidget {
   }
 
   Future<void> _moveCacheToServer() async {
-    final String? cachePath = extendedImageDiskCacheDirectory;
-    if (cachePath == null || cachePath.isEmpty) {
-      toast('moveCacheToServerDone'.trParams({'count': '0'}));
-      return;
-    }
-    final Directory cacheDirectory = Directory(cachePath);
-    if (!cacheDirectory.existsSync()) {
-      toast('moveCacheToServerDone'.trParams({'count': '0'}));
-      return;
-    }
-    final List<File> files = cacheDirectory.listSync().whereType<File>().toList();
-    int uploaded = 0;
-    for (final File file in files) {
-      try {
-        final String key = file.uri.pathSegments.last;
-        if (key.isEmpty || key.contains('/') || key.contains('..')) {
-          continue;
-        }
-        final bool ok = await lanDeviceTrustService.pushCacheFileToServer(
-          key,
-          await file.readAsBytes(),
-        );
-        if (ok) {
-          uploaded++;
-        }
-      } on Object catch (error) {
-        log.warning('Move cache to server failed: $error');
-      }
-    }
+    final int uploaded = await lanSharingRuntime
+        .pushIndexedImageCacheToServer();
     toast('moveCacheToServerDone'.trParams({'count': '$uploaded'}));
   }
 

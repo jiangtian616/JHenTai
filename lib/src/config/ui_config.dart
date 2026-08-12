@@ -226,10 +226,19 @@ class UIConfig {
   /// native NSVisualEffectView frost behind them shows through.
   static const Color desktopSideBarColorLight = Color(0xFFECECEC);
   static const Color desktopSideBarColorDark = Color(0xFF1E1E1E);
-  static const double desktopMacOSSideBarLightAlpha = 0.55;
-  static const double desktopMacOSSideBarDarkAlpha = 0.88;
-  static const double desktopMacOSVisualEffectLightAlpha = 1.0;
-  static const double desktopMacOSVisualEffectDarkAlpha = 0.32;
+  /// Only a very light Flutter tint sits over the native material. The native
+  /// visual-effect view below it provides the actual sidebar appearance.
+  static const double desktopMacOSSideBarLightAlpha = 0.18;
+  static const double desktopMacOSSideBarDarkAlpha = 0.08;
+
+  /// Leave the native material partly transparent so the desktop/background
+  /// visibly contributes to the frosted sidebar in both color schemes.
+  static const double desktopMacOSVisualEffectLightAlpha = 0.70;
+  static const double desktopMacOSVisualEffectDarkAlpha = 0.65;
+
+  /// Extend only the native material to the divider without changing the
+  /// Flutter sidebar layout width.
+  static const double desktopMacOSSidebarEffectRightExtension = 12;
 
   static double desktopMacOSSideBarAlpha(Brightness brightness) =>
       brightness == Brightness.dark

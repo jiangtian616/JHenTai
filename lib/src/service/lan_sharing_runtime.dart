@@ -284,16 +284,62 @@ class LanSharingRuntime
   }
 
   Future<void> recordImagePage(String imagePageHref, GalleryImage image) async {
-    if (_imageCacheResolverOverride != null || !_persistImagePageManifest) {
+    if (_imageCacheResolverOverride != null) {
       return;
     }
     _imagePageManifest[_canonicalImagePageKey(imagePageHref)] = image;
+    if (!_persistImagePageManifest) {
+      return;
+    }
     _manifestWrite = _manifestWrite
         .then((_) => _saveImagePageManifest())
         .catchError((Object error) {
           log.warning('Save LAN image cache manifest failed: $error');
         });
     await _manifestWrite;
+  }
+
+  /// Uploads only cache files that have enough metadata to be served by page
+  /// URL on the receiving peer. Orphaned bytes are deliberately not counted as
+  /// migrated because the host could never look them up.
+  Future<int> pushIndexedImageCacheToServer() async {
+    final String? cacheDirectory =
+        _imageCacheDirectoryOverride ?? extendedImageDiskCacheDirectory;
+    if (cacheDirectory == null || cacheDirectory.isEmpty) {
+      return 0;
+    }
+    int uploaded = 0;
+    for (final MapEntry<String, GalleryImage> entry
+        in _imagePageManifest.entries.toList(growable: false)) {
+      try {
+        final GalleryImage image = entry.value;
+        final String effectiveUrl = effectiveEHImageUrl(image.url);
+        final File? file = await findCompatibleImageCacheFile(
+          directory: cacheDirectory,
+          url: effectiveUrl,
+        );
+        if (file == null) {
+          continue;
+        }
+        final List<int> bytes = await file.readAsBytes();
+        if (bytes.isEmpty) {
+          continue;
+        }
+        final Map<String, dynamic> safeImage = image.toJson()..['path'] = null;
+        final bool ok = await trustService.pushIndexedCacheFileToServer(
+          key: normalizedImageCacheKey(effectiveUrl),
+          bytes: bytes,
+          imagePageHref: entry.key,
+          image: safeImage,
+        );
+        if (ok) {
+          uploaded++;
+        }
+      } on Object catch (error) {
+        log.warning('Move indexed cache to LAN server failed: $error');
+      }
+    }
+    return uploaded;
   }
 
   @override
@@ -1630,6 +1676,8 @@ class LanSharingRuntime
     );
     final String key = params['key'] as String? ?? '';
     final List<int> bytes = _decodeBytes(params['data'] as String? ?? '');
+    final String imagePageHref = params['imagePageHref'] as String? ?? '';
+    final Object? rawImage = params['image'];
     final String? cacheDirectory =
         _imageCacheDirectoryOverride ?? extendedImageDiskCacheDirectory;
     if (key.isEmpty ||
@@ -1646,6 +1694,34 @@ class LanSharingRuntime
       });
       return;
     }
+    GalleryImage? indexedImage;
+    if (imagePageHref.isNotEmpty || rawImage != null) {
+      try {
+        if (imagePageHref.isEmpty || rawImage is! Map) {
+          throw const FormatException('Incomplete cache index');
+        }
+        final Map<String, dynamic> safeImage = Map<String, dynamic>.from(
+          rawImage,
+        )..['path'] = null;
+        indexedImage = GalleryImage.fromJson(safeImage);
+        final String canonicalPage = _canonicalImagePageKey(imagePageHref);
+        final String expectedKey = normalizedImageCacheKey(
+          effectiveEHImageUrl(indexedImage.url),
+        );
+        if (canonicalPage.isEmpty || expectedKey != key) {
+          throw const FormatException('Cache index does not match key');
+        }
+      } on Object {
+        await channel.send(<String, dynamic>{
+          'type': 'response',
+          'id': requestId,
+          'op': 'upload_cache',
+          'ok': false,
+          'error': 'invalid_cache',
+        });
+        return;
+      }
+    }
     try {
       final File target = File(path.join(cacheDirectory, key));
       await target.parent.create(recursive: true);
@@ -1660,9 +1736,10 @@ class LanSharingRuntime
           await temporary.delete();
         }
       }
-      log.info(
-        'LAN cache uploaded from $deviceId: $key ${bytes.length} bytes',
-      );
+      if (indexedImage != null) {
+        await recordImagePage(imagePageHref, indexedImage);
+      }
+      log.info('LAN cache uploaded from $deviceId: $key ${bytes.length} bytes');
       await channel.send(<String, dynamic>{
         'type': 'response',
         'id': requestId,
@@ -2259,6 +2336,7 @@ class _WebSocketLanPeerSession
     implements
         LanPeerSession,
         LanGalleryManifestSession,
+        LanIndexedCacheSession,
         LanUnifiedStateSession,
         LanComputeSession {
   final WebSocket _socket;
@@ -2605,7 +2683,40 @@ class _WebSocketLanPeerSession
           'key': key,
           'data': base64UrlEncode(bytes).replaceAll('=', ''),
         },
-      }),
+      }).then((_) => _pendingDownloads.touch(id)),
+    );
+    return future;
+  }
+
+  @override
+  Future<bool> pushIndexedCacheFile({
+    required String key,
+    required List<int> bytes,
+    required String imagePageHref,
+    required Map<String, dynamic> image,
+  }) async {
+    if (_secureSession == null ||
+        bytes.isEmpty ||
+        !_capabilities.contains('indexedCacheUploadV1')) {
+      return false;
+    }
+    final String id = 'u${++_nextRequestId}';
+    final Future<bool> future = _pendingDownloads.register(
+      id,
+      timeoutValue: false,
+    );
+    unawaited(
+      _sendSecure(<String, dynamic>{
+        'type': 'request',
+        'id': id,
+        'op': 'upload_cache',
+        'params': <String, dynamic>{
+          'key': key,
+          'data': base64UrlEncode(bytes).replaceAll('=', ''),
+          'imagePageHref': imagePageHref,
+          'image': image,
+        },
+      }).then((_) => _pendingDownloads.touch(id)),
     );
     return future;
   }

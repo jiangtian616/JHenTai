@@ -80,6 +80,17 @@ abstract interface class LanGalleryManifestSession {
   Future<LanGalleryManifest?> fetchGalleryManifest(String galleryUrl);
 }
 
+/// Optional cache-upload surface that transfers the image-page index together
+/// with the bytes. A bare cache key cannot later be resolved from the page URL.
+abstract interface class LanIndexedCacheSession {
+  Future<bool> pushIndexedCacheFile({
+    required String key,
+    required List<int> bytes,
+    required String imagePageHref,
+    required Map<String, dynamic> image,
+  });
+}
+
 /// Optional v2 capability surface. Keeping this separate from the frozen
 /// image/gallery session contract lets older test doubles and peers continue
 /// to connect without widening the connection-state machine.
@@ -204,6 +215,10 @@ class LanDeviceTrustService extends GetxController
   /// Devices already shown the global trust dialog this session, so a
   /// re-broadcast heartbeat does not re-prompt.
   final Set<String> _promptedDeviceIds = <String>{};
+  /// Incoming pairing dialogs are serialized so simultaneous requests do not
+  /// stack multiple modal routes on top of each other.
+  final Set<String> _promptingIncomingPairingDeviceIds = <String>{};
+  Future<void> _incomingPairingPromptQueue = Future<void>.value();
   final Map<String, _PendingIncomingPairing> _incomingPairings = {};
   final Set<String> _pairingDeviceIds = {};
   final Map<String, LanScheduledTask> _incomingPairingTimers = {};
@@ -214,6 +229,9 @@ class LanDeviceTrustService extends GetxController
   final Duration _maxRetryDelay;
   final Duration _incomingPairingDelay;
   final Set<String> _disconnectRequested = {};
+  final Future<LanTrustDecision?> Function(LanDiscoveredPeer peer)
+      _trustDialogPresenter;
+  bool _globalDialogReady = false;
 
   late LanTrustRepository _repository;
   SimpleKeyPair? _localIdentityKeyPair;
@@ -239,6 +257,8 @@ class LanDeviceTrustService extends GetxController
     Duration retryDelay = retryCooldown,
     Duration maxRetryDelay = maxRetryCooldown,
     Duration incomingPairingDelay = incomingPairingTimeout,
+    Future<LanTrustDecision?> Function(LanDiscoveredPeer peer)?
+    trustDialogPresenter,
     bool registerWithGet = true,
   }) : _repositoryOverride = repository,
        _unifiedStateOverride = unifiedState,
@@ -250,7 +270,8 @@ class LanDeviceTrustService extends GetxController
        _clock = clock ?? DateTime.now,
        _retryDelay = retryDelay,
        _maxRetryDelay = maxRetryDelay,
-       _incomingPairingDelay = incomingPairingDelay;
+       _incomingPairingDelay = incomingPairingDelay,
+       _trustDialogPresenter = trustDialogPresenter ?? showLanTrustDialog;
 
   @override
   List<JHLifeCircleBean> get initDependencies => [
@@ -291,7 +312,12 @@ class LanDeviceTrustService extends GetxController
   }
 
   @override
-  Future<void> doAfterBeanReady() async {}
+  Future<void> doAfterBeanReady() async {
+    _globalDialogReady = true;
+    for (final LanIncomingPairingRequest request in incomingPairingRequests) {
+      _scheduleIncomingPairingPrompt(request);
+    }
+  }
 
   String connectionId(String deviceId) => '$connectionIdPrefix::$deviceId';
 
@@ -376,9 +402,10 @@ class LanDeviceTrustService extends GetxController
   Future<LanLoginStateSnapshot?> requestLoginState({
     String? sourceDeviceId,
   }) async {
-    final Iterable<LanPeerSession> entries = _sessions.entries
+    final List<LanPeerSession> entries = _sessions.entries
         .where((entry) => sourceDeviceId == null || entry.key == sourceDeviceId)
-        .map((entry) => entry.value);
+        .map((entry) => entry.value)
+        .toList(growable: false);
     for (final LanPeerSession session in entries) {
       if (session is! LanUnifiedStateSession) {
         continue;
@@ -402,9 +429,10 @@ class LanDeviceTrustService extends GetxController
   Future<LanUnifiedStatePayload?> requestApplicationHistory({
     String? sourceDeviceId,
   }) async {
-    final Iterable<LanPeerSession> entries = _sessions.entries
+    final List<LanPeerSession> entries = _sessions.entries
         .where((entry) => sourceDeviceId == null || entry.key == sourceDeviceId)
-        .map((entry) => entry.value);
+        .map((entry) => entry.value)
+        .toList(growable: false);
     for (final LanPeerSession session in entries) {
       if (session is! LanUnifiedStateSession) {
         continue;
@@ -544,6 +572,43 @@ class LanDeviceTrustService extends GetxController
     return false;
   }
 
+  /// Pushes a cache file and the page-to-image metadata required for the host
+  /// to serve it later. Peers without the indexed-upload capability are
+  /// skipped instead of reporting a successful but unreadable migration.
+  Future<bool> pushIndexedCacheFileToServer({
+    required String key,
+    required List<int> bytes,
+    required String imagePageHref,
+    required Map<String, dynamic> image,
+  }) async {
+    final String? preferred = advancedSetting.lanPreferredServerDeviceId.value;
+    final Iterable<MapEntry<String, LanPeerSession>> entries =
+        preferred == null || preferred.isEmpty
+        ? _sessions.entries
+        : _sessions.entries.where((entry) => entry.key == preferred);
+    for (final MapEntry<String, LanPeerSession> entry in entries.toList()) {
+      final LanPeerSession session = entry.value;
+      if (session is! LanIndexedCacheSession) {
+        continue;
+      }
+      try {
+        final bool ok = await (session as LanIndexedCacheSession)
+            .pushIndexedCacheFile(
+              key: key,
+              bytes: bytes,
+              imagePageHref: imagePageHref,
+              image: image,
+            );
+        if (ok) {
+          return true;
+        }
+      } on Object catch (error) {
+        log.warning('LAN indexed cache push failed for ${entry.key}: $error');
+      }
+    }
+    return false;
+  }
+
   void attachConnector(LanPeerConnector connector) {
     _connector = connector;
   }
@@ -586,6 +651,7 @@ class LanDeviceTrustService extends GetxController
       }
       _incomingPairingTimers.clear();
       _incomingPairings.clear();
+      _promptingIncomingPairingDeviceIds.clear();
     }
     update([
       identityChangedId,
@@ -803,6 +869,7 @@ class LanDeviceTrustService extends GetxController
       update([incomingPairingsChangedId]);
     });
     update([incomingPairingsChangedId]);
+    _scheduleIncomingPairingPrompt(request);
     try {
       return await completer.future;
     } finally {
@@ -889,7 +956,19 @@ class LanDeviceTrustService extends GetxController
       'LAN permissions updated for $deviceId: '
       '${permissions.map((p) => p.name).join(',')}',
     );
+    final LanDiscoveredPeer? peer = _discoveredPeers[deviceId];
+    final Future<void>? inFlightConnection = _connecting[deviceId];
     await disconnect(deviceId);
+    // A permission change closes the authenticated session so the new grant is
+    // enforced immediately. Reconnect the already-discovered auto-connect peer
+    // instead of waiting for another mDNS resolve event that may never arrive.
+    await inFlightConnection;
+    if (peer != null &&
+        updated.autoConnect &&
+        isEnabled &&
+        _connector != null) {
+      await handlePeerDiscovered(peer);
+    }
     update([devicesChangedId, connectionId(deviceId)]);
   }
 
@@ -1083,7 +1162,7 @@ class LanDeviceTrustService extends GetxController
   /// LAN sharing page. One prompt per session per device; ignoring a device
   /// lets a later broadcast prompt again.
   Future<void> _promptTrust(LanDiscoveredPeer peer) async {
-    final LanTrustDecision? decision = await showLanTrustDialog(peer);
+    final LanTrustDecision? decision = await _trustDialogPresenter(peer);
     if (decision == null) {
       return;
     }
@@ -1101,6 +1180,62 @@ class LanDeviceTrustService extends GetxController
     } on Object {
       toast('lanPairingFailed'.tr);
     }
+  }
+
+  /// Reviews an incoming pairing request from the global navigator. The
+  /// request remains visible in LAN settings when the dialog is dismissed, so
+  /// the settings page remains a reliable fallback for a missed prompt.
+  void _scheduleIncomingPairingPrompt(LanIncomingPairingRequest request) {
+    if (!_globalDialogReady ||
+        !_promptingIncomingPairingDeviceIds.add(request.peer.deviceId)) {
+      return;
+    }
+    _incomingPairingPromptQueue = _incomingPairingPromptQueue.then<void>((_) async {
+      try {
+        final LanTrustDecision? decision = await _trustDialogPresenter(
+          request.peer,
+        );
+        final _PendingIncomingPairing? pending =
+            _incomingPairings[request.peer.deviceId];
+        if (pending == null ||
+            pending.request.requestId != request.requestId ||
+            decision == null) {
+          return;
+        }
+        if (!decision.trust) {
+          declineIncomingPairing(request.peer.deviceId);
+          return;
+        }
+        try {
+          await acceptIncomingPairing(
+            deviceId: request.peer.deviceId,
+            permissions: decision.permissions,
+            autoConnect: decision.autoConnect,
+          );
+          toast('lanTrustGranted'.tr);
+        } on Object catch (error, stack) {
+          log.warning(
+            'LAN incoming pairing approval failed for '
+            '${request.peer.deviceId}: $error',
+          );
+          log.trace(stack);
+          toast('lanPairingFailed'.tr);
+        }
+      } on Object catch (error, stack) {
+        // A dialog cannot be shown during app teardown or before the root
+        // navigator is ready. Keep the request in the settings-page queue.
+        log.warning('LAN incoming pairing prompt failed: $error');
+        log.trace(stack);
+      } finally {
+        _promptingIncomingPairingDeviceIds.remove(request.peer.deviceId);
+        final _PendingIncomingPairing? current =
+            _incomingPairings[request.peer.deviceId];
+        if (current != null &&
+            current.request.requestId != request.requestId) {
+          _scheduleIncomingPairingPrompt(current.request);
+        }
+      }
+    });
   }
 
   /// Active-broadcast mode: proactively sends a pairing request to a
@@ -1627,6 +1762,7 @@ class LanDeviceTrustService extends GetxController
       timer.cancel();
     }
     _incomingPairingTimers.clear();
+    _promptingIncomingPairingDeviceIds.clear();
     for (final LanPeerSession session in _sessions.values) {
       unawaited(session.close());
     }

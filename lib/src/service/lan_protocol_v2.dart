@@ -24,6 +24,7 @@ class LanProtocolV2 {
     'serverStatusV1',
     'loginStateV1',
     'applicationHistoryV1',
+    'indexedCacheUploadV1',
   ];
 
   static String encodeBytes(List<int> bytes) =>

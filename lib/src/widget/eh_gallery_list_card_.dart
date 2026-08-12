@@ -9,7 +9,6 @@ import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/gallery.dart';
-import 'package:jhentai/src/model/gallery_tag.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/performance_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
@@ -25,8 +24,8 @@ import 'eh_gallery_category_tag.dart';
 import '../service/read_progress_service.dart';
 
 typedef CardCallback = FutureOr<void> Function(Gallery gallery);
-typedef CardContextMenuCallback = void Function(
-    Gallery gallery, Offset position);
+typedef CardContextMenuCallback =
+    void Function(Gallery gallery, Offset position);
 
 class EHGalleryListCard extends StatelessWidget {
   final Gallery gallery;
@@ -53,19 +52,23 @@ class EHGalleryListCard extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => handleTapCard(gallery),
-      onLongPressStart: handleLongPressCard == null
-          ? null
-          : (details) => handleLongPressCard!(gallery, details.globalPosition),
-      onSecondaryTapDown: handleSecondaryTapCard == null
-          ? null
-          : (details) =>
-              handleSecondaryTapCard!(gallery, details.globalPosition),
+      onLongPressStart:
+          handleLongPressCard == null
+              ? null
+              : (details) =>
+                  handleLongPressCard!(gallery, details.globalPosition),
+      onSecondaryTapDown:
+          handleSecondaryTapCard == null
+              ? null
+              : (details) =>
+                  handleSecondaryTapCard!(gallery, details.globalPosition),
       child: FadeIn(
         duration: const Duration(milliseconds: 100),
         child: SizedBox(
-          height: withTags
-              ? UIConfig.galleryCardHeight
-              : UIConfig.galleryCardHeightWithoutTags,
+          height:
+              withTags
+                  ? UIConfig.galleryCardHeight
+                  : UIConfig.galleryCardHeightWithoutTags,
           child:
               listMode == ListMode.flat || listMode == ListMode.flatWithoutTags
                   ? buildFlatGalleryCard(context)
@@ -77,14 +80,24 @@ class EHGalleryListCard extends StatelessWidget {
 
   Widget buildRoundGalleryCard(BuildContext context) {
     if (ThemeConfig.isApple) {
+      final Color appleCardSurface =
+          GetPlatform.isMacOS
+              ? (Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF1C1C1E).withValues(alpha: 0.78)
+                  : const Color(0xFFF5F5F7).withValues(alpha: 0.86))
+              : Theme.of(context).colorScheme.surface.withValues(alpha: 0.34);
       return DecoratedBox(
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.34),
+          // A transparent ColorScheme.surface has black RGB channels. Raising
+          // its alpha here used to paint a dark veil over the text side of the
+          // card on macOS. Use an explicit Apple surface there instead.
+          color: appleCardSurface,
           border: Border(
-              bottom: BorderSide(
-                  width: 0.5,
-                  color:
-                      Theme.of(context).dividerColor.withValues(alpha: 0.75))),
+            bottom: BorderSide(
+              width: 0.5,
+              color: Theme.of(context).dividerColor.withValues(alpha: 0.75),
+            ),
+          ),
         ),
         child: buildFlatGalleryCard(context, transparentBackground: true),
       );
@@ -98,7 +111,7 @@ class EHGalleryListCard extends StatelessWidget {
             color: UIConfig.galleryCardShadowColor(context),
             blurRadius: 3,
             offset: const Offset(2, 2),
-          )
+          ),
         ],
         borderRadius: BorderRadius.circular(15),
       ),
@@ -109,13 +122,16 @@ class EHGalleryListCard extends StatelessWidget {
     );
   }
 
-  Widget buildFlatGalleryCard(BuildContext context,
-      {bool transparentBackground = false}) {
+  Widget buildFlatGalleryCard(
+    BuildContext context, {
+    bool transparentBackground = false,
+  }) {
     List<Widget> children = [
       buildGalleryCardCover(context),
       Expanded(
-        child: buildGalleryCardInfo(context)
-            .paddingOnly(left: 6, right: 10, top: 6, bottom: 5),
+        child: buildGalleryCardInfo(
+          context,
+        ).paddingOnly(left: 6, right: 10, top: 6, bottom: 5),
       ),
     ];
 
@@ -124,9 +140,10 @@ class EHGalleryListCard extends StatelessWidget {
     }
 
     Widget child = ColoredBox(
-      color: transparentBackground
-          ? Colors.transparent
-          : UIConfig.backGroundColor(context),
+      color:
+          transparentBackground
+              ? Colors.transparent
+              : UIConfig.backGroundColor(context),
       child: Row(children: children),
     );
 
@@ -139,11 +156,15 @@ class EHGalleryListCard extends StatelessWidget {
         overlay: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.cancel_outlined,
-                size: UIConfig.galleryCardFilteredIconSize,
-                color: UIConfig.onBackGroundColor(context)),
-            Text('filtered'.tr,
-                style: TextStyle(color: UIConfig.onBackGroundColor(context))),
+            Icon(
+              Icons.cancel_outlined,
+              size: UIConfig.galleryCardFilteredIconSize,
+              color: UIConfig.onBackGroundColor(context),
+            ),
+            Text(
+              'filtered'.tr,
+              style: TextStyle(color: UIConfig.onBackGroundColor(context)),
+            ),
           ],
         ),
       );
@@ -153,12 +174,14 @@ class EHGalleryListCard extends StatelessWidget {
   }
 
   Widget buildGalleryCardCover(BuildContext context) {
-    final double coverWidth = withTags
-        ? UIConfig.galleryCardCoverWidth
-        : UIConfig.galleryCardCoverWidthWithoutTags;
-    final double coverHeight = withTags
-        ? UIConfig.galleryCardHeight
-        : UIConfig.galleryCardHeightWithoutTags;
+    final double coverWidth =
+        withTags
+            ? UIConfig.galleryCardCoverWidth
+            : UIConfig.galleryCardCoverWidthWithoutTags;
+    final double coverHeight =
+        withTags
+            ? UIConfig.galleryCardHeight
+            : UIConfig.galleryCardHeightWithoutTags;
 
     return EHImage(
       galleryImage: gallery.cover,
@@ -212,14 +235,17 @@ class EHGalleryListCard extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
-              fontSize: UIConfig.galleryCardTitleSize, height: 1.2),
+            fontSize: UIConfig.galleryCardTitleSize,
+            height: 1.2,
+          ),
         ),
         if (gallery.uploader != null)
           Text(
             gallery.uploader!,
             style: TextStyle(
-                fontSize: UIConfig.galleryCardTextSize,
-                color: UIConfig.galleryCardTextColor(context)),
+              fontSize: UIConfig.galleryCardTextSize,
+              color: UIConfig.galleryCardTextColor(context),
+            ),
           ).marginOnly(top: 2),
       ],
     );
@@ -265,10 +291,7 @@ class EHGalleryListCard extends StatelessWidget {
         const SizedBox(height: 2),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _buildRatingBar(context),
-            _buildTime(context),
-          ],
+          children: [_buildRatingBar(context), _buildTime(context)],
         ),
       ],
     );
@@ -282,12 +305,14 @@ class EHGalleryListCard extends StatelessWidget {
       allowHalfRating: true,
       itemSize: 16,
       ignoreGestures: true,
-      itemBuilder: (context, _) => Icon(
-        Icons.star,
-        color: gallery.hasRated
-            ? UIConfig.galleryRatingStarRatedColor(context)
-            : UIConfig.galleryRatingStarColor,
-      ),
+      itemBuilder:
+          (context, _) => Icon(
+            Icons.star,
+            color:
+                gallery.hasRated
+                    ? UIConfig.galleryRatingStarRatedColor(context)
+                    : UIConfig.galleryRatingStarColor,
+          ),
       onRatingUpdate: (rating) {},
     );
   }
@@ -319,22 +344,26 @@ class EHGalleryListCard extends StatelessWidget {
             return SizedBox(
               width: UIConfig.galleryCardReadProgressIndicatorSize,
               height: UIConfig.galleryCardReadProgressIndicatorSize,
-              child: ThemeConfig.isApple
-                  ? GlassProgressIndicator.circular(
-                      value: progress,
-                      strokeWidth: 2,
-                      color: UIConfig.galleryCardTextColor(context),
-                      backgroundColor: UIConfig.galleryCardTextColor(context)
-                          .withValues(alpha: 0.2),
-                    )
-                  : CircularProgressIndicator(
-                      value: progress,
-                      strokeWidth: 2,
-                      backgroundColor: UIConfig.galleryCardTextColor(context)
-                          .withValues(alpha: 0.2),
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                          UIConfig.galleryCardTextColor(context)),
-                    ),
+              child:
+                  ThemeConfig.isApple
+                      ? GlassProgressIndicator.circular(
+                        value: progress,
+                        strokeWidth: 2,
+                        color: UIConfig.galleryCardTextColor(context),
+                        backgroundColor: UIConfig.galleryCardTextColor(
+                          context,
+                        ).withValues(alpha: 0.2),
+                      )
+                      : CircularProgressIndicator(
+                        value: progress,
+                        strokeWidth: 2,
+                        backgroundColor: UIConfig.galleryCardTextColor(
+                          context,
+                        ).withValues(alpha: 0.2),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          UIConfig.galleryCardTextColor(context),
+                        ),
+                      ),
             );
           },
         );
@@ -342,24 +371,33 @@ class EHGalleryListCard extends StatelessWidget {
     );
   }
 
-  Widget _buildDownloadIcon(BuildContext context) => Icon(Icons.downloading,
-      size: 11, color: UIConfig.galleryCardTextColor(context));
+  Widget _buildDownloadIcon(BuildContext context) => Icon(
+    Icons.downloading,
+    size: 11,
+    color: UIConfig.galleryCardTextColor(context),
+  );
 
-  Widget _buildFavoriteIcon() => Icon(Icons.favorite,
-      size: 11, color: UIConfig.favoriteTagColor[gallery.favoriteTagIndex!]);
+  Widget _buildFavoriteIcon() => Icon(
+    Icons.favorite,
+    size: 11,
+    color: UIConfig.favoriteTagColor[gallery.favoriteTagIndex!],
+  );
 
-  Text _buildPageCount(BuildContext context) =>
-      Text(gallery.pageCount.toString() + 'P',
-          style: TextStyle(
-              fontSize: UIConfig.galleryCardTextSize,
-              color: UIConfig.galleryCardTextColor(context)));
+  Text _buildPageCount(BuildContext context) => Text(
+    gallery.pageCount.toString() + 'P',
+    style: TextStyle(
+      fontSize: UIConfig.galleryCardTextSize,
+      color: UIConfig.galleryCardTextColor(context),
+    ),
+  );
 
   Text _buildLanguage(BuildContext context) {
     return Text(
       LocaleConsts.language2Abbreviation[gallery.language] ?? '',
       style: TextStyle(
-          fontSize: UIConfig.galleryCardTextSize,
-          color: UIConfig.galleryCardTextColor(context)),
+        fontSize: UIConfig.galleryCardTextSize,
+        color: UIConfig.galleryCardTextColor(context),
+      ),
     );
   }
 
@@ -369,9 +407,10 @@ class EHGalleryListCard extends StatelessWidget {
           ? gallery.publishTime
           : DateUtil.transformUtc2LocalTimeString(gallery.publishTime),
       style: TextStyle(
-          fontSize: UIConfig.galleryCardTextSize,
-          color: UIConfig.galleryCardTextColor(context),
-          decoration: gallery.isExpunged ? TextDecoration.lineThrough : null),
+        fontSize: UIConfig.galleryCardTextSize,
+        color: UIConfig.galleryCardTextColor(context),
+        decoration: gallery.isExpunged ? TextDecoration.lineThrough : null,
+      ),
     );
   }
 }

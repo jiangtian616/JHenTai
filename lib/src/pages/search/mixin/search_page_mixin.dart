@@ -21,7 +21,6 @@ import '../../../service/search_history_service.dart';
 import '../../../service/tag_translation_service.dart';
 import '../../../utils/route_util.dart';
 import '../../../widget/eh_search_config_dialog.dart';
-import '../../layout/mobile_v2/notification/tap_quick_search_drawer_notification.dart';
 import '../../../widget/eh_tag.dart';
 import '../../../widget/eh_wheel_speed_controller.dart';
 
@@ -33,7 +32,6 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
   S get state;
 
   List<Widget> buildActionButtons({
-    BuildContext? context,
     VisualDensity? visualDensity,
     double? compactSize,
     double? spacing,
@@ -72,13 +70,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
       ),
       EHAppleToolbarItem(
         icon: const Icon(Icons.more_vert),
-        onPressed: () {
-          if (ThemeConfig.isApple && context != null && !styleSetting.isInDesktopLayout) {
-            TapQuickSearchDrawerNotification().dispatch(context);
-          } else {
-            toRoute(Routes.quickSearch);
-          }
-        },
+        onPressed: () => toRoute(Routes.quickSearch),
         visualDensity: visualDensity,
         constraints: buttonConstraints,
         padding: buttonPadding,

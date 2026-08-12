@@ -18,6 +18,7 @@ import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
+import 'package:jhentai/src/widget/lan_trust_dialog.dart';
 
 const String _peerId = 'peer_device_123456';
 late SimpleKeyPair _peerKeyPair;
@@ -494,6 +495,47 @@ void main() {
   });
 
   test(
+    'updating permissions immediately reconnects a discovered auto-connect peer',
+    () async {
+      final _FakeSession firstSession = _FakeSession();
+      final _FakeSession secondSession = _FakeSession();
+      final _SequenceConnector connector = _SequenceConnector([
+        firstSession,
+        secondSession,
+      ]);
+      final LanDeviceTrustService service = LanDeviceTrustService(
+        repository: _MemoryTrustRepository(),
+        connector: connector,
+        secureRandom: Random(31),
+      );
+      await service.doInitBean();
+      await service.completePairing(
+        peer: _peer(),
+        remoteAccessToken: _remoteToken,
+        permissions: const {LanSharePermission.imageCache},
+      );
+      await service.handlePeerDiscovered(_peer());
+      expect(connector.connectCount, 1);
+
+      await service.setPermissions(_peerId, const {
+        LanSharePermission.imageCache,
+        LanSharePermission.applicationHistory,
+      });
+
+      expect(firstSession.closedByClient, isTrue);
+      expect(connector.connectCount, 2);
+      expect(
+        service.connectionFor(_peerId).state,
+        LanPeerConnectionState.connected,
+      );
+      expect(service.deviceById(_peerId)!.permissions, const {
+        LanSharePermission.imageCache,
+        LanSharePermission.applicationHistory,
+      });
+    },
+  );
+
+  test(
     'duplicate discovery keeps a failed session state until its retry timer fires',
     () async {
       final _FakeTimerScheduler scheduler = _FakeTimerScheduler();
@@ -669,6 +711,39 @@ void main() {
     },
   );
 
+  test(
+    'incoming pairing requests are reviewed through the global trust dialog',
+    () async {
+      final List<LanDiscoveredPeer> presented = <LanDiscoveredPeer>[];
+      final LanDeviceTrustService service = LanDeviceTrustService(
+        repository: _MemoryTrustRepository(),
+        trustDialogPresenter: (peer) async {
+          presented.add(peer);
+          return const LanTrustDecision(
+            trust: true,
+            permissions: {LanSharePermission.imageCache},
+          );
+        },
+        secureRandom: Random(17),
+      );
+      await service.doInitBean();
+
+      final Future<LanPairingAcceptance?> approval = service
+          .requestIncomingPairingApproval(
+            peer: _peer(),
+            remoteAccessToken: _remoteToken,
+          );
+      expect(presented, isEmpty);
+      await service.doAfterBeanReady();
+
+      expect(await approval, isNotNull);
+      expect(presented, hasLength(1));
+      expect(presented.single.deviceId, _peerId);
+      expect(service.deviceById(_peerId), isNotNull);
+      expect(service.incomingPairingRequests, isEmpty);
+    },
+  );
+
   test('an untrusted discovery requires an explicit trust decision', () async {
     final _MemoryTrustRepository repository = _MemoryTrustRepository();
     final _RecordingPairer pairer = _RecordingPairer();
@@ -779,6 +854,46 @@ void main() {
       expect(session.historyPushes, 1);
       expect(session.lastPushedHistory, isNotNull);
       expect(unifiedState.historyExportCount, 1);
+    },
+  );
+
+  test(
+    'history request tolerates its session closing while the response is pending',
+    () async {
+      final _UnifiedStateSession session = _UnifiedStateSession();
+      final _UnifiedStateConnector connector = _UnifiedStateConnector(session);
+      late final LanDeviceTrustService service;
+      service = LanDeviceTrustService(
+        repository: _MemoryTrustRepository(),
+        connector: connector,
+        unifiedState: _RecordingUnifiedStateService(),
+        secureRandom: Random(32),
+      );
+      await service.doInitBean();
+      await service.completePairing(
+        peer: _peer(),
+        remoteAccessToken: _remoteToken,
+        permissions: const {LanSharePermission.applicationHistory},
+      );
+      await service.handlePeerDiscovered(_peer());
+      for (int index = 0; index < 10; index++) {
+        await _flushMicrotasks();
+      }
+      expect(
+        service.connectionFor(_peerId).state,
+        LanPeerConnectionState.connected,
+      );
+
+      session.onHistoryRequest = () => service.disconnect(_peerId);
+
+      await expectLater(
+        service.requestApplicationHistory(sourceDeviceId: _peerId),
+        completion(isNull),
+      );
+      expect(
+        service.connectionFor(_peerId).state,
+        LanPeerConnectionState.offline,
+      );
     },
   );
 
@@ -1131,6 +1246,7 @@ class _UnifiedStateSession implements LanPeerSession, LanUnifiedStateSession {
   int historyRequests = 0;
   int historyPushes = 0;
   LanUnifiedStatePayload? lastPushedHistory;
+  Future<void> Function()? onHistoryRequest;
 
   _UnifiedStateSession({this.loginSnapshot, this.historyPayload});
 
@@ -1168,6 +1284,7 @@ class _UnifiedStateSession implements LanPeerSession, LanUnifiedStateSession {
   @override
   Future<LanUnifiedStatePayload?> requestApplicationHistory() async {
     historyRequests++;
+    await onHistoryRequest?.call();
     return historyPayload;
   }
 

@@ -3,13 +3,11 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2_logic.dart';
 import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2_state.dart';
-import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/uuid_util.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
-import 'package:jhentai/src/widget/eh_apple_content_shift_drawer.dart';
 
 import '../../../service/quick_search_service.dart';
 import '../../base/base_page.dart';
@@ -21,8 +19,6 @@ class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMob
     with SearchPageMixin<SearchPageMobileV2Logic, SearchPageMobileV2State> {
   final String tag = newUUID();
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
-  final GlobalKey<EHAppleContentShiftDrawerState> _quickSearchDrawerKey =
-      GlobalKey<EHAppleContentShiftDrawerState>();
   SearchPageMobileV2({Key? key}) : super(key: key, showJumpButton: true, showScroll2TopButton: true) {
     logic = Get.put(SearchPageMobileV2Logic(), tag: tag);
     state = logic.state;
@@ -40,41 +36,24 @@ class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMob
       global: false,
       init: logic,
       builder: (_) => Obx(
-        () => ThemeConfig.isApple
-            ? EHAppleContentShiftDrawer(
-                key: _quickSearchDrawerKey,
-                side: EHAppleContentShiftDrawerSide.right,
-                panel: QuickSearchPage(
-                  scrollController:
-                      quickSearchService.drawerScrollController,
-                ),
-                content: _buildPageScaffold(context),
-              )
-            : _buildPageScaffold(context),
-      ),
-    );
-  }
-
-  Widget _buildPageScaffold(BuildContext context) {
-    return Scaffold(
-      key: scaffoldKey,
-      appBar: buildAppBar(context),
-      drawerEdgeDragWidth:
-          preferenceSetting.drawerGestureEdgeWidth.value.toDouble(),
-      endDrawer: ThemeConfig.isApple
-          ? null
-          : Drawer(
-              width: 278,
-              child: QuickSearchPage(
-                scrollController: quickSearchService.drawerScrollController,
-              ),
+        () => Scaffold(
+          key: scaffoldKey,
+          appBar: buildAppBar(context),
+          drawerEdgeDragWidth:
+              preferenceSetting.drawerGestureEdgeWidth.value.toDouble(),
+          endDrawer: Drawer(
+            width: 278,
+            child: QuickSearchPage(
+              scrollController: quickSearchService.drawerScrollController,
             ),
-      endDrawerEnableOpenDragGesture:
-          !ThemeConfig.isApple &&
+          ),
+          endDrawerEnableOpenDragGesture:
               preferenceSetting.enableQuickSearchDrawerGesture.isTrue,
-      body: SafeArea(child: buildBody(context)),
-      floatingActionButton: buildFloatingActionButton(),
-      resizeToAvoidBottomInset: false,
+          body: SafeArea(child: buildBody(context)),
+          floatingActionButton: buildFloatingActionButton(),
+          resizeToAvoidBottomInset: false,
+        ),
+      ),
     );
   }
 
@@ -92,10 +71,7 @@ class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMob
       titleSpacing: 0,
       titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 16),
       bottom: PreferredSize(child: buildSearchField(), preferredSize: const Size(double.infinity, UIConfig.mobileV2SearchBarHeight)),
-      actions: buildActionButtons(
-        context: context,
-        visualDensity: const VisualDensity(horizontal: -4),
-      ),
+      actions: buildActionButtons(visualDensity: const VisualDensity(horizontal: -4)),
     );
   }
 

@@ -7,7 +7,7 @@ import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import '../../../../routes/routes.dart';
 import '../../../../utils/route_util.dart';
 import '../../../base/base_page.dart';
-import '../../../layout/mobile_v2/mobile_layout_page_v2.dart';
+import '../../../layout/mobile_v2/mobile_layout_page_v2_state.dart';
 
 /// For mobile v2 layout
 class SimpleDashboardPage extends BasePage {
@@ -35,7 +35,8 @@ class SimpleDashboardPage extends BasePage {
       EHAppleIconButton(icon: const Icon(Icons.search), onPressed: () => toRoute(Routes.mobileV2Search)),
       EHAppleIconButton(
         icon: const Icon(Icons.more_vert),
-        onPressed: MobileLayoutPageV2.openQuickSearchDrawer,
+        onPressed:
+            MobileLayoutPageV2State.scaffoldKey.currentState?.openEndDrawer,
       ),
     ];
   }
