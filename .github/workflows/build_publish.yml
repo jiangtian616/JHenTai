@@ -84,6 +84,7 @@ jobs:
           fi
       # Add JHenTai api serret
       - name: Setup JHenTai API Secret
+        shell: bash
         env:
           JH_API_SECRET_CONFIG: ${{ secrets.JH_API_SECRET_CONFIG }}
         run: |
