@@ -4,6 +4,7 @@ enum ConfigEnum {
   renameDownloadMetadata('renameDownloadMetadata'),
   migrateGalleryHistory('migrateGalleryHistory'),
   migrateStorageConfig('migrateStorageConfig'),
+  renameGallerysPageLogicKey('renameGallerysPageLogicKey'),
 
   /// settings
   favoriteSetting('favoriteSetting'),

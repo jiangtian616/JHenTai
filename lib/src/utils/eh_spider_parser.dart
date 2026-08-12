@@ -64,7 +64,7 @@ class EHSpiderParser {
     return map;
   }
 
-  /// [gallerys, pageCount, prevPageIndex, nextPageIndex]
+  /// [galleries, pageCount, prevPageIndex, nextPageIndex]
   static GalleryPageInfo galleryPage2GalleryPageInfo(Headers headers, dynamic data) {
     String html = data as String;
     Document document = parse(data);
@@ -90,7 +90,7 @@ class EHSpiderParser {
     String? sortOrderText = document.querySelector('.searchnav > div > select > option[selected]')?.text;
 
     return GalleryPageInfo(
-      gallerys: galleryListElements
+      galleries: galleryListElements
 
           /// remove ad and table header
           .where((element) => element.children.length != 1 && element.querySelector('th') == null)
@@ -112,7 +112,7 @@ class EHSpiderParser {
     String? sortOrderText = document.querySelector('.searchnav > div > select > option[selected]')?.text;
 
     return GalleryPageInfo(
-      gallerys: galleryListElements
+      galleries: galleryListElements
 
           /// remove ad
           .where((element) => element.children.length != 1)
@@ -134,7 +134,7 @@ class EHSpiderParser {
     String? sortOrderText = document.querySelector('.searchnav > div > select > option[selected]')?.text;
 
     return GalleryPageInfo(
-      gallerys: galleryListElements
+      galleries: galleryListElements
 
           /// remove ad and table header
           .where((element) => element.children.length != 1 && element.querySelector('th') == null)
@@ -156,7 +156,7 @@ class EHSpiderParser {
     String? sortOrderText = document.querySelector('.searchnav > div > select > option[selected]')?.text;
 
     return GalleryPageInfo(
-      gallerys: galleryListElements.map(_parseThumbnailGallery).toList(),
+      galleries: galleryListElements.map(_parseThumbnailGallery).toList(),
       prevGid: _galleryPageDocument2PrevGid(document),
       nextGid: _galleryPageDocument2NextGid(document),
       favoriteSortOrder: sortOrderText == 'Published Time'
@@ -215,7 +215,7 @@ class EHSpiderParser {
 
     List<Element> galleryListElements = document.querySelectorAll('.itg.gltc > tbody > tr');
 
-    List<Gallery> gallerys = galleryListElements
+    List<Gallery> galleries = galleryListElements
 
         /// remove ad and table header
         .where((element) => element.children.length != 1 && element.querySelector('th') == null)
@@ -226,7 +226,7 @@ class EHSpiderParser {
     int? prevPageIndex = _ranklistPageDocument2PrevPageIndex(document);
     int? nextPageIndex = _ranklistPageDocument2NextPageIndex(document);
 
-    return [gallerys, pageCount, prevPageIndex, nextPageIndex];
+    return [galleries, pageCount, prevPageIndex, nextPageIndex];
   }
 
   static int _ranklistPageDocument2TotalPageCount(Document document) {
@@ -303,7 +303,7 @@ class EHSpiderParser {
       torrentPageUrl: document.querySelector('#gd5')?.children[2].querySelector('a')?.attributes['onclick']?.split('\'')[1] ?? '',
       archivePageUrl: document.querySelector('#gd5')?.children[1].querySelector('a')?.attributes['onclick']?.split('\'')[1] ?? '',
       parentGalleryUrl: GalleryUrl.tryParse(document.querySelector('#gdd > table > tbody > tr:nth-child(1) > .gdt2 > a')?.attributes['href'] ?? ''),
-      childrenGallerys: _detailPageDocument2ChildrenGallerys(document),
+      childrenGalleries: _detailPageDocument2ChildrenGalleries(document),
       comments: _parseGalleryDetailsComments(document.querySelectorAll('#cdiv > .c1')),
       thumbnails: _detailPageDocument2Thumbnails(document),
       thumbnailsPageCount: _detailPageDocument2ThumbnailsPageCount(document),
@@ -604,46 +604,6 @@ class EHSpiderParser {
       originalImageWidth: originalImgWidth,
       originalImageHeight: originalImgHeight,
       reloadKey: reloadKey,
-      imageHash: imageHash,
-    );
-  }
-
-  static GalleryImage imagePage2OriginalGalleryImage(Headers headers, dynamic data) {
-    Document document = parse(data as String);
-    Element? img = document.querySelector('#img');
-    if (img == null && document.querySelector('#pane_images') != null) {
-      throw EHParseException(type: EHParseExceptionType.unsupportedImagePageStyle, message: 'unsupportedImagePageStyle'.tr);
-    }
-
-    /// height: 1600px; width: 1124px;
-    String style = img!.attributes['style']!;
-    String url = img.attributes['src']!;
-    if (url == EHConsts.EH509ImageUrl || url == EHConsts.EX509ImageUrl) {
-      throw EHParseException(type: EHParseExceptionType.exceedLimit, message: 'exceedImageLimits'.tr);
-    }
-    double height = double.parse(RegExp(r'height:(\d+)px').firstMatch(style)!.group(1)!);
-    double width = double.parse(RegExp(r'width:(\d+)px').firstMatch(style)!.group(1)!);
-
-    Element hashElement = document.querySelector('#i6 div a')!;
-    String imageHash = RegExp(r'f_shash=(\w+)').firstMatch(hashElement.attributes['href']!)!.group(1)!;
-
-    Element? originalImg = document.querySelector('#i6 a[id]')?.parent?.nextElementSibling?.querySelector('a');
-    String? originalImgHref = originalImg?.attributes['href'];
-    RegExpMatch? originalImgWidthAndHeight = RegExp(r'(\d+) x (\d+)').firstMatch(originalImg?.text ?? '');
-    double? originalImgWidth = double.tryParse(originalImgWidthAndHeight?.group(1) ?? '');
-    double? originalImgHeight = double.tryParse(originalImgWidthAndHeight?.group(2) ?? '');
-
-    /// return nl('WZG-474997')
-    Element reloadKeyElement = document.querySelector('#loadfail')!;
-    String reloadKey = RegExp(r"return nl\('(.*)'\)").firstMatch(reloadKeyElement.attributes['onclick']!)!.group(1)!;
-
-    return GalleryImage(
-      url: originalImgHref ?? url,
-      height: originalImgHeight ?? height,
-      width: originalImgWidth ?? width,
-
-      /// reload is not available for original image
-      reloadKey: originalImgHref == null ? reloadKey : null,
       imageHash: imageHash,
     );
   }
@@ -1414,7 +1374,7 @@ class EHSpiderParser {
     }
   }
 
-  static List<({GalleryUrl galleryUrl, String title, String updateTime})> _detailPageDocument2ChildrenGallerys(Document document) {
+  static List<({GalleryUrl galleryUrl, String title, String updateTime})> _detailPageDocument2ChildrenGalleries(Document document) {
     List<({GalleryUrl galleryUrl, String title, String updateTime})> result = [];
 
     List<Node>? nodes = document.querySelector('#gnd')?.nodes;

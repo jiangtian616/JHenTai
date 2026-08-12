@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page_logic.dart';
-import 'package:jhentai/src/pages/gallerys/dashboard/dashboard_page_state.dart';
+import 'package:jhentai/src/pages/gallery/dashboard/dashboard_page_logic.dart';
+import 'package:jhentai/src/pages/gallery/dashboard/dashboard_page_state.dart';
 
 /// Regression: the Apple slide-down quick-search overlay state used to live in
 /// widget-local fields on [DashboardPage] (a StatelessWidget). Because the

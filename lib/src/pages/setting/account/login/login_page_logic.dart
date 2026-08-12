@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:desktop_webview_window/desktop_webview_window.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
@@ -26,7 +27,7 @@ import '../../../../utils/route_util.dart';
 import '../../../../utils/snack_util.dart';
 import 'login_page_state.dart';
 
-class LoginPageLogic extends GetxController {
+class LoginPageLogic extends GetxController with GetSingleTickerProviderStateMixin {
   static const formId = 'formId';
   static const cookieFormId = 'cookieFormId';
   static const cookieVerificationTypeId = 'cookieVerificationTypeId';
@@ -34,9 +35,60 @@ class LoginPageLogic extends GetxController {
 
   final LoginPageState state = LoginPageState();
 
-  void toggleLoginType() {
-    state.loginType = (state.loginType == LoginType.cookie ? LoginType.password : LoginType.cookie);
+  late TabController tabController;
+
+  @override
+  void onInit() {
+    super.onInit();
+    tabController = TabController(length: 3, vsync: this);
+    tabController.addListener(_onTabChanged);
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+    _autoDetectClipboard();
+  }
+
+  @override
+  void onClose() {
+    tabController.removeListener(_onTabChanged);
+    tabController.dispose();
+    super.onClose();
+  }
+
+  void _onTabChanged() {
+    if (tabController.indexIsChanging) {
+      return;
+    }
+    state.loginType = LoginType.values[tabController.index];
     update([formId]);
+  }
+
+  Future<void> _autoDetectClipboard() async {
+    String? cookie = (await Clipboard.getData('text/plain'))?.text?.toString();
+    if (isEmptyOrNull(cookie)) {
+      return;
+    }
+
+    RegExpMatch? match1 = RegExp(r'ipb_member_id[=:]\s?(\w+)').firstMatch(cookie!);
+    if (match1 == null) {
+      return;
+    }
+
+    state.ipbMemberId = match1.group(1);
+    RegExpMatch? match2 = RegExp(r'ipb_pass_hash[=:]\s?(\w+)').firstMatch(cookie);
+    if (match2 != null) {
+      state.ipbPassHash = match2.group(1);
+    }
+    RegExpMatch? match3 = RegExp(r'igneous[=:]\s?(\w+)').firstMatch(cookie);
+    if (match3 != null) {
+      state.igneous = match3.group(1);
+    }
+
+    tabController.animateTo(LoginType.cookie.index);
+    updateSafely([cookieFormId]);
+    toast('clipboardCookieDetected'.tr);
   }
 
   Future<void> pasteCookie() async {

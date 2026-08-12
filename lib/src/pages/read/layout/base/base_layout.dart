@@ -14,9 +14,9 @@ import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../../../../config/ui_config.dart';
-import '../../../../service/gallery_download_service.dart';
 import '../../../../service/image_inpainting_service.dart';
 import '../../../../model/gallery_image.dart';
+import '../../../../service/gallery_download/gallery_download_service.dart';
 import '../../../../service/super_resolution_service.dart';
 import '../../../../service/log.dart';
 import '../../../../widget/eh_image.dart';

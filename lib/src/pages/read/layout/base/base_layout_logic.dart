@@ -18,7 +18,9 @@ import 'package:jhentai/src/widget/eh_action_sheet_text.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
-import 'package:jhentai/src/service/gallery_download_service.dart';
+import 'package:jhentai/src/service/gallery_download/download_path_resolver.dart';
+import 'package:jhentai/src/service/gallery_download/eh_image_exception_matcher.dart';
+import 'package:jhentai/src/service/gallery_download/gallery_download_service.dart';
 import 'package:jhentai/src/service/image_translation_service.dart';
 import 'package:jhentai/src/service/image_inpainting_service.dart';
 import 'package:jhentai/src/service/engine/engine_contract.dart';
@@ -341,7 +343,7 @@ abstract class BaseLayoutLogic extends GetxController
   }
 
   String _getDownloadedImageAbsolutePath(int index) {
-    return GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
+    return DownloadPathResolver.computeImageDownloadAbsolutePathFromRelativePath(
       readPageState.images[index]!.path!,
     );
   }
@@ -718,11 +720,7 @@ abstract class BaseLayoutLogic extends GetxController
 
   /// Mobile bottom action sheet for downloaded-mode images.
   void showDownloadedMobileBottomMenu(int index, BuildContext context) {
-    if (galleryDownloadService
-            .galleryDownloadInfos[readPageState.readPageInfo.gid]
-            ?.images[index]
-            ?.downloadStatus !=
-        DownloadStatus.downloaded) {
+    if (galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]?.imageAtSync(index)?.downloadStatus != DownloadStatus.downloaded) {
       return;
     }
 
@@ -860,11 +858,7 @@ abstract class BaseLayoutLogic extends GetxController
     required BuildContext context,
     required Offset position,
   }) async {
-    if (galleryDownloadService
-            .galleryDownloadInfos[readPageState.readPageInfo.gid]
-            ?.images[index]
-            ?.downloadStatus !=
-        DownloadStatus.downloaded) {
+    if (galleryDownloadService.galleryDownloadInfos[readPageState.readPageInfo.gid]?.imageAtSync(index)?.downloadStatus != DownloadStatus.downloaded) {
       return;
     }
 
@@ -1208,9 +1202,7 @@ abstract class BaseLayoutLogic extends GetxController
       String data = file.readAsStringSync();
       file.delete().ignore();
 
-      EHImageException? exception = GalleryDownloadService.imageData2Exception(
-        data,
-      );
+      EHImageException? exception = EHImageExceptionMatcher.match(data);
       log.error(
         'Save ${readPageState.readPageInfo.galleryTitle} image: $index failed, invalid reason: $exception',
       );

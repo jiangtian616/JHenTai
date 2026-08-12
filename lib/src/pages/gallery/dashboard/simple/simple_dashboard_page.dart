@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/pages/gallerys/dashboard/simple/simple_dashboard_page_logic.dart';
-import 'package:jhentai/src/pages/gallerys/dashboard/simple/simple_dashboard_page_state.dart';
+import 'package:jhentai/src/pages/gallery/dashboard/simple/simple_dashboard_page_logic.dart';
+import 'package:jhentai/src/pages/gallery/dashboard/simple/simple_dashboard_page_state.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
 
 import '../../../../routes/routes.dart';

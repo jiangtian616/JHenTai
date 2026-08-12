@@ -43,7 +43,7 @@ import '../pages/download/grid/mixin/grid_download_page_service_mixin.dart';
 import '../utils/archive_util.dart';
 import '../utils/file_util.dart';
 import '../utils/snack_util.dart';
-import 'gallery_download_service.dart';
+import 'gallery_download/gallery_download_service.dart';
 import 'jh_service.dart';
 import 'log.dart';
 
@@ -276,47 +276,6 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         }
       }
     }
-  }
-
-  Future<void> migrate2Gallery(int gid) async {
-    ArchiveDownloadedData? archive = archives.firstWhereOrNull((archive) => archive.gid == gid);
-    if (archive == null) {
-      log.error('Archive not found: $gid');
-      return;
-    }
-
-    ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadInfos[archive.gid]!;
-    if (archiveDownloadInfo.archiveStatus != ArchiveStatus.completed) {
-      log.error('Archive not completed: $gid');
-      return;
-    }
-
-    GalleryDownloadedData galleryDownloadedData = GalleryDownloadedData(
-      gid: archive.gid,
-      token: archive.token,
-      title: archive.title,
-      category: archive.category,
-      pageCount: archive.pageCount,
-      galleryUrl: archive.galleryUrl,
-      uploader: archive.uploader,
-      publishTime: archive.publishTime,
-      downloadStatusIndex: DownloadStatus.downloaded.index,
-      downloadOriginalImage: archive.isOriginal,
-      sortOrder: 0,
-      groupName: archiveDownloadInfo.group,
-      insertTime: DateTime.now().toString(),
-      priority: GalleryDownloadService.defaultDownloadGalleryPriority,
-      tags: archive.tags,
-      tagRefreshTime: archive.tagRefreshTime,
-    );
-    List<GalleryImage> images = await getUnpackedImages(gid);
-
-    if (images.length != archive.pageCount) {
-      log.error('Unpacked images count not equal to page count: ${images.length} != ${archive.pageCount}');
-      return;
-    }
-
-    return galleryDownloadService.importGallery(galleryDownloadedData, images);
   }
 
   Future<bool> updateArchiveGroup(int gid, String group) async {

@@ -22,7 +22,8 @@ import 'dart:io' as io;
 
 import 'dart:ui' as ui;
 
-import '../service/gallery_download_service.dart';
+import '../service/gallery_download/download_path_resolver.dart';
+import '../service/gallery_download/gallery_download_service.dart';
 
 typedef LoadingProgressWidgetBuilder = Widget Function(double);
 typedef FailedWidgetBuilder = Widget Function(ExtendedImageState state);
@@ -402,7 +403,7 @@ class _EHImageState extends State<EHImage> {
 
     final io.File file = io.File(
       widget.absoluteFilePath ??
-          GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
+          DownloadPathResolver.computeImageDownloadAbsolutePathFromRelativePath(
             widget.galleryImage.path!,
           ),
     );

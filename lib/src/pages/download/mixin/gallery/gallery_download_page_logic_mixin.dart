@@ -10,7 +10,8 @@ import 'package:jhentai/src/setting/super_resolution_setting.dart';
 import '../../../../database/database.dart';
 import '../../../../model/read_page_info.dart';
 import '../../../../routes/routes.dart';
-import '../../../../service/gallery_download_service.dart';
+import '../../../../service/gallery_download/download_path_resolver.dart';
+import '../../../../service/gallery_download/gallery_download_service.dart';
 import '../../../../service/read_progress_service.dart';
 import '../../../../setting/read_setting.dart';
 import '../../../../setting/preference_setting.dart';
@@ -23,7 +24,7 @@ import '../../../../widget/eh_download_dialog.dart';
 import '../basic/multi_select/multi_select_download_page_logic_mixin.dart';
 
 mixin GalleryDownloadPageLogicMixin on GetxController
-    implements Scroll2TopLogicMixin, MultiSelectDownloadPageLogicMixin<GalleryDownloadedData>, UpdateGlobalGalleryStatusLogicMixin {
+    implements Scroll2TopLogicMixin, MultiSelectDownloadPageLogicMixin<GalleryDownloadInfo>, UpdateGlobalGalleryStatusLogicMixin {
   final String bodyId = 'bodyId';
 
   final GalleryDownloadService downloadService = galleryDownloadService;
@@ -36,7 +37,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController
     return result == true;
   }
 
-  Future<void> handleChangeGroup(GalleryDownloadedData gallery) async {
+  Future<void> handleChangeGroup(GalleryDownloadInfo gallery) async {
     String oldGroup = downloadService.galleryDownloadInfos[gallery.gid]!.group;
 
     ({String group, bool downloadOriginalImage})? result = await Get.dialog(
@@ -106,7 +107,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController
   }
 
   @override
-  void handleTapItem(GalleryDownloadedData item) {
+  void handleTapItem(GalleryDownloadInfo item) {
     if (multiSelectDownloadPageState.inMultiSelectMode) {
       toggleSelectItem(item.gid);
     } else {
@@ -115,7 +116,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController
   }
 
   @override
-  void handleLongPressOrSecondaryTapItem(GalleryDownloadedData item, BuildContext context, {Offset? position}) {
+  void handleLongPressOrSecondaryTapItem(GalleryDownloadInfo item, BuildContext context, {Offset? position}) {
     if (multiSelectDownloadPageState.inMultiSelectMode) {
       toggleSelectItem(item.gid);
     } else {
@@ -131,16 +132,16 @@ mixin GalleryDownloadPageLogicMixin on GetxController
     downloadService.pauseAllDownloadGallery();
   }
 
-  void handleRemoveItem(GalleryDownloadedData gallery, bool deleteImages, BuildContext context) async {
+  void handleRemoveItem(GalleryDownloadInfo gallery, bool deleteImages, BuildContext context) async {
     downloadService.update([downloadService.galleryCountChangedId]);
   }
 
-  void handleAssignPriority(GalleryDownloadedData gallery, int priority) {
+  void handleAssignPriority(GalleryDownloadInfo gallery, int priority) {
     downloadService.assignPriority(gallery, priority);
     updateSafely([bodyId]);
   }
 
-  Future<void> handleReDownloadItem(GalleryDownloadedData gallery) async {
+  Future<void> handleReDownloadItem(GalleryDownloadInfo gallery) async {
     bool confirmed = await confirmDestructiveAction(title: 'reDownload'.tr + '?');
     if (!confirmed) {
       return;
@@ -148,11 +149,17 @@ mixin GalleryDownloadPageLogicMixin on GetxController
     downloadService.reDownloadGallery(gallery);
   }
 
-  Future<void> goToReadPage(GalleryDownloadedData gallery) async {
+  Future<void> goToReadPage(GalleryDownloadInfo gallery) async {
     if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
-      openThirdPartyViewer(downloadService.computeGalleryDownloadAbsolutePath(gallery));
+      openThirdPartyViewer(DownloadPathResolver.computeGalleryDownloadAbsolutePath(gallery.toGalleryDownloadedData()));
     } else {
       int readIndexRecord = await readProgressService.getReadProgress(gallery.gid);
+
+      /// Ensure the gallery's image list is resident before entering read
+      /// page — ReadPageState's constructor reads [imageAtSync] synchronously
+      /// to build the initial snapshot. If images has been evicted (gallery
+      /// was fully downloaded), this reloads from DB.
+      await galleryDownloadService.galleryDownloadInfos[gallery.gid]!.ensureImagesLoaded();
 
       toRoute(
         Routes.read,
@@ -171,7 +178,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController
     }
   }
 
-  void showBottomSheet(GalleryDownloadedData gallery, BuildContext context, {Offset? position}) {
+  void showBottomSheet(GalleryDownloadInfo gallery, BuildContext context, {Offset? position}) {
     showEHContextMenu(
       context,
       position: position,
@@ -230,7 +237,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController
     );
   }
 
-  void showPrioritySheet(GalleryDownloadedData gallery, BuildContext context, {Offset? position}) {
+  void showPrioritySheet(GalleryDownloadInfo gallery, BuildContext context, {Offset? position}) {
     showEHContextMenu(
       context,
       position: position,

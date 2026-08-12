@@ -68,8 +68,22 @@ class zh_TW {
       'logout': '登出',
       'passwordLogin': '密碼登入',
       'cookieLogin': 'cookie登入',
-      'useWebview': 'Webview',
-      'skipCookieVerification': '跳過驗證',
+      'passwordTab': '帳號密碼',
+      'cookieTab': 'Cookie',
+      'webTab': 'Web',
+      'webTabHint': '點擊下方按鈕啟動瀏覽器，在瀏覽器中完成登入後自動返回',
+      'launchWebLogin': '啟動瀏覽器登入',
+      'onlineVerification': '線上驗證',
+      'webviewVerification': 'WebView驗證',
+      'skipVerification': '跳過驗證',
+      'assist': '輔助',
+      'onlineVerificationHint': '透過 HTTP 請求驗證',
+      'webviewVerificationHint': '透過 WebView 驗證（線上驗證失敗時使用）',
+      'skipVerificationHint': '直接儲存，不驗證',
+      'igneousFieldHint': '僅 EX 站需要，EH 站可留空',
+      'clipboardCookieDetected': '偵測到剪貼簿 cookie，已填入',
+      'verifyAndLogin': '驗證並登入',
+      'recommended': '推薦',
       'youHaveLoggedInAs': '您已登入:   ',
       'cookieIsBlack': 'cookie為空',
       'cookieFormatError': 'cookie格式錯誤',
@@ -100,7 +114,7 @@ class zh_TW {
       'filtered': '已過濾',
 
       /// gallery page
-      'getGallerysFailed': "獲取畫廊資料失敗",
+      'getGalleriesFailed': "獲取畫廊資料失敗",
       'tabBarSetting': '標籤欄設定',
       'refreshGalleryFailed': '重新整理畫廊失敗',
       'jumpPageTo': '跳轉頁面至',
@@ -872,10 +886,10 @@ favnote：配對收藏備註
 
       /// ranklist page
       'getRanklistFailed': '獲取排行榜資料失敗',
-      'getSomeOfGallerysFailed': '獲取部分畫廊資料失敗',
+      'getSomeOfGalleriesFailed': '獲取部分畫廊資料失敗',
 
       /// history page
-      'getHistoryGallerysFailed': '獲取瀏覽紀錄失敗',
+      'getHistoryGalleriesFailed': '獲取瀏覽紀錄失敗',
 
       /// search page
       'search': '搜尋',
@@ -921,9 +935,8 @@ favnote：配對收藏備註
       'speedLimitHint': '下載太快可能會被限制',
       'per': '每',
       'images': '圖片',
-      'downloadAllGallerysOfSamePriority': '同一優先度時同時下載所有畫廊',
-      'downloadAllGallerysOfSamePriorityHint':
-          '預設情況下依優先度下載畫廊，且每個優先度下只會同時下載一個畫廊',
+      'downloadAllGalleriesOfSamePriority': '同一優先度時同時下載所有畫廊',
+      'downloadAllGalleriesOfSamePriorityHint': '預設情況下依優先度下載畫廊，且每個優先度下只會同時下載一個畫廊',
       'alwaysUseDefaultGroup': '總是使用預設分組',
       'restoreDownloadTasks': '復原下載任務',
       'enableStoreMetadataForRestore': '允許儲存下載的中繼資料用來復原下載記錄',

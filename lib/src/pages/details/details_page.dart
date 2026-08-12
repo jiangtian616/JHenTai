@@ -36,7 +36,7 @@ import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import '../../database/database.dart';
 import '../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../mixin/scroll_to_top_state_mixin.dart';
-import '../../service/gallery_download_service.dart';
+import '../../service/gallery_download/gallery_download_service.dart';
 import '../../setting/preference_setting.dart';
 import '../../setting/style_setting.dart';
 import '../../utils/date_util.dart';
@@ -150,7 +150,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                             ),
                           ),
                         if (state.galleryDetails?.parentGalleryUrl != null ||
-                            (state.galleryDetails?.childrenGallerys?.isNotEmpty ??
+                            (state.galleryDetails?.childrenGalleries?.isNotEmpty ??
                                 false))
                           GlassMenuItem(
                             title: 'history'.tr,
@@ -213,9 +213,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                           ],
                         ),
                       ),
-                    if (state.galleryDetails?.parentGalleryUrl != null ||
-                        (state.galleryDetails?.childrenGallerys?.isNotEmpty ??
-                            false))
+                    if (state.galleryDetails?.parentGalleryUrl != null || (state.galleryDetails?.childrenGalleries?.isNotEmpty ?? false))
                       PopupMenuItem(
                         value: 4,
                         child: Row(
@@ -1699,9 +1697,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                         });
                       }
 
-                      GalleryImage? downloadedImage = galleryDownloadService
-                          .galleryDownloadInfos[state.galleryUrl.gid]
-                          ?.images[index];
+                      GalleryImage? downloadedImage = galleryDownloadService.galleryDownloadInfos[state.galleryUrl.gid]?.imageAtSync(index);
 
                       return Column(
                         children: [

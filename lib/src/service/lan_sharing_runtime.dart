@@ -19,7 +19,8 @@ import '../setting/advanced_setting.dart';
 import '../setting/download_setting.dart';
 import '../utils/eh_spider_parser.dart';
 import '../utils/image_cache_util.dart';
-import 'gallery_download_service.dart';
+import 'gallery_download/download_path_resolver.dart';
+import 'gallery_download/gallery_download_service.dart';
 import 'jh_service.dart';
 import 'lan_compute_protocol.dart';
 import 'lan_compute_runtime.dart';
@@ -1556,7 +1557,7 @@ class LanSharingRuntime
       return;
     }
     try {
-      final GalleryDownloadedData gallery = GalleryDownloadedData(
+      final GalleryDownloadRequest gallery = GalleryDownloadRequest(
         gid: gid,
         token: params['token'] as String? ?? '',
         title: params['title'] as String? ?? 'Gallery $gid',
@@ -1565,13 +1566,11 @@ class LanSharingRuntime
         galleryUrl: galleryUrl,
         uploader: params['uploader'] as String?,
         publishTime: params['publishTime'] as String? ?? '',
-        downloadStatusIndex: DownloadStatus.downloading.index,
         downloadOriginalImage:
             params['downloadOriginalImage'] as bool? ??
             downloadSetting.downloadOriginalImageByDefault.value,
         sortOrder: 0,
-        groupName: downloadSetting.defaultGalleryGroup.value ?? '',
-        insertTime: DateTime.now().toString(),
+        group: downloadSetting.defaultGalleryGroup.value ?? '',
         priority: GalleryDownloadService.defaultDownloadGalleryPriority,
         tags:
             (params['tags'] as List? ?? const <dynamic>[])
@@ -1797,7 +1796,7 @@ class LanSharingRuntime
 
   /// Builds gallery summaries from this device's downloaded-gallery catalog.
   List<LanSharedGallerySummary> _localGallerySummaries() => [
-    for (final GalleryDownloadedData gallery in galleryDownloadService.gallerys)
+    for (final GalleryDownloadInfo gallery in galleryDownloadService.galleries)
       LanSharedGallerySummary(
         deviceId: trustService.localDeviceId,
         deviceName: trustService.localDisplayName,
@@ -1819,10 +1818,9 @@ class LanSharingRuntime
     if (info == null) {
       return null;
     }
-    for (final GalleryImage? image in info.images) {
-      if (image != null && image.downloadStatus == DownloadStatus.downloaded) {
-        return image.url;
-      }
+    final GalleryImage? image = info.coverImage;
+    if (image != null && image.downloadStatus == DownloadStatus.downloaded) {
+      return image.url;
     }
     return null;
   }
@@ -1924,10 +1922,10 @@ class LanSharingRuntime
     }
     final GalleryDownloadInfo? info =
         galleryDownloadService.galleryDownloadInfos[gallery.gid];
-    if (info == null || pageIndex < 0 || pageIndex >= info.images.length) {
+    if (info == null || pageIndex < 0 || pageIndex >= info.pageCount) {
       return null;
     }
-    final GalleryImage? image = info.images[pageIndex];
+    final GalleryImage? image = await info.imageAt(pageIndex);
     if (image == null ||
         image.downloadStatus != DownloadStatus.downloaded ||
         image.path == null ||
@@ -1935,7 +1933,7 @@ class LanSharingRuntime
       return null;
     }
     final File file = File(
-      GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
+      DownloadPathResolver.computeImageDownloadAbsolutePathFromRelativePath(
         image.path!,
       ),
     );
@@ -1959,8 +1957,8 @@ class LanSharingRuntime
 
   GalleryDownloadedData? _findDownloadedGallery(String galleryUrl) {
     final String normalized = _normalizeGalleryUrl(galleryUrl);
-    for (final GalleryDownloadedData gallery
-        in galleryDownloadService.gallerys) {
+    for (final GalleryDownloadInfo info in galleryDownloadService.galleries) {
+      final GalleryDownloadedData gallery = info.toGalleryDownloadedData();
       if (_normalizeGalleryUrl(gallery.galleryUrl) == normalized ||
           (gallery.oldVersionGalleryUrl != null &&
               _normalizeGalleryUrl(gallery.oldVersionGalleryUrl!) ==

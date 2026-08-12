@@ -16,7 +16,7 @@ abstract class BasePageState with Scroll2TopStateMixin {
   SearchConfig searchConfig = SearchConfig();
   Completer<void> searchConfigInitCompleter = Completer<void>();
 
-  List<Gallery> gallerys = List.empty(growable: true);
+  List<Gallery> galleries = List.empty(growable: true);
 
   /// The first gallery's id in current page
   String? prevGid;
@@ -45,6 +45,6 @@ abstract class BasePageState with Scroll2TopStateMixin {
 
   @override
   String toString() {
-    return 'BasePageState{searchConfig: $searchConfig, gallerys: $gallerys, prevGid: $prevGid, nextGid: $nextGid, seek: $seek, totalCount: $totalCount, refreshState: $refreshState, loadingState: $loadingState, galleryCollectionKey: $galleryCollectionKey, pageStorageKey: $pageStorageKey}';
+    return 'BasePageState{searchConfig: $searchConfig, galleries: $galleries, prevGid: $prevGid, nextGid: $nextGid, seek: $seek, totalCount: $totalCount, refreshState: $refreshState, loadingState: $loadingState, galleryCollectionKey: $galleryCollectionKey, pageStorageKey: $pageStorageKey}';
   }
 }

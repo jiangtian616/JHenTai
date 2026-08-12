@@ -5,9 +5,9 @@ import 'package:jhentai/src/pages/popular/popular_page_logic.dart';
 import 'package:jhentai/src/pages/ranklist/ranklist_page_logic.dart';
 import 'package:jhentai/src/pages/watched/watched_page_logic.dart';
 
-import '../pages/gallerys/dashboard/dashboard_page_logic.dart';
-import '../pages/gallerys/dashboard/simple/simple_dashboard_page_logic.dart';
-import '../pages/gallerys/simple/gallerys_page_logic.dart';
+import '../pages/gallery/dashboard/dashboard_page_logic.dart';
+import '../pages/gallery/dashboard/simple/simple_dashboard_page_logic.dart';
+import '../pages/gallery/simple/gallery_page_logic.dart';
 import '../pages/search/desktop/desktop_search_page_logic.dart';
 import '../pages/search/desktop/desktop_search_page_tab_logic.dart';
 import '../pages/search/mobile_v2/search_page_mobile_v2_logic.dart';
@@ -27,9 +27,9 @@ mixin UpdateGlobalGalleryStatusLogicMixin on GetxController {
     }
 
     /// update galleryPage status
-    if (Get.isRegistered<GallerysPageLogic>()) {
-      GallerysPageLogic gallerysPageLogic = Get.find<GallerysPageLogic>();
-      updateIfNeeded(gallerysPageLogic, [gallerysPageLogic.bodyId]);
+    if (Get.isRegistered<GalleryPageLogic>()) {
+      GalleryPageLogic galleryPageLogic = Get.find<GalleryPageLogic>();
+      updateIfNeeded(galleryPageLogic, [galleryPageLogic.bodyId]);
     }
     if (Get.isRegistered<SimpleDashboardPageLogic>()) {
       SimpleDashboardPageLogic simpleDashboardPageLogic = Get.find<SimpleDashboardPageLogic>();

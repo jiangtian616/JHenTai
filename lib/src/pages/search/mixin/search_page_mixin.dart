@@ -57,7 +57,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
         padding: buttonPadding,
       ),
       EHAppleToolbarItem(
-        icon: Icon(state.bodyType == SearchPageBodyType.gallerys ? Icons.search : Icons.image_outlined),
+        icon: Icon(state.bodyType == SearchPageBodyType.galleries ? Icons.search : Icons.image_outlined),
         onPressed: logic.toggleBodyType,
         visualDensity: visualDensity,
         constraints: buttonConstraints,
@@ -144,7 +144,7 @@ mixin SearchPageMixin<L extends SearchPageLogicMixin, S extends SearchPageStateM
               ),
             ),
             onTap: () {
-              if (state.bodyType == SearchPageBodyType.gallerys) {
+              if (state.bodyType == SearchPageBodyType.galleries) {
                 state.hideSearchHistory = false;
                 logic.toggleBodyType();
               }
