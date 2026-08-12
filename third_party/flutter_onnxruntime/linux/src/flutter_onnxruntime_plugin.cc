@@ -225,7 +225,7 @@ static FlMethodResponse *create_session(FlutterOnnxruntimePlugin *self, FlValue 
     auto use_arena_val = options_map.find("useArena");
     if (use_arena_val != options_map.end() &&
         fl_value_get_type(use_arena_val->second) == FL_VALUE_TYPE_BOOL) {
-      if (fl_value_get_boolean(use_arena_val->second)) {
+      if (fl_value_get_bool(use_arena_val->second)) {
         session_options.EnableCpuMemArena();
       } else {
         session_options.DisableCpuMemArena();
@@ -411,7 +411,8 @@ static FlMethodResponse *get_runtime_info(FlutterOnnxruntimePlugin *self, FlValu
     fl_value_append_take(provider_list, fl_value_new_string(mapped_name.c_str()));
   }
   g_autoptr(FlValue) result = fl_value_new_map();
-  fl_value_set_string_take(result, "ortVersion", fl_value_new_string(Ort::GetVersionString()));
+  const std::string ort_version = Ort::GetVersionString();
+  fl_value_set_string_take(result, "ortVersion", fl_value_new_string(ort_version.c_str()));
   fl_value_set_string_take(result, "providers", provider_list);
   fl_value_set_string_take(result, "platform", fl_value_new_string("linux"));
   return FL_METHOD_RESPONSE(fl_method_success_response_new(result));
