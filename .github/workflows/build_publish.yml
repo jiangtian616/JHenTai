@@ -70,13 +70,29 @@ jobs:
       # Add Android keystore
       - name: Setup Android keystore
         if: matrix.target == 'Android'
+        env:
+          ENCODED_KEYSTORE: ${{ secrets.ENCODED_KEYSTORE }}
+          KEY_PROPERTIES: ${{ secrets.KEY_PROPERTIES }}
         run: |
-          echo "${{ secrets.ENCODED_KEYSTORE }}" | base64 -di > android/app/upload-keystore.jks
-          echo "${{ secrets.KEY_PROPERTIES }}" > android/key.properties
+          if [ -n "$ENCODED_KEYSTORE" ] && [ -n "$KEY_PROPERTIES" ]; then
+            printf '%s' "$ENCODED_KEYSTORE" | base64 -di > android/app/upload-keystore.jks
+            printf '%s\n' "$KEY_PROPERTIES" > android/key.properties
+            echo "Android release signing key configured."
+          else
+            rm -f android/app/upload-keystore.jks android/key.properties
+            echo "::warning::Android signing secrets are not configured; using the Gradle debug keystore for this release build."
+          fi
       # Add JHenTai api serret
       - name: Setup JHenTai API Secret
+        env:
+          JH_API_SECRET_CONFIG: ${{ secrets.JH_API_SECRET_CONFIG }}
         run: |
-          echo "${{ secrets.JH_API_SECRET_CONFIG }}" > lib/src/config/jh_api_secret_config.dart
+          if [ -n "$JH_API_SECRET_CONFIG" ]; then
+            printf '%s\n' "$JH_API_SECRET_CONFIG" > lib/src/config/jh_api_secret_config.dart
+            echo "JHenTai API secret configured."
+          else
+            echo "::warning::JH_API_SECRET_CONFIG is not configured; preserving the checked-in fallback configuration."
+          fi
       # Setup Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -168,7 +184,7 @@ jobs:
         run: |
           # Prepare build depends
           sudo apt-get update -y
-          sudo apt-get install -y ninja-build libfuse2 webkit2gtk-4.1
+          sudo apt-get install -y ninja-build libfuse2 webkit2gtk-4.1 libayatana-appindicator3-dev
           
           # Compile
           flutter build linux --release -t lib/src/main.dart
