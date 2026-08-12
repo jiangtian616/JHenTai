@@ -19,6 +19,7 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import '../../../config/ui_config.dart';
 import '../../layout/mobile_v2/mobile_layout_page_v2_state.dart';
 import '../../layout/mobile_v2/notification/tap_tab_bat_button_notification.dart';
+import '../../layout/mobile_v2/mobile_layout_page_v2.dart';
 import 'dashboard_page_logic.dart';
 
 /// For mobile v2 layout
@@ -34,20 +35,22 @@ class DashboardPage extends BasePage {
   /// Apple slide-down quick-search overlay (a bar drops from under the AppBar
   /// and focuses the keyboard). Plain icons replace the glass circles so the
   /// four function buttons stay compact.
-  final ValueNotifier<bool> _searchVisible = ValueNotifier(false);
-  final TextEditingController _searchController = TextEditingController();
-  final FocusNode _searchFocusNode = FocusNode();
-
+  ///
+  /// The overlay state (notifier, controller, focus node) lives on the
+  /// persistent [DashboardPageState]: this page is a StatelessWidget that gets
+  /// recreated when the parent layout rebuilds (e.g. the keyboard popping up
+  /// changes viewInsets), so widget-local fields would reset the bar and drop
+  /// the keyboard instantly.
   void _toggleSearch() {
-    final bool opening = !_searchVisible.value;
-    _searchVisible.value = opening;
+    final bool opening = !state.searchVisible.value;
+    state.searchVisible.value = opening;
     if (opening) {
       // Focus right away so the system keyboard pops immediately.
       WidgetsBinding.instance.addPostFrameCallback(
-        (_) => _searchFocusNode.requestFocus(),
+        (_) => state.searchFocusNode.requestFocus(),
       );
     } else {
-      _searchFocusNode.unfocus();
+      state.searchFocusNode.unfocus();
     }
   }
 
@@ -81,7 +84,7 @@ class DashboardPage extends BasePage {
       if (ThemeConfig.isApple)
         IconButton(
           onPressed:
-              MobileLayoutPageV2State.scaffoldKey.currentState?.openEndDrawer,
+              MobileLayoutPageV2.openQuickSearchDrawer,
           icon: const Icon(Icons.door_front_door_outlined, size: 24),
           splashColor: Colors.transparent,
           highlightColor: Colors.transparent,
@@ -99,7 +102,7 @@ class DashboardPage extends BasePage {
   @override
   Widget buildBody(BuildContext context) {
     return ValueListenableBuilder<bool>(
-      valueListenable: _searchVisible,
+      valueListenable: state.searchVisible,
       builder: (context, visible, _) => Stack(
         fit: StackFit.expand,
         children: [
@@ -169,8 +172,8 @@ class DashboardPage extends BasePage {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
               child: EHAppleTextField(
-                controller: _searchController,
-                focusNode: _searchFocusNode,
+                controller: state.searchController,
+                focusNode: state.searchFocusNode,
                 decoration: InputDecoration(
                   isDense: true,
                   hintText: 'search'.tr,
@@ -181,7 +184,7 @@ class DashboardPage extends BasePage {
                     return;
                   }
                   _toggleSearch();
-                  _searchController.clear();
+                  state.searchController.clear();
                   newSearch(keyword: trimmed);
                 },
               ),

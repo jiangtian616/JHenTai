@@ -25,8 +25,9 @@ void main() {
         _block(top: 100, left: 200, width: 200, height: 30, text: 'line 1'),
         _block(top: 138, left: 210, width: 180, height: 30, text: 'line 2'),
       ];
-      final List<RecognizedTextGroup> groups =
-          groupRecognizedTextBlocks(blocks);
+      final List<RecognizedTextGroup> groups = groupRecognizedTextBlocks(
+        blocks,
+      );
       expect(groups, hasLength(1));
       expect(groups.single.blockIndices, equals(<int>[0, 1]));
     });
@@ -38,8 +39,9 @@ void main() {
         _block(top: 138, left: 210, width: 180, height: 30, text: 'A2'),
         _block(top: 400, left: 300, width: 150, height: 28, text: 'B1'),
       ];
-      final List<RecognizedTextGroup> groups =
-          groupRecognizedTextBlocks(blocks);
+      final List<RecognizedTextGroup> groups = groupRecognizedTextBlocks(
+        blocks,
+      );
       expect(groups, hasLength(2));
       expect(groups[0].blockIndices, equals(<int>[0, 1]));
       expect(groups[1].blockIndices, equals(<int>[2]));
@@ -55,11 +57,43 @@ void main() {
         _block(top: 140, left: 110, width: 170, height: 30, text: 'A2'),
         _block(top: 145, left: 510, width: 170, height: 30, text: 'B2'),
       ];
-      final List<RecognizedTextGroup> groups =
-          groupRecognizedTextBlocks(blocks);
+      final List<RecognizedTextGroup> groups = groupRecognizedTextBlocks(
+        blocks,
+      );
       expect(groups, hasLength(2));
       expect(groups[0].blockIndices, equals(<int>[0, 2]));
       expect(groups[1].blockIndices, equals(<int>[1, 3]));
+    });
+
+    test('does not merge adjacent bubbles on a small edge overlap', () {
+      final List<RecognizedTextBlock> blocks = <RecognizedTextBlock>[
+        _block(top: 100, left: 100, width: 200, height: 30, text: 'A1'),
+        _block(top: 140, left: 250, width: 200, height: 30, text: 'B1'),
+      ];
+      final List<RecognizedTextGroup> groups = groupRecognizedTextBlocks(
+        blocks,
+      );
+      expect(groups, hasLength(2));
+    });
+
+    test('expands grouped translations back to original block order', () {
+      final List<RecognizedTextBlock> blocks = <RecognizedTextBlock>[
+        _block(top: 100, left: 100, width: 180, height: 30, text: 'A1'),
+        _block(top: 105, left: 500, width: 180, height: 30, text: 'B1'),
+        _block(top: 140, left: 110, width: 170, height: 30, text: 'A2'),
+        _block(top: 145, left: 510, width: 170, height: 30, text: 'B2'),
+      ];
+      final List<RecognizedTextGroup> groups = groupRecognizedTextBlocks(
+        blocks,
+      );
+      expect(
+        expandGroupTranslationsToLines(
+          blocks: blocks,
+          groups: groups,
+          groupTranslations: const <String>['A1译\nA2译', 'B1译\nB2译'],
+        ),
+        equals(<String>['A1译', 'B1译', 'A2译', 'B2译']),
+      );
     });
 
     test('does not merge lines on the same row', () {
@@ -69,8 +103,9 @@ void main() {
         _block(top: 100, left: 100, width: 90, height: 30, text: 'part'),
         _block(top: 108, left: 200, width: 90, height: 30, text: 'two'),
       ];
-      final List<RecognizedTextGroup> groups =
-          groupRecognizedTextBlocks(blocks);
+      final List<RecognizedTextGroup> groups = groupRecognizedTextBlocks(
+        blocks,
+      );
       expect(groups, hasLength(2));
     });
 
@@ -80,8 +115,9 @@ void main() {
         // Narrow line, centered under the long one, small overlap ratio.
         _block(top: 136, left: 225, width: 150, height: 30, text: 'short'),
       ];
-      final List<RecognizedTextGroup> groups =
-          groupRecognizedTextBlocks(blocks);
+      final List<RecognizedTextGroup> groups = groupRecognizedTextBlocks(
+        blocks,
+      );
       expect(groups, hasLength(1));
     });
 
@@ -94,8 +130,9 @@ void main() {
         // bottom of line1 = 140; line2 top = 118 -> vertical overlap 22/40.
         _block(top: 118, left: 205, width: 190, height: 40, text: 'line 2'),
       ];
-      final List<RecognizedTextGroup> groups =
-          groupRecognizedTextBlocks(blocks);
+      final List<RecognizedTextGroup> groups = groupRecognizedTextBlocks(
+        blocks,
+      );
       expect(groups, hasLength(1));
     });
 
@@ -104,8 +141,9 @@ void main() {
         _block(top: 100, left: 200, width: 200, height: 30, text: 'with box'),
         _block(top: 0, left: 0, width: 0, height: 0, text: 'no box'),
       ];
-      final List<RecognizedTextGroup> groups =
-          groupRecognizedTextBlocks(blocks);
+      final List<RecognizedTextGroup> groups = groupRecognizedTextBlocks(
+        blocks,
+      );
       expect(groups, hasLength(2));
     });
 
@@ -114,12 +152,61 @@ void main() {
         _block(top: 100, left: 200, width: 200, height: 30, text: 'a'),
         _block(top: 136, left: 180, width: 240, height: 30, text: 'b'),
       ];
-      final List<RecognizedTextGroup> groups =
-          groupRecognizedTextBlocks(blocks);
+      final List<RecognizedTextGroup> groups = groupRecognizedTextBlocks(
+        blocks,
+      );
       expect(groups.single.left, 180);
       expect(groups.single.top, 100);
       expect(groups.single.right, 420);
       expect(groups.single.bottom, 166);
+    });
+
+    test('marks stable multi-line groups as whole-container candidates', () {
+      final List<RecognizedTextBlock> blocks = <RecognizedTextBlock>[
+        _block(top: 100, left: 200, width: 200, height: 30, text: 'a'),
+        _block(top: 138, left: 210, width: 180, height: 30, text: 'b'),
+      ];
+      final RecognizedTextGroup group =
+          groupRecognizedTextBlocks(blocks).single;
+      expect(isRecognizedTextContainerCandidate(group, blocks), isTrue);
+      final RecognizedTextGroupRenderBounds bounds =
+          renderBoundsForRecognizedTextGroup(group, blocks);
+      expect(bounds.left, group.left);
+      expect(bounds.top, group.top);
+      expect(bounds.right, group.right);
+      expect(bounds.bottom, group.bottom);
+      final RecognizedTextGroupRenderBounds explicit =
+          renderBoundsForRecognizedTextGroup(
+            group,
+            blocks,
+            container: const RecognizedTextContainer(
+              blockIndices: <int>[0, 1],
+              left: 150,
+              top: 80,
+              width: 300,
+              height: 120,
+              confidence: 0.9,
+            ),
+          );
+      expect(explicit.left, 150);
+      expect(explicit.top, 80);
+      expect(explicit.right, 450);
+      expect(explicit.bottom, 200);
+    });
+
+    test('keeps a single line on its OCR fallback bounds', () {
+      final List<RecognizedTextBlock> blocks = <RecognizedTextBlock>[
+        _block(top: 100, left: 200, width: 200, height: 30, text: 'single'),
+      ];
+      final RecognizedTextGroup group =
+          groupRecognizedTextBlocks(blocks).single;
+      expect(isRecognizedTextContainerCandidate(group, blocks), isFalse);
+      final RecognizedTextGroupRenderBounds bounds =
+          renderBoundsForRecognizedTextGroup(group, blocks);
+      expect(bounds.left, group.left);
+      expect(bounds.top, group.top);
+      expect(bounds.right, group.right);
+      expect(bounds.bottom, group.bottom);
     });
 
     test('groups side-by-side columns of a vertical-text bubble', () {
@@ -129,8 +216,9 @@ void main() {
         _block(top: 105, left: 460, width: 28, height: 190, text: 'col2'),
         _block(top: 100, left: 420, width: 30, height: 200, text: 'col3'),
       ];
-      final List<RecognizedTextGroup> groups =
-          groupRecognizedTextBlocks(blocks);
+      final List<RecognizedTextGroup> groups = groupRecognizedTextBlocks(
+        blocks,
+      );
       expect(groups, hasLength(1));
       expect(groups.single.blockIndices, equals(<int>[0, 1, 2]));
     });
@@ -142,13 +230,89 @@ void main() {
         _block(top: 100, left: 500, width: 30, height: 200, text: 'A'),
         _block(top: 420, left: 470, width: 30, height: 180, text: 'B'),
       ];
-      final List<RecognizedTextGroup> groups =
-          groupRecognizedTextBlocks(blocks);
+      final List<RecognizedTextGroup> groups = groupRecognizedTextBlocks(
+        blocks,
+      );
       expect(groups, hasLength(2));
+    });
+
+    test('translation groups stay one-to-one when merging is disabled', () {
+      final List<RecognizedTextBlock> blocks = <RecognizedTextBlock>[
+        _block(top: 100, left: 200, width: 200, height: 30, text: 'first'),
+        _block(top: 138, left: 210, width: 180, height: 30, text: 'second'),
+      ];
+      final List<RecognizedTextGroup> groups = translationTextGroups(
+        blocks,
+        merge: false,
+      );
+      expect(
+        groups.map((group) => group.blockIndices).toList(),
+        equals(<List<int>>[
+          <int>[0],
+          <int>[1],
+        ]),
+      );
+    });
+
+    test('detected speech bubbles force one group and preserve bubble bounds', () {
+      final List<RecognizedTextBlock> blocks = <RecognizedTextBlock>[
+        _block(top: 100, left: 120, width: 100, height: 20, text: 'a'),
+        _block(top: 130, left: 130, width: 90, height: 20, text: 'b'),
+        _block(top: 100, left: 500, width: 100, height: 20, text: 'c'),
+      ];
+      final List<RecognizedTextGroup> groups = translationTextGroups(
+        blocks,
+        merge: true,
+        containers: const <RecognizedTextContainer>[
+          RecognizedTextContainer(
+            blockIndices: <int>[0, 1],
+            left: 80,
+            top: 70,
+            width: 220,
+            height: 130,
+          ),
+        ],
+      );
+      expect(groups, hasLength(2));
+      expect(groups.first.blockIndices, <int>[0, 1]);
+      expect(groups.first.left, 80);
+      expect(groups.first.bottom, 200);
+      expect(groups.last.blockIndices, <int>[2]);
     });
   });
 
   group('splitGroupTranslationIntoLines', () {
+    test('parses group-numbered output and expands it back to OCR lines', () {
+      final List<RecognizedTextBlock> blocks = <RecognizedTextBlock>[
+        _block(top: 100, left: 200, width: 200, height: 30, text: 'first'),
+        _block(top: 138, left: 210, width: 180, height: 30, text: 'second'),
+        _block(top: 260, left: 200, width: 200, height: 30, text: 'third'),
+      ];
+      final List<RecognizedTextGroup> groups = groupRecognizedTextBlocks(
+        blocks,
+      );
+      final List<String> groupsTranslated = parseNumberedTranslations(
+        'Group 1: 第一段。第二句。\n2: 第二段。',
+        groups.length,
+      );
+      expect(groupsTranslated, equals(<String>['第一段。第二句。', '第二段。']));
+      expect(
+        expandGroupTranslationsToLines(
+          blocks: blocks,
+          groups: groups,
+          groupTranslations: groupsTranslated,
+        ),
+        equals(<String>['第一段。', '第二句。', '第二段。']),
+      );
+    });
+
+    test('falls back to legacy line-numbered output when needed', () {
+      expect(
+        parseNumberedTranslations('1: 第一行\n2: 第二行\n3: 第三行', 2, legacyCount: 3),
+        equals(<String>['第一行', '第二行', '第三行']),
+      );
+    });
+
     test('keeps a single-line group as-is', () {
       expect(
         splitGroupTranslationIntoLines(

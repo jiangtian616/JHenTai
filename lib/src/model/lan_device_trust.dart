@@ -347,6 +347,49 @@ class LanSharedGallerySummary {
   }
 }
 
+/// A gallery a trusted peer asks this device to download on its behalf (LAN
+/// remote download). Carries the metadata needed to seed the download task;
+/// the host fills in its own group/settings and fetches details over its own
+/// network connection.
+class LanRemoteDownloadRequest {
+  final int gid;
+  final String galleryUrl;
+  final String token;
+  final String title;
+  final String category;
+  final int pageCount;
+  final String? uploader;
+  final String publishTime;
+  final List<String> tags;
+  final bool downloadOriginalImage;
+
+  const LanRemoteDownloadRequest({
+    required this.gid,
+    required this.galleryUrl,
+    required this.token,
+    required this.title,
+    required this.category,
+    required this.pageCount,
+    this.uploader,
+    this.publishTime = '',
+    this.tags = const <String>[],
+    this.downloadOriginalImage = false,
+  });
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+    'gid': gid,
+    'galleryUrl': galleryUrl,
+    'token': token,
+    'title': title,
+    'category': category,
+    'pageCount': pageCount,
+    if (uploader != null) 'uploader': uploader,
+    'publishTime': publishTime,
+    'tags': tags,
+    'downloadOriginalImage': downloadOriginalImage,
+  };
+}
+
 class LanSharedGalleryPage {
   final String revision;
   final String? nextCursor;

@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/engine/context_translation_contract.dart';
 import 'package:jhentai/src/service/engine/engine_contract.dart';
@@ -13,6 +15,7 @@ import 'package:jhentai/src/widget/eh_apple_button.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
 import 'package:jhentai/src/widget/gguf_model_manager.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 class _LanguageOption {
   const _LanguageOption(this.code, this.label);
@@ -44,13 +47,11 @@ const List<String> _targetLanguageOptions = [
 /// Simple read-page translation panel. Only exposes the frequently used
 /// choices; API/OCR installation details stay in the full settings page.
 class ImageTranslationConfigSheet extends StatefulWidget {
-  final VoidCallback? onTranslateCurrentImage;
   final VoidCallback? onOpenAdvancedSettings;
   final VoidCallback? onClose;
 
   const ImageTranslationConfigSheet({
     super.key,
-    this.onTranslateCurrentImage,
     this.onOpenAdvancedSettings,
     this.onClose,
   });
@@ -68,6 +69,7 @@ class _ImageTranslationConfigSheetState
   late String _appleLiveTextLanguage;
   late String _targetLanguage;
   late bool _enableThinking;
+  late bool _autoMergeText;
   late bool _translateSubsequentPages;
   late ImageProcessingDisplayMode _imageProcessingDisplayMode;
 
@@ -83,6 +85,7 @@ class _ImageTranslationConfigSheetState
         imageTranslationSetting.appleLiveTextLanguage.value;
     _targetLanguage = imageTranslationSetting.targetLanguage.value;
     _enableThinking = imageTranslationSetting.enableThinking.value;
+    _autoMergeText = imageTranslationSetting.autoMergeText.value;
     _translateSubsequentPages =
         imageTranslationSetting.translateSubsequentPages.value;
     _imageProcessingDisplayMode =
@@ -96,7 +99,7 @@ class _ImageTranslationConfigSheetState
   @override
   Widget build(BuildContext context) {
     final bool appleOcr = _ocrEngine == ImageOcrEngine.appleLiveText;
-    return SafeArea(
+    final Widget body = SafeArea(
       top: false,
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -130,7 +133,9 @@ class _ImageTranslationConfigSheetState
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               children: [
                 _buildOcrEngine(),
-                if (appleOcr) _buildOcrLanguage(),
+                if (appleOcr ||
+                    _translatorEngine == ImageTranslationEngine.appleOnDevice)
+                  _buildOcrLanguage(),
                 _buildTranslatorEngine(),
                 if (_translatorEngine == ImageTranslationEngine.api) ...[
                   _buildModel(),
@@ -143,7 +148,10 @@ class _ImageTranslationConfigSheetState
                 _buildTargetLanguage(),
                 _buildTranslateScope(),
                 _buildContextBatchSize(),
+                _buildAutoMergeText(),
+                _buildBubbleDetection(),
                 _buildImageProcessingMode(),
+                _buildTranslationBackgroundStyle(),
               ],
             ),
           ),
@@ -155,15 +163,6 @@ class _ImageTranslationConfigSheetState
               spacing: 8,
               runSpacing: 8,
               children: [
-                if (widget.onTranslateCurrentImage != null)
-                  EHAppleFilledButton.icon(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      widget.onTranslateCurrentImage!();
-                    },
-                    icon: const Icon(Icons.translate),
-                    label: Text('translateImageText'.tr),
-                  ),
                 EHAppleTextButton(
                   onPressed: () {
                     if (widget.onOpenAdvancedSettings != null) {
@@ -181,6 +180,17 @@ class _ImageTranslationConfigSheetState
         ],
       ),
     );
+
+    if (ThemeConfig.isApple) {
+      // Apple style: wrap the sheet in a liquid-glass surface so the panel
+      // reads as a monochrome (black/white) frosted card, matching the rest
+      // of the Apple-styled UI.
+      return GlassContainer(
+        shape: const LiquidRoundedRectangle(borderRadius: 20),
+        child: body,
+      );
+    }
+    return body;
   }
 
   Widget _buildModel() {
@@ -217,6 +227,26 @@ class _ImageTranslationConfigSheetState
     );
   }
 
+  Widget _buildAutoMergeText() {
+    return EHAppleSwitchListTile(
+      key: const ValueKey('image-translation-auto-merge-text'),
+      title: Text('imageTranslationAutoMergeText'.tr),
+      subtitle: Text(
+        'imageTranslationAutoMergeTextHint'.tr,
+        style: const TextStyle(fontSize: 12),
+      ),
+      value: _autoMergeText,
+      enabled: !imageTranslationSetting.enableBubbleDetection.value,
+      onChanged: (value) {
+        final bool next = imageTranslationSetting.enableBubbleDetection.value
+            ? true
+            : value;
+        setState(() => _autoMergeText = next);
+        imageTranslationSetting.saveAutoMergeText(next);
+      },
+    );
+  }
+
   Widget _buildImageProcessingMode() {
     return _dropdownRow(
       'imageTranslationImageProcessingMode'.tr,
@@ -239,6 +269,77 @@ class _ImageTranslationConfigSheetState
           DropdownMenuItem(
             value: ImageProcessingDisplayMode.repairedBackgroundEmbeddedText,
             child: Text('imageTranslationDisplayCtdMigan'.tr),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBubbleDetection() {
+    return Obx(
+      () => EHAppleSwitchListTile(
+        key: const ValueKey('image-translation-bubble-detection'),
+        title: Text('imageTranslationBubbleDetection'.tr),
+        subtitle: Text('imageTranslationBubbleDetectionHint'.tr, style: const TextStyle(fontSize: 12)),
+        value: imageTranslationSetting.enableBubbleDetection.value,
+        onChanged: imageTranslationSetting.saveEnableBubbleDetection,
+      ),
+    );
+  }
+
+  Widget _buildTranslationBackgroundStyle() {
+    return Obx(
+      () => Column(
+        children: [
+          ListTile(
+            title: Text('imageTranslationBackgroundColor'.tr),
+            trailing: GestureDetector(
+              onTap: () async {
+                Color selected = imageTranslationSetting.translationBackgroundColor.value;
+                final Color? result = await showDialog<Color>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    content: ColorPicker(
+                      color: selected,
+                      pickersEnabled: const <ColorPickerType, bool>{
+                        ColorPickerType.both: true,
+                        ColorPickerType.primary: false,
+                        ColorPickerType.accent: false,
+                        ColorPickerType.bw: false,
+                        ColorPickerType.custom: false,
+                        ColorPickerType.wheel: true,
+                      },
+                      showColorCode: true,
+                      onColorChanged: (color) => selected = color,
+                    ),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(context, selected), child: Text('confirm'.tr)),
+                    ],
+                  ),
+                );
+                if (result != null) await imageTranslationSetting.saveTranslationBackgroundColor(result);
+              },
+              child: Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: imageTranslationSetting.translationBackgroundColor.value,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.grey),
+                ),
+              ),
+            ),
+          ),
+          ListTile(
+            title: Text('imageTranslationBackgroundOpacity'.tr),
+            subtitle: Slider(
+              value: imageTranslationSetting.translationBackgroundOpacity.value,
+              min: 0,
+              max: 1,
+              divisions: 20,
+              onChanged: imageTranslationSetting.saveTranslationBackgroundOpacity,
+            ),
+            trailing: Text('${(imageTranslationSetting.translationBackgroundOpacity.value * 100).round()}%'),
           ),
         ],
       ),
@@ -341,6 +442,7 @@ class _ImageTranslationConfigSheetState
     return _dropdownRow(
       'imageTranslationAppleLiveTextLanguage'.tr,
       EHCodexStyleDropdown<String>(
+        key: const ValueKey('image-translation-apple-live-text-language'),
         value: _appleLiveTextLanguage,
         onChanged: (value) {
           setState(() => _appleLiveTextLanguage = value!);

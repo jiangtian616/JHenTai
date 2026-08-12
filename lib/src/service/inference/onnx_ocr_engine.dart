@@ -157,58 +157,280 @@ class OnnxOcrInferenceEngine implements OcrInferenceEngine {
     // Pass 1: straighten each detected box (min-area rect + unclip) into an
     // axis-aligned crop and run the 180-degree orientation classifier.
     final List<String> characters = await _loadCharacters(model.dictPath);
-    final List<_DetectedBox> validBoxes = <_DetectedBox>[];
-    final List<image.Image> crops = <image.Image>[];
-    for (int i = 0; i < boxes.length; i++) {
-      token.throwIfCancelled();
-      final image.Image? crop = straightenOcrCrop(original, boxes[i].rect);
-      if (crop == null) {
-        continue;
-      }
-      crops.add(await _classifyAndRotate(clsSession, crop, token));
-      validBoxes.add(boxes[i]);
-      onProgress?.call(0.42 + 0.28 * (i + 1) / boxes.length);
-    }
-    if (crops.isEmpty) {
+    final List<_RecognizedCandidate> candidates = await _recognizeBoxes(
+      source: original,
+      boxes: boxes,
+      clsSession: clsSession,
+      recSession: recSession,
+      characters: characters,
+      token: token,
+    );
+    onProgress?.call(0.70);
+
+    // DB detectors commonly fuse adjacent tategaki columns into horizontal
+    // strips. The recognizer then sees two columns at once and produces the
+    // characteristic high-confidence garbage seen on Japanese margin text.
+    // When the first pass finds a vertical margin candidate, rerun only those
+    // margins after a 90° image rotation. This turns each vertical column into
+    // the horizontal contract expected by PP-OCR, without rotating glyphs in
+    // the crop one by one. The mapped boxes remain in the original image space.
+    final List<_RecognizedCandidate> rotatedCandidates =
+        await _recognizeRotatedMarginsIfNeeded(
+          original: original,
+          boxes: boxes,
+          detSession: detSession,
+          clsSession: clsSession,
+          recSession: recSession,
+          characters: characters,
+          token: token,
+          maxDimension: maxDimension,
+        );
+    if (candidates.isEmpty && rotatedCandidates.isEmpty) {
       return OcrInferenceResult(
         blocks: const <RecognizedTextBlock>[],
         imageWidth: originalWidth,
         imageHeight: originalHeight,
       );
     }
+    if (rotatedCandidates.isNotEmpty) {
+      final List<_RecognizedCandidate> normalCandidates =
+          candidates.where((_RecognizedCandidate candidate) {
+            final (double left, double _, double width, double _) =
+                candidate.box.rect.bbox;
+            return !_isInTextMargin(left, width, originalWidth);
+          }).toList();
+      candidates
+        ..clear()
+        ..addAll(normalCandidates)
+        ..addAll(rotatedCandidates);
+    }
+    final List<RecognizedTextBlock> blocks = candidates
+        .map((_RecognizedCandidate candidate) {
+          final (double left, double top, double width, double height) =
+              candidate.box.rect.bbox;
+          return RecognizedTextBlock(
+            text: candidate.line.text.trim(),
+            confidence: candidate.line.confidence,
+            left: left,
+            top: top,
+            width: width,
+            height: height,
+          );
+        })
+        .where((RecognizedTextBlock block) => block.text.isNotEmpty)
+        .toList(growable: false);
+    onProgress?.call(1);
 
-    // Pass 2: recognize all crops in width-sorted batches.
+    return OcrInferenceResult(
+      blocks: sortRecognizedTextBlocks(blocks),
+      imageWidth: originalWidth,
+      imageHeight: originalHeight,
+    );
+  }
+
+  Future<List<_RecognizedCandidate>> _recognizeBoxes({
+    required image.Image source,
+    required List<_DetectedBox> boxes,
+    required ort.OrtSession clsSession,
+    required ort.OrtSession recSession,
+    required List<String> characters,
+    required InferenceCancellationToken token,
+  }) async {
+    final List<_DetectedBox> validBoxes = <_DetectedBox>[];
+    final List<image.Image> crops = <image.Image>[];
+    for (final _DetectedBox box in boxes) {
+      token.throwIfCancelled();
+      final image.Image? crop = straightenOcrCrop(source, box.rect);
+      if (crop == null) continue;
+      // PP-OCR's mobile angle classifier only distinguishes 0°/180°. A
+      // tategaki column therefore reaches recognition as a narrow vertical
+      // strip and is commonly returned as fragmented or reversed. Rotate tall
+      // detector boxes into the recognizer's horizontal contract; the source
+      // rectangle remains untouched for layout/overlay.
+      final (double _, double _, double boxWidth, double boxHeight) =
+          box.rect.bbox;
+      final bool vertical =
+          boxHeight > boxWidth * OcrScoringProtocol.verticalAspectRatio;
+      final image.Image recognitionCrop =
+          vertical ? image.copyRotate(crop, angle: -90) : crop;
+      crops.add(await _classifyAndRotate(clsSession, recognitionCrop, token));
+      validBoxes.add(box);
+    }
+    if (crops.isEmpty) return const <_RecognizedCandidate>[];
+
     final List<_RecognizedLine> lines = await _recognizeLines(
       recSession,
       crops,
       characters,
       token,
     );
-    final List<RecognizedTextBlock> blocks = <RecognizedTextBlock>[];
+    final List<_RecognizedCandidate> result = <_RecognizedCandidate>[];
     for (int i = 0; i < validBoxes.length; i++) {
       final _RecognizedLine line = lines[i];
       if (line.text.trim().isNotEmpty && line.confidence >= _textThreshold) {
+        result.add(_RecognizedCandidate(validBoxes[i], line));
+      }
+    }
+    return result;
+  }
+
+  Future<List<_RecognizedCandidate>> _recognizeRotatedMarginsIfNeeded({
+    required image.Image original,
+    required List<_DetectedBox> boxes,
+    required ort.OrtSession detSession,
+    required ort.OrtSession clsSession,
+    required ort.OrtSession recSession,
+    required List<String> characters,
+    required InferenceCancellationToken token,
+    required int maxDimension,
+  }) async {
+    if (!_shouldProbeVerticalMargins(
+      boxes,
+      original.width,
+      original.height,
+    )) {
+      return const <_RecognizedCandidate>[];
+    }
+    final int marginWidth = math.min(
+      720,
+      math.max(192, (original.width * 0.22).round()),
+    );
+    final List<_VerticalMargin> margins = <_VerticalMargin>[
+      _VerticalMargin(left: 0, width: marginWidth),
+      _VerticalMargin(
+        left: math.max(0, original.width - marginWidth),
+        width: marginWidth,
+      ),
+    ];
+    final List<_RecognizedCandidate> result = <_RecognizedCandidate>[];
+    for (final _VerticalMargin margin in margins) {
+      token.throwIfCancelled();
+      final image.Image sourceMargin = image.copyCrop(
+        original,
+        x: margin.left,
+        y: 0,
+        width: margin.width,
+        height: original.height,
+      );
+      // image.copyRotate(angle: 90) maps source (x, y) to rotated
+      // (height - 1 - y, x). The Japanese glyphs remain upright in the
+      // recognizer's horizontal reading direction after this page-level
+      // rotation, unlike rotating each detected glyph box independently.
+      final image.Image rotatedSource = image.copyRotate(
+        sourceMargin,
+        angle: 90,
+      );
+      final image.Image rotatedWorking = _resizeForDetection(
+        rotatedSource,
+        maxDimension,
+      );
+      final List<_DetectedBox> rotatedBoxes = await _detect(
+        detSession,
+        rotatedWorking,
+        rotatedSource.width,
+        rotatedSource.height,
+        token,
+      );
+      if (rotatedBoxes.isEmpty) continue;
+      final List<_RecognizedCandidate> recognized = await _recognizeBoxes(
+        source: rotatedSource,
+        boxes: rotatedBoxes,
+        clsSession: clsSession,
+        recSession: recSession,
+        characters: characters,
+        token: token,
+      );
+      for (final _RecognizedCandidate candidate in recognized) {
+        final OrientedRect mapped = _mapClockwiseRotatedRect(
+          candidate.box.rect,
+          sourceMargin.width,
+          margin.left,
+        );
         final (double left, double top, double width, double height) =
-            validBoxes[i].rect.bbox;
-        blocks.add(
-          RecognizedTextBlock(
-            text: line.text.trim(),
-            confidence: line.confidence,
-            left: left,
-            top: top,
-            width: width,
-            height: height,
+            mapped.bbox;
+        if (!_isNearVerticalMargin(
+          left,
+          top,
+          width,
+          height,
+          original.width,
+          original.height,
+        )) {
+          continue;
+        }
+        result.add(
+          _RecognizedCandidate(
+            _DetectedBox(mapped, candidate.box.detectionScore),
+            candidate.line,
           ),
         );
       }
-      onProgress?.call(0.70 + 0.30 * (i + 1) / validBoxes.length);
     }
+    return result;
+  }
 
-    return OcrInferenceResult(
-      blocks: blocks,
-      imageWidth: originalWidth,
-      imageHeight: originalHeight,
+  bool _shouldProbeVerticalMargins(
+    List<_DetectedBox> boxes,
+    int width,
+    int height,
+  ) {
+    final List<(double, double, double, double)> edgeBoxes = <(
+      double,
+      double,
+      double,
+      double
+    )>[];
+    for (final _DetectedBox box in boxes) {
+      final (double left, double top, double boxWidth, double boxHeight) =
+          box.rect.bbox;
+      if (_isInTextMargin(left, boxWidth, width)) {
+        edgeBoxes.add((left, top, boxWidth, boxHeight));
+      }
+    }
+    if (edgeBoxes.length < 2) return false;
+    final bool hasTallEdgeBox = edgeBoxes.any(
+      ((double _, double _, double boxWidth, double boxHeight) box) =>
+          box.$4 > box.$3 * 1.35,
     );
+    // When DB has fused two vertical columns into horizontal strips, no one
+    // box is tall. Repeated edge boxes are still a useful conservative signal
+    // for a margin text run; the rotated pass filters its result back to tall
+    // mapped boxes, so ordinary horizontal dialogue does not survive it.
+    return hasTallEdgeBox ||
+        (edgeBoxes.length >= 4 && width > height * 0.9);
+  }
+
+  bool _isNearVerticalMargin(
+    double left,
+    double top,
+    double width,
+    double height,
+    int sourceWidth,
+    int sourceHeight,
+  ) =>
+      _isInTextMargin(left, width, sourceWidth) &&
+      height > width * 1.2 &&
+      top < sourceHeight;
+
+  bool _isInTextMargin(double left, double width, int sourceWidth) {
+    final double right = left + width;
+    return left <= sourceWidth * 0.22 || right >= sourceWidth * 0.78;
+  }
+
+  OrientedRect _mapClockwiseRotatedRect(
+    OrientedRect rect,
+    int sourceMarginWidth,
+    int marginLeft,
+  ) {
+    final List<OcrPoint> mappedCorners = rect.corners
+        .map(
+          (OcrPoint point) => (
+            point.$2 + marginLeft,
+            sourceMarginWidth - 1 - point.$1,
+          ),
+        )
+        .toList(growable: false);
+    return minAreaRect(mappedCorners);
   }
 
   image.Image _resizeForDetection(image.Image source, int maxDimension) {
@@ -606,14 +828,15 @@ class OnnxOcrInferenceEngine implements OcrInferenceEngine {
     InferenceCancellationToken token, {
     required int expectedRank,
     int? expectedChannels,
-  }) async => (await _runOutput(
-    session,
-    input,
-    shape,
-    token,
-    expectedRank: expectedRank,
-    expectedChannels: expectedChannels,
-  )).values;
+  }) async =>
+      (await _runOutput(
+        session,
+        input,
+        shape,
+        token,
+        expectedRank: expectedRank,
+        expectedChannels: expectedChannels,
+      )).values;
 
   Future<_TensorOutput> _runOutput(
     ort.OrtSession session,
@@ -681,6 +904,20 @@ class _RecognizedLine {
 
   final String text;
   final double confidence;
+}
+
+class _RecognizedCandidate {
+  const _RecognizedCandidate(this.box, this.line);
+
+  final _DetectedBox box;
+  final _RecognizedLine line;
+}
+
+class _VerticalMargin {
+  const _VerticalMargin({required this.left, required this.width});
+
+  final int left;
+  final int width;
 }
 
 /// Straigtens a detected text box into an axis-aligned crop by rotating its

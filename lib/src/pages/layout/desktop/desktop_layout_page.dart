@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_resizable_container/flutter_resizable_container.dart';
 import 'package:get/get.dart';
 import 'package:macos_window_utils/widgets/transparent_macos_sidebar.dart';
+import 'package:jhentai/src/model/lan_device_trust.dart';
 import 'package:jhentai/src/pages/home_page.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_home_page.dart';
 import 'package:jhentai/src/pages/layout/desktop/desktop_layout_page_state.dart';
+import 'package:jhentai/src/service/lan_device_trust_service.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
 
 import '../../../config/theme_config.dart';
@@ -12,6 +14,7 @@ import '../../../config/ui_config.dart';
 import '../../../routes/routes.dart';
 import '../../../service/windows_service.dart';
 import '../../../setting/preference_setting.dart';
+import '../../../utils/route_util.dart';
 import '../../blank_page.dart';
 import 'desktop_layout_page_logic.dart';
 
@@ -61,14 +64,22 @@ class DesktopLayoutPage extends StatelessWidget {
           builder: (_) => Padding(
             padding: EdgeInsets.only(
                 top: isMacOS ? UIConfig.desktopTitleBarHeight : 0),
-            child: ScrollConfiguration(
-              behavior: UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
-              child: ListView.builder(
-                controller: state.leftTabBarScrollController,
-                itemCount: state.icons.length,
-                itemExtent: UIConfig.desktopLeftTabBarItemHeight,
-                itemBuilder: _tabBarIcon,
-              ),
+            child: Column(
+              children: [
+                Expanded(
+                  child: ScrollConfiguration(
+                    behavior:
+                        UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
+                    child: ListView.builder(
+                      controller: state.leftTabBarScrollController,
+                      itemCount: state.icons.length,
+                      itemExtent: UIConfig.desktopLeftTabBarItemHeight,
+                      itemBuilder: _tabBarIcon,
+                    ),
+                  ),
+                ),
+                _lanDevicesFooter(context),
+              ],
             ),
           ),
         ),
@@ -85,6 +96,62 @@ class DesktopLayoutPage extends StatelessWidget {
       );
     }
     return bar;
+  }
+
+  /// Shows trusted LAN devices that are currently connected at the bottom of
+  /// the sidebar, so the server host can see which phone is sharing.
+  Widget _lanDevicesFooter(BuildContext context) {
+    return GetBuilder<LanDeviceTrustService>(
+      id: LanDeviceTrustService.devicesChangedId,
+      builder: (service) {
+        if (!service.isEnabled || service.trustedDevices.isEmpty) {
+          return const SizedBox.shrink();
+        }
+        final List<TrustedLanDevice> connected = service.trustedDevices
+            .where(
+              (device) =>
+                  service.connectionFor(device.deviceId).state ==
+                  LanPeerConnectionState.connected,
+            )
+            .toList();
+        if (connected.isEmpty) {
+          return const SizedBox.shrink();
+        }
+        final Color iconColor = Theme.of(context).colorScheme.onSurfaceVariant;
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: connected.map((device) {
+              return InkWell(
+                onTap: () => toRoute(Routes.lanSharing),
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.phone_android, size: 18, color: iconColor),
+                      const SizedBox(height: 2),
+                      SizedBox(
+                        width: 56,
+                        child: Text(
+                          device.displayName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 9),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
   }
 
   Widget _tabBarIcon(BuildContext context, int index) {

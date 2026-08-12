@@ -20,6 +20,7 @@ class EHCodexStyleDropdown<T> extends StatefulWidget {
     this.isExpanded = false,
     this.menuMaxHeight,
     this.enabled = true,
+    this.menuAlignment,
   });
 
   final T? value;
@@ -30,6 +31,16 @@ class EHCodexStyleDropdown<T> extends StatefulWidget {
   final bool isExpanded;
   final double? menuMaxHeight;
   final bool enabled;
+
+  /// Apple-mode only: the expanded glass menu's anchor relative to the trigger.
+  ///
+  /// Every in-app usage of this dropdown sits on the right side of the screen
+  /// (a right-aligned drawer or the trailing of a settings row), so the default
+  /// [GlassMenuAlignment.topRight] anchors the menu's top-right corner to the
+  /// trigger and expands it toward the bottom-left — inside the panel — instead
+  /// of relying on the package's screen-position auto-detection, which can pick
+  /// the opposite side in some windows. Pass another value to override.
+  final GlassMenuAlignment? menuAlignment;
 
   @override
   State<EHCodexStyleDropdown<T>> createState() =>
@@ -64,6 +75,7 @@ class _EHCodexStyleDropdownState<T> extends State<EHCodexStyleDropdown<T>> {
       // finite value is required even when the trigger is full width. For the
       // compact case the menu widens to fit its longest item instead of a
       // fixed 220px that truncates long labels.
+      menuAlignment: widget.menuAlignment ?? GlassMenuAlignment.topRight,
       menuWidth: _menuWidth(),
       trigger: IgnorePointer(
         ignoring: !widget.enabled,

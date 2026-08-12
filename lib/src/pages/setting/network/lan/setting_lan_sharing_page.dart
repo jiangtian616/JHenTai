@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/model/lan_device_trust.dart';
+import 'package:jhentai/src/model/lan_unified_state.dart';
 import 'package:jhentai/src/service/lan_device_trust_service.dart';
 import 'package:jhentai/src/service/lan_unified_state_service.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
@@ -13,6 +14,7 @@ import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/eh_apple_button.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
+import 'package:jhentai/src/widget/lan_trust_dialog.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 class SettingLanSharingPage extends StatelessWidget {
@@ -84,6 +86,14 @@ class SettingLanSharingPage extends StatelessWidget {
                             ),
                           ),
                         Obx(
+                          () => EHAppleSwitchListTile(
+                            title: Text('lanActiveBroadcast'.tr),
+                            subtitle: Text('lanActiveBroadcastHint'.tr),
+                            value: advancedSetting.lanActiveBroadcast.value,
+                            onChanged: advancedSetting.saveLanActiveBroadcast,
+                          ),
+                        ),
+                        Obx(
                           () => advancedSetting.lanServerMode.value
                               ? const SizedBox.shrink()
                               : GetBuilder<LanDeviceTrustService>(
@@ -141,28 +151,39 @@ class SettingLanSharingPage extends StatelessWidget {
                         GetBuilder<LanUnifiedStateService>(
                           id: LanUnifiedStateService.statusChangedId,
                           builder: (sync) {
-                            if (sync.statuses.isEmpty) {
+                            LanUnifiedSyncStatus? login;
+                            LanUnifiedSyncStatus? history;
+                            for (final LanUnifiedSyncStatus status
+                                in sync.statuses) {
+                              if (status.type == 'loginState' && login == null) {
+                                login = status;
+                              }
+                              if (status.type == 'applicationHistory' &&
+                                  history == null) {
+                                history = status;
+                              }
+                            }
+                            if (login == null && history == null) {
                               return ListTile(
                                 title: Text('lanUnifiedStateEmpty'.tr),
                                 subtitle: Text('lanUnifiedStateHint'.tr),
                               );
                             }
                             return Column(
-                              children:
-                                  sync.statuses.take(5).map((status) {
-                                    final String failure =
-                                        status.failureReason == null
-                                            ? ''
-                                            : ' · ${status.failureReason}';
-                                    return ListTile(
-                                      title: Text(
-                                        '${status.type} · ${status.count}',
-                                      ),
-                                      subtitle: Text(
-                                        '${status.sourceDeviceId} · ${DateFormat('yyyy-MM-dd HH:mm').format(status.at.toLocal())}$failure',
-                                      ),
-                                    );
-                                  }).toList(),
+                              children: [
+                                _buildUnifiedStateRow(
+                                  context,
+                                  login,
+                                  'lanUnifiedStateLogin'.tr,
+                                  countIsRecords: false,
+                                ),
+                                _buildUnifiedStateRow(
+                                  context,
+                                  history,
+                                  'lanUnifiedStateHistory'.tr,
+                                  countIsRecords: true,
+                                ),
+                              ],
                             );
                           },
                         ),
@@ -263,6 +284,36 @@ class SettingLanSharingPage extends StatelessWidget {
       return value;
     }
     return '${value.substring(0, 7)}…${value.substring(value.length - 6)}';
+  }
+
+  static Widget _buildUnifiedStateRow(
+    BuildContext context,
+    LanUnifiedSyncStatus? status,
+    String label, {
+    required bool countIsRecords,
+  }) {
+    if (status == null) {
+      return ListTile(
+        title: Text(label),
+        subtitle: Text('lanUnifiedStateNotSynced'.tr),
+      );
+    }
+    final String result = status.count > 0
+        ? (countIsRecords
+              ? '${status.count} ${'lanUnifiedStateRecords'.tr}'
+              : 'lanUnifiedStateSynced'.tr)
+        : 'lanUnifiedStateNotSynced'.tr;
+    final String failure = status.failureReason == null
+        ? ''
+        : ' · ${'lanUnifiedStateFailed'.tr}: ${status.failureReason}';
+    return ListTile(
+      title: Text(label),
+      trailing: Text(
+        DateFormat('HH:mm').format(status.at.toLocal()),
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
+      subtitle: Text('$result$failure'),
+    );
   }
 
   static String _preferredServerLabel(LanDeviceTrustService service) {
@@ -372,10 +423,7 @@ class _IncomingPairingTile extends StatelessWidget {
   }
 
   Future<void> _review(BuildContext context) async {
-    final _TrustDecision? decision = await showDialog<_TrustDecision>(
-      context: context,
-      builder: (context) => _TrustDeviceDialog(peer: request.peer),
-    );
+    final LanTrustDecision? decision = await showLanTrustDialog(request.peer);
     if (decision == null) {
       return;
     }
@@ -418,10 +466,7 @@ class _DiscoveredDeviceTile extends StatelessWidget {
   }
 
   Future<void> _chooseTrust(BuildContext context) async {
-    final _TrustDecision? decision = await showDialog<_TrustDecision>(
-      context: context,
-      builder: (context) => _TrustDeviceDialog(peer: peer),
-    );
+    final LanTrustDecision? decision = await showLanTrustDialog(peer);
     if (decision == null) {
       return;
     }
@@ -440,112 +485,6 @@ class _DiscoveredDeviceTile extends StatelessWidget {
       toast('lanPairingFailed'.tr);
     }
   }
-}
-
-class _TrustDecision {
-  final bool trust;
-  final Set<LanSharePermission> permissions;
-  final bool autoConnect;
-
-  const _TrustDecision({
-    required this.trust,
-    this.permissions = const {},
-    this.autoConnect = true,
-  });
-}
-
-class _TrustDeviceDialog extends StatefulWidget {
-  final LanDiscoveredPeer peer;
-
-  const _TrustDeviceDialog({required this.peer});
-
-  @override
-  State<_TrustDeviceDialog> createState() => _TrustDeviceDialogState();
-}
-
-class _TrustDeviceDialogState extends State<_TrustDeviceDialog> {
-  final Set<LanSharePermission> _permissions = {
-    LanSharePermission.downloads,
-    LanSharePermission.imageCache,
-    LanSharePermission.translationResults,
-  };
-  bool _autoConnect = true;
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(
-        'lanTrustDeviceQuestion'.trParams({'name': widget.peer.displayName}),
-      ),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('lanTrustDeviceWarning'.tr),
-            const SizedBox(height: 12),
-            SelectableText(
-              _formatFingerprint(widget.peer.identityFingerprint),
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 12),
-            ...LanSharePermission.values.map(
-              (permission) => CheckboxListTile(
-                contentPadding: EdgeInsets.zero,
-                dense: true,
-                title: Text('lanPermission_${permission.name}'.tr),
-                value: _permissions.contains(permission),
-                onChanged: (selected) {
-                  setState(() {
-                    if (selected == true) {
-                      _permissions.add(permission);
-                    } else {
-                      _permissions.remove(permission);
-                    }
-                  });
-                },
-              ),
-            ),
-            SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text('lanAutoConnect'.tr),
-              value: _autoConnect,
-              onChanged: (value) => setState(() => _autoConnect = value),
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        EHAppleTextButton(
-          onPressed:
-              () => Navigator.pop(context, const _TrustDecision(trust: false)),
-          child: Text('lanDoNotTrust'.tr),
-        ),
-        EHAppleFilledButton(
-          onPressed:
-              _permissions.isEmpty
-                  ? null
-                  : () => Navigator.pop(
-                    context,
-                    _TrustDecision(
-                      trust: true,
-                      permissions: Set.unmodifiable(_permissions),
-                      autoConnect: _autoConnect,
-                    ),
-                  ),
-          child: Text('lanTrustAndPair'.tr),
-        ),
-      ],
-    );
-  }
-}
-
-String _formatFingerprint(String fingerprint) {
-  final List<String> chunks = [];
-  for (int index = 0; index < fingerprint.length; index += 8) {
-    chunks.add(fingerprint.substring(index, index + 8));
-  }
-  return chunks.join(' ');
 }
 
 class _TrustedDeviceTile extends StatelessWidget {
@@ -593,7 +532,7 @@ class _TrustedDeviceTile extends StatelessWidget {
             ListTile(
               title: Text('lanFingerprint'.tr),
               subtitle: SelectableText(
-                _formatFingerprint(device.identityFingerprint),
+                formatLanFingerprint(device.identityFingerprint),
               ),
             ),
             ListTile(

@@ -40,7 +40,7 @@ class MangaOcrModelEvidence {
       sha256:
           'bf858e9189b66d2da915df36c1a3fa056a0795b9a7948461085dc06216747b9a',
       url:
-          'https://huggingface.co/jgalamba/manga-ocr-kvcache-tflite/resolve/main/encoder_int8.tflite?download=true',
+          'https://hf-mirror.com/jgalamba/manga-ocr-kvcache-tflite/resolve/main/encoder_int8.tflite?download=true',
     ),
     MangaOcrModelArtifactEvidence(
       fileName: 'decoder_cache_fp16.tflite',
@@ -48,21 +48,21 @@ class MangaOcrModelEvidence {
       sha256:
           '4695855693df18652a3b896fe97c492b943cd1128ed461fddd17155320e30025',
       url:
-          'https://huggingface.co/jgalamba/manga-ocr-kvcache-tflite/resolve/main/decoder_cache_fp16.tflite?download=true',
+          'https://hf-mirror.com/jgalamba/manga-ocr-kvcache-tflite/resolve/main/decoder_cache_fp16.tflite?download=true',
     ),
     MangaOcrModelArtifactEvidence(
       fileName: 'mocr2025_vocab.csv',
       sizeBytes: 48468,
       sha256: null,
       url:
-          'https://huggingface.co/jgalamba/manga-ocr-kvcache-tflite/resolve/main/mocr2025_vocab.csv?download=true',
+          'https://hf-mirror.com/jgalamba/manga-ocr-kvcache-tflite/resolve/main/mocr2025_vocab.csv?download=true',
     ),
     MangaOcrModelArtifactEvidence(
       fileName: 'config.json',
       sizeBytes: 2426,
       sha256: null,
       url:
-          'https://huggingface.co/jgalamba/manga-ocr-kvcache-tflite/resolve/main/config.json?download=true',
+          'https://hf-mirror.com/jgalamba/manga-ocr-kvcache-tflite/resolve/main/config.json?download=true',
     ),
   ];
 

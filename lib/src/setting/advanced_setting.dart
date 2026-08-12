@@ -17,7 +17,7 @@ class AdvancedSetting
   RxBool enableCheckUpdate = true.obs;
   RxBool enableCheckClipboard = true.obs;
   RxBool inNoImageMode = false.obs;
-  RxBool enableLanSharing = false.obs;
+  RxBool enableLanSharing = true.obs;
 
   /// When true, the download page's "Local" tab shows the LAN gallery directory
   /// (galleries on connected trusted devices) instead of local files.
@@ -36,6 +36,11 @@ class AdvancedSetting
   /// desktop-only; mobile can remain a foreground client without claiming a
   /// resident server.
   RxBool lanActAsServer = false.obs;
+
+  /// Active broadcast: when this device discovers a new, untrusted LAN device
+  /// it proactively sends it a pairing request instead of waiting for the
+  /// user to trust it manually. The peer still decides whether to accept.
+  RxBool lanActiveBroadcast = false.obs;
 
   /// Empty means no fixed server was selected. A non-empty value is the only
   /// peer eligible for automatic LAN gallery/image requests.
@@ -66,6 +71,8 @@ class AdvancedSetting
     lanPreferredServerDeviceId.value =
         map['lanPreferredServerDeviceId'] as String? ??
         lanPreferredServerDeviceId.value;
+    lanActiveBroadcast.value =
+        map['lanActiveBroadcast'] ?? lanActiveBroadcast.value;
   }
 
   @override
@@ -82,6 +89,7 @@ class AdvancedSetting
       'lanServerMode': lanServerMode.value,
       'lanActAsServer': lanActAsServer.value,
       'lanPreferredServerDeviceId': lanPreferredServerDeviceId.value,
+      'lanActiveBroadcast': lanActiveBroadcast.value,
     });
   }
 
@@ -144,6 +152,12 @@ class AdvancedSetting
   /// and providing its storage/cache role are now one user-facing mode.
   Future<void> saveLanActAsServer(bool value) async {
     await saveLanServerMode(value);
+  }
+
+  Future<void> saveLanActiveBroadcast(bool value) async {
+    log.debug('saveLanActiveBroadcast:$value');
+    lanActiveBroadcast.value = value;
+    await saveBeanConfig();
   }
 
   Future<void> saveLanPreferredServerDeviceId(String value) async {

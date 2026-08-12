@@ -53,27 +53,23 @@ class ApiTranslationEngine
       final List<String> sourceLines = request.blocks
           .map((RecognizedTextBlock block) => block.text.trim())
           .toList(growable: false);
-      final List<RecognizedTextGroup> groups = groupRecognizedTextBlocks(
+      final List<RecognizedTextGroup> groups = translationTextGroups(
         request.blocks,
+        merge: request.mergeTextBlocks,
+        containers: request.containers,
       );
-      final StringBuffer numberedSource = StringBuffer();
-      for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
-        numberedSource.writeln('Group ${groupIndex + 1}:');
-        for (final int blockIndex in groups[groupIndex].blockIndices) {
-          numberedSource.writeln(
-            '${blockIndex + 1}: ${sourceLines[blockIndex]}',
-          );
-        }
-      }
+      final String numberedSource = buildGroupedTranslationSource(
+        request.blocks,
+        groups,
+      );
       const String instruction =
-          'You translate comic dialogue accurately. The input lines are grouped into numbered groups; each group is one '
-          'speech bubble or utterance. Translate each group as a single coherent utterance, combining its line fragments '
-          'into natural phrasing. Preserve line order and line count within each group. '
-          'Return exactly one translated line per input line, numbered the same as the input (e.g. "1: ..."). '
-          'Use continuous numbering across all groups — do not restart the numbers per group. '
-          'Do not add headings, group labels, numbering, or reasoning/think blocks.';
+          'You translate comic dialogue accurately. Each numbered group is one speech bubble or utterance. '
+          'Translate the whole group as one natural, context-aware utterance. Keep names, tone, hesitation, '
+          'sound effects and profanity faithful to the source. Return exactly one translated line per group, '
+          'using the same group number (for example "1: ..."). Do not split a group into extra lines, '
+          'add headings or commentary, or include reasoning/think blocks.';
       final String prompt =
-          'Translate the following comic text into ${request.targetLanguage}. Keep the same line numbers:\n\n$numberedSource';
+          'Translate the following comic text into ${request.targetLanguage}. Keep the same group numbers:\n\n$numberedSource';
       final Dio dio = _dioFactory(
         BaseOptions(
           connectTimeout: const Duration(seconds: 20),
@@ -135,14 +131,21 @@ class ApiTranslationEngine
             engineId: 'api-translation',
           );
         }
-        final List<String> lines = _parseNumberedTranslations(
+        final List<String> groupTranslations = parseNumberedTranslations(
           _stripReasoning(content),
-          sourceLines.length,
+          groups.length,
+          legacyCount: sourceLines.length,
+        );
+        final List<String> lines = expandGroupTranslationsToLines(
+          blocks: request.blocks,
+          groups: groups,
+          groupTranslations: groupTranslations,
         );
         context.report(EngineTaskStage.finalizing, 0.98);
         return TranslationResult(
           translatedText: lines.join('\n'),
           lines: lines,
+          groupTranslations: groupTranslations,
         );
       } on DioException catch (error) {
         if (CancelToken.isCancel(error) || context.cancellation.isCancelled) {
@@ -184,7 +187,12 @@ class ApiTranslationEngine
         (int total, ContextTranslationPageRequest page) =>
             total + page.lines.length,
       );
-      final int maxTokens = (lineCount * 128 + 512).clamp(2048, 8192);
+      // Estimate ~128 tokens per source line. The old 8192 cap truncated the
+      // structured JSON once a batch reached ~60 lines (4 pages of a dense
+      // comic), so every page in the batch failed to parse. Modern API models
+      // allow well above 16k output tokens; a model with a lower cap simply
+      // rejects the request, which the reader's per-page fallback absorbs.
+      final int maxTokens = (lineCount * 128 + 512).clamp(2048, 16384);
       const String instruction =
           'Translate comic dialogue using neighboring pages as context. '
           'Return only one JSON object with a translations array. Every item must contain the exact input pageId and lineId plus translated text. '
@@ -371,33 +379,6 @@ class ApiTranslationEngine
     final dynamic message = choices.first['message'];
     final dynamic content = message is Map ? message['content'] : null;
     return content is String ? content.trim() : null;
-  }
-
-  List<String> _parseNumberedTranslations(String text, int lineCount) {
-    final List<String?> result = List<String?>.filled(lineCount, null);
-    int fallbackIndex = 0;
-    for (final String rawLine in text.split('\n')) {
-      final String line = rawLine.trim();
-      if (line.isEmpty ||
-          RegExp(r'^\s*group\s*\d+', caseSensitive: false).hasMatch(line)) {
-        continue;
-      }
-      final RegExpMatch? match = RegExp(
-        r'^\s*(\d+)\s*[:：.]?\s*(.*)$',
-      ).firstMatch(line);
-      final int? index = match == null ? null : int.tryParse(match.group(1)!);
-      if (index != null && index >= 1 && index <= lineCount) {
-        result[index - 1] = match!.group(2)!.trim();
-        continue;
-      }
-      while (fallbackIndex < lineCount && result[fallbackIndex] != null) {
-        fallbackIndex++;
-      }
-      if (fallbackIndex < lineCount) {
-        result[fallbackIndex++] = line;
-      }
-    }
-    return result.map((String? line) => line ?? '').toList(growable: false);
   }
 
   String _stripReasoning(String text) =>

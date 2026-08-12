@@ -94,4 +94,58 @@ void main() {
     final GlassButton button = tester.widget<GlassButton>(find.byType(GlassButton));
     expect(button.enabled, isFalse);
   });
+
+  testWidgets(
+    'label buttons without an explicit size get a tappable default size',
+    (tester) async {
+      ThemeConfig.appleVisualStyleEnabled = true;
+      await pump(
+        tester,
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Regression: previously the glass branch skipped Material's
+            // 64x40 minimum and applied no padding, so a filled label button
+            // rendered at the raw text size (e.g. a ~28x20 "view" pill in a
+            // LAN sharing row).
+            EHAppleFilledButton(
+              onPressed: () {},
+              child: const Text('查看'),
+            ),
+            const SizedBox(height: 20),
+            EHAppleTextButton(
+              onPressed: () {},
+              child: const Text('取消'),
+            ),
+          ],
+        ),
+      );
+
+      final Size filled = tester.getSize(find.byType(GlassButton).at(0));
+      final Size text = tester.getSize(find.byType(GlassButton).at(1));
+
+      expect(filled.width, greaterThanOrEqualTo(56));
+      expect(filled.height, greaterThanOrEqualTo(36));
+      // Text buttons stay content-sized (transparent label, no pill).
+      expect(text.width, lessThan(40));
+      expect(text.height, lessThan(30));
+    },
+  );
+
+  testWidgets('explicit minimumSize still sizes the glass button exactly', (
+    tester,
+  ) async {
+    ThemeConfig.appleVisualStyleEnabled = true;
+    await pump(
+      tester,
+      EHAppleFilledButton(
+        onPressed: () {},
+        style: FilledButton.styleFrom(minimumSize: const Size(96, 40)),
+        child: const Text('查看'),
+      ),
+    );
+    final Size size = tester.getSize(find.byType(GlassButton));
+    expect(size.width, 96);
+    expect(size.height, 40);
+  });
 }

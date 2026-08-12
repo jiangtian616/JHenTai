@@ -16,6 +16,7 @@ import '../model/gallery_image.dart';
 import '../model/gallery_thumbnail.dart';
 import '../network/eh_request.dart';
 import '../setting/advanced_setting.dart';
+import '../setting/download_setting.dart';
 import '../utils/eh_spider_parser.dart';
 import '../utils/image_cache_util.dart';
 import 'gallery_download_service.dart';
@@ -40,6 +41,7 @@ class LanPendingRequestRegistry<T> {
   final Duration _timeout;
   final Map<String, Completer<T>> _pending = {};
   final Map<String, LanScheduledTask> _timers = {};
+  final Map<String, T> _timeoutValues = {};
 
   LanPendingRequestRegistry({
     required LanTimerScheduler timerScheduler,
@@ -59,9 +61,11 @@ class LanPendingRequestRegistry<T> {
     }
     final Completer<T> completer = Completer<T>();
     _pending[id] = completer;
+    _timeoutValues[id] = timeoutValue;
     _timers[id] = _timerScheduler.schedule(_timeout, () {
       final Completer<T>? current = _pending.remove(id);
       _timers.remove(id);
+      _timeoutValues.remove(id);
       onTimeout?.call();
       if (current != null && !current.isCompleted) {
         current.complete(timeoutValue);
@@ -76,10 +80,31 @@ class LanPendingRequestRegistry<T> {
       return false;
     }
     _timers.remove(id)?.cancel();
+    _timeoutValues.remove(id);
     if (!completer.isCompleted) {
       completer.complete(value);
     }
     return true;
+  }
+
+  /// Extends the deadline of a still-pending request. Used for chunked image
+  /// transfers so a slow-but-progressing stream is not killed by a fixed
+  /// wall-clock timer.
+  void touch(String id) {
+    final LanScheduledTask? current = _timers[id];
+    if (current == null || !_timeoutValues.containsKey(id)) {
+      return;
+    }
+    final T timeoutValue = _timeoutValues[id] as T;
+    current.cancel();
+    _timers[id] = _timerScheduler.schedule(_timeout, () {
+      final Completer<T>? completer = _pending.remove(id);
+      _timers.remove(id);
+      _timeoutValues.remove(id);
+      if (completer != null && !completer.isCompleted) {
+        completer.complete(timeoutValue);
+      }
+    });
   }
 
   void completeAll(T value) {
@@ -87,6 +112,7 @@ class LanPendingRequestRegistry<T> {
       timer.cancel();
     }
     _timers.clear();
+    _timeoutValues.clear();
     for (final Completer<T> completer in _pending.values) {
       if (!completer.isCompleted) {
         completer.complete(value);
@@ -662,9 +688,10 @@ class LanSharingRuntime
           }),
         ),
       );
-      final Map<String, dynamic> authAck = await secureSession.decrypt(
+      // The auth exchange is a single small record, never fragmented.
+      final Map<String, dynamic> authAck = (await secureSession.decrypt(
         await _nextSocketJson(iterator),
-      );
+      ))!;
       if (authAck['type'] != 'auth_ack') {
         throw const FormatException('LAN v2 authentication was not accepted');
       }
@@ -776,9 +803,10 @@ class LanSharingRuntime
           }),
         ),
       );
-      final Map<String, dynamic> ack = await secureSession.decrypt(
+      // The auth exchange is a single small record, never fragmented.
+      final Map<String, dynamic> ack = (await secureSession.decrypt(
         await _nextSocketJson(iterator),
-      );
+      ))!;
       if (ack['type'] != 'auth_ack') {
         throw const FormatException('LAN v2 authentication failed');
       }
@@ -1002,9 +1030,10 @@ class LanSharingRuntime
         transcript: transcript,
         isClient: false,
       );
-      final Map<String, dynamic> auth = await secureSession.decrypt(
+      // The auth exchange is a single small record, never fragmented.
+      final Map<String, dynamic> auth = (await secureSession.decrypt(
         await _nextSocketJson(iterator),
-      );
+      ))!;
       final bool accepted = await trustService.authenticateInbound(
         deviceId: deviceId,
         identityFingerprint: presentedFingerprint,
@@ -1028,6 +1057,11 @@ class LanSharingRuntime
         'type': 'auth_ack',
         'capabilities': serverHello['capabilities'],
       });
+      log.info(
+        'LAN server session accepted: $deviceId '
+        'version=${negotiation!.version} '
+        'caps=${(serverHello['capabilities'] as List? ?? const []).join(',')}',
+      );
       if ((serverHello['capabilities'] as List? ?? const [])
           .whereType<String>()
           .contains(LanComputeRuntime.sessionCapability)) {
@@ -1082,24 +1116,72 @@ class LanSharingRuntime
         final String requestId = message['id'] as String? ?? '';
         final String operation = message['op'] as String? ?? '';
         if (requestId.isEmpty) {
-          throw const FormatException('LAN v2 request id is missing');
+          // A malformed request must not tear down the whole session.
+          await channel.send(<String, dynamic>{
+            'type': 'response',
+            'id': requestId,
+            'op': operation,
+            'ok': false,
+            'error': 'invalid_request',
+          });
+          continue;
         }
-        if (operation == 'list_galleries') {
-          await _handleV2ListGalleries(channel, deviceId, requestId, message);
-        } else if (operation == 'gallery_manifest') {
-          await _handleV2GalleryManifest(channel, deviceId, requestId, message);
-        } else if (operation == 'cache_image') {
-          unawaited(
-            _imageTasks.run(
-              () => _handleV2Image(channel, deviceId, requestId, message),
-            ),
-          );
-        } else if (operation == 'login_state') {
-          await _handleV2LoginState(channel, deviceId, requestId);
-        } else if (operation == 'application_history') {
-          await _handleV2ApplicationHistory(channel, deviceId, requestId);
+        try {
+          if (operation == 'list_galleries') {
+            await _handleV2ListGalleries(channel, deviceId, requestId, message);
+          } else if (operation == 'gallery_manifest') {
+            await _handleV2GalleryManifest(
+              channel,
+              deviceId,
+              requestId,
+              message,
+            );
+          } else if (operation == 'cache_image') {
+            unawaited(
+              _imageTasks
+                  .run(
+                    () => _handleV2Image(channel, deviceId, requestId, message),
+                  )
+                  // A mid-transfer failure (peer dropped the socket, read
+                  // error) must not surface as an unhandled zone error.
+                  .catchError(_logV2HandlerFailure),
+            );
+          } else if (operation == 'login_state') {
+            await _handleV2LoginState(channel, deviceId, requestId);
+          } else if (operation == 'application_history') {
+            await _handleV2ApplicationHistory(channel, deviceId, requestId);
+          } else if (operation == 'download_gallery') {
+            await _handleV2DownloadGallery(channel, deviceId, requestId, message);
+          } else if (operation == 'upload_cache') {
+            await _handleV2UploadCache(channel, deviceId, requestId, message);
+          } else if (operation == 'push_history') {
+            await _handleV2PushHistory(channel, deviceId, requestId, message);
+          } else if (operation == 'push_login_state') {
+            await _handleV2PushLoginState(channel, deviceId, requestId, message);
+          } else {
+            log.debug(
+              'LAN unknown v2 op from $deviceId: $operation '
+              '(type=${message['type']})',
+            );
+          }
+        } on Object catch (error) {
+          // One failing handler must not close the session on the peer —
+          // report the request as failed and keep serving the rest.
+          _logV2HandlerFailure(error);
+          try {
+            await channel.send(<String, dynamic>{
+              'type': 'response',
+              'id': requestId,
+              'op': operation,
+              'ok': false,
+              'error': 'handler_failed',
+            });
+          } on Object {
+            // The socket is already gone; the receive loop exits on its own.
+          }
         }
       }
+      log.info('LAN server session closed: $deviceId');
       secureSession.close();
     } finally {
       await computeRuntime?.close();
@@ -1167,7 +1249,14 @@ class LanSharingRuntime
     final Map<String, dynamic> params = Map<String, dynamic>.from(
       request['params'] as Map? ?? const <String, dynamic>{},
     );
-    if (params['knownRevision'] == revision) {
+    final int cursor = max(0, (params['cursor'] as num?)?.toInt() ?? 0);
+    final int limit = ((params['limit'] as num?)?.toInt() ?? 50).clamp(1, 100);
+    // A peer that already holds the latest revision and is starting a fresh
+    // fetch (no cursor) needs nothing new. Mid-pagination (cursor > 0) must
+    // keep serving the requested slice even when the revision is unchanged,
+    // otherwise a host with more galleries than one page never finishes
+    // listing.
+    if (cursor == 0 && params['knownRevision'] == revision) {
       await channel.send(<String, dynamic>{
         'type': 'response',
         'id': requestId,
@@ -1183,8 +1272,6 @@ class LanSharingRuntime
       });
       return;
     }
-    final int cursor = max(0, (params['cursor'] as num?)?.toInt() ?? 0);
-    final int limit = ((params['limit'] as num?)?.toInt() ?? 50).clamp(1, 100);
     final int end = min(cursor + limit, summaries.length);
     final LanSharedGalleryPage page = LanSharedGalleryPage(
       revision: revision,
@@ -1240,6 +1327,10 @@ class LanSharingRuntime
     final TrustedLanDevice? device = trustService.deviceById(deviceId);
     if (device == null ||
         !device.permissions.contains(LanSharePermission.loginState)) {
+      log.warning(
+        'LAN login_state denied for $deviceId '
+        '(permission_denied, device=${device != null})',
+      );
       await channel.send(<String, dynamic>{
         'type': 'response',
         'id': requestId,
@@ -1251,6 +1342,10 @@ class LanSharingRuntime
     }
     final LanLoginStateSnapshot? snapshot = await lanUnifiedStateService
         .exportLoginState(sourceDeviceId: trustService.localDeviceId);
+    log.info(
+      'LAN login_state served to $deviceId: '
+      '${snapshot == null ? 'no snapshot' : 'account ${snapshot.accountId}'}',
+    );
     await channel.send(<String, dynamic>{
       'type': 'response',
       'id': requestId,
@@ -1268,6 +1363,17 @@ class LanSharingRuntime
     });
   }
 
+  /// Logs a v2 request-handler failure without letting the logger itself take
+  /// down the session — `log.warning` is async and can throw when the log
+  /// directory has not been initialized yet.
+  void _logV2HandlerFailure(Object error) {
+    unawaited(
+      log
+          .warning('LAN v2 handler failed: $error')
+          .catchError((Object _) {}),
+    );
+  }
+
   Future<void> _handleV2ApplicationHistory(
     _LanV2SocketChannel channel,
     String deviceId,
@@ -1276,6 +1382,10 @@ class LanSharingRuntime
     final TrustedLanDevice? device = trustService.deviceById(deviceId);
     if (device == null ||
         !device.permissions.contains(LanSharePermission.applicationHistory)) {
+      log.warning(
+        'LAN application_history denied for $deviceId '
+        '(permission_denied, device=${device != null})',
+      );
       await channel.send(<String, dynamic>{
         'type': 'response',
         'id': requestId,
@@ -1287,6 +1397,10 @@ class LanSharingRuntime
     }
     final LanUnifiedStatePayload payload = await lanUnifiedStateService
         .exportHistory(sourceDeviceId: trustService.localDeviceId);
+    log.info(
+      'LAN application_history served to $deviceId: '
+      '${payload.records.length} records',
+    );
     await channel.send(<String, dynamic>{
       'type': 'response',
       'id': requestId,
@@ -1294,6 +1408,277 @@ class LanSharingRuntime
       'ok': true,
       'data': payload.toJson(),
     });
+  }
+
+  /// Imports an application-history payload a peer pushed back after pulling,
+  /// so both devices end up with both sides' histories.
+  Future<void> _handleV2PushHistory(
+    _LanV2SocketChannel channel,
+    String deviceId,
+    String requestId,
+    Map<String, dynamic> request,
+  ) async {
+    final TrustedLanDevice? device = trustService.deviceById(deviceId);
+    if (device == null ||
+        !device.permissions.contains(LanSharePermission.applicationHistory)) {
+      log.warning(
+        'LAN push_history denied for $deviceId '
+        '(permission_denied, device=${device != null})',
+      );
+      await channel.send(<String, dynamic>{
+        'type': 'response',
+        'id': requestId,
+        'op': 'push_history',
+        'ok': false,
+        'error': 'permission_denied',
+      });
+      return;
+    }
+    try {
+      final LanUnifiedStatePayload payload = LanUnifiedStatePayload.fromJson(
+        Map<String, dynamic>.from(
+          request['params'] as Map? ?? const <String, dynamic>{},
+        ),
+      );
+      final int imported = await lanUnifiedStateService.importHistory(payload);
+      log.info(
+        'LAN push_history imported from $deviceId: $imported records',
+      );
+      await channel.send(<String, dynamic>{
+        'type': 'response',
+        'id': requestId,
+        'op': 'push_history',
+        'ok': true,
+      });
+    } on Object catch (error) {
+      _logV2HandlerFailure(error);
+      await channel.send(<String, dynamic>{
+        'type': 'response',
+        'id': requestId,
+        'op': 'push_history',
+        'ok': false,
+        'error': 'import_failed',
+      });
+    }
+  }
+
+  /// Imports a login-state snapshot a trusted peer pushed so an unlogged
+  /// device adopts the account even when the peer initiated the connection.
+  Future<void> _handleV2PushLoginState(
+    _LanV2SocketChannel channel,
+    String deviceId,
+    String requestId,
+    Map<String, dynamic> request,
+  ) async {
+    final TrustedLanDevice? device = trustService.deviceById(deviceId);
+    if (device == null ||
+        !device.permissions.contains(LanSharePermission.loginState)) {
+      log.warning(
+        'LAN push_login_state denied for $deviceId '
+        '(permission_denied, device=${device != null})',
+      );
+      await channel.send(<String, dynamic>{
+        'type': 'response',
+        'id': requestId,
+        'op': 'push_login_state',
+        'ok': false,
+        'error': 'permission_denied',
+      });
+      return;
+    }
+    try {
+      final LanLoginStateSnapshot snapshot = LanLoginStateSnapshot.fromJson(
+        Map<String, dynamic>.from(
+          request['params'] as Map? ?? const <String, dynamic>{},
+        ),
+      );
+      final LanLoginImportResult result = await lanUnifiedStateService
+          .importLoginState(snapshot);
+      log.info(
+        'LAN push_login_state from $deviceId: ${result.outcome.name}',
+      );
+      await channel.send(<String, dynamic>{
+        'type': 'response',
+        'id': requestId,
+        'op': 'push_login_state',
+        'ok': true,
+      });
+    } on Object catch (error) {
+      _logV2HandlerFailure(error);
+      await channel.send(<String, dynamic>{
+        'type': 'response',
+        'id': requestId,
+        'op': 'push_login_state',
+        'ok': false,
+        'error': 'import_failed',
+      });
+    }
+  }
+
+  /// Commands this device to download a gallery on behalf of a trusted peer —
+  /// the LAN "remote download" path, so an offline phone can queue a download
+  /// that runs on the logged-in desktop host.
+  Future<void> _handleV2DownloadGallery(
+    _LanV2SocketChannel channel,
+    String deviceId,
+    String requestId,
+    Map<String, dynamic> request,
+  ) async {
+    final TrustedLanDevice? device = trustService.deviceById(deviceId);
+    if (device == null ||
+        !device.permissions.contains(LanSharePermission.downloads)) {
+      log.warning(
+        'LAN download_gallery denied for $deviceId '
+        '(permission_denied, device=${device != null})',
+      );
+      await channel.send(<String, dynamic>{
+        'type': 'response',
+        'id': requestId,
+        'op': 'download_gallery',
+        'ok': false,
+        'error': 'permission_denied',
+      });
+      return;
+    }
+    final Map<String, dynamic> params = Map<String, dynamic>.from(
+      request['params'] as Map? ?? const <String, dynamic>{},
+    );
+    final int? gid = (params['gid'] as num?)?.toInt();
+    final String galleryUrl = params['galleryUrl'] as String? ?? '';
+    if (gid == null || galleryUrl.isEmpty) {
+      await channel.send(<String, dynamic>{
+        'type': 'response',
+        'id': requestId,
+        'op': 'download_gallery',
+        'ok': false,
+        'error': 'invalid_gallery',
+      });
+      return;
+    }
+    try {
+      final GalleryDownloadedData gallery = GalleryDownloadedData(
+        gid: gid,
+        token: params['token'] as String? ?? '',
+        title: params['title'] as String? ?? 'Gallery $gid',
+        category: params['category'] as String? ?? '',
+        pageCount: (params['pageCount'] as num?)?.toInt() ?? 0,
+        galleryUrl: galleryUrl,
+        uploader: params['uploader'] as String?,
+        publishTime: params['publishTime'] as String? ?? '',
+        downloadStatusIndex: DownloadStatus.downloading.index,
+        downloadOriginalImage:
+            params['downloadOriginalImage'] as bool? ??
+            downloadSetting.downloadOriginalImageByDefault.value,
+        sortOrder: 0,
+        groupName: downloadSetting.defaultGalleryGroup.value ?? '',
+        insertTime: DateTime.now().toString(),
+        priority: GalleryDownloadService.defaultDownloadGalleryPriority,
+        tags:
+            (params['tags'] as List? ?? const <dynamic>[])
+                .whereType<String>()
+                .join(', '),
+        tagRefreshTime: DateTime.now().toString(),
+      );
+      await galleryDownloadService.downloadGallery(gallery);
+      galleryDownloadService.remoteDownloadSources[gid] =
+          trustService.deviceById(deviceId)?.displayName ?? deviceId;
+      log.info(
+        'LAN remote download started for $deviceId: gid $gid '
+        '"${gallery.title}"',
+      );
+      await channel.send(<String, dynamic>{
+        'type': 'response',
+        'id': requestId,
+        'op': 'download_gallery',
+        'ok': true,
+      });
+    } on Object catch (error) {
+      _logV2HandlerFailure(error);
+      await channel.send(<String, dynamic>{
+        'type': 'response',
+        'id': requestId,
+        'op': 'download_gallery',
+        'ok': false,
+        'error': 'download_failed',
+      });
+    }
+  }
+
+  /// Stores a cache file a peer pushed so this device can serve it later
+  /// (the "move cache to server" flow). The peer sends the cache key and the
+  /// file bytes; the host writes them into its own image cache directory.
+  Future<void> _handleV2UploadCache(
+    _LanV2SocketChannel channel,
+    String deviceId,
+    String requestId,
+    Map<String, dynamic> request,
+  ) async {
+    final TrustedLanDevice? device = trustService.deviceById(deviceId);
+    if (device == null ||
+        !device.permissions.contains(LanSharePermission.imageCache)) {
+      await channel.send(<String, dynamic>{
+        'type': 'response',
+        'id': requestId,
+        'op': 'upload_cache',
+        'ok': false,
+        'error': 'permission_denied',
+      });
+      return;
+    }
+    final Map<String, dynamic> params = Map<String, dynamic>.from(
+      request['params'] as Map? ?? const <String, dynamic>{},
+    );
+    final String key = params['key'] as String? ?? '';
+    final List<int> bytes = _decodeBytes(params['data'] as String? ?? '');
+    final String? cacheDirectory =
+        _imageCacheDirectoryOverride ?? extendedImageDiskCacheDirectory;
+    if (key.isEmpty ||
+        key.contains('/') ||
+        key.contains('..') ||
+        bytes.isEmpty ||
+        cacheDirectory == null) {
+      await channel.send(<String, dynamic>{
+        'type': 'response',
+        'id': requestId,
+        'op': 'upload_cache',
+        'ok': false,
+        'error': 'invalid_cache',
+      });
+      return;
+    }
+    try {
+      final File target = File(path.join(cacheDirectory, key));
+      await target.parent.create(recursive: true);
+      final File temporary = File(
+        '${target.path}.lan-${DateTime.now().microsecondsSinceEpoch}',
+      );
+      try {
+        await temporary.writeAsBytes(bytes, flush: true);
+        await temporary.rename(target.path);
+      } finally {
+        if (await temporary.exists()) {
+          await temporary.delete();
+        }
+      }
+      log.info(
+        'LAN cache uploaded from $deviceId: $key ${bytes.length} bytes',
+      );
+      await channel.send(<String, dynamic>{
+        'type': 'response',
+        'id': requestId,
+        'op': 'upload_cache',
+        'ok': true,
+      });
+    } on Object catch (error) {
+      _logV2HandlerFailure(error);
+      await channel.send(<String, dynamic>{
+        'type': 'response',
+        'id': requestId,
+        'op': 'upload_cache',
+        'ok': false,
+        'error': 'upload_failed',
+      });
+    }
   }
 
   Future<void> _handleV2Image(
@@ -1344,6 +1729,10 @@ class LanSharingRuntime
               _resolveLocalDownload(galleryUrl, pageIndex));
     }
     if (shared == null || shared.bytes.isEmpty) {
+      log.debug(
+        'LAN image miss for $deviceId: $href '
+        '(gallery=$galleryUrl page=$pageIndex)',
+      );
       await channel.send(<String, dynamic>{
         'type': 'image_miss',
         'id': requestId,
@@ -1374,6 +1763,9 @@ class LanSharingRuntime
       });
     }
     trustService.recordTrafficSent(shared.bytes.length);
+    log.debug(
+      'LAN image served to $deviceId: $href ${shared.bytes.length} bytes',
+    );
   }
 
   Future<LanGalleryManifest?> _buildGalleryManifest(String galleryUrl) async {
@@ -1474,7 +1866,20 @@ class LanSharingRuntime
         final File target = File(path.join(cacheDirectory, cacheKey));
         try {
           await target.parent.create(recursive: true);
-          await target.writeAsBytes(bytes, flush: true);
+          // Write atomically (temp + rename) so a concurrent reader of the
+          // same cache file — e.g. the host's own extended_image while it
+          // renders the same page — never observes a torn file.
+          final File temporary = File(
+            '${target.path}.lan-${DateTime.now().microsecondsSinceEpoch}',
+          );
+          try {
+            await temporary.writeAsBytes(bytes, flush: true);
+            await temporary.rename(target.path);
+          } finally {
+            if (await temporary.exists()) {
+              await temporary.delete();
+            }
+          }
           log.debug('LAN server mode cached: ${_canonicalImagePageKey(href)}');
           return LanSharedImage(image: image.toJson(), bytes: bytes);
         } on Object catch (error, stack) {
@@ -1541,11 +1946,13 @@ class LanSharingRuntime
     log.debug('LAN download hit: $galleryUrl #$pageIndex');
     return LanSharedImage(
       // The peer must treat the image as a plain online image, not inherit the
-      // host's on-disk path.
+      // host's on-disk path. `copyWith(path: null)` keeps the old path
+      // (`path ?? this.path`), so strip it from the serialized map explicitly.
       image:
           image
-              .copyWith(path: null, downloadStatus: DownloadStatus.none)
-              .toJson(),
+              .copyWith(downloadStatus: DownloadStatus.none)
+              .toJson()
+            ..['path'] = null,
       bytes: await file.readAsBytes(),
     );
   }
@@ -1815,24 +2222,36 @@ class _LanV2SocketChannel {
 
   Future<void> send(Map<String, dynamic> payload) {
     final Future<void> next = _sendTail.then((_) async {
-      socket.add(jsonEncode(await secureSession.encrypt(payload)));
+      final List<Map<String, dynamic>> records =
+          await secureSession.encryptChunked(payload);
+      for (final Map<String, dynamic> record in records) {
+        socket.add(jsonEncode(record));
+      }
     });
     _sendTail = next.catchError((Object _) {});
     return next;
   }
 
   Future<Map<String, dynamic>?> receive() async {
-    if (!await iterator.moveNext()) {
-      return null;
+    while (true) {
+      if (!await iterator.moveNext()) {
+        return null;
+      }
+      if (iterator.current is! String) {
+        throw const FormatException('LAN v2 record must be JSON text');
+      }
+      final dynamic decoded = jsonDecode(iterator.current as String);
+      if (decoded is! Map) {
+        throw const FormatException('LAN v2 record must be an object');
+      }
+      final Map<String, dynamic>? payload = await secureSession.decrypt(
+        Map<String, dynamic>.from(decoded),
+      );
+      if (payload != null) {
+        return payload;
+      }
+      // Intermediate fragment — keep reading until the payload is assembled.
     }
-    if (iterator.current is! String) {
-      throw const FormatException('LAN v2 record must be JSON text');
-    }
-    final dynamic decoded = jsonDecode(iterator.current as String);
-    if (decoded is! Map) {
-      throw const FormatException('LAN v2 record must be an object');
-    }
-    return secureSession.decrypt(Map<String, dynamic>.from(decoded));
   }
 }
 
@@ -1854,6 +2273,7 @@ class _WebSocketLanPeerSession
   final LanPendingRequestRegistry<LanSharedGalleryPage> _pendingGalleryPages;
   final LanPendingRequestRegistry<LanGalleryManifest?> _pendingManifests;
   final LanPendingRequestRegistry<LanUnifiedStatePayload?> _pendingUnifiedState;
+  final LanPendingRequestRegistry<bool> _pendingDownloads;
   final LanSecureSession? _secureSession;
   late final LanComputeClientRuntime _computeRuntime;
   int _nextRequestId = 0;
@@ -1895,7 +2315,11 @@ class _WebSocketLanPeerSession
            LanPendingRequestRegistry<LanUnifiedStatePayload?>(
              timerScheduler: timerScheduler,
              timeout: LanSharingRuntime.pendingRequestTimeout,
-           ) {
+           ),
+       _pendingDownloads = LanPendingRequestRegistry<bool>(
+         timerScheduler: timerScheduler,
+         timeout: LanSharingRuntime.pendingRequestTimeout,
+       ) {
     _computeRuntime = LanComputeClientRuntime(
       peerSupportsCompute: _capabilities.contains(
         LanComputeRuntime.sessionCapability,
@@ -1912,6 +2336,7 @@ class _WebSocketLanPeerSession
   Future<void> get closed => _closed.future;
 
   Future<void> _drain() async {
+    Object? failure;
     try {
       while (await _iterator.moveNext()) {
         final dynamic message = _iterator.current;
@@ -1923,9 +2348,12 @@ class _WebSocketLanPeerSession
           if (decoded is! Map) {
             throw const FormatException('LAN v2 response record is invalid');
           }
-          await _handleSecureMessage(
-            await _secureSession.decrypt(Map<String, dynamic>.from(decoded)),
+          final Map<String, dynamic>? payload = await _secureSession.decrypt(
+            Map<String, dynamic>.from(decoded),
           );
+          if (payload != null) {
+            await _handleSecureMessage(payload);
+          }
           continue;
         }
         if (message is List<int>) {
@@ -1975,6 +2403,10 @@ class _WebSocketLanPeerSession
           );
         }
       }
+    } on Object catch (error, stack) {
+      failure = error;
+      _logWarningSafe('LAN client session read ended with error: $error');
+      unawaited(log.trace(stack).catchError((Object _) {}));
     } finally {
       await _iterator.cancel();
       _pending.completeAll(null);
@@ -1988,12 +2420,24 @@ class _WebSocketLanPeerSession
       );
       _pendingManifests.completeAll(null);
       _pendingUnifiedState.completeAll(null);
+      _pendingDownloads.completeAll(false);
       await _computeRuntime.close();
       _secureSession?.close();
+      _logWarningSafe(
+        failure == null
+            ? 'LAN client session read loop ended'
+            : 'LAN client session closed after error: $failure',
+      );
       if (!_closed.isCompleted) {
         _closed.complete();
       }
     }
+  }
+
+  /// Logs a warning without letting the logger take down the receive loop —
+  /// `log.warning` is async and can throw before the log directory is ready.
+  void _logWarningSafe(String message) {
+    unawaited(log.warning(message).catchError((Object _) {}));
   }
 
   @override
@@ -2014,6 +2458,10 @@ class _WebSocketLanPeerSession
           _pendingBinaryRequestId = null;
           _pendingBinaryImage = null;
         }
+        // The secure assembly buffers every late chunk until the final one;
+        // drop it on timeout so a slow transfer the caller already gave up on
+        // does not keep buffering the whole image in RAM.
+        _pendingSecureImages.remove(id);
       },
     );
     if (_secureSession != null) {
@@ -2118,6 +2566,93 @@ class _WebSocketLanPeerSession
   }
 
   @override
+  Future<bool> requestDownloadGallery(LanRemoteDownloadRequest request) async {
+    if (_secureSession == null) {
+      return false;
+    }
+    final String id = 'd${++_nextRequestId}';
+    final Future<bool> future = _pendingDownloads.register(
+      id,
+      timeoutValue: false,
+    );
+    unawaited(
+      _sendSecure(<String, dynamic>{
+        'type': 'request',
+        'id': id,
+        'op': 'download_gallery',
+        'params': request.toJson(),
+      }),
+    );
+    return future;
+  }
+
+  @override
+  Future<bool> pushCacheFile(String key, List<int> bytes) async {
+    if (_secureSession == null || bytes.isEmpty) {
+      return false;
+    }
+    final String id = 'u${++_nextRequestId}';
+    final Future<bool> future = _pendingDownloads.register(
+      id,
+      timeoutValue: false,
+    );
+    unawaited(
+      _sendSecure(<String, dynamic>{
+        'type': 'request',
+        'id': id,
+        'op': 'upload_cache',
+        'params': <String, dynamic>{
+          'key': key,
+          'data': base64UrlEncode(bytes).replaceAll('=', ''),
+        },
+      }),
+    );
+    return future;
+  }
+
+  @override
+  Future<bool> pushHistory(LanUnifiedStatePayload payload) async {
+    if (_secureSession == null) {
+      return false;
+    }
+    final String id = 'p${++_nextRequestId}';
+    final Future<bool> future = _pendingDownloads.register(
+      id,
+      timeoutValue: false,
+    );
+    unawaited(
+      _sendSecure(<String, dynamic>{
+        'type': 'request',
+        'id': id,
+        'op': 'push_history',
+        'params': payload.toJson(),
+      }),
+    );
+    return future;
+  }
+
+  @override
+  Future<bool> pushLoginState(LanLoginStateSnapshot snapshot) async {
+    if (_secureSession == null) {
+      return false;
+    }
+    final String id = 'l${++_nextRequestId}';
+    final Future<bool> future = _pendingDownloads.register(
+      id,
+      timeoutValue: false,
+    );
+    unawaited(
+      _sendSecure(<String, dynamic>{
+        'type': 'request',
+        'id': id,
+        'op': 'push_login_state',
+        'params': snapshot.toJson(),
+      }),
+    );
+    return future;
+  }
+
+  @override
   Future<LanLoginStateSnapshot?> requestLoginState() async {
     if (_secureSession == null || !_capabilities.contains('loginStateV1')) {
       return null;
@@ -2158,7 +2693,11 @@ class _WebSocketLanPeerSession
 
   Future<void> _sendSecure(Map<String, dynamic> payload) {
     final Future<void> next = _secureSendTail.then((_) async {
-      _socket.add(jsonEncode(await _secureSession!.encrypt(payload)));
+      final List<Map<String, dynamic>> records = await _secureSession!
+          .encryptChunked(payload);
+      for (final Map<String, dynamic> record in records) {
+        _socket.add(jsonEncode(record));
+      }
     });
     _secureSendTail = next.catchError((Object _) {});
     return next;
@@ -2181,6 +2720,8 @@ class _WebSocketLanPeerSession
         image: Map<String, dynamic>.from(message['image'] as Map? ?? const {}),
         byteLength: (message['byteLength'] as num?)?.toInt() ?? 0,
       );
+      // The transfer is alive; drop the fixed no-activity deadline.
+      _pending.touch(id);
       return;
     }
     if (type == 'image_chunk') {
@@ -2192,6 +2733,9 @@ class _WebSocketLanPeerSession
       if (index != assembly.nextIndex) {
         throw const FormatException('LAN v2 image chunks are out of order');
       }
+      // Keep extending the deadline while chunks keep arriving, so a large or
+      // slow image is not spuriously reported as a cache miss.
+      _pending.touch(id);
       assembly.bytes.addAll(_decodeBytes(message['data'] as String? ?? ''));
       assembly.nextIndex++;
       if (message['final'] == true) {
@@ -2209,10 +2753,26 @@ class _WebSocketLanPeerSession
       }
       return;
     }
-    if (type != 'response' || message['ok'] != true) {
+    if (type != 'response') {
       return;
     }
     final String op = message['op'] as String? ?? '';
+    if (message['ok'] != true) {
+      // An explicit error response (permission denied, unknown gallery) should
+      // complete the pending request as a miss instead of leaving it to sit
+      // until its timeout fires.
+      if (op == 'gallery_manifest') {
+        _pendingManifests.complete(id, null);
+      } else if (op == 'login_state' || op == 'application_history') {
+        _pendingUnifiedState.complete(id, null);
+      } else if (op == 'download_gallery' ||
+          op == 'upload_cache' ||
+          op == 'push_history' ||
+          op == 'push_login_state') {
+        _pendingDownloads.complete(id, false);
+      }
+      return;
+    }
     if (op == 'list_galleries') {
       final LanSharedGalleryPage page = LanSharedGalleryPage.fromJson(
         Map<String, dynamic>.from(message['data'] as Map? ?? const {}),
@@ -2234,6 +2794,11 @@ class _WebSocketLanPeerSession
             )
             : null,
       );
+    } else if (op == 'download_gallery' ||
+        op == 'upload_cache' ||
+        op == 'push_history' ||
+        op == 'push_login_state') {
+      _pendingDownloads.complete(id, true);
     }
   }
 

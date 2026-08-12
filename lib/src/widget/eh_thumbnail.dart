@@ -1,11 +1,14 @@
+import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery_thumbnail.dart';
 
 import '../model/gallery_image.dart';
+import '../service/log.dart';
 import '../service/reader_thumbnail_request_controller.dart';
 import 'eh_image.dart';
 
@@ -34,6 +37,15 @@ class _EHThumbnailState extends State<EHThumbnail> {
   late ReaderThumbnailRequestToken _requestToken;
   int _attempt = 0;
 
+  /// Whether this thumbnail currently holds a [ThumbnailLoadGate] slot.
+  bool _holdingPermit = false;
+
+  /// Whether this thumbnail is queued in [ThumbnailLoadGate]'s waiters.
+  bool _waitingForPermit = false;
+
+  /// Scroll position this thumbnail listens to, to re-rank its gate priority.
+  ScrollPosition? _scrollPosition;
+
   String get _identity => _thumbnailIdentity(widget.thumbnail);
 
   @override
@@ -43,11 +55,74 @@ class _EHThumbnailState extends State<EHThumbnail> {
     _cancelToken = CancellationToken();
     _requestController = ReaderThumbnailRequestController(
       onRetryRequested: _restartProviderAttempt,
-      onAttemptTimedOut:
-          (_) => _cancelToken.cancel('thumbnail watchdog timeout'),
+      onAttemptTimedOut: (_) {
+        log.warning(
+          'Thumbnail watchdog timed out: $_requestIdentity',
+        );
+        _cancelToken.cancel('thumbnail watchdog timeout');
+      },
       onStatusChanged: (_) => _scheduleRebuild(),
     );
     _requestToken = _requestController.start(_requestIdentity);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _attachScrollPosition();
+  }
+
+  /// Listens to the enclosing scrollable so the gate priority follows the
+  /// user's scroll position.
+  void _attachScrollPosition() {
+    final ScrollPosition? position = Scrollable.maybeOf(context)?.position;
+    if (position == _scrollPosition) {
+      return;
+    }
+    _scrollPosition?.removeListener(_onScroll);
+    _scrollPosition = position;
+    position?.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (!mounted || _holdingPermit || !_waitingForPermit) {
+      return;
+    }
+    ThumbnailLoadGate.updatePriority(_requestIdentity, _viewportDistance());
+  }
+
+  /// Distance from this thumbnail to the enclosing viewport, in pixels. 0 when
+  /// it overlaps the viewport. Used as the [ThumbnailLoadGate] priority so the
+  /// thumbnails the user is looking at load first.
+  double _viewportDistance() {
+    final RenderObject? renderObject = context.findRenderObject();
+    if (renderObject == null ||
+        !renderObject.attached ||
+        renderObject is! RenderBox ||
+        !renderObject.hasSize) {
+      return double.maxFinite;
+    }
+    final RenderAbstractViewport? viewport = RenderAbstractViewport.maybeOf(
+      renderObject,
+    );
+    if (viewport == null || viewport is! RenderBox) {
+      return 0;
+    }
+    final RenderBox viewportBox = viewport as RenderBox;
+    final Rect bounds = MatrixUtils.transformRect(
+      renderObject.getTransformTo(viewportBox),
+      renderObject.paintBounds,
+    );
+    final Rect viewportRect = Offset.zero & viewportBox.size;
+    final double dx = max(
+      0,
+      max(viewportRect.left - bounds.right, bounds.left - viewportRect.right),
+    );
+    final double dy = max(
+      0,
+      max(viewportRect.top - bounds.bottom, bounds.top - viewportRect.bottom),
+    );
+    return dx + dy;
   }
 
   @override
@@ -60,6 +135,7 @@ class _EHThumbnailState extends State<EHThumbnail> {
 
     _cancelToken.cancel('thumbnail request replaced');
     _requestController.cancel();
+    _releasePermit();
     _requestIdentity = nextIdentity;
     _attempt = 0;
     _cancelToken = CancellationToken();
@@ -68,6 +144,8 @@ class _EHThumbnailState extends State<EHThumbnail> {
 
   @override
   void dispose() {
+    _scrollPosition?.removeListener(_onScroll);
+    _releasePermit();
     _cancelToken.cancel('thumbnail disposed');
     _requestController.dispose();
     super.dispose();
@@ -76,9 +154,51 @@ class _EHThumbnailState extends State<EHThumbnail> {
   @override
   Widget build(BuildContext context) {
     if (_requestController.status == ReaderThumbnailLoadStatus.failed) {
+      _releasePermit();
       return _buildFailurePlaceholder();
     }
+    if (_requestController.status == ReaderThumbnailLoadStatus.completed) {
+      // Already loaded — render from cache without holding a load slot.
+      _releasePermit();
+      return _buildThumbnailImage();
+    }
+    if (!_holdingPermit) {
+      if (ThumbnailLoadGate.tryAcquire()) {
+        _holdingPermit = true;
+      } else if (!_waitingForPermit) {
+        // All load slots busy — wait on a static placeholder. The gate picks
+        // the waiter closest to the viewport next, so scrolling re-ranks us.
+        _waitingForPermit = true;
+        final double distance = _viewportDistance();
+        ThumbnailLoadGate.whenAvailable(_requestIdentity, distance, () {
+          _waitingForPermit = false;
+          if (mounted) {
+            _holdingPermit = true;
+            setState(() {});
+          } else {
+            ThumbnailLoadGate.release();
+          }
+        });
+        return _buildQueuedPlaceholder(context);
+      } else {
+        return _buildQueuedPlaceholder(context);
+      }
+    }
+    return _buildThumbnailImage();
+  }
 
+  void _releasePermit() {
+    if (_holdingPermit) {
+      _holdingPermit = false;
+      ThumbnailLoadGate.release();
+    }
+  }
+
+  Widget _buildQueuedPlaceholder(BuildContext context) {
+    return Container(color: Theme.of(context).scaffoldBackgroundColor);
+  }
+
+  Widget _buildThumbnailImage() {
     final GalleryThumbnail thumbnail = widget.thumbnail;
     final ReaderThumbnailRequestToken token = _requestToken;
     return EHImage(
@@ -98,11 +218,17 @@ class _EHThumbnailState extends State<EHThumbnail> {
         return Center(child: _loadingWidget(context));
       },
       failedWidgetBuilder: (state) {
+        log.warning(
+          'Thumbnail load failed: id=$_requestIdentity url=${widget.thumbnail.thumbUrl} '
+          'exception=${state.lastException}',
+        );
         _requestController.failed(token);
+        _releasePermit();
         return _buildFailurePlaceholder(onRetry: _retry);
       },
       completedWidgetBuilder: (state) {
         _requestController.completed(token);
+        _releasePermit();
         return thumbnail.isLarge
             ? null
             : _buildSmallThumbnailCrop(thumbnail, state);

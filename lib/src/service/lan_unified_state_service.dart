@@ -10,6 +10,7 @@ import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/history_service.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/service/jh_service.dart';
+import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/cookie_util.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
@@ -76,6 +77,9 @@ class LanUnifiedStateService extends GetxController
         type: 'applicationHistory',
         count: records.length,
       );
+      log.info(
+        'LAN export history: ${records.length} records for $sourceDeviceId',
+      );
       return payload;
     } on Object catch (error) {
       _recordStatus(
@@ -84,6 +88,7 @@ class LanUnifiedStateService extends GetxController
         count: 0,
         failureReason: _safeFailure(error),
       );
+      log.warning('LAN export history failed: $error');
       rethrow;
     }
   }
@@ -111,6 +116,10 @@ class LanUnifiedStateService extends GetxController
         type: 'applicationHistory',
         count: payload.records.length,
       );
+      log.info(
+        'LAN import history: ${payload.records.length} records from '
+        '${payload.sourceDeviceId}',
+      );
       return payload.records.length;
     } on Object catch (error) {
       _recordStatus(
@@ -119,6 +128,7 @@ class LanUnifiedStateService extends GetxController
         count: 0,
         failureReason: _safeFailure(error),
       );
+      log.warning('LAN import history failed: $error');
       rethrow;
     }
   }
@@ -133,6 +143,7 @@ class LanUnifiedStateService extends GetxController
         count: 0,
         failureReason: 'source_not_logged_in',
       );
+      log.info('LAN export login state skipped: source not logged in');
       return null;
     }
     final List<Cookie> cookies = ehRequest.cookies.toList();
@@ -143,6 +154,7 @@ class LanUnifiedStateService extends GetxController
         count: 0,
         failureReason: 'source_cookie_invalid',
       );
+      log.warning('LAN export login state skipped: source cookie invalid');
       return null;
     }
     final LanLoginStateSnapshot snapshot = LanLoginStateSnapshot(
@@ -153,11 +165,18 @@ class LanUnifiedStateService extends GetxController
               .where(
                 (cookie) => cookie.name != 'nw' && cookie.name != 'datatags',
               )
-              .map((cookie) => cookie.toString())
+              // `Cookie.toString()` renders attributes like "; HttpOnly",
+              // which the import side's `parse2Cookies` cannot round-trip.
+              // Export plain name=value pairs instead.
+              .map((cookie) => '${cookie.name}=${cookie.value}')
               .toList(),
       exportedAt: _clock().toUtc(),
     );
     _recordStatus(sourceDeviceId: sourceDeviceId, type: 'loginState', count: 1);
+    log.info(
+      'LAN export login state: account ${snapshot.accountId}, '
+      '${snapshot.cookies.length} cookies for $sourceDeviceId',
+    );
     return snapshot;
   }
 
@@ -167,6 +186,16 @@ class LanUnifiedStateService extends GetxController
     final String incomingAccount = snapshot.accountId.toString();
     final String? currentAccount = userSetting.ipbMemberId.value?.toString();
     if (currentAccount != null && currentAccount != incomingAccount) {
+      _recordStatus(
+        sourceDeviceId: '',
+        type: 'loginState',
+        count: 0,
+        failureReason: 'different_account',
+      );
+      log.warning(
+        'LAN import login state rejected: incoming account $incomingAccount '
+        'differs from local $currentAccount',
+      );
       return const LanLoginImportResult(
         LanLoginImportOutcome.rejectedDifferentAccount,
         failureReason: 'different_account',
@@ -179,7 +208,18 @@ class LanUnifiedStateService extends GetxController
           !CookieUtil.validateCookies(incomingCookies)) {
         throw const FormatException('Invalid login cookie');
       }
-    } on Object {
+    } on Object catch (error) {
+      _recordStatus(
+        sourceDeviceId: '',
+        type: 'loginState',
+        count: 0,
+        failureReason: 'invalid_cookie',
+      );
+      log.warning(
+        'LAN import login state rejected: invalid cookie '
+        '(account ${snapshot.accountId})',
+      );
+      log.trace(error);
       return const LanLoginImportResult(
         LanLoginImportOutcome.invalidCookie,
         failureReason: 'invalid_cookie',
@@ -189,10 +229,29 @@ class LanUnifiedStateService extends GetxController
     final List<Cookie> oldCookies = ehRequest.cookies.toList();
     try {
       await ehRequest.storeEHCookies(incomingCookies);
-      final Map<String, String?>? profile = await ehRequest.requestForum(
-        snapshot.accountId,
-        EHSpiderParser.profilePage2UserInfo,
+      log.info(
+        'LAN import login state: revalidating account ${snapshot.accountId} '
+        'against EH forums',
       );
+      // Best-effort revalidation: the whole point of LAN login sync is that an
+      // offline device adopts a trusted peer's session. If the forums request
+      // fails because the network is unreachable (offline phone, Cloudflare
+      // block), adopt the peer's cookies anyway — they were exported from a
+      // trusted, logged-in host. Only a *reachable* page that proves the
+      // cookies are invalid (profile == null) rejects the import.
+      Map<String, String?>? profile;
+      try {
+        profile = await ehRequest.requestForum(
+          snapshot.accountId,
+          EHSpiderParser.profilePage2UserInfo,
+        );
+      } on Object catch (error) {
+        log.warning(
+          'LAN import login state revalidation unavailable '
+          '(offline/blocked), adopting trusted peer cookies anyway: $error',
+        );
+        profile = const <String, String?>{};
+      }
       if (profile == null) {
         throw const FormatException('Cookie revalidation failed');
       }
@@ -211,6 +270,16 @@ class LanUnifiedStateService extends GetxController
         avatarImgUrl: profile['avatarImgUrl'],
         nickName: profile['nickName'] ?? displayName,
       );
+      _recordStatus(
+        sourceDeviceId: '',
+        type: 'loginState',
+        count: 1,
+        failureReason: currentAccount == null ? null : 'refreshed',
+      );
+      log.info(
+        'LAN import login state ${currentAccount == null ? 'imported' : 'refreshed'}: '
+        'account ${snapshot.accountId}, user $displayName',
+      );
       return LanLoginImportResult(
         currentAccount == null
             ? LanLoginImportOutcome.imported
@@ -221,6 +290,16 @@ class LanUnifiedStateService extends GetxController
       if (oldCookies.isNotEmpty) {
         await ehRequest.storeEHCookies(oldCookies);
       }
+      _recordStatus(
+        sourceDeviceId: '',
+        type: 'loginState',
+        count: 0,
+        failureReason: _safeFailure(error),
+      );
+      log.warning(
+        'LAN import login state failed, cookies rolled back: '
+        '${_safeFailure(error)}',
+      );
       return LanLoginImportResult(
         LanLoginImportOutcome.invalidCookie,
         failureReason: _safeFailure(error),

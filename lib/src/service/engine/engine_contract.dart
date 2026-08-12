@@ -37,12 +37,17 @@ class EngineTaskProgress {
     required this.stage,
     required this.fraction,
     this.message,
+    this.speedBytesPerSecond = 0,
   });
 
   final String taskId;
   final EngineTaskStage stage;
   final double fraction;
   final String? message;
+
+  /// Optional instantaneous transfer rate, used by download stages to render
+  /// a live MB/s label. Zero means the stage reports no speed.
+  final double speedBytesPerSecond;
 }
 
 /// Cancellation is deliberately independent from inference/HTTP implementations.
@@ -173,6 +178,7 @@ class EngineTask<T> {
         stage: progress.stage,
         fraction: progress.fraction.clamp(0, 1).toDouble(),
         message: progress.message,
+        speedBytesPerSecond: progress.speedBytesPerSecond,
       ),
     );
   }
@@ -227,9 +233,10 @@ class EngineTask<T> {
 
   void _completeError(EngineException error, StackTrace stack) {
     _error = error;
-    _lifecycle = error is EngineTaskCancelledException
-        ? EngineTaskLifecycle.cancelled
-        : EngineTaskLifecycle.failed;
+    _lifecycle =
+        error is EngineTaskCancelledException
+            ? EngineTaskLifecycle.cancelled
+            : EngineTaskLifecycle.failed;
     if (!_completer.isCompleted) {
       _completer.completeError(error, stack);
     }
@@ -247,7 +254,12 @@ class EngineTaskContext {
   final EngineCancellationToken cancellation;
   final void Function(EngineTaskProgress progress) _report;
 
-  void report(EngineTaskStage stage, double fraction, {String? message}) {
+  void report(
+    EngineTaskStage stage,
+    double fraction, {
+    String? message,
+    double speedBytesPerSecond = 0,
+  }) {
     cancellation.throwIfCancelled();
     _report(
       EngineTaskProgress(
@@ -255,6 +267,7 @@ class EngineTaskContext {
         stage: stage,
         fraction: fraction,
         message: message,
+        speedBytesPerSecond: speedBytesPerSecond,
       ),
     );
   }
@@ -415,6 +428,8 @@ class TranslationEngineRequest {
     this.sourceLanguage,
     this.configuration = const <String, dynamic>{},
     this.promptVersion = 1,
+    this.mergeTextBlocks = true,
+    this.containers = const <RecognizedTextContainer>[],
   });
 
   final List<RecognizedTextBlock> blocks;
@@ -425,19 +440,50 @@ class TranslationEngineRequest {
   final String? sourceLanguage;
   final Map<String, dynamic> configuration;
   final int promptVersion;
+
+  /// Whether adjacent OCR blocks in the same visual container may be
+  /// translated and rendered as one utterance.
+  final bool mergeTextBlocks;
+
+  /// Optional speech-bubble/container membership produced by a detector.
+  /// When present, translation grouping must respect these memberships.
+  final List<RecognizedTextContainer> containers;
 }
 
 class TranslationResult {
-  const TranslationResult({required this.translatedText, required this.lines});
+  const TranslationResult({
+    required this.translatedText,
+    required this.lines,
+    this.groupTranslations = const <String>[],
+  });
 
   final String translatedText;
   final List<String> lines;
+
+  /// One natural translation per visual speech-bubble group. [lines] remains
+  /// the stable OCR-block mapping used by older callers; keeping the original
+  /// group text lets renderers wrap an utterance without re-splitting it.
+  final List<String> groupTranslations;
 }
 
 abstract class TranslationEngine {
   EngineDescriptor get descriptor;
   bool get isReady;
   EngineTask<TranslationResult> translate(TranslationEngineRequest request);
+}
+
+abstract interface class EngineReadiness {
+  Future<bool> ensureReady();
+}
+
+/// Optional asynchronous readiness for adapters backed by a native/plugin
+/// runtime. Existing adapters keep their synchronous behavior by default;
+/// native adapters can provide a same-named member to perform a real probe.
+extension TranslationEngineReadiness on TranslationEngine {
+  Future<bool> ensureReady() async {
+    final TranslationEngine engine = this;
+    return engine is EngineReadiness ? engine.ensureReady() : engine.isReady;
+  }
 }
 
 class ImageProcessingRequest extends EngineImageRequest {
@@ -505,8 +551,8 @@ class EngineCacheKey {
 
 dynamic _canonicalize(dynamic value) {
   if (value is Map) {
-    final List<String> keys = value.keys.map((Object? key) => '$key').toList()
-      ..sort();
+    final List<String> keys =
+        value.keys.map((Object? key) => '$key').toList()..sort();
     return <String, dynamic>{
       for (final String key in keys) key: _canonicalize(value[key]),
     };

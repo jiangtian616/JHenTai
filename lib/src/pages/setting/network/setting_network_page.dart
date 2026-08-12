@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:extended_image/extended_image.dart';
@@ -8,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/database/dao/dio_cache_dao.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/service/lan_device_trust_service.dart';
 import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
@@ -59,6 +61,7 @@ class SettingNetworkPage extends StatelessWidget {
                     _buildSmartCacheMaxSize(),
                     _buildSmartCacheEvictPolicy(),
                     const _CacheSizeTile(),
+                    _buildMoveCacheToServer(context),
                   ],
                 ),
                 _buildConnectTimeout(context),
@@ -170,6 +173,62 @@ class SettingNetworkPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildMoveCacheToServer(BuildContext context) {
+    return GetBuilder<LanDeviceTrustService>(
+      id: LanDeviceTrustService.devicesChangedId,
+      builder: (service) {
+        final bool connected = service.hasConnectedDevice;
+        return ListTile(
+          enabled: connected,
+          leading: Icon(
+            Icons.cloud_upload_outlined,
+            color: connected ? null : Theme.of(context).disabledColor,
+          ),
+          title: Text('moveCacheToServer'.tr),
+          subtitle: Text(
+            connected
+                ? 'moveCacheToServerHint'.tr
+                : 'moveCacheToServerDisabledHint'.tr,
+          ),
+          onTap: connected ? () => unawaited(_moveCacheToServer()) : null,
+        );
+      },
+    );
+  }
+
+  Future<void> _moveCacheToServer() async {
+    final String? cachePath = extendedImageDiskCacheDirectory;
+    if (cachePath == null || cachePath.isEmpty) {
+      toast('moveCacheToServerDone'.trParams({'count': '0'}));
+      return;
+    }
+    final Directory cacheDirectory = Directory(cachePath);
+    if (!cacheDirectory.existsSync()) {
+      toast('moveCacheToServerDone'.trParams({'count': '0'}));
+      return;
+    }
+    final List<File> files = cacheDirectory.listSync().whereType<File>().toList();
+    int uploaded = 0;
+    for (final File file in files) {
+      try {
+        final String key = file.uri.pathSegments.last;
+        if (key.isEmpty || key.contains('/') || key.contains('..')) {
+          continue;
+        }
+        final bool ok = await lanDeviceTrustService.pushCacheFileToServer(
+          key,
+          await file.readAsBytes(),
+        );
+        if (ok) {
+          uploaded++;
+        }
+      } on Object catch (error) {
+        log.warning('Move cache to server failed: $error');
+      }
+    }
+    toast('moveCacheToServerDone'.trParams({'count': '$uploaded'}));
   }
 
   Widget _buildConnectTimeout(BuildContext context) {

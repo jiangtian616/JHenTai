@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/service/inference/onnx_model_store.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
+import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 class OnnxModelTile extends StatelessWidget {
@@ -60,29 +61,22 @@ class OnnxModelTile extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               if (sources.length > 1)
-                DropdownButtonHideUnderline(
-                  child: DropdownButton<OnnxModelSource>(
-                    value: selected,
-                    items: sources
-                        .map(
-                          (OnnxModelSource source) => DropdownMenuItem(
-                            value: source,
-                            child: Text(
-                              source.displayName,
-                              style: const TextStyle(fontSize: 12),
-                            ),
-                          ),
-                        )
-                        .toList(growable: false),
-                    onChanged:
-                        downloading || anotherDownload
-                            ? null
-                            : (OnnxModelSource? source) {
-                              if (source != null) {
-                                store.selectSource(manifestId, source);
-                              }
-                            },
-                  ),
+                EHCodexStyleDropdown<OnnxModelSource>(
+                  value: selected,
+                  items: sources
+                      .map(
+                        (OnnxModelSource source) => DropdownMenuItem(
+                          value: source,
+                          child: Text(source.displayName),
+                        ),
+                      )
+                      .toList(growable: false),
+                  enabled: !downloading && !anotherDownload,
+                  onChanged: (OnnxModelSource? source) {
+                    if (source != null) {
+                      store.selectSource(manifestId, source);
+                    }
+                  },
                 ),
               if (downloading)
                 EHAppleIconButton(

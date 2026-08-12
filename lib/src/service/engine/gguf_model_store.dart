@@ -18,6 +18,7 @@ class GgufDownloadProgress {
     required this.artifactTotalBytes,
     required this.totalReceivedBytes,
     required this.totalBytes,
+    this.speedBytesPerSecond = 0,
   });
 
   final String artifactId;
@@ -25,6 +26,21 @@ class GgufDownloadProgress {
   final int artifactTotalBytes;
   final int totalReceivedBytes;
   final int totalBytes;
+
+  /// Smoothed transfer rate in bytes/second, 0 until the first delta is known.
+  final double speedBytesPerSecond;
+}
+
+/// Thrown by [GgufModelStore._downloadArtifact] when the model is cancelled
+/// while the response body is streaming. On macOS (and other platforms)
+/// [HttpClientRequest.abort] does not interrupt an already-open response body
+/// stream, so cancellation must be observed inside the read loop instead of
+/// relying on abort alone.
+class GgufModelDownloadCancelled implements Exception {
+  const GgufModelDownloadCancelled();
+
+  @override
+  String toString() => 'GGUF model download cancelled';
 }
 
 /// Resumable, hash-checked storage for the GGUF translation catalog.
@@ -52,8 +68,13 @@ class GgufModelStore {
   final Directory? _rootDirectory;
   final HttpClient _client;
   final GgufDiskSpaceProbe _diskSpaceProbe;
-  final Map<String, HttpClientRequest> _activeRequests =
-      <String, HttpClientRequest>{};
+  final Map<String, Set<HttpClientRequest>> _activeRequests =
+      <String, Set<HttpClientRequest>>{};
+  final Set<String> _cancelledModels = <String>{};
+
+  /// Maximum parallel range connections per artifact. Small files drop below
+  /// this automatically (see [_chunkCountFor]) so short downloads stay simple.
+  static const int _parallelChunks = 4;
 
   Directory get rootDirectory {
     final Directory? explicit = _rootDirectory;
@@ -156,6 +177,7 @@ class GgufModelStore {
     void Function(GgufDownloadProgress progress)? onProgress,
   }) async {
     final ModelDescriptor model = _model(modelId);
+    _cancelledModels.remove(modelId);
     if (!forceUpdate &&
         await installState(modelId) == ModelInstallState.ready) {
       return;
@@ -166,7 +188,6 @@ class GgufModelStore {
     for (final ModelArtifactDescriptor artifact in model.artifacts) {
       final ModelSourceDescriptor source = _source(artifact, sourceId);
       final File part = File(p.join(partial.path, '${artifact.fileName}.part'));
-      final int existing = await part.exists() ? await part.length() : 0;
       final int total =
           artifact.sizeBytes > 0
               ? artifact.sizeBytes
@@ -176,6 +197,11 @@ class GgufModelStore {
           'The source did not expose a usable Content-Length: ${source.url}',
         );
       }
+      final int existing = await _existingDownloadedBytes(
+        partial,
+        artifact.fileName,
+        total,
+      );
       plans.add(
         _ArtifactPlan(
           artifact: artifact,
@@ -207,22 +233,42 @@ class GgufModelStore {
       0,
       (int total, _ArtifactPlan plan) => total + plan.totalBytes,
     );
+    DateTime? lastSpeedTime;
+    int lastSpeedBytes = 0;
+    double speedBytesPerSecond = 0;
     for (final _ArtifactPlan plan in plans) {
       await _downloadArtifact(
         modelId,
         plan,
         onProgress: (int value) {
           received[plan.artifact.id] = value;
+          final int totalReceived = received.values.fold<int>(
+            0,
+            (int sum, int item) => sum + item,
+          );
+          // Smooth instantaneous rate so the label isn't jittery: EMA of the
+          // byte delta over the wall-clock time since the previous callback.
+          final DateTime now = DateTime.now();
+          if (lastSpeedTime != null) {
+            final double elapsed =
+                now.difference(lastSpeedTime!).inMilliseconds / 1000.0;
+            if (elapsed > 0) {
+              final double instant = (totalReceived - lastSpeedBytes) / elapsed;
+              speedBytesPerSecond = speedBytesPerSecond == 0
+                  ? instant
+                  : speedBytesPerSecond * 0.7 + instant * 0.3;
+            }
+          }
+          lastSpeedTime = now;
+          lastSpeedBytes = totalReceived;
           onProgress?.call(
             GgufDownloadProgress(
               artifactId: plan.artifact.id,
               receivedBytes: value,
               artifactTotalBytes: plan.totalBytes,
-              totalReceivedBytes: received.values.fold<int>(
-                0,
-                (int sum, int item) => sum + item,
-              ),
+              totalReceivedBytes: totalReceived,
               totalBytes: totalBytes,
+              speedBytesPerSecond: speedBytesPerSecond,
             ),
           );
         },
@@ -262,7 +308,13 @@ class GgufModelStore {
   }
 
   Future<void> cancel(String modelId) async {
-    _activeRequests.remove(modelId)?.abort('model download cancelled');
+    _cancelledModels.add(modelId);
+    final Set<HttpClientRequest>? requests = _activeRequests.remove(modelId);
+    if (requests != null) {
+      for (final HttpClientRequest request in requests) {
+        request.abort('model download cancelled');
+      }
+    }
   }
 
   Future<void> delete(String modelId) async {
@@ -276,65 +328,185 @@ class GgufModelStore {
     }
   }
 
+  /// Downloads one artifact by splitting it into [_parallelChunks] range
+  /// requests that run concurrently, each resuming from its own `.part.<i>`
+  /// file so a cancelled or interrupted download continues where it stopped.
   Future<void> _downloadArtifact(
     String modelId,
     _ArtifactPlan plan, {
     required void Function(int receivedBytes) onProgress,
   }) async {
-    int offset = plan.existingBytes;
-    HttpClientRequest request = await _client.getUrl(
-      Uri.parse(plan.source.url),
-    );
-    if (offset > 0) {
-      request.headers.set(HttpHeaders.rangeHeader, 'bytes=$offset-');
+    final int total = plan.totalBytes;
+    if (await _partComplete(plan.part, total)) {
+      onProgress(total);
+      return;
     }
-    _activeRequests[modelId] = request;
+    final int chunkCount = _chunkCountFor(total);
+    final List<_ChunkPlan> chunks = _buildChunks(plan, chunkCount);
+    int sharedReceived = 0;
+    for (final _ChunkPlan chunk in chunks) {
+      sharedReceived += await chunk.existingLength();
+    }
+    onProgress(sharedReceived);
+    await Future.wait(
+      chunks.map(
+        (_ChunkPlan chunk) => _downloadChunk(
+          modelId,
+          plan.source,
+          chunk,
+          onBytes: (int n) {
+            sharedReceived += n;
+            onProgress(sharedReceived);
+          },
+        ),
+      ),
+    );
+    await _concatenateChunks(plan.part, chunks);
+  }
+
+  Future<void> _downloadChunk(
+    String modelId,
+    ModelSourceDescriptor source,
+    _ChunkPlan chunk, {
+    required void Function(int bytes) onBytes,
+  }) async {
+    final int existing = await chunk.existingLength();
+    if (existing >= chunk.length) {
+      return;
+    }
+    final int start = chunk.start + existing;
+    final int end = chunk.end;
+    final HttpClientRequest request = await _client.getUrl(
+      Uri.parse(source.url),
+    );
+    request.headers.set(HttpHeaders.rangeHeader, 'bytes=$start-${end - 1}');
+    final Set<HttpClientRequest> pool =
+        _activeRequests.putIfAbsent(modelId, () => <HttpClientRequest>{});
+    pool.add(request);
     try {
-      HttpClientResponse response = await request.close();
-      if (offset > 0 &&
-          response.statusCode == HttpStatus.requestedRangeNotSatisfiable) {
-        await response.drain<void>();
-        if (offset == plan.totalBytes) {
-          onProgress(offset);
-          return;
-        }
-        offset = 0;
-        request = await _client.getUrl(Uri.parse(plan.source.url));
-        _activeRequests[modelId] = request;
-        response = await request.close();
-      }
-      final bool append =
-          offset > 0 && response.statusCode == HttpStatus.partialContent;
-      if (response.statusCode < 200 || response.statusCode >= 300) {
+      final HttpClientResponse response = await request.close();
+      final bool partial = response.statusCode == HttpStatus.partialContent;
+      final bool full = response.statusCode == HttpStatus.ok;
+      if (!partial && !full) {
         await response.drain<void>();
         throw StateError(
-          'HTTP ${response.statusCode} while downloading ${plan.artifact.fileName}.',
+          'HTTP ${response.statusCode} while downloading chunk $start-$end.',
         );
       }
-      if (!append) offset = 0;
-      final IOSink sink = plan.part.openWrite(
-        mode: append ? FileMode.append : FileMode.writeOnly,
-      );
-      int received = offset;
-      onProgress(received);
+      // A 200 (Range ignored) is only usable for a fresh first chunk; any
+      // other chunk would duplicate already-downloaded bytes.
+      if (full && start > 0) {
+        await response.drain<void>();
+        throw StateError('Server ignored the range request for chunk $start.');
+      }
+      final IOSink sink = chunk.file.openWrite(mode: FileMode.append);
+      int received = existing;
       try {
-        await for (final List<int> chunk in response) {
-          sink.add(chunk);
-          received += chunk.length;
-          onProgress(received);
+        await for (final List<int> data in response) {
+          if (_cancelledModels.contains(modelId)) {
+            throw const GgufModelDownloadCancelled();
+          }
+          final int take = received + data.length <= chunk.length
+              ? data.length
+              : chunk.length - received;
+          if (take > 0) {
+            sink.add(data.sublist(0, take));
+            received += take;
+            onBytes(take);
+          }
+          if (received >= chunk.length) {
+            break;
+          }
         }
         await sink.flush();
       } finally {
         await sink.close();
       }
-      if (received != plan.totalBytes) {
+      if (received < chunk.length) {
         throw StateError(
-          'Incomplete download for ${plan.artifact.fileName}: $received/${plan.totalBytes}.',
+          'Incomplete chunk ${chunk.file.path}: $received/${chunk.length}.',
         );
       }
     } finally {
-      if (identical(_activeRequests[modelId], request)) {
-        _activeRequests.remove(modelId);
+      pool.remove(request);
+    }
+  }
+
+  int _chunkCountFor(int total) {
+    const int minChunkBytes = 16 * 1024 * 1024;
+    final int count = total ~/ minChunkBytes;
+    if (count >= _parallelChunks) {
+      return _parallelChunks;
+    }
+    return count < 1 ? 1 : count;
+  }
+
+  List<_ChunkPlan> _buildChunks(_ArtifactPlan plan, int chunkCount) {
+    final int total = plan.totalBytes;
+    final int chunkSize = (total / chunkCount).ceil();
+    final List<_ChunkPlan> chunks = <_ChunkPlan>[];
+    for (int index = 0; index < chunkCount; index++) {
+      final int start = index * chunkSize;
+      final int end = start + chunkSize > total ? total : start + chunkSize;
+      chunks.add(
+        _ChunkPlan(
+          index: index,
+          start: start,
+          end: end,
+          file: File('${plan.part.path}.$index'),
+        ),
+      );
+    }
+    return chunks;
+  }
+
+  /// Total bytes already on disk for an artifact: the sum of its chunk parts,
+  /// or `total` when a legacy single-stream `.part` already holds the whole
+  /// file (the old downloader). An incomplete legacy part counts as 0.
+  Future<int> _existingDownloadedBytes(
+    Directory partial,
+    String fileName,
+    int total,
+  ) async {
+    int sum = 0;
+    bool anyChunk = false;
+    for (int index = 0; index < _parallelChunks; index++) {
+      final File chunk = File(p.join(partial.path, '$fileName.part.$index'));
+      if (await chunk.exists()) {
+        anyChunk = true;
+        final int len = await chunk.length();
+        sum += len > total ? total : len;
+      }
+    }
+    if (anyChunk) {
+      return sum > total ? total : sum;
+    }
+    final File part = File(p.join(partial.path, '$fileName.part'));
+    if (await part.exists() && await part.length() >= total) {
+      return total;
+    }
+    return 0;
+  }
+
+  Future<bool> _partComplete(File part, int total) async {
+    return await part.exists() && await part.length() >= total;
+  }
+
+  Future<void> _concatenateChunks(File target, List<_ChunkPlan> chunks) async {
+    final IOSink sink = target.openWrite(mode: FileMode.writeOnly);
+    try {
+      for (final _ChunkPlan chunk in chunks) {
+        await for (final List<int> bytes in chunk.file.openRead()) {
+          sink.add(bytes);
+        }
+      }
+      await sink.flush();
+    } finally {
+      await sink.close();
+    }
+    for (final _ChunkPlan chunk in chunks) {
+      if (await chunk.file.exists()) {
+        await chunk.file.delete();
       }
     }
   }
@@ -463,6 +635,34 @@ class _ArtifactPlan {
   final int totalBytes;
 }
 
+/// One byte range of an artifact, downloaded by its own range request into a
+/// dedicated `.part.<index>` file so each range resumes independently.
+class _ChunkPlan {
+  const _ChunkPlan({
+    required this.index,
+    required this.start,
+    required this.end,
+    required this.file,
+  });
+
+  final int index;
+
+  /// Inclusive.
+  final int start;
+
+  /// Exclusive.
+  final int end;
+  final File file;
+
+  int get length => end - start;
+
+  Future<int> existingLength() async {
+    if (!await file.exists()) return 0;
+    final int len = await file.length();
+    return len > length ? length : len;
+  }
+}
+
 class GgufModelDownloadManager implements ModelDownloadManager {
   GgufModelDownloadManager({GgufModelStore? store})
     : _store = store ?? GgufModelStore.instance;
@@ -502,6 +702,7 @@ class GgufModelDownloadManager implements ModelDownloadManager {
                 EngineTaskStage.processing,
                 fraction,
                 message: progress.artifactId,
+                speedBytesPerSecond: progress.speedBytesPerSecond,
               );
             },
           );

@@ -41,6 +41,328 @@ class RecognizedTextGroup {
       blockIndices.map((int index) => all[index].text.trim()).join('\n');
 }
 
+/// Returns the text units used by translation and rendering. When automatic
+/// merging is disabled, every OCR block remains an independent unit so the
+/// translation and embedding mapping stays strictly one-to-one.
+List<RecognizedTextGroup> translationTextGroups(
+  List<RecognizedTextBlock> blocks, {
+  bool merge = true,
+  List<RecognizedTextContainer> containers = const <RecognizedTextContainer>[],
+}) {
+  if (merge && containers.isNotEmpty) {
+    final Set<int> assigned = <int>{};
+    final List<RecognizedTextGroup> result = <RecognizedTextGroup>[];
+    for (final RecognizedTextContainer container in containers) {
+      final List<int> indices = container.blockIndices
+          .where((int index) => index >= 0 && index < blocks.length)
+          .toList(growable: false);
+      if (indices.isEmpty || indices.any(assigned.contains)) continue;
+      assigned.addAll(indices);
+      result.add(
+        RecognizedTextGroup(
+          blockIndices: indices,
+          left: container.left,
+          top: container.top,
+          right: container.left + container.width,
+          bottom: container.top + container.height,
+        ),
+      );
+    }
+    final List<int> remaining = <int>[];
+    for (int index = 0; index < blocks.length; index++) {
+      if (!assigned.contains(index)) remaining.add(index);
+    }
+    if (remaining.isNotEmpty) {
+      result.addAll(
+        groupRecognizedTextBlocks(
+          remaining.map((int index) => blocks[index]).toList(growable: false),
+        ).map(
+          (RecognizedTextGroup group) => RecognizedTextGroup(
+            blockIndices: group.blockIndices
+                .map((int local) => remaining[local])
+                .toList(growable: false),
+            left: group.left,
+            top: group.top,
+            right: group.right,
+            bottom: group.bottom,
+          ),
+        ),
+      );
+    }
+    return result;
+  }
+  if (merge) {
+    return groupRecognizedTextBlocks(blocks);
+  }
+  return <RecognizedTextGroup>[
+    for (int index = 0; index < blocks.length; index++)
+      RecognizedTextGroup(
+        blockIndices: <int>[index],
+        left: blocks[index].left,
+        top: blocks[index].top,
+        right: blocks[index].left + blocks[index].width,
+        bottom: blocks[index].top + blocks[index].height,
+      ),
+  ];
+}
+
+/// The rectangle used when painting one translated utterance.
+///
+/// OCR boxes are glyph/line boxes, not the whole speech bubble.  Keeping this
+/// small value object next to the grouping code makes the same conservative
+/// expansion available to the live overlay and exported PNG renderer.
+class RecognizedTextGroupRenderBounds {
+  const RecognizedTextGroupRenderBounds({
+    required this.left,
+    required this.top,
+    required this.right,
+    required this.bottom,
+  });
+
+  final double left;
+  final double top;
+  final double right;
+  final double bottom;
+
+  double get width => math.max(0.0, right - left);
+  double get height => math.max(0.0, bottom - top);
+}
+
+/// Whether [group] has the stable geometry of a multi-line text container.
+///
+/// This is deliberately a geometry-only heuristic.  CTD's current output is
+/// a text-pixel mask rather than a speech-bubble boundary, so a single line
+/// cannot be safely classified as a bubble without looking at the source
+/// pixels.  Multi-line groups with consistent stacking/column spacing are the
+/// safe subset; everything else keeps the OCR-box fallback.
+bool isRecognizedTextContainerCandidate(
+  RecognizedTextGroup group,
+  List<RecognizedTextBlock> blocks,
+) {
+  if (group.blockIndices.length < 2) {
+    return false;
+  }
+  final List<RecognizedTextBlock> members = group.blocksOf(blocks);
+  if (members.any(
+    (RecognizedTextBlock block) => block.width <= 0 || block.height <= 0,
+  )) {
+    return false;
+  }
+  final bool vertical = _isMostlyVertical(members);
+  if (vertical) {
+    // Vertical columns of one container overlap in y and sit at a regular
+    // horizontal distance.  groupRecognizedTextBlocks already enforces this;
+    // the explicit check keeps this helper safe for callers with hand-built
+    // groups as well.
+    final List<RecognizedTextBlock> ordered = [...members]
+      ..sort((a, b) => b.left.compareTo(a.left));
+    for (int index = 1; index < ordered.length; index++) {
+      final RecognizedTextBlock previous = ordered[index - 1];
+      final RecognizedTextBlock current = ordered[index];
+      final double overlap =
+          math.min(
+            previous.top + previous.height,
+            current.top + current.height,
+          ) -
+          math.max(previous.top, current.top);
+      if (overlap < 0.45 * math.min(previous.height, current.height)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  final List<RecognizedTextBlock> ordered = [...members]
+    ..sort((a, b) => a.top.compareTo(b.top));
+  final double medianHeight = _median(
+    ordered.map((RecognizedTextBlock block) => block.height).toList(),
+  );
+  if (medianHeight <= 0) {
+    return false;
+  }
+  for (int index = 1; index < ordered.length; index++) {
+    final RecognizedTextBlock previous = ordered[index - 1];
+    final RecognizedTextBlock current = ordered[index];
+    final double gap = current.top - (previous.top + previous.height);
+    if (gap > 1.8 * medianHeight) {
+      return false;
+    }
+    final double previousCenter = previous.left + previous.width / 2;
+    final double currentCenter = current.left + current.width / 2;
+    if ((currentCenter - previousCenter).abs() >
+        math.max(group.width * 0.55, medianHeight * 3)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/// Returns the explicit container bounds when OCR has a matching detector
+/// result, otherwise null.  We intentionally do not manufacture a bubble from
+/// an OCR union: the union describes text, not the enclosing artwork.
+RecognizedTextGroupRenderBounds? explicitRenderBoundsForRecognizedTextGroup(
+  RecognizedTextGroup group,
+  List<RecognizedTextContainer> containers,
+) {
+  for (final RecognizedTextContainer container in containers) {
+    if (container.blockIndices.length != group.blockIndices.length ||
+        !container.blockIndices.toSet().containsAll(group.blockIndices)) {
+      continue;
+    }
+    return RecognizedTextGroupRenderBounds(
+      left: container.left,
+      top: container.top,
+      right: container.left + container.width,
+      bottom: container.top + container.height,
+    );
+  }
+  return null;
+}
+
+/// Returns one conservative render rectangle for [group].
+///
+/// Multi-line horizontal groups get a margin based on their line height. For
+/// vertical text, the translated Chinese is laid out horizontally, so the
+/// narrow OCR union is widened to a fraction of the original column height.
+/// Single-line/uncertain groups return the OCR union with only the renderer's
+/// existing small inset, preserving the safe fallback behaviour.
+RecognizedTextGroupRenderBounds renderBoundsForRecognizedTextGroup(
+  RecognizedTextGroup group,
+  List<RecognizedTextBlock> blocks, {
+  RecognizedTextContainer? container,
+}) {
+  if (container != null && container.width > 0 && container.height > 0) {
+    return RecognizedTextGroupRenderBounds(
+      left: container.left,
+      top: container.top,
+      right: container.left + container.width,
+      bottom: container.top + container.height,
+    );
+  }
+  return RecognizedTextGroupRenderBounds(
+    left: group.left,
+    top: group.top,
+    right: group.right,
+    bottom: group.bottom,
+  );
+}
+
+double _median(List<double> values) {
+  if (values.isEmpty) {
+    return 0;
+  }
+  final List<double> sorted = [...values]..sort();
+  final int middle = sorted.length ~/ 2;
+  return sorted.length.isOdd
+      ? sorted[middle]
+      : (sorted[middle - 1] + sorted[middle]) / 2;
+}
+
+/// Builds the compact, group-level source used by translation engines. A
+/// group is one visual utterance, so its source lines remain together instead
+/// of teaching the model to translate detector fragments independently.
+String buildGroupedTranslationSource(
+  List<RecognizedTextBlock> blocks,
+  List<RecognizedTextGroup> groups,
+) {
+  final StringBuffer source = StringBuffer();
+  for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
+    source.writeln('Group ${groupIndex + 1}:');
+    source.writeln(groups[groupIndex].textOf(blocks));
+  }
+  return source.toString();
+}
+
+/// Parses the numbered group format requested by the API/local engines.
+///
+/// Older cached/local runtimes may still return one number per OCR line. When
+/// [legacyCount] is supplied and the response contains a number outside the
+/// group range, the same text is parsed using that legacy line count so a
+/// model upgrade does not silently shift translations onto the wrong bubble.
+List<String> parseNumberedTranslations(
+  String text,
+  int count, {
+  int? legacyCount,
+}) {
+  final List<int> numbers =
+      RegExp(
+        r'^\s*(?:group\s*)?(\d+)\s*[:：.)-]?',
+        caseSensitive: false,
+        multiLine: true,
+      ).allMatches(text).map((match) => int.parse(match.group(1)!)).toList();
+  final int largest = numbers.isEmpty ? 0 : numbers.reduce(math.max);
+  if (legacyCount != null && largest > count) {
+    return _parseNumberedTranslations(text, legacyCount);
+  }
+  return _parseNumberedTranslations(text, count);
+}
+
+List<String> _parseNumberedTranslations(String text, int count) {
+  final List<String?> result = List<String?>.filled(count, null);
+  int fallbackIndex = 0;
+  for (final String rawLine in text.split('\n')) {
+    final String line = rawLine.replaceFirst(RegExp(r'^\s*[-*]\s+'), '').trim();
+    if (line.isEmpty ||
+        RegExp(
+          r'^\s*(?:group\s*)?\d+\s*:?\s*$',
+          caseSensitive: false,
+        ).hasMatch(line)) {
+      continue;
+    }
+    final RegExpMatch? match = RegExp(
+      r'^\s*(?:group\s*)?(\d+)\s*[:：.)-]?\s*(.*)$',
+      caseSensitive: false,
+    ).firstMatch(line);
+    final int? index = match == null ? null : int.tryParse(match.group(1)!);
+    if (index != null && index >= 1 && index <= count) {
+      result[index - 1] = match!.group(2)!.trim();
+      fallbackIndex = math.max(fallbackIndex, index);
+      continue;
+    }
+    while (fallbackIndex < count && result[fallbackIndex] != null) {
+      fallbackIndex++;
+    }
+    if (fallbackIndex < count) {
+      result[fallbackIndex++] = line;
+    }
+  }
+  return result.map((String? line) => line ?? '').toList(growable: false);
+}
+
+/// Expands one translated utterance per group back to the detector's blocks.
+/// The renderer can then keep a stable 1:1 block mapping while displaying the
+/// group as a single coherent text layout.
+List<String> expandGroupTranslationsToLines({
+  required List<RecognizedTextBlock> blocks,
+  required List<RecognizedTextGroup> groups,
+  required List<String> groupTranslations,
+}) {
+  final List<String> lines = List<String>.filled(blocks.length, '');
+  for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
+    final RecognizedTextGroup group = groups[groupIndex];
+    final String translation =
+        groupIndex < groupTranslations.length
+            ? groupTranslations[groupIndex]
+            : '';
+    final List<String> sourceLines = group.blockIndices
+        .map((int index) => blocks[index].text)
+        .toList(growable: false);
+    final List<String> split = splitGroupTranslationIntoLines(
+      translation: translation,
+      sourceLines: sourceLines,
+    );
+    for (
+      int lineIndex = 0;
+      lineIndex < group.blockIndices.length;
+      lineIndex++
+    ) {
+      lines[group.blockIndices[lineIndex]] =
+          lineIndex < split.length ? split[lineIndex] : '';
+    }
+  }
+  return lines;
+}
+
 /// Punctuation characters that make a natural end for a bubble line, used when
 /// re-splitting a group's translation back into its original line count.
 const String _lineBreakPunctuation = '。！？!?．.、，,…⋯';
@@ -68,11 +390,12 @@ List<String> splitGroupTranslationIntoLines({
     return <String>[translation.trim()];
   }
   // Fast path: the translator happened to preserve the line breaks.
-  final List<String> byNewline = const LineSplitter()
-      .convert(translation)
-      .map((String line) => line.trim())
-      .where((String line) => line.isNotEmpty)
-      .toList();
+  final List<String> byNewline =
+      const LineSplitter()
+          .convert(translation)
+          .map((String line) => line.trim())
+          .where((String line) => line.isNotEmpty)
+          .toList();
   if (byNewline.length == lineCount) {
     return byNewline;
   }
@@ -83,9 +406,10 @@ List<String> splitGroupTranslationIntoLines({
   }
   // Weight each target line by its source length, so a long source line
   // receives a proportionally long share of the translated text.
-  final List<int> weights = sourceLines
-      .map((String line) => math.max(1, line.trim().length))
-      .toList();
+  final List<int> weights =
+      sourceLines
+          .map((String line) => math.max(1, line.trim().length))
+          .toList();
   final int totalWeight = weights.fold<int>(
     0,
     (int sum, int weight) => sum + weight,
@@ -234,9 +558,10 @@ List<RecognizedTextGroup> groupRecognizedTextBlocks(
       if (last == null || last.width <= 0 || last.height <= 0) {
         continue;
       }
-      final double? score = mostlyVertical
-          ? _verticalGroupMatchScore(last, block)
-          : _horizontalGroupMatchScore(last, block);
+      final double? score =
+          mostlyVertical
+              ? _verticalGroupMatchScore(last, block)
+              : _horizontalGroupMatchScore(last, block);
       if (score != null && score > bestScore) {
         bestScore = score;
         bestGroup = group;
@@ -317,7 +642,19 @@ double? _horizontalGroupMatchScore(
       math.min(lastRight, candidateRight) - math.max(lastLeft, candidateLeft);
   final double overlapRatio = overlap / math.min(last.width, candidate.width);
   if (overlapRatio >= _minOverlapRatio) {
-    return overlapRatio;
+    // A small edge overlap is not enough to prove that two lines belong to
+    // one bubble. In 00.33.31, for example, the last line of the left bubble
+    // overlaps the first line of the right bubble by ~25%, which previously
+    // merged two separate utterances and destroyed translation context.
+    final double lastCenter = last.left + last.width / 2;
+    final double candidateCenter = candidate.left + candidate.width / 2;
+    final double centerDistance = (candidateCenter - lastCenter).abs();
+    if (overlapRatio >= 0.55 ||
+        centerDistance <=
+            _maxCenterOffsetRatio * math.max(last.width, candidate.width)) {
+      return overlapRatio;
+    }
+    return null;
   }
   final double lastCenter = last.left + last.width / 2;
   final double candidateCenter = candidate.left + candidate.width / 2;

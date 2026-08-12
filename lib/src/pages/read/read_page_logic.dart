@@ -90,6 +90,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   final String thumbnailNoId = 'thumbnailsId';
   final String sliderId = 'sliderId';
   final String readerFloatingBallId = 'readerFloatingBallId';
+  final String readerBookmarkFloatingBallId = 'readerBookmarkFloatingBallId';
   final String readerBookmarkId = 'readerBookmarkId';
 
   ReadPageState state = ReadPageState();
@@ -159,6 +160,8 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   /// viewport releases terminal in-memory results while the persistent cache
   /// remains available for a later visit or app restart.
   final ReaderViewportTracker _translationViewport = ReaderViewportTracker();
+  final ReaderPageHydrationScheduler _translationHydrationScheduler =
+      ReaderPageHydrationScheduler();
 
   /// Session-level parsed results for online galleries, so re-entering the
   /// same gallery reuses already parsed links instead of re-parsing from DB.
@@ -175,6 +178,8 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   late final ReaderPerformanceGovernor readerPerformanceGovernor;
   late final ReaderImagePrefetchQueue readerImagePrefetchQueue;
   late final ReaderFloatingBallPositionStore readerFloatingBallPositionStore;
+  late final ReaderFloatingBallPositionStore
+  readerBookmarkFloatingBallPositionStore;
 
   bool inited = false;
   Completer<void> delayInitCompleter = Completer<void>();
@@ -188,6 +193,9 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     );
     readerImagePrefetchQueue = ReaderImagePrefetchQueue();
     readerFloatingBallPositionStore = ReaderFloatingBallPositionStore();
+    readerBookmarkFloatingBallPositionStore = ReaderFloatingBallPositionStore(
+      storagePrefix: 'bookmark',
+    );
     readerPerformanceGovernor = ReaderPerformanceGovernor(
       onPolicyChanged: _applyReaderPerformancePolicy,
     );
@@ -211,7 +219,10 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     }
   }
 
-  void updateReaderViewport(Iterable<int> visibleIndices) {
+  void updateReaderViewport(
+    Iterable<int> visibleIndices, {
+    required ReaderPageHydrator hydrateTranslation,
+  }) {
     final Set<int> nextVisible =
         visibleIndices
             .where(
@@ -234,7 +245,11 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     // rebuilds the image layer, which is especially costly on iPhone. Only a
     // page that actually entered the viewport needs hydration.
     for (final int index in viewportDelta.entering) {
-      unawaited(_hydrateVisibleTranslation(index));
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!isClosed && _translationViewport.visible.contains(index)) {
+          _scheduleTranslationHydration(index, hydrateTranslation);
+        }
+      });
     }
 
     if (performanceSetting.enableReaderEngine2.isFalse) {
@@ -244,15 +259,25 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     _syncImagePrefetchPlan();
   }
 
-  Future<void> _hydrateVisibleTranslation(int index) async {
-    try {
-      await layoutLogic.hydrateTranslation(index);
-    } catch (e, stack) {
-      // Hydration is opportunistic. A missing image file must not interrupt
-      // the reader or make an OCR/translation task appear completed.
-      log.warning('Failed to hydrate translation for page $index: $e');
-      log.trace(stack);
+  void _scheduleTranslationHydration(
+    int index,
+    ReaderPageHydrator hydrateTranslation, {
+    bool retryIfActive = false,
+  }) {
+    if (!_translationViewport.visible.contains(index)) {
+      return;
     }
+    _translationHydrationScheduler.schedule(
+      index: index,
+      hydrate: hydrateTranslation,
+      retryIfActive: retryIfActive,
+      onError: (int page, Object error, StackTrace stackTrace) {
+        // Hydration is opportunistic. A missing image file must not interrupt
+        // the reader or make an OCR/translation task appear completed.
+        log.warning('Failed to hydrate translation for page $page: $error');
+        log.trace(stackTrace);
+      },
+    );
   }
 
   void _applyReaderPerformancePolicy(ReaderPerformancePolicy policy) {
@@ -534,6 +559,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
         in state.imageTranslationRequests.values) {
       imageTranslationService.releaseInMemoryResult(request.cacheKey);
     }
+    _translationHydrationScheduler.dispose();
     _translationViewport.clear();
 
     _saveSessionCache();
@@ -1097,7 +1123,10 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
 
   /// Called when image bytes finish loading, so a later failure of the same
   /// image can trigger one automatic retry again.
-  void markOnlineImageLoaded(int index) {
+  void markOnlineImageLoaded(
+    int index, {
+    required ReaderPageHydrator hydrateTranslation,
+  }) {
     _cancelOnlineImageProgressWatchdog(index);
     _autoRetryCounts.remove(index);
     if (!state.loadedOnlineImageIndices.add(index)) {
@@ -1109,6 +1138,11 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!isClosed) {
         updateSafely(['$onlineImageId::$index']);
+        _scheduleTranslationHydration(
+          index,
+          hydrateTranslation,
+          retryIfActive: true,
+        );
       }
     });
   }
@@ -1555,6 +1589,24 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     jump2ImageIndex(pageIndex);
   }
 
+  void jumpToNextBookmark() {
+    final List<int> pageIndexes =
+        state.readerBookmarks
+            .where(
+              (bookmark) =>
+                  !bookmark.isDeleted &&
+                  bookmark.pageIndex > state.readPageInfo.currentImageIndex &&
+                  bookmark.pageIndex < state.readPageInfo.pageCount,
+            )
+            .map((bookmark) => bookmark.pageIndex)
+            .toSet()
+            .toList()
+          ..sort();
+    if (pageIndexes.isNotEmpty) {
+      jumpToBookmark(pageIndexes.first);
+    }
+  }
+
   void toggleReaderSuperResolutionDisplay() {
     state.showReaderSuperResolution = !state.showReaderSuperResolution;
     updateSafely([readerBookmarkId]);
@@ -1739,11 +1791,9 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
         isScrollControlled: true,
         useSafeArea: true,
         builder:
-            (sheetContext) => FractionallySizedBox(
+            (sheetContext) => const FractionallySizedBox(
               heightFactor: 0.92,
-              child: ImageTranslationConfigSheet(
-                onTranslateCurrentImage: () => _translateCurrentImage(context),
-              ),
+              child: ImageTranslationConfigSheet(),
             ),
       );
     }
@@ -1776,10 +1826,6 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
                 useCupertino: preferenceSetting.enableSwipeBackGesture.isTrue,
                 builder:
                     (_) => ImageTranslationConfigSheet(
-                      onTranslateCurrentImage: () {
-                        Navigator.of(dialogContext).pop();
-                        _translateCurrentImage(context);
-                      },
                       onClose: () => Navigator.of(dialogContext).pop(),
                       onOpenAdvancedSettings:
                           () => configNavigatorKey.currentState?.pushNamed(
@@ -1869,46 +1915,49 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
         _cancelRemainingBatchPages(order, orderPosition, generation);
         break;
       }
-
-      final RecognizedImage? recognized = await _safeRecognize(index, context);
-      final ImageTranslationRequest? request =
-          state.imageTranslationRequests[index];
-      final String cacheKey = request?.cacheKey ?? _batchPageKey(index);
-      if (recognized != null) {
-        try {
-          await layoutLogic.translateRecognizedImage(
-            index,
-            context,
-            recognized,
-          );
-          await layoutLogic.repairTranslatedImage(index);
-        } catch (e, stack) {
-          log.warning('Image translation failed for page $index: $e');
-          log.trace(stack);
-          imageTranslationService.markOcrError(
-            cacheKey,
-            'TRANSLATION_TASK_FAILED',
-          );
-        }
-      } else {
-        final ImageTranslationResult result = imageTranslationService.resultFor(
-          cacheKey,
-        );
-        if (result.status == ImageTranslationStatus.success) {
-          await layoutLogic.repairTranslatedImage(index);
-        }
-        if (!result.isTerminal) {
-          imageTranslationService.markOcrError(
-            cacheKey,
-            'TRANSLATION_TASK_FAILED',
-          );
-        }
-      }
-      imageTranslationService.recordBatchResult(
-        cacheKey,
-        generation: generation,
-      );
+      await _translatePageIndividually(index, context, generation);
     }
+  }
+
+  /// Translates a single page through the plain per-page engine path (OCR then
+  /// numbered-line translation). Shared by the individual batch flow and the
+  /// fallback for pages the context pipeline failed.
+  Future<void> _translatePageIndividually(
+    int index,
+    BuildContext context,
+    int generation,
+  ) async {
+    final RecognizedImage? recognized = await _safeRecognize(index, context);
+    final ImageTranslationRequest? request =
+        state.imageTranslationRequests[index];
+    final String cacheKey = request?.cacheKey ?? _batchPageKey(index);
+    if (recognized != null) {
+      try {
+        await layoutLogic.translateRecognizedImage(index, context, recognized);
+        await layoutLogic.repairTranslatedImage(index);
+      } catch (e, stack) {
+        log.warning('Image translation failed for page $index: $e');
+        log.trace(stack);
+        imageTranslationService.markOcrError(
+          cacheKey,
+          'TRANSLATION_TASK_FAILED',
+        );
+      }
+    } else {
+      final ImageTranslationResult result = imageTranslationService.resultFor(
+        cacheKey,
+      );
+      if (result.status == ImageTranslationStatus.success) {
+        await layoutLogic.repairTranslatedImage(index);
+      }
+      if (!result.isTerminal) {
+        imageTranslationService.markOcrError(
+          cacheKey,
+          'TRANSLATION_TASK_FAILED',
+        );
+      }
+    }
+    imageTranslationService.recordBatchResult(cacheKey, generation: generation);
   }
 
   Future<void> _translatePagesWithContext(
@@ -1977,12 +2026,15 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
           imageTranslationSetting.localModelId.value,
         ImageTranslationEngine.appleOnDevice => 'apple-on-device',
       };
-      await _contextTranslationService.translateBatch(
+      final ContextTranslationBatchOutcome
+      outcome = await _contextTranslationService.translateBatch(
         ContextTranslationBatch(
           pages: pages,
           batchSize: contextSize,
           modelVersion: modelVersion,
-          promptVersion: 1,
+          // Context prompt v2 is paired with the bubble-aware single-page
+          // contract; do not hydrate pages generated by the old line prompt.
+          promptVersion: 2,
           targetLanguage: imageTranslationSetting.targetLanguage.value,
           ocrConfiguration: <String, dynamic>{
             'engine': imageTranslationSetting.ocrEngine.value.name,
@@ -1993,6 +2045,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
           configuration: <String, dynamic>{
             'provider': imageTranslationSetting.translatorProvider.value.name,
             'thinking': imageTranslationSetting.enableThinking.value,
+            'mergeTextBlocks': imageTranslationSetting.autoMergeText.value,
           },
         ),
         batchGeneration: generation,
@@ -2002,6 +2055,29 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
         if (index != null) {
           await layoutLogic.repairTranslatedImage(index);
         }
+      }
+      // A page the context pipeline failed (engine error, truncated structured
+      // response, or line-ID mismatch) falls back to the per-page flow, which
+      // only needs the plain numbered-line format. A multi-page context batch
+      // must not fail every page just because the model cannot follow the
+      // structured-ID contract.
+      for (final ContextTranslationPageOutcome pageOutcome in outcome.pages) {
+        if (pageOutcome.status == ContextTranslationPageStatus.success ||
+            pageOutcome.status == ContextTranslationPageStatus.cached ||
+            pageOutcome.status == ContextTranslationPageStatus.canceled) {
+          continue;
+        }
+        final int? index = int.tryParse(
+          pageOutcome.pageId.substring('page-'.length),
+        );
+        if (index == null) {
+          continue;
+        }
+        if (imageTranslationService.isCancelRequested) {
+          _cancelRemainingBatchPages(order, processed, generation);
+          return;
+        }
+        await _translatePageIndividually(index, context, generation);
       }
       layoutLogic.updateSafely([BaseLayoutLogic.pageId]);
     }

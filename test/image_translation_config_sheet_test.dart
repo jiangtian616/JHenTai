@@ -6,6 +6,7 @@ import 'package:jhentai/src/service/engine/context_translation_contract.dart';
 import 'package:jhentai/src/service/engine/engine_contract.dart';
 import 'package:jhentai/src/setting/image_translation_setting.dart';
 import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/image_translation_config_sheet.dart';
 
 void main() {
@@ -17,6 +18,41 @@ void main() {
 
   tearDown(() {
     imageTranslationSetting = originalSetting;
+  });
+
+  test('text merge preference is serialized and restored', () {
+    final ImageTranslationSetting setting = ImageTranslationSetting();
+    // Manual single-line mode remains available when bubble detection is off.
+    setting.enableBubbleDetection.value = false;
+    setting.autoMergeText.value = false;
+    final ImageTranslationSetting restored = ImageTranslationSetting();
+
+    restored.applyBeanConfig(setting.toConfigString());
+
+    expect(restored.autoMergeText.value, isFalse);
+  });
+
+  testWidgets('advanced settings apply changes without a save button', (
+    WidgetTester tester,
+  ) async {
+    final _ImmediateSetting setting = _ImmediateSetting();
+    setting.ocrEngine.value = ImageOcrEngine.appleLiveText;
+    imageTranslationSetting = setting;
+
+    await tester.pumpWidget(
+      const GetMaterialApp(home: SettingImageTranslationPage()),
+    );
+
+    expect(find.text('saveSetting'), findsNothing);
+
+    final EHCodexStyleDropdown<ImageOcrEngine> ocr = tester.widget(
+      find.byKey(const ValueKey('image-translation-ocr-engine')),
+    );
+    ocr.onChanged?.call(ImageOcrEngine.appleLiveText);
+    await tester.pump();
+
+    expect(setting.ocrEngine.value, ImageOcrEngine.appleLiveText);
+    expect(setting.saveCount, 1);
   });
 
   testWidgets('quick sheet exposes independent OCR and translator selectors', (
@@ -41,6 +77,66 @@ void main() {
 
     expect(ocr.value, ImageOcrEngine.onnx);
     expect(translator.value, ImageTranslationEngine.appleOnDevice);
+  });
+
+  testWidgets('quick sheet exposes the text merge switch', (
+    WidgetTester tester,
+  ) async {
+    final _ImmediateSetting setting = _ImmediateSetting();
+    setting.enableBubbleDetection.value = false;
+    setting.autoMergeText.value = true;
+    imageTranslationSetting = setting;
+
+    await tester.pumpWidget(
+      const GetMaterialApp(home: Scaffold(body: ImageTranslationConfigSheet())),
+    );
+    await tester.drag(find.byType(ListView), const Offset(0, -280));
+    await tester.pumpAndSettle();
+
+    final EHAppleSwitchListTile tile = tester.widget(
+      find.byKey(const ValueKey('image-translation-auto-merge-text')),
+    );
+    expect(tile.value, isTrue);
+    tile.onChanged!(false);
+    await tester.pump();
+    expect(setting.autoMergeText.value, isFalse);
+    expect(setting.saveCount, 1);
+  });
+
+  testWidgets('Apple on-device translation exposes the image language picker', (
+    WidgetTester tester,
+  ) async {
+    final ImageTranslationSetting setting = ImageTranslationSetting();
+    setting.ocrEngine.value = ImageOcrEngine.onnx;
+    setting.translatorEngine.value = ImageTranslationEngine.appleOnDevice;
+    imageTranslationSetting = setting;
+
+    await tester.pumpWidget(
+      const GetMaterialApp(home: Scaffold(body: ImageTranslationConfigSheet())),
+    );
+
+    expect(
+      find.byKey(const ValueKey('image-translation-apple-live-text-language')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('image language picker is hidden outside Apple OCR/translation', (
+    WidgetTester tester,
+  ) async {
+    final ImageTranslationSetting setting = ImageTranslationSetting();
+    setting.ocrEngine.value = ImageOcrEngine.onnx;
+    setting.translatorEngine.value = ImageTranslationEngine.api;
+    imageTranslationSetting = setting;
+
+    await tester.pumpWidget(
+      const GetMaterialApp(home: Scaffold(body: ImageTranslationConfigSheet())),
+    );
+
+    expect(
+      find.byKey(const ValueKey('image-translation-apple-live-text-language')),
+      findsNothing,
+    );
   });
 
   testWidgets('advanced page keeps OCR and translator as separate controls', (
@@ -147,4 +243,11 @@ void main() {
       findsOneWidget,
     );
   });
+}
+
+class _ImmediateSetting extends ImageTranslationSetting {
+  int saveCount = 0;
+
+  @override
+  Future<int> saveBeanConfig() async => ++saveCount;
 }

@@ -146,7 +146,11 @@ class ThemeConfig {
       inversePrimary: appleAccent,
       inverseSurface:
           isDark ? const Color(0xFFF5F5F7) : const Color(0xFF1D1D1F),
-      onInverseSurface: onSurface,
+      // Text on the inverted (SnackBar) surface must contrast with it, not
+      // mirror it — previously set to [onSurface] it matched [inverseSurface]
+      // and made every SnackBar's text invisible in Apple style.
+      onInverseSurface:
+          isDark ? const Color(0xFF1D1D1F) : const Color(0xFFF5F5F7),
       surface: window,
       onSurface: onSurface,
       onSurfaceVariant: secondary,
@@ -164,6 +168,13 @@ class ThemeConfig {
       platform: GetPlatform.isMacOS ? TargetPlatform.macOS : TargetPlatform.iOS,
       textTheme: const TextTheme(
         titleMedium: TextStyle(fontWeight: FontWeight.w400),
+      ),
+      // SnackBars follow the app surface instead of Material's inverted
+      // surface, so the panel is dark in dark mode (not a white bar) with a
+      // contrasting label — this is what the timeout/error SnackBars render.
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: window,
+        contentTextStyle: TextStyle(color: onSurface),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: window,

@@ -89,6 +89,29 @@ void main() {
     );
   });
 
+  test('Manga109 bubble model is pinned to the NeuronCState artifact', () {
+    final OnnxModelManifest manifest = OnnxModelStore.manifests.singleWhere(
+      (OnnxModelManifest item) =>
+          item.id == OnnxModelStore.bubbleSegmentationManifestId,
+    );
+    expect(manifest.kind, 'detection');
+    expect(manifest.sourceProjectUrl,
+        'https://huggingface.co/NeuronCState/manga109-segmentation-bubble-onnx');
+    expect(manifest.files, hasLength(1));
+    expect(manifest.files.single.fileName, 'best.onnx');
+    expect(manifest.files.single.sizeBytes, 12509314);
+    expect(
+      manifest.files.single.sha256,
+      '760146a01c3e9f547bc271751bedacd30ae973bfa043dd7761069be7ae0b1336',
+    );
+    expect(
+      manifest.files.single.urls[OnnxModelSource.huggingFace],
+      startsWith(
+        'https://huggingface.co/NeuronCState/manga109-segmentation-bubble-onnx/',
+      ),
+    );
+  });
+
   test('lighter 4B32F super-resolution manifest is a verified drop-in', () {
     final OnnxModelManifest manifest = OnnxModelStore.manifests.singleWhere(
       (OnnxModelManifest item) =>

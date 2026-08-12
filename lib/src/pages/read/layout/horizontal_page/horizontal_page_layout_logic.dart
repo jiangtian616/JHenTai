@@ -22,6 +22,7 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
 
     readPageLogic.updateReaderViewport(
       [readPageState.readPageInfo.currentImageIndex],
+      hydrateTranslation: hydrateTranslation,
     );
 
     /// record reading progress and sync thumbnails list index
@@ -112,7 +113,10 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
 
   void _readProgressListener() {
     int currentPage = pageController.page!.toInt();
-    readPageLogic.updateReaderViewport([currentPage]);
+    readPageLogic.updateReaderViewport(
+      [currentPage],
+      hydrateTranslation: hydrateTranslation,
+    );
     readPageLogic.recordReadProgress(currentPage);
     readPageLogic.syncThumbnails(currentPage);
   }

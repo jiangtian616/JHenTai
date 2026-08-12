@@ -534,10 +534,10 @@ packages:
     dependency: "direct main"
     description:
       name: ffi
-      sha256: "16ed7b077ef01ad6170a3d0c57caa4a112a38d7a2ed5602e0aca9ca6f3d98da6"
+      sha256: "6d7fd89431262d8f3125e81b50d3847a091d846eafcd4fdb88dd06f36d705a45"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.3"
+    version: "2.2.0"
   file:
     dependency: transitive
     description:
@@ -1019,6 +1019,78 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.2"
+  lib_llama_cpp:
+    dependency: "direct main"
+    description:
+      name: lib_llama_cpp
+      sha256: "94cb9dd4cae4e3138be5fb4a666b565f9030d4d053298520628290dcbdf277c6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.3"
+  lib_llama_cpp_android:
+    dependency: transitive
+    description:
+      name: lib_llama_cpp_android
+      sha256: "2f3f8c185df3eb4ac8e1634706b293f7cf96ea25c97ef43c9f1642d7111d9ba7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.3"
+  lib_llama_cpp_ffi:
+    dependency: transitive
+    description:
+      name: lib_llama_cpp_ffi
+      sha256: "75352b6b23416150f8c57e4259b053cc704e406c4627beb1d1fd216d1de90c4c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.3"
+  lib_llama_cpp_ios:
+    dependency: transitive
+    description:
+      name: lib_llama_cpp_ios
+      sha256: f159c87e864e8c5199d4966cc690b29d451e2461d94cea13f1e66ab274205dcc
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.3"
+  lib_llama_cpp_linux:
+    dependency: transitive
+    description:
+      name: lib_llama_cpp_linux
+      sha256: f427d653742c2b1d8b38247d4fece8d4cea7e46024b18c271e914e4b4e8c5eef
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.3"
+  lib_llama_cpp_macos:
+    dependency: transitive
+    description:
+      name: lib_llama_cpp_macos
+      sha256: e70100333ce0c573117187e95dbcd2dc0bae122a5aaa37919b971086e8ac94f6
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.3"
+  lib_llama_cpp_platform_interface:
+    dependency: "direct main"
+    description:
+      name: lib_llama_cpp_platform_interface
+      sha256: "34347118906c7065aa9ac93746dfc60d61b88aa31cb23c6764dde810b7f1e1e6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.3"
+  lib_llama_cpp_server:
+    dependency: transitive
+    description:
+      name: lib_llama_cpp_server
+      sha256: "082b5e658a7dbca42331ddabe81140da1208f8157528b34f24a56f16b51d5aa1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.3"
+  lib_llama_cpp_windows:
+    dependency: transitive
+    description:
+      name: lib_llama_cpp_windows
+      sha256: cd7250985c38d973e635e8e6c7559c9fd1c72334d44d54d453e28cd7b3e915e6
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.3"
   like_button:
     dependency: "direct main"
     description:
@@ -2259,5 +2331,5 @@ packages:
     source: hosted
     version: "2.0.1"
 sdks:
-  dart: ">=3.11.0 <4.0.0"
+  dart: ">=3.11.5 <4.0.0"
   flutter: ">=3.41.0"

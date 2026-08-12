@@ -20,6 +20,8 @@ class ReadSetting
   RxBool showThumbnails = true.obs;
   RxBool showScrollBar = true.obs;
   RxBool showStatusInfo = true.obs;
+  RxBool enableTranslationFloatingBall = true.obs;
+  RxBool enableBookmarkFloatingBall = false.obs;
   RxBool enablePageTurnByVolumeKeys = (GetPlatform.isIOS ? false : true).obs;
   RxBool enablePageTurnAnime = true.obs;
   RxBool enableDoubleTapToScaleUp = false.obs;
@@ -171,6 +173,11 @@ class ReadSetting
     showThumbnails.value = map['showThumbnails'] ?? showThumbnails.value;
     showScrollBar.value = map['showScrollBar'] ?? showScrollBar.value;
     showStatusInfo.value = map['showStatusInfo'] ?? showStatusInfo.value;
+    enableTranslationFloatingBall.value =
+        map['enableTranslationFloatingBall'] ??
+        enableTranslationFloatingBall.value;
+    enableBookmarkFloatingBall.value =
+        map['enableBookmarkFloatingBall'] ?? enableBookmarkFloatingBall.value;
     enablePageTurnByVolumeKeys.value =
         map['enablePageTurnByVolumeKeys'] ?? enablePageTurnByVolumeKeys.value;
     enablePageTurnAnime.value = map['enablePageTurnAnime'];
@@ -266,6 +273,8 @@ class ReadSetting
       'showThumbnails': showThumbnails.value,
       'showScrollBar': showScrollBar.value,
       'showStatusInfo': showStatusInfo.value,
+      'enableTranslationFloatingBall': enableTranslationFloatingBall.value,
+      'enableBookmarkFloatingBall': enableBookmarkFloatingBall.value,
       'enablePageTurnByVolumeKeys': enablePageTurnByVolumeKeys.value,
       'enablePageTurnAnime': enablePageTurnAnime.value,
       'enableDoubleTapToScaleUp': enableDoubleTapToScaleUp.value,
@@ -356,6 +365,18 @@ class ReadSetting
   Future<void> saveShowStatusInfo(bool value) async {
     log.debug('saveShowStatusInfo:$value');
     showStatusInfo.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveEnableBookmarkFloatingBall(bool value) async {
+    log.debug('saveEnableBookmarkFloatingBall:$value');
+    enableBookmarkFloatingBall.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveEnableTranslationFloatingBall(bool value) async {
+    log.debug('saveEnableTranslationFloatingBall:$value');
+    enableTranslationFloatingBall.value = value;
     await saveBeanConfig();
   }
 

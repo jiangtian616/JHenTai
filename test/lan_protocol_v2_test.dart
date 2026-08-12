@@ -60,7 +60,7 @@ void main() {
       'url': 'https://e-hentai.org/s/private-metadata',
     });
     expect(first['seq'], 0);
-    final Map<String, dynamic> decoded = await server.decrypt(first);
+    final Map<String, dynamic> decoded = (await server.decrypt(first))!;
     expect(decoded['op'], 'image');
     expect(server.nextReceiveSequence, 1);
 
@@ -69,7 +69,7 @@ void main() {
       'ok': true,
       'metadata': 'private',
     });
-    expect((await client.decrypt(response))['ok'], isTrue);
+    expect((await client.decrypt(response))!['ok'], isTrue);
 
     client.close();
     server.close();
@@ -127,6 +127,63 @@ void main() {
       server.decrypt(tampered),
       throwsA(isA<LanProtocolException>()),
     );
+
+    client.close();
+    server.close();
+    clientEphemeral.destroy();
+    serverEphemeral.destroy();
+  });
+
+  test('large payloads fragment across records and reassemble', () async {
+    final X25519 x25519 = X25519();
+    final SimpleKeyPair clientEphemeral = await x25519.newKeyPairFromSeed(
+      List<int>.filled(32, 7),
+    );
+    final SimpleKeyPair serverEphemeral = await x25519.newKeyPairFromSeed(
+      List<int>.filled(32, 8),
+    );
+    final SimplePublicKey clientPublic =
+        await clientEphemeral.extractPublicKey();
+    final SimplePublicKey serverPublic =
+        await serverEphemeral.extractPublicKey();
+    final LanSecureSession client = await LanSecureSession.derive(
+      localEphemeralKeyPair: clientEphemeral,
+      remoteEphemeralPublicKey: serverPublic,
+      clientNonce: List<int>.filled(32, 9),
+      serverNonce: List<int>.filled(32, 10),
+      transcript: const <int>[4, 5, 6],
+      isClient: true,
+    );
+    final LanSecureSession server = await LanSecureSession.derive(
+      localEphemeralKeyPair: serverEphemeral,
+      remoteEphemeralPublicKey: clientPublic,
+      clientNonce: List<int>.filled(32, 9),
+      serverNonce: List<int>.filled(32, 10),
+      transcript: const <int>[4, 5, 6],
+      isClient: false,
+    );
+
+    // A large history-like payload that exceeds the 64KiB record cap.
+    final Map<String, dynamic> large = <String, dynamic>{
+      'type': 'application_history',
+      'records': List<String>.generate(
+        2000,
+        (int index) => 'record-$index-${'x' * 120}',
+      ),
+    };
+    final List<Map<String, dynamic>> records = await client.encryptChunked(
+      large,
+    );
+    expect(records.length, greaterThan(1));
+
+    // Intermediate fragments return null; the final one yields the payload.
+    Map<String, dynamic>? decoded;
+    for (final Map<String, dynamic> record in records) {
+      decoded = await server.decrypt(record);
+    }
+    expect(decoded, isNotNull);
+    expect((decoded!['records'] as List), hasLength(2000));
+    expect(server.nextReceiveSequence, records.length);
 
     client.close();
     server.close();

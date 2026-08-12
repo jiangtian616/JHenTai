@@ -89,4 +89,57 @@ void main() {
       controller.completed(token);
     },
   );
+
+  test(
+    'completed is idempotent so a finished thumbnail cannot rebuild-loop',
+    () {
+      // ExtendedImage re-invokes the completed widget builder on every rebuild,
+      // so completed() is called repeatedly for the same attempt. It must only
+      // notify on the loading → completed transition; otherwise EHThumbnail
+      // schedules a rebuild per frame and the page runs a completed → rebuild →
+      // completed loop (observed as 29k+ completions for one gallery page).
+      int notifications = 0;
+      final ReaderThumbnailRequestController controller =
+          ReaderThumbnailRequestController(
+            onStatusChanged: (ReaderThumbnailLoadStatus status) {
+              if (status == ReaderThumbnailLoadStatus.completed) {
+                notifications++;
+              }
+            },
+          );
+      final ReaderThumbnailRequestToken token = controller.start('loop-guard');
+      controller.completed(token);
+      controller.completed(token);
+      controller.completed(token);
+      expect(controller.status, ReaderThumbnailLoadStatus.completed);
+      expect(notifications, 1);
+    },
+  );
+
+  test('ThumbnailLoadGate hands a freed slot to the viewport-closest waiter', () {
+    // Fill every slot.
+    for (int i = 0; i < ThumbnailLoadGate.maxConcurrent; i++) {
+      expect(ThumbnailLoadGate.tryAcquire(), isTrue);
+    }
+
+    final List<String> woken = <String>[];
+    ThumbnailLoadGate.whenAvailable('far', 1000, () => woken.add('far'));
+    ThumbnailLoadGate.whenAvailable('near', 10, () => woken.add('near'));
+
+    // One free slot → the closer waiter ('near') must win even though it
+    // registered after 'far'.
+    ThumbnailLoadGate.release();
+    expect(woken, ['near']);
+
+    // Scroll 'far' into view: its priority improves, so the next free slot
+    // goes to it.
+    ThumbnailLoadGate.updatePriority('far', 5);
+    ThumbnailLoadGate.release();
+    expect(woken, ['near', 'far']);
+
+    // Clean up the remaining reserved slots.
+    for (int i = 0; i < ThumbnailLoadGate.maxConcurrent; i++) {
+      ThumbnailLoadGate.release();
+    }
+  });
 }

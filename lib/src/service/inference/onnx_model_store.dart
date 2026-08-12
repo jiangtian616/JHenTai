@@ -51,6 +51,8 @@ class OnnxModelStore extends GetxController {
 
   static const String miganInpaintManifestId = 'migan-pipeline-v2';
   static const String ctdDetectionManifestId = 'comic-text-detector-beta-0.3';
+  static const String bubbleSegmentationManifestId =
+      'manga109-segmentation-bubble-onnx';
 
   static const List<OnnxModelManifest> manifests = [
     OnnxModelManifest(
@@ -215,6 +217,31 @@ class OnnxModelStore extends GetxController {
                 'https://www.modelscope.cn/models/deepghs/imgutils-models/resolve/master/real_esrgan/RealESRGAN_x4plus_anime_4B32F.onnx',
             OnnxModelSource.huggingFace:
                 'https://huggingface.co/deepghs/imgutils-models/resolve/main/real_esrgan/RealESRGAN_x4plus_anime_4B32F.onnx?download=true',
+          },
+        ),
+      ],
+    ),
+    OnnxModelManifest(
+      id: bubbleSegmentationManifestId,
+      kind: 'detection',
+      version: 'NeuronCState-2026-08-12',
+      displayName: 'Manga109 Speech Bubble Segmentation',
+      description: 'Manga109 YOLO11 speech-bubble instance segmentation.',
+      licenseName: 'Apache-2.0',
+      licenseUrl:
+          'https://huggingface.co/NeuronCState/manga109-segmentation-bubble-onnx',
+      sourceProjectUrl:
+          'https://huggingface.co/NeuronCState/manga109-segmentation-bubble-onnx',
+      files: [
+        OnnxModelFile(
+          id: 'model',
+          fileName: 'best.onnx',
+          sizeBytes: 12509314,
+          sha256:
+              '760146a01c3e9f547bc271751bedacd30ae973bfa043dd7761069be7ae0b1336',
+          urls: {
+            OnnxModelSource.huggingFace:
+                'https://huggingface.co/NeuronCState/manga109-segmentation-bubble-onnx/resolve/main/best.onnx?download=true',
           },
         ),
       ],

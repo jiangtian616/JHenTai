@@ -7,11 +7,16 @@ import 'package:jhentai/src/model/lan_device_trust.dart';
 import 'package:jhentai/src/service/lan_device_trust_service.dart';
 import 'package:jhentai/src/service/lan_sharing_runtime.dart';
 import 'package:jhentai/src/service/lan_trust_repository.dart';
+import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/utils/image_cache_util.dart';
 import 'package:path/path.dart' as path;
 
 void main() {
+  setUpAll(() {
+    log.logDirPath = '${Directory.systemTemp.path}/jhentai-lan-test-logs';
+  });
+
   setUp(() {
     advancedSetting.enableLanSharing.value = true;
     advancedSetting.lanActAsServer.value = true;
@@ -62,6 +67,37 @@ void main() {
     expect(registry.complete('request-2', 'response'), isTrue);
     scheduler.fireNext();
     expect(await pending, 'response');
+    expect(registry.length, 0);
+  });
+
+  test('touching a pending LAN request extends its deadline', () async {
+    final _FakeTimerScheduler scheduler = _FakeTimerScheduler();
+    final LanPendingRequestRegistry<String> registry =
+        LanPendingRequestRegistry<String>(
+          timerScheduler: scheduler,
+          timeout: const Duration(seconds: 3),
+        );
+
+    final Future<String> pending = registry.register(
+      'request-3',
+      timeoutValue: 'timed out',
+    );
+    expect(registry.length, 1);
+
+    // Incoming chunks keep the transfer alive: the original deadline is
+    // cancelled and a fresh one is scheduled.
+    registry.touch('request-3');
+    expect(scheduler.delays, [
+      const Duration(seconds: 3),
+      const Duration(seconds: 3),
+    ]);
+
+    // Firing the now-cancelled original timer is a no-op...
+    scheduler.fireNext();
+    expect(registry.length, 1);
+    // ...only the rescheduled timer completes the request.
+    scheduler.fireNext();
+    expect(await pending, 'timed out');
     expect(registry.length, 0);
   });
 
@@ -374,6 +410,307 @@ void main() {
       deviceA.onClose();
       deviceB.onClose();
       await phoneCache.delete(recursive: true);
+    },
+  );
+
+  test(
+    'peer lists more than one page of the host\'s downloaded galleries',
+    () async {
+      final Directory phoneCache = await Directory.systemTemp.createTemp(
+        'jh-lan-page-cache-',
+      );
+      final LanDeviceTrustService deviceA = LanDeviceTrustService(
+        repository: _MemoryTrustRepository(),
+        secureRandom: Random(161),
+        registerWithGet: false,
+      );
+      final LanDeviceTrustService deviceB = LanDeviceTrustService(
+        repository: _MemoryTrustRepository(),
+        secureRandom: Random(262),
+        registerWithGet: false,
+      );
+      await deviceA.doInitBean();
+      await deviceB.doInitBean();
+
+      // More than one 50-item page; the incremental "no change" short-circuit
+      // must not truncate mid-pagination.
+      final List<LanSharedGallerySummary> manySummaries =
+          List<LanSharedGallerySummary>.generate(
+            55,
+            (index) => LanSharedGallerySummary(
+              deviceId: deviceB.localDeviceId,
+              deviceName: deviceB.localDisplayName,
+              gid: 1000 + index,
+              token: 'token-$index',
+              title: 'Gallery $index',
+              galleryUrl: 'https://e-hentai.org/g/${1000 + index}/abcdefgh/',
+              pageCount: 1 + index % 20,
+              category: 'Manga',
+              publishTime: '2026-01-01 00:00',
+              coverUrl: 'https://example.test/$index.jpg',
+            ),
+          );
+      final LanSharingRuntime runtimeA = LanSharingRuntime(
+        trustService: deviceA,
+        useServiceDiscovery: false,
+        bindAddress: InternetAddress.loopbackIPv4,
+        secureRandom: Random(303),
+        imageCacheDirectory: phoneCache.path,
+      );
+      final LanSharingRuntime runtimeB = LanSharingRuntime(
+        trustService: deviceB,
+        useServiceDiscovery: false,
+        bindAddress: InternetAddress.loopbackIPv4,
+        secureRandom: Random(404),
+        imageCacheDirectory: phoneCache.path,
+        galleryListOverride: () => manySummaries,
+      );
+      await runtimeA.doInitBean();
+      await runtimeB.doInitBean();
+
+      final LanDiscoveredPeer peerB = _peerFor(deviceB, runtimeB.serverPort!);
+      await deviceA.handlePeerDiscovered(peerB);
+      final Future<LanPairingAcceptance> pairing = deviceA
+          .trustDiscoveredDevice(
+            deviceId: deviceB.localDeviceId,
+            permissions: const {LanSharePermission.imageCache},
+          );
+      await _waitUntil(() => deviceB.incomingPairingRequests.isNotEmpty);
+      await deviceB.acceptIncomingPairing(
+        deviceId: deviceA.localDeviceId,
+        permissions: const {
+          LanSharePermission.downloads,
+          LanSharePermission.imageCache,
+        },
+      );
+      await pairing;
+      expect(
+        deviceA.connectionFor(deviceB.localDeviceId).state,
+        LanPeerConnectionState.connected,
+      );
+
+      final List<LanSharedGallerySummary> galleries =
+          await deviceA.listDownloadedGalleries();
+      expect(galleries, hasLength(55));
+      expect(galleries.first.gid, 1000);
+      expect(galleries.last.gid, 1054);
+
+      await runtimeA.stop();
+      await runtimeB.stop();
+      deviceA.onClose();
+      deviceB.onClose();
+      await phoneCache.delete(recursive: true);
+    },
+  );
+
+  test(
+    'remote download is rejected when the host has not granted downloads',
+    () async {
+      final Directory phoneCache = await Directory.systemTemp.createTemp(
+        'jh-lan-dl-req-cache-',
+      );
+      final LanDeviceTrustService deviceA = LanDeviceTrustService(
+        repository: _MemoryTrustRepository(),
+        secureRandom: Random(171),
+        registerWithGet: false,
+      );
+      final LanDeviceTrustService deviceB = LanDeviceTrustService(
+        repository: _MemoryTrustRepository(),
+        secureRandom: Random(272),
+        registerWithGet: false,
+      );
+      await deviceA.doInitBean();
+      await deviceB.doInitBean();
+      final LanSharingRuntime runtimeA = LanSharingRuntime(
+        trustService: deviceA,
+        useServiceDiscovery: false,
+        bindAddress: InternetAddress.loopbackIPv4,
+        secureRandom: Random(303),
+        imageCacheDirectory: phoneCache.path,
+      );
+      final LanSharingRuntime runtimeB = LanSharingRuntime(
+        trustService: deviceB,
+        useServiceDiscovery: false,
+        bindAddress: InternetAddress.loopbackIPv4,
+        secureRandom: Random(404),
+        imageCacheDirectory: phoneCache.path,
+      );
+      await runtimeA.doInitBean();
+      await runtimeB.doInitBean();
+
+      final LanDiscoveredPeer peerB = _peerFor(deviceB, runtimeB.serverPort!);
+      await deviceA.handlePeerDiscovered(peerB);
+      final Future<LanPairingAcceptance> pairing = deviceA
+          .trustDiscoveredDevice(
+            deviceId: deviceB.localDeviceId,
+            permissions: const {LanSharePermission.imageCache},
+          );
+      await _waitUntil(() => deviceB.incomingPairingRequests.isNotEmpty);
+      // Host B grants A image cache but NOT the downloads permission, so the
+      // remote-download request must be refused.
+      await deviceB.acceptIncomingPairing(
+        deviceId: deviceA.localDeviceId,
+        permissions: const {LanSharePermission.imageCache},
+      );
+      await pairing;
+      expect(
+        deviceA.connectionFor(deviceB.localDeviceId).state,
+        LanPeerConnectionState.connected,
+      );
+
+      final bool accepted = await deviceA.requestDownloadGallery(
+        deviceB.localDeviceId,
+        LanRemoteDownloadRequest(
+          gid: 999,
+          galleryUrl: 'https://e-hentai.org/g/999/abcdefgh/',
+          token: 'token',
+          title: 'Remote',
+          category: 'Manga',
+          pageCount: 3,
+        ),
+      );
+      expect(accepted, isFalse);
+
+      await runtimeA.stop();
+      await runtimeB.stop();
+      deviceA.onClose();
+      deviceB.onClose();
+      await phoneCache.delete(recursive: true);
+    },
+  );
+
+  test(
+    'peer pushes a cache file to a host that granted imageCache',
+    () async {
+      final Directory phoneCache = await Directory.systemTemp.createTemp(
+        'jh-lan-cache-push-',
+      );
+      final LanDeviceTrustService deviceA = LanDeviceTrustService(
+        repository: _MemoryTrustRepository(),
+        secureRandom: Random(181),
+        registerWithGet: false,
+      );
+      final LanDeviceTrustService deviceB = LanDeviceTrustService(
+        repository: _MemoryTrustRepository(),
+        secureRandom: Random(282),
+        registerWithGet: false,
+      );
+      await deviceA.doInitBean();
+      await deviceB.doInitBean();
+      final LanSharingRuntime runtimeA = LanSharingRuntime(
+        trustService: deviceA,
+        useServiceDiscovery: false,
+        bindAddress: InternetAddress.loopbackIPv4,
+        secureRandom: Random(303),
+        imageCacheDirectory: phoneCache.path,
+      );
+      final LanSharingRuntime runtimeB = LanSharingRuntime(
+        trustService: deviceB,
+        useServiceDiscovery: false,
+        bindAddress: InternetAddress.loopbackIPv4,
+        secureRandom: Random(404),
+        imageCacheDirectory: phoneCache.path,
+      );
+      await runtimeA.doInitBean();
+      await runtimeB.doInitBean();
+
+      final LanDiscoveredPeer peerB = _peerFor(deviceB, runtimeB.serverPort!);
+      await deviceA.handlePeerDiscovered(peerB);
+      final Future<LanPairingAcceptance> pairing = deviceA
+          .trustDiscoveredDevice(
+            deviceId: deviceB.localDeviceId,
+            permissions: const {LanSharePermission.imageCache},
+          );
+      await _waitUntil(() => deviceB.incomingPairingRequests.isNotEmpty);
+      await deviceB.acceptIncomingPairing(
+        deviceId: deviceA.localDeviceId,
+        permissions: const {LanSharePermission.imageCache},
+      );
+      await pairing;
+      expect(
+        deviceA.connectionFor(deviceB.localDeviceId).state,
+        LanPeerConnectionState.connected,
+      );
+
+      final List<int> bytes = List<int>.generate(64, (index) => index % 251);
+      final bool stored = await deviceA.pushCacheFileToServer(
+        'pushed-cache-key',
+        bytes,
+      );
+      expect(stored, isTrue);
+      final File target = File(
+        path.join(phoneCache.path, 'pushed-cache-key'),
+      );
+      expect(await target.readAsBytes(), bytes);
+
+      await runtimeA.stop();
+      await runtimeB.stop();
+      deviceA.onClose();
+      deviceB.onClose();
+      await phoneCache.delete(recursive: true);
+    },
+  );
+
+  test(
+    'active broadcast auto-accepts an incoming pairing on the host',
+    () async {
+      advancedSetting.lanActiveBroadcast.value = true;
+      try {
+        final Directory phoneCache = await Directory.systemTemp.createTemp(
+          'jh-lan-auto-pair-',
+        );
+        final LanDeviceTrustService deviceA = LanDeviceTrustService(
+          repository: _MemoryTrustRepository(),
+          secureRandom: Random(191),
+          registerWithGet: false,
+        );
+        final LanDeviceTrustService deviceB = LanDeviceTrustService(
+          repository: _MemoryTrustRepository(),
+          secureRandom: Random(292),
+          registerWithGet: false,
+        );
+        await deviceA.doInitBean();
+        await deviceB.doInitBean();
+        final LanSharingRuntime runtimeA = LanSharingRuntime(
+          trustService: deviceA,
+          useServiceDiscovery: false,
+          bindAddress: InternetAddress.loopbackIPv4,
+          secureRandom: Random(303),
+          imageCacheDirectory: phoneCache.path,
+        );
+        final LanSharingRuntime runtimeB = LanSharingRuntime(
+          trustService: deviceB,
+          useServiceDiscovery: false,
+          bindAddress: InternetAddress.loopbackIPv4,
+          secureRandom: Random(404),
+          imageCacheDirectory: phoneCache.path,
+        );
+        await runtimeA.doInitBean();
+        await runtimeB.doInitBean();
+
+        final LanDiscoveredPeer peerB = _peerFor(
+          deviceB,
+          runtimeB.serverPort!,
+        );
+        // A initiates the pairing; B (active broadcast on) auto-accepts, so
+        // no manual acceptIncomingPairing call is needed on B.
+        await deviceA.handlePeerDiscovered(peerB);
+        await _waitUntil(
+          () =>
+              deviceA.deviceById(deviceB.localDeviceId) != null &&
+              deviceB.deviceById(deviceA.localDeviceId) != null,
+        );
+        expect(deviceA.deviceById(deviceB.localDeviceId), isNotNull);
+        expect(deviceB.deviceById(deviceA.localDeviceId), isNotNull);
+
+        await runtimeA.stop();
+        await runtimeB.stop();
+        deviceA.onClose();
+        deviceB.onClose();
+        await phoneCache.delete(recursive: true);
+      } finally {
+        advancedSetting.lanActiveBroadcast.value = false;
+      }
     },
   );
 }

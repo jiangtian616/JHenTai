@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cryptography/cryptography.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,9 +7,15 @@ import 'package:jhentai/src/model/lan_device_trust.dart';
 import 'package:jhentai/src/model/lan_unified_state.dart';
 import 'package:jhentai/src/service/lan_protocol_v2.dart';
 import 'package:jhentai/src/service/lan_unified_state_service.dart';
+import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
+import 'package:jhentai/src/utils/cookie_util.dart';
 
 void main() {
+  setUpAll(() {
+    log.logDirPath = '${Directory.systemTemp.path}/jhentai-lan-test-logs';
+  });
+
   test(
     'same-account login import policy never silently replaces another account',
     () async {
@@ -165,6 +172,41 @@ void main() {
       final TrustedLanDevice revoked = device.copyWith(permissions: const {});
       expect(revoked.permissions, isEmpty);
       expect(revoked.toJson()['permissions'], isEmpty);
+    },
+  );
+
+  test(
+    'login cookies export as name=value pairs the import parser can round-trip',
+    () {
+      // The app stores cookies with Set-Cookie attributes. `Cookie.toString()`
+      // renders them back with "; HttpOnly", which `parse2Cookies` cannot
+      // split (a bare attribute token breaks the parser), so login import
+      // failed with `invalidCookie` unless the export uses plain pairs.
+      final List<Cookie> cookies = [
+        Cookie.fromSetCookieValue('ipb_member_id=7998183; HttpOnly'),
+        Cookie.fromSetCookieValue('ipb_pass_hash=abc123; HttpOnly'),
+        Cookie.fromSetCookieValue('sk=xyz; HttpOnly'),
+      ];
+
+      // Old export format — attributes leak into the wire and break parsing.
+      final List<Cookie> legacyParsed = CookieUtil.parse2Cookies(
+        cookies.map((cookie) => cookie.toString()).join('; '),
+      );
+      expect(CookieUtil.validateCookies(legacyParsed), isFalse);
+
+      // New export format — plain name=value pairs survive the round-trip.
+      final List<Cookie> fixedParsed = CookieUtil.parse2Cookies(
+        cookies
+            .where((cookie) => cookie.name != 'nw' && cookie.name != 'datatags')
+            .map((cookie) => '${cookie.name}=${cookie.value}')
+            .join('; '),
+      );
+      expect(CookieUtil.validateCookies(fixedParsed), isTrue);
+      expect(fixedParsed.map((cookie) => cookie.name), containsAll([
+        'ipb_member_id',
+        'ipb_pass_hash',
+        'sk',
+      ]));
     },
   );
 }

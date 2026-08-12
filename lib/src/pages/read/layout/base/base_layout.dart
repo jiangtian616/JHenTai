@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
@@ -343,8 +342,10 @@ abstract class BaseLayout extends StatelessWidget {
   Widget? completedWidgetBuilderCallBack(int index, ExtendedImageState state) {
     /// a previously failed image has loaded, so it no longer needs a retry
     readPageState.failedOnlineImageIndices.remove(index);
-    logic.readPageLogic.markOnlineImageLoaded(index);
-    unawaited(logic.hydrateTranslation(index));
+    logic.readPageLogic.markOnlineImageLoaded(
+      index,
+      hydrateTranslation: logic.hydrateTranslation,
+    );
 
     if (state.extendedImageInfo == null ||
         logic.readPageState.imageContainerSizes[index] != null) {

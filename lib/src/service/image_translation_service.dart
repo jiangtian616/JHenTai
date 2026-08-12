@@ -21,6 +21,7 @@ import 'jh_service.dart';
 import 'log.dart';
 import 'path_service.dart';
 import '../utils/image_text_grouping.dart';
+import '../utils/image_text_container_detection.dart';
 import 'engine/engine.dart';
 
 ImageTranslationService imageTranslationService = ImageTranslationService();
@@ -30,11 +31,8 @@ ImageTranslationService imageTranslationService = ImageTranslationService();
 /// Live Text), so the overlay scales blocks in the same space the image is
 /// actually displayed in. Tesseract/Paddle return null and the caller falls
 /// back to its header-based dimension probe.
-typedef _RecognizeResult = ({
-  List<RecognizedTextBlock> blocks,
-  int? imageWidth,
-  int? imageHeight,
-});
+typedef _RecognizeResult =
+    ({List<RecognizedTextBlock> blocks, int? imageWidth, int? imageHeight});
 
 /// The recognized source of one page, produced by [ImageTranslationService.recognizeImage]
 /// and consumed by [ImageTranslationService.translateRecognizedText]. Carrying it
@@ -48,6 +46,8 @@ class RecognizedImage {
     required this.sourcePath,
     required this.sourceText,
     required this.blocks,
+    this.containers = const <RecognizedTextContainer>[],
+    this.mergeTextBlocks = true,
     required this.imageWidth,
     required this.imageHeight,
   });
@@ -58,6 +58,8 @@ class RecognizedImage {
   final String sourcePath;
   final String sourceText;
   final List<RecognizedTextBlock> blocks;
+  final List<RecognizedTextContainer> containers;
+  final bool mergeTextBlocks;
   final int imageWidth;
   final int imageHeight;
 }
@@ -277,9 +279,10 @@ class ImageTranslationService extends GetxController
       _results[cacheKey] ?? const ImageTranslationResult.idle();
 
   @override
-  List<JHLifeCircleBean> get initDependencies => super.initDependencies
-    ..add(imageTranslationSetting)
-    ..add(inferenceService);
+  List<JHLifeCircleBean> get initDependencies =>
+      super.initDependencies
+        ..add(imageTranslationSetting)
+        ..add(inferenceService);
 
   @override
   Future<void> doInitBean() async {
@@ -460,7 +463,7 @@ class ImageTranslationService extends GetxController
     _setStage(ImageTranslationStage.recognizing);
     _activeCacheKey = request.cacheKey;
 
-    List<int> sourceBytes = <int>[];
+    late final Uint8List sourceBytes;
     try {
       if (_cancelRequested) {
         markCanceled(request.cacheKey);
@@ -484,8 +487,26 @@ class ImageTranslationService extends GetxController
         return null;
       }
 
+      // Bubble detection is deliberately started before OCR.  OCR still runs
+      // on the complete page (the PP-OCRv6 adapter has no region-aware
+      // recognizer yet), while the resulting boxes are joined to OCR lines
+      // below.  This keeps the user-visible order deterministic and leaves a
+      // safe full-page OCR fallback when the optional model is unavailable.
+      final bool useBubbleDetection =
+          imageTranslationSetting.autoMergeText.value &&
+          imageTranslationSetting.enableBubbleDetection.value;
+      final DetectionResult? bubbleDetection = useBubbleDetection
+          ? await _detectBubbleRegions(imagePath)
+          : null;
       final _RecognizeResult recognized = await _recognize(imagePath);
       final List<RecognizedTextBlock> blocks = recognized.blocks;
+      final bool mergeTextBlocks = imageTranslationSetting.autoMergeText.value;
+      List<RecognizedTextContainer> containers = useBubbleDetection
+          ? _containersFromBubbleDetection(blocks, bubbleDetection)
+          : const <RecognizedTextContainer>[];
+      if (useBubbleDetection && containers.isEmpty) {
+        containers = await _detectTextContainers(sourceBytes, blocks);
+      }
       // Both on-device engines (ONNX, Apple Live Text) always report the
       // upright pixel dimensions; probe the image header only as a fallback so
       // the hot path never copies the page bytes on the UI isolate.
@@ -530,6 +551,8 @@ class ImageTranslationService extends GetxController
             status: ImageTranslationStatus.failed,
             sourceText: sourceText,
             blocks: blocks,
+            containers: containers,
+            mergeTextBlocks: mergeTextBlocks,
             errorMessage: 'TRANSLATOR_NOT_CONFIGURED',
             needsConfiguration: true,
             imageWidth: imageWidth,
@@ -545,6 +568,8 @@ class ImageTranslationService extends GetxController
           status: ImageTranslationStatus.translating,
           sourceText: sourceText,
           blocks: blocks,
+          containers: containers,
+          mergeTextBlocks: mergeTextBlocks,
           imageWidth: imageWidth,
           imageHeight: imageHeight,
         ),
@@ -557,6 +582,8 @@ class ImageTranslationService extends GetxController
         sourcePath: imagePath,
         sourceText: sourceText,
         blocks: blocks,
+        containers: containers,
+        mergeTextBlocks: mergeTextBlocks,
         imageWidth: imageWidth,
         imageHeight: imageHeight,
       );
@@ -614,9 +641,8 @@ class ImageTranslationService extends GetxController
       log.error('Image translation failed', e, stack);
       markOcrError(request.cacheKey, 'OCR_FAILED');
     } finally {
-      // RecognizedImage carries only text/boxes and the source path. Never let
-      // a completed, failed, or cancelled page retain its full image buffer.
-      sourceBytes.clear();
+      // The source buffer is method-scoped and is never stored in the result or
+      // read-page state, so it becomes collectible when this attempt unwinds.
       if (_activeCacheKey == request.cacheKey) {
         _activeCacheKey = null;
       }
@@ -635,8 +661,9 @@ class ImageTranslationService extends GetxController
     final TranslationEngine engine = engineRegistry.selectedTranslation;
     EngineTask<TranslationResult>? task;
     try {
-      final EngineCapabilityDecision capability = engineRegistry
-          .evaluateSelected();
+      await engine.ensureReady();
+      final EngineCapabilityDecision capability =
+          engineRegistry.evaluateSelected();
       if (!capability.supported) {
         throw ImageTranslationException(
           capability.reason.contains('not ready')
@@ -648,10 +675,13 @@ class ImageTranslationService extends GetxController
         TranslationEngineRequest(
           blocks: recognized.blocks,
           imagePath: recognized.sourcePath,
-          targetLanguage: engine.descriptor.id == 'apple-translation'
-              ? _appleTargetLanguage()
-              : imageTranslationSetting.targetLanguage.value,
+          targetLanguage:
+              engine.descriptor.id == 'apple-translation'
+                  ? _appleTargetLanguage()
+                  : imageTranslationSetting.targetLanguage.value,
           sourceLanguage: _appleSourceLanguage(),
+          mergeTextBlocks: recognized.mergeTextBlocks,
+          containers: recognized.containers,
           configuration: <String, dynamic>{
             'provider': imageTranslationSetting.translatorProvider.value.name,
             'model':
@@ -661,7 +691,10 @@ class ImageTranslationService extends GetxController
                     : imageTranslationSetting.translatorModel.value,
             'thinking': imageTranslationSetting.enableThinking.value,
           },
-          promptVersion: 3,
+          // Group-level translation is a semantic prompt change. Bumping the
+          // version prevents old line-by-line results from being reused as if
+          // they had been produced by the new bubble-aware contract.
+          promptVersion: 4,
         ),
       );
       task = activeTask;
@@ -689,7 +722,10 @@ class ImageTranslationService extends GetxController
           status: ImageTranslationStatus.success,
           sourceText: recognized.sourceText,
           translatedText: translatedText,
+          translatedGroups: translation.groupTranslations,
           blocks: recognized.blocks,
+          containers: recognized.containers,
+          mergeTextBlocks: recognized.mergeTextBlocks,
           imageWidth: recognized.imageWidth,
           imageHeight: recognized.imageHeight,
         ),
@@ -797,7 +833,7 @@ class ImageTranslationService extends GetxController
   String _persistentCacheKey(
     ImageTranslationRequest request,
     String imageHash, {
-    int promptVersion = 3,
+    int promptVersion = 4,
     bool legacy = false,
   }) {
     final String configFingerprint = _translationConfigFingerprint(
@@ -829,6 +865,7 @@ class ImageTranslationService extends GetxController
         'endpoint': configuration['endpoint'],
         'target': configuration['target'],
         'thinking': imageTranslationSetting.enableThinking.value,
+        'mergeTextBlocks': imageTranslationSetting.autoMergeText.value,
       },
       promptVersion: promptVersion,
       pipelineVersion: 'image-translation-v2',
@@ -836,7 +873,7 @@ class ImageTranslationService extends GetxController
   }
 
   String _translationConfigFingerprint({
-    int promptVersion = 3,
+    int promptVersion = 4,
     bool legacy = false,
   }) {
     if (legacy) {
@@ -853,9 +890,8 @@ class ImageTranslationService extends GetxController
           'onnxModel': OnnxModelStore.instance.fingerprintOf(
             imageTranslationSetting.onnxModelId.value,
           ),
-          'onnxBackend': inferenceService
-              .resolveBackendFor(InferenceDomain.ocr)
-              ?.name,
+          'onnxBackend':
+              inferenceService.resolveBackendFor(InferenceDomain.ocr)?.name,
         },
         'provider': imageTranslationSetting.translatorProvider.value.name,
         'endpoint': imageTranslationSetting.translatorEndpoint.value,
@@ -875,9 +911,8 @@ class ImageTranslationService extends GetxController
         'onnxModel': OnnxModelStore.instance.fingerprintOf(
           imageTranslationSetting.onnxModelId.value,
         ),
-        'onnxBackend': inferenceService
-            .resolveBackendFor(InferenceDomain.ocr)
-            ?.name,
+        'onnxBackend':
+            inferenceService.resolveBackendFor(InferenceDomain.ocr)?.name,
       },
       'provider': imageTranslationSetting.translatorProvider.value.name,
       'translatorEngine': imageTranslationSetting.translatorEngine.value.name,
@@ -888,6 +923,7 @@ class ImageTranslationService extends GetxController
               ? imageTranslationSetting.localModelId.value
               : imageTranslationSetting.translatorModel.value,
       'target': imageTranslationSetting.targetLanguage.value,
+      'mergeTextBlocks': imageTranslationSetting.autoMergeText.value,
       // Group-aware translation (speech bubbles translated as one utterance).
       'promptVersion': promptVersion,
     });
@@ -918,6 +954,17 @@ class ImageTranslationService extends GetxController
     for (final String key in keys) {
       final ImageTranslationResult? cached = await _readPersistentResult(key);
       if (cached == null) continue;
+      // Prompt version 4 translates one speech-bubble group at a time. Older
+      // entries only contain line-by-line output, which would reintroduce the
+      // fragmentary layout this cache version is intended to fix.
+      if (key != currentKey && cached.translatedGroups.isEmpty) {
+        continue;
+      }
+      if (key != currentKey &&
+          cached.mergeTextBlocks !=
+              imageTranslationSetting.autoMergeText.value) {
+        continue;
+      }
       if (key != currentKey) {
         try {
           await _writePersistentResult(currentKey, cached);
@@ -936,14 +983,13 @@ class ImageTranslationService extends GetxController
     if (imagePath == null) {
       return false;
     }
-    List<int> sourceBytes;
+    final Uint8List sourceBytes;
     try {
       sourceBytes = await File(imagePath).readAsBytes();
     } on FileSystemException {
       return false;
     }
     final String imageHash = await compute(_sha256Hex, sourceBytes);
-    sourceBytes.clear();
     final ImageTranslationResult? cached = await _readPersistentResultForHash(
       request,
       imageHash,
@@ -994,21 +1040,22 @@ class ImageTranslationService extends GetxController
     }
   }
 
-  String _stripReasoning(String text) => text
-      .replaceAllMapped(
-        RegExp(r'<think>[\s\S]*?</think>', caseSensitive: false),
-        (_) => '',
-      )
-      .replaceAllMapped(
-        RegExp(r'<thinking>[\s\S]*?</thinking>', caseSensitive: false),
-        (_) => '',
-      )
-      .replaceAllMapped(
-        RegExp(r'\[/?reasoning\]', caseSensitive: false),
-        (_) => '',
-      )
-      .replaceAll(RegExp(r'\n\s*\n+'), '\n')
-      .trim();
+  String _stripReasoning(String text) =>
+      text
+          .replaceAllMapped(
+            RegExp(r'<think>[\s\S]*?</think>', caseSensitive: false),
+            (_) => '',
+          )
+          .replaceAllMapped(
+            RegExp(r'<thinking>[\s\S]*?</thinking>', caseSensitive: false),
+            (_) => '',
+          )
+          .replaceAllMapped(
+            RegExp(r'\[/?reasoning\]', caseSensitive: false),
+            (_) => '',
+          )
+          .replaceAll(RegExp(r'\n\s*\n+'), '\n')
+          .trim();
 
   Future<void> _writePersistentResult(
     String key,
@@ -1089,20 +1136,109 @@ class ImageTranslationService extends GetxController
     }
   }
 
+  Future<List<RecognizedTextContainer>> _detectTextContainers(
+    Uint8List sourceBytes,
+    List<RecognizedTextBlock> blocks,
+  ) async {
+    if (blocks.length < 2) {
+      return const <RecognizedTextContainer>[];
+    }
+    try {
+      final List<Map<String, dynamic>> raw =
+          await compute(detectTextContainersFromBytes, <String, dynamic>{
+            'bytes': sourceBytes,
+            'blocks':
+                blocks
+                    .map((RecognizedTextBlock block) => block.toJson())
+                    .toList(),
+          });
+      return raw
+          .map(
+            (Map<String, dynamic> json) =>
+                RecognizedTextContainer.fromJson(json),
+          )
+          .toList(growable: false);
+    } catch (error, stack) {
+      log.warning('Text-container detection skipped: $error');
+      log.trace(stack);
+      return const <RecognizedTextContainer>[];
+    }
+  }
+
+  Future<DetectionResult?> _detectBubbleRegions(String imagePath) async {
+    final DetectionEngine? detector = engineRegistry.findDetection(
+      'manga109-bubble-segmentation',
+    );
+    if (detector == null || !detector.isReady) {
+      return null;
+    }
+    final EngineTask<DetectionResult> task = detector.detect(
+      EngineImageRequest(imagePath: imagePath),
+    );
+    try {
+      return await task.future.timeout(
+        const Duration(minutes: 2),
+      );
+    } catch (error, stack) {
+      log.warning('Manga109 bubble detection skipped: $error');
+      log.trace(stack);
+      return null;
+    }
+  }
+
+  List<RecognizedTextContainer> _containersFromBubbleDetection(
+    List<RecognizedTextBlock> blocks,
+    DetectionResult? detection,
+  ) {
+    if (blocks.isEmpty || detection == null) {
+      return const <RecognizedTextContainer>[];
+    }
+    final List<RecognizedTextContainer> containers = <RecognizedTextContainer>[];
+    for (final DetectedTextRegion region in detection.regions) {
+      final List<int> indices = <int>[];
+      for (int blockIndex = 0; blockIndex < blocks.length; blockIndex++) {
+        final RecognizedTextBlock block = blocks[blockIndex];
+        final double centerX = block.left + block.width / 2;
+        final double centerY = block.top + block.height / 2;
+        if (centerX >= region.left &&
+            centerX <= region.left + region.width &&
+            centerY >= region.top &&
+            centerY <= region.top + region.height) {
+          indices.add(blockIndex);
+        }
+      }
+      if (indices.isNotEmpty) {
+        containers.add(
+          RecognizedTextContainer(
+            blockIndices: indices,
+            left: region.left,
+            top: region.top,
+            width: region.width,
+            height: region.height,
+            confidence: region.confidence,
+          ),
+        );
+      }
+    }
+    return containers;
+  }
+
   Future<File> exportOverlay(ImageTranslationRequest request) async {
     final String? imagePath = request.imagePath;
     if (imagePath == null) {
       throw const ImageTranslationException('IMAGE_SOURCE_UNAVAILABLE');
     }
     final ImageTranslationResult result = resultFor(request.cacheKey);
-    final List<String> translations = const LineSplitter()
-        .convert(result.translatedText)
-        .map((line) => line.trim())
-        .where((line) => line.isNotEmpty)
-        .toList();
-    final List<RecognizedTextBlock> blocks = result.blocks
-        .where((block) => block.width > 4 && block.height > 4)
-        .toList();
+    final List<String> translations =
+        const LineSplitter()
+            .convert(result.translatedText)
+            .map((line) => line.trim())
+            .where((line) => line.isNotEmpty)
+            .toList();
+    final List<RecognizedTextBlock> blocks =
+        result.blocks
+            .where((block) => block.width > 4 && block.height > 4)
+            .toList();
     if (result.status != ImageTranslationStatus.success ||
         translations.length != blocks.length) {
       throw const ImageTranslationException('OVERLAY_NOT_READY');
@@ -1115,47 +1251,67 @@ class ImageTranslationService extends GetxController
     final ui.PictureRecorder recorder = ui.PictureRecorder();
     final Canvas canvas = Canvas(recorder)
       ..drawImage(frame.image, Offset.zero, Paint());
-    // Adjacent lines of the same bubble (a group) share ONE background pill and
-    // ONE font size, mirroring the read page. All pills are drawn first so a
-    // later bubble never covers an earlier line's wrapped text overflow; text
-    // stays per line at the group's shared size.
+    // Render each detected speech bubble as one text layout. The old renderer
+    // painted every OCR line into its own narrow rect, which made a natural
+    // translation wrap into tiny, disconnected fragments. A merged rect lets
+    // TextPainter choose one readable size for the whole utterance.
     final List<(Rect, String, double)> entries = <(Rect, String, double)>[];
     final List<Rect> mergedBackgrounds = <Rect>[];
-    for (final RecognizedTextGroup group in groupRecognizedTextBlocks(blocks)) {
+    // Container indices are generated against the complete OCR list. If an
+    // old cache contains zero-sized blocks that are filtered above, discard
+    // the explicit container geometry for this export rather than applying a
+    // box to the wrong group; the OCR-group fallback remains safe.
+    final List<RecognizedTextContainer> containers =
+        blocks.length == result.blocks.length
+            ? result.containers
+            : const <RecognizedTextContainer>[];
+    final List<RecognizedTextGroup> groups = translationTextGroups(
+      blocks,
+      merge: result.mergeTextBlocks,
+      containers: containers,
+    );
+    for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
+      final RecognizedTextGroup group = groups[groupIndex];
       Rect? merged;
-      final List<(Rect, String)> groupEntries = <(Rect, String)>[];
-      double groupFont = double.infinity;
+      final List<String> groupLines = <String>[];
       for (final int index in group.blockIndices) {
-        final RecognizedTextBlock block = blocks[index];
-        final Rect rect = Rect.fromLTWH(
-          block.left - 4,
-          block.top - 3,
-          block.width + 8,
-          block.height + 6,
-        );
-        final String translation = translations[index];
-        groupEntries.add((rect, translation));
-        merged = merged == null ? rect : merged.expandToInclude(rect);
-        groupFont = math.min(
-          groupFont,
-          fitTranslationFontSize(
-            translation,
-            math.max(1, rect.width - 4),
-            rect.height,
-            TextDirection.ltr,
-          ),
-        );
+        groupLines.add(index < translations.length ? translations[index] : '');
+        if (merged == null) {
+          final RecognizedTextGroupRenderBounds? detected =
+              explicitRenderBoundsForRecognizedTextGroup(group, containers);
+          final RecognizedTextGroupRenderBounds bounds =
+              detected ?? renderBoundsForRecognizedTextGroup(group, blocks);
+          merged = Rect.fromLTRB(
+            bounds.left - 4,
+            bounds.top - 3,
+            bounds.right + 4,
+            bounds.bottom + 3,
+          );
+        }
       }
       if (merged != null) {
         mergedBackgrounds.add(merged);
-        final double resolved = groupFont.isFinite ? groupFont : 8;
-        for (final (Rect rect, String translation) in groupEntries) {
-          entries.add((rect, translation, resolved));
-        }
+        final String translation =
+            groupIndex < result.translatedGroups.length &&
+                    result.translatedGroups[groupIndex].trim().isNotEmpty
+                ? result.translatedGroups[groupIndex].trim()
+                : groupLines.join('\n');
+        final double resolved = fitTranslationFontSize(
+          translation,
+          math.max(1, merged.width - 8),
+          math.max(1, merged.height - 4),
+          TextDirection.ltr,
+        );
+        entries.add((merged, translation, resolved));
       }
     }
     for (final Rect rect in mergedBackgrounds) {
-      paintTranslationBubbleBackground(canvas, rect);
+      paintTranslationBubbleBackground(
+        canvas,
+        rect,
+        color: imageTranslationSetting.translationBackgroundColor.value,
+        opacity: imageTranslationSetting.translationBackgroundOpacity.value,
+      );
     }
     for (final (Rect rect, String translation, double fontSize) in entries) {
       paintTranslationBubbleText(
@@ -1217,14 +1373,15 @@ class ImageTranslationService extends GetxController
     final (Uint8List rgba, int width, int height) = payload;
     final BytesBuilder builder = BytesBuilder(copy: false);
     builder.add(const [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A]);
-    final ByteData ihdr = ByteData(13)
-      ..setUint32(0, width)
-      ..setUint32(4, height)
-      ..setUint8(8, 8) // bit depth
-      ..setUint8(9, 6) // color type: truecolor with alpha
-      ..setUint8(10, 0) // compression: deflate
-      ..setUint8(11, 0) // filter method
-      ..setUint8(12, 0); // interlace: none
+    final ByteData ihdr =
+        ByteData(13)
+          ..setUint32(0, width)
+          ..setUint32(4, height)
+          ..setUint8(8, 8) // bit depth
+          ..setUint8(9, 6) // color type: truecolor with alpha
+          ..setUint8(10, 0) // compression: deflate
+          ..setUint8(11, 0) // filter method
+          ..setUint8(12, 0); // interlace: none
     _addPngChunk(builder, 'IHDR', ihdr.buffer.asUint8List());
 
     // Each scanline is prefixed with filter type 0 (None) and the whole
@@ -1246,9 +1403,10 @@ class ImageTranslationService extends GetxController
 
   static void _addPngChunk(BytesBuilder builder, String type, List<int> data) {
     final Uint8List typeBytes = ascii.encode(type);
-    final Uint8List chunk = Uint8List(typeBytes.length + data.length)
-      ..setRange(0, typeBytes.length, typeBytes)
-      ..setRange(typeBytes.length, typeBytes.length + data.length, data);
+    final Uint8List chunk =
+        Uint8List(typeBytes.length + data.length)
+          ..setRange(0, typeBytes.length, typeBytes)
+          ..setRange(typeBytes.length, typeBytes.length + data.length, data);
     final ByteData length = ByteData(4)..setUint32(0, data.length);
     final ByteData crc = ByteData(4)..setUint32(0, _pngCrc32(chunk));
     builder.add(length.buffer.asUint8List());
@@ -1282,9 +1440,8 @@ class ImageTranslationService extends GetxController
   /// framework cannot translate a group it returns the source unchanged, which
   /// re-splits back into the original lines.
   Future<List<String>> _translateAppleLines(List<String> lines) async {
-    final TranslationEngine engine = engineRegistry.findTranslation(
-      'apple-translation',
-    )!;
+    final TranslationEngine engine =
+        engineRegistry.findTranslation('apple-translation')!;
     final List<RecognizedTextBlock> blocks = lines
         .map(
           (String line) => RecognizedTextBlock(
@@ -1296,15 +1453,20 @@ class ImageTranslationService extends GetxController
         )
         .toList(growable: false);
     try {
-      final TranslationResult result = await engine
-          .translate(
-            TranslationEngineRequest(
-              blocks: blocks,
-              targetLanguage: _appleTargetLanguage(),
-              sourceLanguage: _appleSourceLanguage(),
-            ),
-          )
-          .future;
+      final TranslationResult result =
+          await engine
+              .translate(
+                TranslationEngineRequest(
+                  blocks: blocks,
+                  targetLanguage: _appleTargetLanguage(),
+                  // Gallery title/comment auto-translation always lets the native
+                  // side auto-detect the source language. The Apple Live Text
+                  // recognition-language picker is an OCR/translation hint for the
+                  // image path, not a hard constraint for free-text translation.
+                  sourceLanguage: null,
+                ),
+              )
+              .future;
       return result.lines;
     } on EngineException catch (error) {
       throw ImageTranslationException(switch (error.code) {
@@ -1345,17 +1507,18 @@ class ImageTranslationService extends GetxController
       imageTranslationSetting.autoTranslateGalleryText.value &&
       imageTranslationSetting.usesAppleOnDeviceTranslation;
 
-  String _galleryTextKey(String text) => sha256
-      .convert(
-        utf8.encode(
-          jsonEncode({
-            'text': text,
-            'target': imageTranslationSetting.targetLanguage.value,
-            'source': imageTranslationSetting.appleLiveTextLanguage.value,
-          }),
-        ),
-      )
-      .toString();
+  String _galleryTextKey(String text) =>
+      sha256
+          .convert(
+            utf8.encode(
+              jsonEncode({
+                'text': text,
+                'target': imageTranslationSetting.targetLanguage.value,
+                'source': imageTranslationSetting.appleLiveTextLanguage.value,
+              }),
+            ),
+          )
+          .toString();
 
   /// The current translation of [text] if cached, or null when the feature is
   /// off or the text has not been translated yet. Synchronous so widgets can
@@ -1420,9 +1583,8 @@ class ImageTranslationService extends GetxController
       if (cached != null) {
         result = cached;
       } else if (!_galleryTextFailed.contains(key)) {
-        final String translated = (await _translateAppleLines(<String>[
-          text,
-        ])).first;
+        final String translated =
+            (await _translateAppleLines(<String>[text])).first;
         if (translated.trim().isNotEmpty) {
           result = translated;
           _galleryTextCache[key] = translated;
@@ -1537,9 +1699,10 @@ class ImageTranslationService extends GetxController
     final Response<dynamic> response = await dio.get(
       _modelsEndpoint(baseUrl, provider),
       options: Options(
-        headers: provider == ImageTranslationProvider.anthropic
-            ? _anthropicHeaders(apiKey)
-            : _openAIHeaders(apiKey),
+        headers:
+            provider == ImageTranslationProvider.anthropic
+                ? _anthropicHeaders(apiKey)
+                : _openAIHeaders(apiKey),
       ),
     );
     final dynamic models = response.data is Map ? response.data['data'] : null;
@@ -1561,8 +1724,8 @@ class ImageTranslationService extends GetxController
 
   String _modelsEndpoint(String baseUrl, ImageTranslationProvider provider) =>
       provider == ImageTranslationProvider.anthropic
-      ? _appendPath(baseUrl, 'models')
-      : _appendPath(baseUrl, 'models');
+          ? _appendPath(baseUrl, 'models')
+          : _appendPath(baseUrl, 'models');
 
   String _appendPath(String baseUrl, String path) {
     final String normalized = _trimUrl(baseUrl);
@@ -1611,9 +1774,18 @@ class ImageTranslationService extends GetxController
 /// bubbles before any text (see [paintTranslationBubbleText]) so a later
 /// bubble never covers an earlier line's wrapped text overflow. Shared by the
 /// read-page overlay and the exported overlay PNG so both render identically.
-void paintTranslationBubbleBackground(Canvas canvas, Rect rect) {
+void paintTranslationBubbleBackground(
+  Canvas canvas,
+  Rect rect, {
+  Color? color,
+  double? opacity,
+}) {
   final RRect rrect = RRect.fromRectAndRadius(rect, const Radius.circular(3));
-  canvas.drawRRect(rrect, Paint()..color = const Color(0xE6FFFFFF));
+  final Color configured = color ?? imageTranslationSetting.translationBackgroundColor.value;
+  final int alpha = ((opacity ?? imageTranslationSetting.translationBackgroundOpacity.value) * 255)
+      .round()
+      .clamp(0, 255);
+  canvas.drawRRect(rrect, Paint()..color = configured.withAlpha(alpha));
   canvas.drawRRect(
     rrect,
     Paint()
@@ -1622,7 +1794,7 @@ void paintTranslationBubbleBackground(Canvas canvas, Rect rect) {
   );
 }
 
-/// Paints one translated line's text into its bubble [rect], sized to fit both
+/// Paints one translated utterance into its bubble [rect], sized to fit both
 /// the width and the height of the box so a long translation wraps inside the
 /// bubble instead of overflowing it or being chopped by an ellipsis.
 ///
@@ -1681,10 +1853,7 @@ double fitTranslationFontSize(
   while (low <= high) {
     final double mid = (low + high) / 2;
     final TextPainter probe = TextPainter(
-      text: TextSpan(
-        text: text,
-        style: TextStyle(fontSize: mid, height: 1.05),
-      ),
+      text: TextSpan(text: text, style: TextStyle(fontSize: mid, height: 1.05)),
       textAlign: TextAlign.center,
       textDirection: textDirection,
     )..layout(maxWidth: maxWidth);

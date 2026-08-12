@@ -30,10 +30,13 @@ class LocalConfigReaderActionKeyValueStore
 }
 
 class ReaderFloatingBallPositionStore {
-  ReaderFloatingBallPositionStore({ReaderActionKeyValueStore? store})
-    : _store = store ?? LocalConfigReaderActionKeyValueStore();
+  ReaderFloatingBallPositionStore({
+    ReaderActionKeyValueStore? store,
+    this.storagePrefix,
+  }) : _store = store ?? LocalConfigReaderActionKeyValueStore();
 
   final ReaderActionKeyValueStore _store;
+  final String? storagePrefix;
 
   Future<ReaderFloatingBallPosition?> load(Orientation orientation) async {
     final String? raw = await _store.read(_orientationKey(orientation));
@@ -56,5 +59,5 @@ class ReaderFloatingBallPositionStore {
   );
 
   String _orientationKey(Orientation orientation) =>
-      orientation == Orientation.portrait ? 'portrait' : 'landscape';
+      '${storagePrefix == null ? '' : '$storagePrefix::'}${orientation == Orientation.portrait ? 'portrait' : 'landscape'}';
 }

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 import '../service/engine/engine_contract.dart';
 import '../service/engine/gguf_model_store.dart';
@@ -12,6 +13,20 @@ import '../service/engine/model_catalog.dart';
 import 'eh_apple_controls.dart';
 import 'eh_apple_glass_toolbar.dart';
 import 'eh_codex_style_dropdown.dart';
+
+/// Renders a byte-rate as a compact human label, e.g. "12.3 MB/s".
+String formatDownloadSpeed(double bytesPerSecond) {
+  if (bytesPerSecond >= 1024 * 1024 * 1024) {
+    return '${(bytesPerSecond / (1024 * 1024 * 1024)).toStringAsFixed(2)} GB/s';
+  }
+  if (bytesPerSecond >= 1024 * 1024) {
+    return '${(bytesPerSecond / (1024 * 1024)).toStringAsFixed(1)} MB/s';
+  }
+  if (bytesPerSecond >= 1024) {
+    return '${(bytesPerSecond / 1024).toStringAsFixed(0)} KB/s';
+  }
+  return '${bytesPerSecond.toStringAsFixed(0)} B/s';
+}
 
 /// Long-lived GGUF download state. Navigating away from settings does not
 /// cancel a large model download; reopening the page reconnects to this state.
@@ -35,6 +50,7 @@ class GgufModelManagerController extends GetxController {
   final Map<String, ModelInstallState> states = <String, ModelInstallState>{};
   final Map<String, double> progress = <String, double>{};
   final Map<String, String> progressArtifact = <String, String>{};
+  final Map<String, double> progressSpeed = <String, double>{};
   final Map<String, String> errors = <String, String>{};
   final Map<String, EngineTask<ModelInstallResult>> _tasks =
       <String, EngineTask<ModelInstallResult>>{};
@@ -105,6 +121,7 @@ class GgufModelManagerController extends GetxController {
       if (event.message != null) {
         progressArtifact[modelId] = event.message!;
       }
+      progressSpeed[modelId] = event.speedBytesPerSecond;
       update(<Object>[modelId, 'gguf-model-list']);
     });
     update(<Object>[modelId, 'gguf-model-list']);
@@ -124,6 +141,7 @@ class GgufModelManagerController extends GetxController {
       await _subscriptions.remove(modelId)?.cancel();
       _tasks.remove(modelId);
       progressArtifact.remove(modelId);
+      progressSpeed.remove(modelId);
       update(<Object>[modelId, 'gguf-model-list']);
     }
   }
@@ -226,6 +244,10 @@ class _GgufModelManagerPanelState extends State<GgufModelManagerPanel> {
           trailing: EHCodexStyleDropdown<String>(
             key: const ValueKey('image-translation-local-model'),
             value: selected.id,
+            // The panel lives on the right side of the screen (reader drawer /
+            // right settings pane); the expanded menu must open toward the
+            // bottom-left so it stays inside the panel.
+            menuAlignment: GlassMenuAlignment.topRight,
             onChanged: (String? value) {
               if (value != null) {
                 widget.onSelectModel(value);
@@ -300,7 +322,18 @@ class _GgufModelManagerPanelState extends State<GgufModelManagerPanel> {
             const SizedBox(height: 8),
             LinearProgressIndicator(value: value > 0 ? value : null),
             if (manager.progressArtifact[model.id] != null)
-              Text(manager.progressArtifact[model.id]!),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Flexible(
+                    child: Text(
+                      manager.progressArtifact[model.id]!,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  Text(formatDownloadSpeed(manager.progressSpeed[model.id] ?? 0)),
+                ],
+              ),
           ],
           if (error != null)
             Text(

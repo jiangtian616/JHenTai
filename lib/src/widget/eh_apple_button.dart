@@ -29,6 +29,14 @@ enum _EHAppleButtonKind {
 const LiquidShape _glassLabelButtonShape =
     LiquidRoundedSuperellipse(borderRadius: 14);
 
+/// Default inner padding for filled/tonal/outlined glass label buttons that do
+/// not carry an explicit [ButtonStyle.minimumSize]. Material label buttons
+/// ship with a 64x40 minimum + padding; the glass branch skips the minimum so
+/// *text* buttons size to their content, but without this padding a filled
+/// label would then hug its text (e.g. a ~28x20 "view" pill in a LAN row).
+const EdgeInsets _glassLabelButtonPadding =
+    EdgeInsets.symmetric(horizontal: 16, vertical: 10);
+
 /// Builds the Cupertino branch shared by all the [EHApple*Button] wrappers.
 ///
 /// Builds the iOS 26 liquid-glass branch shared by the [EHApple*Button]
@@ -77,8 +85,18 @@ Widget _buildGlassButton({
       GlassButtonStyle.filled,
   };
 
+  // Filled/tonal/outlined label buttons get the default padding only when
+  // they size themselves (no explicit minimumSize). Text buttons stay
+  // content-sized, and explicitly sized or transparent toolbar/icon buttons
+  // keep their exact size.
+  final bool isLabelButton = kind != _EHAppleButtonKind.text;
+  final Widget labelChild =
+      !isLabelButton || effectiveMinimumSize != null || transparentBackground
+      ? child
+      : Padding(padding: _glassLabelButtonPadding, child: child);
+
   final Widget button = GlassButton.custom(
-    child: child,
+    child: labelChild,
     onTap: onTap,
     width: effectiveMinimumSize?.width,
     height: effectiveMinimumSize?.height,

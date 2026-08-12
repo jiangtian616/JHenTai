@@ -40,7 +40,12 @@ class EHLiquidGlassSwitch extends StatelessWidget {
         cursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onTap: enabled ? () => onChanged!(!value) : null,
+          onTap: enabled
+              ? () {
+                  HapticFeedback.mediumImpact();
+                  onChanged!(!value);
+                }
+              : null,
           child: SizedBox(
             // Intentionally flatter and longer than CupertinoSwitch's 51x31.
             width: 68,
@@ -225,7 +230,14 @@ class EHAppleSwitchListTile extends StatelessWidget {
     return CupertinoListTile(
       title: title,
       subtitle: subtitle,
-      onTap: enabled && onChanged != null ? () => onChanged!(!value) : null,
+      onTap: enabled && onChanged != null
+          ? () {
+              // The same medium-impact tick the sidebar/drawer uses when it
+              // opens; every Apple toggle should confirm the tap this way.
+              HapticFeedback.mediumImpact();
+              onChanged!(!value);
+            }
+          : null,
       trailing: Opacity(
         opacity: enabled ? 1 : 0.45,
         child: IgnorePointer(child: switchWidget),
@@ -251,7 +263,15 @@ class EHAppleSwitch extends StatelessWidget {
     if (ThemeConfig.isApple) {
       return GlassSwitch(
         value: value,
-        onChanged: onChanged ?? (_) {},
+        // The glass switch's built-in lightImpact would stack with the
+        // medium-impact tick below; the parent owns the haptic layer here.
+        enableHaptics: false,
+        onChanged: (bool newValue) {
+          if (onChanged != null) {
+            HapticFeedback.mediumImpact();
+            onChanged!(newValue);
+          }
+        },
         // Classic iOS switch: white thumb on a green-on / gray-off track.
         activeColor: CupertinoColors.systemGreen,
         inactiveColor: CupertinoColors.systemGrey,

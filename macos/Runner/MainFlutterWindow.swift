@@ -10,6 +10,14 @@ class MainFlutterWindow: NSWindow {
     titleVisibility = .visible
     titlebarAppearsTransparent = false
 
+    // Before the first Flutter frame the window shows its own background.
+    // Follow the system appearance so startup is black in dark mode instead
+    // of a white flash; the dynamic color re-evaluates when appearance changes.
+    backgroundColor = NSColor(name: nil) { appearance in
+      let isDark = appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+      return isDark ? .black : .white
+    }
+
     let windowFrame = self.frame
     let macOSWindowUtilsViewController = MacOSWindowUtilsViewController()
     self.contentViewController = macOSWindowUtilsViewController

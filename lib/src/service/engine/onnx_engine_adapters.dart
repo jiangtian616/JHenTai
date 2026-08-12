@@ -155,7 +155,10 @@ class OnnxModelCatalog extends ModelCatalog {
               'ocr' => 'onnx-ocr',
               'superResolution' => 'onnx-super-resolution',
               'inpaint' => 'onnx-migan-inpaint',
-              'detection' => 'ctd-detection',
+              'detection' => manifest.id ==
+                      OnnxModelStore.bubbleSegmentationManifestId
+                  ? 'manga109-bubble-segmentation'
+                  : 'ctd-detection',
               _ => 'onnx',
             },
           ],

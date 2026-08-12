@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/model/image_translation.dart';
 import 'package:jhentai/src/service/image_translation_service.dart';
+import 'package:jhentai/src/setting/image_translation_setting.dart';
 import 'package:jhentai/src/utils/image_text_grouping.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
@@ -83,15 +84,16 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
                   SizedBox(
                     width: 12,
                     height: 12,
-                    child: ThemeConfig.isApple
-                        ? GlassProgressIndicator.circular(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          )
-                        : const CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
+                    child:
+                        ThemeConfig.isApple
+                            ? GlassProgressIndicator.circular(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            )
+                            : const CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
                   ),
                   const SizedBox(width: 8),
                   Text(
@@ -145,12 +147,17 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
                   ),
                   const SizedBox(width: 6),
                   ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 260),
+                    constraints: BoxConstraints(
+                      // Keep the message readable on phones while allowing a
+                      // wider, less tall chip on desktop.
+                      maxWidth: math.min(
+                        MediaQuery.sizeOf(context).width - 48,
+                        520,
+                      ),
+                    ),
                     child: Text(
                       _errorMessage(result),
                       style: const TextStyle(color: Colors.white, fontSize: 12),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   EHAppleIconButton(
@@ -188,14 +195,21 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
     }
     return Stack(
       children: [
-        IgnorePointer(
-          child: LayoutBuilder(
-            builder: (context, constraints) => CustomPaint(
-              size: constraints.biggest,
-              painter: _ImageTranslationOverlayPainter(
-                result: result,
-                textDirection: Directionality.of(context),
-              ),
+        Obx(
+          () => IgnorePointer(
+            child: LayoutBuilder(
+              builder:
+                  (context, constraints) => CustomPaint(
+                    size: constraints.biggest,
+                    painter: _ImageTranslationOverlayPainter(
+                      result: result,
+                      textDirection: Directionality.of(context),
+                      backgroundColor: imageTranslationSetting
+                          .translationBackgroundColor.value,
+                      backgroundOpacity: imageTranslationSetting
+                          .translationBackgroundOpacity.value,
+                    ),
+                  ),
             ),
           ),
         ),
@@ -281,7 +295,34 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
         return 'imageTranslationTranslationFailed'.tr;
       case 'TRANSLATION_TASK_FAILED':
         return 'imageTranslationFailed'.tr;
+      // Context (multi-page) translation failures. These are grouped to the
+      // closest single-page message so the user sees the real cause instead of
+      // the generic "translation failed" label.
+      case 'CONTEXT_ENGINE_UNAVAILABLE':
+      case 'CONTEXT_ENGINE_NOT_READY':
+      case 'CONTEXT_ENGINE_NOT_CONFIGURED':
+      case 'CONTEXT_ENGINE_RUNTIME_UNAVAILABLE':
+        return 'imageTranslationConfigureHint'.tr;
+      case 'CONTEXT_ENGINE_INVALID_RESPONSE':
+      case 'CONTEXT_INVALID_RESPONSE':
+      case 'CONTEXT_MISSING_LINE':
+      case 'CONTEXT_EMPTY_LINE':
+        return 'imageTranslationInvalidResponse'.tr;
+      case 'CONTEXT_ENGINE_REQUEST_FAILED':
+      case 'CONTEXT_ENGINE_TIMEOUT':
+      case 'CONTEXT_ENGINE_SERVER_TIMEOUT':
+        return 'imageTranslationRequestFailed'.tr;
+      case 'CONTEXT_ENGINE_UNSUPPORTED_PLATFORM':
+        return 'imageTranslationUnsupportedPlatform'.tr;
+      // Local-engine runtime failures (llama-server / llama-ffi) and model
+      // resolution errors are left to the default branch, which surfaces the
+      // CONTEXT_* code verbatim so the exact failure is identifiable.
       default:
+        // Unknown CONTEXT_* codes are surfaced verbatim so a debugging round
+        // can identify the real failure without digging through logs.
+        if (result.errorMessage?.startsWith('CONTEXT_') ?? false) {
+          return result.errorMessage!;
+        }
         return 'imageTranslationFailed'.tr;
     }
   }
@@ -290,10 +331,14 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
 class _ImageTranslationOverlayPainter extends CustomPainter {
   final ImageTranslationResult result;
   final TextDirection textDirection;
+  final Color backgroundColor;
+  final double backgroundOpacity;
 
   const _ImageTranslationOverlayPainter({
     required this.result,
     required this.textDirection,
+    required this.backgroundColor,
+    required this.backgroundOpacity,
   });
 
   @override
@@ -309,62 +354,74 @@ class _ImageTranslationOverlayPainter extends CustomPainter {
 
     final double scaleX = size.width / imageWidth;
     final double scaleY = size.height / imageHeight;
-    final List<String> translations = result.translatedText
-        .split('\n')
-        .map((line) => line.trim())
-        .toList();
+    final List<String> translations =
+        result.translatedText.split('\n').map((line) => line.trim()).toList();
 
-    // Adjacent lines of the same speech bubble (a group) share ONE background
-    // pill AND one font size, so a merged bubble reads as a coherent block
-    // instead of a set of independently-sized lines. All pills are drawn first
-    // (see paintTranslationBubbleBackground) so a later bubble never covers an
-    // earlier line's wrapped text overflow; text stays per-line inside.
+    // Render each speech bubble as one text layout. Keeping each OCR line in a
+    // separate narrow box makes a natural translation fragment into tiny,
+    // disconnected labels; the merged rect gives the whole utterance one
+    // readable size and natural wrapping.
     final List<(Rect, String, double)> entries = <(Rect, String, double)>[];
     final List<Rect> mergedBackgrounds = <Rect>[];
-    for (final RecognizedTextGroup group in groupRecognizedTextBlocks(
+    final List<RecognizedTextGroup> groups = translationTextGroups(
       result.blocks,
-    )) {
+      merge: result.mergeTextBlocks,
+      containers: result.containers,
+    );
+    for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
+      final RecognizedTextGroup group = groups[groupIndex];
       Rect? merged;
-      final List<(Rect, String)> groupEntries = <(Rect, String)>[];
-      double groupFont = double.infinity;
+      final List<String> groupLines = <String>[];
       for (final int index in group.blockIndices) {
-        final String translation = index < translations.length
-            ? translations[index]
-            : '';
+        final String translation =
+            index < translations.length ? translations[index] : '';
         if (translation.trim().isEmpty) {
           continue;
         }
-        final RecognizedTextBlock block = result.blocks[index];
-        final Rect rect = Rect.fromLTWH(
-          block.left * scaleX - 4,
-          block.top * scaleY - 3,
-          block.width * scaleX + 8,
-          block.height * scaleY + 6,
-        );
-        groupEntries.add((rect, translation));
-        merged = merged == null ? rect : merged.expandToInclude(rect);
-        // The shared size is the tightest of the member lines' fits, so no
-        // line overflows its own box and none is larger than its neighbors.
-        groupFont = math.min(
-          groupFont,
-          fitTranslationFontSize(
-            translation,
-            math.max(1, rect.width - 4),
-            rect.height,
-            textDirection,
-          ),
-        );
+        groupLines.add(translation);
+        // The group rectangle is the unit of layout. For a stable multi-line
+        // container this is expanded beyond the OCR glyph boxes; otherwise it
+        // remains the conservative OCR-group union.
+        if (merged == null) {
+          final RecognizedTextGroupRenderBounds? detected =
+              explicitRenderBoundsForRecognizedTextGroup(
+                group,
+                result.containers,
+              );
+          final RecognizedTextGroupRenderBounds bounds =
+              detected ??
+              renderBoundsForRecognizedTextGroup(group, result.blocks);
+          merged = Rect.fromLTRB(
+            bounds.left * scaleX - 4,
+            bounds.top * scaleY - 3,
+            bounds.right * scaleX + 4,
+            bounds.bottom * scaleY + 3,
+          );
+        }
       }
       if (merged != null) {
         mergedBackgrounds.add(merged);
-        final double resolved = groupFont.isFinite ? groupFont : 8;
-        for (final (Rect rect, String translation) in groupEntries) {
-          entries.add((rect, translation, resolved));
-        }
+        final String translation =
+            groupIndex < result.translatedGroups.length &&
+                    result.translatedGroups[groupIndex].trim().isNotEmpty
+                ? result.translatedGroups[groupIndex].trim()
+                : groupLines.join('\n');
+        final double resolved = fitTranslationFontSize(
+          translation,
+          math.max(1, merged.width - 8),
+          math.max(1, merged.height - 4),
+          textDirection,
+        );
+        entries.add((merged, translation, resolved));
       }
     }
     for (final Rect rect in mergedBackgrounds) {
-      paintTranslationBubbleBackground(canvas, rect);
+      paintTranslationBubbleBackground(
+        canvas,
+        rect,
+        color: backgroundColor,
+        opacity: backgroundOpacity,
+      );
     }
     for (final (Rect rect, String translation, double fontSize) in entries) {
       paintTranslationBubbleText(
@@ -380,5 +437,7 @@ class _ImageTranslationOverlayPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _ImageTranslationOverlayPainter oldDelegate) =>
       oldDelegate.result != result ||
-      oldDelegate.textDirection != textDirection;
+      oldDelegate.textDirection != textDirection ||
+      oldDelegate.backgroundColor != backgroundColor ||
+      oldDelegate.backgroundOpacity != backgroundOpacity;
 }

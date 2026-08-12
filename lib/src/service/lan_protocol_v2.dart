@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math' show min;
 import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
@@ -120,6 +121,12 @@ class LanSecureSession {
   int _nextReceiveSequence = 0;
   bool _closed = false;
 
+  // Receive-side fragment assembly for records split across the 64KiB record
+  // cap. Fragments arrive sequentially and are buffered until the final one.
+  final List<int> _fragmentBuffer = <int>[];
+  int _expectedFragmentTotal = 0;
+  int _expectedFragmentIndex = 0;
+
   LanSecureSession._({
     required SecretKey sendKey,
     required SecretKey receiveKey,
@@ -181,19 +188,65 @@ class LanSecureSession {
   }
 
   Future<Map<String, dynamic>> encrypt(Map<String, dynamic> payload) async {
-    _ensureOpen();
-    final int sequence = _nextSendSequence;
-    _checkSequenceRange(sequence);
-    final Map<String, dynamic> header = <String, dynamic>{
-      'v': LanProtocolV2.version,
-      'seq': sequence,
-    };
     final List<int> clearText = utf8.encode(
       LanProtocolV2.canonicalJson(payload),
     );
     if (clearText.length > LanProtocolV2.maxRecordPlaintextBytes) {
       throw const LanProtocolException('LAN v2 record payload is too large');
     }
+    return _encryptFragment(clearText, fragmentIndex: null, fragmentTotal: null);
+  }
+
+  /// Encrypts [payload] into one or more records. Payloads that exceed the
+  /// single-record cap are split into a sequence of fragment records, each
+  /// carrying its `fragIndex`/`fragTotal` in the authenticated record header.
+  /// The receiver reassembles them before handing the payload to the caller.
+  Future<List<Map<String, dynamic>>> encryptChunked(
+    Map<String, dynamic> payload,
+  ) async {
+    final List<int> clearText = utf8.encode(
+      LanProtocolV2.canonicalJson(payload),
+    );
+    if (clearText.length <= LanProtocolV2.maxRecordPlaintextBytes) {
+      return <Map<String, dynamic>>[
+        await _encryptFragment(clearText, fragmentIndex: null, fragmentTotal: null),
+      ];
+    }
+    final int total =
+        (clearText.length + LanProtocolV2.maxRecordPlaintextBytes - 1) ~/
+        LanProtocolV2.maxRecordPlaintextBytes;
+    final List<Map<String, dynamic>> records = <Map<String, dynamic>>[];
+    for (int index = 0; index < total; index++) {
+      final int start = index * LanProtocolV2.maxRecordPlaintextBytes;
+      final int end = min(
+        start + LanProtocolV2.maxRecordPlaintextBytes,
+        clearText.length,
+      );
+      records.add(
+        await _encryptFragment(
+          clearText.sublist(start, end),
+          fragmentIndex: index,
+          fragmentTotal: total,
+        ),
+      );
+    }
+    return records;
+  }
+
+  Future<Map<String, dynamic>> _encryptFragment(
+    List<int> clearText, {
+    required int? fragmentIndex,
+    required int? fragmentTotal,
+  }) async {
+    _ensureOpen();
+    final int sequence = _nextSendSequence;
+    _checkSequenceRange(sequence);
+    final Map<String, dynamic> header = <String, dynamic>{
+      'v': LanProtocolV2.version,
+      'seq': sequence,
+      if (fragmentIndex != null) 'fragIndex': fragmentIndex,
+      if (fragmentTotal != null) 'fragTotal': fragmentTotal,
+    };
     final SecretBox box = await _aead.encrypt(
       clearText,
       secretKey: _sendKey,
@@ -211,7 +264,12 @@ class LanSecureSession {
     };
   }
 
-  Future<Map<String, dynamic>> decrypt(Map<String, dynamic> record) async {
+  /// Decrypts one record and returns the assembled application payload.
+  ///
+  /// Returns `null` for an intermediate fragment of a larger message — the
+  /// receiver must keep reading until a non-null payload comes back. Fragments
+  /// are validated for ordering and reassembled transparently.
+  Future<Map<String, dynamic>?> decrypt(Map<String, dynamic> record) async {
     _ensureOpen();
     if (record['v'] != LanProtocolV2.version ||
         record['cipherSuite'] != LanProtocolV2.cipherSuite) {
@@ -224,6 +282,11 @@ class LanSecureSession {
       throw LanProtocolException(
         'LAN v2 replay or out-of-order record: expected $_nextReceiveSequence, got $sequence',
       );
+    }
+    final int? fragIndex = (record['fragIndex'] as num?)?.toInt();
+    final int? fragTotal = (record['fragTotal'] as num?)?.toInt();
+    if ((fragIndex == null) != (fragTotal == null)) {
+      throw const LanProtocolException('LAN v2 fragment markers are invalid');
     }
     final String encoded = record['ciphertext'] as String? ?? '';
     final List<int> concatenated;
@@ -250,6 +313,8 @@ class LanSecureSession {
           LanProtocolV2.canonicalJson(<String, dynamic>{
             'v': LanProtocolV2.version,
             'seq': sequence,
+            if (fragIndex != null) 'fragIndex': fragIndex,
+            if (fragTotal != null) 'fragTotal': fragTotal,
           }),
         ),
       );
@@ -257,7 +322,41 @@ class LanSecureSession {
       throw const LanProtocolException('LAN v2 record authentication failed');
     }
     _nextReceiveSequence++;
-    final dynamic decoded = jsonDecode(utf8.decode(clearText));
+
+    if (fragIndex == null) {
+      final dynamic decoded = jsonDecode(utf8.decode(clearText));
+      if (decoded is! Map) {
+        throw const LanProtocolException('LAN v2 payload must be an object');
+      }
+      return Map<String, dynamic>.from(decoded);
+    }
+    if (fragIndex < 0 ||
+        fragIndex >= fragTotal! ||
+        (_expectedFragmentTotal != 0 && fragIndex != _expectedFragmentIndex)) {
+      throw LanProtocolException(
+        'LAN v2 fragment out of order: got $fragIndex/$fragTotal expected '
+        '$_expectedFragmentIndex/$_expectedFragmentTotal',
+      );
+    }
+    if (_expectedFragmentTotal == 0 || fragIndex == 0) {
+      _fragmentBuffer.clear();
+      _expectedFragmentTotal = fragTotal;
+      _expectedFragmentIndex = 0;
+    }
+    if (fragTotal != _expectedFragmentTotal ||
+        fragIndex != _expectedFragmentIndex) {
+      throw LanProtocolException(
+        'LAN v2 fragment out of order: got $fragIndex/$fragTotal expected '
+        '$_expectedFragmentIndex/$_expectedFragmentTotal',
+      );
+    }
+    _fragmentBuffer.addAll(clearText);
+    _expectedFragmentIndex++;
+    if (fragIndex < fragTotal - 1) {
+      return null;
+    }
+    _expectedFragmentTotal = 0;
+    final dynamic decoded = jsonDecode(utf8.decode(_fragmentBuffer));
     if (decoded is! Map) {
       throw const LanProtocolException('LAN v2 payload must be an object');
     }

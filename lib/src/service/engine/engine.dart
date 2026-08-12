@@ -1,6 +1,7 @@
 export 'apple_engine_adapters.dart';
 export 'api_translation_engine.dart';
 export 'ctd_engine_adapter.dart';
+export 'bubble_segmentation_engine_adapter.dart';
 export 'context_translation_contract.dart';
 export 'engine_contract.dart';
 export 'gguf_model_store.dart';

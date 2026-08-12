@@ -65,11 +65,57 @@ class RecognizedTextBlock {
       );
 }
 
+/// A detected text container (speech bubble, caption box, or similar) in the
+/// source image's upright pixel coordinates. Its block indices point back to
+/// the OCR lines that belong to the container.
+class RecognizedTextContainer {
+  const RecognizedTextContainer({
+    required this.blockIndices,
+    required this.left,
+    required this.top,
+    required this.width,
+    required this.height,
+    this.confidence = 0,
+  });
+
+  final List<int> blockIndices;
+  final double left;
+  final double top;
+  final double width;
+  final double height;
+  final double confidence;
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+    'blockIndices': blockIndices,
+    'left': left,
+    'top': top,
+    'width': width,
+    'height': height,
+    'confidence': confidence,
+  };
+
+  factory RecognizedTextContainer.fromJson(Map<String, dynamic> json) =>
+      RecognizedTextContainer(
+        blockIndices: (json['blockIndices'] as List? ?? const [])
+            .whereType<num>()
+            .map((num index) => index.toInt())
+            .toList(growable: false),
+        left: (json['left'] as num?)?.toDouble() ?? 0,
+        top: (json['top'] as num?)?.toDouble() ?? 0,
+        width: (json['width'] as num?)?.toDouble() ?? 0,
+        height: (json['height'] as num?)?.toDouble() ?? 0,
+        confidence: (json['confidence'] as num?)?.toDouble() ?? 0,
+      );
+}
+
 class ImageTranslationResult {
   final ImageTranslationStatus status;
   final String sourceText;
   final String translatedText;
+  final List<String> translatedGroups;
+  final bool mergeTextBlocks;
   final List<RecognizedTextBlock> blocks;
+  final List<RecognizedTextContainer> containers;
   final String? errorMessage;
   final bool needsConfiguration;
   final int? imageWidth;
@@ -80,7 +126,10 @@ class ImageTranslationResult {
     required this.status,
     this.sourceText = '',
     this.translatedText = '',
+    this.translatedGroups = const <String>[],
+    this.mergeTextBlocks = true,
     this.blocks = const [],
+    this.containers = const [],
     this.errorMessage,
     this.needsConfiguration = false,
     this.imageWidth,
@@ -108,7 +157,10 @@ class ImageTranslationResult {
     ImageTranslationStatus? status,
     String? sourceText,
     String? translatedText,
+    List<String>? translatedGroups,
+    bool? mergeTextBlocks,
     List<RecognizedTextBlock>? blocks,
+    List<RecognizedTextContainer>? containers,
     String? errorMessage,
     bool? needsConfiguration,
     int? imageWidth,
@@ -119,7 +171,10 @@ class ImageTranslationResult {
       status: status ?? this.status,
       sourceText: sourceText ?? this.sourceText,
       translatedText: translatedText ?? this.translatedText,
+      translatedGroups: translatedGroups ?? this.translatedGroups,
+      mergeTextBlocks: mergeTextBlocks ?? this.mergeTextBlocks,
       blocks: blocks ?? this.blocks,
+      containers: containers ?? this.containers,
       errorMessage: errorMessage,
       needsConfiguration: needsConfiguration ?? this.needsConfiguration,
       imageWidth: imageWidth ?? this.imageWidth,
@@ -131,27 +186,44 @@ class ImageTranslationResult {
   Map<String, dynamic> toJson() => {
     'sourceText': sourceText,
     'translatedText': translatedText,
+    if (translatedGroups.isNotEmpty) 'translatedGroups': translatedGroups,
+    'mergeTextBlocks': mergeTextBlocks,
     'blocks': blocks.map((block) => block.toJson()).toList(),
+    if (containers.isNotEmpty)
+      'containers': containers.map((container) => container.toJson()).toList(),
     if (imageWidth != null) 'imageWidth': imageWidth,
     if (imageHeight != null) 'imageHeight': imageHeight,
   };
 
-  factory ImageTranslationResult.successFromJson(
-    Map<String, dynamic> json,
-  ) => ImageTranslationResult(
-    status: ImageTranslationStatus.success,
-    sourceText: json['sourceText'] as String? ?? '',
-    translatedText: json['translatedText'] as String? ?? '',
-    blocks: (json['blocks'] as List? ?? const [])
-        .whereType<Map>()
-        .map(
-          (block) =>
-              RecognizedTextBlock.fromJson(Map<String, dynamic>.from(block)),
-        )
-        .toList(),
-    imageWidth: (json['imageWidth'] as num?)?.toInt(),
-    imageHeight: (json['imageHeight'] as num?)?.toInt(),
-  );
+  factory ImageTranslationResult.successFromJson(Map<String, dynamic> json) =>
+      ImageTranslationResult(
+        status: ImageTranslationStatus.success,
+        sourceText: json['sourceText'] as String? ?? '',
+        translatedText: json['translatedText'] as String? ?? '',
+        translatedGroups: (json['translatedGroups'] as List? ?? const [])
+            .whereType<String>()
+            .toList(growable: false),
+        mergeTextBlocks: json['mergeTextBlocks'] as bool? ?? true,
+        blocks:
+            (json['blocks'] as List? ?? const [])
+                .whereType<Map>()
+                .map(
+                  (block) => RecognizedTextBlock.fromJson(
+                    Map<String, dynamic>.from(block),
+                  ),
+                )
+                .toList(),
+        containers: (json['containers'] as List? ?? const [])
+            .whereType<Map>()
+            .map(
+              (container) => RecognizedTextContainer.fromJson(
+                Map<String, dynamic>.from(container),
+              ),
+            )
+            .toList(growable: false),
+        imageWidth: (json['imageWidth'] as num?)?.toInt(),
+        imageHeight: (json['imageHeight'] as num?)?.toInt(),
+      );
 }
 
 class ImageTranslationRequest {

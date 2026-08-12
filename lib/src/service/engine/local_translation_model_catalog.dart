@@ -24,9 +24,9 @@ class LocalTranslationModelCatalog extends ModelCatalog {
       description:
           'Text-only GGUF quantization from the bartowski repository; no image projector is advertised.',
       licenseName: 'Apache-2.0',
-      licenseUrl: 'https://huggingface.co/Qwen/Qwen3.5-0.8B/blob/main/LICENSE',
+      licenseUrl: 'https://hf-mirror.com/Qwen/Qwen3.5-0.8B/blob/main/LICENSE',
       sourceProjectUrl:
-          'https://huggingface.co/bartowski/Qwen_Qwen3.5-0.8B-GGUF',
+          'https://hf-mirror.com/bartowski/Qwen_Qwen3.5-0.8B-GGUF',
       quantization: 'Q4_K_M',
       languages: <String>['Multilingual (model card)'],
       supportsImages: false,
@@ -45,9 +45,9 @@ class LocalTranslationModelCatalog extends ModelCatalog {
               'fb044e93939a70469c905781334f5de1e6c8b608ced6cbc8c9249bd4127d9526',
           sources: <ModelSourceDescriptor>[
             ModelSourceDescriptor(
-              id: 'huggingface-pinned',
+              id: 'hf-mirror-pinned',
               url:
-                  'https://huggingface.co/bartowski/Qwen_Qwen3.5-0.8B-GGUF/resolve/167243f/Qwen_Qwen3.5-0.8B-Q4_K_M.gguf?download=true',
+                  'https://hf-mirror.com/bartowski/Qwen_Qwen3.5-0.8B-GGUF/resolve/167243f/Qwen_Qwen3.5-0.8B-Q4_K_M.gguf?download=true',
             ),
           ],
         ),
@@ -62,7 +62,7 @@ class LocalTranslationModelCatalog extends ModelCatalog {
       description:
           'Tencent official multilingual translation GGUF. The model card documents the llama.cpp Q4_K_M path.',
       licenseName: 'Apache-2.0',
-      licenseUrl: 'https://huggingface.co/tencent/Hy-MT2-1.8B-GGUF',
+      licenseUrl: 'https://hf-mirror.com/tencent/Hy-MT2-1.8B-GGUF',
       sourceProjectUrl: 'https://github.com/Tencent-Hunyuan/Hy-MT2',
       quantization: 'Q4_K_M',
       languages: <String>['Multilingual (official model card list)'],
@@ -82,9 +82,9 @@ class LocalTranslationModelCatalog extends ModelCatalog {
               'dc5f44fcf1fa496ee7ad725982c0c8c553a4de00259b53af84c4b89fb0c06699',
           sources: <ModelSourceDescriptor>[
             ModelSourceDescriptor(
-              id: 'huggingface-pinned',
+              id: 'hf-mirror-pinned',
               url:
-                  'https://huggingface.co/tencent/Hy-MT2-1.8B-GGUF/resolve/1cd5208/Hy-MT2-1.8B-Q4_K_M.gguf?download=true',
+                  'https://hf-mirror.com/tencent/Hy-MT2-1.8B-GGUF/resolve/1cd5208/Hy-MT2-1.8B-Q4_K_M.gguf?download=true',
             ),
           ],
         ),
@@ -100,9 +100,9 @@ class LocalTranslationModelCatalog extends ModelCatalog {
           'HauhauCS Q4 GGUF with an explicitly published F16 image projector; image execution is gated on both files.',
       licenseName: 'Apache-2.0',
       licenseUrl:
-          'https://huggingface.co/HauhauCS/Qwen3.5-2B-Uncensored-HauhauCS-Aggressive',
+          'https://hf-mirror.com/HauhauCS/Qwen3.5-2B-Uncensored-HauhauCS-Aggressive',
       sourceProjectUrl:
-          'https://huggingface.co/HauhauCS/Qwen3.5-2B-Uncensored-HauhauCS-Aggressive',
+          'https://hf-mirror.com/HauhauCS/Qwen3.5-2B-Uncensored-HauhauCS-Aggressive',
       quantization: 'Q4_K_M + projector F16',
       languages: <String>['English', '中文', 'Multilingual (model card tags)'],
       supportsImages: true,
@@ -122,9 +122,9 @@ class LocalTranslationModelCatalog extends ModelCatalog {
               'be3ccca13a9d1bc8b67165ea80bd103cd6151a37ad131183cc7ca388f78d9517',
           sources: <ModelSourceDescriptor>[
             ModelSourceDescriptor(
-              id: 'huggingface-pinned',
+              id: 'hf-mirror-pinned',
               url:
-                  'https://huggingface.co/HauhauCS/Qwen3.5-2B-Uncensored-HauhauCS-Aggressive/resolve/cafbddc/Qwen3.5-2B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf?download=true',
+                  'https://hf-mirror.com/HauhauCS/Qwen3.5-2B-Uncensored-HauhauCS-Aggressive/resolve/cafbddc/Qwen3.5-2B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf?download=true',
             ),
           ],
         ),
@@ -137,9 +137,9 @@ class LocalTranslationModelCatalog extends ModelCatalog {
               'a86ac75fbd9a11d1883c688969d88a11d3d24a729cc7e181833fd2e1b3865c9d',
           sources: <ModelSourceDescriptor>[
             ModelSourceDescriptor(
-              id: 'huggingface-pinned',
+              id: 'hf-mirror-pinned',
               url:
-                  'https://huggingface.co/HauhauCS/Qwen3.5-2B-Uncensored-HauhauCS-Aggressive/resolve/cafbddc/mmproj-Qwen3.5-2B-Uncensored-HauhauCS-Aggressive-f16.gguf?download=true',
+                  'https://hf-mirror.com/HauhauCS/Qwen3.5-2B-Uncensored-HauhauCS-Aggressive/resolve/cafbddc/mmproj-Qwen3.5-2B-Uncensored-HauhauCS-Aggressive-f16.gguf?download=true',
             ),
           ],
         ),
@@ -155,9 +155,9 @@ class LocalTranslationModelCatalog extends ModelCatalog {
           'HauhauCS Q4 GGUF with an explicitly published BF16 image projector; image execution is gated on both files.',
       licenseName: 'Apache-2.0',
       licenseUrl:
-          'https://huggingface.co/HauhauCS/Qwen3.5-4B-Uncensored-HauhauCS-Aggressive',
+          'https://hf-mirror.com/HauhauCS/Qwen3.5-4B-Uncensored-HauhauCS-Aggressive',
       sourceProjectUrl:
-          'https://huggingface.co/HauhauCS/Qwen3.5-4B-Uncensored-HauhauCS-Aggressive',
+          'https://hf-mirror.com/HauhauCS/Qwen3.5-4B-Uncensored-HauhauCS-Aggressive',
       quantization: 'Q4_K_M + projector BF16',
       languages: <String>['English', '中文', 'Multilingual (model card tags)'],
       supportsImages: true,
@@ -177,9 +177,9 @@ class LocalTranslationModelCatalog extends ModelCatalog {
               '79e28ecacf84e75b6056cf4059636d435aa9eb67795780f7b7dbc7d32a962741',
           sources: <ModelSourceDescriptor>[
             ModelSourceDescriptor(
-              id: 'huggingface-pinned',
+              id: 'hf-mirror-pinned',
               url:
-                  'https://huggingface.co/HauhauCS/Qwen3.5-4B-Uncensored-HauhauCS-Aggressive/resolve/55e05ab/Qwen3.5-4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf?download=true',
+                  'https://hf-mirror.com/HauhauCS/Qwen3.5-4B-Uncensored-HauhauCS-Aggressive/resolve/55e05ab/Qwen3.5-4B-Uncensored-HauhauCS-Aggressive-Q4_K_M.gguf?download=true',
             ),
           ],
         ),
@@ -193,9 +193,9 @@ class LocalTranslationModelCatalog extends ModelCatalog {
               'a1e32e86ea99aa7a56f3dcfe7e63c1d0be9439d31fd07087099f15bc0fda0f22',
           sources: <ModelSourceDescriptor>[
             ModelSourceDescriptor(
-              id: 'huggingface-pinned',
+              id: 'hf-mirror-pinned',
               url:
-                  'https://huggingface.co/HauhauCS/Qwen3.5-4B-Uncensored-HauhauCS-Aggressive/resolve/c124469/mmproj-Qwen3.5-4B-Uncensored-HauhauCS-Aggressive-BF16.gguf?download=true',
+                  'https://hf-mirror.com/HauhauCS/Qwen3.5-4B-Uncensored-HauhauCS-Aggressive/resolve/c124469/mmproj-Qwen3.5-4B-Uncensored-HauhauCS-Aggressive-BF16.gguf?download=true',
             ),
           ],
         ),
@@ -211,9 +211,9 @@ class LocalTranslationModelCatalog extends ModelCatalog {
   excludedArtifacts = <ExcludedLocalTranslationArtifact>[
     ExcludedLocalTranslationArtifact(
       id: 'hy-mt2-1.8b-2bit',
-      modelUrl: 'https://huggingface.co/tencent/Hy-MT2-1.8B-2Bit-GGUF',
+      modelUrl: 'https://hf-mirror.com/tencent/Hy-MT2-1.8B-2Bit-GGUF',
       artifactUrl:
-          'https://huggingface.co/tencent/Hy-MT2-1.8B-2Bit-GGUF/blob/main/Hy-MT2-1.8B-2Bit.gguf',
+          'https://hf-mirror.com/tencent/Hy-MT2-1.8B-2Bit-GGUF/blob/main/Hy-MT2-1.8B-2Bit.gguf',
       sha256:
           'dcc33bbae9b28d923c8c76a64f6157840841d26f8774f3dfd770d5fabeeb1cd7',
       reason:
@@ -221,9 +221,9 @@ class LocalTranslationModelCatalog extends ModelCatalog {
     ),
     ExcludedLocalTranslationArtifact(
       id: 'hy-mt2-1.8b-1.25bit',
-      modelUrl: 'https://huggingface.co/tencent/Hy-MT2-1.8B-1.25Bit-GGUF',
+      modelUrl: 'https://hf-mirror.com/tencent/Hy-MT2-1.8B-1.25Bit-GGUF',
       artifactUrl:
-          'https://huggingface.co/tencent/Hy-MT2-1.8B-1.25Bit-GGUF/blob/main/Hy-MT2-1.8B-1.25Bit.gguf',
+          'https://hf-mirror.com/tencent/Hy-MT2-1.8B-1.25Bit-GGUF/blob/main/Hy-MT2-1.8B-1.25Bit.gguf',
       sha256:
           'cc497fe8f033b52b3b8b00a7669e9661435432f9d4cd43f7ed24400c01507a93',
       reason:

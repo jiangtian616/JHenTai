@@ -474,6 +474,30 @@ class GalleryListDownloadPage extends StatelessWidget
           style: const TextStyle(
               fontSize: UIConfig.downloadPageCardTitleSize, height: 1.2),
         ),
+        if (galleryDownloadService.remoteDownloadSources[gallery.gid] != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.cloud_download_outlined,
+                  size: 14,
+                  color: UIConfig.downloadPageCardTextColor(context),
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'downloadFromRemoteDevice'.trParams({
+                    'device':
+                        galleryDownloadService.remoteDownloadSources[gallery.gid]!,
+                  }),
+                  style: TextStyle(
+                    fontSize: UIConfig.downloadPageCardTextSize,
+                    color: UIConfig.downloadPageCardTextColor(context),
+                  ),
+                ),
+              ],
+            ),
+          ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.end,

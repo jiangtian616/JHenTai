@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:jhentai/src/setting/image_translation_setting.dart';
+import 'package:jhentai/src/utils/image_text_grouping.dart';
 
 import 'engine_contract.dart';
 import 'context_translation_contract.dart';
@@ -110,6 +111,8 @@ class LlamaServerTranslationEngine
           final LocalTranslationPrompt prompt = buildLocalTranslationPrompt(
             request.blocks,
             request.targetLanguage,
+            mergeTextBlocks: request.mergeTextBlocks,
+            containers: request.containers,
           );
           final dynamic response = await _complete(
             port,
@@ -127,14 +130,26 @@ class LlamaServerTranslationEngine
               engineId: 'llama-server-translation',
             );
           }
-          final List<String> lines = parseLocalNumberedTranslations(
+      final List<RecognizedTextGroup> groups = translationTextGroups(
+        request.blocks,
+        merge: request.mergeTextBlocks,
+        containers: request.containers,
+      );
+          final List<String> groupTranslations = parseNumberedTranslations(
             stripLocalReasoning(content),
-            prompt.sourceLines.length,
+            groups.length,
+            legacyCount: prompt.sourceLines.length,
+          );
+          final List<String> lines = expandGroupTranslationsToLines(
+            blocks: request.blocks,
+            groups: groups,
+            groupTranslations: groupTranslations,
           );
           context.report(EngineTaskStage.finalizing, 0.98);
           return TranslationResult(
             translatedText: lines.join('\n'),
             lines: lines,
+            groupTranslations: groupTranslations,
           );
         } finally {
           process.kill();
@@ -358,6 +373,9 @@ class LlamaServerTranslationEngine
           total + page.lines.length,
     );
     final int maxTokens = (lineCount * 128 + 512).clamp(2048, 8192);
+    // NB: llama-server models often have a smaller context window than the
+    // API models; a request whose prompt + max_tokens exceeds n_ctx returns
+    // HTTP 400. The reader's per-page fallback absorbs that failure.
     final HttpClientRequest httpRequest = await _client.postUrl(
       Uri.parse('http://127.0.0.1:$port/v1/chat/completions'),
     );

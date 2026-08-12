@@ -8,10 +8,14 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/model/lan_device_trust.dart';
 import 'package:jhentai/src/model/lan_unified_state.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
+import 'package:jhentai/src/setting/user_setting.dart';
+import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/lan_trust_dialog.dart';
 
 import 'jh_service.dart';
 import 'lan_compute_runtime.dart';
 import 'lan_trust_repository.dart';
+import 'lan_unified_state_service.dart';
 import 'log.dart';
 import 'path_service.dart';
 
@@ -48,6 +52,26 @@ abstract interface class LanPeerSession {
       galleries: galleries,
     );
   }
+
+  /// Asks the peer to download a gallery on this device (LAN remote download).
+  /// Returns whether the host accepted the request. Older peers and test
+  /// doubles return false (not supported).
+  Future<bool> requestDownloadGallery(LanRemoteDownloadRequest request) async =>
+      false;
+
+  /// Pushes one cache file to the peer so it can serve it later (the "move
+  /// cache to server" flow). Returns whether the host stored it.
+  Future<bool> pushCacheFile(String key, List<int> bytes) async => false;
+
+  /// Sends this device's (merged) application history to the peer so the host
+  /// ends up with both sides' histories after a pull. Returns whether the host
+  /// imported it.
+  Future<bool> pushHistory(LanUnifiedStatePayload payload) async => false;
+
+  /// Sends this device's login state to the peer so an unlogged device adopts
+  /// the account even when THIS device initiated the connection. Returns
+  /// whether the peer imported it.
+  Future<bool> pushLoginState(LanLoginStateSnapshot snapshot) async => false;
 
   Future<void> close();
 }
@@ -164,6 +188,7 @@ class LanDeviceTrustService extends GetxController
   static const Duration incomingPairingTimeout = Duration(minutes: 2);
 
   final LanTrustRepository? _repositoryOverride;
+  final LanUnifiedStateService? _unifiedStateOverride;
   final bool _registerWithGet;
   LanPeerConnector? _connector;
   LanPeerPairer? _pairer;
@@ -175,6 +200,10 @@ class LanDeviceTrustService extends GetxController
   final Map<String, LanConnectionSnapshot> _connectionStates = {};
   final Map<String, LanDiscoveredPeer> _discoveredPeers = {};
   final Map<String, DateTime> _discoveredAt = {};
+
+  /// Devices already shown the global trust dialog this session, so a
+  /// re-broadcast heartbeat does not re-prompt.
+  final Set<String> _promptedDeviceIds = <String>{};
   final Map<String, _PendingIncomingPairing> _incomingPairings = {};
   final Set<String> _pairingDeviceIds = {};
   final Map<String, LanScheduledTask> _incomingPairingTimers = {};
@@ -203,6 +232,7 @@ class LanDeviceTrustService extends GetxController
     LanTrustRepository? repository,
     LanPeerConnector? connector,
     LanPeerPairer? pairer,
+    LanUnifiedStateService? unifiedState,
     Random? secureRandom,
     LanTimerScheduler? timerScheduler,
     DateTime Function()? clock,
@@ -211,6 +241,7 @@ class LanDeviceTrustService extends GetxController
     Duration incomingPairingDelay = incomingPairingTimeout,
     bool registerWithGet = true,
   }) : _repositoryOverride = repository,
+       _unifiedStateOverride = unifiedState,
        _registerWithGet = registerWithGet,
        _connector = connector,
        _pairer = pairer,
@@ -226,6 +257,7 @@ class LanDeviceTrustService extends GetxController
     pathService,
     log,
     advancedSetting,
+    userSetting,
   ];
 
   @override
@@ -252,6 +284,10 @@ class LanDeviceTrustService extends GetxController
     if (_registerWithGet) {
       Get.put(this, permanent: true);
     }
+    log.info(
+      'LAN sharing initialized: deviceId=$localDeviceId '
+      'name=$localDisplayName enabled=$isEnabled trusted=${trustedDevices.length}',
+    );
   }
 
   @override
@@ -318,13 +354,15 @@ class LanDeviceTrustService extends GetxController
             : _sessions.entries.where((entry) => entry.key == preferred);
     for (final MapEntry<String, LanPeerSession> entry in entries.toList()) {
       try {
-        final LanSharedImage? image = await entry.value
-            .requestImageCache(
-              imagePageHref,
-              galleryUrl: galleryUrl,
-              pageIndex: pageIndex,
-            )
-            .timeout(peerRequestTimeout);
+        // No fixed outer deadline here: a chunked image transfer can legitimately
+        // take far longer than peerRequestTimeout, and the session keeps the
+        // request alive while chunks keep arriving (see LanPendingRequestRegistry
+        // touch + the session's per-chunk extension).
+        final LanSharedImage? image = await entry.value.requestImageCache(
+          imagePageHref,
+          galleryUrl: galleryUrl,
+          pageIndex: pageIndex,
+        );
         if (image != null) {
           return image;
         }
@@ -350,12 +388,12 @@ class LanDeviceTrustService extends GetxController
             session as LanUnifiedStateSession;
         final LanLoginStateSnapshot? snapshot = await unified
             .requestLoginState()
-            .timeout(peerRequestTimeout);
+            .timeout(peerRequestTimeout, onTimeout: () => null);
         if (snapshot != null) {
           return snapshot;
         }
       } on Object catch (error) {
-        log.warning('LAN login-state request failed: ${error.runtimeType}');
+        _logSyncWarning('LAN login-state request failed: ${error.runtimeType}');
       }
     }
     return null;
@@ -376,12 +414,12 @@ class LanDeviceTrustService extends GetxController
             session as LanUnifiedStateSession;
         final LanUnifiedStatePayload? payload = await unified
             .requestApplicationHistory()
-            .timeout(peerRequestTimeout);
+            .timeout(peerRequestTimeout, onTimeout: () => null);
         if (payload != null) {
           return payload;
         }
       } on Object catch (error) {
-        log.warning('LAN history request failed: ${error.runtimeType}');
+        _logSyncWarning('LAN history request failed: ${error.runtimeType}');
       }
     }
     return null;
@@ -451,6 +489,59 @@ class LanDeviceTrustService extends GetxController
       }
     }
     return null;
+  }
+
+  /// Asks a specific trusted peer to download a gallery on this device (LAN
+  /// remote download). Returns whether the host accepted the request.
+  Future<bool> requestDownloadGallery(
+    String deviceId,
+    LanRemoteDownloadRequest request,
+  ) async {
+    final LanPeerSession? session = _sessions[deviceId];
+    if (session == null) {
+      log.warning('LAN remote download request: no session for $deviceId');
+      return false;
+    }
+    try {
+      final bool accepted = await session.requestDownloadGallery(request);
+      log.info(
+        'LAN remote download ${accepted ? 'accepted' : 'rejected'} '
+        'by $deviceId: gid ${request.gid}',
+      );
+      return accepted;
+    } on Object catch (error) {
+      log.warning('LAN remote download request failed for $deviceId: $error');
+      return false;
+    }
+  }
+
+  /// Whether any trusted device currently has a live session (used to gate
+  /// LAN-only actions such as moving the cache to the server).
+  bool get hasConnectedDevice => trustedDevices.any(
+    (TrustedLanDevice device) =>
+        connectionFor(device.deviceId).state ==
+        LanPeerConnectionState.connected,
+  );
+
+  /// Pushes one cache file to the preferred server (or any connected peer).
+  /// Returns whether at least one host stored it.
+  Future<bool> pushCacheFileToServer(String key, List<int> bytes) async {
+    final String? preferred = advancedSetting.lanPreferredServerDeviceId.value;
+    final Iterable<MapEntry<String, LanPeerSession>> entries =
+        preferred == null || preferred.isEmpty
+            ? _sessions.entries
+            : _sessions.entries.where((entry) => entry.key == preferred);
+    for (final MapEntry<String, LanPeerSession> entry in entries.toList()) {
+      try {
+        final bool ok = await entry.value.pushCacheFile(key, bytes);
+        if (ok) {
+          return true;
+        }
+      } on Object catch (error) {
+        log.warning('LAN push cache failed for ${entry.key}: $error');
+      }
+    }
+    return false;
   }
 
   void attachConnector(LanPeerConnector connector) {
@@ -582,6 +673,11 @@ class LanDeviceTrustService extends GetxController
       inboundAccessToken: inboundToken,
     );
     _replaceDevice(device);
+    log.info(
+      'LAN paired with ${peer.deviceId}: permissions='
+      '${permissions.map((p) => p.name).join(',')} '
+      'autoConnect=$autoConnect',
+    );
     return LanPairingAcceptance(
       localDeviceId: localDeviceId,
       localIdentityPublicKey: localIdentityPublicKey,
@@ -647,6 +743,21 @@ class LanDeviceTrustService extends GetxController
     _validatePeer(peer);
     if (!_isValidAccessToken(remoteAccessToken)) {
       throw const FormatException('Invalid LAN access token');
+    }
+    // Active broadcast: a one-sided trust on the initiator should also
+    // establish trust here, so the pairing completes without a manual accept
+    // on this device (the user already opted into auto-pairing).
+    if (advancedSetting.lanActiveBroadcast.value) {
+      log.info(
+        'LAN active broadcast auto-accepting pairing from ${peer.deviceId} '
+        '(${peer.displayName})',
+      );
+      return completePairing(
+        peer: peer,
+        remoteAccessToken: remoteAccessToken,
+        permissions: _defaultPairPermissions,
+        autoConnect: true,
+      );
     }
     final String requestId = _randomBase64Url(18);
     final Completer<LanPairingAcceptance?> completer = Completer();
@@ -738,6 +849,8 @@ class LanDeviceTrustService extends GetxController
   void ignoreDiscoveredDevice(String deviceId) {
     _discoveredPeers.remove(deviceId);
     _discoveredAt.remove(deviceId);
+    // A later broadcast may prompt again instead of being silently dropped.
+    _promptedDeviceIds.remove(deviceId);
     update([discoveredDevicesChangedId]);
   }
 
@@ -772,6 +885,10 @@ class LanDeviceTrustService extends GetxController
     );
     await _repository.updateDevice(updated);
     _replaceDevice(updated);
+    log.info(
+      'LAN permissions updated for $deviceId: '
+      '${permissions.map((p) => p.name).join(',')}',
+    );
     await disconnect(deviceId);
     update([devicesChangedId, connectionId(deviceId)]);
   }
@@ -868,6 +985,17 @@ class LanDeviceTrustService extends GetxController
     _rememberDiscoveredPeer(peer);
     final TrustedLanDevice? device = deviceById(peer.deviceId);
     if (device == null) {
+      log.debug(
+        'LAN peer discovered but not trusted: ${peer.deviceId} '
+        '(${peer.displayName} ${peer.host}:${peer.port})',
+      );
+      if (advancedSetting.lanActiveBroadcast.value) {
+        unawaited(_autoPairDiscovered(peer));
+      } else if (_promptedDeviceIds.add(peer.deviceId)) {
+        // Surface a newly broadcast device everywhere, not just in the LAN
+        // sharing page.
+        unawaited(_promptTrust(peer));
+      }
       return;
     }
     if (!_constantTimeEquals(
@@ -914,15 +1042,93 @@ class LanDeviceTrustService extends GetxController
         _connector == null ||
         _sessions.containsKey(peer.deviceId) ||
         _connecting.containsKey(peer.deviceId)) {
+      if (seen.autoConnect &&
+          _connector != null &&
+          !_sessions.containsKey(peer.deviceId)) {
+        log.debug(
+          'LAN peer ${peer.deviceId} auto-connect held: '
+          'connecting=${_connecting.containsKey(peer.deviceId)} '
+          'retryPending=${_retryTimers.containsKey(peer.deviceId)}',
+        );
+      }
       return;
     }
     if (_retryTimers.containsKey(peer.deviceId)) {
       return;
     }
+    log.info(
+      'LAN auto-connecting to trusted peer: ${peer.deviceId} '
+      '(${peer.displayName} ${peer.host}:${peer.port})',
+    );
     await _connecting.putIfAbsent(
       peer.deviceId,
       () => _connectTrustedPeer(peer, seen),
     );
+  }
+
+  /// Cooldown (per device) for the active-broadcast auto-pairing, so repeated
+  /// heartbeats from a peer that declined do not spam pairing requests.
+  final Map<String, DateTime> _autoPairCooldown = {};
+
+  static const Set<LanSharePermission> _defaultPairPermissions = {
+    LanSharePermission.downloads,
+    LanSharePermission.imageCache,
+    LanSharePermission.translationResults,
+    LanSharePermission.loginState,
+    LanSharePermission.applicationHistory,
+  };
+
+  /// Reviews an untrusted discovered device with the global trust dialog, so
+  /// a newly broadcast device is surfaced everywhere instead of only in the
+  /// LAN sharing page. One prompt per session per device; ignoring a device
+  /// lets a later broadcast prompt again.
+  Future<void> _promptTrust(LanDiscoveredPeer peer) async {
+    final LanTrustDecision? decision = await showLanTrustDialog(peer);
+    if (decision == null) {
+      return;
+    }
+    if (!decision.trust) {
+      ignoreDiscoveredDevice(peer.deviceId);
+      return;
+    }
+    try {
+      await trustDiscoveredDevice(
+        deviceId: peer.deviceId,
+        permissions: decision.permissions,
+        autoConnect: decision.autoConnect,
+      );
+      toast('lanTrustGranted'.tr);
+    } on Object {
+      toast('lanPairingFailed'.tr);
+    }
+  }
+
+  /// Active-broadcast mode: proactively sends a pairing request to a
+  /// newly-discovered, untrusted device. The peer still decides whether to
+  /// accept; a declined or failed attempt is retried after a cooldown.
+  Future<void> _autoPairDiscovered(LanDiscoveredPeer peer) async {
+    final DateTime now = _now;
+    final DateTime? last = _autoPairCooldown[peer.deviceId];
+    if (last != null &&
+        now.difference(last) < const Duration(minutes: 1)) {
+      return;
+    }
+    _autoPairCooldown[peer.deviceId] = now;
+    try {
+      log.info(
+        'LAN active broadcast: sending pairing request to new device '
+        '${peer.deviceId} (${peer.displayName})',
+      );
+      await trustDiscoveredDevice(
+        deviceId: peer.deviceId,
+        permissions: _defaultPairPermissions,
+        autoConnect: true,
+      );
+    } on Object catch (error) {
+      log.warning(
+        'LAN active broadcast pairing failed for ${peer.deviceId}: $error',
+      );
+    }
   }
 
   Future<void> disconnect(String deviceId) async {
@@ -934,6 +1140,7 @@ class LanDeviceTrustService extends GetxController
       _disconnectRequested.remove(deviceId);
     }
     final LanPeerSession? session = _sessions.remove(deviceId);
+    log.info('LAN disconnect requested: $deviceId');
     await session?.close();
     _setConnection(
       deviceId,
@@ -983,6 +1190,15 @@ class LanDeviceTrustService extends GetxController
         peer.deviceId,
         const LanConnectionSnapshot(LanPeerConnectionState.connected),
       );
+      log.info(
+        'LAN connected to trusted peer: ${peer.deviceId} '
+        '(${peer.displayName} ${peer.host}:${peer.port})',
+      );
+      // Once the trusted session is live, pull the peer's login state and
+      // application history so an unlogged device can adopt the account and
+      // merge reading records. Fire-and-forget: connection setup must not
+      // block on the sync, and each capability is imported independently.
+      unawaited(_syncUnifiedStateFrom(peer.deviceId));
       unawaited(
         session.closed.whenComplete(() {
           if (identical(_sessions[peer.deviceId], session)) {
@@ -993,6 +1209,10 @@ class LanDeviceTrustService extends GetxController
                 LanPeerConnectionState.failed,
                 errorMessage: 'LAN_SESSION_CLOSED',
               ),
+            );
+            log.warning(
+              'LAN session to peer closed: ${peer.deviceId} '
+              '(LAN_SESSION_CLOSED)',
             );
             _scheduleRetry(peer.deviceId);
           }
@@ -1013,11 +1233,156 @@ class LanDeviceTrustService extends GetxController
       if (!cancelled) {
         _scheduleRetry(peer.deviceId);
       }
-      log.warning('Auto-connect trusted LAN device failed: ${peer.deviceId}');
+      log.warning(
+        'LAN auto-connect to trusted peer failed: ${peer.deviceId}: $error',
+      );
       log.trace(stack);
     } finally {
       _connecting.remove(peer.deviceId);
     }
+  }
+
+  /// Pulls a newly-connected peer's login state and application history and
+  /// applies them locally, so an unlogged device can adopt the peer's account
+  /// and merge its reading records. Login state is only adopted when this
+  /// device is not already logged in — a logged-in device must not clobber its
+  /// own session with the peer's cookies on every reconnect. Each capability
+  /// is requested and imported independently: the peer's server still enforces
+  /// its own permission grant, and a failure in one flow must not drop the
+  /// other.
+  Future<void> _syncUnifiedStateFrom(String deviceId) async {
+    final LanPeerSession? session = _sessions[deviceId];
+    if (session is! LanUnifiedStateSession) {
+      return;
+    }
+    final LanUnifiedStateService unifiedState =
+        _unifiedStateOverride ?? lanUnifiedStateService;
+    if (!userSetting.hasLoggedIn()) {
+      try {
+        final LanLoginStateSnapshot? snapshot = await requestLoginState(
+          sourceDeviceId: deviceId,
+        );
+        if (snapshot == null) {
+          _logSyncWarning(
+            'LAN login-state sync: peer $deviceId returned no snapshot '
+            '(permission denied, peer not logged in, or no response)',
+          );
+        } else {
+          _logSyncInfo('LAN login-state sync: received snapshot from $deviceId');
+          final LanLoginImportResult result = await unifiedState
+              .importLoginState(snapshot);
+          _logSyncInfo(
+            'LAN login-state sync: import ${result.outcome.name} '
+            'from $deviceId${result.failureReason == null ? '' : ' (${result.failureReason})'}',
+          );
+        }
+      } on Object catch (error) {
+        _logSyncWarning('LAN login-state sync failed: $error');
+      }
+    } else {
+      // This device is logged in: push its login state to the peer so an
+      // unlogged device adopts the account even when this device initiated
+      // the connection (the sync must work in both directions).
+      final bool pushed = await _pushLoginStateTo(deviceId, unifiedState);
+      _logSyncInfo(
+        pushed
+            ? 'LAN login-state sync: pushed login state to $deviceId'
+            : 'LAN login-state sync: login push to $deviceId not supported',
+      );
+    }
+    try {
+      final LanUnifiedStatePayload? payload = await requestApplicationHistory(
+        sourceDeviceId: deviceId,
+      );
+      if (payload == null) {
+        _logSyncWarning(
+          'LAN history sync: peer $deviceId returned no payload '
+          '(permission denied or no response)',
+        );
+      } else {
+        _logSyncInfo(
+          'LAN history sync: received ${payload.records.length} records '
+          'from $deviceId',
+        );
+        final int imported = await unifiedState.importHistory(payload);
+        _logSyncInfo(
+          'LAN history sync: imported $imported records from $deviceId',
+        );
+        // Push the merged history back so the peer ALSO ends up with both
+        // sides' histories — the sync must be bidirectional even though only
+        // the connecting device pulls.
+        final bool pushed = await _pushHistoryBack(deviceId, unifiedState);
+        _logSyncInfo(
+          pushed
+              ? 'LAN history sync: pushed merged history back to $deviceId'
+              : 'LAN history sync: push-back to $deviceId not supported',
+        );
+      }
+    } on Object catch (error) {
+      _logSyncWarning('LAN history sync failed: $error');
+    }
+  }
+
+  /// Exports this device's current (merged) application history and sends it
+  /// to [deviceId] so the host imports both sides' records.
+  Future<bool> _pushHistoryBack(
+    String deviceId,
+    LanUnifiedStateService unifiedState,
+  ) async {
+    final LanPeerSession? session = _sessions[deviceId];
+    if (session == null) {
+      return false;
+    }
+    try {
+      final LanUnifiedStatePayload merged = await unifiedState.exportHistory(
+        sourceDeviceId: localDeviceId,
+      );
+      return await session.pushHistory(merged);
+    } on Object catch (error) {
+      _logSyncWarning('LAN history push-back failed: $error');
+      return false;
+    }
+  }
+
+  /// Exports this device's login state and sends it to [deviceId] so an
+  /// unlogged peer adopts the account.
+  Future<bool> _pushLoginStateTo(
+    String deviceId,
+    LanUnifiedStateService unifiedState,
+  ) async {
+    final LanPeerSession? session = _sessions[deviceId];
+    if (session == null) {
+      return false;
+    }
+    try {
+      final LanLoginStateSnapshot? snapshot = await unifiedState.exportLoginState(
+        sourceDeviceId: localDeviceId,
+      );
+      if (snapshot == null) {
+        return false;
+      }
+      return await session.pushLoginState(snapshot);
+    } on Object catch (error) {
+      _logSyncWarning('LAN login-state push failed: $error');
+      return false;
+    }
+  }
+
+  /// Logs a unified-state sync warning without letting the logger take down
+  /// the fire-and-forget sync path — the log service may not be initialized
+  /// yet when the first LAN connection completes during startup. `log.warning`
+  /// is async, so its failure must be caught on the returned future.
+  void _logSyncWarning(String message) {
+    unawaited(log.warning(message).catchError((Object _) {
+      // Logging is best-effort here; swallow so the sync can continue.
+    }));
+  }
+
+  /// Like [_logSyncWarning], for informational sync messages.
+  void _logSyncInfo(String message) {
+    unawaited(log.info(message).catchError((Object _) {
+      // Logging is best-effort here; swallow so the sync can continue.
+    }));
   }
 
   void _scheduleRetry(String deviceId) {

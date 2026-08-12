@@ -34,6 +34,8 @@ class ContextTranslationPage {
     required this.imageWidth,
     required this.imageHeight,
     required this.lines,
+    this.containers = const <RecognizedTextContainer>[],
+    this.mergeTextBlocks = true,
     this.sourcePath = '',
   });
 
@@ -46,6 +48,9 @@ class ContextTranslationPage {
     required int imageWidth,
     required int imageHeight,
     String sourcePath = '',
+    List<RecognizedTextContainer> containers =
+        const <RecognizedTextContainer>[],
+    bool mergeTextBlocks = true,
   }) {
     final Map<String, int> occurrences = <String, int>{};
     final List<ContextTranslationPageLine> lines =
@@ -84,6 +89,8 @@ class ContextTranslationPage {
       imageHeight: imageHeight,
       lines: List<ContextTranslationPageLine>.unmodifiable(lines),
       sourcePath: sourcePath,
+      containers: containers,
+      mergeTextBlocks: mergeTextBlocks,
     );
   }
 
@@ -100,6 +107,8 @@ class ContextTranslationPage {
     imageWidth: recognized.imageWidth,
     imageHeight: recognized.imageHeight,
     sourcePath: recognized.sourcePath,
+    containers: recognized.containers,
+    mergeTextBlocks: recognized.mergeTextBlocks,
   );
 
   final String pageId;
@@ -110,6 +119,8 @@ class ContextTranslationPage {
   final int imageWidth;
   final int imageHeight;
   final List<ContextTranslationPageLine> lines;
+  final List<RecognizedTextContainer> containers;
+  final bool mergeTextBlocks;
   final String sourcePath;
 
   List<RecognizedTextBlock> get blocks =>
@@ -398,7 +409,8 @@ class ContextTranslationService {
           ImageTranslationStage.translating,
         );
         final ContextTranslationEngine? engine = _engineResolver();
-        if (engine == null || !engine.isReady) {
+        final bool engineReady = engine != null && await engine.ensureReady();
+        if (!engineReady) {
           _publishPendingTerminal(
             pending,
             outcomes,
@@ -591,6 +603,8 @@ class ContextTranslationService {
         sourceText: page.sourceText,
         translatedText: translated.join('\n'),
         blocks: page.blocks,
+        containers: page.containers,
+        mergeTextBlocks: page.mergeTextBlocks,
         imageWidth: page.imageWidth,
         imageHeight: page.imageHeight,
       );
@@ -663,6 +677,8 @@ class ContextTranslationService {
                 : ImageTranslationStatus.failed,
         sourceText: page.sourceText,
         blocks: page.blocks,
+        containers: page.containers,
+        mergeTextBlocks: page.mergeTextBlocks,
         imageWidth: page.imageWidth,
         imageHeight: page.imageHeight,
         errorMessage: errorCode,

@@ -11,12 +11,16 @@ class ReaderFloatingTranslationBall extends StatefulWidget {
     required this.isTranslating,
     required this.onTap,
     this.positionStore,
+    this.icon = Icons.translate,
+    this.semanticLabel = 'Reader translation',
     this.ballSize = 48,
   });
 
   final bool isTranslating;
   final VoidCallback onTap;
   final ReaderFloatingBallPositionStore? positionStore;
+  final IconData icon;
+  final String semanticLabel;
   final double ballSize;
 
   @override
@@ -128,7 +132,7 @@ class _ReaderFloatingTranslationBallState
       ),
       child: Semantics(
         button: true,
-        label: 'Reader translation',
+        label: widget.semanticLabel,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () {
@@ -150,7 +154,7 @@ class _ReaderFloatingTranslationBallState
                 ],
               ),
               child: Icon(
-                widget.isTranslating ? Icons.close : Icons.translate,
+                widget.isTranslating ? Icons.close : widget.icon,
                 color: Theme.of(context).colorScheme.onPrimary,
                 size: 24,
               ),

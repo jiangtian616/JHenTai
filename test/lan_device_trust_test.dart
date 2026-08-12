@@ -10,11 +10,14 @@ import 'package:jhentai/src/l18n/en_US.dart';
 import 'package:jhentai/src/l18n/zh_CN.dart';
 import 'package:jhentai/src/l18n/zh_TW.dart';
 import 'package:jhentai/src/model/lan_device_trust.dart';
+import 'package:jhentai/src/model/lan_unified_state.dart';
 import 'package:jhentai/src/service/lan_device_trust_service.dart';
 import 'package:jhentai/src/service/lan_trust_repository.dart';
+import 'package:jhentai/src/service/lan_unified_state_service.dart';
 import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
+import 'package:jhentai/src/setting/user_setting.dart';
 
 const String _peerId = 'peer_device_123456';
 late SimpleKeyPair _peerKeyPair;
@@ -29,6 +32,7 @@ void main() {
   Get.testMode = true;
 
   setUpAll(() async {
+    log.logDirPath = '${Directory.systemTemp.path}/jhentai-lan-test-logs';
     _peerKeyPair = await Ed25519().newKeyPairFromSeed(
       List<int>.generate(32, (index) => index + 1),
     );
@@ -112,6 +116,29 @@ void main() {
       translationOnly.permissions.contains(LanSharePermission.ocrCompute),
       isFalse,
     );
+  });
+
+  test('remote download request serializes its gallery metadata', () {
+    final LanRemoteDownloadRequest request = LanRemoteDownloadRequest(
+      gid: 42,
+      galleryUrl: 'https://e-hentai.org/g/42/abcdefgh/',
+      token: 'token',
+      title: 'Gallery Title',
+      category: 'Manga',
+      pageCount: 12,
+      uploader: 'uploader',
+      publishTime: '2026-01-01 00:00',
+      tags: const <String>['artist:name', 'female:big'],
+      downloadOriginalImage: true,
+    );
+    final Map<String, dynamic> json = request.toJson();
+    expect(json['gid'], 42);
+    expect(json['galleryUrl'], 'https://e-hentai.org/g/42/abcdefgh/');
+    expect(json['token'], 'token');
+    expect(json['pageCount'], 12);
+    expect(json['uploader'], 'uploader');
+    expect(json['tags'], <String>['artist:name', 'female:big']);
+    expect(json['downloadOriginalImage'], isTrue);
   });
 
   test('old permission JSON keeps behavior and ignores unknown names', () {
@@ -683,6 +710,138 @@ void main() {
     expect(service.discoveredPeers, isEmpty);
     expect(service.localIdentityPublicKey, isEmpty);
   });
+
+  test(
+    'connecting to a trusted peer syncs login state and application history',
+    () async {
+      final LanLoginStateSnapshot snapshot = LanLoginStateSnapshot(
+        sites: const ['eh', 'jh'],
+        accountId: 12345,
+        cookies: const ['ipb_member_id=12345', 'ipb_pass_hash=hash'],
+        exportedAt: DateTime.utc(2026, 8, 9, 12),
+      );
+      final LanUnifiedStatePayload history = LanUnifiedStatePayload(
+        capability: 'applicationHistoryV1',
+        sourceDeviceId: _peerId,
+        generatedAt: DateTime.utc(2026, 8, 9, 12),
+        records: [
+          LanUnifiedRecord(
+            type: LanUnifiedRecordType.galleryHistory,
+            key: '42',
+            updatedAt: DateTime.utc(2026, 8, 9, 12),
+            tombstone: false,
+            value: const {'jsonBody': '{}'},
+            sourceDeviceId: _peerId,
+          ),
+        ],
+      );
+      final _UnifiedStateSession session = _UnifiedStateSession(
+        loginSnapshot: snapshot,
+        historyPayload: history,
+      );
+      final _UnifiedStateConnector connector = _UnifiedStateConnector(session);
+      final _RecordingUnifiedStateService unifiedState =
+          _RecordingUnifiedStateService();
+      final LanDeviceTrustService service = LanDeviceTrustService(
+        repository: _MemoryTrustRepository(),
+        connector: connector,
+        unifiedState: unifiedState,
+        secureRandom: Random(7),
+      );
+      await service.doInitBean();
+      await service.completePairing(
+        peer: _peer(),
+        remoteAccessToken: _remoteToken,
+        permissions: const {
+          LanSharePermission.loginState,
+          LanSharePermission.applicationHistory,
+        },
+      );
+
+      await service.handlePeerDiscovered(_peer());
+      expect(connector.connectCount, 1);
+      expect(
+        service.connectionFor(_peerId).state,
+        LanPeerConnectionState.connected,
+      );
+      for (int index = 0; index < 10; index++) {
+        await _flushMicrotasks();
+      }
+
+      expect(session.loginStateRequests, 1);
+      expect(session.historyRequests, 1);
+      expect(unifiedState.loginImportCount, 1);
+      expect(unifiedState.lastLoginSnapshot?.accountId, 12345);
+      expect(unifiedState.historyImportCount, 1);
+      expect(unifiedState.lastHistoryPayload?.records.single.key, '42');
+      // After pulling the peer's history, the merged history must be pushed
+      // back so the peer also ends up with both sides' records.
+      expect(session.historyPushes, 1);
+      expect(session.lastPushedHistory, isNotNull);
+      expect(unifiedState.historyExportCount, 1);
+    },
+  );
+
+  test(
+    'an already-logged-in device skips login-state pull but still merges history',
+    () async {
+      final int? previous = userSetting.ipbMemberId.value;
+      userSetting.ipbMemberId.value = 777;
+      final LanUnifiedStatePayload history = LanUnifiedStatePayload(
+        capability: 'applicationHistoryV1',
+        sourceDeviceId: _peerId,
+        generatedAt: DateTime.utc(2026, 8, 9, 12),
+        records: [
+          LanUnifiedRecord(
+            type: LanUnifiedRecordType.readProgress,
+            key: '42',
+            updatedAt: DateTime.utc(2026, 8, 9, 12),
+            tombstone: false,
+            value: const {'index': 3},
+            sourceDeviceId: _peerId,
+          ),
+        ],
+      );
+      final _UnifiedStateSession session = _UnifiedStateSession(
+        historyPayload: history,
+      );
+      final _UnifiedStateConnector connector = _UnifiedStateConnector(session);
+      final _RecordingUnifiedStateService unifiedState =
+          _RecordingUnifiedStateService();
+      final LanDeviceTrustService service = LanDeviceTrustService(
+        repository: _MemoryTrustRepository(),
+        connector: connector,
+        unifiedState: unifiedState,
+        secureRandom: Random(8),
+      );
+      try {
+        await service.doInitBean();
+        await service.completePairing(
+          peer: _peer(),
+          remoteAccessToken: _remoteToken,
+          permissions: const {
+            LanSharePermission.loginState,
+            LanSharePermission.applicationHistory,
+          },
+        );
+        await service.handlePeerDiscovered(_peer());
+        expect(
+          service.connectionFor(_peerId).state,
+          LanPeerConnectionState.connected,
+        );
+        for (int index = 0; index < 10; index++) {
+          await _flushMicrotasks();
+        }
+        expect(session.loginStateRequests, 0);
+        expect(session.historyRequests, 1);
+        expect(unifiedState.loginImportCount, 0);
+        expect(unifiedState.historyImportCount, 1);
+        expect(unifiedState.lastHistoryPayload?.records.single.key, '42');
+      } finally {
+        userSetting.ipbMemberId.value = previous;
+      }
+    },
+  );
 }
 
 TrustedLanDevice _device() {
@@ -863,6 +1022,19 @@ class _FakeSession implements LanPeerSession {
   );
 
   @override
+  Future<bool> requestDownloadGallery(LanRemoteDownloadRequest request) async =>
+      false;
+
+  @override
+  Future<bool> pushCacheFile(String key, List<int> bytes) async => false;
+
+  @override
+  Future<bool> pushHistory(LanUnifiedStatePayload payload) async => false;
+
+  @override
+  Future<bool> pushLoginState(LanLoginStateSnapshot snapshot) async => false;
+
+  @override
   Future<void> close() async {
     closedByClient = true;
     closeRemotely();
@@ -946,5 +1118,139 @@ class _FakeScheduledTask implements LanScheduledTask {
     if (!_cancelled) {
       _callback();
     }
+  }
+}
+
+/// A peer session that also answers unified-state requests, so the sync-on-
+/// connect path can be exercised without a real v2 socket.
+class _UnifiedStateSession implements LanPeerSession, LanUnifiedStateSession {
+  final LanLoginStateSnapshot? loginSnapshot;
+  final LanUnifiedStatePayload? historyPayload;
+  final Completer<void> _closed = Completer<void>();
+  int loginStateRequests = 0;
+  int historyRequests = 0;
+  int historyPushes = 0;
+  LanUnifiedStatePayload? lastPushedHistory;
+
+  _UnifiedStateSession({this.loginSnapshot, this.historyPayload});
+
+  @override
+  Future<void> get closed => _closed.future;
+
+  @override
+  Future<LanSharedImage?> requestImageCache(
+    String imagePageHref, {
+    String? galleryUrl,
+    int? pageIndex,
+  }) async => null;
+
+  @override
+  Future<List<LanSharedGallerySummary>> listDownloadedGalleries() async =>
+      const <LanSharedGallerySummary>[];
+
+  @override
+  Future<LanSharedGalleryPage> listDownloadedGalleriesPage({
+    String? cursor,
+    int limit = 50,
+    String? knownRevision,
+  }) async => const LanSharedGalleryPage(
+    revision: '',
+    nextCursor: null,
+    galleries: <LanSharedGallerySummary>[],
+  );
+
+  @override
+  Future<LanLoginStateSnapshot?> requestLoginState() async {
+    loginStateRequests++;
+    return loginSnapshot;
+  }
+
+  @override
+  Future<LanUnifiedStatePayload?> requestApplicationHistory() async {
+    historyRequests++;
+    return historyPayload;
+  }
+
+  @override
+  Future<bool> requestDownloadGallery(LanRemoteDownloadRequest request) async =>
+      false;
+
+  @override
+  Future<bool> pushCacheFile(String key, List<int> bytes) async => false;
+
+  @override
+  Future<bool> pushHistory(LanUnifiedStatePayload payload) async {
+    historyPushes++;
+    lastPushedHistory = payload;
+    return true;
+  }
+
+  @override
+  Future<bool> pushLoginState(LanLoginStateSnapshot snapshot) async => false;
+
+  @override
+  Future<void> close() async {
+    if (!_closed.isCompleted) {
+      _closed.complete();
+    }
+  }
+}
+
+class _UnifiedStateConnector implements LanPeerConnector {
+  final LanPeerSession session;
+  int connectCount = 0;
+
+  _UnifiedStateConnector(this.session);
+
+  @override
+  Future<LanPeerSession> connect({
+    required LanDiscoveredPeer peer,
+    required String accessToken,
+    required String expectedIdentityPublicKey,
+    required String expectedIdentityFingerprint,
+  }) async {
+    connectCount++;
+    expect(accessToken, _remoteToken);
+    expect(expectedIdentityPublicKey, _publicKey);
+    expect(expectedIdentityFingerprint, _fingerprint);
+    return session;
+  }
+}
+
+class _RecordingUnifiedStateService extends LanUnifiedStateService {
+  int loginImportCount = 0;
+  int historyImportCount = 0;
+  int historyExportCount = 0;
+  LanLoginStateSnapshot? lastLoginSnapshot;
+  LanUnifiedStatePayload? lastHistoryPayload;
+
+  @override
+  Future<LanLoginImportResult> importLoginState(
+    LanLoginStateSnapshot snapshot,
+  ) async {
+    loginImportCount++;
+    lastLoginSnapshot = snapshot;
+    return const LanLoginImportResult(LanLoginImportOutcome.imported);
+  }
+
+  @override
+  Future<int> importHistory(LanUnifiedStatePayload payload) async {
+    historyImportCount++;
+    lastHistoryPayload = payload;
+    return payload.records.length;
+  }
+
+  @override
+  Future<LanUnifiedStatePayload> exportHistory({
+    required String sourceDeviceId,
+    Iterable<LanUnifiedRecord> bookmarks = const <LanUnifiedRecord>[],
+  }) async {
+    historyExportCount++;
+    return LanUnifiedStatePayload(
+      capability: 'applicationHistoryV1',
+      sourceDeviceId: sourceDeviceId,
+      generatedAt: DateTime.utc(2026, 1, 1),
+      records: const <LanUnifiedRecord>[],
+    );
   }
 }

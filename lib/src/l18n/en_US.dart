@@ -39,6 +39,7 @@ class en_US {
           'Show a confirmation dialog before destructive actions such as deleting tasks or re-downloading in the download page',
 
       'home': "Home",
+      'mainSite': 'Main Site',
       'gallery': "Gallery",
       'setting': 'Setting',
 
@@ -152,6 +153,7 @@ class en_US {
       'ratingFailed': 'Rating Failed',
       'voteTagFailed': 'Vote Tag Failed',
       'beginToDownload': 'Begin To Download',
+      'downloadFromRemoteDevice': 'Remote download from {device}',
       'resumeDownload': 'Resume Download',
       'pauseDownload': 'Pause Download',
       'addNewTagSetSuccess': 'Add New Tag Set Success',
@@ -461,6 +463,11 @@ class en_US {
       'smartCacheRetentionHint':
           "Cache older than this is cleared automatically",
       'smartCacheMaxSize': "Max Cache Size",
+      'moveCacheToServer': 'Move cache to server',
+      'moveCacheToServerHint':
+          'Upload this device\'s cache to a connected LAN server',
+      'moveCacheToServerDisabledHint': 'Connect to a LAN server first',
+      'moveCacheToServerDone': 'Uploaded {count} cache files to the server',
       'smartCacheMaxSizeHint':
           "Cache is automatically trimmed when it exceeds this limit",
       'smartCacheEvictPolicy': "Eviction Policy",
@@ -482,6 +489,9 @@ class en_US {
       'lanActAsServerHint':
           'Desktop only: publish this device as a LAN server. Mobile stays a foreground client.',
       'lanServerMode': 'Server mode',
+      'lanActiveBroadcast': 'Active broadcast',
+      'lanActiveBroadcastHint':
+          'Auto-send a pairing request when a new device is discovered; the peer decides whether to accept',
       'lanServerModeHint':
           'This device is the storage/cache: images peers browse are downloaded and cached here, so peers keep almost no cache of their own',
       'lanPreferredServer': 'Preferred server',
@@ -494,6 +504,9 @@ class en_US {
           'Connected devices must grant you the Downloads permission to appear here',
       'lanGalleryPageCount': '@count pages',
       'lanGalleryOpenFailed': 'Unable to open this gallery',
+      'lanDownloadToDevice': 'Download to this device',
+      'lanDownloadToDeviceSent': 'Download request sent to the device',
+      'lanDownloadToDeviceFailed': 'Download request failed',
       'lanUnknownDevice': 'Unknown device',
       'lanSharingHint': 'Pair and automatically reconnect to trusted devices',
       'experimentalFeatures': 'Experimental Features',
@@ -564,10 +577,16 @@ class en_US {
       'lanPermission_ocrCompute': 'OCR compute',
       'lanPermission_loginState': 'Login state',
       'lanPermission_applicationHistory': 'Application history',
-      'lanUnifiedState': 'Unified state sync',
-      'lanUnifiedStateEmpty': 'No unified-state sync yet',
+      'lanUnifiedState': 'State sync',
+      'lanUnifiedStateEmpty': 'Login state or history not synced yet',
       'lanUnifiedStateHint':
-          'Login state and application history are separate permissions.',
+          'Syncs login state and app history after connecting to a trusted device',
+      'lanUnifiedStateLogin': 'Login state',
+      'lanUnifiedStateHistory': 'App history',
+      'lanUnifiedStateSynced': 'Synced',
+      'lanUnifiedStateNotSynced': 'Not synced',
+      'lanUnifiedStateFailed': 'Failed',
+      'lanUnifiedStateRecords': 'records',
       'lanPermissionRevokeHint': 'Revoking stops new sync requests.',
       'oneMinute': '1 Minute',
       'tenMinute': '10 Minute',
@@ -640,7 +659,7 @@ class en_US {
       'inferenceBackendVulkan': 'Vulkan',
       'inferenceBackendXnnpack': 'XNNPACK',
       'imageTranslationOcrEngineOnnx': 'ONNX (on-device)',
-      'imageTranslationOcrEngineMangaOcr': 'manga-OCR (pending verification)',
+      'imageTranslationOcrEngineMangaOcr': 'manga-OCR (to be implemented)',
       'imageTranslationOcrNotConfigured':
           'ONNX OCR engine is not configured yet. Integrate models in the inference backend.',
       'superResolutionEngine': 'Engine',
@@ -1156,6 +1175,13 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'currentPageSuperResolution': 'Super-resolve This Page',
       'addBookmark': 'Add bookmark',
       'removeBookmark': 'Remove bookmark',
+      'enableTranslationFloatingBall': 'Show translation floating ball',
+      'enableTranslationFloatingBallHint':
+          'Show the image translation ball on the reader page',
+      'enableBookmarkFloatingBall': 'Bookmark navigation ball',
+      'enableBookmarkFloatingBallHint':
+          'Jump to the nearest bookmark after the current page',
+      'bookmarkNavigation': 'Jump to next bookmark',
       'readerTranslation': 'Reader translation',
       'recognizingImageText': 'Recognizing image text…',
       'translatingImageText': 'Translating image text…',
@@ -1191,6 +1217,14 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationEnableThinking': 'Enable Thinking',
       'imageTranslationEnableThinkingHint':
           'Off for faster translation; on for deeper reasoning.',
+      'imageTranslationAutoMergeText': 'Automatically merge text blocks',
+      'imageTranslationAutoMergeTextHint':
+          'When enabled, lines in the same bubble or text box are translated and embedded as one block.',
+      'imageTranslationBubbleDetection': 'Detect speech bubbles',
+      'imageTranslationBubbleDetectionHint': 'Use the Manga109 bubble segmentation model for whole-bubble layout, with OCR-region fallback.',
+      'imageTranslationBackgroundColor': 'Embedded text background color',
+      'imageTranslationBackgroundOpacity': 'Embedded text background opacity',
+      'imageTranslationBubbleModel': 'Speech bubble detection model',
       'imageTranslationTranslateScope': 'Translate Scope',
       'imageTranslationScopeCurrent': 'Current page only',
       'imageTranslationScopeSubsequent': 'Current and following pages',

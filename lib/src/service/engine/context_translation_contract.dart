@@ -162,3 +162,11 @@ abstract class ContextTranslationEngine {
     ContextTranslationEngineRequest request,
   );
 }
+
+/// Optional asynchronous readiness for context-capable native adapters.
+extension ContextTranslationEngineReadiness on ContextTranslationEngine {
+  Future<bool> ensureReady() async {
+    final ContextTranslationEngine engine = this;
+    return engine is EngineReadiness ? engine.ensureReady() : engine.isReady;
+  }
+}

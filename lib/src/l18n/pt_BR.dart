@@ -39,6 +39,7 @@ class pt_BR {
           'Mostrar um diálogo de confirmação antes de ações destrutivas, como excluir tarefas ou baixar novamente na página de downloads',
 
       'home': "Home",
+      'mainSite': 'Site principal',
       'gallery': "Galeria",
       'setting': 'Configuração',
 
@@ -155,6 +156,7 @@ class pt_BR {
       'ratingFailed': 'Falha na avaliação',
       'voteTagFailed': 'Falha na tag de votação',
       'beginToDownload': 'Começar a baixar',
+      'downloadFromRemoteDevice': 'Download remoto de {device}',
       'resumeDownload': 'Retomar',
       'pauseDownload': 'Pausar',
       'addNewTagSetSuccess': 'Novo conjunto de tags adicionado com sucesso',
@@ -470,6 +472,11 @@ class pt_BR {
       'smartCacheRetentionHint':
           "Caches mais antigos que isso são limpos automaticamente",
       'smartCacheMaxSize': "Limite de espaço do cache",
+      'moveCacheToServer': 'Mover cache para o servidor',
+      'moveCacheToServerHint':
+          'Enviar o cache deste dispositivo a um servidor LAN conectado',
+      'moveCacheToServerDisabledHint': 'Conecte-se a um servidor LAN primeiro',
+      'moveCacheToServerDone': '{count} arquivos de cache enviados ao servidor',
       'smartCacheMaxSizeHint':
           "O cache é limpo automaticamente ao exceder este limite",
       'smartCacheEvictPolicy': "Política de limpeza",
@@ -998,6 +1005,11 @@ class pt_BR {
       'blockRules': 'Block Rules',
       'searchHistory': 'Search History',
       'galleryHistory': 'Gallery History',
+      'lanPermission_loginState': 'Estado de login',
+      'lanPermission_applicationHistory': 'Histórico do aplicativo',
+      'lanDownloadToDevice': 'Baixar neste dispositivo',
+      'lanDownloadToDeviceSent': 'Pedido de download enviado ao dispositivo',
+      'lanDownloadToDeviceFailed': 'Falha no pedido de download',
 
       /// block rule page
       'configureBlockRuleFailed': 'Configure block rule failed',
@@ -1113,6 +1125,10 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationEnableThinking': 'Usar raciocínio',
       'imageTranslationEnableThinkingHint':
           'Desativado traduz mais rápido; ativado raciocina mais profundamente.',
+      'imageTranslationAutoMergeText':
+          'Mesclar blocos de texto automaticamente',
+      'imageTranslationAutoMergeTextHint':
+          'Quando ativado, linhas do mesmo balão ou caixa de texto são traduzidas e inseridas como um bloco.',
       'imageTranslationTranslateScope': 'Escopo da tradução',
       'imageTranslationScopeCurrent': 'Apenas a página atual',
       'imageTranslationScopeSubsequent': 'Página atual e seguintes',

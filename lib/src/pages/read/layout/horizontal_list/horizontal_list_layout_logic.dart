@@ -20,6 +20,7 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
 
     readPageLogic.updateReaderViewport(
       [readPageState.readPageInfo.currentImageIndex],
+      hydrateTranslation: hydrateTranslation,
     );
 
     /// record reading progress and sync thumbnails list index
@@ -216,6 +217,7 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
     final List<ItemPosition> visibleItems = getCurrentVisibleItems();
     readPageLogic.updateReaderViewport(
       visibleItems.map((position) => position.index),
+      hydrateTranslation: hydrateTranslation,
     );
     int? firstImageIndex = visibleItems.firstOrNull?.index;
 

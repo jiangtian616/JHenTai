@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 
 import '../enum/config_enum.dart';
 import '../service/engine/context_translation_contract.dart';
@@ -77,6 +78,18 @@ class ImageTranslationSetting
   final RxString translatorModel = 'gpt-4.1-mini'.obs;
   final RxString targetLanguage = '简体中文'.obs;
   final RxBool enableThinking = false.obs;
+
+  /// Merge OCR lines from the same bubble/text box into one translation unit.
+  /// Enabled by default to preserve the bubble-aware translation behavior.
+  final RxBool autoMergeText = true.obs;
+  /// Detect complete speech bubbles before OCR so lines can share one layout
+  /// container. If the detector is unavailable, OCR falls back to full-image
+  /// recognition.
+  final RxBool enableBubbleDetection = true.obs;
+  /// Color of the backing plate drawn behind translated text.
+  final Rx<Color> translationBackgroundColor = Colors.white.obs;
+  /// Opacity of the backing plate, independent from the selected color.
+  final RxDouble translationBackgroundOpacity = 0.9.obs;
   final RxBool translateSubsequentPages = false.obs;
   final Rx<ContextBatchSize> contextBatchSize = ContextBatchSize.one.obs;
   final Rx<ImageProcessingDisplayMode> imageProcessingDisplayMode =
@@ -149,6 +162,23 @@ class ImageTranslationSetting
     localLlamaServerPath.value = config['localLlamaServerPath'];
     targetLanguage.value = config['targetLanguage'] ?? targetLanguage.value;
     enableThinking.value = config['enableThinking'] ?? enableThinking.value;
+    autoMergeText.value = config['autoMergeText'] ?? autoMergeText.value;
+    enableBubbleDetection.value =
+        config['enableBubbleDetection'] ?? enableBubbleDetection.value;
+    if (enableBubbleDetection.value) {
+      autoMergeText.value = true;
+    }
+    final Object? configuredBackgroundColor =
+        config['translationBackgroundColor'];
+    if (configuredBackgroundColor is num) {
+      translationBackgroundColor.value =
+          Color(configuredBackgroundColor.toInt()).withAlpha(255);
+    }
+    final Object? configuredOpacity = config['translationBackgroundOpacity'];
+    if (configuredOpacity is num) {
+      translationBackgroundOpacity.value =
+          configuredOpacity.toDouble().clamp(0.0, 1.0).toDouble();
+    }
     translateSubsequentPages.value =
         config['translateSubsequentPages'] ?? translateSubsequentPages.value;
     contextBatchSize.value = ContextBatchSize.values.firstWhere(
@@ -187,6 +217,11 @@ class ImageTranslationSetting
     'localLlamaServerPath': localLlamaServerPath.value,
     'targetLanguage': targetLanguage.value,
     'enableThinking': enableThinking.value,
+    'autoMergeText': autoMergeText.value,
+    'enableBubbleDetection': enableBubbleDetection.value,
+    'translationBackgroundColor':
+        translationBackgroundColor.value.withAlpha(255).toARGB32(),
+    'translationBackgroundOpacity': translationBackgroundOpacity.value,
     'translateSubsequentPages': translateSubsequentPages.value,
     'contextBatchSize': contextBatchSize.value.name,
     'imageProcessingDisplayMode': imageProcessingDisplayMode.value.name,
@@ -266,6 +301,39 @@ class ImageTranslationSetting
     await saveBeanConfig();
   }
 
+  Future<void> saveAutoMergeText(bool value) async {
+    if (enableBubbleDetection.value && !value) {
+      // Bubble detection always renders one translation block per bubble.
+      // Ignore an incompatible attempt to disable merging while it is on.
+      autoMergeText.value = true;
+      await saveBeanConfig();
+      return;
+    }
+    autoMergeText.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveEnableBubbleDetection(bool value) async {
+    enableBubbleDetection.value = value;
+    if (value) {
+      // A detected bubble is the unit of translation and layout. Keeping this
+      // invariant in the setting layer prevents the compact and advanced
+      // panels from creating incompatible combinations.
+      autoMergeText.value = true;
+    }
+    await saveBeanConfig();
+  }
+
+  Future<void> saveTranslationBackgroundColor(Color value) async {
+    translationBackgroundColor.value = value.withAlpha(255);
+    await saveBeanConfig();
+  }
+
+  Future<void> saveTranslationBackgroundOpacity(double value) async {
+    translationBackgroundOpacity.value = value.clamp(0.0, 1.0).toDouble();
+    await saveBeanConfig();
+  }
+
   Future<void> saveEnableThinking(bool value) async {
     enableThinking.value = value;
     await saveBeanConfig();
@@ -318,6 +386,21 @@ class ImageTranslationSetting
       contextBatchSize.value = ContextBatchSize.one;
     }
     appleLiveTextUseThirdPartyApi.value = value == ImageTranslationEngine.api;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveTranslatorProvider(ImageTranslationProvider value) async {
+    translatorProvider.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveTranslatorEndpoint(String value) async {
+    translatorEndpoint.value = value.trim().isEmpty ? null : value.trim();
+    await saveBeanConfig();
+  }
+
+  Future<void> saveTranslatorApiKey(String value) async {
+    translatorApiKey.value = value.trim().isEmpty ? null : value.trim();
     await saveBeanConfig();
   }
 

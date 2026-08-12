@@ -39,6 +39,7 @@ class ko_KR {
           '켜면 다운로드 페이지에서 작업 삭제, 다시 다운로드 등 파괴적 작업 전에 확인 대화상자가 표시됩니다',
 
       'home': "홈",
+      'mainSite': '메인 사이트',
       'gallery': "갤러리",
       'setting': '설정',
 
@@ -151,6 +152,7 @@ class ko_KR {
       'ratingFailed': '평가 실패',
       'voteTagFailed': '태그 투표 실패',
       'beginToDownload': '다운로드 시작',
+      'downloadFromRemoteDevice': '{device} 기기에서 원격 다운로드',
       'resumeDownload': '계속 다운로드',
       'pauseDownload': '다운로드 일시 정지',
       'addNewTagSetSuccess': '태그 추가 성공',
@@ -449,6 +451,10 @@ class ko_KR {
       'smartCacheRetention': "캐시 보존 기간",
       'smartCacheRetentionHint': "이 기간보다 오래된 캐시는 자동으로 삭제됩니다",
       'smartCacheMaxSize': "캐시 공간 상한",
+      'moveCacheToServer': '캐시를 서버로 이동',
+      'moveCacheToServerHint': '연결된 LAN 서버에 이 기기의 캐시 업로드',
+      'moveCacheToServerDisabledHint': '먼저 LAN 서버에 연결하세요',
+      'moveCacheToServerDone': '서버에 {count}개 캐시 파일 업로드됨',
       'smartCacheMaxSizeHint': "상한을 초과하면 캐시가 자동으로 정리됩니다",
       'smartCacheEvictPolicy': "정리 정책",
       'smartCacheEvictPolicyHint': "상한 도달 시 먼저 삭제할 캐시",
@@ -938,6 +944,11 @@ class ko_KR {
       'blockRules': 'Block Rules',
       'searchHistory': 'Search History',
       'galleryHistory': 'Gallery History',
+      'lanPermission_loginState': '로그인 상태',
+      'lanPermission_applicationHistory': '앱 기록',
+      'lanDownloadToDevice': '이 기기에 다운로드',
+      'lanDownloadToDeviceSent': '기기에 다운로드 요청 전송됨',
+      'lanDownloadToDeviceFailed': '다운로드 요청 실패',
 
       /// block rule page
       'configureBlockRuleFailed': 'Configure block rule failed',
@@ -1044,6 +1055,9 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationDeletePaddleConfirm': 'PaddleOCR 실행 환경을 삭제하시겠습니까?',
       'imageTranslationEnableThinking': '추론 사용',
       'imageTranslationEnableThinkingHint': '끄면 번역이 더 빠르고, 켜면 더 깊게 추론합니다.',
+      'imageTranslationAutoMergeText': '텍스트 블록 자동 병합',
+      'imageTranslationAutoMergeTextHint':
+          '켜면 같은 말풍선이나 텍스트 상자의 여러 줄을 하나로 번역하고 삽입합니다. 끄면 줄마다 처리합니다.',
       'imageTranslationTranslateScope': '번역 범위',
       'imageTranslationScopeCurrent': '현재 페이지만',
       'imageTranslationScopeSubsequent': '현재 및 이후 페이지',
@@ -1082,8 +1096,7 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'imageTranslationLlamaServerPathHint': '로컬 llama-server 실행 파일 선택',
       'imageTranslationBrowseRuntime': '런타임 선택',
       'imageTranslationLlamaRuntime': '관리형 llama.cpp 런타임',
-      'imageTranslationLlamaRuntimeHint':
-          '로컬 번역 모델과 함께 자동으로 다운로드하고 검증합니다.',
+      'imageTranslationLlamaRuntimeHint': '로컬 번역 모델과 함께 자동으로 다운로드하고 검증합니다.',
       'imageTranslationLlamaRuntimeUnsupported':
           '이 플랫폼에서는 관리형 llama.cpp 런타임을 사용할 수 없습니다.',
       'imageTranslationTranslatorHint':

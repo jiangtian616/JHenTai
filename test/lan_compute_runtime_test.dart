@@ -11,9 +11,14 @@ import 'package:jhentai/src/service/lan_compute_scheduler.dart';
 import 'package:jhentai/src/service/lan_device_trust_service.dart';
 import 'package:jhentai/src/service/lan_sharing_runtime.dart';
 import 'package:jhentai/src/service/lan_trust_repository.dart';
+import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 
 void main() {
+  setUpAll(() {
+    log.logDirPath = '${Directory.systemTemp.path}/jhentai-lan-test-logs';
+  });
+
   test('authenticated v2 session advertises and runs fake compute', () async {
     advancedSetting.enableLanSharing.value = true;
     advancedSetting.lanActAsServer.value = true;

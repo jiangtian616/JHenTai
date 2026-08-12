@@ -57,6 +57,7 @@ import 'package:jhentai/src/setting/super_resolution_setting.dart';
 import 'package:jhentai/src/setting/image_translation_setting.dart';
 import 'package:jhentai/src/setting/inference_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
+import 'package:jhentai/src/widget/app_launch_splash.dart';
 import 'package:jhentai/src/widget/app_manager.dart';
 
 import 'config/theme_config.dart';
@@ -145,14 +146,20 @@ void main(List<String> args) async {
   );
 
   lifeCircleBeans = topologicalSort(lifeCircleBeans);
-  await _initBeansInParallel(lifeCircleBeans);
 
+  // Keep the Flutter splash mounted while the life-circle beans initialize.
+  // AppLaunchSplash then animates the handoff to the real app instead of
+  // replacing the whole widget tree abruptly with a second runApp call.
+  final Future<void> initialization = _initBeansInParallel(lifeCircleBeans);
   runApp(
-    LiquidGlassWidgets.wrap(
-      child: const MyApp(),
-      theme: _buildGlassTheme(),
-      adaptiveQuality: true,
-      brightnessResolver: Theme.maybeBrightnessOf,
+    AppLaunchSplash(
+      initialization: initialization,
+      child: LiquidGlassWidgets.wrap(
+        child: const MyApp(),
+        theme: _buildGlassTheme(),
+        adaptiveQuality: true,
+        brightnessResolver: Theme.maybeBrightnessOf,
+      ),
     ),
   );
 }

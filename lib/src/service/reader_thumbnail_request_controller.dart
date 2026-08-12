@@ -1,6 +1,92 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 
 enum ReaderThumbnailLoadStatus { idle, loading, completed, failed, cancelled }
+
+/// A process-wide limiter for thumbnail network loads that prioritises the
+/// thumbnails closest to the viewport.
+///
+/// The details page builds dozens of thumbnails in one frame (grid + large
+/// scroll cache extent) and the read page keeps a strip of them alive. Without a
+/// cap, every built thumbnail fires a request at once and EH's image servers
+/// rate-limit the burst, so the thumbnails the user is actually looking at get
+/// no advantage. [ThumbnailLoadGate] keeps at most [maxConcurrent] downloads
+/// in flight and, whenever a slot frees, hands it to the waiting thumbnail whose
+/// [ThumbnailGateWaiter.priority] (viewport distance) is smallest — the user's
+/// scroll position decides what loads next.
+class ThumbnailLoadGate {
+  ThumbnailLoadGate._();
+
+  /// Matches a browser's typical per-host connection budget: visible thumbnails
+  /// load immediately, the rest stream in as the user scrolls.
+  static const int maxConcurrent = 6;
+
+  static int _active = 0;
+  static final List<ThumbnailGateWaiter> _waiters = <ThumbnailGateWaiter>[];
+
+  /// Returns true if the caller may start a load now.
+  static bool tryAcquire() {
+    if (_active < maxConcurrent) {
+      _active++;
+      return true;
+    }
+    return false;
+  }
+
+  /// Registers [onAvailable] with [priority] (lower = closer to the viewport).
+  /// Re-registering the same [id] replaces the previous entry.
+  static void whenAvailable(
+    String id,
+    double priority,
+    VoidCallback onAvailable,
+  ) {
+    _waiters
+      ..removeWhere((w) => w.id == id)
+      ..add(ThumbnailGateWaiter(id, priority, onAvailable));
+    _dispatch();
+  }
+
+  /// Re-ranks a waiter whose distance to the viewport changed (user scrolled).
+  static void updatePriority(String id, double priority) {
+    for (final ThumbnailGateWaiter w in _waiters) {
+      if (w.id == id) {
+        w.priority = priority;
+        break;
+      }
+    }
+    _dispatch();
+  }
+
+  /// Frees a slot and lets the closest-to-viewport waiter take it.
+  static void release() {
+    if (_active > 0) {
+      _active--;
+    }
+    _dispatch();
+  }
+
+  static void _dispatch() {
+    while (_active < maxConcurrent && _waiters.isNotEmpty) {
+      int best = 0;
+      for (int i = 1; i < _waiters.length; i++) {
+        if (_waiters[i].priority < _waiters[best].priority) {
+          best = i;
+        }
+      }
+      final ThumbnailGateWaiter waiter = _waiters.removeAt(best);
+      _active++;
+      waiter.onAvailable();
+    }
+  }
+}
+
+class ThumbnailGateWaiter {
+  ThumbnailGateWaiter(this.id, this.priority, this.onAvailable);
+
+  final String id;
+  double priority;
+  final VoidCallback onAvailable;
+}
 
 class ReaderThumbnailRequestToken {
   const ReaderThumbnailRequestToken(this.identity, this.generation);
@@ -83,6 +169,16 @@ class ReaderThumbnailRequestController {
       return;
     }
     _cancelTimers();
+    // Idempotent: ExtendedImage re-invokes the completed widget builder on
+    // every rebuild (loadStateChanged is re-fired while returnLoadStateChanged
+    // is true), and EHThumbnail's onStatusChanged schedules another rebuild.
+    // Not guarding here turned a single finished thumbnail into a per-frame
+    // completed → rebuild → completed loop (29k+ rebuilds per page in the
+    // details grid), which kept thumbnails flickering/spinning, pinned the GPU
+    // and starved other thumbnail loads into the watchdog.
+    if (_status == ReaderThumbnailLoadStatus.completed) {
+      return;
+    }
     _status = ReaderThumbnailLoadStatus.completed;
     onStatusChanged?.call(_status);
   }
@@ -92,6 +188,9 @@ class ReaderThumbnailRequestController {
       return;
     }
     _cancelWatchdog();
+    if (_status == ReaderThumbnailLoadStatus.failed) {
+      return;
+    }
     _status = ReaderThumbnailLoadStatus.failed;
     onStatusChanged?.call(_status);
     _scheduleAutomaticRetry(token);

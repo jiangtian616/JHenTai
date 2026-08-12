@@ -69,6 +69,10 @@ class SettingReadPage extends StatelessWidget {
                 _buildShowScrollBar().center(),
                 _buildShowStatusInfo().center(),
                 if (GetPlatform.isMobile)
+                  _buildEnableTranslationFloatingBall().center(),
+                if (GetPlatform.isMobile)
+                  _buildEnableBookmarkFloatingBall().center(),
+                if (GetPlatform.isMobile)
                   _buildEnablePageTurnByVolumeKeys().center(),
                 _buildEnablePageTurnAnime().center(),
                 _buildEnableDoubleTapToScaleUp().center(),
@@ -271,6 +275,24 @@ class SettingReadPage extends StatelessWidget {
       title: Text('showStatusInfo'.tr),
       value: readSetting.showStatusInfo.value,
       onChanged: readSetting.saveShowStatusInfo,
+    );
+  }
+
+  Widget _buildEnableBookmarkFloatingBall() {
+    return EHAppleSwitchListTile(
+      title: Text('enableBookmarkFloatingBall'.tr),
+      subtitle: Text('enableBookmarkFloatingBallHint'.tr),
+      value: readSetting.enableBookmarkFloatingBall.value,
+      onChanged: readSetting.saveEnableBookmarkFloatingBall,
+    );
+  }
+
+  Widget _buildEnableTranslationFloatingBall() {
+    return EHAppleSwitchListTile(
+      title: Text('enableTranslationFloatingBall'.tr),
+      subtitle: Text('enableTranslationFloatingBallHint'.tr),
+      value: readSetting.enableTranslationFloatingBall.value,
+      onChanged: readSetting.saveEnableTranslationFloatingBall,
     );
   }
 

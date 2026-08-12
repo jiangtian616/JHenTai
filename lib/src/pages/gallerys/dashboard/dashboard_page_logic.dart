@@ -42,6 +42,14 @@ class DashboardPageLogic extends BasePageLogic {
     loadPopular();
   }
 
+  @override
+  void onClose() {
+    state.searchVisible.dispose();
+    state.searchController.dispose();
+    state.searchFocusNode.dispose();
+    super.onClose();
+  }
+
   Future<void> loadRanklist() async {
     if (state.ranklistLoadingState == LoadingState.loading) {
       return;

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/theme_config.dart';
@@ -15,7 +16,6 @@ import 'package:jhentai/src/setting/inference_setting.dart';
 import 'package:jhentai/src/utils/app_icons.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
-import 'package:jhentai/src/widget/eh_apple_button.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
@@ -101,13 +101,7 @@ class _SettingImageTranslationPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text('imageTextTranslation'.tr),
-        actions: [
-          EHAppleTextButton(onPressed: _save, child: Text('saveSetting'.tr)),
-        ],
-      ),
+      appBar: AppBar(centerTitle: true, title: Text('imageTextTranslation'.tr)),
       body: EHAppleSettingsListView(
         safeArea: true,
         groups: [
@@ -132,6 +126,8 @@ class _SettingImageTranslationPageState
             children: [
               _buildTranslatorEngineSelector(),
               _buildTargetLanguage(),
+              _buildBubbleDetection(),
+              _buildAutoMergeText(),
               _buildContextBatchSize(),
               if (_translatorEngine == ImageTranslationEngine.api) ...[
                 _buildProvider(),
@@ -142,6 +138,12 @@ class _SettingImageTranslationPageState
                 _buildEnableThinking(),
               ] else if (_translatorEngine ==
                   ImageTranslationEngine.appleOnDevice) ...[
+                // The Apple translator's source language is taken from the
+                // Apple Live Text recognition language, so expose the picker
+                // here too. It is skipped when the OCR section already shows
+                // it (Apple OCR is selected) to avoid a duplicate dropdown.
+                if (_ocrEngine != ImageOcrEngine.appleLiveText)
+                  _buildAppleLiveTextLanguage(),
                 _buildOnDeviceTranslationHint(),
                 _buildAutoTranslateGalleryText(),
               ] else
@@ -152,6 +154,16 @@ class _SettingImageTranslationPageState
             title: 'imageTranslationImageProcessingSection'.tr,
             children: [
               _buildImageProcessingDisplayMode(),
+              _buildTranslationBackgroundStyle(),
+              Obx(
+                () => imageTranslationSetting.enableBubbleDetection.value
+                    ? OnnxModelTile(
+                      manifestId:
+                          OnnxModelStore.bubbleSegmentationManifestId,
+                      title: 'imageTranslationBubbleModel'.tr,
+                    )
+                    : const SizedBox.shrink(),
+              ),
               Obx(
                 () =>
                     imageTranslationSetting.imageProcessingDisplayMode.value ==
@@ -194,15 +206,23 @@ class _SettingImageTranslationPageState
         value: _provider,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged:
-            (value) => setState(() {
-              _provider = value!;
-              _availableModels = [];
-              _endpointController.text =
-                  _provider == ImageTranslationProvider.anthropic
-                      ? 'https://api.anthropic.com/v1'
-                      : 'https://api.openai.com/v1';
-            }),
+        onChanged: (value) {
+          if (value == null) {
+            return;
+          }
+          setState(() {
+            _provider = value;
+            _availableModels = [];
+            _endpointController.text =
+                _provider == ImageTranslationProvider.anthropic
+                    ? 'https://api.anthropic.com/v1'
+                    : 'https://api.openai.com/v1';
+          });
+          imageTranslationSetting.saveTranslatorProvider(value);
+          imageTranslationSetting.saveTranslatorEndpoint(
+            _endpointController.text,
+          );
+        },
         items: [
           DropdownMenuItem(
             value: ImageTranslationProvider.openAICompatible,
@@ -258,6 +278,7 @@ class _SettingImageTranslationPageState
           keyboardType: TextInputType.url,
           autocorrect: false,
           enableSuggestions: false,
+          onChanged: imageTranslationSetting.saveTranslatorEndpoint,
           decoration: const InputDecoration(
             isDense: true,
             labelStyle: TextStyle(fontSize: 12),
@@ -277,6 +298,7 @@ class _SettingImageTranslationPageState
           obscureText: true,
           autocorrect: false,
           enableSuggestions: false,
+          onChanged: imageTranslationSetting.saveTranslatorApiKey,
           decoration: const InputDecoration(
             isDense: true,
             labelStyle: TextStyle(fontSize: 12),
@@ -329,10 +351,13 @@ class _SettingImageTranslationPageState
                 : models.first,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged:
-            (model) => setState(
-              () => imageTranslationSetting.translatorModel.value = model!,
-            ),
+        onChanged: (model) {
+          if (model == null) {
+            return;
+          }
+          setState(() => imageTranslationSetting.translatorModel.value = model);
+          imageTranslationSetting.saveTranslatorModel(model);
+        },
         items:
             models
                 .map(
@@ -354,7 +379,13 @@ class _SettingImageTranslationPageState
         value: _targetLanguage,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (value) => setState(() => _targetLanguage = value!),
+        onChanged: (value) {
+          if (value == null) {
+            return;
+          }
+          setState(() => _targetLanguage = value);
+          imageTranslationSetting.saveTargetLanguage(value);
+        },
         items:
             options
                 .map(
@@ -422,6 +453,104 @@ class _SettingImageTranslationPageState
     );
   }
 
+  Widget _buildAutoMergeText() {
+    return Obx(
+      () => EHAppleSwitchListTile(
+        key: const ValueKey('image-translation-auto-merge-text'),
+        title: Text('imageTranslationAutoMergeText'.tr),
+        subtitle: Text(
+          'imageTranslationAutoMergeTextHint'.tr,
+          style: const TextStyle(fontSize: 12),
+        ),
+        value: imageTranslationSetting.autoMergeText.value,
+        enabled: !imageTranslationSetting.enableBubbleDetection.value,
+        onChanged: imageTranslationSetting.saveAutoMergeText,
+      ),
+    );
+  }
+
+  Widget _buildBubbleDetection() {
+    return Obx(
+      () => EHAppleSwitchListTile(
+        key: const ValueKey('image-translation-bubble-detection'),
+        title: Text('imageTranslationBubbleDetection'.tr),
+        subtitle: Text(
+          'imageTranslationBubbleDetectionHint'.tr,
+          style: const TextStyle(fontSize: 12),
+        ),
+        value: imageTranslationSetting.enableBubbleDetection.value,
+        onChanged: imageTranslationSetting.saveEnableBubbleDetection,
+      ),
+    );
+  }
+
+  Widget _buildTranslationBackgroundStyle() {
+    return Obx(
+      () => Column(
+        children: [
+          ListTile(
+            title: Text('imageTranslationBackgroundColor'.tr),
+            trailing: InkWell(
+              borderRadius: BorderRadius.circular(18),
+              onTap: () async {
+                Color selected =
+                    imageTranslationSetting.translationBackgroundColor.value;
+                final Color? result = await showDialog<Color>(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                    content: ColorPicker(
+                      color: selected,
+                      pickersEnabled: const <ColorPickerType, bool>{
+                        ColorPickerType.both: true,
+                        ColorPickerType.primary: false,
+                        ColorPickerType.accent: false,
+                        ColorPickerType.bw: false,
+                        ColorPickerType.custom: false,
+                        ColorPickerType.wheel: true,
+                      },
+                      showColorCode: true,
+                      onColorChanged: (Color color) => selected = color,
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, selected),
+                        child: Text('confirm'.tr),
+                      ),
+                    ],
+                  ),
+                );
+                if (result != null) {
+                  await imageTranslationSetting.saveTranslationBackgroundColor(result);
+                }
+              },
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: imageTranslationSetting.translationBackgroundColor.value,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.grey),
+                ),
+              ),
+            ),
+          ),
+          ListTile(
+            title: Text('imageTranslationBackgroundOpacity'.tr),
+            subtitle: Slider(
+              value: imageTranslationSetting.translationBackgroundOpacity.value,
+              min: 0,
+              max: 1,
+              divisions: 20,
+              label: '${(imageTranslationSetting.translationBackgroundOpacity.value * 100).round()}%',
+              onChanged: imageTranslationSetting.saveTranslationBackgroundOpacity,
+            ),
+            trailing: Text('${(imageTranslationSetting.translationBackgroundOpacity.value * 100).round()}%'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildAppleLiveTextLanguage() {
     final List<_OcrModel> options =
         _appleLanguageOptions.any(
@@ -479,7 +608,13 @@ class _SettingImageTranslationPageState
       trailing: EHCodexStyleDropdown<ImageOcrEngine>(
         key: const ValueKey('image-translation-ocr-engine'),
         value: _ocrEngine,
-        onChanged: (value) => setState(() => _ocrEngine = value!),
+        onChanged: (value) {
+          if (value == null) {
+            return;
+          }
+          setState(() => _ocrEngine = value);
+          imageTranslationSetting.saveOcrEngine(value);
+        },
         items: [
           DropdownMenuItem(
             value: ImageOcrEngine.onnx,
@@ -505,7 +640,13 @@ class _SettingImageTranslationPageState
       trailing: EHCodexStyleDropdown<ImageTranslationEngine>(
         key: const ValueKey('image-translation-translator-engine'),
         value: _translatorEngine,
-        onChanged: (value) => setState(() => _translatorEngine = value!),
+        onChanged: (value) {
+          if (value == null) {
+            return;
+          }
+          setState(() => _translatorEngine = value);
+          imageTranslationSetting.saveTranslatorEngine(value);
+        },
         items: [
           DropdownMenuItem(
             value: ImageTranslationEngine.api,
@@ -634,12 +775,17 @@ class _SettingImageTranslationPageState
       if (!mounted) {
         return;
       }
+      final bool modelChanged =
+          !models.contains(imageTranslationSetting.translatorModel.value);
       setState(() {
         _availableModels = models;
-        if (!models.contains(imageTranslationSetting.translatorModel.value)) {
+        if (modelChanged) {
           imageTranslationSetting.translatorModel.value = models.first;
         }
       });
+      if (modelChanged) {
+        await imageTranslationSetting.saveTranslatorModel(models.first);
+      }
       toast(
         'imageTranslationApiTestSuccess'.trParams({
           'count': '${models.length}',
@@ -655,30 +801,6 @@ class _SettingImageTranslationPageState
       if (mounted) {
         setState(() => _fetchingModels = false);
       }
-    }
-  }
-
-  Future<void> _save() async {
-    final bool needsApi = _translatorEngine == ImageTranslationEngine.api;
-    if (needsApi && _availableModels.isEmpty) {
-      toast('imageTranslationFetchModelsFirst'.tr);
-      return;
-    }
-    await imageTranslationSetting.save(
-      ocrEngine: _ocrEngine,
-      appleLiveTextLanguage: _appleLiveTextLanguage,
-      translatorEngine: _translatorEngine,
-      translatorProvider: _provider,
-      translatorEndpoint: _endpointController.text,
-      translatorApiKey: _apiKeyController.text,
-      translatorModel: imageTranslationSetting.translatorModel.value,
-      targetLanguage: _targetLanguage,
-      enableThinking: imageTranslationSetting.enableThinking.value,
-      translateSubsequentPages:
-          imageTranslationSetting.translateSubsequentPages.value,
-    );
-    if (mounted) {
-      toast('success'.tr);
     }
   }
 }

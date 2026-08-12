@@ -40,7 +40,10 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
     final int initialPage =
         computePageIndexOfImage(readPageState.readPageInfo.initialIndex);
     state.pageController = PageController(initialPage: initialPage);
-    readPageLogic.updateReaderViewport(computeImagesInPageIndex(initialPage));
+    readPageLogic.updateReaderViewport(
+      computeImagesInPageIndex(initialPage),
+      hydrateTranslation: hydrateTranslation,
+    );
 
     /// record reading progress and sync thumbnails list index
     state.pageController.addListener(_readProgressListener);
@@ -123,6 +126,7 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
       computeImagesInPageIndex(
         currentPage.clamp(0, state.pageCount - 1).toInt(),
       ),
+      hydrateTranslation: hydrateTranslation,
     );
     updateSafely([BaseLayoutLogic.pageId]);
   }
@@ -168,7 +172,10 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
     if (imageIndexes.isEmpty) {
       return;
     }
-    readPageLogic.updateReaderViewport(imageIndexes);
+    readPageLogic.updateReaderViewport(
+      imageIndexes,
+      hydrateTranslation: hydrateTranslation,
+    );
     readPageLogic.recordReadProgress(imageIndexes.first);
     readPageLogic.syncThumbnails(imageIndexes.first);
   }

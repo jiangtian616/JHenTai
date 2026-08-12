@@ -142,11 +142,16 @@ class AppleTranslationEngine implements TranslationEngine {
           engineId: 'apple-translation',
         );
       }
-      final List<RecognizedTextGroup> groups = groupRecognizedTextBlocks(
+      final List<RecognizedTextGroup> groups = translationTextGroups(
         request.blocks,
+        merge: request.mergeTextBlocks,
+        containers: request.containers,
       );
       final List<String> groupSources = groups
-          .map((RecognizedTextGroup group) => group.textOf(request.blocks))
+          .map(
+            (RecognizedTextGroup group) =>
+                _groupSourceForApple(group, request.blocks),
+          )
           .toList(growable: false);
       context.report(EngineTaskStage.processing, 0.1);
       try {
@@ -170,25 +175,27 @@ class AppleTranslationEngine implements TranslationEngine {
             engineId: 'apple-translation',
           );
         }
-        final List<String> lines = <String>[];
-        for (int index = 0; index < groups.length; index++) {
-          final String translation =
-              index < translatedGroups.length ? translatedGroups[index] : '';
-          final List<String> sourceLines = groups[index].blockIndices
-              .map((int blockIndex) => request.blocks[blockIndex].text.trim())
-              .toList(growable: false);
-          lines.addAll(
-            splitGroupTranslationIntoLines(
-              translation:
-                  translation.isEmpty ? groupSources[index] : translation,
-              sourceLines: sourceLines,
-            ),
-          );
-        }
+        // Expand back into the ORIGINAL OCR-block order. Group creation order
+        // is not necessarily block order when two side-by-side bubbles
+        // interleave (for example [A1, B1, A2, B2] => groups [0, 2], [1, 3]).
+        // Appending each group's lines would silently put B's translation on
+        // A's box during embedding.
+        final List<String> lines = expandGroupTranslationsToLines(
+          blocks: request.blocks,
+          groups: groups,
+          groupTranslations: <String>[
+            for (int index = 0; index < groups.length; index++)
+              index < translatedGroups.length &&
+                      translatedGroups[index].trim().isNotEmpty
+                  ? translatedGroups[index]
+                  : groupSources[index],
+          ],
+        );
         context.report(EngineTaskStage.finalizing, 0.98);
         return TranslationResult(
           translatedText: lines.join('\n'),
           lines: lines,
+          groupTranslations: translatedGroups,
         );
       } on PlatformException catch (error) {
         final String code = switch (error.code) {
@@ -205,4 +212,25 @@ class AppleTranslationEngine implements TranslationEngine {
       }
     },
   );
+
+  /// Apple Translation handles a complete sentence much better than a list
+  /// of OCR line fragments. Preserve the original block list for layout, but
+  /// remove artificial line breaks in the source sent to Apple: Latin text
+  /// needs spaces, while CJK text should remain contiguous.
+  String _groupSourceForApple(
+    RecognizedTextGroup group,
+    List<RecognizedTextBlock> blocks,
+  ) {
+    final List<String> lines = group.blockIndices
+        .map((int index) => blocks[index].text.trim())
+        .where((String line) => line.isNotEmpty)
+        .toList(growable: false);
+    if (lines.isEmpty) {
+      return '';
+    }
+    final bool hasCjk = RegExp(
+      r'[\u3040-\u30ff\u3400-\u9fff]',
+    ).hasMatch(lines.join());
+    return hasCjk ? lines.join() : lines.join(' ');
+  }
 }

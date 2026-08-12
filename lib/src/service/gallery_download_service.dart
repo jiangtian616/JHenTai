@@ -78,6 +78,10 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   List<GalleryDownloadedData> gallerys = [];
   Map<int, GalleryDownloadInfo> galleryDownloadInfos = {};
 
+  /// gid → the trusted LAN device that asked this device to download it
+  /// (remote download), shown as a badge on the download task.
+  final Map<int, String> remoteDownloadSources = {};
+
   List<GalleryDownloadedData> gallerysWithGroup(String group) => gallerys.where((g) => galleryDownloadInfos[g.gid]!.group == group).toList();
 
   static const int _maxRetryTimes = 3;

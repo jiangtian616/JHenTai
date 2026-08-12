@@ -2,6 +2,7 @@ import Foundation
 import Vision
 import ImageIO
 import CoreGraphics
+import CoreImage
 import NaturalLanguage
 import Translation
 
@@ -69,11 +70,12 @@ enum LiveTextOCR {
     request.recognitionLevel =
       (arguments["recognitionLevel"] as? String) == "fast" ? .fast : .accurate
 
+    var filteredLanguages: [String] = []
     if let languages = arguments["languages"] as? [String], !languages.isEmpty {
       let supported = (try? request.supportedRecognitionLanguages()) ?? []
-      let filtered = languages.filter { supported.contains($0) }
-      if !filtered.isEmpty {
-        request.recognitionLanguages = filtered
+      filteredLanguages = languages.filter { supported.contains($0) }
+      if !filteredLanguages.isEmpty {
+        request.recognitionLanguages = filteredLanguages
       }
     }
     if #available(iOS 16.0, macOS 13.0, *) {
@@ -99,6 +101,34 @@ enum LiveTextOCR {
         "width": Double(box.width * upright.width),
         "height": Double(box.height * upright.height),
       ]
+    }
+    // Vision can make the same mistake as PP-OCR on manga tategaki: adjacent
+    // columns at the page margin are fused into wide horizontal observations.
+    // Re-run only those margins after rotating the whole crop 90 degrees so
+    // Vision sees the columns in its normal horizontal reading direction.
+    if shouldProbeVerticalMargins(lines, upright: upright) {
+      let uprightSource = makeUprightImage(cgImage, orientation: orientation)
+      let uprightWorking: CGImage
+      if maxDimension > 0 && max(uprightSource.width, uprightSource.height) > maxDimension,
+         let downscaled = downscaled(uprightSource, toFit: maxDimension) {
+        uprightWorking = downscaled
+      } else {
+        uprightWorking = uprightSource
+      }
+      let fallback = try recognizeRotatedMargins(
+        in: uprightWorking,
+        originalSize: upright,
+        languages: filteredLanguages,
+        recognitionLevel: (arguments["recognitionLevel"] as? String) == "fast" ? "fast" : "accurate",
+        automaticallyDetectsLanguage: arguments["automaticallyDetectsLanguage"] as? Bool ?? false)
+      if !fallback.isEmpty {
+        lines.removeAll { line in
+          let left = line["left"] as? Double ?? 0
+          let width = line["width"] as? Double ?? 0
+          return isInTextMargin(left: left, width: width, sourceWidth: upright.width)
+        }
+        lines.append(contentsOf: fallback)
+      }
     }
     // Comic reading order. Vertical-text (tategaki) pages read right-to-left,
     // so when the majority of lines are tall columns we sort by left descending
@@ -126,6 +156,119 @@ enum LiveTextOCR {
       "orientation": orientation.rawValue,
       "lines": lines,
     ]
+  }
+
+  private static func shouldProbeVerticalMargins(_ lines: [[String: Any]],
+                                                   upright: CGSize) -> Bool {
+    let edgeLines = lines.filter { line in
+      let left = line["left"] as? Double ?? 0
+      let width = line["width"] as? Double ?? 0
+      return isInTextMargin(left: left, width: width, sourceWidth: upright.width)
+    }
+    guard edgeLines.count >= 2 else { return false }
+    let hasTallEdge = edgeLines.contains { line in
+      let width = line["width"] as? Double ?? 0
+      let height = line["height"] as? Double ?? 0
+      return height > width * 1.35
+    }
+    return hasTallEdge || (edgeLines.count >= 4 && upright.width > upright.height * 0.9)
+  }
+
+  private static func isInTextMargin(left: Double,
+                                     width: Double,
+                                     sourceWidth: CGFloat) -> Bool {
+    let right = left + width
+    return left <= Double(sourceWidth) * 0.22 || right >= Double(sourceWidth) * 0.78
+  }
+
+  private static func makeUprightImage(_ image: CGImage,
+                                       orientation: CGImagePropertyOrientation) -> CGImage {
+    guard orientation != .up else { return image }
+    let ci = CIImage(cgImage: image).oriented(forExifOrientation: Int32(orientation.rawValue))
+    return CIContext().createCGImage(ci, from: ci.extent) ?? image
+  }
+
+  private static func recognizeRotatedMargins(in source: CGImage,
+                                              originalSize: CGSize,
+                                              languages: [String],
+                                              recognitionLevel: String,
+                                              automaticallyDetectsLanguage: Bool) throws -> [[String: Any]] {
+    let marginWidth = min(source.width,
+                          max(192, min(720, Int(Double(source.width) * 0.22))))
+    let margins = [0, max(0, source.width - marginWidth)]
+    var result: [[String: Any]] = []
+    for marginLeft in margins {
+      guard let crop = source.cropping(to: CGRect(x: marginLeft,
+                                                   y: 0,
+                                                   width: marginWidth,
+                                                   height: source.height)),
+            let rotated = rotateClockwise(crop) else { continue }
+      let request = VNRecognizeTextRequest()
+      request.recognitionLevel = recognitionLevel == "fast" ? .fast : .accurate
+      if !languages.isEmpty {
+        request.recognitionLanguages = languages
+      }
+      if #available(iOS 16.0, macOS 13.0, *) {
+        request.automaticallyDetectsLanguage = automaticallyDetectsLanguage
+      }
+      let handler = VNImageRequestHandler(cgImage: rotated, orientation: .up, options: [:])
+      try handler.perform([request])
+      let observations = (request as VNRequest).results as? [VNRecognizedTextObservation] ?? []
+      for observation in observations {
+        guard let candidate = observation.topCandidates(1).first else { continue }
+        let text = candidate.string.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else { continue }
+        let box = observation.boundingBox
+        let rotatedWidth = Double(rotated.width)
+        let rotatedHeight = Double(rotated.height)
+        let x0 = Double(box.minX) * rotatedWidth
+        let x1 = Double(box.maxX) * rotatedWidth
+        let y0 = Double(1 - box.maxY) * rotatedHeight
+        let y1 = Double(1 - box.minY) * rotatedHeight
+        // Inverse of rotateClockwise: rotated (x, y) -> source (y, H - x).
+        let sourceCorners = [(y0, rotatedWidth - x0),
+                             (y1, rotatedWidth - x0),
+                             (y0, rotatedWidth - x1),
+                             (y1, rotatedWidth - x1)]
+        let minX = sourceCorners.map { $0.0 }.min() ?? 0
+        let maxX = sourceCorners.map { $0.0 }.max() ?? 0
+        let minY = sourceCorners.map { $0.1 }.min() ?? 0
+        let maxY = sourceCorners.map { $0.1 }.max() ?? 0
+        let scaleX = Double(originalSize.width) / Double(source.width)
+        let scaleY = Double(originalSize.height) / Double(source.height)
+        let left = (Double(marginLeft) + minX) * scaleX
+        let top = minY * scaleY
+        let width = (maxX - minX) * scaleX
+        let height = (maxY - minY) * scaleY
+        guard isInTextMargin(left: left, width: width, sourceWidth: originalSize.width),
+              height > width * 1.2 else { continue }
+        result.append(["text": text,
+                       "confidence": Double(candidate.confidence),
+                       "left": left,
+                       "top": top,
+                       "width": width,
+                       "height": height])
+      }
+    }
+    return result
+  }
+
+  private static func rotateClockwise(_ image: CGImage) -> CGImage? {
+    let width = image.height
+    let height = image.width
+    guard let context = CGContext(data: nil,
+                                  width: width,
+                                  height: height,
+                                  bitsPerComponent: image.bitsPerComponent,
+                                  bytesPerRow: 0,
+                                  space: image.colorSpace ?? CGColorSpaceCreateDeviceRGB(),
+                                  bitmapInfo: image.bitmapInfo.rawValue) else { return nil }
+    context.translateBy(x: CGFloat(width), y: 0)
+    context.rotate(by: .pi / 2)
+    context.draw(image, in: CGRect(x: 0, y: 0,
+                                   width: CGFloat(image.width),
+                                   height: CGFloat(image.height)))
+    return context.makeImage()
   }
 
   private static func uprightSize(for size: CGSize,

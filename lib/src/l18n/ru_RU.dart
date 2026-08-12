@@ -39,6 +39,7 @@ class ru_RU {
           'При включении перед необратимыми действиями, такими как удаление задач или повторная загрузка на странице загрузок, будет показываться диалог подтверждения',
 
       'home': "Главная",
+      'mainSite': 'Главный сайт',
       'gallery': "Галерея",
       'setting': 'Настройки',
 
@@ -156,6 +157,7 @@ class ru_RU {
       'ratingFailed': 'Не удалось выставить рейтинг',
       'voteTagFailed': 'Не удалось проголосовать за тег',
       'beginToDownload': 'Начать загрузку',
+      'downloadFromRemoteDevice': 'Удалённая загрузка с {device}',
       'resumeDownload': 'Возобновить загрузку',
       'pauseDownload': 'Приостановить загрузку',
       'addNewTagSetSuccess': 'Новый набор тегов успешно добавлен',
@@ -472,6 +474,11 @@ class ru_RU {
       'smartCacheRetentionHint':
           "Кэш старше этого срока очищается автоматически",
       'smartCacheMaxSize': "Максимальный размер кэша",
+      'moveCacheToServer': 'Перенести кэш на сервер',
+      'moveCacheToServerHint':
+          'Загрузить кэш этого устройства на подключённый LAN-сервер',
+      'moveCacheToServerDisabledHint': 'Сначала подключитесь к LAN-серверу',
+      'moveCacheToServerDone': 'Загружено {count} файлов кэша на сервер',
       'smartCacheMaxSizeHint':
           "Превышение лимита приводит к автоматической очистке кэша",
       'smartCacheEvictPolicy': "Политика очистки",
@@ -1005,6 +1012,11 @@ class ru_RU {
       'blockRules': 'Правила блокировки',
       'searchHistory': 'История поиска',
       'galleryHistory': 'История галерей',
+      'lanPermission_loginState': 'Состояние входа',
+      'lanPermission_applicationHistory': 'История приложения',
+      'lanDownloadToDevice': 'Скачать на это устройство',
+      'lanDownloadToDeviceSent': 'Запрос на скачивание отправлен устройству',
+      'lanDownloadToDeviceFailed': 'Ошибка запроса на скачивание',
 
       /// block rule page / Страница правил блокировки
       'configureBlockRuleFailed': 'Не удалось настроить правило блокировки',
@@ -1120,6 +1132,10 @@ class ru_RU {
       'imageTranslationEnableThinking': 'Использовать рассуждения',
       'imageTranslationEnableThinkingHint':
           'Выкл — быстрее перевод, вкл — глубже рассуждения.',
+      'imageTranslationAutoMergeText':
+          'Автоматически объединять текстовые блоки',
+      'imageTranslationAutoMergeTextHint':
+          'Включив эту опцию, строки одного облачка или текстового блока переводятся и вставляются вместе.',
       'imageTranslationTranslateScope': 'Область перевода',
       'imageTranslationScopeCurrent': 'Только текущая страница',
       'imageTranslationScopeSubsequent': 'Текущая и следующие страницы',

@@ -7,6 +7,7 @@ import 'package:jhentai/src/setting/image_translation_setting.dart';
 import 'api_translation_engine.dart';
 import 'apple_engine_adapters.dart';
 import 'ctd_engine_adapter.dart';
+import 'bubble_segmentation_engine_adapter.dart';
 import 'context_translation_contract.dart';
 import 'engine_contract.dart';
 import 'gguf_model_store.dart';
@@ -19,6 +20,7 @@ import 'manga_ocr_engine_adapter.dart';
 import 'onnx_engine_adapters.dart';
 import '../inference/inpainting_inference_engine.dart';
 import '../inference/ctd_onnx_inference_engine.dart';
+import '../inference/bubble_segmentation_inference_engine.dart';
 import '../inference/inference_task.dart';
 import '../inference/inference_safety.dart';
 import '../inference/onnx_model_store.dart';
@@ -97,7 +99,9 @@ class EngineRegistry {
     InferenceService Function()? inferenceResolver,
     ImageTranslationSetting? setting,
     CtdDetectionRunner? ctdRunner,
+    BubbleDetectionRunner? bubbleRunner,
     DetectionEngine? detectionEngine,
+    DetectionEngine? bubbleDetectionEngine,
     InpaintEngine? inpaintEngine,
     this.capabilityMatrix = const EngineCapabilityMatrix(),
   }) : _inferenceResolver = inferenceResolver ?? (() => inferenceService),
@@ -169,6 +173,58 @@ class EngineRegistry {
                   );
                   try {
                     return await ctdInference.detect(
+                      imagePath,
+                      cancellationToken: token,
+                      onProgress: onProgress,
+                    );
+                  } finally {
+                    await subscription.cancel();
+                  }
+                },
+          ),
+    );
+    final BubbleSegmentationInferenceEngine bubbleInference =
+        BubbleSegmentationInferenceEngine(
+          runtime: OnnxRuntime.instance,
+          providerResolver: () {
+            final List<ort.OrtProvider> available =
+                OnnxRuntime.instance.availableProviders;
+            return available.contains(ort.OrtProvider.CPU)
+                ? <ort.OrtProvider>[ort.OrtProvider.CPU]
+                : const <ort.OrtProvider>[];
+          },
+          modelResolver: () {
+            final Map<String, String>? files = OnnxModelStore.instance
+                .manifestFilePaths(
+                  OnnxModelStore.bubbleSegmentationManifestId,
+                );
+            return BubbleSegmentationModelInfo(
+              modelPath: files?['model'],
+              fingerprint: OnnxModelStore.instance.fingerprintOf(
+                    OnnxModelStore.bubbleSegmentationManifestId,
+                  ) ??
+                  '',
+            );
+          },
+        );
+    registerDetection(
+      bubbleDetectionEngine ??
+          BubbleSegmentationEngineAdapter(
+            ready: bubbleRunner == null ? () => bubbleInference.isReady : null,
+            runner:
+                bubbleRunner ??
+                (
+                  String imagePath,
+                  EngineCancellationToken cancellation,
+                  void Function(double progress) onProgress,
+                ) async {
+                  final InferenceCancellationToken token =
+                      InferenceCancellationToken();
+                  final subscription = cancellation.onCancel.listen(
+                    token.cancel,
+                  );
+                  try {
+                    return await bubbleInference.detect(
                       imagePath,
                       cancellationToken: token,
                       onProgress: onProgress,
@@ -296,10 +352,11 @@ class EngineRegistry {
     final String id = switch (_setting.translatorEngine.value) {
       ImageTranslationEngine.appleOnDevice => 'apple-translation',
       ImageTranslationEngine.api => 'api-translation',
-      ImageTranslationEngine.localGguf => switch (currentEnginePlatform) {
-        EnginePlatform.android || EnginePlatform.ios => 'llama-ffi-translation',
-        _ => 'llama-server-translation',
-      },
+      // The federated llama.cpp FFI runtime is the single local-GGUF path on
+      // every supported target. The server adapter remains registered for
+      // compatibility with older desktop settings, but is not selected for
+      // new work and therefore cannot make mobile/desktop behavior diverge.
+      ImageTranslationEngine.localGguf => 'llama-ffi-translation',
     };
     return _translations[id]!;
   }

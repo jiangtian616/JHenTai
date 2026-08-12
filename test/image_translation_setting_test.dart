@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:jhentai/src/service/engine/context_translation_contract.dart';
@@ -61,6 +62,30 @@ void main() {
     final ImageTranslationSetting restored = ImageTranslationSetting();
     restored.applyBeanConfig(config);
     expect(restored.autoTranslateGalleryText.value, isTrue);
+  });
+
+  test('bubble detection and background style survive a config round-trip', () {
+    final ImageTranslationSetting setting = ImageTranslationSetting();
+    setting.enableBubbleDetection.value = false;
+    setting.translationBackgroundColor.value = const Color(0xFFB8D8FF);
+    setting.translationBackgroundOpacity.value = 0.65;
+
+    final ImageTranslationSetting restored = ImageTranslationSetting();
+    restored.applyBeanConfig(setting.toConfigString());
+    expect(restored.enableBubbleDetection.value, isFalse);
+    expect(restored.translationBackgroundColor.value, const Color(0xFFB8D8FF));
+    expect(restored.translationBackgroundOpacity.value, closeTo(0.65, 0.001));
+  });
+
+  test('bubble detection forces automatic merge', () async {
+    final _MemoryImageTranslationSetting setting =
+        _MemoryImageTranslationSetting();
+    setting.autoMergeText.value = false;
+    await setting.saveEnableBubbleDetection(true);
+    expect(setting.enableBubbleDetection.value, isTrue);
+    expect(setting.autoMergeText.value, isTrue);
+    await setting.saveAutoMergeText(false);
+    expect(setting.autoMergeText.value, isTrue);
   });
 
   test('context batch size round-trips only through fixed values', () {
