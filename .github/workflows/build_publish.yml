@@ -136,6 +136,21 @@ jobs:
         run: |
           echo "version=$(head -n 5 pubspec.yaml | tail -n 1 | cut -d ' ' -f 2)" >> $GITHUB_OUTPUT
           echo "arch=$(echo $RUNNER_ARCH | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+      # The published Linux llama.cpp package currently ships an x64 prebuilt
+      # only. ARM64 needs the matching source bundle and CMake helper.
+      - name: Prepare llama.cpp source (Linux arm64)
+        if: matrix.target == 'Linux-arm64-deb'
+        shell: bash
+        run: |
+          source_bundle="/tmp/lib_llama_cpp-source-0.7.3.tar.gz"
+          curl --fail --location --retry 3 \
+            "https://github.com/gsmlg-app/lib_llama_cpp/releases/download/v0.7.3/lib_llama_cpp-source-0.7.3.tar.gz" \
+            --output "$source_bundle"
+          pub_cache="${PUB_CACHE:-$HOME/.pub-cache}"
+          tar -xzf "$source_bundle" -C "$pub_cache" \
+            ./packages/cmake \
+            ./packages/lib_llama_cpp_ffi \
+            ./third_party/llama.cpp
       # Build Android .apk
       - name: Build Android
         if: matrix.target == 'Android'
