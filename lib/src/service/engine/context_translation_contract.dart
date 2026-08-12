@@ -167,6 +167,9 @@ abstract class ContextTranslationEngine {
 extension ContextTranslationEngineReadiness on ContextTranslationEngine {
   Future<bool> ensureReady() async {
     final ContextTranslationEngine engine = this;
-    return engine is EngineReadiness ? engine.ensureReady() : engine.isReady;
+    if (engine is EngineReadiness) {
+      return (engine as EngineReadiness).ensureReady();
+    }
+    return engine.isReady;
   }
 }

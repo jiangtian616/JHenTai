@@ -108,6 +108,8 @@ class _SettingImageTranslationPageState
           EHAppleSettingsGroup(
             title: 'imageTranslationOcrSection'.tr,
             children: [
+              _buildBubbleDetection(),
+              _buildBubbleDetectionModelTile(),
               _buildOcrEngineSelector(),
               if (_ocrEngine == ImageOcrEngine.appleLiveText) ...[
                 _buildAppleLiveTextLanguage(),
@@ -126,7 +128,6 @@ class _SettingImageTranslationPageState
             children: [
               _buildTranslatorEngineSelector(),
               _buildTargetLanguage(),
-              _buildBubbleDetection(),
               _buildAutoMergeText(),
               _buildContextBatchSize(),
               if (_translatorEngine == ImageTranslationEngine.api) ...[
@@ -155,15 +156,6 @@ class _SettingImageTranslationPageState
             children: [
               _buildImageProcessingDisplayMode(),
               _buildTranslationBackgroundStyle(),
-              Obx(
-                () => imageTranslationSetting.enableBubbleDetection.value
-                    ? OnnxModelTile(
-                      manifestId:
-                          OnnxModelStore.bubbleSegmentationManifestId,
-                      title: 'imageTranslationBubbleModel'.tr,
-                    )
-                    : const SizedBox.shrink(),
-              ),
               Obx(
                 () =>
                     imageTranslationSetting.imageProcessingDisplayMode.value ==
@@ -484,6 +476,39 @@ class _SettingImageTranslationPageState
     );
   }
 
+  /// Kept directly above OCR selection: this model detects the speech-bubble
+  /// layout before OCR, and its own install state must be visible where the
+  /// switch is configured.
+  Widget _buildBubbleDetectionModelTile() {
+    return Obx(
+      () {
+        if (!imageTranslationSetting.enableBubbleDetection.value) {
+          return const SizedBox.shrink();
+        }
+        // The app registers the store while initializing inference.  Keep the
+        // settings page safe during early startup (and in widget tests) rather
+        // than crashing before that registration has completed.
+        if (!Get.isRegistered<OnnxModelStore>()) {
+          return ListTile(
+            key: const ValueKey('image-translation-bubble-model-loading'),
+            title: Text('imageTranslationBubbleModel'.tr),
+            subtitle: Text('initializing'.tr),
+            trailing: const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          );
+        }
+        return OnnxModelTile(
+          key: const ValueKey('image-translation-bubble-model'),
+          manifestId: OnnxModelStore.bubbleSegmentationManifestId,
+          title: 'imageTranslationBubbleModel'.tr,
+        );
+      },
+    );
+  }
+
   Widget _buildTranslationBackgroundStyle() {
     return Obx(
       () => Column(
@@ -497,37 +522,41 @@ class _SettingImageTranslationPageState
                     imageTranslationSetting.translationBackgroundColor.value;
                 final Color? result = await showDialog<Color>(
                   context: context,
-                  builder: (BuildContext context) => AlertDialog(
-                    content: ColorPicker(
-                      color: selected,
-                      pickersEnabled: const <ColorPickerType, bool>{
-                        ColorPickerType.both: true,
-                        ColorPickerType.primary: false,
-                        ColorPickerType.accent: false,
-                        ColorPickerType.bw: false,
-                        ColorPickerType.custom: false,
-                        ColorPickerType.wheel: true,
-                      },
-                      showColorCode: true,
-                      onColorChanged: (Color color) => selected = color,
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, selected),
-                        child: Text('confirm'.tr),
+                  builder:
+                      (BuildContext context) => AlertDialog(
+                        content: ColorPicker(
+                          color: selected,
+                          pickersEnabled: const <ColorPickerType, bool>{
+                            ColorPickerType.both: true,
+                            ColorPickerType.primary: false,
+                            ColorPickerType.accent: false,
+                            ColorPickerType.bw: false,
+                            ColorPickerType.custom: false,
+                            ColorPickerType.wheel: true,
+                          },
+                          showColorCode: true,
+                          onColorChanged: (Color color) => selected = color,
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, selected),
+                            child: Text('confirm'.tr),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
                 );
                 if (result != null) {
-                  await imageTranslationSetting.saveTranslationBackgroundColor(result);
+                  await imageTranslationSetting.saveTranslationBackgroundColor(
+                    result,
+                  );
                 }
               },
               child: Container(
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: imageTranslationSetting.translationBackgroundColor.value,
+                  color:
+                      imageTranslationSetting.translationBackgroundColor.value,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.grey),
                 ),
@@ -541,10 +570,14 @@ class _SettingImageTranslationPageState
               min: 0,
               max: 1,
               divisions: 20,
-              label: '${(imageTranslationSetting.translationBackgroundOpacity.value * 100).round()}%',
-              onChanged: imageTranslationSetting.saveTranslationBackgroundOpacity,
+              label:
+                  '${(imageTranslationSetting.translationBackgroundOpacity.value * 100).round()}%',
+              onChanged:
+                  imageTranslationSetting.saveTranslationBackgroundOpacity,
             ),
-            trailing: Text('${(imageTranslationSetting.translationBackgroundOpacity.value * 100).round()}%'),
+            trailing: Text(
+              '${(imageTranslationSetting.translationBackgroundOpacity.value * 100).round()}%',
+            ),
           ),
         ],
       ),

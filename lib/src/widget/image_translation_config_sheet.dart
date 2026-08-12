@@ -9,12 +9,14 @@ import 'package:jhentai/src/service/engine/context_translation_contract.dart';
 import 'package:jhentai/src/service/engine/engine_contract.dart';
 import 'package:jhentai/src/service/image_translation_service.dart';
 import 'package:jhentai/src/service/image_inpainting_service.dart';
+import 'package:jhentai/src/service/inference/onnx_model_store.dart';
 import 'package:jhentai/src/setting/image_translation_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/widget/eh_apple_button.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
 import 'package:jhentai/src/widget/gguf_model_manager.dart';
+import 'package:jhentai/src/widget/onnx_model_tile.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 class _LanguageOption {
@@ -132,6 +134,8 @@ class _ImageTranslationConfigSheetState
               shrinkWrap: true,
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
               children: [
+                _buildBubbleDetection(),
+                _buildBubbleDetectionModelTile(),
                 _buildOcrEngine(),
                 if (appleOcr ||
                     _translatorEngine == ImageTranslationEngine.appleOnDevice)
@@ -149,7 +153,6 @@ class _ImageTranslationConfigSheetState
                 _buildTranslateScope(),
                 _buildContextBatchSize(),
                 _buildAutoMergeText(),
-                _buildBubbleDetection(),
                 _buildImageProcessingMode(),
                 _buildTranslationBackgroundStyle(),
               ],
@@ -238,9 +241,8 @@ class _ImageTranslationConfigSheetState
       value: _autoMergeText,
       enabled: !imageTranslationSetting.enableBubbleDetection.value,
       onChanged: (value) {
-        final bool next = imageTranslationSetting.enableBubbleDetection.value
-            ? true
-            : value;
+        final bool next =
+            imageTranslationSetting.enableBubbleDetection.value ? true : value;
         setState(() => _autoMergeText = next);
         imageTranslationSetting.saveAutoMergeText(next);
       },
@@ -280,10 +282,40 @@ class _ImageTranslationConfigSheetState
       () => EHAppleSwitchListTile(
         key: const ValueKey('image-translation-bubble-detection'),
         title: Text('imageTranslationBubbleDetection'.tr),
-        subtitle: Text('imageTranslationBubbleDetectionHint'.tr, style: const TextStyle(fontSize: 12)),
+        subtitle: Text(
+          'imageTranslationBubbleDetectionHint'.tr,
+          style: const TextStyle(fontSize: 12),
+        ),
         value: imageTranslationSetting.enableBubbleDetection.value,
         onChanged: imageTranslationSetting.saveEnableBubbleDetection,
       ),
+    );
+  }
+
+  Widget _buildBubbleDetectionModelTile() {
+    return Obx(
+      () {
+        if (!imageTranslationSetting.enableBubbleDetection.value) {
+          return const SizedBox.shrink();
+        }
+        if (!Get.isRegistered<OnnxModelStore>()) {
+          return ListTile(
+            key: const ValueKey('image-translation-bubble-model-loading'),
+            title: Text('imageTranslationBubbleModel'.tr),
+            subtitle: Text('initializing'.tr),
+            trailing: const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          );
+        }
+        return OnnxModelTile(
+          key: const ValueKey('image-translation-bubble-model'),
+          manifestId: OnnxModelStore.bubbleSegmentationManifestId,
+          title: 'imageTranslationBubbleModel'.tr,
+        );
+      },
     );
   }
 
@@ -295,35 +327,44 @@ class _ImageTranslationConfigSheetState
             title: Text('imageTranslationBackgroundColor'.tr),
             trailing: GestureDetector(
               onTap: () async {
-                Color selected = imageTranslationSetting.translationBackgroundColor.value;
+                Color selected =
+                    imageTranslationSetting.translationBackgroundColor.value;
                 final Color? result = await showDialog<Color>(
                   context: context,
-                  builder: (context) => AlertDialog(
-                    content: ColorPicker(
-                      color: selected,
-                      pickersEnabled: const <ColorPickerType, bool>{
-                        ColorPickerType.both: true,
-                        ColorPickerType.primary: false,
-                        ColorPickerType.accent: false,
-                        ColorPickerType.bw: false,
-                        ColorPickerType.custom: false,
-                        ColorPickerType.wheel: true,
-                      },
-                      showColorCode: true,
-                      onColorChanged: (color) => selected = color,
-                    ),
-                    actions: [
-                      TextButton(onPressed: () => Navigator.pop(context, selected), child: Text('confirm'.tr)),
-                    ],
-                  ),
+                  builder:
+                      (context) => AlertDialog(
+                        content: ColorPicker(
+                          color: selected,
+                          pickersEnabled: const <ColorPickerType, bool>{
+                            ColorPickerType.both: true,
+                            ColorPickerType.primary: false,
+                            ColorPickerType.accent: false,
+                            ColorPickerType.bw: false,
+                            ColorPickerType.custom: false,
+                            ColorPickerType.wheel: true,
+                          },
+                          showColorCode: true,
+                          onColorChanged: (color) => selected = color,
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, selected),
+                            child: Text('confirm'.tr),
+                          ),
+                        ],
+                      ),
                 );
-                if (result != null) await imageTranslationSetting.saveTranslationBackgroundColor(result);
+                if (result != null)
+                  await imageTranslationSetting.saveTranslationBackgroundColor(
+                    result,
+                  );
               },
               child: Container(
                 width: 30,
                 height: 30,
                 decoration: BoxDecoration(
-                  color: imageTranslationSetting.translationBackgroundColor.value,
+                  color:
+                      imageTranslationSetting.translationBackgroundColor.value,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.grey),
                 ),
@@ -337,9 +378,12 @@ class _ImageTranslationConfigSheetState
               min: 0,
               max: 1,
               divisions: 20,
-              onChanged: imageTranslationSetting.saveTranslationBackgroundOpacity,
+              onChanged:
+                  imageTranslationSetting.saveTranslationBackgroundOpacity,
             ),
-            trailing: Text('${(imageTranslationSetting.translationBackgroundOpacity.value * 100).round()}%'),
+            trailing: Text(
+              '${(imageTranslationSetting.translationBackgroundOpacity.value * 100).round()}%',
+            ),
           ),
         ],
       ),

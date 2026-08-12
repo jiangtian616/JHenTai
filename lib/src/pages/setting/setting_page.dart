@@ -30,29 +30,37 @@ class SettingPage extends StatelessWidget {
                 )
                 : null,
       ),
-      body: Obx(
-        () =>
-            ThemeConfig.isApple
-                ? _buildAppleSettings(context)
-                : _buildMaterialSettings(context),
-      ),
+      body: Obx(() {
+        // Read the login state in this observer's closure.  Calling the
+        // helper indirectly from the tile factory made the dependency
+        // invisible to GetX in some desktop builds, which turned this
+        // whole settings body into a no-op Obx and surfaced the red error
+        // overlay.
+        final bool isLoggedIn = userSetting.ipbMemberId.value != null;
+        return ThemeConfig.isApple
+            ? _buildAppleSettings(context, isLoggedIn: isLoggedIn)
+            : _buildMaterialSettings(context, isLoggedIn: isLoggedIn);
+      }),
     );
   }
 
-  Widget _buildMaterialSettings(BuildContext context) => ListView(
+  Widget _buildMaterialSettings(
+    BuildContext context, {
+    required bool isLoggedIn,
+  }) => ListView(
     padding: EdgeInsets.only(
       top: 12,
       bottom: UIConfig.liquidGlassNavContentInset(context),
     ),
-    children: _settingTiles(appleStyle: false),
+    children: _settingTiles(appleStyle: false, isLoggedIn: isLoggedIn),
   );
 
-  Widget _buildAppleSettings(BuildContext context) {
-    final tiles = _settingTiles(appleStyle: true);
+  Widget _buildAppleSettings(BuildContext context, {required bool isLoggedIn}) {
+    final tiles = _settingTiles(appleStyle: true, isLoggedIn: isLoggedIn);
     final groups = <List<ListTile>>[
-      tiles.take(userSetting.hasLoggedIn() ? 2 : 1).toList(),
-      tiles.skip(userSetting.hasLoggedIn() ? 2 : 1).take(3).toList(),
-      tiles.skip(userSetting.hasLoggedIn() ? 5 : 4).toList(),
+      tiles.take(isLoggedIn ? 2 : 1).toList(),
+      tiles.skip(isLoggedIn ? 2 : 1).take(3).toList(),
+      tiles.skip(isLoggedIn ? 5 : 4).toList(),
     ];
     return ListView.separated(
       padding: EdgeInsets.fromLTRB(
@@ -94,14 +102,17 @@ class SettingPage extends StatelessWidget {
     ],
   );
 
-  List<ListTile> _settingTiles({required bool appleStyle}) => [
+  List<ListTile> _settingTiles({
+    required bool appleStyle,
+    required bool isLoggedIn,
+  }) => [
     _settingTile(
       _settingIcon(Icons.account_circle, CupertinoIcons.person_crop_circle),
       'account',
       'account',
       appleStyle,
     ),
-    if (userSetting.hasLoggedIn())
+    if (isLoggedIn)
       _settingTile(
         _settingIcon(Icons.mood, CupertinoIcons.smiley),
         'EH',

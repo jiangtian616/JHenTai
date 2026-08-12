@@ -174,7 +174,10 @@ class _EHThumbnailState extends State<EHThumbnail> {
           _waitingForPermit = false;
           if (mounted) {
             _holdingPermit = true;
-            setState(() {});
+            // A slot can be dispatched synchronously while another thumbnail
+            // is being built. Rebuild after the frame to avoid setState during
+            // build, which otherwise produces a red-screen error in the reader.
+            _scheduleRebuild();
           } else {
             ThumbnailLoadGate.release();
           }

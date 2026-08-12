@@ -482,7 +482,15 @@ abstract interface class EngineReadiness {
 extension TranslationEngineReadiness on TranslationEngine {
   Future<bool> ensureReady() async {
     final TranslationEngine engine = this;
-    return engine is EngineReadiness ? engine.ensureReady() : engine.isReady;
+    // Keep the interface call statically typed as [EngineReadiness]. Calling
+    // `engine.ensureReady()` while [engine] is still statically a
+    // [TranslationEngine] resolves this extension again and recurses until a
+    // Stack Overflow, which made the JHenTai translation path fail before the
+    // native engine was ever invoked.
+    if (engine is EngineReadiness) {
+      return (engine as EngineReadiness).ensureReady();
+    }
+    return engine.isReady;
   }
 }
 

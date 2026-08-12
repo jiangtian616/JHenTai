@@ -82,8 +82,10 @@ class _ReadPageState extends State<ReadPage>
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
       ),
-      child: Obx(
-        () => EHMouseButtonListener(
+      child: StreamBuilder<dynamic>(
+        stream: keyboardShortcutSetting.bindings.stream,
+        initialData: keyboardShortcutSetting.bindings,
+        builder: (_, __) => EHMouseButtonListener(
           mouseHandlers: keyboardShortcutSetting.buildMouseHandlerMap(
             onToNext: logic.toNext,
             onToPrev: logic.toPrev,
@@ -195,8 +197,11 @@ class _ReadPageState extends State<ReadPage>
     return Positioned(
       bottom: 0,
       right: 0,
-      child: Obx(() {
-        if (readSetting.showStatusInfo.isFalse) {
+      child: StreamBuilder<bool>(
+        stream: readSetting.showStatusInfo.stream,
+        initialData: readSetting.showStatusInfo.value,
+        builder: (_, snapshot) {
+        if (snapshot.data != true) {
           return const SizedBox();
         }
 
@@ -237,7 +242,8 @@ class _ReadPageState extends State<ReadPage>
           id: logic.rightBottomInfoId,
           builder: (_) => state.isMenuOpen ? child.fadeOut() : child.fadeIn(),
         );
-      }),
+        },
+      ),
     );
   }
 
@@ -373,11 +379,8 @@ class _ReadPageState extends State<ReadPage>
                     ),
                   ),
                 ),
-              Obx(() {
-                if (!logic.isInDoubleColumnReadDirection) {
-                  return const SizedBox();
-                }
-                return Padding(
+              if (logic.isInDoubleColumnReadDirection)
+                Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: UIConfig.readPageTopMenuActionHPadding,
                   ),
@@ -401,8 +404,7 @@ class _ReadPageState extends State<ReadPage>
                       minimumSize: const Size(40, 40),
                     ),
                   ),
-                );
-              }),
+                ),
               GetBuilder<ReadPageLogic>(
                 id: logic.autoModeId,
                 builder:
@@ -785,18 +787,23 @@ class _ReadPageState extends State<ReadPage>
     return GetBuilder<ReadPageLogic>(
       id: logic.bottomMenuId,
       builder:
-          (_) => Obx(
-            () => AnimatedPositioned(
+          (_) => StreamBuilder<bool>(
+            stream: readSetting.showThumbnails.stream,
+            initialData: readSetting.showThumbnails.value,
+            builder: (_, thumbnailsSnapshot) => StreamBuilder<bool>(
+              stream: readSetting.enableBottomMenu.stream,
+              initialData: readSetting.enableBottomMenu.value,
+              builder: (_, bottomMenuSnapshot) => AnimatedPositioned(
               duration: const Duration(milliseconds: 200),
               curve: Curves.ease,
               bottom:
                   state.isMenuOpen
                       ? 0
-                      : (readSetting.showThumbnails.isTrue
+                      : (thumbnailsSnapshot.data == true
                               ? -UIConfig.readPageBottomThumbnailsRegionHeight
                               : 0) -
                           UIConfig.readPageBottomSliderHeight -
-                          (readSetting.enableBottomMenu.isTrue
+                          (bottomMenuSnapshot.data == true
                               ? UIConfig.readPageBottomActionHeight
                               : 0) -
                           max(
@@ -808,13 +815,13 @@ class _ReadPageState extends State<ReadPage>
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (readSetting.showThumbnails.isTrue)
+                    if (thumbnailsSnapshot.data == true)
                       Offstage(
                         offstage: !state.isMenuOpen,
                         child: _buildThumbnails(context),
                       ),
                     _buildSlider(),
-                    if (readSetting.enableBottomMenu.isTrue)
+                    if (bottomMenuSnapshot.data == true)
                       _buildBottomAction(),
                     SizedBox(
                       height: max(
@@ -825,6 +832,7 @@ class _ReadPageState extends State<ReadPage>
                   ],
                 ),
               ),
+              ),
             ),
           ),
     );
@@ -834,92 +842,90 @@ class _ReadPageState extends State<ReadPage>
     return SizedBox(
       width: fullScreenWidth,
       height: UIConfig.readPageBottomThumbnailsRegionHeight,
-      child: Obx(
-        () => EHWheelSpeedControllerForReadPage(
+      child: EHWheelSpeedControllerForReadPage(
+        scrollOffsetController: state.thumbnailsScrollOffsetController,
+        stopScrollWhenCtrlPressed: false,
+        child: ScrollablePositionedList.separated(
+          scrollDirection: Axis.horizontal,
+          reverse: logic.isInRight2LeftDirection,
+          physics: const ClampingScrollPhysics(),
+          minCacheExtent: 1 * fullScreenWidth,
+          initialScrollIndex: state.readPageInfo.initialIndex,
+          itemCount: state.readPageInfo.pageCount,
+          itemScrollController: state.thumbnailsScrollController,
+          itemPositionsListener: state.thumbnailPositionsListener,
           scrollOffsetController: state.thumbnailsScrollOffsetController,
-          stopScrollWhenCtrlPressed: false,
-          child: ScrollablePositionedList.separated(
-            scrollDirection: Axis.horizontal,
-            reverse: logic.isInRight2LeftDirection,
-            physics: const ClampingScrollPhysics(),
-            minCacheExtent: 1 * fullScreenWidth,
-            initialScrollIndex: state.readPageInfo.initialIndex,
-            itemCount: state.readPageInfo.pageCount,
-            itemScrollController: state.thumbnailsScrollController,
-            itemPositionsListener: state.thumbnailPositionsListener,
-            scrollOffsetController: state.thumbnailsScrollOffsetController,
-            itemBuilder:
-                (_, index) => GetBuilder<ReadPageLogic>(
-                  id: logic.thumbnailItemId(index),
-                  builder:
-                      (_) => Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const SizedBox(height: 6),
-                          ReaderThumbnailFrame(
-                            height: UIConfig.readPageThumbnailHeight,
-                            imageWidth: _thumbnailImageWidth(index),
-                            imageHeight: _thumbnailImageHeight(index),
-                            image: GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onTap: () => logic.jump2ImageIndex(index),
-                              child:
-                                  state.readPageInfo.mode == ReadMode.online
-                                      ? _buildThumbnailInOnlineMode(
-                                        context,
-                                        index,
-                                      )
-                                      : _buildThumbnailInLocalMode(
-                                        context,
-                                        index,
-                                      ),
-                            ),
+          itemBuilder:
+              (_, index) => GetBuilder<ReadPageLogic>(
+                id: logic.thumbnailItemId(index),
+                builder:
+                    (_) => Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 6),
+                        ReaderThumbnailFrame(
+                          height: UIConfig.readPageThumbnailHeight,
+                          imageWidth: _thumbnailImageWidth(index),
+                          imageHeight: _thumbnailImageHeight(index),
+                          image: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () => logic.jump2ImageIndex(index),
+                            child:
+                                state.readPageInfo.mode == ReadMode.online
+                                    ? _buildThumbnailInOnlineMode(
+                                      context,
+                                      index,
+                                    )
+                                    : _buildThumbnailInLocalMode(
+                                      context,
+                                      index,
+                                    ),
                           ),
-                          const SizedBox(height: 4),
-                          GetBuilder<ReadPageLogic>(
-                            builder:
-                                (_) => Center(
-                                  child: Container(
-                                    width: 24,
-                                    decoration: BoxDecoration(
+                        ),
+                        const SizedBox(height: 4),
+                        GetBuilder<ReadPageLogic>(
+                          builder:
+                              (_) => Center(
+                                child: Container(
+                                  width: 24,
+                                  decoration: BoxDecoration(
+                                    color:
+                                        state
+                                                    .readPageInfo
+                                                    .currentImageIndex ==
+                                                index
+                                            ? UIConfig.readPageBottomCurrentImageHighlightBackgroundColor(
+                                              context,
+                                            )
+                                            : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    (index + 1).toString(),
+                                    style: TextStyle(
+                                      fontSize: 9,
                                       color:
                                           state
                                                       .readPageInfo
                                                       .currentImageIndex ==
                                                   index
-                                              ? UIConfig.readPageBottomCurrentImageHighlightBackgroundColor(
+                                              ? UIConfig.readPageBottomCurrentImageHighlightForegroundColor(
                                                 context,
                                               )
-                                              : Colors.transparent,
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      (index + 1).toString(),
-                                      style: TextStyle(
-                                        fontSize: 9,
-                                        color:
-                                            state
-                                                        .readPageInfo
-                                                        .currentImageIndex ==
-                                                    index
-                                                ? UIConfig.readPageBottomCurrentImageHighlightForegroundColor(
-                                                  context,
-                                                )
-                                                : null,
-                                      ),
+                                              : null,
                                     ),
                                   ),
                                 ),
-                          ),
-                          const Expanded(child: SizedBox()),
-                        ],
-                      ),
-                ),
-            separatorBuilder: (_, __) => const SizedBox(width: 6),
-          ),
-        ).enableMouseDrag(withScrollBar: false),
-      ),
+                              ),
+                        ),
+                        const Expanded(child: SizedBox()),
+                      ],
+                    ),
+              ),
+          separatorBuilder: (_, __) => const SizedBox(width: 6),
+        ),
+      ).enableMouseDrag(withScrollBar: false),
     );
   }
 

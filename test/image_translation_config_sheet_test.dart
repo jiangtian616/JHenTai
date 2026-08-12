@@ -175,6 +175,12 @@ void main() {
     await tester.pumpWidget(
       const GetMaterialApp(home: Scaffold(body: ImageTranslationConfigSheet())),
     );
+    // Bubble detection and its model download row now sit before OCR, so the
+    // context selector is no longer in the initial compact-sheet viewport.
+    await tester.drag(find.byType(ListView), const Offset(0, -220));
+    // The early-startup model row intentionally contains a live progress
+    // indicator, so settling would wait forever in this isolated widget test.
+    await tester.pump();
 
     final EHCodexStyleDropdown<ContextBatchSize> context = tester.widget(
       find.byKey(const ValueKey('image-translation-context-batch-size')),

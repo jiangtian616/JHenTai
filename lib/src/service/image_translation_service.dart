@@ -495,21 +495,13 @@ class ImageTranslationService extends GetxController
       final bool useBubbleDetection =
           imageTranslationSetting.autoMergeText.value &&
           imageTranslationSetting.enableBubbleDetection.value;
-      final DetectionResult? bubbleDetection = useBubbleDetection
-          ? await _detectBubbleRegions(imagePath)
-          : null;
+      final DetectionResult? bubbleDetection =
+          useBubbleDetection ? await _detectBubbleRegions(imagePath) : null;
       final _RecognizeResult recognized = await _recognize(imagePath);
       final List<RecognizedTextBlock> blocks = recognized.blocks;
       final bool mergeTextBlocks = imageTranslationSetting.autoMergeText.value;
-      List<RecognizedTextContainer> containers = useBubbleDetection
-          ? _containersFromBubbleDetection(blocks, bubbleDetection)
-          : const <RecognizedTextContainer>[];
-      if (useBubbleDetection && containers.isEmpty) {
-        containers = await _detectTextContainers(sourceBytes, blocks);
-      }
-      // Both on-device engines (ONNX, Apple Live Text) always report the
-      // upright pixel dimensions; probe the image header only as a fallback so
-      // the hot path never copies the page bytes on the UI isolate.
+      // Resolve the source dimensions before accepting detector rectangles so
+      // a page-sized false positive can never become a layout container.
       final int imageWidth;
       final int imageHeight;
       if (recognized.imageWidth != null && recognized.imageHeight != null) {
@@ -521,6 +513,18 @@ class ImageTranslationService extends GetxController
         );
         imageWidth = width;
         imageHeight = height;
+      }
+      List<RecognizedTextContainer> containers =
+          useBubbleDetection
+              ? _containersFromBubbleDetection(
+                blocks,
+                bubbleDetection,
+                imageWidth: imageWidth,
+                imageHeight: imageHeight,
+              )
+              : const <RecognizedTextContainer>[];
+      if (useBubbleDetection && containers.isEmpty) {
+        containers = await _detectTextContainers(sourceBytes, blocks);
       }
       if (_cancelRequested) {
         markCanceled(request.cacheKey);
@@ -857,6 +861,8 @@ class ImageTranslationService extends GetxController
         'language': configuration['appleLanguage'],
         'backend': configuration['onnxBackend'],
         'mangaAutoSuggest': imageTranslationSetting.mangaOcrAutoSuggest.value,
+        'bubbleDetection': configuration['bubbleDetection'],
+        'bubbleModel': configuration['bubbleModel'],
       },
       translationModel: configuration['model'] as String?,
       translationConfiguration: <String, dynamic>{
@@ -868,7 +874,10 @@ class ImageTranslationService extends GetxController
         'mergeTextBlocks': imageTranslationSetting.autoMergeText.value,
       },
       promptVersion: promptVersion,
-      pipelineVersion: 'image-translation-v2',
+      // v3 adds speech-bubble model identity to the cache key.  A result
+      // generated before/after toggling bubble detection has different
+      // container geometry and must never be reused for the other mode.
+      pipelineVersion: 'image-translation-v3',
     ).value;
   }
 
@@ -907,6 +916,12 @@ class ImageTranslationService extends GetxController
       'appleUseApi':
           imageTranslationSetting.appleLiveTextUseThirdPartyApi.value,
       'mangaOcrAutoSuggest': imageTranslationSetting.mangaOcrAutoSuggest.value,
+      'bubbleDetection': imageTranslationSetting.enableBubbleDetection.value,
+      'bubbleModel': imageTranslationSetting.enableBubbleDetection.value
+          ? OnnxModelStore.instance.fingerprintOf(
+              OnnxModelStore.bubbleSegmentationManifestId,
+            )
+          : null,
       if (imageTranslationSetting.ocrEngine.value == ImageOcrEngine.onnx) ...{
         'onnxModel': OnnxModelStore.instance.fingerprintOf(
           imageTranslationSetting.onnxModelId.value,
@@ -1176,9 +1191,7 @@ class ImageTranslationService extends GetxController
       EngineImageRequest(imagePath: imagePath),
     );
     try {
-      return await task.future.timeout(
-        const Duration(minutes: 2),
-      );
+      return await task.future.timeout(const Duration(minutes: 2));
     } catch (error, stack) {
       log.warning('Manga109 bubble detection skipped: $error');
       log.trace(stack);
@@ -1188,13 +1201,23 @@ class ImageTranslationService extends GetxController
 
   List<RecognizedTextContainer> _containersFromBubbleDetection(
     List<RecognizedTextBlock> blocks,
-    DetectionResult? detection,
-  ) {
+    DetectionResult? detection, {
+    required int imageWidth,
+    required int imageHeight,
+  }) {
     if (blocks.isEmpty || detection == null) {
       return const <RecognizedTextContainer>[];
     }
-    final List<RecognizedTextContainer> containers = <RecognizedTextContainer>[];
+    final List<RecognizedTextContainer> containers =
+        <RecognizedTextContainer>[];
     for (final DetectedTextRegion region in detection.regions) {
+      if (imageWidth <= 0 ||
+          imageHeight <= 0 ||
+          region.width >= imageWidth * 0.95 ||
+          region.height >= imageHeight * 0.95 ||
+          region.width * region.height >= imageWidth * imageHeight * 0.8) {
+        continue;
+      }
       final List<int> indices = <int>[];
       for (int blockIndex = 0; blockIndex < blocks.length; blockIndex++) {
         final RecognizedTextBlock block = blocks[blockIndex];
@@ -1290,7 +1313,14 @@ class ImageTranslationService extends GetxController
         }
       }
       if (merged != null) {
-        mergedBackgrounds.add(merged);
+        final Rect? safeRect = safeTranslationBackgroundRect(
+          merged,
+          Size(frame.image.width.toDouble(), frame.image.height.toDouble()),
+        );
+        if (safeRect == null) {
+          continue;
+        }
+        mergedBackgrounds.add(safeRect);
         final String translation =
             groupIndex < result.translatedGroups.length &&
                     result.translatedGroups[groupIndex].trim().isNotEmpty
@@ -1298,11 +1328,11 @@ class ImageTranslationService extends GetxController
                 : groupLines.join('\n');
         final double resolved = fitTranslationFontSize(
           translation,
-          math.max(1, merged.width - 8),
-          math.max(1, merged.height - 4),
+          math.max(1, safeRect.width - 8),
+          math.max(1, safeRect.height - 4),
           TextDirection.ltr,
         );
-        entries.add((merged, translation, resolved));
+        entries.add((safeRect, translation, resolved));
       }
     }
     for (final Rect rect in mergedBackgrounds) {
@@ -1774,6 +1804,30 @@ class ImageTranslationService extends GetxController
 /// bubbles before any text (see [paintTranslationBubbleText]) so a later
 /// bubble never covers an earlier line's wrapped text overflow. Shared by the
 /// read-page overlay and the exported overlay PNG so both render identically.
+Rect? safeTranslationBackgroundRect(Rect rect, Size canvasSize) {
+  if (!rect.left.isFinite ||
+      !rect.top.isFinite ||
+      !rect.right.isFinite ||
+      !rect.bottom.isFinite ||
+      rect.width <= 0 ||
+      rect.height <= 0 ||
+      canvasSize.width <= 0 ||
+      canvasSize.height <= 0) {
+    return null;
+  }
+  final Rect clipped = rect.intersect(Offset.zero & canvasSize);
+  if (clipped.width <= 0 || clipped.height <= 0) {
+    return null;
+  }
+  // A malformed detector/OCR rectangle must not become a page-sized backing
+  // plate over the complete translated image.
+  if (clipped.width >= canvasSize.width * 0.95 &&
+      clipped.height >= canvasSize.height * 0.95) {
+    return null;
+  }
+  return clipped;
+}
+
 void paintTranslationBubbleBackground(
   Canvas canvas,
   Rect rect, {
@@ -1781,8 +1835,11 @@ void paintTranslationBubbleBackground(
   double? opacity,
 }) {
   final RRect rrect = RRect.fromRectAndRadius(rect, const Radius.circular(3));
-  final Color configured = color ?? imageTranslationSetting.translationBackgroundColor.value;
-  final int alpha = ((opacity ?? imageTranslationSetting.translationBackgroundOpacity.value) * 255)
+  final Color configured =
+      color ?? imageTranslationSetting.translationBackgroundColor.value;
+  final int alpha = ((opacity ??
+              imageTranslationSetting.translationBackgroundOpacity.value) *
+          255)
       .round()
       .clamp(0, 255);
   canvas.drawRRect(rrect, Paint()..color = configured.withAlpha(alpha));

@@ -48,6 +48,70 @@ class _FakeTranslationEngine implements TranslationEngine {
       );
 }
 
+class _ReadinessTranslationEngine
+    implements TranslationEngine, EngineReadiness {
+  int readinessCalls = 0;
+
+  @override
+  final EngineDescriptor descriptor = const EngineDescriptor(
+    id: 'readiness-translation',
+    kind: EngineKind.translation,
+    displayName: 'Readiness Translation',
+    platforms: <EnginePlatform>{EnginePlatform.macos},
+  );
+
+  @override
+  bool get isReady => true;
+
+  @override
+  Future<bool> ensureReady() async {
+    readinessCalls++;
+    return true;
+  }
+
+  @override
+  EngineTask<TranslationResult> translate(TranslationEngineRequest request) =>
+      EngineTask.start(
+        operation:
+            (EngineTaskContext context) async => const TranslationResult(
+              translatedText: 'translated',
+              lines: <String>['translated'],
+            ),
+      );
+}
+
+class _ReadinessContextEngine
+    implements ContextTranslationEngine, EngineReadiness {
+  int readinessCalls = 0;
+
+  @override
+  final EngineDescriptor descriptor = const EngineDescriptor(
+    id: 'readiness-context',
+    kind: EngineKind.translation,
+    displayName: 'Readiness Context',
+    platforms: <EnginePlatform>{EnginePlatform.macos},
+  );
+
+  @override
+  bool get isReady => true;
+
+  @override
+  Future<bool> ensureReady() async {
+    readinessCalls++;
+    return true;
+  }
+
+  @override
+  EngineTask<ContextTranslationResult> translateContext(
+    ContextTranslationEngineRequest request,
+  ) => EngineTask.start(
+    operation:
+        (EngineTaskContext context) async => const ContextTranslationResult(
+          lines: <ContextTranslationLineResult>[],
+        ),
+  );
+}
+
 void main() {
   test('engine task has one id across lifecycle and progress events', () async {
     final EngineTask<int> task = EngineTask.start(
@@ -90,6 +154,9 @@ void main() {
   test('cache key changes with model, configuration, prompt and pipeline', () {
     EngineCacheKey key({
       String model = 'model-a',
+      Map<String, dynamic> ocrConfiguration = const <String, dynamic>{
+        'language': 'ja',
+      },
       Map<String, dynamic> configuration = const <String, dynamic>{
         'target': 'zh',
       },
@@ -98,7 +165,7 @@ void main() {
     }) => EngineCacheKey(
       sourceHash: 'image-hash',
       ocrModel: 'ocr-a',
-      ocrConfiguration: const <String, dynamic>{'language': 'ja'},
+      ocrConfiguration: ocrConfiguration,
       translationModel: model,
       translationConfiguration: configuration,
       promptVersion: prompt,
@@ -107,6 +174,19 @@ void main() {
 
     expect(key().value, key().value);
     expect(key().value, isNot(key(model: 'model-b').value));
+    expect(
+      key().value,
+      isNot(
+        key(
+          ocrConfiguration: const <String, dynamic>{
+            'language': 'ja',
+            'bubbleDetection': true,
+            'bubbleModel': 'NeuronCState-2026-08-12',
+          },
+        ).value,
+      ),
+      reason: 'bubble layout changes OCR grouping and must invalidate cache',
+    );
     expect(
       key().value,
       isNot(key(configuration: const <String, dynamic>{'target': 'en'}).value),
@@ -137,6 +217,21 @@ void main() {
       expect(unsupported.supported, isFalse);
     },
   );
+
+  test(
+    'readiness extension delegates to asynchronous engine readiness',
+    () async {
+      final _ReadinessTranslationEngine engine = _ReadinessTranslationEngine();
+      expect(await engine.ensureReady(), isTrue);
+      expect(engine.readinessCalls, 1);
+    },
+  );
+
+  test('context readiness extension delegates without recursion', () async {
+    final _ReadinessContextEngine engine = _ReadinessContextEngine();
+    expect(await engine.ensureReady(), isTrue);
+    expect(engine.readinessCalls, 1);
+  });
 
   test('ONNX model catalog exposes only verified manifest artifacts', () {
     final OnnxModelCatalog catalog = OnnxModelCatalog();

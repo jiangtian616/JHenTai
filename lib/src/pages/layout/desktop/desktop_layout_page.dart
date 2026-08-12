@@ -34,10 +34,7 @@ class DesktopLayoutPage extends StatelessWidget {
         GetPlatform.isMacOS && ThemeConfig.isApple;
     return Row(
       children: [
-        _leftTabBar(
-          context,
-          includeTrailingDivider: useNativeMacOSSidebar,
-        ),
+        _leftTabBar(context, includeTrailingDivider: useNativeMacOSSidebar),
         if (!useNativeMacOSSidebar) _layoutDivider(context),
         Expanded(child: _buildDoubleColumn(context)),
       ],
@@ -140,6 +137,7 @@ class DesktopLayoutPage extends StatelessWidget {
         padding: const EdgeInsets.only(
           top: -4320,
           right: -UIConfig.desktopMacOSSidebarEffectRightExtension,
+          bottom: -UIConfig.desktopMacOSSidebarEffectBottomExtension,
         ),
         material: NSVisualEffectViewMaterial.sidebar,
         child: bar,

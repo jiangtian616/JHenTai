@@ -14,40 +14,37 @@ import '../utils/screen_size_util.dart';
 class UIConfig {
   /// common
   static ScrollBehavior scrollBehaviourWithScrollBar =
-      EHScrollBehaviourWithScrollBar().copyWith(
-    scrollbars: true,
-  );
+      EHScrollBehaviourWithScrollBar().copyWith(scrollbars: true);
   static ScrollBehavior scrollBehaviourWithoutScrollBar =
-      const MaterialScrollBehavior().copyWith(
-    scrollbars: false,
-  );
+      const MaterialScrollBehavior().copyWith(scrollbars: false);
   static ScrollBehavior scrollBehaviourWithScrollBarWithMouse =
       EHScrollBehaviourWithScrollBar().copyWith(
-    dragDevices: {
-      PointerDeviceKind.mouse,
-      PointerDeviceKind.touch,
-      PointerDeviceKind.stylus,
-      PointerDeviceKind.invertedStylus,
-      PointerDeviceKind.trackpad,
-      PointerDeviceKind.unknown,
-    },
-    scrollbars: true,
-  );
+        dragDevices: {
+          PointerDeviceKind.mouse,
+          PointerDeviceKind.touch,
+          PointerDeviceKind.stylus,
+          PointerDeviceKind.invertedStylus,
+          PointerDeviceKind.trackpad,
+          PointerDeviceKind.unknown,
+        },
+        scrollbars: true,
+      );
   static ScrollBehavior scrollBehaviourWithoutScrollBarWithMouse =
       const MaterialScrollBehavior().copyWith(
-    dragDevices: {
-      PointerDeviceKind.mouse,
-      PointerDeviceKind.touch,
-      PointerDeviceKind.stylus,
-      PointerDeviceKind.invertedStylus,
-      PointerDeviceKind.trackpad,
-      PointerDeviceKind.unknown,
-    },
-    scrollbars: false,
-  );
+        dragDevices: {
+          PointerDeviceKind.mouse,
+          PointerDeviceKind.touch,
+          PointerDeviceKind.stylus,
+          PointerDeviceKind.invertedStylus,
+          PointerDeviceKind.trackpad,
+          PointerDeviceKind.unknown,
+        },
+        scrollbars: false,
+      );
 
-  static const Duration defaultPageRouteTransitionDuration =
-      Duration(milliseconds: 150);
+  static const Duration defaultPageRouteTransitionDuration = Duration(
+    milliseconds: 150,
+  );
 
   static const Color defaultLightThemeColor = Color(0xFF6750A4);
   static const Color defaultDarkThemeColor = Color(0xFFD0BCFF);
@@ -178,7 +175,9 @@ class UIConfig {
 
   static Widget loadingAnimation(BuildContext context) =>
       LoadingAnimationWidget.horizontalRotatingDots(
-          color: Theme.of(context).colorScheme.onSurfaceVariant, size: 32);
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+        size: 32,
+      );
 
   static Color alertColor(BuildContext context) =>
       Theme.of(context).colorScheme.error;
@@ -226,6 +225,7 @@ class UIConfig {
   /// native NSVisualEffectView frost behind them shows through.
   static const Color desktopSideBarColorLight = Color(0xFFECECEC);
   static const Color desktopSideBarColorDark = Color(0xFF1E1E1E);
+
   /// Only a very light Flutter tint sits over the native material. The native
   /// visual-effect view below it provides the actual sidebar appearance.
   static const double desktopMacOSSideBarLightAlpha = 0.18;
@@ -239,6 +239,10 @@ class UIConfig {
   /// Extend only the native material to the divider without changing the
   /// Flutter sidebar layout width.
   static const double desktopMacOSSidebarEffectRightExtension = 12;
+
+  /// Extend the native material through the bottom edge of the window so the
+  /// sidebar does not leave a strip of the Flutter window background behind.
+  static const double desktopMacOSSidebarEffectBottomExtension = 12;
 
   static double desktopMacOSSideBarAlpha(Brightness brightness) =>
       brightness == Brightness.dark
@@ -277,16 +281,16 @@ class UIConfig {
 
   static ScrollBehavior leftDrawerPhysicsBehaviour =
       const MaterialScrollBehavior().copyWith(
-    dragDevices: {
-      PointerDeviceKind.mouse,
-      PointerDeviceKind.touch,
-      PointerDeviceKind.stylus,
-      PointerDeviceKind.trackpad,
-      PointerDeviceKind.unknown,
-    },
-    scrollbars: false,
-    overscroll: false,
-  );
+        dragDevices: {
+          PointerDeviceKind.mouse,
+          PointerDeviceKind.touch,
+          PointerDeviceKind.stylus,
+          PointerDeviceKind.trackpad,
+          PointerDeviceKind.unknown,
+        },
+        scrollbars: false,
+        overscroll: false,
+      );
 
   /// Gallery card
   static const double galleryCardHeight = 200;
@@ -297,11 +301,9 @@ class UIConfig {
   static const double galleryCardTextSize = 12;
   static const double galleryCardReadProgressIndicatorSize = 9;
 
-  static Color galleryCardBackGroundColor(BuildContext context) =>
-      Theme.of(context)
-          .colorScheme
-          .surfaceContainerHighest
-          .withValues(alpha: 0.8);
+  static Color galleryCardBackGroundColor(BuildContext context) => Theme.of(
+    context,
+  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.8);
 
   static Color galleryCardShadowColor(BuildContext context) =>
       Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2);
@@ -425,10 +427,10 @@ class UIConfig {
       Theme.of(context).colorScheme.secondaryContainer;
 
   static BoxShadow groupListShadow(BuildContext context) => BoxShadow(
-        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
-        blurRadius: 2,
-        offset: const Offset(0.3, 1),
-      );
+    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+    blurRadius: 2,
+    offset: const Offset(0.3, 1),
+  );
 
   static const double downloadPageGroupHeaderWidth = 100;
   static const double downloadPageCardHeight = 130;
@@ -439,11 +441,11 @@ class UIConfig {
   static const double downloadPageCardBorderRadius = 12;
 
   static BoxShadow downloadPageCardShadow(BuildContext context) => BoxShadow(
-        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
-        blurRadius: 2,
-        spreadRadius: 1,
-        offset: const Offset(0.3, 1),
-      );
+    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+    blurRadius: 2,
+    spreadRadius: 1,
+    offset: const Offset(0.3, 1),
+  );
   static const double downloadPageCoverWidth = 110;
   static const double downloadPageCoverHeight = 130;
   static const double downloadPageCardTitleSize = 14;
@@ -463,8 +465,9 @@ class UIConfig {
   static Color downloadPageLoadingIndicatorColor(BuildContext context) =>
       Theme.of(context).colorScheme.onSurfaceVariant;
 
-  static Duration downloadPageAnimationDuration =
-      const Duration(milliseconds: 300);
+  static Duration downloadPageAnimationDuration = const Duration(
+    milliseconds: 300,
+  );
 
   static const double downloadPageBotIconSize = 13;
 
@@ -507,8 +510,8 @@ class UIConfig {
       Theme.of(context).colorScheme.onSurface;
 
   static Color desktopSearchTabUnSelectedBackGroundColor(
-          BuildContext context) =>
-      Theme.of(context).colorScheme.secondaryContainer;
+    BuildContext context,
+  ) => Theme.of(context).colorScheme.secondaryContainer;
 
   static Color desktopSearchTabSelectedTextColor(BuildContext context) =>
       Theme.of(context).colorScheme.surface;
@@ -519,8 +522,9 @@ class UIConfig {
   static Color desktopSearchTabDividerBackGroundColor(BuildContext context) =>
       Theme.of(context).colorScheme.surface;
 
-  static Duration desktopSearchTabAnimationDuration =
-      const Duration(milliseconds: 200);
+  static Duration desktopSearchTabAnimationDuration = const Duration(
+    milliseconds: 200,
+  );
 
   static const Color searchPageSuggestionHighlightColor = Colors.red;
 
@@ -559,12 +563,12 @@ class UIConfig {
   static const double readPageThumbnailWidth = 80;
 
   static Color readPageBottomCurrentImageHighlightBackgroundColor(
-          BuildContext context) =>
-      Theme.of(context).colorScheme.primary;
+    BuildContext context,
+  ) => Theme.of(context).colorScheme.primary;
 
   static Color readPageBottomCurrentImageHighlightForegroundColor(
-          BuildContext context) =>
-      Theme.of(context).colorScheme.onPrimary;
+    BuildContext context,
+  ) => Theme.of(context).colorScheme.onPrimary;
 
   static const double readPageBottomSliderHeight = 54;
   static const double readPageBottomSpacingHeight = 36;
@@ -659,8 +663,8 @@ class UIConfig {
   static const Color galleryCategoryTagTextColor = Colors.white;
 
   static Color galleryCategoryTagDisabledBackGroundColor(
-          BuildContext context) =>
-      Theme.of(context).colorScheme.outline.withValues(alpha: 0.2);
+    BuildContext context,
+  ) => Theme.of(context).colorScheme.outline.withValues(alpha: 0.2);
 
   static Color galleryCategoryTagDisabledTextColor(BuildContext context) =>
       Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.2);
@@ -845,10 +849,12 @@ class UIConfig {
   static BorderRadius galleryDetailDialogItemBorderRadius =
       BorderRadius.circular(32);
 
-  static const TextStyle galleryDetailDialogItemNameTextStyle =
-      TextStyle(fontSize: 14);
-  static const TextStyle galleryDetailDialogItemValueTextStyle =
-      TextStyle(fontSize: 11);
+  static const TextStyle galleryDetailDialogItemNameTextStyle = TextStyle(
+    fontSize: 14,
+  );
+  static const TextStyle galleryDetailDialogItemValueTextStyle = TextStyle(
+    fontSize: 11,
+  );
 
   static const double galleryDetailDialogItemValueMaxWidth = 200;
 
@@ -877,10 +883,12 @@ class GlassAwareFloatingActionButtonLocation
 
   @override
   Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry) {
-    final double fabX = scaffoldGeometry.scaffoldSize.width -
+    final double fabX =
+        scaffoldGeometry.scaffoldSize.width -
         scaffoldGeometry.floatingActionButtonSize.width -
         16;
-    final double fabY = scaffoldGeometry.scaffoldSize.height -
+    final double fabY =
+        scaffoldGeometry.scaffoldSize.height -
         scaffoldGeometry.floatingActionButtonSize.height -
         scaffoldGeometry.minInsets.bottom -
         16 -
@@ -892,19 +900,25 @@ class GlassAwareFloatingActionButtonLocation
 class EHScrollBehaviourWithScrollBar extends MaterialScrollBehavior {
   @override
   Widget buildScrollbar(
-      BuildContext context, Widget child, ScrollableDetails details) {
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) {
     switch (axisDirectionToAxis(details.direction)) {
       case Axis.horizontal:
         return child;
       case Axis.vertical:
         return ScrollbarTheme(
           data: ScrollbarThemeData(
-            radius: styleSetting.isInMobileLayout
-                ? CupertinoScrollbar.defaultRadius
-                : const Radius.circular(8),
-            thickness: WidgetStateProperty.all(styleSetting.isInMobileLayout
-                ? CupertinoScrollbar.defaultThickness
-                : 8),
+            radius:
+                styleSetting.isInMobileLayout
+                    ? CupertinoScrollbar.defaultRadius
+                    : const Radius.circular(8),
+            thickness: WidgetStateProperty.all(
+              styleSetting.isInMobileLayout
+                  ? CupertinoScrollbar.defaultThickness
+                  : 8,
+            ),
           ),
           child: Scrollbar(controller: details.controller, child: child),
         );

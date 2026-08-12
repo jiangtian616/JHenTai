@@ -195,23 +195,35 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
     }
     return Stack(
       children: [
-        Obx(
-          () => IgnorePointer(
-            child: LayoutBuilder(
-              builder:
-                  (context, constraints) => CustomPaint(
-                    size: constraints.biggest,
-                    painter: _ImageTranslationOverlayPainter(
-                      result: result,
-                      textDirection: Directionality.of(context),
-                      backgroundColor: imageTranslationSetting
-                          .translationBackgroundColor.value,
-                      backgroundOpacity: imageTranslationSetting
-                          .translationBackgroundOpacity.value,
+        // Keep background style independent of GetX.  It must repaint an
+        // already translated page immediately when the user changes color or
+        // opacity, even if another reader observer is rebuilding.
+        StreamBuilder<Color>(
+          stream: imageTranslationSetting.translationBackgroundColor.stream,
+          initialData: imageTranslationSetting.translationBackgroundColor.value,
+          builder:
+              (context, colorSnapshot) => StreamBuilder<double>(
+                stream:
+                    imageTranslationSetting.translationBackgroundOpacity.stream,
+                initialData:
+                    imageTranslationSetting.translationBackgroundOpacity.value,
+                builder:
+                    (context, opacitySnapshot) => IgnorePointer(
+                      child: LayoutBuilder(
+                        builder:
+                            (context, constraints) => CustomPaint(
+                              size: constraints.biggest,
+                              painter: _ImageTranslationOverlayPainter(
+                                result: result,
+                                textDirection: Directionality.of(context),
+                                backgroundColor:
+                                    colorSnapshot.data ?? Colors.white,
+                                backgroundOpacity: opacitySnapshot.data ?? 0.9,
+                              ),
+                            ),
+                      ),
                     ),
-                  ),
-            ),
-          ),
+              ),
         ),
         if (result.fromCache)
           Positioned(
@@ -328,6 +340,31 @@ class ReadPageImageTranslationOverlay extends StatelessWidget {
   }
 }
 
+/// The exact visible source-image rect used by [EHImage] in the reader.
+///
+/// Keeping this transform explicit makes the reader overlay match exported
+/// images even while a page is still using a placeholder-sized container.
+Rect translationOverlayVisibleImageRect({
+  required Size sourceSize,
+  required Size canvasSize,
+}) {
+  if (sourceSize.width <= 0 ||
+      sourceSize.height <= 0 ||
+      canvasSize.width <= 0 ||
+      canvasSize.height <= 0) {
+    return Rect.zero;
+  }
+  final FittedSizes fitted = applyBoxFit(
+    BoxFit.contain,
+    sourceSize,
+    canvasSize,
+  );
+  return Alignment.center.inscribe(
+    fitted.destination,
+    Offset.zero & canvasSize,
+  );
+}
+
 class _ImageTranslationOverlayPainter extends CustomPainter {
   final ImageTranslationResult result;
   final TextDirection textDirection;
@@ -352,8 +389,22 @@ class _ImageTranslationOverlayPainter extends CustomPainter {
       return;
     }
 
-    final double scaleX = size.width / imageWidth;
-    final double scaleY = size.height / imageHeight;
+    // EHImage displays a page through BoxFit.contain and then centers the
+    // fitted image in its page container. The standalone export path paints
+    // at source resolution, but this live reader painter must make the same
+    // source-pixel -> visible-image transform. Scaling independently to the
+    // whole Stack used to stretch coordinates into letterbox space; on reader
+    // containers whose placeholder aspect differed from the decoded page it
+    // could turn ordinary OCR boxes into an apparent page-wide backing plate.
+    final Rect visibleImage = translationOverlayVisibleImageRect(
+      sourceSize: Size(imageWidth.toDouble(), imageHeight.toDouble()),
+      canvasSize: size,
+    );
+    if (visibleImage.isEmpty) {
+      return;
+    }
+    final double scaleX = visibleImage.width / imageWidth;
+    final double scaleY = visibleImage.height / imageHeight;
     final List<String> translations =
         result.translatedText.split('\n').map((line) => line.trim()).toList();
 
@@ -392,15 +443,19 @@ class _ImageTranslationOverlayPainter extends CustomPainter {
               detected ??
               renderBoundsForRecognizedTextGroup(group, result.blocks);
           merged = Rect.fromLTRB(
-            bounds.left * scaleX - 4,
-            bounds.top * scaleY - 3,
-            bounds.right * scaleX + 4,
-            bounds.bottom * scaleY + 3,
+            visibleImage.left + bounds.left * scaleX - 4,
+            visibleImage.top + bounds.top * scaleY - 3,
+            visibleImage.left + bounds.right * scaleX + 4,
+            visibleImage.top + bounds.bottom * scaleY + 3,
           );
         }
       }
       if (merged != null) {
-        mergedBackgrounds.add(merged);
+        final Rect? safeRect = safeTranslationBackgroundRect(merged, size);
+        if (safeRect == null) {
+          continue;
+        }
+        mergedBackgrounds.add(safeRect);
         final String translation =
             groupIndex < result.translatedGroups.length &&
                     result.translatedGroups[groupIndex].trim().isNotEmpty
@@ -408,11 +463,11 @@ class _ImageTranslationOverlayPainter extends CustomPainter {
                 : groupLines.join('\n');
         final double resolved = fitTranslationFontSize(
           translation,
-          math.max(1, merged.width - 8),
-          math.max(1, merged.height - 4),
+          math.max(1, safeRect.width - 8),
+          math.max(1, safeRect.height - 4),
           textDirection,
         );
-        entries.add((merged, translation, resolved));
+        entries.add((safeRect, translation, resolved));
       }
     }
     for (final Rect rect in mergedBackgrounds) {

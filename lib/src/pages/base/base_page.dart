@@ -198,21 +198,34 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState>
   }
 
   Widget buildGalleryCollection(BuildContext context) {
-    return Obx(
-      () => EHGalleryCollection(
-        key: state.galleryCollectionKey,
-        context: context,
-        gallerys: state.gallerys,
-        listMode: styleSetting.pageListMode[state.route] ??
-            styleSetting.listMode.value,
-        loadingState: state.loadingState,
-        handleTapCard: logic.handleTapGalleryCard,
-        handleLongPressCard: (gallery, position) =>
-            logic.handleLongPressCard(context, gallery, position: position),
-        handleSecondaryTapCard: (gallery, position) =>
-            logic.handleSecondaryTapCard(context, gallery, position: position),
-        handleLoadMore: logic.loadMore,
-      ),
+    return StreamBuilder<ListMode>(
+      stream: styleSetting.listMode.stream,
+      initialData: styleSetting.listMode.value,
+      builder: (context, globalSnapshot) {
+        return StreamBuilder<Map<String, ListMode>>(
+          stream: styleSetting.pageListMode.stream,
+          initialData: Map<String, ListMode>.from(styleSetting.pageListMode),
+          builder: (context, pageSnapshot) {
+            final ListMode listMode =
+                pageSnapshot.data?[state.route] ??
+                    globalSnapshot.data ??
+                    ListMode.listWithTags;
+            return EHGalleryCollection(
+              key: state.galleryCollectionKey,
+              context: context,
+              gallerys: state.gallerys,
+              listMode: listMode,
+              loadingState: state.loadingState,
+              handleTapCard: logic.handleTapGalleryCard,
+              handleLongPressCard: (gallery, position) =>
+                  logic.handleLongPressCard(context, gallery, position: position),
+              handleSecondaryTapCard: (gallery, position) =>
+                  logic.handleSecondaryTapCard(context, gallery, position: position),
+              handleLoadMore: logic.loadMore,
+            );
+          },
+        );
+      },
     );
   }
 }

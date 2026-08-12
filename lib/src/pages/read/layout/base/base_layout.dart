@@ -16,6 +16,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../../../../config/ui_config.dart';
 import '../../../../service/gallery_download_service.dart';
 import '../../../../service/image_inpainting_service.dart';
+import '../../../../service/image_translation_service.dart';
 import '../../../../model/gallery_image.dart';
 import '../../../../service/super_resolution_service.dart';
 import '../../../../service/log.dart';
@@ -648,9 +649,18 @@ abstract class BaseLayout extends StatelessWidget {
     return GetBuilder<ImageInpaintingService>(
       id: request.cacheKey,
       builder: (ImageInpaintingService inpainting) {
-        final String? repairedPath = inpainting.displayPathFor(
-          request.cacheKey,
-        );
+        // A failed/restarted translation must never keep displaying a stale
+        // CTD/MI-GAN derivative from an earlier attempt.  The derivative is
+        // only meaningful while the matching translation result is complete;
+        // otherwise it looks like a full-page backing even though the current
+        // OCR/translation operation failed.
+        final bool hasSuccessfulTranslation =
+            imageTranslationService.resultFor(request.cacheKey).status ==
+            ImageTranslationStatus.success;
+        final String? repairedPath =
+            hasSuccessfulTranslation
+                ? inpainting.displayPathFor(request.cacheKey)
+                : null;
         return Stack(
           children: [
             child,
@@ -666,7 +676,8 @@ abstract class BaseLayout extends StatelessWidget {
                   ),
                 ),
               ),
-            if (inpainting.shouldDrawTranslationOverlay(request.cacheKey))
+            if (!hasSuccessfulTranslation ||
+                inpainting.shouldDrawTranslationOverlay(request.cacheKey))
               Positioned.fill(
                 child: ReadPageImageTranslationOverlay(
                   request: request,
