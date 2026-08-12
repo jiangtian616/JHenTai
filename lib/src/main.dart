@@ -282,7 +282,10 @@ class MyApp extends StatelessWidget {
           ? Routes.lock
           : Routes.home,
       navigatorObservers: [GetXRouterObserver()],
-      builder: (context, child) => AppManager(child: child!),
+      builder: (context, child) => ThemeConfig.wrapWithAppleCupertinoTheme(
+        context,
+        AppManager(child: child!),
+      ),
 
       /// enable swipe back feature
       popGesture: preferenceSetting.enableSwipeBackGesture.isTrue,

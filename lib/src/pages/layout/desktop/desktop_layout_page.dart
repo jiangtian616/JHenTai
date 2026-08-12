@@ -45,6 +45,7 @@ class DesktopLayoutPage extends StatelessWidget {
 
   Widget _leftTabBar(BuildContext context) {
     final bool isMacOS = GetPlatform.isMacOS && ThemeConfig.isApple;
+    final Brightness brightness = Theme.of(context).brightness;
     final double width = isMacOS
         ? UIConfig.desktopMacOSLeftTabBarWidth
         : UIConfig.desktopLeftTabBarWidth;
@@ -54,8 +55,7 @@ class DesktopLayoutPage extends StatelessWidget {
         width: width,
         color: isMacOS
             ? UIConfig.desktopSideBarColor(context).withValues(
-                alpha: UIConfig.desktopMacOSSideBarAlpha(
-                    Theme.of(context).brightness))
+                alpha: UIConfig.desktopMacOSSideBarAlpha(brightness))
             : (ThemeConfig.isApple
                 ? UIConfig.desktopSideBarColor(context)
                 : UIConfig.backGroundColor(context)),
@@ -89,9 +89,20 @@ class DesktopLayoutPage extends StatelessWidget {
     if (isMacOS) {
       /// Native macOS translucent sidebar (NSVisualEffectView .sidebar material),
       /// showing the desktop through a frosted surface.
+      // Clear the opaque Flutter page background inside the sidebar rect.
+      // Without this punch-through, the translucent tint blends with Flutter's
+      // window surface instead of the native visual-effect view underneath.
+      bar = DecoratedBox(
+        decoration: const BoxDecoration(
+          // A fully transparent source may be optimized away by Flutter;
+          // an opaque source with BlendMode.clear reliably punches the hole.
+          color: Colors.black,
+          backgroundBlendMode: BlendMode.clear,
+        ),
+        child: bar,
+      );
       bar = TransparentMacOSSidebar(
-        alphaValue: UIConfig.desktopMacOSVisualEffectAlpha(
-            Theme.of(context).brightness),
+        alphaValue: UIConfig.desktopMacOSVisualEffectAlpha(brightness),
         child: bar,
       );
     }

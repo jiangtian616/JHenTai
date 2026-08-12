@@ -226,7 +226,7 @@ class UIConfig {
   /// native NSVisualEffectView frost behind them shows through.
   static const Color desktopSideBarColorLight = Color(0xFFECECEC);
   static const Color desktopSideBarColorDark = Color(0xFF1E1E1E);
-  static const double desktopMacOSSideBarLightAlpha = 0.45;
+  static const double desktopMacOSSideBarLightAlpha = 0.55;
   static const double desktopMacOSSideBarDarkAlpha = 0.88;
   static const double desktopMacOSVisualEffectLightAlpha = 1.0;
   static const double desktopMacOSVisualEffectDarkAlpha = 0.32;

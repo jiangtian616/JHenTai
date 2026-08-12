@@ -22,6 +22,23 @@ class ThemeConfig {
     return _buildMaterialTheme(color, brightness);
   }
 
+  /// The liquid-glass package installs a Cupertino theme above MaterialApp.
+  /// Material's Theme widget prefers that inherited theme over
+  /// [ThemeData.cupertinoOverrideTheme], so Apple controls need an explicit
+  /// Cupertino theme below MaterialApp as well.
+  static Widget wrapWithAppleCupertinoTheme(
+    BuildContext context,
+    Widget child,
+  ) {
+    if (!isApple) {
+      return child;
+    }
+    return CupertinoTheme(
+      data: _buildAppleCupertinoTheme(Theme.of(context).brightness),
+      child: child,
+    );
+  }
+
   static ThemeData _buildMaterialTheme(Color color, Brightness brightness) {
     ThemeData themeData = ThemeData(
       useMaterial3: true,
@@ -115,6 +132,10 @@ class ThemeConfig {
     final OutlineInputBorder inputBorder = OutlineInputBorder(
       borderRadius: controlRadius,
       borderSide: BorderSide(color: separator.withValues(alpha: 0.85)),
+    );
+
+    final CupertinoThemeData cupertinoTheme = _buildAppleCupertinoTheme(
+      brightness,
     );
 
     // fromSeed() with a neutral black/white seed does NOT produce a grayscale
@@ -242,13 +263,7 @@ class ThemeConfig {
       // segmented controls, text-field cursors, list-tile tints. This is also
       // what lets CupertinoButton (used by the EHApple* wrappers) stay black in
       // light mode / white in dark mode.
-      cupertinoOverrideTheme: CupertinoThemeData(
-        brightness: brightness,
-        primaryColor: appleAccent,
-        primaryContrastingColor: isDark ? Colors.black : Colors.white,
-        barBackgroundColor: window,
-        scaffoldBackgroundColor: window,
-      ).noDefault(),
+      cupertinoOverrideTheme: cupertinoTheme.noDefault(),
       dividerTheme: DividerThemeData(color: separator),
       textButtonTheme: TextButtonThemeData(
         style: ButtonStyle(
@@ -355,6 +370,52 @@ class ThemeConfig {
       radioTheme: const RadioThemeData(mouseCursor: clickableMouseCursor),
       sliderTheme: const SliderThemeData(mouseCursor: clickableMouseCursor),
       tabBarTheme: const TabBarThemeData(mouseCursor: clickableMouseCursor),
+    );
+  }
+
+  static CupertinoThemeData _buildAppleCupertinoTheme(Brightness brightness) {
+    final bool isDark = brightness == Brightness.dark;
+    final Color appleAccent = isDark ? Colors.white : Colors.black;
+    final Color window =
+        isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF5F5F7);
+    final Color onSurface =
+        isDark ? const Color(0xFFF5F5F7) : const Color(0xFF1D1D1F);
+    final Color secondary =
+        isDark ? const Color(0xFF98989D) : const Color(0xFF6E6E73);
+    final CupertinoTextThemeData defaults = CupertinoTextThemeData(
+      primaryColor: appleAccent,
+    );
+
+    return CupertinoThemeData(
+      brightness: brightness,
+      primaryColor: appleAccent,
+      primaryContrastingColor: isDark ? Colors.black : Colors.white,
+      applyThemeToAll: true,
+      textTheme: defaults.copyWith(
+        textStyle: defaults.textStyle.copyWith(color: onSurface),
+        actionTextStyle: defaults.actionTextStyle.copyWith(color: appleAccent),
+        actionSmallTextStyle: defaults.actionSmallTextStyle.copyWith(
+          color: appleAccent,
+        ),
+        tabLabelTextStyle: defaults.tabLabelTextStyle.copyWith(
+          color: secondary,
+        ),
+        navTitleTextStyle: defaults.navTitleTextStyle.copyWith(
+          color: onSurface,
+        ),
+        navLargeTitleTextStyle: defaults.navLargeTitleTextStyle.copyWith(
+          color: onSurface,
+        ),
+        navActionTextStyle: defaults.navActionTextStyle.copyWith(
+          color: appleAccent,
+        ),
+        pickerTextStyle: defaults.pickerTextStyle.copyWith(color: onSurface),
+        dateTimePickerTextStyle: defaults.dateTimePickerTextStyle.copyWith(
+          color: onSurface,
+        ),
+      ),
+      barBackgroundColor: window,
+      scaffoldBackgroundColor: window,
     );
   }
 }

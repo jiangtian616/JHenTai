@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:io';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -27,7 +28,7 @@ import 'path_service.dart';
 WindowService windowService = WindowService();
 
 class WindowService
-    with JHLifeCircleBeanErrorCatch
+    with JHLifeCircleBeanErrorCatch, WidgetsBindingObserver
     implements JHLifeCircleBean, WindowListener, TrayListener {
   bool windowManagerInited = false;
 
@@ -95,11 +96,14 @@ class WindowService
       windowManager.waitUntilReadyToShow(windowOptions, () async {
         await windowManager.show();
         await windowManager.focus();
+        windowManagerInited = true;
         if (GetPlatform.isMacOS && ThemeConfig.isApple) {
           /// Let the sidebar's native material extend beneath the traffic
           /// lights while the Flutter content reaches the top edge.
           await WindowManipulator.makeTitlebarTransparent();
           await WindowManipulator.enableFullSizeContentView();
+          await WindowManipulator.setWindowBackgroundColorToClear();
+          await _syncMacOSAppearance();
         }
         if (preferenceSetting.launchInFullScreen.isTrue) {
           await windowManager.setFullScreen(true);
@@ -107,7 +111,6 @@ class WindowService
         if (isMaximized) {
           await windowManager.maximize();
         }
-        windowManagerInited = true;
         if (advancedSetting.lanStayResident.value) {
           unawaited(_applyResidentMode(true));
         }
@@ -117,13 +120,34 @@ class WindowService
 
   @override
   Future<void> doAfterBeanReady() async {
+    WidgetsBinding.instance.addObserver(this);
     ever(styleSetting.appleVisualStyle, applyAppleVisualStyle);
+    ever(styleSetting.themeMode, (_) => unawaited(_syncMacOSAppearance()));
     ever(advancedSetting.lanStayResident, (enabled) async {
       await _applyResidentMode(enabled);
     });
     if (advancedSetting.lanStayResident.value) {
       await _applyResidentMode(true);
     }
+  }
+
+  @override
+  void didChangePlatformBrightness() {
+    if (styleSetting.themeMode.value == ThemeMode.system) {
+      unawaited(_syncMacOSAppearance());
+    }
+  }
+
+  Future<void> _syncMacOSAppearance() async {
+    if (!GetPlatform.isMacOS || !windowManagerInited) {
+      return;
+    }
+    final Brightness brightness = styleSetting.themeMode.value == ThemeMode.system
+        ? PlatformDispatcher.instance.platformBrightness
+        : styleSetting.currentBrightness();
+    await WindowManipulator.overrideMacOSBrightness(
+      dark: brightness == Brightness.dark,
+    );
   }
 
   /// Switches the desktop "stay resident" mode on/off. While active, closing
@@ -274,10 +298,13 @@ class WindowService
     if (enabled) {
       await WindowManipulator.makeTitlebarTransparent();
       await WindowManipulator.enableFullSizeContentView();
+      await WindowManipulator.setWindowBackgroundColorToClear();
     } else {
       await WindowManipulator.makeTitlebarOpaque();
       await WindowManipulator.disableFullSizeContentView();
+      await WindowManipulator.setWindowBackgroundColorToDefaultColor();
     }
+    await _syncMacOSAppearance();
   }
 
   void handleDoubleColumnResized(UnmodifiableListView<double> ratios) {

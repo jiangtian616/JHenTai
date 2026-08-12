@@ -8,10 +8,17 @@ void main() {
       UIConfig.desktopMacOSSideBarAlpha(Brightness.dark),
       greaterThan(UIConfig.desktopMacOSSideBarAlpha(Brightness.light)),
     );
-    expect(
-      UIConfig.desktopMacOSVisualEffectAlpha(Brightness.dark),
-      lessThan(UIConfig.desktopMacOSVisualEffectAlpha(Brightness.light)),
+    expect(UIConfig.desktopMacOSSideBarAlpha(Brightness.light), 0.55);
+    expect(UIConfig.desktopMacOSVisualEffectAlpha(Brightness.light), 1.0);
+    expect(UIConfig.desktopMacOSVisualEffectAlpha(Brightness.dark), 0.32);
+
+    final Color lightComposite = Color.alphaBlend(
+      UIConfig.desktopSideBarColorLight.withValues(
+        alpha: UIConfig.desktopMacOSSideBarAlpha(Brightness.light),
+      ),
+      Colors.black,
     );
+    expect(lightComposite.computeLuminance(), greaterThan(0.2));
 
     final Color darkComposite = Color.alphaBlend(
       UIConfig.desktopSideBarColorDark.withValues(
