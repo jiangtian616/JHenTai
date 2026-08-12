@@ -1,0 +1,31 @@
+//
+//  GitHub
+//  https://github.com/zhangao0086/DKImagePickerController
+//
+//
+//  License
+//  Copyright (c) 2014 ZhangAo
+//  Released under an MIT license: http://opensource.org/licenses/MIT
+//
+
+"permission.camera.title" = "카메라 권한을 허용해주세요.";
+
+"permission.photo.title" = "갤러리 권한을 허용해주세요.";
+
+"permission.allow" = "승인";
+
+"picker.alert.ok" = "확인";
+
+"picker.select.title" = "선택(%@)";
+
+"picker.select.done.title" = "확인";
+
+"picker.select.all.title" = "모두 선택";
+
+"picker.select.photosOrVideos.error.title" = "사진 또는 비디오를 선택하세요.";
+
+"picker.select.photosOrVideos.error.message" = "사진과 비디오는 동시에 선택할수 없습니다.";
+
+"picker.select.maxLimitReached.error.title" = "최대치 만큼 사진을 선택하셨습니다.";
+
+"picker.select.maxLimitReached.error.message" = "%@개의 사진까지 선택할수 있습니다.";

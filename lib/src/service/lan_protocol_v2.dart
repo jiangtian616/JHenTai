@@ -24,6 +24,7 @@ class LanProtocolV2 {
     'serverStatusV1',
     'loginStateV1',
     'applicationHistoryV1',
+    'applicationSettingsV1',
     'indexedCacheUploadV1',
   ];
 

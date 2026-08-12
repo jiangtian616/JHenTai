@@ -9,6 +9,7 @@ import 'package:cryptography/cryptography.dart';
 import 'package:extended_image/extended_image.dart'
     show extendedImageDiskCacheDirectory, ExtendedNetworkImageProvider;
 import 'package:jhentai/src/model/lan_device_trust.dart';
+import 'package:jhentai/src/model/lan_application_settings.dart';
 import 'package:jhentai/src/model/lan_unified_state.dart';
 import 'package:path/path.dart' as path;
 
@@ -1197,6 +1198,8 @@ class LanSharingRuntime
             await _handleV2LoginState(channel, deviceId, requestId);
           } else if (operation == 'application_history') {
             await _handleV2ApplicationHistory(channel, deviceId, requestId);
+          } else if (operation == 'application_settings') {
+            await _handleV2ApplicationSettings(channel, deviceId, requestId);
           } else if (operation == 'download_gallery') {
             await _handleV2DownloadGallery(channel, deviceId, requestId, message);
           } else if (operation == 'upload_cache') {
@@ -1452,6 +1455,44 @@ class LanSharingRuntime
       'type': 'response',
       'id': requestId,
       'op': 'application_history',
+      'ok': true,
+      'data': payload.toJson(),
+    });
+  }
+
+  Future<void> _handleV2ApplicationSettings(
+    _LanV2SocketChannel channel,
+    String deviceId,
+    String requestId,
+  ) async {
+    final TrustedLanDevice? device = trustService.deviceById(deviceId);
+    if (device == null ||
+        !device.permissions.contains(LanSharePermission.applicationSettings)) {
+      log.warning(
+        'LAN application_settings denied for $deviceId '
+        '(permission_denied, device=${device != null})',
+      );
+      await channel.send(<String, dynamic>{
+        'type': 'response',
+        'id': requestId,
+        'op': 'application_settings',
+        'ok': false,
+        'error': 'permission_denied',
+      });
+      return;
+    }
+    final LanApplicationSettingsPayload payload =
+        await lanUnifiedStateService.exportApplicationSettings(
+          sourceDeviceId: trustService.localDeviceId,
+        );
+    log.info(
+      'LAN application_settings served to $deviceId: '
+      '${payload.configs.length} configs',
+    );
+    await channel.send(<String, dynamic>{
+      'type': 'response',
+      'id': requestId,
+      'op': 'application_settings',
       'ok': true,
       'data': payload.toJson(),
     });
@@ -2336,6 +2377,7 @@ class _WebSocketLanPeerSession
         LanGalleryManifestSession,
         LanIndexedCacheSession,
         LanUnifiedStateSession,
+        LanApplicationSettingsSession,
         LanComputeSession {
   final WebSocket _socket;
   final StreamIterator<dynamic> _iterator;
@@ -2349,6 +2391,8 @@ class _WebSocketLanPeerSession
   final LanPendingRequestRegistry<LanSharedGalleryPage> _pendingGalleryPages;
   final LanPendingRequestRegistry<LanGalleryManifest?> _pendingManifests;
   final LanPendingRequestRegistry<LanUnifiedStatePayload?> _pendingUnifiedState;
+  final LanPendingRequestRegistry<LanApplicationSettingsPayload?>
+      _pendingApplicationSettings;
   final LanPendingRequestRegistry<bool> _pendingDownloads;
   final LanSecureSession? _secureSession;
   late final LanComputeClientRuntime _computeRuntime;
@@ -2389,6 +2433,11 @@ class _WebSocketLanPeerSession
        ),
        _pendingUnifiedState =
            LanPendingRequestRegistry<LanUnifiedStatePayload?>(
+             timerScheduler: timerScheduler,
+             timeout: LanSharingRuntime.pendingRequestTimeout,
+           ),
+       _pendingApplicationSettings =
+           LanPendingRequestRegistry<LanApplicationSettingsPayload?>(
              timerScheduler: timerScheduler,
              timeout: LanSharingRuntime.pendingRequestTimeout,
            ),
@@ -2496,6 +2545,7 @@ class _WebSocketLanPeerSession
       );
       _pendingManifests.completeAll(null);
       _pendingUnifiedState.completeAll(null);
+      _pendingApplicationSettings.completeAll(null);
       _pendingDownloads.completeAll(false);
       await _computeRuntime.close();
       _secureSession?.close();
@@ -2800,6 +2850,26 @@ class _WebSocketLanPeerSession
     return future;
   }
 
+  @override
+  Future<LanApplicationSettingsPayload?> requestApplicationSettings() {
+    if (_secureSession == null ||
+        !_capabilities.contains('applicationSettingsV1')) {
+      return Future<LanApplicationSettingsPayload?>.value();
+    }
+    final String id = 's${++_nextRequestId}';
+    final Future<LanApplicationSettingsPayload?> future =
+        _pendingApplicationSettings.register(id, timeoutValue: null);
+    unawaited(
+      _sendSecure(<String, dynamic>{
+        'type': 'request',
+        'id': id,
+        'op': 'application_settings',
+        'params': const <String, dynamic>{},
+      }),
+    );
+    return future;
+  }
+
   Future<void> _sendSecure(Map<String, dynamic> payload) {
     final Future<void> next = _secureSendTail.then((_) async {
       final List<Map<String, dynamic>> records = await _secureSession!
@@ -2874,6 +2944,8 @@ class _WebSocketLanPeerSession
         _pendingManifests.complete(id, null);
       } else if (op == 'login_state' || op == 'application_history') {
         _pendingUnifiedState.complete(id, null);
+      } else if (op == 'application_settings') {
+        _pendingApplicationSettings.complete(id, null);
       } else if (op == 'download_gallery' ||
           op == 'upload_cache' ||
           op == 'push_history' ||
@@ -2899,6 +2971,15 @@ class _WebSocketLanPeerSession
         id,
         message['data'] is Map
             ? LanUnifiedStatePayload.fromJson(
+              Map<String, dynamic>.from(message['data'] as Map),
+            )
+            : null,
+      );
+    } else if (op == 'application_settings') {
+      _pendingApplicationSettings.complete(
+        id,
+        message['data'] is Map
+            ? LanApplicationSettingsPayload.fromJson(
               Map<String, dynamic>.from(message['data'] as Map),
             )
             : null,

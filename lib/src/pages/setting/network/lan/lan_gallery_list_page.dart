@@ -13,6 +13,7 @@ import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/eh_apple_button.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
+import 'package:jhentai/src/widget/eh_image.dart';
 
 /// The download page's "Local" tab content when [advancedSetting.lanLocalTabAsLan]
 /// is on: a browsable list of galleries downloaded on connected trusted LAN
@@ -287,6 +288,7 @@ class LanGalleryCoverController {
 
 class _LanGalleryCoverState extends State<LanGalleryCover> {
   final LanGalleryCoverController _controller = LanGalleryCoverController();
+  GalleryImage? _lanImage;
   String? _lanPath;
   bool _lanLoading = false;
 
@@ -303,6 +305,7 @@ class _LanGalleryCoverState extends State<LanGalleryCover> {
         oldWidget.galleryUrl != widget.galleryUrl ||
         oldWidget.sourceDeviceId != widget.sourceDeviceId) {
       _controller.reset();
+      _lanImage = null;
       _lanPath = null;
       _fetchLanCover();
     }
@@ -334,6 +337,7 @@ class _LanGalleryCoverState extends State<LanGalleryCover> {
       }
       final String? path = image?.path;
       setState(() {
+        _lanImage = image;
         _lanPath = path;
         _lanLoading = false;
       });
@@ -347,6 +351,7 @@ class _LanGalleryCoverState extends State<LanGalleryCover> {
 
   void _retry() {
     setState(() {
+      _lanImage = null;
       _lanPath = null;
       _controller.retry();
     });
@@ -355,6 +360,7 @@ class _LanGalleryCoverState extends State<LanGalleryCover> {
 
   @override
   Widget build(BuildContext context) {
+    final GalleryImage? image = _lanImage;
     final String? path = _lanPath;
     if (path != null && path.isNotEmpty) {
       return SizedBox(
@@ -365,6 +371,24 @@ class _LanGalleryCoverState extends State<LanGalleryCover> {
           key: ValueKey('$path:${_controller.attempt}'),
           fit: BoxFit.cover,
           errorBuilder: (_, __, ___) {
+            _controller.markFailed();
+            return _placeholder(context, retryable: true);
+          },
+        ),
+      );
+    }
+    if (image != null) {
+      return SizedBox(
+        width: 56,
+        height: 80,
+        child: EHImage(
+          key: ValueKey('lan:${image.url}:${_controller.attempt}'),
+          galleryImage: image,
+          containerWidth: 56,
+          containerHeight: 80,
+          fit: BoxFit.cover,
+          disableAnimation: true,
+          failedWidgetBuilder: (_) {
             _controller.markFailed();
             return _placeholder(context, retryable: true);
           },

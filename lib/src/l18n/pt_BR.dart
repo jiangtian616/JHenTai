@@ -1006,6 +1006,7 @@ class pt_BR {
       'galleryHistory': 'Gallery History',
       'lanPermission_loginState': 'Estado de login',
       'lanPermission_applicationHistory': 'Histórico do aplicativo',
+      'lanPermission_applicationSettings': 'Configurações do aplicativo',
       'lanDownloadToDevice': 'Baixar neste dispositivo',
       'lanDownloadToDeviceSent': 'Pedido de download enviado ao dispositivo',
       'lanDownloadToDeviceFailed': 'Falha no pedido de download',

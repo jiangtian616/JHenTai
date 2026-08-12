@@ -766,6 +766,7 @@ class _TrustedDeviceTile extends StatelessWidget {
               LanSharePermission.ocrCompute,
               LanSharePermission.loginState,
               LanSharePermission.applicationHistory,
+              LanSharePermission.applicationSettings,
             ].map(
               (permission) => EHAppleSwitchListTile(
                 title: Text('lanPermission_${permission.name}'.tr),

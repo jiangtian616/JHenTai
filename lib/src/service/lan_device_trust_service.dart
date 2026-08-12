@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:cryptography/cryptography.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/lan_device_trust.dart';
+import 'package:jhentai/src/model/lan_application_settings.dart';
 import 'package:jhentai/src/model/lan_unified_state.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
@@ -98,6 +99,10 @@ abstract interface class LanUnifiedStateSession {
   Future<LanLoginStateSnapshot?> requestLoginState();
 
   Future<LanUnifiedStatePayload?> requestApplicationHistory();
+}
+
+abstract interface class LanApplicationSettingsSession {
+  Future<LanApplicationSettingsPayload?> requestApplicationSettings();
 }
 
 abstract interface class LanScheduledTask {
@@ -448,6 +453,35 @@ class LanDeviceTrustService extends GetxController
         }
       } on Object catch (error) {
         _logSyncWarning('LAN history request failed: ${error.runtimeType}');
+      }
+    }
+    return null;
+  }
+
+  Future<LanApplicationSettingsPayload?> requestApplicationSettings({
+    String? sourceDeviceId,
+  }) async {
+    final List<LanPeerSession> entries = _sessions.entries
+        .where((entry) => sourceDeviceId == null || entry.key == sourceDeviceId)
+        .map((entry) => entry.value)
+        .toList(growable: false);
+    for (final LanPeerSession session in entries) {
+      if (session is! LanApplicationSettingsSession) {
+        continue;
+      }
+      try {
+        final LanApplicationSettingsSession settingsSession =
+            session as LanApplicationSettingsSession;
+        final LanApplicationSettingsPayload? payload = await settingsSession
+            .requestApplicationSettings()
+            .timeout(peerRequestTimeout, onTimeout: () => null);
+        if (payload != null) {
+          return payload;
+        }
+      } on Object catch (error) {
+        _logSyncWarning(
+          'LAN application-settings request failed: ${error.runtimeType}',
+        );
       }
     }
     return null;
@@ -1155,6 +1189,7 @@ class LanDeviceTrustService extends GetxController
     LanSharePermission.translationResults,
     LanSharePermission.loginState,
     LanSharePermission.applicationHistory,
+    LanSharePermission.applicationSettings,
   };
 
   /// Reviews an untrusted discovered device with the global trust dialog, so
@@ -1455,6 +1490,26 @@ class LanDeviceTrustService extends GetxController
       }
     } on Object catch (error) {
       _logSyncWarning('LAN history sync failed: $error');
+    }
+    try {
+      final LanApplicationSettingsPayload? payload =
+          await requestApplicationSettings(sourceDeviceId: deviceId);
+      if (payload == null) {
+        _logSyncWarning(
+          'LAN application-settings sync: peer $deviceId returned no payload '
+          '(permission denied, unsupported, or no response)',
+        );
+      } else {
+        final int imported = await unifiedState.importApplicationSettings(
+          payload,
+        );
+        _logSyncInfo(
+          'LAN application-settings sync: imported $imported configs from '
+          '$deviceId',
+        );
+      }
+    } on Object catch (error) {
+      _logSyncWarning('LAN application-settings sync failed: $error');
     }
   }
 

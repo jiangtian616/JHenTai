@@ -948,6 +948,7 @@ class ko_KR {
       'galleryHistory': 'Gallery History',
       'lanPermission_loginState': '로그인 상태',
       'lanPermission_applicationHistory': '앱 기록',
+      'lanPermission_applicationSettings': '앱 설정',
       'lanDownloadToDevice': '이 기기에 다운로드',
       'lanDownloadToDeviceSent': '기기에 다운로드 요청 전송됨',
       'lanDownloadToDeviceFailed': '다운로드 요청 실패',

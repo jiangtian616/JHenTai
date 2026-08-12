@@ -1026,6 +1026,7 @@ class ru_RU {
       'galleryHistory': 'История галерей',
       'lanPermission_loginState': 'Состояние входа',
       'lanPermission_applicationHistory': 'История приложения',
+      'lanPermission_applicationSettings': 'Настройки приложения',
       'lanDownloadToDevice': 'Скачать на это устройство',
       'lanDownloadToDeviceSent': 'Запрос на скачивание отправлен устройству',
       'lanDownloadToDeviceFailed': 'Ошибка запроса на скачивание',

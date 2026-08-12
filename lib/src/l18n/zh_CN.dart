@@ -538,6 +538,7 @@ class zh_CN {
       'lanPermission_ocrCompute': 'OCR 算力',
       'lanPermission_loginState': '登录状态',
       'lanPermission_applicationHistory': '应用历史',
+      'lanPermission_applicationSettings': '应用设置',
       'lanUnifiedState': '状态同步',
       'lanUnifiedStateEmpty': '尚未同步登录状态或历史',
       'lanUnifiedStateHint': '连接已信任设备后自动同步登录状态与应用历史',

@@ -1,0 +1,31 @@
+//
+//  GitHub
+//  https://github.com/zhangao0086/DKImagePickerController
+//
+//
+//  License
+//  Copyright (c) 2014 ZhangAo
+//  Released under an MIT license: http://opensource.org/licenses/MIT
+//
+
+"permission.camera.title" = "Bitte gestatte der App den Zugriff zur Kamera";
+
+"permission.photo.title" = "Bitte gestatte der App den Zugriff zu den Fotos";
+
+"permission.allow" = "Zugriff gestatten";
+
+"picker.alert.ok" = "OK";
+
+"picker.select.title" = "Auswählen (%@)";
+
+"picker.select.done.title" = "Fertig";
+
+"picker.select.all.title" = "Alle auswählen";
+
+"picker.select.photosOrVideos.error.title" = "Wähle Fotos oder Videos aus";
+
+"picker.select.photosOrVideos.error.message" = "Es ist nicht möglich zur selben Zeit Fotos und Videos auszuwählen";
+
+"picker.select.maxLimitReached.error.title" = "Maximale Bilderanzahl erreicht";
+
+"picker.select.maxLimitReached.error.message" = "Sie können nur %@ Fotos auswählen";

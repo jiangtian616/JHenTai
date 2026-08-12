@@ -538,6 +538,7 @@ class zh_TW {
       'lanPermission_ocrCompute': 'OCR 運算',
       'lanPermission_loginState': '登入狀態',
       'lanPermission_applicationHistory': '應用歷史',
+      'lanPermission_applicationSettings': '應用設定',
       'oneMinute': '1 分鐘',
       'tenMinute': '10 分鐘',
       'oneHour': '1 小時',

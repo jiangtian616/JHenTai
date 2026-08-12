@@ -12,6 +12,7 @@ enum LanSharePermission {
   ocrCompute,
   loginState,
   applicationHistory,
+  applicationSettings,
 }
 
 enum LanPeerConnectionState {

@@ -29,6 +29,15 @@ class HistoryPage extends BasePage {
   HistoryPageState get state => Get.find<HistoryPageLogic>().state;
 
   @override
+  Widget build(BuildContext context) {
+    return GetBuilder<HistoryService>(
+      id: HistoryService.historyUpdateId,
+      init: historyService,
+      builder: (_) => super.build(context),
+    );
+  }
+
+  @override
   List<Widget> buildAppBarActions() {
     return [
       EHAppleIconButton(icon: const Icon(Icons.delete_outline_outlined, size: 27), onPressed: logic.handleTapDeleteButton),

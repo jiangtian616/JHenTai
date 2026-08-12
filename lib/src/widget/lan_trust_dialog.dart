@@ -56,6 +56,7 @@ class _LanTrustDialogState extends State<LanTrustDialog> {
     LanSharePermission.translationResults,
     LanSharePermission.loginState,
     LanSharePermission.applicationHistory,
+    LanSharePermission.applicationSettings,
   };
   bool _autoConnect = true;
 

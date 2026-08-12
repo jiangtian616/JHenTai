@@ -588,6 +588,7 @@ class en_US {
       'lanPermission_ocrCompute': 'OCR compute',
       'lanPermission_loginState': 'Login state',
       'lanPermission_applicationHistory': 'Application history',
+      'lanPermission_applicationSettings': 'Application settings',
       'lanUnifiedState': 'State sync',
       'lanUnifiedStateEmpty': 'Login state or history not synced yet',
       'lanUnifiedStateHint':

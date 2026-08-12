@@ -5,10 +5,12 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/database/dao/gallery_history_dao.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
+import 'package:jhentai/src/model/lan_application_settings.dart';
 import 'package:jhentai/src/model/lan_unified_state.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/history_service.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
+import 'package:jhentai/src/service/lan_application_settings_service.dart';
 import 'package:jhentai/src/service/jh_service.dart';
 import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
@@ -25,15 +27,19 @@ class LanUnifiedStateService extends GetxController
 
   final HistoryService _historyService;
   final LocalConfigService _localConfigService;
+  final LanApplicationSettingsService _applicationSettingsService;
   final DateTime Function() _clock;
   final List<LanUnifiedSyncStatus> statuses = <LanUnifiedSyncStatus>[];
 
   LanUnifiedStateService({
     HistoryService? historyService,
     LocalConfigService? localConfigService,
+    LanApplicationSettingsService? applicationSettingsService,
     DateTime Function()? clock,
   }) : _historyService = historyService ?? historyServiceGlobal,
        _localConfigService = localConfigService ?? localConfigServiceGlobal,
+       _applicationSettingsService =
+           applicationSettingsService ?? lanApplicationSettingsService,
        _clock = clock ?? DateTime.now;
 
   @override
@@ -111,6 +117,12 @@ class LanUnifiedStateService extends GetxController
         await _materializeRecord(record, galleries);
       }
       await GalleryHistoryDao.batchReplaceHistory(galleries);
+      final bool containsHistoryRecord = merged.any(
+        (record) => record.type == LanUnifiedRecordType.galleryHistory,
+      );
+      if (containsHistoryRecord) {
+        _historyService.notifyHistoryChanged();
+      }
       _recordStatus(
         sourceDeviceId: payload.sourceDeviceId,
         type: 'applicationHistory',
@@ -131,6 +143,21 @@ class LanUnifiedStateService extends GetxController
       log.warning('LAN import history failed: $error');
       rethrow;
     }
+  }
+
+  Future<LanApplicationSettingsPayload> exportApplicationSettings({
+    required String sourceDeviceId,
+  }) {
+    return _applicationSettingsService.exportSettings(
+      sourceDeviceId: sourceDeviceId,
+      generatedAt: _clock().toUtc(),
+    );
+  }
+
+  Future<int> importApplicationSettings(
+    LanApplicationSettingsPayload payload,
+  ) {
+    return _applicationSettingsService.importSettings(payload);
   }
 
   Future<LanLoginStateSnapshot?> exportLoginState({
