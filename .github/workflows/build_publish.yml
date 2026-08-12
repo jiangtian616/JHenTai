@@ -2,6 +2,7 @@ name: Build & Release
 
 # Trigger on push to master branch or with a tag
 on:
+  workflow_dispatch:
   push:
     branches:
       - 'master'
@@ -129,7 +130,7 @@ jobs:
           mv app-x86_64-release.apk JHenTai-${{ steps.get_version.outputs.version }}-x64.apk
       # Build iOS .ipa
       - name: Build iOS
-        if: matrix.target == 'ios'
+        if: matrix.target == 'iOS'
         run: |
           flutter precache --ios
           cd ios
