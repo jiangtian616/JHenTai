@@ -30,12 +30,14 @@ import '../utils/toast_util.dart';
 import '../widget/loading_state_indicator.dart';
 import '../utils/table.dart' as util;
 import 'archive_download_service.dart';
-import 'gallery_download_service.dart';
+import 'gallery_download/download_path_resolver.dart';
+import 'gallery_download/gallery_download_service.dart';
+import 'gallery_download/gallery_images_retainer.dart';
 
 SuperResolutionService superResolutionService = SuperResolutionService();
 
 class SuperResolutionService extends GetxController
-    with JHLifeCircleBeanErrorCatch
+    with JHLifeCircleBeanErrorCatch, GalleryImagesRetainer
     implements JHLifeCircleBean {
   static const String downloadId = 'downloadId';
   static const String superResolutionId = 'superResolutionId';
@@ -81,11 +83,7 @@ class SuperResolutionService extends GetxController
         SuperResolutionInfo(
           SuperResolutionType.values[data.type],
           SuperResolutionStatus.values[data.status],
-          data.imageStatuses
-              .split(SuperResolutionInfo.imageStatusesSeparator)
-              .map(int.parse)
-              .map((index) => SuperResolutionStatus.values[index])
-              .toList(),
+          data.imageStatuses.split(SuperResolutionInfo.imageStatusesSeparator).map((e) => int.parse(e)).map((index) => SuperResolutionStatus.values[index]).toList(),
         ),
       );
     }
@@ -246,8 +244,11 @@ class SuperResolutionService extends GetxController
     if (superResolutionInfo == null) {
       List<GalleryImage> rawImages;
       if (type == SuperResolutionType.gallery) {
-        rawImages = galleryDownloadService.galleryDownloadInfos[gid]!.images
-            .cast();
+        /// Load just to read the image count for SuperResolutionInfo init —
+        /// the actual retain is in [_doSuperResolve] so that a never-scheduled
+        /// task (executor cancelled, app shutdown) can't leak a retain.
+        await galleryDownloadService.galleryDownloadInfos[gid]!.ensureImagesLoaded();
+        rawImages = galleryDownloadService.galleryDownloadInfos[gid]!.images!.whereType<GalleryImage>().toList();
       } else {
         rawImages = await archiveDownloadService.getUnpackedImages(gid);
       }
@@ -299,9 +300,7 @@ class SuperResolutionService extends GetxController
   Future<void> _pauseSuperResolve(int gid, SuperResolutionType type) async {
     SuperResolutionInfo? superResolutionInfo = get(gid, type);
 
-    if (superResolutionInfo == null ||
-        superResolutionInfo.status == SuperResolutionStatus.success ||
-        superResolutionInfo.status == SuperResolutionStatus.paused) {
+    if (superResolutionInfo == null || superResolutionInfo.status == SuperResolutionStatus.success || superResolutionInfo.status == SuperResolutionStatus.paused) {
       return;
     }
 
@@ -372,15 +371,11 @@ class SuperResolutionService extends GetxController
 
     String dirPath;
     if (type == SuperResolutionType.gallery) {
-      GalleryDownloadedData? gallery = galleryDownloadService.gallerys
-          .firstWhereOrNull((g) => g.gid == gid);
+      GalleryDownloadInfo? gallery = galleryDownloadService.galleryDownloadInfos[gid];
       if (gallery == null) {
         return;
       }
-      dirPath = join(
-        galleryDownloadService.computeGalleryDownloadAbsolutePath(gallery),
-        imageDirName,
-      );
+      dirPath = join(DownloadPathResolver.computeGalleryDownloadAbsolutePath(gallery.toGalleryDownloadedData()), imageDirName);
     } else {
       ArchiveDownloadedData? archive = archiveDownloadService.archives
           .firstWhereOrNull((a) => a.gid == gid);
@@ -402,6 +397,10 @@ class SuperResolutionService extends GetxController
   }
 
   Future<void> _doSuperResolve(int gid, SuperResolutionType type) async {
+    final bool needRetain = type == SuperResolutionType.gallery;
+    if (needRetain && !await retainGalleryImages(gid)) {
+      return;
+    }
     final String taskKey = _taskKey(gid, type);
     final InferenceCancellationToken token = _taskTokens.putIfAbsent(
       taskKey,
@@ -412,6 +411,9 @@ class SuperResolutionService extends GetxController
     } finally {
       if (identical(_taskTokens[taskKey], token)) {
         _taskTokens.remove(taskKey);
+      }
+      if (needRetain) {
+        releaseGalleryImages(gid);
       }
     }
   }
@@ -429,7 +431,7 @@ class SuperResolutionService extends GetxController
       if (info == null) {
         return;
       }
-      rawImages = info.images.cast();
+      rawImages = info.images!.whereType<GalleryImage>().toList();
     } else {
       rawImages = await archiveDownloadService.getUnpackedImages(gid);
     }
@@ -559,13 +561,8 @@ class SuperResolutionService extends GetxController
     InferenceCancellationToken token,
   ) async {
     if (extension(rawImage.path!) == '.gif') {
-      String inputAbsolutePath =
-          GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
-            rawImage.path!,
-          );
-      String outputAbsolutePath = computeImageOutputAbsolutePath(
-        rawImage.path!,
-      );
+      String inputAbsolutePath = DownloadPathResolver.computeImageDownloadAbsolutePathFromRelativePath(rawImage.path!);
+      String outputAbsolutePath = computeImageOutputAbsolutePath(rawImage.path!);
       try {
         File(inputAbsolutePath).copySync(outputAbsolutePath);
       } catch (e, s) {
@@ -637,7 +634,7 @@ class SuperResolutionService extends GetxController
       return false;
     }
     final String inputAbsolutePath =
-        GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
+        DownloadPathResolver.computeImageDownloadAbsolutePathFromRelativePath(
           rawImage.path!,
         );
     final String outputAbsolutePath = computeImageOutputAbsolutePath(
@@ -872,34 +869,15 @@ class SuperResolutionService extends GetxController
       'copy old super resolution image to new gallery, old: ${oldGallery.gid} $oldImageSerialNo, new: ${newGallery.gid} $newImageSerialNo',
     );
 
-    SuperResolutionInfo? newGallerySuperResolutionInfo = get(
-      newGallery.gid,
-      SuperResolutionType.gallery,
-    );
-    String oldPath = computeImageOutputAbsolutePath(
-      galleryDownloadService
-          .galleryDownloadInfos[oldGallery.gid]!
-          .images[oldImageSerialNo]!
-          .path!,
-    );
-    String newPath = computeImageOutputAbsolutePath(
-      galleryDownloadService
-          .galleryDownloadInfos[newGallery.gid]!
-          .images[newImageSerialNo]!
-          .path!,
-    );
+    SuperResolutionInfo? newGallerySuperResolutionInfo = get(newGallery.gid, SuperResolutionType.gallery);
+    String oldPath = computeImageOutputAbsolutePath(galleryDownloadService.galleryDownloadInfos[oldGallery.gid]!.imageAtSync(oldImageSerialNo)!.path!);
+    String newPath = computeImageOutputAbsolutePath(galleryDownloadService.galleryDownloadInfos[newGallery.gid]!.imageAtSync(newImageSerialNo)!.path!);
 
     if (newGallerySuperResolutionInfo == null) {
       newGallerySuperResolutionInfo = SuperResolutionInfo(
         SuperResolutionType.gallery,
         SuperResolutionStatus.paused,
-        List.generate(
-          galleryDownloadService
-              .galleryDownloadInfos[newGallery.gid]!
-              .images
-              .length,
-          (_) => SuperResolutionStatus.running,
-        ),
+        List.generate(galleryDownloadService.galleryDownloadInfos[newGallery.gid]!.pageCount, (_) => SuperResolutionStatus.running),
       );
       superResolutionInfoTable.put(
         newGallery.gid,

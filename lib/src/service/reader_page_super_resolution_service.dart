@@ -4,7 +4,7 @@ import 'package:crypto/crypto.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
-import 'package:jhentai/src/service/gallery_download_service.dart';
+import 'package:jhentai/src/service/gallery_download/download_path_resolver.dart';
 import 'package:jhentai/src/service/engine/engine.dart';
 import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/service/path_service.dart';
@@ -156,7 +156,7 @@ class ReaderPageSuperResolutionService {
     if (image.path != null) {
       final String sourcePath = switch (mode) {
         ReadMode.downloaded =>
-          GalleryDownloadService.computeImageDownloadAbsolutePathFromRelativePath(
+          DownloadPathResolver.computeImageDownloadAbsolutePathFromRelativePath(
             image.path!,
           ),
         ReadMode.archive || ReadMode.local => path.join(

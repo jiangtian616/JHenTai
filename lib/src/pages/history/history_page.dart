@@ -32,7 +32,7 @@ class HistoryPage extends BasePage {
   List<Widget> buildAppBarActions() {
     return [
       EHAppleIconButton(icon: const Icon(Icons.delete_outline_outlined, size: 27), onPressed: logic.handleTapDeleteButton),
-      if (state.gallerys.isNotEmpty) const SizedBox(width: 8),
+      if (state.galleries.isNotEmpty) const SizedBox(width: 8),
       ...super.buildAppBarActions(),
     ];
   }

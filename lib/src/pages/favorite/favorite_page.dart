@@ -34,9 +34,9 @@ class FavoritePage extends BasePage {
   @override
   List<Widget> buildAppBarActions() {
     return [
-      if (state.gallerys.isNotEmpty) EHAppleIconButton(icon: Icon(Icons.send, size: 20), onPressed: logic.handleTapJumpButton),
-      if (state.gallerys.isNotEmpty) const SizedBox(width: 8),
-      if (state.gallerys.isNotEmpty)
+      if (state.galleries.isNotEmpty) EHAppleIconButton(icon: Icon(Icons.send, size: 20), onPressed: logic.handleTapJumpButton),
+      if (state.galleries.isNotEmpty) const SizedBox(width: 8),
+      if (state.galleries.isNotEmpty)
         ThemeConfig.isApple
             ? EHGlassMenu(
                 trigger: EHAppleIconButton(
@@ -56,7 +56,7 @@ class FavoritePage extends BasePage {
                 icon: const Icon(Icons.sort),
                 onPressed: logic.handleChangeSortOrder,
               ),
-      if (state.gallerys.isNotEmpty) const SizedBox(width: 8),
+      if (state.galleries.isNotEmpty) const SizedBox(width: 8),
       EHAppleIconButton(icon: const Icon(Icons.filter_alt_outlined, size: 28), onPressed: logic.handleTapFilterButton),
     ];
   }

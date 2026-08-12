@@ -2,6 +2,7 @@ name: Build & Release
 
 # Trigger on push to master branch or with a tag
 on:
+  workflow_dispatch:
   push:
     branches:
       - 'master'
@@ -69,13 +70,30 @@ jobs:
       # Add Android keystore
       - name: Setup Android keystore
         if: matrix.target == 'Android'
+        env:
+          ENCODED_KEYSTORE: ${{ secrets.ENCODED_KEYSTORE }}
+          KEY_PROPERTIES: ${{ secrets.KEY_PROPERTIES }}
         run: |
-          echo "${{ secrets.ENCODED_KEYSTORE }}" | base64 -di > android/app/upload-keystore.jks
-          echo "${{ secrets.KEY_PROPERTIES }}" > android/key.properties
+          if [ -n "$ENCODED_KEYSTORE" ] && [ -n "$KEY_PROPERTIES" ]; then
+            printf '%s' "$ENCODED_KEYSTORE" | base64 -di > android/app/upload-keystore.jks
+            printf '%s\n' "$KEY_PROPERTIES" > android/key.properties
+            echo "Android release signing key configured."
+          else
+            rm -f android/app/upload-keystore.jks android/key.properties
+            echo "::warning::Android signing secrets are not configured; using the Gradle debug keystore for this release build."
+          fi
       # Add JHenTai api serret
       - name: Setup JHenTai API Secret
+        shell: bash
+        env:
+          JH_API_SECRET_CONFIG: ${{ secrets.JH_API_SECRET_CONFIG }}
         run: |
-          echo "${{ secrets.JH_API_SECRET_CONFIG }}" > lib/src/config/jh_api_secret_config.dart
+          if [ -n "$JH_API_SECRET_CONFIG" ]; then
+            printf '%s\n' "$JH_API_SECRET_CONFIG" > lib/src/config/jh_api_secret_config.dart
+            echo "JHenTai API secret configured."
+          else
+            echo "::warning::JH_API_SECRET_CONFIG is not configured; preserving the checked-in fallback configuration."
+          fi
       # Setup Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -102,15 +120,15 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
           cache: gradle
-      # Xcodebuild
-      - name: Build Xcode
-        if: matrix.os == 'macos-latest'
-        run: xcodebuild -resolvePackageDependencies -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release
       # Flutter Pub Get
       - name: Flutter Pub Get
         run: |
           git config --global core.longpaths true
           flutter pub get
+      # Xcodebuild
+      - name: Build Xcode
+        if: matrix.os == 'macos-latest'
+        run: xcodebuild -resolvePackageDependencies -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release
       # Get app version
       - name: Get app version
         id: get_version
@@ -118,6 +136,20 @@ jobs:
         run: |
           echo "version=$(head -n 5 pubspec.yaml | tail -n 1 | cut -d ' ' -f 2)" >> $GITHUB_OUTPUT
           echo "arch=$(echo $RUNNER_ARCH | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+      # The published Linux llama.cpp package currently ships an x64 prebuilt
+      # only. ARM64 needs the matching source bundle and CMake helper.
+      - name: Prepare llama.cpp source (Linux arm64)
+        if: matrix.target == 'Linux-arm64-deb'
+        shell: bash
+        run: |
+          source_bundle="/tmp/lib_llama_cpp-source-0.7.3.tar.gz"
+          curl --fail --location --retry 3 \
+            "https://github.com/gsmlg-app/lib_llama_cpp/releases/download/v0.7.3/lib_llama_cpp-source-0.7.3.tar.gz" \
+            --output "$source_bundle"
+          tar -xzf "$source_bundle" -C "$GITHUB_WORKSPACE" \
+            ./packages/cmake \
+            ./packages/lib_llama_cpp_ffi \
+            ./third_party/llama.cpp
       # Build Android .apk
       - name: Build Android
         if: matrix.target == 'Android'
@@ -129,7 +161,7 @@ jobs:
           mv app-x86_64-release.apk JHenTai-${{ steps.get_version.outputs.version }}-x64.apk
       # Build iOS .ipa
       - name: Build iOS
-        if: matrix.target == 'ios'
+        if: matrix.target == 'iOS'
         run: |
           flutter precache --ios
           cd ios
@@ -167,7 +199,7 @@ jobs:
         run: |
           # Prepare build depends
           sudo apt-get update -y
-          sudo apt-get install -y ninja-build libfuse2 webkit2gtk-4.1
+          sudo apt-get install -y ninja-build libfuse2 webkit2gtk-4.1 libayatana-appindicator3-dev
           
           # Compile
           flutter build linux --release -t lib/src/main.dart

@@ -52,6 +52,7 @@ import '../../network/eh_request.dart';
 import '../../routes/routes.dart';
 import '../../service/log.dart';
 import '../../service/lan_sharing_runtime.dart';
+import '../../service/gallery_download/gallery_images_retainer.dart';
 import '../../service/read_progress_service.dart';
 import '../../setting/image_translation_setting.dart';
 import '../../setting/preference_setting.dart';
@@ -66,10 +67,10 @@ import '../../widget/image_translation_config_sheet.dart';
 import '../../widget/loading_state_indicator.dart';
 import '../home_page.dart';
 import '../setting/advanced/image_translation/setting_image_translation_page.dart';
-import '../setting/keyboard_shortcuts/setting_keyboard_shortcuts_page.dart';
 import '../setting/read/setting_read_page.dart';
+import '../setting/keyboard_shortcuts/setting_keyboard_shortcuts_page.dart';
 
-class ReadPageLogic extends GetxController with WidgetsBindingObserver {
+class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryImagesRetainer {
   final String pageId = 'pageId';
   final String layoutId = 'layoutId';
   final String onlineImageId = 'onlineImageId';
@@ -352,6 +353,16 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   void onReady() {
     super.onReady();
 
+    /// Retain the gallery's image list for the lifetime of the read page.
+    /// The caller (goToReadPage) already ensured [ensureImagesLoaded] so the
+    /// list is resident when [ReadPageState] was constructed; this retain
+    /// keeps it resident even if the download completes mid-read (eviction
+    /// is deferred to our onClose). Online / archive / local modes have no
+    /// service-side list to retain — skip.
+    if (state.readPageInfo.mode == ReadMode.downloaded && state.readPageInfo.gid != null) {
+      retainGalleryImages(state.readPageInfo.gid!);
+    }
+
     WidgetsBinding.instance.addObserver(this);
 
     Timer(const Duration(milliseconds: 120), () {
@@ -602,6 +613,10 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
       resetBrightness();
     }
 
+    /// Gallery image retain released by [GalleryImagesRetainer.onClose]
+    /// (super.onClose below). If the gallery is fully downloaded and no
+    /// other consumer holds a retain, the list is evicted there.
+
     Get.delete<VerticalListLayoutLogic>(force: true);
     Get.delete<HorizontalListLayoutLogic>(force: true);
     Get.delete<HorizontalPageLayoutLogic>(force: true);
@@ -612,6 +627,8 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
 
     WakelockPlus.disable();
 
+    /// Unpause + forget every animation gate this page created so a codec
+    /// parked on a gate is not frozen forever after the page is torn down.
     EHImageAnimationGateRegistry.clear();
   }
 
@@ -800,9 +817,8 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     state.parseImageHrefsStates[index] = LoadingState.idle;
 
     /// some gallery's [thumbnailsCountPerPage] is not equal to default setting, we need to compute and update it.
-    /// For example, default setting is 40, but some gallerys' thumbnails has only high quality thumbnails, which results in 20.
-    bool thumbnailsCountPerPageChanged =
-        state.thumbnailsCountPerPage != detailPageInfo.thumbnailsCountPerPage;
+    /// For example, default setting is 40, but some galleries' thumbnails has only high quality thumbnails, which results in 20.
+    bool thumbnailsCountPerPageChanged = state.thumbnailsCountPerPage != detailPageInfo.thumbnailsCountPerPage;
     state.thumbnailsCountPerPage = detailPageInfo.thumbnailsCountPerPage;
 
     for (
@@ -1312,7 +1328,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
   }
 
   void _syncDisplayFirstPageAloneToState() {
-    final effective = effectiveDisplayFirstPageAlone;
+    final bool effective = effectiveDisplayFirstPageAlone;
     if (state.displayFirstPageAlone != effective) {
       state.displayFirstPageAlone = effective;
       layoutLogic.toggleDisplayFirstPageAlone();
@@ -1327,8 +1343,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver {
     if (readSetting.deviceDirection.value == DeviceDirection.landscape) {
       return false;
     }
-    final size =
-        WidgetsBinding.instance.platformDispatcher.views.first.physicalSize;
+    final Size size = WidgetsBinding.instance.platformDispatcher.views.first.physicalSize;
     return size.height >= size.width;
   }
 

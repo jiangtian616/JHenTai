@@ -4,7 +4,7 @@ import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
-import 'package:jhentai/src/service/gallery_download_service.dart';
+import 'package:jhentai/src/service/gallery_download/gallery_download_service.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
@@ -17,7 +17,7 @@ import 'eh_gallery_waterflow_card.dart';
 Widget EHGalleryCollection({
   Key? key,
   required BuildContext context,
-  required List<Gallery> gallerys,
+  required List<Gallery> galleries,
   required ListMode listMode,
   required LoadingState loadingState,
   required CardCallback handleTapCard,
@@ -31,11 +31,8 @@ Widget EHGalleryCollection({
       key: key,
       delegate: FlutterListViewDelegate(
         (_, int index) {
-          if (index == gallerys.length - 1 &&
-              loadingState == LoadingState.idle &&
-              handleLoadMore != null) {
-            SchedulerBinding.instance
-                .addPostFrameCallback((_) => handleLoadMore());
+          if (index == galleries.length - 1 && loadingState == LoadingState.idle && handleLoadMore != null) {
+            SchedulerBinding.instance.addPostFrameCallback((_) => handleLoadMore());
           }
           return Container(
             decoration: listMode == ListMode.flat ||
@@ -51,10 +48,8 @@ Widget EHGalleryCollection({
                 ? EdgeInsets.zero
                 : const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
             child: EHGalleryListCard(
-              gallery: gallerys[index],
-              downloaded: galleryDownloadService
-                      .containGallery(gallerys[index].gid) ||
-                  archiveDownloadService.containArchive(gallerys[index].gid),
+              gallery: galleries[index],
+              downloaded: galleryDownloadService.containGallery(galleries[index].gid) || archiveDownloadService.containArchive(galleries[index].gid),
               listMode: listMode,
               handleTapCard: (gallery) => handleTapCard(gallery),
               handleLongPressCard: handleLongPressCard == null
@@ -70,9 +65,9 @@ Widget EHGalleryCollection({
             ),
           );
         },
-        childCount: gallerys.length,
+        childCount: galleries.length,
         keepPosition: true,
-        onItemKey: (index) => gallerys[index].galleryUrl.url,
+        onItemKey: (index) => galleries[index].galleryUrl.url,
         preferItemHeight: listMode == ListMode.listWithTags ? 200 : 125,
       ),
     );
@@ -99,18 +94,13 @@ Widget EHGalleryCollection({
               ),
         delegate: SliverChildBuilderDelegate(
           (BuildContext context, int index) {
-            if (index == gallerys.length - 1 &&
-                loadingState == LoadingState.idle &&
-                handleLoadMore != null) {
-              SchedulerBinding.instance
-                  .addPostFrameCallback((_) => handleLoadMore());
+            if (index == galleries.length - 1 && loadingState == LoadingState.idle && handleLoadMore != null) {
+              SchedulerBinding.instance.addPostFrameCallback((_) => handleLoadMore());
             }
 
             return EHGalleryWaterFlowCard(
-              gallery: gallerys[index],
-              downloaded: galleryDownloadService
-                      .containGallery(gallerys[index].gid) ||
-                  archiveDownloadService.containArchive(gallerys[index].gid),
+              gallery: galleries[index],
+              downloaded: galleryDownloadService.containGallery(galleries[index].gid) || archiveDownloadService.containArchive(galleries[index].gid),
               listMode: listMode,
               handleTapCard: handleTapCard,
               handleLongPressCard: handleLongPressCard == null
@@ -123,7 +113,7 @@ Widget EHGalleryCollection({
                       handleSecondaryTapCard(gallery, position),
             );
           },
-          childCount: gallerys.length,
+          childCount: galleries.length,
         ),
       ),
     );

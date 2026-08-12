@@ -21,15 +21,15 @@ class HistoryPageLogic extends OldBasePageLogic {
   bool get useSearchConfig => false;
 
   @override
-  Future<List<dynamic>> getGallerysAndPageInfoByPage(int pageIndex) async {
+  Future<List<dynamic>> getGalleriesAndPageInfoByPage(int pageIndex) async {
     log.info('Get history by page index $pageIndex');
 
     int pageCount = await historyService.getPageCount();
     List<GalleryHistoryModel> galleryModels = await historyService.getByPageIndex(pageIndex);
-    List<Gallery> gallerys = galleryModels.map(galleryHistoryModel2Gallery).toList();
+    List<Gallery> galleries = galleryModels.map(galleryHistoryModel2Gallery).toList();
 
     return [
-      gallerys,
+      galleries,
       pageCount,
       pageIndex >= 1 ? pageIndex - 1 : null,
       pageIndex < pageCount - 1 ? pageIndex + 1 : null,
@@ -67,7 +67,7 @@ class HistoryPageLogic extends OldBasePageLogic {
 
   Future<void> delete(int gid) async {
     await historyService.delete(gid);
-    state.gallerys.removeWhere((g) => g.gid == gid);
+    state.galleries.removeWhere((g) => g.gid == gid);
     updateSafely([bodyId]);
   }
 }

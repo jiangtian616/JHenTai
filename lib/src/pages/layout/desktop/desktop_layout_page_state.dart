@@ -3,9 +3,9 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
-import 'package:jhentai/src/pages/gallerys/simple/gallerys_page_logic.dart';
+import 'package:jhentai/src/pages/gallery/simple/gallery_page_logic.dart';
 import 'package:jhentai/src/pages/history/history_page.dart';
-import 'package:jhentai/src/pages/gallerys/simple/gallerys_page.dart';
+import 'package:jhentai/src/pages/gallery/simple/gallery_page.dart';
 import 'package:jhentai/src/pages/popular/popular_page.dart';
 import 'package:jhentai/src/pages/setting/setting_page.dart';
 import 'package:jhentai/src/pages/watched/watched_page.dart';
@@ -43,12 +43,12 @@ class DesktopLayoutPageState with DoubleTapToRefreshStateMixin {
     icons = [
       TabBarIcon(
         name: TabBarIconNameEnum.home,
-        routeName: Routes.gallerys,
+        routeName: Routes.gallery,
         selectedIcon: Icon(AppIcons.homeFill),
         unselectedIcon: Icon(AppIcons.home),
-        page: () => const GallerysPage(),
+        page: () => const GalleryPage(),
         scrollController: () =>
-            Get.find<GallerysPageLogic>().state.scrollController,
+            Get.find<GalleryPageLogic>().state.scrollController,
         shouldRender: false,
       ),
       TabBarIcon(

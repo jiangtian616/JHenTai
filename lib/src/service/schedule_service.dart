@@ -122,15 +122,15 @@ class ScheduleService
       _tagRefreshStaleThreshold,
     );
     int pageNo = 1;
-    List<GalleryDownloadedData> gallerys =
-        await GalleryDao.selectGallerysForTagRefresh(pageNo, 25, threshold);
-    while (gallerys.isNotEmpty) {
+    List<GalleryDownloadedData> galleries =
+        await GalleryDao.selectGalleriesForTagRefresh(pageNo, 25, threshold);
+    while (galleries.isNotEmpty) {
+      bool refreshed = false;
       try {
-        List<GalleryMetadata> metadatas = await ehRequest
-            .requestGalleryMetadatas<List<GalleryMetadata>>(
-              list: gallerys.map((a) => (gid: a.gid, token: a.token)).toList(),
-              parser: EHSpiderParser.galleryMetadataJson2GalleryMetadatas,
-            );
+        List<GalleryMetadata> metadatas = await ehRequest.requestGalleryMetadatas<List<GalleryMetadata>>(
+          list: galleries.map((a) => (gid: a.gid, token: a.token)).toList(),
+          parser: EHSpiderParser.galleryMetadataJson2GalleryMetadatas,
+        );
 
         await GalleryDao.batchUpdateGallery(
           metadatas
@@ -143,19 +143,18 @@ class ScheduleService
               )
               .toList(),
         );
-        log.trace(
-          'refreshGalleryTags success, pageNo: $pageNo, archives: ${gallerys.map((a) => a.gid).toList()}',
-        );
+        refreshed = true;
+        log.trace('refreshGalleryTags success, pageNo: $pageNo, galleries: ${galleries.map((a) => a.gid).toList()}');
       } catch (e) {
-        log.warning(
-          'refreshGalleryTags error, gallerys: ${gallerys.map((a) => (gid: a.gid, token: a.token)).toList()}',
-          e,
-          true,
-        );
+        log.warning('refreshGalleryTags error, galleries: ${galleries.map((a) => (gid: a.gid, token: a.token)).toList()}', e, true);
       }
 
-      pageNo++;
-      gallerys = await GalleryDao.selectGallerysForTagRefresh(
+      // A successful batch no longer matches the stale query, so start from
+      // the first page again. Advancing here would skip the next 25 rows after
+      // the result set shrinks. On failure, advance to avoid retrying the same
+      // broken batch forever during this run.
+      pageNo = refreshed ? 1 : pageNo + 1;
+      galleries = await GalleryDao.selectGalleriesForTagRefresh(
         pageNo,
         25,
         threshold,
@@ -171,6 +170,7 @@ class ScheduleService
     List<ArchiveDownloadedData> archives =
         await ArchiveDao.selectArchivesForTagRefresh(pageNo, 25, threshold);
     while (archives.isNotEmpty) {
+      bool refreshed = false;
       try {
         List<GalleryMetadata> metadatas = await ehRequest
             .requestGalleryMetadatas<List<GalleryMetadata>>(
@@ -189,6 +189,7 @@ class ScheduleService
               )
               .toList(),
         );
+        refreshed = true;
         log.trace(
           'refreshArchiveTags success, pageNo: $pageNo, archives: ${archives.map((a) => a.gid).toList()}',
         );
@@ -200,7 +201,7 @@ class ScheduleService
         );
       }
 
-      pageNo++;
+      pageNo = refreshed ? 1 : pageNo + 1;
       archives = await ArchiveDao.selectArchivesForTagRefresh(
         pageNo,
         25,

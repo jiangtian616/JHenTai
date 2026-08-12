@@ -69,8 +69,22 @@ class ru_RU {
       'logout': 'Выйти',
       'passwordLogin': 'Вход по паролю',
       'cookieLogin': 'Вход по Cookie',
-      'useWebview': 'Use Webview',
-      'skipCookieVerification': 'Skip Verification',
+      'passwordTab': 'Аккаунт',
+      'cookieTab': 'Cookie',
+      'webTab': 'Web',
+      'webTabHint': 'Нажмите кнопку ниже, чтобы открыть браузер. После входа вы вернётесь автоматически.',
+      'launchWebLogin': 'Открыть браузер для входа',
+      'onlineVerification': 'Онлайн-проверка',
+      'webviewVerification': 'Проверка через WebView',
+      'skipVerification': 'Пропустить проверку',
+      'assist': 'ассист.',
+      'onlineVerificationHint': 'Проверка через HTTP-запрос',
+      'webviewVerificationHint': 'Проверка через WebView (используйте при сбое онлайн-проверки)',
+      'skipVerificationHint': 'Сохранить напрямую без проверки',
+      'igneousFieldHint': 'Только для сайта EX; для EH можно оставить пустым',
+      'clipboardCookieDetected': 'Cookie найден в буфере обмена и заполнен',
+      'verifyAndLogin': 'Проверить и войти',
+      'recommended': 'Рекомендуется',
       'youHaveLoggedInAs': 'Здравствуйте:   ',
       'cookieIsBlack': 'Cookie недействителен',
       'cookieFormatError': 'Ошибка формата Cookie',
@@ -104,7 +118,7 @@ class ru_RU {
       'filtered': 'Отфильтровано',
 
       /// gallery page
-      'getGallerysFailed': "Не удалось получить галереи",
+      'getGalleriesFailed': "Не удалось получить галереи",
       'refreshGalleryFailed': 'Не удалось обновить галерею',
       'tabBarSetting': 'Настройка панели вкладок',
       'jumpPageTo': 'Перейти к странице',
@@ -870,10 +884,10 @@ class ru_RU {
 
       /// ranklist page
       'getRanklistFailed': 'Не удалось получить список рейтинга',
-      'getSomeOfGallerysFailed': 'Не удалось получить некоторые галереи',
+      'getSomeOfGalleriesFailed': 'Не удалось получить некоторые галереи',
 
       /// history page
-      'getHistoryGallerysFailed': 'Не удалось получить галереи из истории',
+      'getHistoryGalleriesFailed': 'Не удалось получить галереи из истории',
 
       /// search page
       'search': 'Поиск',
@@ -925,10 +939,8 @@ class ru_RU {
       'per': 'за',
       'images': 'изображений',
       'downloadTimeout': 'Тайм-аут загрузки',
-      'downloadAllGallerysOfSamePriority':
-          'Загружать все галереи одного приоритета',
-      'downloadAllGallerysOfSamePriorityHint':
-          'По умолчанию загружать только 1 галерею одновременно в 1 группе с высшим приоритетом',
+      'downloadAllGalleriesOfSamePriority': 'Загружать все галереи одного приоритета',
+      'downloadAllGalleriesOfSamePriorityHint': 'По умолчанию загружать только 1 галерею одновременно в 1 группе с высшим приоритетом',
       'alwaysUseDefaultGroup': 'Всегда использовать группу по умолчанию',
       'enableStoreMetadataForRestore':
           'Включить сохранение метаданных для восстановления',
