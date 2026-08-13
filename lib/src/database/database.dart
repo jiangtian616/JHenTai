@@ -257,15 +257,13 @@ class AppDb extends _$AppDb {
               /// as-is (may be original URL for download-original galleries)
               /// and `originalImageUrl` stays null — runtime fallback
               /// (`originalImageUrl ?? url`) handles this transparently.
-              try {
+              final List<QueryRow> imageColumns =
+                  await customSelect('PRAGMA table_info(image)').get();
+              final bool hasOriginalImageUrl = imageColumns.any(
+                (row) => row.data['name'] == 'originalImageUrl',
+              );
+              if (!hasOriginalImageUrl) {
                 await m.addColumn(image, image.originalImageUrl);
-              } on SqliteException catch (e) {
-                log.warning('Add originalImageUrl column failed: ${e.message}');
-                if (e.extendedResultCode == SqlError.SQLITE_ERROR && e.message.contains('duplicate column name')) {
-                  log.warning('Ignore duplicate column name error: ${e.message}');
-                } else {
-                  rethrow;
-                }
               }
             }
           });

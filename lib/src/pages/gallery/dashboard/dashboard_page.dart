@@ -135,14 +135,20 @@ class DashboardPage extends BasePage {
           ),
           // Dim the underlying content while the quick-search bar is open;
           // tapping the scrim closes it.
-          if (visible)
-            Positioned.fill(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: _toggleSearch,
-                child: Container(color: Colors.black54),
+          Positioned.fill(
+            child: IgnorePointer(
+              ignoring: !visible,
+              child: AnimatedOpacity(
+                opacity: visible ? 1 : 0,
+                duration: const Duration(milliseconds: 220),
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: _toggleSearch,
+                  child: Container(color: Colors.black54),
+                ),
               ),
             ),
+          ),
           // Slide-down search bar pinned to the top, above the scrim.
           Positioned(
             top: 0,

@@ -15,7 +15,6 @@ import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:jhentai/src/service/quick_search_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
-import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/eh_alert_dialog.dart';
 import 'package:jhentai/src/widget/eh_apple_controls.dart';
@@ -127,7 +126,10 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
           EHAppleIconButton(
               icon: const Icon(Icons.refresh), onPressed: _resetAllConfig),
         if (widget.type == EHSearchConfigDialogType.add)
-          const EHAppleIconButton(icon: Icon(Icons.close), onPressed: backRoute),
+          EHAppleIconButton(
+            icon: const Icon(Icons.close),
+            onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
+          ),
         Text(title,
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         EHAppleIconButton(icon: const Icon(Icons.check), onPressed: checkAndBack),
@@ -798,7 +800,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
 
     if (result == true) {
       quickSearchService.removeQuickSearch(quickSearchName!);
-      backRoute();
+      Navigator.of(context, rootNavigator: true).pop();
     }
   }
 
@@ -923,11 +925,13 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
   }
 
   void checkAndBack() {
+    final Map<String, dynamic> result = {
+      'searchConfig': searchConfig,
+      'quickSearchName': quickSearchName,
+    };
+
     if (widget.type == EHSearchConfigDialogType.filter) {
-      backRoute(result: {
-        'searchConfig': searchConfig,
-        'quickSearchName': quickSearchName
-      });
+      Navigator.of(context, rootNavigator: true).pop(result);
       return;
     }
 
@@ -936,10 +940,7 @@ class _EHSearchConfigDialogState extends State<EHSearchConfigDialog> {
       return;
     }
 
-    backRoute(result: {
-      'searchConfig': searchConfig,
-      'quickSearchName': quickSearchName
-    });
+    Navigator.of(context, rootNavigator: true).pop(result);
   }
 }
 

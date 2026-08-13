@@ -29,9 +29,12 @@ void main() {
   }
 
   Future<void> expectMergedSchema(File file) async {
-    final AppDb db = AppDb(executor: NativeDatabase(file));
+    final AppDb db = AppDb(executor: NativeDatabase.createInBackground(file));
     try {
       await db.customSelect('SELECT 1').getSingle();
+
+      final version = await db.customSelect('PRAGMA user_version').getSingle();
+      expect(version.data['user_version'], 27);
 
       final tables =
           await db
@@ -80,6 +83,21 @@ void main() {
       final sqlite.Database raw = sqlite.sqlite3.open(file.path);
       try {
         raw.execute('ALTER TABLE image DROP COLUMN originalImageUrl');
+        raw.execute('PRAGMA user_version = 26');
+      } finally {
+        raw.dispose();
+      }
+
+      await expectMergedSchema(file);
+    },
+  );
+
+  test(
+    'mixed schema 26 with the image column already present upgrades cleanly',
+    () async {
+      final File file = await createCurrentDatabase();
+      final sqlite.Database raw = sqlite.sqlite3.open(file.path);
+      try {
         raw.execute('PRAGMA user_version = 26');
       } finally {
         raw.dispose();
