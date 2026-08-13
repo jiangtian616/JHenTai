@@ -4959,7 +4959,7 @@ class ImageData extends DataClass implements Insertable<ImageData> {
   /// Original (full-size) image URL. Null for galleries downloaded without
   /// `downloadOriginalImage`, or for legacy rows written before this column
   /// existed — runtime falls back to `url` via
-  /// `GalleryImageIndex.downloadUrlFor`.
+  /// `_downloadUrlFor` in gallery_download_service.dart.
   final String? originalImageUrl;
   final int serialNo;
   final String path;
@@ -6783,6 +6783,805 @@ class LocalConfigCompanion extends UpdateCompanion<LocalConfigData> {
   }
 }
 
+class $SmartCacheStatTable extends SmartCacheStat
+    with TableInfo<$SmartCacheStatTable, SmartCacheStatData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SmartCacheStatTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _cacheKeyMeta =
+      const VerificationMeta('cacheKey');
+  @override
+  late final GeneratedColumn<String> cacheKey = GeneratedColumn<String>(
+      'cacheKey', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+      'kind', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _urlMeta = const VerificationMeta('url');
+  @override
+  late final GeneratedColumn<String> url = GeneratedColumn<String>(
+      'url', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _addedAtMeta =
+      const VerificationMeta('addedAt');
+  @override
+  late final GeneratedColumn<DateTime> addedAt = GeneratedColumn<DateTime>(
+      'addedAt', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _lastAccessAtMeta =
+      const VerificationMeta('lastAccessAt');
+  @override
+  late final GeneratedColumn<DateTime> lastAccessAt = GeneratedColumn<DateTime>(
+      'lastAccessAt', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _accessCountMeta =
+      const VerificationMeta('accessCount');
+  @override
+  late final GeneratedColumn<int> accessCount = GeneratedColumn<int>(
+      'accessCount', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _sizeBytesMeta =
+      const VerificationMeta('sizeBytes');
+  @override
+  late final GeneratedColumn<int> sizeBytes = GeneratedColumn<int>(
+      'sizeBytes', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [cacheKey, kind, url, addedAt, lastAccessAt, accessCount, sizeBytes];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'smart_cache_stat';
+  @override
+  VerificationContext validateIntegrity(Insertable<SmartCacheStatData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('cacheKey')) {
+      context.handle(_cacheKeyMeta,
+          cacheKey.isAcceptableOrUnknown(data['cacheKey']!, _cacheKeyMeta));
+    } else if (isInserting) {
+      context.missing(_cacheKeyMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+          _kindMeta, kind.isAcceptableOrUnknown(data['kind']!, _kindMeta));
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('url')) {
+      context.handle(
+          _urlMeta, url.isAcceptableOrUnknown(data['url']!, _urlMeta));
+    } else if (isInserting) {
+      context.missing(_urlMeta);
+    }
+    if (data.containsKey('addedAt')) {
+      context.handle(_addedAtMeta,
+          addedAt.isAcceptableOrUnknown(data['addedAt']!, _addedAtMeta));
+    } else if (isInserting) {
+      context.missing(_addedAtMeta);
+    }
+    if (data.containsKey('lastAccessAt')) {
+      context.handle(
+          _lastAccessAtMeta,
+          lastAccessAt.isAcceptableOrUnknown(
+              data['lastAccessAt']!, _lastAccessAtMeta));
+    } else if (isInserting) {
+      context.missing(_lastAccessAtMeta);
+    }
+    if (data.containsKey('accessCount')) {
+      context.handle(
+          _accessCountMeta,
+          accessCount.isAcceptableOrUnknown(
+              data['accessCount']!, _accessCountMeta));
+    } else if (isInserting) {
+      context.missing(_accessCountMeta);
+    }
+    if (data.containsKey('sizeBytes')) {
+      context.handle(_sizeBytesMeta,
+          sizeBytes.isAcceptableOrUnknown(data['sizeBytes']!, _sizeBytesMeta));
+    } else if (isInserting) {
+      context.missing(_sizeBytesMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {cacheKey};
+  @override
+  SmartCacheStatData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SmartCacheStatData(
+      cacheKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cacheKey'])!,
+      kind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
+      url: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}url'])!,
+      addedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}addedAt'])!,
+      lastAccessAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}lastAccessAt'])!,
+      accessCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}accessCount'])!,
+      sizeBytes: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sizeBytes'])!,
+    );
+  }
+
+  @override
+  $SmartCacheStatTable createAlias(String alias) {
+    return $SmartCacheStatTable(attachedDatabase, alias);
+  }
+}
+
+class SmartCacheStatData extends DataClass
+    implements Insertable<SmartCacheStatData> {
+  final String cacheKey;
+
+  /// 'page' or 'image'
+  final String kind;
+  final String url;
+  final DateTime addedAt;
+  final DateTime lastAccessAt;
+  final int accessCount;
+  final int sizeBytes;
+  const SmartCacheStatData(
+      {required this.cacheKey,
+      required this.kind,
+      required this.url,
+      required this.addedAt,
+      required this.lastAccessAt,
+      required this.accessCount,
+      required this.sizeBytes});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['cacheKey'] = Variable<String>(cacheKey);
+    map['kind'] = Variable<String>(kind);
+    map['url'] = Variable<String>(url);
+    map['addedAt'] = Variable<DateTime>(addedAt);
+    map['lastAccessAt'] = Variable<DateTime>(lastAccessAt);
+    map['accessCount'] = Variable<int>(accessCount);
+    map['sizeBytes'] = Variable<int>(sizeBytes);
+    return map;
+  }
+
+  SmartCacheStatCompanion toCompanion(bool nullToAbsent) {
+    return SmartCacheStatCompanion(
+      cacheKey: Value(cacheKey),
+      kind: Value(kind),
+      url: Value(url),
+      addedAt: Value(addedAt),
+      lastAccessAt: Value(lastAccessAt),
+      accessCount: Value(accessCount),
+      sizeBytes: Value(sizeBytes),
+    );
+  }
+
+  factory SmartCacheStatData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SmartCacheStatData(
+      cacheKey: serializer.fromJson<String>(json['cacheKey']),
+      kind: serializer.fromJson<String>(json['kind']),
+      url: serializer.fromJson<String>(json['url']),
+      addedAt: serializer.fromJson<DateTime>(json['addedAt']),
+      lastAccessAt: serializer.fromJson<DateTime>(json['lastAccessAt']),
+      accessCount: serializer.fromJson<int>(json['accessCount']),
+      sizeBytes: serializer.fromJson<int>(json['sizeBytes']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'cacheKey': serializer.toJson<String>(cacheKey),
+      'kind': serializer.toJson<String>(kind),
+      'url': serializer.toJson<String>(url),
+      'addedAt': serializer.toJson<DateTime>(addedAt),
+      'lastAccessAt': serializer.toJson<DateTime>(lastAccessAt),
+      'accessCount': serializer.toJson<int>(accessCount),
+      'sizeBytes': serializer.toJson<int>(sizeBytes),
+    };
+  }
+
+  SmartCacheStatData copyWith(
+          {String? cacheKey,
+          String? kind,
+          String? url,
+          DateTime? addedAt,
+          DateTime? lastAccessAt,
+          int? accessCount,
+          int? sizeBytes}) =>
+      SmartCacheStatData(
+        cacheKey: cacheKey ?? this.cacheKey,
+        kind: kind ?? this.kind,
+        url: url ?? this.url,
+        addedAt: addedAt ?? this.addedAt,
+        lastAccessAt: lastAccessAt ?? this.lastAccessAt,
+        accessCount: accessCount ?? this.accessCount,
+        sizeBytes: sizeBytes ?? this.sizeBytes,
+      );
+  SmartCacheStatData copyWithCompanion(SmartCacheStatCompanion data) {
+    return SmartCacheStatData(
+      cacheKey: data.cacheKey.present ? data.cacheKey.value : this.cacheKey,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      url: data.url.present ? data.url.value : this.url,
+      addedAt: data.addedAt.present ? data.addedAt.value : this.addedAt,
+      lastAccessAt: data.lastAccessAt.present
+          ? data.lastAccessAt.value
+          : this.lastAccessAt,
+      accessCount:
+          data.accessCount.present ? data.accessCount.value : this.accessCount,
+      sizeBytes: data.sizeBytes.present ? data.sizeBytes.value : this.sizeBytes,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SmartCacheStatData(')
+          ..write('cacheKey: $cacheKey, ')
+          ..write('kind: $kind, ')
+          ..write('url: $url, ')
+          ..write('addedAt: $addedAt, ')
+          ..write('lastAccessAt: $lastAccessAt, ')
+          ..write('accessCount: $accessCount, ')
+          ..write('sizeBytes: $sizeBytes')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      cacheKey, kind, url, addedAt, lastAccessAt, accessCount, sizeBytes);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SmartCacheStatData &&
+          other.cacheKey == this.cacheKey &&
+          other.kind == this.kind &&
+          other.url == this.url &&
+          other.addedAt == this.addedAt &&
+          other.lastAccessAt == this.lastAccessAt &&
+          other.accessCount == this.accessCount &&
+          other.sizeBytes == this.sizeBytes);
+}
+
+class SmartCacheStatCompanion extends UpdateCompanion<SmartCacheStatData> {
+  final Value<String> cacheKey;
+  final Value<String> kind;
+  final Value<String> url;
+  final Value<DateTime> addedAt;
+  final Value<DateTime> lastAccessAt;
+  final Value<int> accessCount;
+  final Value<int> sizeBytes;
+  final Value<int> rowid;
+  const SmartCacheStatCompanion({
+    this.cacheKey = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.url = const Value.absent(),
+    this.addedAt = const Value.absent(),
+    this.lastAccessAt = const Value.absent(),
+    this.accessCount = const Value.absent(),
+    this.sizeBytes = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SmartCacheStatCompanion.insert({
+    required String cacheKey,
+    required String kind,
+    required String url,
+    required DateTime addedAt,
+    required DateTime lastAccessAt,
+    required int accessCount,
+    required int sizeBytes,
+    this.rowid = const Value.absent(),
+  })  : cacheKey = Value(cacheKey),
+        kind = Value(kind),
+        url = Value(url),
+        addedAt = Value(addedAt),
+        lastAccessAt = Value(lastAccessAt),
+        accessCount = Value(accessCount),
+        sizeBytes = Value(sizeBytes);
+  static Insertable<SmartCacheStatData> custom({
+    Expression<String>? cacheKey,
+    Expression<String>? kind,
+    Expression<String>? url,
+    Expression<DateTime>? addedAt,
+    Expression<DateTime>? lastAccessAt,
+    Expression<int>? accessCount,
+    Expression<int>? sizeBytes,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (cacheKey != null) 'cacheKey': cacheKey,
+      if (kind != null) 'kind': kind,
+      if (url != null) 'url': url,
+      if (addedAt != null) 'addedAt': addedAt,
+      if (lastAccessAt != null) 'lastAccessAt': lastAccessAt,
+      if (accessCount != null) 'accessCount': accessCount,
+      if (sizeBytes != null) 'sizeBytes': sizeBytes,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SmartCacheStatCompanion copyWith(
+      {Value<String>? cacheKey,
+      Value<String>? kind,
+      Value<String>? url,
+      Value<DateTime>? addedAt,
+      Value<DateTime>? lastAccessAt,
+      Value<int>? accessCount,
+      Value<int>? sizeBytes,
+      Value<int>? rowid}) {
+    return SmartCacheStatCompanion(
+      cacheKey: cacheKey ?? this.cacheKey,
+      kind: kind ?? this.kind,
+      url: url ?? this.url,
+      addedAt: addedAt ?? this.addedAt,
+      lastAccessAt: lastAccessAt ?? this.lastAccessAt,
+      accessCount: accessCount ?? this.accessCount,
+      sizeBytes: sizeBytes ?? this.sizeBytes,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (cacheKey.present) {
+      map['cacheKey'] = Variable<String>(cacheKey.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (url.present) {
+      map['url'] = Variable<String>(url.value);
+    }
+    if (addedAt.present) {
+      map['addedAt'] = Variable<DateTime>(addedAt.value);
+    }
+    if (lastAccessAt.present) {
+      map['lastAccessAt'] = Variable<DateTime>(lastAccessAt.value);
+    }
+    if (accessCount.present) {
+      map['accessCount'] = Variable<int>(accessCount.value);
+    }
+    if (sizeBytes.present) {
+      map['sizeBytes'] = Variable<int>(sizeBytes.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SmartCacheStatCompanion(')
+          ..write('cacheKey: $cacheKey, ')
+          ..write('kind: $kind, ')
+          ..write('url: $url, ')
+          ..write('addedAt: $addedAt, ')
+          ..write('lastAccessAt: $lastAccessAt, ')
+          ..write('accessCount: $accessCount, ')
+          ..write('sizeBytes: $sizeBytes, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ReaderBookmarkTableTable extends ReaderBookmarkTable
+    with TableInfo<$ReaderBookmarkTableTable, ReaderBookmarkTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ReaderBookmarkTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _galleryKeyMeta =
+      const VerificationMeta('galleryKey');
+  @override
+  late final GeneratedColumn<String> galleryKey = GeneratedColumn<String>(
+      'gallery_key', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _pageIndexMeta =
+      const VerificationMeta('pageIndex');
+  @override
+  late final GeneratedColumn<int> pageIndex = GeneratedColumn<int>(
+      'page_index', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<String> createdAt = GeneratedColumn<String>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<String> updatedAt = GeneratedColumn<String>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+      'note', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sourceDeviceIdMeta =
+      const VerificationMeta('sourceDeviceId');
+  @override
+  late final GeneratedColumn<String> sourceDeviceId = GeneratedColumn<String>(
+      'source_device_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<String> deletedAt = GeneratedColumn<String>(
+      'deleted_at', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        galleryKey,
+        pageIndex,
+        createdAt,
+        updatedAt,
+        note,
+        sourceDeviceId,
+        deletedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'reader_bookmark';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ReaderBookmarkTableData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('gallery_key')) {
+      context.handle(
+          _galleryKeyMeta,
+          galleryKey.isAcceptableOrUnknown(
+              data['gallery_key']!, _galleryKeyMeta));
+    } else if (isInserting) {
+      context.missing(_galleryKeyMeta);
+    }
+    if (data.containsKey('page_index')) {
+      context.handle(_pageIndexMeta,
+          pageIndex.isAcceptableOrUnknown(data['page_index']!, _pageIndexMeta));
+    } else if (isInserting) {
+      context.missing(_pageIndexMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+          _noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
+    }
+    if (data.containsKey('source_device_id')) {
+      context.handle(
+          _sourceDeviceIdMeta,
+          sourceDeviceId.isAcceptableOrUnknown(
+              data['source_device_id']!, _sourceDeviceIdMeta));
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {galleryKey, pageIndex};
+  @override
+  ReaderBookmarkTableData map(Map<String, dynamic> data,
+      {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ReaderBookmarkTableData(
+      galleryKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}gallery_key'])!,
+      pageIndex: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}page_index'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}updated_at'])!,
+      note: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}note']),
+      sourceDeviceId: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}source_device_id']),
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}deleted_at']),
+    );
+  }
+
+  @override
+  $ReaderBookmarkTableTable createAlias(String alias) {
+    return $ReaderBookmarkTableTable(attachedDatabase, alias);
+  }
+}
+
+class ReaderBookmarkTableData extends DataClass
+    implements Insertable<ReaderBookmarkTableData> {
+  final String galleryKey;
+  final int pageIndex;
+  final String createdAt;
+  final String updatedAt;
+  final String? note;
+  final String? sourceDeviceId;
+  final String? deletedAt;
+  const ReaderBookmarkTableData(
+      {required this.galleryKey,
+      required this.pageIndex,
+      required this.createdAt,
+      required this.updatedAt,
+      this.note,
+      this.sourceDeviceId,
+      this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['gallery_key'] = Variable<String>(galleryKey);
+    map['page_index'] = Variable<int>(pageIndex);
+    map['created_at'] = Variable<String>(createdAt);
+    map['updated_at'] = Variable<String>(updatedAt);
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    if (!nullToAbsent || sourceDeviceId != null) {
+      map['source_device_id'] = Variable<String>(sourceDeviceId);
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<String>(deletedAt);
+    }
+    return map;
+  }
+
+  ReaderBookmarkTableCompanion toCompanion(bool nullToAbsent) {
+    return ReaderBookmarkTableCompanion(
+      galleryKey: Value(galleryKey),
+      pageIndex: Value(pageIndex),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      sourceDeviceId: sourceDeviceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceDeviceId),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory ReaderBookmarkTableData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ReaderBookmarkTableData(
+      galleryKey: serializer.fromJson<String>(json['galleryKey']),
+      pageIndex: serializer.fromJson<int>(json['pageIndex']),
+      createdAt: serializer.fromJson<String>(json['createdAt']),
+      updatedAt: serializer.fromJson<String>(json['updatedAt']),
+      note: serializer.fromJson<String?>(json['note']),
+      sourceDeviceId: serializer.fromJson<String?>(json['sourceDeviceId']),
+      deletedAt: serializer.fromJson<String?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'galleryKey': serializer.toJson<String>(galleryKey),
+      'pageIndex': serializer.toJson<int>(pageIndex),
+      'createdAt': serializer.toJson<String>(createdAt),
+      'updatedAt': serializer.toJson<String>(updatedAt),
+      'note': serializer.toJson<String?>(note),
+      'sourceDeviceId': serializer.toJson<String?>(sourceDeviceId),
+      'deletedAt': serializer.toJson<String?>(deletedAt),
+    };
+  }
+
+  ReaderBookmarkTableData copyWith(
+          {String? galleryKey,
+          int? pageIndex,
+          String? createdAt,
+          String? updatedAt,
+          Value<String?> note = const Value.absent(),
+          Value<String?> sourceDeviceId = const Value.absent(),
+          Value<String?> deletedAt = const Value.absent()}) =>
+      ReaderBookmarkTableData(
+        galleryKey: galleryKey ?? this.galleryKey,
+        pageIndex: pageIndex ?? this.pageIndex,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        note: note.present ? note.value : this.note,
+        sourceDeviceId:
+            sourceDeviceId.present ? sourceDeviceId.value : this.sourceDeviceId,
+        deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+      );
+  ReaderBookmarkTableData copyWithCompanion(ReaderBookmarkTableCompanion data) {
+    return ReaderBookmarkTableData(
+      galleryKey:
+          data.galleryKey.present ? data.galleryKey.value : this.galleryKey,
+      pageIndex: data.pageIndex.present ? data.pageIndex.value : this.pageIndex,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      note: data.note.present ? data.note.value : this.note,
+      sourceDeviceId: data.sourceDeviceId.present
+          ? data.sourceDeviceId.value
+          : this.sourceDeviceId,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReaderBookmarkTableData(')
+          ..write('galleryKey: $galleryKey, ')
+          ..write('pageIndex: $pageIndex, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('note: $note, ')
+          ..write('sourceDeviceId: $sourceDeviceId, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(galleryKey, pageIndex, createdAt, updatedAt,
+      note, sourceDeviceId, deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ReaderBookmarkTableData &&
+          other.galleryKey == this.galleryKey &&
+          other.pageIndex == this.pageIndex &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.note == this.note &&
+          other.sourceDeviceId == this.sourceDeviceId &&
+          other.deletedAt == this.deletedAt);
+}
+
+class ReaderBookmarkTableCompanion
+    extends UpdateCompanion<ReaderBookmarkTableData> {
+  final Value<String> galleryKey;
+  final Value<int> pageIndex;
+  final Value<String> createdAt;
+  final Value<String> updatedAt;
+  final Value<String?> note;
+  final Value<String?> sourceDeviceId;
+  final Value<String?> deletedAt;
+  final Value<int> rowid;
+  const ReaderBookmarkTableCompanion({
+    this.galleryKey = const Value.absent(),
+    this.pageIndex = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.note = const Value.absent(),
+    this.sourceDeviceId = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ReaderBookmarkTableCompanion.insert({
+    required String galleryKey,
+    required int pageIndex,
+    required String createdAt,
+    required String updatedAt,
+    this.note = const Value.absent(),
+    this.sourceDeviceId = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : galleryKey = Value(galleryKey),
+        pageIndex = Value(pageIndex),
+        createdAt = Value(createdAt),
+        updatedAt = Value(updatedAt);
+  static Insertable<ReaderBookmarkTableData> custom({
+    Expression<String>? galleryKey,
+    Expression<int>? pageIndex,
+    Expression<String>? createdAt,
+    Expression<String>? updatedAt,
+    Expression<String>? note,
+    Expression<String>? sourceDeviceId,
+    Expression<String>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (galleryKey != null) 'gallery_key': galleryKey,
+      if (pageIndex != null) 'page_index': pageIndex,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (note != null) 'note': note,
+      if (sourceDeviceId != null) 'source_device_id': sourceDeviceId,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ReaderBookmarkTableCompanion copyWith(
+      {Value<String>? galleryKey,
+      Value<int>? pageIndex,
+      Value<String>? createdAt,
+      Value<String>? updatedAt,
+      Value<String?>? note,
+      Value<String?>? sourceDeviceId,
+      Value<String?>? deletedAt,
+      Value<int>? rowid}) {
+    return ReaderBookmarkTableCompanion(
+      galleryKey: galleryKey ?? this.galleryKey,
+      pageIndex: pageIndex ?? this.pageIndex,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      note: note ?? this.note,
+      sourceDeviceId: sourceDeviceId ?? this.sourceDeviceId,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (galleryKey.present) {
+      map['gallery_key'] = Variable<String>(galleryKey.value);
+    }
+    if (pageIndex.present) {
+      map['page_index'] = Variable<int>(pageIndex.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<String>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<String>(updatedAt.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (sourceDeviceId.present) {
+      map['source_device_id'] = Variable<String>(sourceDeviceId.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<String>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReaderBookmarkTableCompanion(')
+          ..write('galleryKey: $galleryKey, ')
+          ..write('pageIndex: $pageIndex, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('note: $note, ')
+          ..write('sourceDeviceId: $sourceDeviceId, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDb extends GeneratedDatabase {
   _$AppDb(QueryExecutor e) : super(e);
   $AppDbManager get managers => $AppDbManager(this);
@@ -6809,6 +7608,9 @@ abstract class _$AppDb extends GeneratedDatabase {
   late final $DioCacheTable dioCache = $DioCacheTable(this);
   late final $BlockRuleTable blockRule = $BlockRuleTable(this);
   late final $LocalConfigTable localConfig = $LocalConfigTable(this);
+  late final $SmartCacheStatTable smartCacheStat = $SmartCacheStatTable(this);
+  late final $ReaderBookmarkTableTable readerBookmarkTable =
+      $ReaderBookmarkTableTable(this);
   late final Index idxKey =
       Index('idx_key', 'CREATE INDEX idx_key ON tag (_key)');
   late final Index idxTagName =
@@ -6843,6 +7645,9 @@ abstract class _$AppDb extends GeneratedDatabase {
       Index('idx_target', 'CREATE INDEX idx_target ON block_rule (target)');
   late final Index lIdxUTime = Index(
       'l_idx_u_time', 'CREATE INDEX l_idx_u_time ON local_config (utime)');
+  late final Index idxReaderBookmarkGalleryPage = Index(
+      'idx_reader_bookmark_gallery_page',
+      'CREATE INDEX idx_reader_bookmark_gallery_page ON reader_bookmark (gallery_key, page_index)');
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -6864,6 +7669,8 @@ abstract class _$AppDb extends GeneratedDatabase {
         dioCache,
         blockRule,
         localConfig,
+        smartCacheStat,
+        readerBookmarkTable,
         idxKey,
         idxTagName,
         aIdxInsertTime,
@@ -6880,7 +7687,8 @@ abstract class _$AppDb extends GeneratedDatabase {
         idxUrl,
         idxGroupId,
         idxTarget,
-        lIdxUTime
+        lIdxUTime,
+        idxReaderBookmarkGalleryPage
       ];
 }
 
@@ -10452,6 +11260,420 @@ typedef $$LocalConfigTableProcessedTableManager = ProcessedTableManager<
     ),
     LocalConfigData,
     PrefetchHooks Function()>;
+typedef $$SmartCacheStatTableCreateCompanionBuilder = SmartCacheStatCompanion
+    Function({
+  required String cacheKey,
+  required String kind,
+  required String url,
+  required DateTime addedAt,
+  required DateTime lastAccessAt,
+  required int accessCount,
+  required int sizeBytes,
+  Value<int> rowid,
+});
+typedef $$SmartCacheStatTableUpdateCompanionBuilder = SmartCacheStatCompanion
+    Function({
+  Value<String> cacheKey,
+  Value<String> kind,
+  Value<String> url,
+  Value<DateTime> addedAt,
+  Value<DateTime> lastAccessAt,
+  Value<int> accessCount,
+  Value<int> sizeBytes,
+  Value<int> rowid,
+});
+
+class $$SmartCacheStatTableFilterComposer
+    extends Composer<_$AppDb, $SmartCacheStatTable> {
+  $$SmartCacheStatTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get cacheKey => $composableBuilder(
+      column: $table.cacheKey, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get url => $composableBuilder(
+      column: $table.url, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get addedAt => $composableBuilder(
+      column: $table.addedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastAccessAt => $composableBuilder(
+      column: $table.lastAccessAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get accessCount => $composableBuilder(
+      column: $table.accessCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sizeBytes => $composableBuilder(
+      column: $table.sizeBytes, builder: (column) => ColumnFilters(column));
+}
+
+class $$SmartCacheStatTableOrderingComposer
+    extends Composer<_$AppDb, $SmartCacheStatTable> {
+  $$SmartCacheStatTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get cacheKey => $composableBuilder(
+      column: $table.cacheKey, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get url => $composableBuilder(
+      column: $table.url, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get addedAt => $composableBuilder(
+      column: $table.addedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastAccessAt => $composableBuilder(
+      column: $table.lastAccessAt,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get accessCount => $composableBuilder(
+      column: $table.accessCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sizeBytes => $composableBuilder(
+      column: $table.sizeBytes, builder: (column) => ColumnOrderings(column));
+}
+
+class $$SmartCacheStatTableAnnotationComposer
+    extends Composer<_$AppDb, $SmartCacheStatTable> {
+  $$SmartCacheStatTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get cacheKey =>
+      $composableBuilder(column: $table.cacheKey, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get url =>
+      $composableBuilder(column: $table.url, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get addedAt =>
+      $composableBuilder(column: $table.addedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastAccessAt => $composableBuilder(
+      column: $table.lastAccessAt, builder: (column) => column);
+
+  GeneratedColumn<int> get accessCount => $composableBuilder(
+      column: $table.accessCount, builder: (column) => column);
+
+  GeneratedColumn<int> get sizeBytes =>
+      $composableBuilder(column: $table.sizeBytes, builder: (column) => column);
+}
+
+class $$SmartCacheStatTableTableManager extends RootTableManager<
+    _$AppDb,
+    $SmartCacheStatTable,
+    SmartCacheStatData,
+    $$SmartCacheStatTableFilterComposer,
+    $$SmartCacheStatTableOrderingComposer,
+    $$SmartCacheStatTableAnnotationComposer,
+    $$SmartCacheStatTableCreateCompanionBuilder,
+    $$SmartCacheStatTableUpdateCompanionBuilder,
+    (
+      SmartCacheStatData,
+      BaseReferences<_$AppDb, $SmartCacheStatTable, SmartCacheStatData>
+    ),
+    SmartCacheStatData,
+    PrefetchHooks Function()> {
+  $$SmartCacheStatTableTableManager(_$AppDb db, $SmartCacheStatTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SmartCacheStatTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SmartCacheStatTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SmartCacheStatTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> cacheKey = const Value.absent(),
+            Value<String> kind = const Value.absent(),
+            Value<String> url = const Value.absent(),
+            Value<DateTime> addedAt = const Value.absent(),
+            Value<DateTime> lastAccessAt = const Value.absent(),
+            Value<int> accessCount = const Value.absent(),
+            Value<int> sizeBytes = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SmartCacheStatCompanion(
+            cacheKey: cacheKey,
+            kind: kind,
+            url: url,
+            addedAt: addedAt,
+            lastAccessAt: lastAccessAt,
+            accessCount: accessCount,
+            sizeBytes: sizeBytes,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String cacheKey,
+            required String kind,
+            required String url,
+            required DateTime addedAt,
+            required DateTime lastAccessAt,
+            required int accessCount,
+            required int sizeBytes,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SmartCacheStatCompanion.insert(
+            cacheKey: cacheKey,
+            kind: kind,
+            url: url,
+            addedAt: addedAt,
+            lastAccessAt: lastAccessAt,
+            accessCount: accessCount,
+            sizeBytes: sizeBytes,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$SmartCacheStatTableProcessedTableManager = ProcessedTableManager<
+    _$AppDb,
+    $SmartCacheStatTable,
+    SmartCacheStatData,
+    $$SmartCacheStatTableFilterComposer,
+    $$SmartCacheStatTableOrderingComposer,
+    $$SmartCacheStatTableAnnotationComposer,
+    $$SmartCacheStatTableCreateCompanionBuilder,
+    $$SmartCacheStatTableUpdateCompanionBuilder,
+    (
+      SmartCacheStatData,
+      BaseReferences<_$AppDb, $SmartCacheStatTable, SmartCacheStatData>
+    ),
+    SmartCacheStatData,
+    PrefetchHooks Function()>;
+typedef $$ReaderBookmarkTableTableCreateCompanionBuilder
+    = ReaderBookmarkTableCompanion Function({
+  required String galleryKey,
+  required int pageIndex,
+  required String createdAt,
+  required String updatedAt,
+  Value<String?> note,
+  Value<String?> sourceDeviceId,
+  Value<String?> deletedAt,
+  Value<int> rowid,
+});
+typedef $$ReaderBookmarkTableTableUpdateCompanionBuilder
+    = ReaderBookmarkTableCompanion Function({
+  Value<String> galleryKey,
+  Value<int> pageIndex,
+  Value<String> createdAt,
+  Value<String> updatedAt,
+  Value<String?> note,
+  Value<String?> sourceDeviceId,
+  Value<String?> deletedAt,
+  Value<int> rowid,
+});
+
+class $$ReaderBookmarkTableTableFilterComposer
+    extends Composer<_$AppDb, $ReaderBookmarkTableTable> {
+  $$ReaderBookmarkTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get galleryKey => $composableBuilder(
+      column: $table.galleryKey, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get pageIndex => $composableBuilder(
+      column: $table.pageIndex, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourceDeviceId => $composableBuilder(
+      column: $table.sourceDeviceId,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$ReaderBookmarkTableTableOrderingComposer
+    extends Composer<_$AppDb, $ReaderBookmarkTableTable> {
+  $$ReaderBookmarkTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get galleryKey => $composableBuilder(
+      column: $table.galleryKey, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get pageIndex => $composableBuilder(
+      column: $table.pageIndex, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourceDeviceId => $composableBuilder(
+      column: $table.sourceDeviceId,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ReaderBookmarkTableTableAnnotationComposer
+    extends Composer<_$AppDb, $ReaderBookmarkTableTable> {
+  $$ReaderBookmarkTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get galleryKey => $composableBuilder(
+      column: $table.galleryKey, builder: (column) => column);
+
+  GeneratedColumn<int> get pageIndex =>
+      $composableBuilder(column: $table.pageIndex, builder: (column) => column);
+
+  GeneratedColumn<String> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<String> get sourceDeviceId => $composableBuilder(
+      column: $table.sourceDeviceId, builder: (column) => column);
+
+  GeneratedColumn<String> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$ReaderBookmarkTableTableTableManager extends RootTableManager<
+    _$AppDb,
+    $ReaderBookmarkTableTable,
+    ReaderBookmarkTableData,
+    $$ReaderBookmarkTableTableFilterComposer,
+    $$ReaderBookmarkTableTableOrderingComposer,
+    $$ReaderBookmarkTableTableAnnotationComposer,
+    $$ReaderBookmarkTableTableCreateCompanionBuilder,
+    $$ReaderBookmarkTableTableUpdateCompanionBuilder,
+    (
+      ReaderBookmarkTableData,
+      BaseReferences<_$AppDb, $ReaderBookmarkTableTable,
+          ReaderBookmarkTableData>
+    ),
+    ReaderBookmarkTableData,
+    PrefetchHooks Function()> {
+  $$ReaderBookmarkTableTableTableManager(
+      _$AppDb db, $ReaderBookmarkTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ReaderBookmarkTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ReaderBookmarkTableTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ReaderBookmarkTableTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> galleryKey = const Value.absent(),
+            Value<int> pageIndex = const Value.absent(),
+            Value<String> createdAt = const Value.absent(),
+            Value<String> updatedAt = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<String?> sourceDeviceId = const Value.absent(),
+            Value<String?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ReaderBookmarkTableCompanion(
+            galleryKey: galleryKey,
+            pageIndex: pageIndex,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            note: note,
+            sourceDeviceId: sourceDeviceId,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String galleryKey,
+            required int pageIndex,
+            required String createdAt,
+            required String updatedAt,
+            Value<String?> note = const Value.absent(),
+            Value<String?> sourceDeviceId = const Value.absent(),
+            Value<String?> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ReaderBookmarkTableCompanion.insert(
+            galleryKey: galleryKey,
+            pageIndex: pageIndex,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+            note: note,
+            sourceDeviceId: sourceDeviceId,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ReaderBookmarkTableTableProcessedTableManager = ProcessedTableManager<
+    _$AppDb,
+    $ReaderBookmarkTableTable,
+    ReaderBookmarkTableData,
+    $$ReaderBookmarkTableTableFilterComposer,
+    $$ReaderBookmarkTableTableOrderingComposer,
+    $$ReaderBookmarkTableTableAnnotationComposer,
+    $$ReaderBookmarkTableTableCreateCompanionBuilder,
+    $$ReaderBookmarkTableTableUpdateCompanionBuilder,
+    (
+      ReaderBookmarkTableData,
+      BaseReferences<_$AppDb, $ReaderBookmarkTableTable,
+          ReaderBookmarkTableData>
+    ),
+    ReaderBookmarkTableData,
+    PrefetchHooks Function()>;
 
 class $AppDbManager {
   final _$AppDb _db;
@@ -10488,4 +11710,8 @@ class $AppDbManager {
       $$BlockRuleTableTableManager(_db, _db.blockRule);
   $$LocalConfigTableTableManager get localConfig =>
       $$LocalConfigTableTableManager(_db, _db.localConfig);
+  $$SmartCacheStatTableTableManager get smartCacheStat =>
+      $$SmartCacheStatTableTableManager(_db, _db.smartCacheStat);
+  $$ReaderBookmarkTableTableTableManager get readerBookmarkTable =>
+      $$ReaderBookmarkTableTableTableManager(_db, _db.readerBookmarkTable);
 }

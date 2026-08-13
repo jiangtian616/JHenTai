@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
@@ -53,6 +54,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   static const String archiveSpeedComputerId = 'archiveSpeedComputerId';
 
   static const int _maxRetryTimes = 3;
+  static const int _maxArchive429RetryTimes = 3;
   static const String metadataFileName = 'ametadata';
   static const int _maxIsolateCountsTotal = 10;
 
@@ -79,6 +81,13 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     log.debug('Archive download tasks count: ${archives.length}');
 
     for (ArchiveDownloadedData archive in archives) {
+      // A process restart resets the isolate budget, so archives that were
+      // queued behind it (waitingIsolate) must be promoted back to
+      // "downloading" to resume; otherwise the resume gates never match and the
+      // archive stays stuck forever.
+      if (archive.archiveStatusCode == ArchiveStatus.waitingIsolate.code) {
+        await _updateArchiveStatus(archive.gid, ArchiveStatus.downloading);
+      }
       if (archive.archiveStatusCode >= ArchiveStatus.unlocking.code && archive.archiveStatusCode <= ArchiveStatus.unpacking.code) {
         downloadArchive(archive, resume: true);
       }
@@ -183,7 +192,10 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       archiveDownloadInfo.cancelToken.cancel();
       archiveDownloadInfo.cancelToken = CancelToken();
       await archiveDownloadInfo.downloadTask?.pause();
-      archiveDownloadInfo.downloadCompleter?.completeError(CancelException());
+      final Completer? completer = archiveDownloadInfo.downloadCompleter;
+      if (completer != null && !completer.isCompleted) {
+        completer.completeError(CancelException());
+      }
       archiveDownloadInfo.speedComputer.pause();
 
       await _updateArchiveStatus(gid, needReUnlock ? ArchiveStatus.needReUnlock : ArchiveStatus.paused);
@@ -226,11 +238,17 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       archiveDownloadInfo.archiveStatus = ArchiveStatus.unlocking;
       archiveDownloadInfo.downloadPageUrl = null;
       archiveDownloadInfo.downloadUrl = null;
-      archiveDownloadInfo.downloadTask = null;
       archiveDownloadInfo.cancelToken.cancel();
       archiveDownloadInfo.cancelToken = CancelToken();
+      // Pause the in-flight j_downloader task BEFORE dropping the reference, so
+      // the download actually stops and does not keep writing an orphaned
+      // .jdtemp file in the background.
       await archiveDownloadInfo.downloadTask?.pause();
-      archiveDownloadInfo.downloadCompleter?.completeError(CancelException());
+      archiveDownloadInfo.downloadTask = null;
+      final Completer? completer = archiveDownloadInfo.downloadCompleter;
+      if (completer != null && !completer.isCompleted) {
+        completer.completeError(CancelException());
+      }
 
       await _updateArchiveInDatabase(archive.gid);
       update(['$archiveStatusId::${archive.gid}']);
@@ -246,6 +264,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
             retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
             onRetry: (e) => log.download('Cancel archive: ${archive.title} failed, retry. Reason: ${(e as DioException).message}'),
             maxAttempts: _maxRetryTimes,
+            delayFactor: const Duration(milliseconds: 500),
           );
         } on DioException catch (e) {
           if (e.type == DioExceptionType.cancel) {
@@ -479,6 +498,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         () => ehRequest.requestDetailPage(galleryUrl: archive.galleryUrl, parser: EHSpiderParser.detailPage2GalleryAndDetailAndApikey),
         retryIf: (e) => e is DioException,
         maxAttempts: _maxRetryTimes,
+        delayFactor: const Duration(milliseconds: 500),
       );
       galleryDetail = detailPageInfo.galleryDetails;
     } catch (e) {
@@ -569,7 +589,8 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   JDownloadTask _generateDownloadTask(String url, ArchiveDownloadedData archive) {
     return JDownloadTask.newTask(
       url: url,
-      savePath: computePackingFileDownloadPath(archive),
+      /// download to a temp path first, then move atomically on success
+      savePath: '${computePackingFileDownloadPath(archive)}.download',
       isolateCount: downloadSetting.archiveDownloadIsolateCount.value,
       deleteWhenUrlMismatch: false,
       proxyConfig: ehRequest.currentProxyConfig(),
@@ -733,6 +754,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
         onRetry: (e) => log.download('Request unlock archive: ${archive.title} failed, retry. Reason: ${(e as DioException).message}'),
         maxAttempts: _maxRetryTimes,
+        delayFactor: const Duration(milliseconds: 500),
       );
     } on DioException catch (e) {
       if (e.type == DioExceptionType.cancel) {
@@ -761,7 +783,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     }
   }
 
-  Future<void> _getDownloadPageUrl(ArchiveDownloadedData archive) async {
+  Future<void> _getDownloadPageUrl(ArchiveDownloadedData archive, {int pollTimes = 0}) async {
     ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadInfos[archive.gid]!;
     if (!_isTaskInStatus(archive.gid, [ArchiveStatus.unlocked, ArchiveStatus.parsingDownloadPageUrl])) {
       return;
@@ -791,6 +813,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
         onRetry: (e) => log.download('Request unlock archive: ${archive.title} failed, retry. Reason: ${(e as DioException).message}'),
         maxAttempts: _maxRetryTimes,
+        delayFactor: const Duration(milliseconds: 500),
       );
     } on DioException catch (e) {
       if (e.type == DioExceptionType.cancel) {
@@ -813,9 +836,11 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       archiveDownloadInfo.downloadPageUrl = result.url;
       await _updateArchiveStatus(archive.gid, ArchiveStatus.parsedDownloadPageUrl);
     } else if (result.success && result.url == null) {
-      /// wait for server operation
-      await Future.delayed(const Duration(milliseconds: 1000));
-      return _getDownloadPageUrl(archive);
+      /// wait for server operation: exponential backoff (1s, 2s, 4s, ...) capped at 30s
+      final Duration backoff = Duration(milliseconds: min(1000 << (pollTimes > 5 ? 5 : pollTimes), 30000));
+      log.download('Archive download page url not ready, poll again in ${backoff.inMilliseconds}ms: ${archive.title}');
+      await Future.delayed(backoff);
+      return _getDownloadPageUrl(archive, pollTimes: pollTimes + 1);
     } else {
       log.download('Get archive download page url failed. Archive: ${archive.title}, reason: ${result.msg}');
       snack('archiveError'.tr, result.msg, isShort: true);
@@ -857,6 +882,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
           retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
           onRetry: (e) => log.download('Parse archive download url: ${archive.title} failed, retry. Reason: ${(e as DioException).message}'),
           maxAttempts: _maxRetryTimes,
+          delayFactor: const Duration(milliseconds: 500),
         );
       } on DioException catch (e) {
         if (e.type == DioExceptionType.cancel) {
@@ -898,6 +924,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
           retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
           onRetry: (e) => log.download('Parse archive download url: ${archive.title} failed, retry. Reason: ${(e as DioException).message}'),
           maxAttempts: _maxRetryTimes,
+          delayFactor: const Duration(milliseconds: 500),
         );
         log.download('Parse archive download url via bot, response: $response');
 
@@ -939,7 +966,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     return _updateArchiveStatus(archive.gid, ArchiveStatus.parsedDownloadUrl);
   }
 
-  Future<void> _doDownloadArchiveViaMultiIsolate(ArchiveDownloadedData archive) async {
+  Future<void> _doDownloadArchiveViaMultiIsolate(ArchiveDownloadedData archive, {int archive429RetryTimes = 0}) async {
     ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadInfos[archive.gid]!;
     if (!_isTaskInStatus(archive.gid, [ArchiveStatus.parsedDownloadUrl, ArchiveStatus.downloading])) {
       return;
@@ -977,6 +1004,11 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
         archiveDownloadInfo.downloadCompleter = Completer();
         await archiveDownloadInfo.downloadCompleter!.future;
+        // The download finished; drop the completed completer so a later
+        // pause/cancel (e.g. a failed move or unpack) cannot call completeError
+        // on an already-completed completer, which would throw StateError and
+        // permanently wedge the archive in a "downloading" state.
+        archiveDownloadInfo.downloadCompleter = null;
       } on CancelException catch (_) {
         archiveDownloadInfo.downloadCompleter = null;
         return;
@@ -992,8 +1024,21 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
             return await _check410Or404Reason(archiveDownloadInfos[archive.gid]!.downloadUrl!, archive);
           }
 
-          /// too many download thread will cause 410
+          /// too many download threads will cause 429: retry with exponential
+          /// backoff (2s, 4s, 8s) and only pause when retries are exhausted.
           else if (response?.statusCode == 429) {
+            if (archive429RetryTimes < _maxArchive429RetryTimes) {
+              final int backoffSeconds = 1 << (archive429RetryTimes + 1);
+              log.download(
+                  'Archive ${archive.title} is rate limited (429), retry in ${backoffSeconds}s (${archive429RetryTimes + 1}/$_maxArchive429RetryTimes)');
+              await Future.delayed(Duration(seconds: backoffSeconds));
+
+              if (!_isTaskInStatus(archive.gid, [ArchiveStatus.parsedDownloadUrl, ArchiveStatus.downloading])) {
+                return;
+              }
+              return _doDownloadArchiveViaMultiIsolate(archive, archive429RetryTimes: archive429RetryTimes + 1);
+            }
+
             log.download('${'429Hints'.tr} Archive: ${archive.title}');
             snack('archiveError'.tr, '429Hints'.tr, isShort: true);
             return await pauseDownloadArchive(archive.gid);
@@ -1016,6 +1061,16 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     log.download('Download archive success: ${archive.title}, original: ${archive.isOriginal}');
+
+    /// Atomically move the packing file from its temp path to the final path.
+    try {
+      await FileUtil.moveFileAtomic('${computePackingFileDownloadPath(archive)}.download', computePackingFileDownloadPath(archive));
+    } on Exception catch (e, st) {
+      log.error('Move archive packing file failed: ${archive.title}', e, st);
+      log.uploadError(e, extraInfos: {'archive': archive});
+      snack('archiveError'.tr, '${'failedToDealWith'.tr}:${archive.title}', isShort: true);
+      return pauseDownloadArchive(archive.gid);
+    }
 
     archiveDownloadInfo.speedComputer.dispose();
     return _updateArchiveStatus(archive.gid, ArchiveStatus.downloaded);
@@ -1221,11 +1276,19 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   Future<void> _deletePackingFileInDisk(ArchiveDownloadedData archive) async {
-    File file = File(computePackingFileDownloadPath(archive));
-    if (await file.exists()) {
-      await file.delete();
+    for (final String filePath in [
+      computePackingFileDownloadPath(archive),
+      '${computePackingFileDownloadPath(archive)}.download',
+      // j_downloader's in-progress / copy temp files can be large; clean them
+      // too so a cancelled archive does not leak hundreds of MB on disk.
+      '${computePackingFileDownloadPath(archive)}.download.jdtemp',
+      '${computePackingFileDownloadPath(archive)}.download.jdcopy',
+    ]) {
+      File file = File(filePath);
+      if (await file.exists()) {
+        await file.delete();
+      }
     }
-    return;
   }
 
   Future<void> _deleteArchiveInDisk(ArchiveDownloadedData archive) async {

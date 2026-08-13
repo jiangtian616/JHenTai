@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
-import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/gallery_download/gallery_download_service.dart';
@@ -35,21 +35,33 @@ Widget EHGalleryCollection({
             SchedulerBinding.instance.addPostFrameCallback((_) => handleLoadMore());
           }
           return Container(
-            decoration: listMode == ListMode.flat || listMode == ListMode.flatWithoutTags
+            decoration: listMode == ListMode.flat ||
+                    listMode == ListMode.flatWithoutTags
                 ? BoxDecoration(
                     color: UIConfig.backGroundColor(context),
-                    border: Border(bottom: BorderSide(width: 0.5, color: Theme.of(context).dividerColor)),
+                    border: Border(
+                        bottom: BorderSide(
+                            width: 0.5, color: Theme.of(context).dividerColor)),
                   )
                 : null,
-            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+            padding: ThemeConfig.isApple
+                ? EdgeInsets.zero
+                : const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
             child: EHGalleryListCard(
               gallery: galleries[index],
               downloaded: galleryDownloadService.containGallery(galleries[index].gid) || archiveDownloadService.containArchive(galleries[index].gid),
               listMode: listMode,
               handleTapCard: (gallery) => handleTapCard(gallery),
-              handleLongPressCard: handleLongPressCard == null ? null : (gallery, position) => handleLongPressCard(gallery, position),
-              handleSecondaryTapCard: handleSecondaryTapCard == null ? null : (gallery, position) => handleSecondaryTapCard(gallery, position),
-              withTags: listMode == ListMode.listWithTags || listMode == ListMode.flat,
+              handleLongPressCard: handleLongPressCard == null
+                  ? null
+                  : (gallery, position) =>
+                      handleLongPressCard(gallery, position),
+              handleSecondaryTapCard: handleSecondaryTapCard == null
+                  ? null
+                  : (gallery, position) =>
+                      handleSecondaryTapCard(gallery, position),
+              withTags: listMode == ListMode.listWithTags ||
+                  listMode == ListMode.flat,
             ),
           );
         },
@@ -68,12 +80,15 @@ Widget EHGalleryCollection({
       sliver: SliverWaterfallFlow(
         gridDelegate: styleSetting.crossAxisCountInWaterFallFlow.value == null
             ? SliverWaterfallFlowDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: listMode == ListMode.waterfallFlowBig ? UIConfig.waterFallFlowCardWidthBig : UIConfig.waterFallFlowCardWidthSmall,
+                maxCrossAxisExtent: listMode == ListMode.waterfallFlowBig
+                    ? UIConfig.waterFallFlowCardWidthBig
+                    : UIConfig.waterFallFlowCardWidthSmall,
                 mainAxisSpacing: listMode == ListMode.waterfallFlowBig ? 10 : 5,
                 crossAxisSpacing: 5,
               )
             : SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
-                crossAxisCount: styleSetting.crossAxisCountInWaterFallFlow.value!,
+                crossAxisCount:
+                    styleSetting.crossAxisCountInWaterFallFlow.value!,
                 mainAxisSpacing: listMode == ListMode.waterfallFlowBig ? 10 : 5,
                 crossAxisSpacing: 5,
               ),
@@ -88,8 +103,14 @@ Widget EHGalleryCollection({
               downloaded: galleryDownloadService.containGallery(galleries[index].gid) || archiveDownloadService.containArchive(galleries[index].gid),
               listMode: listMode,
               handleTapCard: handleTapCard,
-              handleLongPressCard: handleLongPressCard == null ? null : (gallery, position) => handleLongPressCard(gallery, position),
-              handleSecondaryTapCard: handleSecondaryTapCard == null ? null : (gallery, position) => handleSecondaryTapCard(gallery, position),
+              handleLongPressCard: handleLongPressCard == null
+                  ? null
+                  : (gallery, position) =>
+                      handleLongPressCard(gallery, position),
+              handleSecondaryTapCard: handleSecondaryTapCard == null
+                  ? null
+                  : (gallery, position) =>
+                      handleSecondaryTapCard(gallery, position),
             );
           },
           childCount: galleries.length,
@@ -98,7 +119,10 @@ Widget EHGalleryCollection({
     );
   }
 
-  if (listMode == ListMode.flat || listMode == ListMode.flatWithoutTags || listMode == ListMode.listWithoutTags || listMode == ListMode.listWithTags) {
+  if (listMode == ListMode.flat ||
+      listMode == ListMode.flatWithoutTags ||
+      listMode == ListMode.listWithoutTags ||
+      listMode == ListMode.listWithTags) {
     return _buildGalleryList();
   }
 

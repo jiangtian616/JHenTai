@@ -3,46 +3,91 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:jhentai/src/config/theme_config.dart';
+import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../utils/screen_size_util.dart';
 
 class UIConfig {
   /// common
-  static ScrollBehavior scrollBehaviourWithScrollBar = EHScrollBehaviourWithScrollBar().copyWith(
-    scrollbars: true,
-  );
-  static ScrollBehavior scrollBehaviourWithoutScrollBar = const MaterialScrollBehavior().copyWith(
-    scrollbars: false,
-  );
-  static ScrollBehavior scrollBehaviourWithScrollBarWithMouse = EHScrollBehaviourWithScrollBar().copyWith(
-    dragDevices: {
-      PointerDeviceKind.mouse,
-      PointerDeviceKind.touch,
-      PointerDeviceKind.stylus,
-      PointerDeviceKind.invertedStylus,
-      PointerDeviceKind.trackpad,
-      PointerDeviceKind.unknown,
-    },
-    scrollbars: true,
-  );
-  static ScrollBehavior scrollBehaviourWithoutScrollBarWithMouse = const MaterialScrollBehavior().copyWith(
-    dragDevices: {
-      PointerDeviceKind.mouse,
-      PointerDeviceKind.touch,
-      PointerDeviceKind.stylus,
-      PointerDeviceKind.invertedStylus,
-      PointerDeviceKind.trackpad,
-      PointerDeviceKind.unknown,
-    },
-    scrollbars: false,
+  static ScrollBehavior scrollBehaviourWithScrollBar =
+      EHScrollBehaviourWithScrollBar().copyWith(scrollbars: true);
+  static ScrollBehavior scrollBehaviourWithoutScrollBar =
+      const MaterialScrollBehavior().copyWith(scrollbars: false);
+  static ScrollBehavior scrollBehaviourWithScrollBarWithMouse =
+      EHScrollBehaviourWithScrollBar().copyWith(
+        dragDevices: {
+          PointerDeviceKind.mouse,
+          PointerDeviceKind.touch,
+          PointerDeviceKind.stylus,
+          PointerDeviceKind.invertedStylus,
+          PointerDeviceKind.trackpad,
+          PointerDeviceKind.unknown,
+        },
+        scrollbars: true,
+      );
+  static ScrollBehavior scrollBehaviourWithoutScrollBarWithMouse =
+      const MaterialScrollBehavior().copyWith(
+        dragDevices: {
+          PointerDeviceKind.mouse,
+          PointerDeviceKind.touch,
+          PointerDeviceKind.stylus,
+          PointerDeviceKind.invertedStylus,
+          PointerDeviceKind.trackpad,
+          PointerDeviceKind.unknown,
+        },
+        scrollbars: false,
+      );
+
+  static const Duration defaultPageRouteTransitionDuration = Duration(
+    milliseconds: 150,
   );
 
-  static const Duration defaultPageRouteTransitionDuration = Duration(milliseconds: 150);
-  
   static const Color defaultLightThemeColor = Color(0xFF6750A4);
   static const Color defaultDarkThemeColor = Color(0xFFD0BCFF);
+
+  /// Liquid Glass bottom bar geometry (kept in sync with the bar in mobile_layout_page_v2.dart).
+  static const double liquidGlassNavBarHeight = 64;
+  static const double liquidGlassNavBarMarginBottom = 8;
+
+  /// The floating glass capsule's footprint above the safe-area inset
+  /// (bar height + bottom margin). 0 on desktop and non-Apple platforms.
+  static double liquidGlassNavBarRaise(BuildContext context) {
+    if (!ThemeConfig.isApple ||
+        styleSetting.isInDesktopLayout ||
+        preferenceSetting.effectiveHideBottomBar) {
+      return 0;
+    }
+    return liquidGlassNavBarHeight + liquidGlassNavBarMarginBottom;
+  }
+
+  /// Bottom content inset so a scrollable's last row clears the floating Liquid Glass
+  /// bar. Non-zero only on Apple mobile/tablet layouts where the bar overlays content;
+  /// 0 on desktop and non-Apple platforms.
+  static double liquidGlassNavContentInset(BuildContext context) =>
+      liquidGlassNavBarRaise(context) + MediaQuery.of(context).padding.bottom;
+
+  /// Glass settings shared by the app's dialogs. [GlassDialog] defaults to a
+  /// fully transparent glass with strong chromatic aberration and
+  /// over-saturation, which fringes crisp text edges with a coloured double
+  /// line under the text. Dialogs instead use the app's tuned glass (white
+  /// tint, higher refraction, restrained lighting) with no aberration or
+  /// saturation boost.
+  static LiquidGlassSettings glassDialogSettings(BuildContext context) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    return LiquidGlassSettings(
+      glassColor: Colors.white.withValues(alpha: isDark ? 0.10 : 0.16),
+      refractiveIndex: 1.8,
+      lightIntensity: isDark ? 0.40 : 0.45,
+      ambientStrength: isDark ? 0.05 : 0.06,
+      chromaticAberration: 0,
+      saturation: 1.0,
+      fresnelStrength: 0,
+    );
+  }
 
   static const Map<String, Color> galleryCategoryColor = {
     'Doujinshi': Color(0xfffc4e4e),
@@ -129,17 +174,25 @@ class UIConfig {
   ];
 
   static Widget loadingAnimation(BuildContext context) =>
-      LoadingAnimationWidget.horizontalRotatingDots(color: Theme.of(context).colorScheme.onSurfaceVariant, size: 32);
+      LoadingAnimationWidget.horizontalRotatingDots(
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+        size: 32,
+      );
 
-  static Color alertColor(BuildContext context) => Theme.of(context).colorScheme.error;
+  static Color alertColor(BuildContext context) =>
+      Theme.of(context).colorScheme.error;
 
-  static Color primaryColor(BuildContext context) => Theme.of(context).colorScheme.primary;
+  static Color primaryColor(BuildContext context) =>
+      Theme.of(context).colorScheme.primary;
 
-  static Color onPrimaryColor(BuildContext context) => Theme.of(context).colorScheme.onPrimary;
+  static Color onPrimaryColor(BuildContext context) =>
+      Theme.of(context).colorScheme.onPrimary;
 
-  static Color backGroundColor(BuildContext context) => Theme.of(context).colorScheme.surface;
+  static Color backGroundColor(BuildContext context) =>
+      Theme.of(context).colorScheme.surface;
 
-  static Color onBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.onSurface;
+  static Color onBackGroundColor(BuildContext context) =>
+      Theme.of(context).colorScheme.onSurface;
 
   /// snack
   static Color get snackBackGroundColor => Colors.black.withValues(alpha: 0.7);
@@ -147,9 +200,11 @@ class UIConfig {
   static const double snackWidth = 400;
 
   /// toast
-  static Color toastBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.onSurface;
+  static Color toastBackGroundColor(BuildContext context) =>
+      Theme.of(context).colorScheme.onSurface;
 
-  static Color toastTextColor(BuildContext context) => Theme.of(context).colorScheme.surface;
+  static Color toastTextColor(BuildContext context) =>
+      Theme.of(context).colorScheme.surface;
 
   /// window
   static const Color windowBorderColor = Colors.black;
@@ -160,33 +215,82 @@ class UIConfig {
   static const double searchBarHeight = 40;
   static const double refreshTriggerPullDistance = 100;
 
-  static Color layoutDividerColor(BuildContext context) => Theme.of(context).colorScheme.surfaceContainerHighest;
+  static Color layoutDividerColor(BuildContext context) =>
+      Theme.of(context).colorScheme.surfaceContainerHighest;
 
-  static Color desktopLeftTabIconColor(BuildContext context) => Theme.of(context).colorScheme.onSurface;
+  static Color desktopLeftTabIconColor(BuildContext context) =>
+      Theme.of(context).colorScheme.onSurface;
+
+  /// macOS sidebar background (light / dark). Both are translucent so the
+  /// native NSVisualEffectView frost behind them shows through.
+  static const Color desktopSideBarColorLight = Color(0xFFECECEC);
+  static const Color desktopSideBarColorDark = Color(0xFF1E1E1E);
+
+  /// Only a very light Flutter tint sits over the native material. The native
+  /// visual-effect view below it provides the actual sidebar appearance.
+  static const double desktopMacOSSideBarLightAlpha = 0.18;
+  static const double desktopMacOSSideBarDarkAlpha = 0.08;
+
+  /// Leave the native material partly transparent so the desktop/background
+  /// visibly contributes to the frosted sidebar in both color schemes.
+  static const double desktopMacOSVisualEffectLightAlpha = 0.70;
+  static const double desktopMacOSVisualEffectDarkAlpha = 0.65;
+
+  /// Extend only the native material to the divider without changing the
+  /// Flutter sidebar layout width.
+  static const double desktopMacOSSidebarEffectRightExtension = 12;
+
+  /// Extend the native material through the bottom edge of the window so the
+  /// sidebar does not leave a strip of the Flutter window background behind.
+  static const double desktopMacOSSidebarEffectBottomExtension = 12;
+
+  static double desktopMacOSSideBarAlpha(Brightness brightness) =>
+      brightness == Brightness.dark
+          ? desktopMacOSSideBarDarkAlpha
+          : desktopMacOSSideBarLightAlpha;
+
+  static double desktopMacOSVisualEffectAlpha(Brightness brightness) =>
+      brightness == Brightness.dark
+          ? desktopMacOSVisualEffectDarkAlpha
+          : desktopMacOSVisualEffectLightAlpha;
+
+  static Color desktopSideBarColor(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.dark
+          ? desktopSideBarColorDark
+          : desktopSideBarColorLight;
   static const double desktopTitleBarHeight = 32;
   static const double desktopFullScreenTopPadding = 12;
   static const double desktopLeftTabBarWidth = 56;
+  static const double desktopMacOSLeftTabBarWidth = 72;
+
+  /// Left inset reserved for the macOS traffic-light window buttons, so AppBar
+  /// leading widgets (e.g. the read-page back button) don't sit underneath them.
+  static const double desktopMacOSTrafficLightLeftInset = 72;
   static const double desktopLeftTabBarItemHeight = 60;
   static const double desktopLeftTabBarTextHeight = 18;
 
   /// mobile home page
-  static Color loginAvatarBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.surfaceContainerHighest;
+  static Color loginAvatarBackGroundColor(BuildContext context) =>
+      Theme.of(context).colorScheme.surfaceContainerHighest;
 
-  static Color loginAvatarForeGroundColor(BuildContext context) => Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6);
+  static Color loginAvatarForeGroundColor(BuildContext context) =>
+      Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6);
 
-  static Color mobileDrawerSelectedTileColor(BuildContext context) => Theme.of(context).colorScheme.primaryContainer;
+  static Color mobileDrawerSelectedTileColor(BuildContext context) =>
+      Theme.of(context).colorScheme.primaryContainer;
 
-  static ScrollBehavior leftDrawerPhysicsBehaviour = const MaterialScrollBehavior().copyWith(
-    dragDevices: {
-      PointerDeviceKind.mouse,
-      PointerDeviceKind.touch,
-      PointerDeviceKind.stylus,
-      PointerDeviceKind.trackpad,
-      PointerDeviceKind.unknown,
-    },
-    scrollbars: false,
-    overscroll: false,
-  );
+  static ScrollBehavior leftDrawerPhysicsBehaviour =
+      const MaterialScrollBehavior().copyWith(
+        dragDevices: {
+          PointerDeviceKind.mouse,
+          PointerDeviceKind.touch,
+          PointerDeviceKind.stylus,
+          PointerDeviceKind.trackpad,
+          PointerDeviceKind.unknown,
+        },
+        scrollbars: false,
+        overscroll: false,
+      );
 
   /// Gallery card
   static const double galleryCardHeight = 200;
@@ -197,11 +301,15 @@ class UIConfig {
   static const double galleryCardTextSize = 12;
   static const double galleryCardReadProgressIndicatorSize = 9;
 
-  static Color galleryCardBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.8);
+  static Color galleryCardBackGroundColor(BuildContext context) => Theme.of(
+    context,
+  ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.8);
 
-  static Color galleryCardShadowColor(BuildContext context) => Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2);
+  static Color galleryCardShadowColor(BuildContext context) =>
+      Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2);
 
-  static Color galleryCardTextColor(BuildContext context) => Theme.of(context).colorScheme.outline;
+  static Color galleryCardTextColor(BuildContext context) =>
+      Theme.of(context).colorScheme.outline;
   static const double galleryCardTagsHeight = 70;
 
   static const double dashboardCardSize = 210;
@@ -218,28 +326,37 @@ class UIConfig {
   static const double waterFallFlowCardTagsMaxHeight = 18;
   static const double waterFallFlowCardTagTextSize = 10;
 
-  static Color waterFallFlowCardBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.05);
+  static Color waterFallFlowCardBackGroundColor(BuildContext context) =>
+      Theme.of(context).colorScheme.onPrimaryContainer.withValues(alpha: 0.05);
 
-  static Color waterFallFlowCardLanguageChipTextColor(Color backGroundColor) => backGroundColor.computeLuminance() >= 0.5 ? Colors.black : Colors.white;
+  static Color waterFallFlowCardLanguageChipTextColor(Color backGroundColor) =>
+      backGroundColor.computeLuminance() >= 0.5 ? Colors.black : Colors.white;
 
   static const double galleryCardFilteredIconSize = 24;
 
   /// Login page
-  static Color loginPageForegroundColor(BuildContext context) => Theme.of(context).colorScheme.onSurfaceVariant;
+  static Color loginPageForegroundColor(BuildContext context) =>
+      Theme.of(context).colorScheme.onSurfaceVariant;
 
-  static Color loginPageBackgroundColor(BuildContext context) => Theme.of(context).colorScheme.surface;
+  static Color loginPageBackgroundColor(BuildContext context) =>
+      Theme.of(context).colorScheme.surface;
 
-  static Color loginPageFormIconColor(BuildContext context) => Theme.of(context).colorScheme.onSurfaceVariant;
+  static Color loginPageFormIconColor(BuildContext context) =>
+      Theme.of(context).colorScheme.onSurfaceVariant;
 
   static const double loginPageTextHintSize = 13;
 
-  static Color loginPageTextHintColor(BuildContext context) => Theme.of(context).colorScheme.outline;
+  static Color loginPageTextHintColor(BuildContext context) =>
+      Theme.of(context).colorScheme.outline;
 
-  static Color loginPagePrefixIconColor(BuildContext context) => Theme.of(context).colorScheme.onSurfaceVariant;
+  static Color loginPagePrefixIconColor(BuildContext context) =>
+      Theme.of(context).colorScheme.onSurfaceVariant;
 
-  static Color loginPageFormHintColor(BuildContext context) => Theme.of(context).colorScheme.outline;
+  static Color loginPageFormHintColor(BuildContext context) =>
+      Theme.of(context).colorScheme.outline;
 
-  static Color loginPageIndicatorColor(BuildContext context) => Theme.of(context).colorScheme.surface;
+  static Color loginPageIndicatorColor(BuildContext context) =>
+      Theme.of(context).colorScheme.surface;
 
   static const double loginPageParseCookieTextSize = 10;
 
@@ -253,11 +370,14 @@ class UIConfig {
   static const double detailsPageTitleTextHeight = 1.3;
   static const double detailsPageUploaderTextSize = 11;
 
-  static TextStyle detailsPageSubTitleTextStyle(BuildContext context) => TextStyle(fontSize: 9, color: Theme.of(context).colorScheme.outline);
+  static TextStyle detailsPageSubTitleTextStyle(BuildContext context) =>
+      TextStyle(fontSize: 9, color: Theme.of(context).colorScheme.outline);
 
-  static Color detailsPageUploaderTextColor(BuildContext context) => Theme.of(context).colorScheme.outline;
+  static Color detailsPageUploaderTextColor(BuildContext context) =>
+      Theme.of(context).colorScheme.outline;
 
-  static Color detailsPageIconColor(BuildContext context) => Theme.of(context).colorScheme.outline;
+  static Color detailsPageIconColor(BuildContext context) =>
+      Theme.of(context).colorScheme.outline;
   static const double detailsPageInfoIconSize = 12;
   static const double detailsPageInfoTextSize = 10;
   static const double detailsPageRatingTextSize = 12;
@@ -271,18 +391,22 @@ class UIConfig {
   static const double detailsPageActionsHeight = 64;
   static const double detailsPageActionExtent = 74;
 
-  static Color detailsPageActionIconColor(BuildContext context) => Theme.of(context).colorScheme.primary;
+  static Color detailsPageActionIconColor(BuildContext context) =>
+      Theme.of(context).colorScheme.primary;
 
-  static Color detailsPageActionDisabledIconColor(BuildContext context) => Theme.of(context).disabledColor;
+  static Color detailsPageActionDisabledIconColor(BuildContext context) =>
+      Theme.of(context).disabledColor;
 
-  static Color detailsPageActionTextColor(BuildContext context) => Theme.of(context).colorScheme.secondary;
+  static Color detailsPageActionTextColor(BuildContext context) =>
+      Theme.of(context).colorScheme.secondary;
 
   static const double detailsPageActionTextSize = 11;
   static const double detailsPageCommentIndicatorHeight = 50;
   static const double detailsPageCommentsRegionHeight = 160;
   static const double detailsPageCommentsWidth = 300;
 
-  static Color detailsPageThumbnailIndexColor(BuildContext context) => Theme.of(context).colorScheme.outline;
+  static Color detailsPageThumbnailIndexColor(BuildContext context) =>
+      Theme.of(context).colorScheme.outline;
 
   static const double detailsPageThumbnailHeight = 200;
   static const double detailsPageThumbnailWidth = 150;
@@ -294,52 +418,62 @@ class UIConfig {
   static const double downloadPageSegmentedControlWidth = 52;
   static const double downloadPageSegmentedTextSize = 13;
 
-  static Color resumePauseButtonColor(BuildContext context) => Theme.of(context).colorScheme.primary;
+  static Color resumePauseButtonColor(BuildContext context) =>
+      Theme.of(context).colorScheme.primary;
 
   static const double groupListHeight = 50;
 
-  static Color groupListColor(BuildContext context) => Theme.of(context).colorScheme.secondaryContainer;
+  static Color groupListColor(BuildContext context) =>
+      Theme.of(context).colorScheme.secondaryContainer;
 
   static BoxShadow groupListShadow(BuildContext context) => BoxShadow(
-        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
-        blurRadius: 2,
-        offset: const Offset(0.3, 1),
-      );
+    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
+    blurRadius: 2,
+    offset: const Offset(0.3, 1),
+  );
 
   static const double downloadPageGroupHeaderWidth = 100;
   static const double downloadPageCardHeight = 130;
 
-  static Color downloadPageCardSelectedColor(BuildContext context) => Theme.of(context).colorScheme.primaryContainer;
+  static Color downloadPageCardSelectedColor(BuildContext context) =>
+      Theme.of(context).colorScheme.primaryContainer;
 
   static const double downloadPageCardBorderRadius = 12;
 
   static BoxShadow downloadPageCardShadow(BuildContext context) => BoxShadow(
-        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
-        blurRadius: 2,
-        spreadRadius: 1,
-        offset: const Offset(0.3, 1),
-      );
+    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+    blurRadius: 2,
+    spreadRadius: 1,
+    offset: const Offset(0.3, 1),
+  );
   static const double downloadPageCoverWidth = 110;
   static const double downloadPageCoverHeight = 130;
   static const double downloadPageCardTitleSize = 14;
 
   static const double downloadPageCardTextSize = 11;
 
-  static Color downloadPageCardTextColor(BuildContext context) => Theme.of(context).colorScheme.outline;
+  static Color downloadPageCardTextColor(BuildContext context) =>
+      Theme.of(context).colorScheme.outline;
   static const double downloadPageProgressIndicatorHeight = 3;
 
-  static Color downloadPageProgressIndicatorColor(BuildContext context) => Theme.of(context).colorScheme.primary;
+  static Color downloadPageProgressIndicatorColor(BuildContext context) =>
+      Theme.of(context).colorScheme.primary;
 
-  static Color downloadPageProgressPausedIndicatorColor(BuildContext context) => Theme.of(context).colorScheme.surfaceContainerHighest;
+  static Color downloadPageProgressPausedIndicatorColor(BuildContext context) =>
+      Theme.of(context).colorScheme.surfaceContainerHighest;
 
-  static Color downloadPageLoadingIndicatorColor(BuildContext context) => Theme.of(context).colorScheme.onSurfaceVariant;
+  static Color downloadPageLoadingIndicatorColor(BuildContext context) =>
+      Theme.of(context).colorScheme.onSurfaceVariant;
 
-  static Duration downloadPageAnimationDuration = const Duration(milliseconds: 300);
+  static Duration downloadPageAnimationDuration = const Duration(
+    milliseconds: 300,
+  );
 
   static const double downloadPageBotIconSize = 13;
 
   /// download page with gridview
-  static Color downloadPageGridViewGroupBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.secondaryContainer.withValues(alpha: 0.6);
+  static Color downloadPageGridViewGroupBackGroundColor(BuildContext context) =>
+      Theme.of(context).colorScheme.secondaryContainer.withValues(alpha: 0.6);
 
   static const double downloadPageGridViewCardAspectRatio = 0.8;
   static const double downloadPageGridViewCardWidth = 180;
@@ -350,10 +484,12 @@ class UIConfig {
   static const double downloadPageGridViewSpeedTextSize = 8;
   static const double downloadPageGridViewCircularProgressSize = 40;
 
-  static Color downloadPageGridViewCardDragBorderColor(BuildContext context) => Theme.of(context).colorScheme.onSurface;
+  static Color downloadPageGridViewCardDragBorderColor(BuildContext context) =>
+      Theme.of(context).colorScheme.onSurface;
 
   static const Color downloadPageGridViewSelectIconColor = Colors.white;
-  static const Color downloadPageGridViewSelectIconBackGroundColor = Colors.black;
+  static const Color downloadPageGridViewSelectIconBackGroundColor =
+      Colors.black;
 
   /// Download search page
   static const double downloadSearchPageCoverWidth = 120;
@@ -363,30 +499,40 @@ class UIConfig {
   static const double desktopSearchBarHeight = 32;
   static const double mobileV2SearchBarHeight = 28;
 
-  static const double desktopSearchTabHeight = 32;
+  static const double desktopSearchTabHeight = 40;
   static const double desktopSearchTabWidth = 130;
-  static const double desktopSearchTabRemainingWidth = 42;
+  static const double desktopSearchTabRemainingWidth = 50;
   static const double desktopSearchTabDividerWidth = 16;
   static const double desktopSearchTabDividerBorderRadius = 8;
-  static const double desktopSearchTabIconSize = 16;
+  static const double desktopSearchTabIconSize = 14;
 
-  static Color desktopSearchTabSelectedBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.onSurface;
+  static Color desktopSearchTabSelectedBackGroundColor(BuildContext context) =>
+      Theme.of(context).colorScheme.onSurface;
 
-  static Color desktopSearchTabUnSelectedBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.secondaryContainer;
+  static Color desktopSearchTabUnSelectedBackGroundColor(
+    BuildContext context,
+  ) => Theme.of(context).colorScheme.secondaryContainer;
 
-  static Color desktopSearchTabSelectedTextColor(BuildContext context) => Theme.of(context).colorScheme.surface;
+  static Color desktopSearchTabSelectedTextColor(BuildContext context) =>
+      Theme.of(context).colorScheme.surface;
 
-  static Color desktopSearchTabUnSelectedTextColor(BuildContext context) => Theme.of(context).colorScheme.onSurface;
+  static Color desktopSearchTabUnSelectedTextColor(BuildContext context) =>
+      Theme.of(context).colorScheme.onSurface;
 
-  static Color desktopSearchTabDividerBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.surface;
+  static Color desktopSearchTabDividerBackGroundColor(BuildContext context) =>
+      Theme.of(context).colorScheme.surface;
 
-  static Duration desktopSearchTabAnimationDuration = const Duration(milliseconds: 200);
+  static Duration desktopSearchTabAnimationDuration = const Duration(
+    milliseconds: 200,
+  );
 
   static const Color searchPageSuggestionHighlightColor = Colors.red;
 
-  static Color searchPageSuggestionTitleColor(BuildContext context) => Theme.of(context).colorScheme.secondary.withValues(alpha: 0.8);
+  static Color searchPageSuggestionTitleColor(BuildContext context) =>
+      Theme.of(context).colorScheme.secondary.withValues(alpha: 0.8);
 
-  static Color searchPageSuggestionSubTitleColor(BuildContext context) => Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5);
+  static Color searchPageSuggestionSubTitleColor(BuildContext context) =>
+      Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5);
 
   static const double searchPageSuggestionTitleTextSize = 15;
   static const double searchPageSuggestionSubTitleTextSize = 12;
@@ -404,14 +550,25 @@ class UIConfig {
 
   static const Color readPageButtonColor = Colors.white;
 
-  static Color readPageActiveButtonColor(BuildContext context) => Theme.of(context).colorScheme.primary;
+  static Color readPageActiveButtonColor(BuildContext context) =>
+      Theme.of(context).colorScheme.primary;
+
+  /// Per-button horizontal padding of the read-page top-right action buttons.
+  /// Each button carries half of the gap, so two adjacent buttons are spaced
+  /// by 2x this value.
+  static const double readPageTopMenuActionHPadding = 4;
+
   static const double readPageBottomThumbnailsRegionHeight = 156;
   static const double readPageThumbnailHeight = 120;
   static const double readPageThumbnailWidth = 80;
 
-  static Color readPageBottomCurrentImageHighlightBackgroundColor(BuildContext context) => Theme.of(context).colorScheme.primary;
+  static Color readPageBottomCurrentImageHighlightBackgroundColor(
+    BuildContext context,
+  ) => Theme.of(context).colorScheme.primary;
 
-  static Color readPageBottomCurrentImageHighlightForegroundColor(BuildContext context) => Theme.of(context).colorScheme.onPrimary;
+  static Color readPageBottomCurrentImageHighlightForegroundColor(
+    BuildContext context,
+  ) => Theme.of(context).colorScheme.onPrimary;
 
   static const double readPageBottomSliderHeight = 54;
   static const double readPageBottomSpacingHeight = 36;
@@ -420,33 +577,41 @@ class UIConfig {
 
   static const Color readPageWarningButtonColor = Colors.yellow;
 
-  static Color get readPageRightBottomRegionColor => Colors.grey.withValues(alpha: 0.8);
+  static Color get readPageRightBottomRegionColor =>
+      Colors.grey.withValues(alpha: 0.8);
 
   /// Blank page
-  static Color jHentaiIconColor(BuildContext context) => Theme.of(context).colorScheme.outline;
+  static Color jHentaiIconColor(BuildContext context) =>
+      Theme.of(context).colorScheme.outline;
 
   /// Dashboard page
-  static Color dashboardPageSeeAllTextColor(BuildContext context) => Theme.of(context).colorScheme.outline;
+  static Color dashboardPageSeeAllTextColor(BuildContext context) =>
+      Theme.of(context).colorScheme.outline;
 
-  static Color dashboardPageArrowButtonColor(BuildContext context) => Theme.of(context).colorScheme.primary;
+  static Color dashboardPageArrowButtonColor(BuildContext context) =>
+      Theme.of(context).colorScheme.primary;
 
-  static Color dashboardPageGalleryDescButtonColor(BuildContext context) => Theme.of(context).colorScheme.onSurfaceVariant;
+  static Color dashboardPageGalleryDescButtonColor(BuildContext context) =>
+      Theme.of(context).colorScheme.onSurfaceVariant;
 
   /// Download page
   static const Color downloadPageGridCoverOverlayColor = Colors.white;
   static const Color downloadPageGridCoverBlurColor = Colors.black;
   static const Color downloadPageGridProgressColor = Colors.white;
 
-  static Color get downloadPageGridProgressBackGroundColor => Colors.grey.shade800;
+  static Color get downloadPageGridProgressBackGroundColor =>
+      Colors.grey.shade800;
 
   static const Color downloadPageGridTextColor = Colors.white;
 
-  static Color downloadPageActionBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.surface;
+  static Color downloadPageActionBackGroundColor(BuildContext context) =>
+      Theme.of(context).colorScheme.surface;
 
   /// Detail page
   static const double detailPagePadding = 15;
 
-  static Color detailPageCoverShadowColor(BuildContext context) => Theme.of(context).colorScheme.primary.withValues(alpha: 0.3);
+  static Color detailPageCoverShadowColor(BuildContext context) =>
+      Theme.of(context).colorScheme.primary.withValues(alpha: 0.3);
 
   static const double addTagDialogWidth = 350;
   static const double addTagDialogHeight = 250;
@@ -455,53 +620,73 @@ class UIConfig {
   static const double commentAuthorTextSizeInDetailPage = 12;
   static const double commentAuthorTextSizeInCommentPage = 13;
 
-  static Color commentUnknownAuthorTextColor(BuildContext context) => Theme.of(context).colorScheme.outline;
+  static Color commentUnknownAuthorTextColor(BuildContext context) =>
+      Theme.of(context).colorScheme.outline;
 
-  static Color commentOtherAuthorTextColor(BuildContext context) => Theme.of(context).colorScheme.onSecondaryContainer;
+  static Color commentOtherAuthorTextColor(BuildContext context) =>
+      Theme.of(context).colorScheme.onSecondaryContainer;
 
-  static Color commentOwnAuthorTextColor(BuildContext context) => Theme.of(context).colorScheme.error;
+  static Color commentOwnAuthorTextColor(BuildContext context) =>
+      Theme.of(context).colorScheme.error;
   static const double commentTimeTextSizeInDetailPage = 9;
   static const double commentTimeTextSizeInCommentPage = 10;
 
-  static Color commentTimeTextColor(BuildContext context) => Theme.of(context).colorScheme.outline;
+  static Color commentTimeTextColor(BuildContext context) =>
+      Theme.of(context).colorScheme.outline;
   static const double commentBodyTextSizeInDetailPage = 12;
   static const double commentBodyTextSizeInCommentPage = 12;
 
-  static Color commentBodyTextColor(BuildContext context) => Theme.of(context).colorScheme.onSurface;
+  static Color commentBodyTextColor(BuildContext context) =>
+      Theme.of(context).colorScheme.onSurface;
   static const double commentLastEditTimeTextSize = 9;
   static const double commentButtonSizeInDetailPage = 12;
   static const double commentButtonSizeInCommentPage = 14;
 
-  static Color commentButtonVotedColor(BuildContext context) => Theme.of(context).colorScheme.error;
+  static Color commentButtonVotedColor(BuildContext context) =>
+      Theme.of(context).colorScheme.error;
 
-  static Color commentButtonColor(BuildContext context) => Theme.of(context).colorScheme.outline;
+  static Color commentButtonColor(BuildContext context) =>
+      ThemeConfig.isApple
+          // outline (separator gray) is nearly invisible on the glass card;
+          // use a medium-contrast label instead.
+          ? Theme.of(context).colorScheme.onSurfaceVariant
+          : Theme.of(context).colorScheme.outline;
   static const double commentScoreSizeInDetailPage = 10;
   static const double commentScoreSizeInCommentPage = 10;
 
-  static Color commentFooterTextColor(BuildContext context) => Theme.of(context).colorScheme.outline;
+  static Color commentFooterTextColor(BuildContext context) =>
+      Theme.of(context).colorScheme.outline;
 
   static const double commentLinkFontSize = 12;
   static const Color commentLinkColor = Colors.blue;
 
   static const Color galleryCategoryTagTextColor = Colors.white;
 
-  static Color galleryCategoryTagDisabledBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.outline.withValues(alpha: 0.2);
+  static Color galleryCategoryTagDisabledBackGroundColor(
+    BuildContext context,
+  ) => Theme.of(context).colorScheme.outline.withValues(alpha: 0.2);
 
-  static Color galleryCategoryTagDisabledTextColor(BuildContext context) => Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.2);
+  static Color galleryCategoryTagDisabledTextColor(BuildContext context) =>
+      Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.2);
 
   static Color galleryRatingStarColor = Colors.amber.shade800;
 
-  static Color galleryRatingStarUnRatedColor(BuildContext context) => Theme.of(context).colorScheme.outline.withValues(alpha: 0.5);
+  static Color galleryRatingStarUnRatedColor(BuildContext context) =>
+      Theme.of(context).colorScheme.outline.withValues(alpha: 0.5);
 
-  static Color galleryRatingStarRatedColor(BuildContext context) => Theme.of(context).colorScheme.error;
+  static Color galleryRatingStarRatedColor(BuildContext context) =>
+      Theme.of(context).colorScheme.error;
 
   /// Setting page
-  static Color settingPageLayoutSelectorUnSupportColor(BuildContext context) => Theme.of(context).colorScheme.outline.withValues(alpha: 0.5);
+  static Color settingPageLayoutSelectorUnSupportColor(BuildContext context) =>
+      Theme.of(context).colorScheme.outline.withValues(alpha: 0.5);
   static const double settingPageListTileSubTitleTextSize = 12;
 
-  static Color settingPageListTileSubTitleColor(BuildContext context) => Theme.of(context).colorScheme.outline;
+  static Color settingPageListTileSubTitleColor(BuildContext context) =>
+      Theme.of(context).colorScheme.outline;
 
-  static TextStyle settingPageListTileTrailingTextStyle(BuildContext context) => TextStyle(color: onBackGroundColor(context), fontSize: 14);
+  static TextStyle settingPageListTileTrailingTextStyle(BuildContext context) =>
+      TextStyle(color: onBackGroundColor(context), fontSize: 14);
 
   /// Group selector
   static const double groupSelectorHeight = 116;
@@ -511,24 +696,31 @@ class UIConfig {
   static const double groupSelectorChipsHeight = 40;
   static const double groupSelectorChipTextSize = 11;
 
-  static Color groupSelectorSelectedChipColor(BuildContext context) => Theme.of(context).colorScheme.secondaryContainer;
+  static Color groupSelectorSelectedChipColor(BuildContext context) =>
+      Theme.of(context).colorScheme.secondaryContainer;
 
-  static Color groupSelectorChipColor(BuildContext context) => Theme.of(context).colorScheme.surfaceContainer;
+  static Color groupSelectorChipColor(BuildContext context) =>
+      Theme.of(context).colorScheme.surfaceContainer;
 
-  static Color groupSelectorTextColor(BuildContext context) => Theme.of(context).colorScheme.onSecondaryContainer;
+  static Color groupSelectorTextColor(BuildContext context) =>
+      Theme.of(context).colorScheme.onSecondaryContainer;
   static const double groupSelectorTextFieldLabelTextSize = 12;
   static const double groupSelectorTextFieldTextSize = 14;
 
   /// EH Tag
   static Color ehWatchedTagDefaultBackGroundColor = const Color(0xFF3377FF);
 
-  static Color ehTagBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.secondary.withValues(alpha: 0.15);
+  static Color ehTagBackGroundColor(BuildContext context) =>
+      Theme.of(context).colorScheme.secondary.withValues(alpha: 0.15);
 
-  static Color ehTagTextColor(BuildContext context) => Theme.of(context).colorScheme.onSurface;
+  static Color ehTagTextColor(BuildContext context) =>
+      Theme.of(context).colorScheme.onSurface;
 
-  static Color ehTagUnderLineColor(BuildContext context) => Theme.of(context).colorScheme.secondary;
+  static Color ehTagUnderLineColor(BuildContext context) =>
+      Theme.of(context).colorScheme.secondary;
 
-  static Color ehTagDeleteButtonBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.secondary.withValues(alpha: 0.25);
+  static Color ehTagDeleteButtonBackGroundColor(BuildContext context) =>
+      Theme.of(context).colorScheme.secondary.withValues(alpha: 0.25);
 
   static Duration ehTagAnimationDuration = const Duration(milliseconds: 200);
 
@@ -541,7 +733,8 @@ class UIConfig {
   static const Color warningImageTextColor = Colors.white;
 
   /// Loading state indicator
-  static Color loadingStateIndicatorButtonColor(BuildContext context) => Theme.of(context).colorScheme.outline;
+  static Color loadingStateIndicatorButtonColor(BuildContext context) =>
+      Theme.of(context).colorScheme.outline;
 
   /// Download dialog
   static const double downloadDialogWidth = 230;
@@ -550,7 +743,8 @@ class UIConfig {
 
   static const double groupDialogCheckBoxTextSize = 14;
 
-  static Color groupDialogCheckBoxColor(BuildContext context) => Theme.of(context).colorScheme.primary;
+  static Color groupDialogCheckBoxColor(BuildContext context) =>
+      Theme.of(context).colorScheme.primary;
 
   /// Archive dialog
   static const double archiveDialogBodyHeight = 240;
@@ -562,7 +756,8 @@ class UIConfig {
   static const double archiveParseSourceSelectDialogWidth = 230;
   static const double archiveParseSourceSelectDialogHeight = 140;
 
-  static Color archiveDialogCostTextColor(BuildContext context) => Theme.of(context).colorScheme.outline;
+  static Color archiveDialogCostTextColor(BuildContext context) =>
+      Theme.of(context).colorScheme.outline;
 
   /// tagSet dialog
   static const double tagSetDialogBodyHeight = 230;
@@ -572,16 +767,19 @@ class UIConfig {
   static const double hhDialogTextSize = 9;
   static const double hhDialogTextButtonWidth = 60;
 
-  static Color hhDialogCostTextColor(BuildContext context) => Theme.of(context).colorScheme.outline;
+  static Color hhDialogCostTextColor(BuildContext context) =>
+      Theme.of(context).colorScheme.outline;
 
   /// Favorite dialog
   static const double favoriteDialogHeight = 400;
   static const double favoriteDialogLeadingTextSize = 13;
   static const double favoriteDialogTrailingTextSize = 12;
 
-  static Color favoriteDialogCountTextColor(BuildContext context) => Theme.of(context).colorScheme.outline;
+  static Color favoriteDialogCountTextColor(BuildContext context) =>
+      Theme.of(context).colorScheme.outline;
 
-  static Color favoriteDialogTileColor(BuildContext context) => Theme.of(context).colorScheme.secondaryContainer;
+  static Color favoriteDialogTileColor(BuildContext context) =>
+      Theme.of(context).colorScheme.secondaryContainer;
 
   /// Rating dialog
   static const double ratingDialogStarSize = 36;
@@ -599,29 +797,36 @@ class UIConfig {
   static const double statisticsDialogGraphHeight = 300;
 
   /// Gallery history dialog
-  static Color galleryHistoryDialogTileColor(BuildContext context) => Theme.of(context).colorScheme.secondaryContainer;
+  static Color galleryHistoryDialogTileColor(BuildContext context) =>
+      Theme.of(context).colorScheme.secondaryContainer;
   static const double galleryHistoryTitleSize = 14;
   static const double galleryHistoryDialogSubtitleIconSize = 16;
   static const double galleryHistoryDialogTrailingTextSize = 9;
 
-  static double get statisticsDialogGraphWidth => max(300, fullScreenWidth * 2 / 3);
+  static double get statisticsDialogGraphWidth =>
+      max(300, fullScreenWidth * 2 / 3);
 
   /// Tag dialog
-  static Color tagDialogButtonColor(BuildContext context) => Theme.of(context).colorScheme.primary;
+  static Color tagDialogButtonColor(BuildContext context) =>
+      Theme.of(context).colorScheme.primary;
 
-  static Color tagDialogLikedButtonColor(BuildContext context) => Theme.of(context).colorScheme.error;
+  static Color tagDialogLikedButtonColor(BuildContext context) =>
+      Theme.of(context).colorScheme.error;
   static const double tagDialogButtonSize = 20;
 
   /// Tag sets page
-  static Color tagSetsPageIconDefaultColor(BuildContext context) => Theme.of(context).colorScheme.primary;
+  static Color tagSetsPageIconDefaultColor(BuildContext context) =>
+      Theme.of(context).colorScheme.primary;
 
   /// Add local tag page
   static const double addLocalTagPageSuggestionTitleTextSize = 14;
   static const double addLocalTagPageSuggestionSubTitleTextSize = 11;
 
-  static Color addLocalTagPageSuggestionTitleColor(BuildContext context) => Theme.of(context).colorScheme.secondary;
+  static Color addLocalTagPageSuggestionTitleColor(BuildContext context) =>
+      Theme.of(context).colorScheme.secondary;
 
-  static Color addLocalTagPageSuggestionSubTitleColor(BuildContext context) => Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5);
+  static Color addLocalTagPageSuggestionSubTitleColor(BuildContext context) =>
+      Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5);
 
   static const Color addLocalTagPageSuggestionHighlightColor = Colors.red;
 
@@ -632,17 +837,24 @@ class UIConfig {
   static const double authDialogCursorHeight = 2;
 
   /// search config dialog
-  static Color searchConfigDialogSuggestionShadowColor(BuildContext context) => Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
+  static Color searchConfigDialogSuggestionShadowColor(BuildContext context) =>
+      Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6);
 
-  static Color searchConfigDialogFieldHintTextColor(BuildContext context) => Theme.of(context).colorScheme.outline.withValues(alpha: 0.5);
+  static Color searchConfigDialogFieldHintTextColor(BuildContext context) =>
+      Theme.of(context).colorScheme.outline.withValues(alpha: 0.5);
 
   static Color searchConfigDialogHintTextColor = Colors.grey.shade600;
 
   /// gallery detail dialog
-  static BorderRadius galleryDetailDialogItemBorderRadius = BorderRadius.circular(32);
+  static BorderRadius galleryDetailDialogItemBorderRadius =
+      BorderRadius.circular(32);
 
-  static const TextStyle galleryDetailDialogItemNameTextStyle = TextStyle(fontSize: 14);
-  static const TextStyle galleryDetailDialogItemValueTextStyle = TextStyle(fontSize: 11);
+  static const TextStyle galleryDetailDialogItemNameTextStyle = TextStyle(
+    fontSize: 14,
+  );
+  static const TextStyle galleryDetailDialogItemValueTextStyle = TextStyle(
+    fontSize: 11,
+  );
 
   static const double galleryDetailDialogItemValueMaxWidth = 200;
 
@@ -650,25 +862,63 @@ class UIConfig {
   static const double lockPagePinCodeRegionWidth = 60;
   static const double lockPageCursorHeight = 2;
 
-  static Color lockPageFilledDashColor(BuildContext context) => Theme.of(context).colorScheme.secondaryContainer;
+  static Color lockPageFilledDashColor(BuildContext context) =>
+      Theme.of(context).colorScheme.secondaryContainer;
 
-  static Color lockPageUnfilledDashColor(BuildContext context) => Theme.of(context).colorScheme.onSecondaryContainer;
+  static Color lockPageUnfilledDashColor(BuildContext context) =>
+      Theme.of(context).colorScheme.onSecondaryContainer;
 
   /// blocking rule page
-  static Color blockingRulePageHelpTextColor(BuildContext context) => Colors.grey.shade600;
+  static Color blockingRulePageHelpTextColor(BuildContext context) =>
+      Colors.grey.shade600;
+}
+
+/// Positions the [FloatingActionButton] above the floating Liquid Glass bar
+/// (Apple mobile/tablet layouts), keeping the default endFloat geometry otherwise.
+class GlassAwareFloatingActionButtonLocation
+    extends FloatingActionButtonLocation {
+  final double glassRaise;
+
+  const GlassAwareFloatingActionButtonLocation(this.glassRaise);
+
+  @override
+  Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry) {
+    final double fabX =
+        scaffoldGeometry.scaffoldSize.width -
+        scaffoldGeometry.floatingActionButtonSize.width -
+        16;
+    final double fabY =
+        scaffoldGeometry.scaffoldSize.height -
+        scaffoldGeometry.floatingActionButtonSize.height -
+        scaffoldGeometry.minInsets.bottom -
+        16 -
+        glassRaise;
+    return Offset(fabX, fabY);
+  }
 }
 
 class EHScrollBehaviourWithScrollBar extends MaterialScrollBehavior {
   @override
-  Widget buildScrollbar(BuildContext context, Widget child, ScrollableDetails details) {
+  Widget buildScrollbar(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) {
     switch (axisDirectionToAxis(details.direction)) {
       case Axis.horizontal:
         return child;
       case Axis.vertical:
         return ScrollbarTheme(
           data: ScrollbarThemeData(
-            radius: styleSetting.isInMobileLayout ? CupertinoScrollbar.defaultRadius : const Radius.circular(8),
-            thickness: WidgetStateProperty.all(styleSetting.isInMobileLayout ? CupertinoScrollbar.defaultThickness : 8),
+            radius:
+                styleSetting.isInMobileLayout
+                    ? CupertinoScrollbar.defaultRadius
+                    : const Radius.circular(8),
+            thickness: WidgetStateProperty.all(
+              styleSetting.isInMobileLayout
+                  ? CupertinoScrollbar.defaultThickness
+                  : 8,
+            ),
           ),
           child: Scrollbar(controller: details.controller, child: child),
         );

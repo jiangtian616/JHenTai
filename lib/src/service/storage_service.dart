@@ -9,7 +9,9 @@ import 'jh_service.dart';
 
 StorageService storageService = StorageService();
 
-class StorageService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
+class StorageService
+    with JHLifeCircleBeanErrorCatch
+    implements JHLifeCircleBean {
   static const String storageFileName = 'jhentai';
 
   late final GetStorage _storage;
@@ -17,7 +19,7 @@ class StorageService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean
   @override
   Future<void> doInitBean() async {
     _migrateOldConfigFile();
-    _storage = GetStorage(storageFileName, pathService.getVisibleDir().path);
+    _storage = GetStorage(storageFileName, pathService.jhDataDir.path);
     await _storage.initStorage;
   }
 
@@ -35,21 +37,23 @@ class StorageService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean
   T getKeys<T>() {
     return _storage.getKeys();
   }
-  
+
   Future<void> remove(String key) async {
     _storage.remove(key);
   }
 
   void _migrateOldConfigFile() {
     try {
-      File oldConfigFile = File(join(pathService.getVisibleDir().path, '.GetStorage.gs'));
-      File oldBakFile = File(join(pathService.getVisibleDir().path, '.GetStorage.bak'));
+      File oldConfigFile =
+          File(join(pathService.getVisibleDir().path, '.GetStorage.gs'));
+      File oldBakFile =
+          File(join(pathService.getVisibleDir().path, '.GetStorage.bak'));
       if (oldConfigFile.existsSync()) {
-        oldConfigFile.copySync(join(pathService.getVisibleDir().path, 'jhentai.gs'));
+        oldConfigFile.copySync(join(pathService.jhDataDir.path, 'jhentai.gs'));
         oldConfigFile.delete();
       }
       if (oldBakFile.existsSync()) {
-        oldBakFile.copySync(join(pathService.getVisibleDir().path, 'jhentai.bak'));
+        oldBakFile.copySync(join(pathService.jhDataDir.path, 'jhentai.bak'));
         oldBakFile.delete();
       }
     } on Exception catch (e) {

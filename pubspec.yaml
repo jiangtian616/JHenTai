@@ -5,7 +5,7 @@ publish_to: 'none'
 version: 8.0.14+328
 
 environment:
-  sdk: '>=3.0.0 <4.0.0'
+  sdk: '>=3.7.0 <4.0.0'
 
 dependencies:
   flutter:
@@ -41,7 +41,7 @@ dependencies:
   path: 1.9.1
   drift: 2.21.0
   sqlite3_flutter_libs: 0.5.32
-  path_provider: 2.1.3
+  path_provider: ^2.1.6
   # https://github.com/letsar/flutter_slidable/issues/488
   flutter_slidable:
     git:
@@ -74,6 +74,7 @@ dependencies:
   share_plus: 10.1.1
   syncfusion_flutter_charts: ^34.1.33
   archive: 3.6.1
+  image: 4.3.0
   # https://github.com/ponnamkarthik/FlutterToast/pull/542
   fluttertoast: 
     git: 
@@ -85,6 +86,8 @@ dependencies:
     git: https://github.com/KasemJaffer/receive_sharing_intent
   window_manager: 0.3.9
   permission_handler: 11.3.1
+  cryptography: ^2.9.0
+  bonsoir: ^7.1.4
   grouped_list: 5.1.2
   flutter_resizable_container: 2.0.0
   loading_animation_widget: 1.2.0+4
@@ -117,8 +120,14 @@ dependencies:
   zoom_widget: 2.0.1
   android_intent_plus: 5.3.0
   integral_isolates: 0.4.1
+  # 端侧 ONNX 推理（统一"推理后端"入口）：OCR 与图像超分共用
+  flutter_onnxruntime: ^1.8.3
   screen_brightness: 0.2.2+1
   crypto: 3.0.3
+  ffi: ^2.1.3
+  # Unified in-process llama.cpp runtime for Android, iOS, macOS, Windows and Linux.
+  lib_llama_cpp: ^0.7.3
+  lib_llama_cpp_platform_interface: ^0.7.3
   csv: 5.1.1
   dotted_border: 2.1.0
   j_downloader:
@@ -131,13 +140,24 @@ dependencies:
   volume_button_override:
     git:
       url: https://github.com/jiangtian616/volume_button_override
+  # Apple Liquid Glass UI (macOS/iOS style)
+  # macOS native window vibrancy (translucent sidebar / title bar)
+  macos_window_utils: ^1.9.1
+  liquid_glass_widgets: ^0.29.3
+  tray_manager: ^0.5.3
 
 dependency_overrides:
+  # Local safety patch: keeps Dart/session options and native ORT version
+  # reporting in the same audited source tree as the application.
+  flutter_onnxruntime:
+    path: third_party/flutter_onnxruntime
   test_api: 0.6.0
   matcher: 0.12.16
   chewie: 1.7.0
   http: 1.1.0
   cached_network_image: 3.3.0
+  extended_image_library:
+    path: third_party/extended_image_library
   dio:
     git:
       url: https://github.com/jiangtian616/dio

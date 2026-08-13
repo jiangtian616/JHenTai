@@ -27,7 +27,8 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
       subConfigKey: readPageState.readPageInfo.readProgressRecordStorageKey,
     );
     if (cacheString == null) {
-      state.isSpreadPage = List.generate(readPageState.readPageInfo.pageCount, (_) => false);
+      state.isSpreadPage =
+          List.generate(readPageState.readPageInfo.pageCount, (_) => false);
     } else {
       List list = jsonDecode(cacheString);
       state.isSpreadPage = list.map((e) => e == 1).toList();
@@ -36,7 +37,13 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
 
     state.pageCount = computePageCount();
 
-    state.pageController = PageController(initialPage: computePageIndexOfImage(readPageState.readPageInfo.initialIndex));
+    final int initialPage =
+        computePageIndexOfImage(readPageState.readPageInfo.initialIndex);
+    state.pageController = PageController(initialPage: initialPage);
+    readPageLogic.updateReaderViewport(
+      computeImagesInPageIndex(initialPage),
+      hydrateTranslation: hydrateTranslation,
+    );
 
     /// record reading progress and sync thumbnails list index
     state.pageController.addListener(_readProgressListener);
@@ -109,6 +116,18 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
     await state.isSpreadPageCompleter.future;
 
     state.pageCount = computePageCount();
+    final int currentPage = (state.pageController.hasClients
+            ? state.pageController.page?.round()
+            : computePageIndexOfImage(
+                readPageState.readPageInfo.currentImageIndex,
+              )) ??
+        0;
+    readPageLogic.updateReaderViewport(
+      computeImagesInPageIndex(
+        currentPage.clamp(0, state.pageCount - 1).toInt(),
+      ),
+      hydrateTranslation: hydrateTranslation,
+    );
     updateSafely([BaseLayoutLogic.pageId]);
   }
 
@@ -121,7 +140,8 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
     readPageLogic.toggleMenu();
 
     autoModeTimer = Timer.periodic(
-      Duration(milliseconds: (readSetting.autoModeInterval.value * 1000).toInt()),
+      Duration(
+          milliseconds: (readSetting.autoModeInterval.value * 1000).toInt()),
       (_) {
         /// changed read direction
         if (!readPageLogic.isInDoubleColumnReadDirection) {
@@ -149,6 +169,13 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
   void _readProgressListener() {
     int currentPage = state.pageController.page!.toInt();
     List<int> imageIndexes = computeImagesInPageIndex(currentPage);
+    if (imageIndexes.isEmpty) {
+      return;
+    }
+    readPageLogic.updateReaderViewport(
+      imageIndexes,
+      hydrateTranslation: hydrateTranslation,
+    );
     readPageLogic.recordReadProgress(imageIndexes.first);
     readPageLogic.syncThumbnails(imageIndexes.first);
   }
@@ -158,15 +185,21 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
     if (readPageState.imageContainerSizes[imageIndex] != null) {
       return readPageState.imageContainerSizes[imageIndex]!;
     }
-    return Size((fullScreenWidth - readSetting.imageSpace.value) / 2, double.infinity);
+    return Size(
+        (fullScreenWidth - readSetting.imageSpace.value) / 2, double.infinity);
   }
 
-  FittedSizes getImageFittedSizeIncludeSpread(Size imageSize, bool isSpreadPage) {
+  FittedSizes getImageFittedSizeIncludeSpread(
+      Size imageSize, bool isSpreadPage) {
     return applyBoxFit(
       BoxFit.contain,
       Size(imageSize.width, imageSize.height),
       Size(
-        isSpreadPage ? readPageState.displayRegionSize.width : (readPageState.displayRegionSize.width - readSetting.imageSpace.value) / 2,
+        isSpreadPage
+            ? readPageState.displayRegionSize.width
+            : (readPageState.displayRegionSize.width -
+                    readSetting.imageSpace.value) /
+                2,
         readPageState.displayRegionSize.height,
       ),
     );
@@ -177,7 +210,9 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
 
     /// has recognized from cache
     if (state.isSpreadPage[imageIndex]) {
-      galleryDownloadService.updateSafely(['${galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$imageIndex']);
+      galleryDownloadService.updateSafely([
+        '${galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$imageIndex'
+      ]);
       return;
     }
 
@@ -185,7 +220,8 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
     state.pageCount = computePageCount();
 
     updateSafely([BaseLayoutLogic.pageId]);
-    if (computePageIndexOfImage(imageIndex) <= state.pageController.page!.toInt()) {
+    if (computePageIndexOfImage(imageIndex) <=
+        state.pageController.page!.toInt()) {
       jump2ImageIndex(readPageState.readPageInfo.currentImageIndex);
     }
 

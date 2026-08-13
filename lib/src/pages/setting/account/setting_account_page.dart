@@ -1,11 +1,13 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
-import 'package:jhentai/src/extension/widget_extension.dart';
+import 'package:jhentai/src/utils/app_icons.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import '../../../routes/routes.dart';
 import '../../../utils/route_util.dart';
 import '../../../network/eh_request.dart';
+import '../../../widget/eh_apple_settings_list_view.dart';
 import '../../../widget/eh_alert_dialog.dart';
 
 class SettingAccountPage extends StatelessWidget {
@@ -16,16 +18,20 @@ class SettingAccountPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(centerTitle: true, title: Text('accountSetting'.tr)),
       body: Obx(
-        () => ListView(
+        () => EHAppleSettingsListView(
           padding: const EdgeInsets.only(top: 12),
-          children: [
-            if (!userSetting.hasLoggedIn()) _buildLogin(),
-            if (userSetting.hasLoggedIn()) ...[
-              _buildLogout(context).marginOnly(bottom: 12),
-              _buildCookiePage(),
-            ],
+          groups: [
+            EHAppleSettingsGroup(
+              children: [
+                if (!userSetting.hasLoggedIn()) _buildLogin(),
+                if (userSetting.hasLoggedIn()) ...[
+                  _buildLogout(context).marginOnly(bottom: 12),
+                  _buildCookiePage(),
+                ],
+              ],
+            ),
           ],
-        ).withListTileTheme(context),
+        ),
       ),
     );
   }
@@ -33,21 +39,24 @@ class SettingAccountPage extends StatelessWidget {
   Widget _buildLogin() {
     return ListTile(
       title: Text('login'.tr),
-      trailing: IconButton(onPressed: () => toRoute(Routes.login), icon: const Icon(Icons.keyboard_arrow_right)),
+      trailing: EHAppleIconButton(
+          onPressed: () => toRoute(Routes.login),
+          icon: Icon(AppIcons.chevronRight)),
       onTap: () => toRoute(Routes.login),
     );
   }
 
   Widget _buildLogout(BuildContext context) {
     return ListTile(
-      title: Text('${'youHaveLoggedInAs'.tr}${userSetting.nickName.value ?? userSetting.userName.value!}'),
+      title: Text(
+          '${'youHaveLoggedInAs'.tr}${userSetting.nickName.value ?? userSetting.userName.value!}'),
       onTap: () async {
         bool? result = await Get.dialog(EHDialog(title: '${'logout'.tr} ?'));
         if (result == true) {
           await ehRequest.requestLogout();
         }
       },
-      trailing: IconButton(
+      trailing: EHAppleIconButton(
         icon: const Icon(Icons.logout),
         color: UIConfig.alertColor(context),
         onPressed: () async {
@@ -63,7 +72,7 @@ class SettingAccountPage extends StatelessWidget {
   Widget _buildCookiePage() {
     return ListTile(
       title: Text('showCookie'.tr),
-      trailing: const Icon(Icons.keyboard_arrow_right),
+      trailing: Icon(AppIcons.chevronRight),
       onTap: () => toRoute(Routes.cookie),
     );
   }

@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/exception/eh_parse_exception.dart';
 import 'package:jhentai/src/exception/eh_site_exception.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
@@ -18,6 +19,7 @@ import 'package:jhentai/src/widget/eh_tag_set_dialog.dart';
 import 'package:jhentai/src/widget/eh_warning_image.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:like_button/like_button.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../config/ui_config.dart';
@@ -124,7 +126,10 @@ class _EHTagDialogState extends State<EHTagDialog> with LoginRequiredMixin {
           renderMode: ListViewMode(shrinkWrap: true, controller: scrollController),
           textStyle: const TextStyle(fontSize: 12),
           onErrorBuilder: (context, element, error) => Text('$element error: $error'),
-          onLoadingBuilder: (context, element, loadingProgress) => const CircularProgressIndicator(),
+          onLoadingBuilder: (context, element, loadingProgress) =>
+              ThemeConfig.isApple
+                  ? GlassProgressIndicator.circular()
+                  : const CircularProgressIndicator(),
           onTapUrl: launchUrlString,
           customWidgetBuilder: (element) {
             if (element.localName != 'img') {

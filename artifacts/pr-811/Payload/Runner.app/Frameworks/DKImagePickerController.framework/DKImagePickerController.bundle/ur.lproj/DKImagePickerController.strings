@@ -1,0 +1,31 @@
+//
+//  GitHub
+//  https://github.com/zhangao0086/DKImagePickerController
+//
+//
+//  License
+//  Copyright (c) 2014 ZhangAo
+//  Released under an MIT license: http://opensource.org/licenses/MIT
+//
+
+"permission.camera.title" = "براےْ مھربانی کیمرے کی رسائی کی اجازت دیں";
+
+"permission.photo.title" = "براےْ مھربانی تصویروں کی رسائی کی اجازت دیں";
+
+"permission.allow" = "اجازت دیں";
+
+"picker.alert.ok" = "ٹھیک ہے";
+
+"picker.select.title" = "(%@)منتخب کریں";
+
+"picker.select.done.title" = "مکمل کریں";
+
+"picker.select.all.title" = "تمام منتخب کریں";
+
+"picker.select.photosOrVideos.error.title" = "تصاویر اور ویڈیوز منتخب کریں";
+
+"picker.select.photosOrVideos.error.message" = "تصاویر اور ویڈیوز ایک ساتھ منتخب نھیں ہو سکتیں";
+
+"picker.select.maxLimitReached.error.title" = "تصاویر کی مقررہ تعداد پوری ہوگئی";
+
+"picker.select.maxLimitReached.error.message" = "آپ %@ تصاویر منتخب کر سکتے ہیں";

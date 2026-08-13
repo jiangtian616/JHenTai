@@ -1,21 +1,25 @@
 import 'dart:convert';
 
+import 'package:get/get.dart';
 import 'package:jhentai/src/database/dao/gallery_history_dao.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/model/gallery_history_model.dart';
+import 'package:jhentai/src/service/isolate_service.dart';
 import 'jh_service.dart';
 import 'log.dart';
 
 HistoryService historyService = HistoryService();
 
-class HistoryService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
+class HistoryService extends GetxController with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   static const String historyUpdateId = 'historyUpdateId';
 
   static const int pageSize = 100;
 
   @override
-  Future<void> doInitBean() async {}
+  Future<void> doInitBean() async {
+    Get.put(this, permanent: true);
+  }
 
   @override
   Future<void> doAfterBeanReady() async {}
@@ -27,7 +31,18 @@ class HistoryService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean
 
   Future<List<GalleryHistoryModel>> getByPageIndex(int pageIndex) async {
     List<GalleryHistoryV2Data> historys = await GalleryHistoryDao.selectByPageIndex(pageIndex, pageSize);
-    return historys.map<GalleryHistoryModel>((h) => GalleryHistoryModel.fromJson(jsonDecode(h.jsonBody))).toList();
+    if (historys.isEmpty) {
+      return [];
+    }
+
+    /// Each row's jsonBody is a JSON object, so joining them with commas yields
+    /// a valid JSON array that can be decoded with a single isolate call —
+    /// instead of decoding up to [pageSize] rows on the UI isolate.
+    final List<dynamic> decoded = await isolateService
+        .jsonDecodeAsync('[${historys.map((h) => h.jsonBody).join(',')}]');
+    return decoded
+        .map((json) => GalleryHistoryModel.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 
   Future<List<GalleryHistoryV2Data>> getLatest10000RawHistory() async {
@@ -45,6 +60,7 @@ class HistoryService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean
           lastReadTime: DateTime.now().toString(),
         ),
       );
+      _notifyHistoryChanged();
     } on Exception catch (e) {
       log.error('Record history failed!', e);
     }
@@ -58,6 +74,9 @@ class HistoryService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean
         await GalleryHistoryDao.batchReplaceHistory(partition);
         await Future.delayed(const Duration(milliseconds: 200));
       }
+      if (galleries.isNotEmpty) {
+        _notifyHistoryChanged();
+      }
     } on Exception catch (e) {
       log.error('Record history failed!', e);
     }
@@ -66,11 +85,27 @@ class HistoryService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean
   Future<bool> delete(int gid) async {
     log.info('Delete history: $gid');
 
-    return await GalleryHistoryDao.deleteHistory(gid) > 0;
+    final bool deleted = await GalleryHistoryDao.deleteHistory(gid) > 0;
+    if (deleted) {
+      _notifyHistoryChanged();
+    }
+    return deleted;
   }
 
   Future<bool> deleteAll() async {
     log.info('Delete all historys');
-    return await GalleryHistoryDao.deleteAllHistory() > 0;
+    final bool deleted = await GalleryHistoryDao.deleteAllHistory() > 0;
+    if (deleted) {
+      _notifyHistoryChanged();
+    }
+    return deleted;
+  }
+
+  void notifyHistoryChanged() {
+    _notifyHistoryChanged();
+  }
+
+  void _notifyHistoryChanged() {
+    update([historyUpdateId]);
   }
 }

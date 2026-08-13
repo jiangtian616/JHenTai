@@ -45,6 +45,31 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
   final String refreshStateId = 'refreshStateId';
   final String loadingStateId = 'loadingStateId';
 
+  /// Whether the gallery with [gid] is present in the currently loaded list.
+  /// Used by [UpdateGlobalGalleryStatusLogicMixin] to skip rebuilds of pages
+  /// that cannot be affected by a favorite/rating/download change.
+  bool containsGallery(int gid) =>
+      state.galleries.any((gallery) => gallery.gid == gid);
+
+  /// Maximum number of gallery covers prefetched in parallel. A global limiter
+  /// is shared by every list page so opening/refreshing several lists at once
+  /// cannot spawn unbounded concurrent downloads.
+  static const int coverPreloadConcurrency = 6;
+
+  static final _CoverPreloadLimiter _coverPreloadLimiter =
+      _CoverPreloadLimiter(coverPreloadConcurrency);
+
+  Future<void> _preloadGalleryCover(Gallery gallery) async {
+    await _coverPreloadLimiter.acquire();
+    try {
+      await getNetworkImageData(gallery.cover.url, useCache: true);
+    } catch (e) {
+      log.warning('Preload gallery cover failed: ${gallery.cover.url}', e);
+    } finally {
+      _coverPreloadLimiter.release();
+    }
+  }
+
   bool get useSearchConfig;
 
   String get searchConfigKey => runtimeType.toString();
@@ -103,7 +128,9 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     GalleryPageInfo galleryPage;
     try {
-      galleryPage = await getGalleryPage();
+      // explicit refresh must bypass the cache; the fresh response is still
+      // written back so subsequent opens read the updated copy
+      galleryPage = await getGalleryPage(useCacheIfAvailable: false);
     } on DioException catch (e) {
       log.error('refreshGalleryFailed'.tr, e.errorMsg);
       snack('refreshGalleryFailed'.tr, e.errorMsg ?? '', isShort: true);
@@ -174,7 +201,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     updateSafely();
 
-    return loadMore(checkLoadingState: false);
+    return loadMore(checkLoadingState: false, useCacheIfAvailable: false);
   }
 
   /// pull-down to load page before(after jumping to a certain page), after load, we must restore [state.downloadState]
@@ -228,7 +255,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
   }
 
   /// has scrolled to bottom, so need to load more data.
-  Future<void> loadMore({bool checkLoadingState = true}) async {
+  Future<void> loadMore({bool checkLoadingState = true, bool useCacheIfAvailable = true}) async {
     if (checkLoadingState && state.loadingState == LoadingState.loading) {
       return;
     }
@@ -238,7 +265,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     GalleryPageInfo galleryPage;
     try {
-      galleryPage = await getGalleryPage(nextGid: state.nextGid);
+      galleryPage = await getGalleryPage(nextGid: state.nextGid, useCacheIfAvailable: useCacheIfAvailable);
     } on DioException catch (e) {
       log.error('getGalleriesFailed'.tr, e.errorMsg);
       snack('getGalleriesFailed'.tr, e.errorMsg ?? '', isShort: true);
@@ -392,7 +419,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
   void handleSecondaryTapCard(BuildContext context, Gallery gallery, {Offset? position}) async {}
 
-  Future<GalleryPageInfo> getGalleryPage({String? prevGid, String? nextGid, DateTime? seek}) async {
+  Future<GalleryPageInfo> getGalleryPage({String? prevGid, String? nextGid, DateTime? seek, bool useCacheIfAvailable = true}) async {
     log.info('$runtimeType get data, prevGid:$prevGid, nextGid:$nextGid');
 
     await state.searchConfigInitCompleter.future;
@@ -402,6 +429,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
       nextGid: nextGid,
       seek: seek,
       searchConfig: state.searchConfig,
+      useCacheIfAvailable: useCacheIfAvailable,
       parser: EHSpiderParser.galleryPage2GalleryPageInfo,
     );
   }
@@ -425,7 +453,7 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
 
     if (preferenceSetting.preloadGalleryCover.isTrue) {
       for (Gallery gallery in galleries) {
-        getNetworkImageData(gallery.cover.url, useCache: true);
+        unawaited(_preloadGalleryCover(gallery));
       }
     }
 
@@ -455,5 +483,31 @@ abstract class BasePageLogic extends GetxController with Scroll2TopLogicMixin {
     await Future.wait(galleries.map((gallery) {
       return tagTranslationService.translateTagsIfNeeded(gallery.tags);
     }).toList());
+  }
+}
+
+/// Simple counting semaphore that bounds how many cover prefetches run at once.
+class _CoverPreloadLimiter {
+  int _available;
+  final List<Completer<void>> _waiters = [];
+
+  _CoverPreloadLimiter(int permits) : _available = permits;
+
+  Future<void> acquire() async {
+    if (_available > 0) {
+      _available--;
+      return;
+    }
+    final Completer<void> completer = Completer<void>();
+    _waiters.add(completer);
+    await completer.future;
+  }
+
+  void release() {
+    if (_waiters.isNotEmpty) {
+      _waiters.removeAt(0).complete();
+    } else {
+      _available++;
+    }
   }
 }

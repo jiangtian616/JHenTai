@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 
 import '../config/ui_config.dart';
 import '../exception/eh_site_exception.dart';
@@ -63,7 +64,7 @@ class _EHTagSetDialogState extends State<EHTagSetDialog> {
             visualDensity: const VisualDensity(vertical: -2, horizontal: -4),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
-              children: [Text('asYourDefault'.tr), Checkbox(value: remember, onChanged: (value) => setState(() => remember = value!))],
+              children: [Text('asYourDefault'.tr), EHAppleCheckbox(value: remember, onChanged: (value) => setState(() => remember = value!))],
             ),
           )
       ],

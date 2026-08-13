@@ -35,9 +35,11 @@ class en_US {
       'archiveError': 'Download Archive Error',
       'edit': 'Edit',
       'confirmDestructiveActions': 'Confirm destructive actions',
-      'confirmDestructiveActionsHint': 'Show a confirmation dialog before destructive actions such as deleting tasks or re-downloading in the download page',
+      'confirmDestructiveActionsHint':
+          'Show a confirmation dialog before destructive actions such as deleting tasks or re-downloading in the download page',
 
       'home': "Home",
+      'mainSite': 'Main Site',
       'gallery': "Gallery",
       'setting': 'Setting',
 
@@ -104,8 +106,10 @@ class en_US {
       'refreshIgneousFailed': 'Refresh Igneous Failed',
 
       /// request
-      'sadPanda': 'Sad Panda(no data). Refer: https://github.com/jiangtian616/JHenTai/wiki/Common-Questions',
-      'sadPandaReferLink': 'https://github.com/jiangtian616/JHenTai/wiki/Common-Questions',
+      'sadPanda':
+          'Sad Panda(no data). Refer: https://github.com/jiangtian616/JHenTai/wiki/Common-Questions',
+      'sadPandaReferLink':
+          'https://github.com/jiangtian616/JHenTai/wiki/Common-Questions',
 
       /// gallery card
       'filtered': 'Filtered',
@@ -144,10 +148,12 @@ class en_US {
       'noComments': 'No Comments',
       'lastEditedOn': 'Last edited on',
       'getGalleryDetailFailed': 'Get Gallery Detail Failed',
-      'cloudflare403': 'You have been restricted by Cloudflare from making network requests. Please try switching networks or using another login method.',
+      'cloudflare403':
+          'You have been restricted by Cloudflare from making network requests. Please try switching networks or using another login method.',
       'invisible2User': 'This Gallery is invisible to You',
       'invisibleHints': 'This gallery is removed or unavailable.',
-      'copyRightHints': 'This gallery is unavailable due to a copyright claim by: ',
+      'copyRightHints':
+          'This gallery is unavailable due to a copyright claim by: ',
       'refreshGalleryDetailsFailed': 'Refresh Gallery Details Failed',
       'failToGetThumbnails': "Fail To Get Thumbnails",
       'favoriteGallerySuccess': "Favorite Gallery Success",
@@ -155,20 +161,24 @@ class en_US {
       'removeFavoriteSuccess': "Remove Favorite Success",
       'removeFavoriteFailed': "Remove Favorite Failed",
       'getGalleryFavoriteInfoFailed': 'Get gallery favorite info failed',
-      'favoriteNoteSlotFullHint': 'Favorite note slot is full, please delete some notes first',
+      'favoriteNoteSlotFullHint':
+          'Favorite note slot is full, please delete some notes first',
       'ratingSuccess': 'Rating Success',
       'ratingFailed': 'Rating Failed',
       'voteTagFailed': 'Vote Tag Failed',
       'beginToDownload': 'Begin To Download',
+      'downloadFromRemoteDevice': 'Remote download from {device}',
       'resumeDownload': 'Resume Download',
       'pauseDownload': 'Pause Download',
       'addNewTagSetSuccess': 'Add New Tag Set Success',
       'addNewWatchedTagSetSuccess': 'Add New Watched Tag Set Success',
       'addNewHiddenTagSetSuccess': 'Add New Hidden Tag Set Success',
-      'addNewTagSetSuccessHint': 'You can check your tags at Setting->EH->My Tags',
+      'addNewTagSetSuccessHint':
+          'You can check your tags at Setting->EH->My Tags',
       'addNewTagSetFailed': 'Add New Tag Set Failed',
       'VisitorStatistics': 'Visitor Statistics',
-      'invisible2UserWithoutDonation': 'This gallery\'s stats is invisible to user without donation',
+      'invisible2UserWithoutDonation':
+          'This gallery\'s stats is invisible to user without donation',
       'getGalleryStatisticsFailed': 'Get Gallery Statistics Failed',
       'totalVisits': 'Total Visits',
       'visits': 'Visits',
@@ -178,23 +188,29 @@ class en_US {
       'score': 'Score',
       'NotOnTheList': 'Not on the list',
       'getGalleryArchiveFailed': 'Get Gallery Archive Failed',
-      'parseGalleryArchiveFailed': 'Parse failed, make sure your [Archiver Settings] in e-hentai is [Manual Select, Manual Start (Default)]',
+      'parseGalleryArchiveFailed':
+          'Parse failed, make sure your [Archiver Settings] in e-hentai is [Manual Select, Manual Start (Default)]',
       'original': 'Original',
       'resample': 'Resample',
       'beginToDownloadArchive': 'Begin to Download Archive',
-      'beginToDownloadArchiveHint': 'You can check progress at Download -> Archive',
+      'beginToDownloadArchiveHint':
+          'You can check progress at Download -> Archive',
       'updateGalleryError': 'Update Gallery Error',
       'thisGalleryHasANewVersion': 'This gallery has a new version',
       'hasUpdated': 'Has updated',
       'unpackingArchiveError': 'Unpacking archive error',
       'failedToDealWith': 'Failed to deal with',
       'hasDownloaded': 'Has downloaded',
-      '410Hints': 'You have clocked too many downloaded bytes on this archive, and need to re-unlock of this archive to resume.',
-      '429Hints': 'Too many download requests! You\'d better decrease your archive download concurrency.',
-      'getUnpackedImagesFailedMsg': 'JHenTai can\'t load images of this archive, please check your local file.',
+      '410Hints':
+          'You have clocked too many downloaded bytes on this archive, and need to re-unlock of this archive to resume.',
+      '429Hints':
+          'Too many download requests! You\'d better decrease your archive download concurrency.',
+      'getUnpackedImagesFailedMsg':
+          'JHenTai can\'t load images of this archive, please check your local file.',
       'getGalleryTorrentsFailed': 'Get torrents failed',
       'chooseArchive': 'Choose Archive',
-      'tagSetExceedLimit': 'No more tags can be added because you have reach the limit',
+      'tagSetExceedLimit':
+          'No more tags can be added because you have reach the limit',
       'useTranslation': 'Use Translation',
       'addTagSuccess': 'Add Tag Success',
       'addTagFailed': 'Add Tag Failed',
@@ -235,8 +251,10 @@ class en_US {
       'loading': "Loading",
       'paused': 'Paused',
       'exceedImageLimits': "Exceed Image Limits",
-      'ehServerError': 'An error occurred due to EH\'s server, please try again later',
-      'unsupportedImagePageStyle': "JHenTai doesn't support Multi-Page Viewer(MPV), please change to default style in e-hentai.org",
+      'ehServerError':
+          'An error occurred due to EH\'s server, please try again later',
+      'unsupportedImagePageStyle':
+          "JHenTai doesn't support Multi-Page Viewer(MPV), please change to default style in e-hentai.org",
       'toNext': 'To next',
       'toPrev': 'To prev',
       'back': 'Back',
@@ -268,12 +286,14 @@ class en_US {
       'downloadSetting': 'Download Setting',
       'networkSetting': 'Network Setting',
       'performanceSetting': 'Performance Setting',
+      'inferenceSetting': 'Inference Settings',
       'mouseWheelSetting': 'Mouse Wheel Setting',
 
       /// eh setting page
       'site': 'Site',
       'redirect2Eh': 'Redirect to EH if available',
-      'redirect2EhHint': 'Try to load gallery detail page from EH site first to get better network performance',
+      'redirect2EhHint':
+          'Try to load gallery detail page from EH site first to get better network performance',
       'redirectAllGallery': 'Redirect all gallery to EH',
       'imDonorHint': 'If you are a donor, you can turn this on to help you access galleries in EX site',
       'profileSetting': 'Profile Setting',
@@ -330,13 +350,18 @@ class en_US {
       'enableTagZHTranslation': 'Translate Tag Name into Chinese',
       'version': 'Version',
       'downloadTagTranslationHint': 'Downloading data..., downloaded: ',
-      'zhTagSearchOrderOptimization': 'Chinese Tag Auto-Completion Ordering Rule',
-      'zhTagSearchOrderOptimizationHint': 'Intelligent sorting by default and sort by frequency if enabled',
+      'zhTagSearchOrderOptimization':
+          'Chinese Tag Auto-Completion Ordering Rule',
+      'zhTagSearchOrderOptimizationHint':
+          'Intelligent sorting by default and sort by frequency if enabled',
       'themeMode': 'Theme Mode',
       'dark': 'Dark',
       'light': 'Light',
       'followSystem': 'Follow System',
       'themeColor': 'Theme Color',
+      'themeColorFixedOnApple': 'Fixed accent on macOS / iOS',
+      'appleVisualStyle': 'Apple visual style',
+      'appleVisualStyleHint': 'Enable the redesigned Apple-style interface',
       'listStyle': 'Gallery List Style (Global)',
       'flat': 'Flat',
       'flatWithoutTags': 'Flat(Without Tags)',
@@ -347,8 +372,10 @@ class en_US {
       'waterfallFlowBig': 'Waterfall Flow (Big)',
       'crossAxisCountInWaterFallFlow': 'Waterfall Flow Column Count',
       'pageListStyle': 'Gallery List Style (Page)',
-      'crossAxisCountInGridDownloadPageForGroup': 'Download Page Grid Column Count(Group)',
-      'crossAxisCountInGridDownloadPageForGallery': 'Download Page Grid Column Count(Gallery)',
+      'crossAxisCountInGridDownloadPageForGroup':
+          'Download Page Grid Column Count(Group)',
+      'crossAxisCountInGridDownloadPageForGallery':
+          'Download Page Grid Column Count(Gallery)',
       'crossAxisCountInDetailPage': 'Detail Page Thumbnail Column Count',
       'global': 'Global',
       'auto': 'Auto',
@@ -363,7 +390,8 @@ class en_US {
       'whenScrollUp': 'When Scroll Up',
       'whenScrollDown': 'When Scroll Down',
       'preloadGalleryCover': 'Preload gallery cover',
-      'preloadGalleryCoverHint': 'Preload the covers of galleries that are not yet displayed on the page',
+      'preloadGalleryCoverHint':
+          'Preload the covers of galleries that are not yet displayed on the page',
       'enableSwipeBackGesture': 'Enable Swipe Back Gesture',
       'enableLeftMenuDrawerGesture': 'Enable Left Menu Drawer Gesture',
       'enableQuickSearchDrawerGesture': 'Enable QuickSearch Drawer Gesture',
@@ -381,21 +409,26 @@ class en_US {
       'inheritAll': 'Inherit All',
       'inheritAllHint': 'Use last search options for next search',
       'inheritPartially': 'Inherit Partially',
-      'inheritPartiallyHint': 'Use last search options for next search(except language and category)',
+      'inheritPartiallyHint':
+          'Use last search options for next search(except language and category)',
       'none': 'None',
       'noneHint': 'Use default search options for next search',
       'showAllGalleryTitles': 'Show All Gallery Titles',
-      'showAllGalleryTitlesHint': 'Show both original and japanese titles if available',
+      'showAllGalleryTitlesHint':
+          'Show both original and japanese titles if available',
       'showGalleryTagVoteStatus': 'Show Gallery Tag Vote Status',
-      'showGalleryTagVoteStatusHint': 'Include confidence, skepticism and incorrect',
+      'showGalleryTagVoteStatusHint':
+          'Include confidence, skepticism and incorrect',
       'showComments': 'Show Comments',
       'showAllComments': 'Show All Comments',
-      'showAllCommentsHint': 'By default only the 45 highest scoring and 5 most recent comments will be shown',
+      'showAllCommentsHint':
+          'By default only the 45 highest scoring and 5 most recent comments will be shown',
       'addTag': 'Add Tag',
       'addTagHint': 'Enter new tags, separated with comma',
 
       /// theme color setting page
-      'themeColorSettingHint': 'Assign different color for light and dark theme',
+      'themeColorSettingHint':
+          'Assign different color for light and dark theme',
       'preview': 'Preview',
       'preset': 'Preset',
       'custom': 'Custom',
@@ -403,27 +436,170 @@ class en_US {
       /// performance setting page
       'maxGalleryNum4Animation': 'Max Gallery Num For List Animation in Download page',
       'maxGalleryNum4AnimationHint': 'Disable animation for groups which have more galleries than this value(for list style)',
+      'enableCoverDecodeOptimization': 'Cover Decode Optimization',
+      'enableCoverDecodeOptimizationHint':
+          'Decode gallery covers at a size closer to their displayed size instead of the full native resolution. Reduces decode time and memory usage when browsing grids, with a small quality tradeoff.',
 
       /// mouse wheel setting page
       'wheelScrollSpeed': 'Wheel scroll speed',
       'ineffectiveInGalleryPage': 'Ineffective in gallery page now.',
 
       /// advanced setting page
+      'readerPerformanceExperiments': 'Reader Performance Experiments',
+      'readerEngine2': 'Reader Engine 2.0',
+      'readerEngine2Hint':
+          'Prioritize nearby page parsing from the visible viewport and reading direction.',
+      'performanceGovernor': 'Performance Governor',
+      'performanceGovernorHint':
+          'Monitor frame time and reduce prefetch and parsing concurrency during sustained jank.',
+      'progressiveImagePipeline': 'Progressive Image Pipeline',
+      'progressiveImagePipelineHint':
+          'Show the gallery thumbnail first, then replace it with the original image.',
       'enableDomainFronting': 'Enable Domain Fronting',
       'bypassSNIBlocking': 'Bypass SNI blocking',
       'hostMapping': 'Host Mapping',
       'hostMappingHint': 'Used for domain fronting',
       'proxyAddress': 'Proxy Address',
-      'proxyAddressHint': 'If you use proxy server, make sure to set it up correctly',
+      'proxyAddressHint':
+          'If you use proxy server, make sure to set it up correctly',
       'saveSuccess': 'Save success',
       'saveFailed': 'Save failed',
       'updateSuccess': 'Update success',
       'connectTimeout': 'Connect Timeout',
       'receiveTimeout': 'Receive Data Timeout',
-      'pageCacheMaxAge': 'Page Cache Expiration Time',
-      'pageCacheMaxAgeHint': 'You can update cache by refresh page',
-      'cacheImageExpireDuration': 'Image Cache Expiration Time',
-      'cacheImageExpireDurationHint': 'Remove image cache automatically after launching app',
+      'enableSmartCache': "Smart Cache",
+      'enableSmartCacheHint':
+          "Keep viewed pages and images for the retention period; turn off to keep only a short-lived cache",
+      'smartCacheRetention': "Cache Retention",
+      'smartCacheRetentionHint':
+          "Cache older than this is cleared automatically",
+      'smartCacheMaxSize': "Max Cache Size",
+      'moveCacheToServer': 'Move cache to server',
+      'moveCacheToServerHint':
+          'Upload this device\'s cache to a connected LAN server',
+      'moveCacheToServerDisabledHint': 'Connect to a LAN server first',
+      'moveCacheToServerDone': 'Uploaded {count} cache files to the server',
+      'smartCacheMaxSizeHint':
+          "Cache is automatically trimmed when it exceeds this limit",
+      'smartCacheEvictPolicy': "Eviction Policy",
+      'smartCacheEvictPolicyHint':
+          "Which cache entries are removed first when the limit is reached",
+      'smartCacheEvictByAddedDate': "By added date",
+      'smartCacheEvictByUsageFrequency': "By usage frequency",
+      'unlimited': "Unlimited",
+      'cacheSize': "Current Cache Size",
+      'lanSharing': 'LAN Sharing',
+      'lanGalleryList': 'LAN Gallery',
+      'lanLocalTabAsLan': 'Download page “Local” tab shows the LAN gallery',
+      'lanLocalTabAsLanHint':
+          'When on, the download page’s Local tab lists galleries on connected trusted devices',
+      'lanStayResident': 'Stay resident in background (mac/Linux/Windows)',
+      'lanStayResidentHint':
+          'When on, closing the window keeps the app running in the background (LAN sharing stays online); restore from the system tray',
+      'lanActAsServer': 'Act as a LAN server',
+      'lanActAsServerHint':
+          'Desktop only: publish this device as a LAN server. Mobile stays a foreground client.',
+      'lanServerMode': 'Server mode',
+      'lanActiveBroadcast': 'Active broadcast',
+      'lanActiveBroadcastHint':
+          'Auto-send a pairing request when a new device is discovered; the peer decides whether to accept',
+      'lanServerModeHint':
+          'This device is the storage/cache: images peers browse are downloaded and cached here, so peers keep almost no cache of their own',
+      'lanPreferredServer': 'Preferred server',
+      'lanNoPreferredServer': 'Automatic: use any connected trusted server',
+      'lanResidentShow': 'Show main window',
+      'lanResidentQuit': 'Quit',
+      'lanGalleryListFailed': 'Failed to load LAN galleries',
+      'lanGalleryListEmpty': 'No galleries available',
+      'lanGalleryListEmptyHint':
+          'Connected devices must grant you the Downloads permission to appear here',
+      'lanGalleryPageCount': '@count pages',
+      'lanGalleryOpenFailed': 'Unable to open this gallery',
+      'lanDownloadToDevice': 'Download to this device',
+      'lanDownloadToDeviceSent': 'Download request sent to the device',
+      'lanDownloadToDeviceFailed': 'Download request failed',
+      'lanUnknownDevice': 'Unknown device',
+      'lanSharingHint': 'Pair and automatically reconnect to trusted devices',
+      'experimentalFeatures': 'Experimental Features',
+      'lanSharingExperimentalHint':
+          'Find, pair, and connect to devices on the same local network',
+      'lanFindAndPairDevices': 'Find and Pair Devices',
+      'lanFindAndPairDevicesHint':
+          'Review nearby devices and decide whether to trust them',
+      'lanSharingDisabled': 'LAN sharing is disabled',
+      'lanSharingDisabledHint':
+          'Enable it under Experimental Features in Advanced settings first.',
+      'lanSharingStartFailed':
+          'The LAN service could not start, so sharing remains disabled. Check system network permissions or logs.',
+      'lanLocalDevice': 'This Device',
+      'lanTrafficStats': 'Transfer Traffic',
+      'lanTrafficTotal': 'Total',
+      'lanTrafficSent': 'Sent',
+      'lanTrafficReceived': 'Received',
+      'lanTrafficCurrentRunHint':
+          'LAN sharing data transferred during this run',
+      'lanDeviceId': 'Device ID',
+      'lanEditDeviceName': 'Edit device name',
+      'lanDeviceNameRequired': 'Device name cannot be empty',
+      'lanDeviceNameTooLong': 'Device name must be 128 characters or fewer',
+      'lanTrustReady': 'Trusted-device identity is ready',
+      'lanTrustReadyHint':
+          'Reconnect credentials are stored in the system secure storage.',
+      'lanTrustedDevices': 'Trusted Devices',
+      'lanNoTrustedDevices': 'No trusted devices',
+      'lanNoTrustedDevicesHint':
+          'A device will appear here after the first verified pairing.',
+      'lanNearbyDevices': 'Nearby Devices',
+      'lanIncomingPairingRequests': 'Pairing Requests',
+      'lanNoIncomingPairingRequests': 'No pending pairing requests',
+      'lanIncomingPairingRequestHint':
+          'This device wants to pair. Verify its identity before trusting it.',
+      'lanSearchingDevices': 'Searching for devices…',
+      'lanSearchingDevicesHint': 'Keep LAN sharing enabled on the other device',
+      'lanReviewDevice': 'Review',
+      'lanPairingWaiting': 'Waiting for approval…',
+      'lanTrustDeviceQuestion': 'Trust @name?',
+      'lanTrustDeviceWarning':
+          'Only trust devices you recognize. The device can access the selected content after pairing.',
+      'lanDoNotTrust': 'Do Not Trust',
+      'lanTrustAndPair': 'Trust and Pair',
+      'lanTrustGranted': 'Device trusted',
+      'lanPairingFailed':
+          'The request was declined or pairing failed. Make sure the other device is still available.',
+      'lanAutoConnect': 'Automatically reconnect',
+      'lanAutoConnectHint':
+          'Connect directly when this trusted device is discovered again',
+      'lanFingerprint': 'Identity fingerprint',
+      'lanLastSeen': 'Last seen',
+      'lanPermissions': 'Granted access',
+      'lanRevokeTrust': 'Revoke trust',
+      'lanRevokeTrustHint':
+          'Revoke trust for @name? Both devices must pair again before reconnecting.',
+      'lanConnection_offline': 'Offline',
+      'lanConnection_discovered': 'Discovered',
+      'lanConnection_connecting': 'Connecting…',
+      'lanConnection_connected': 'Connected',
+      'lanConnection_failed': 'Connection failed',
+      'lanConnection_identityMismatch': 'Device identity changed',
+      'lanPermission_downloads': 'Downloads',
+      'lanPermission_imageCache': 'Image cache',
+      'lanPermission_translationResults': 'Translation results',
+      'lanPermission_translationCompute': 'Translation compute',
+      'lanPermission_ocrCompute': 'OCR compute',
+      'lanPermission_loginState': 'Login state',
+      'lanPermission_applicationHistory': 'Application history',
+      'lanPermission_applicationSettings': 'Application settings',
+      'lanUnifiedState': 'State sync',
+      'lanUnifiedStateEmpty': 'Login state or history not synced yet',
+      'lanUnifiedStateHint':
+          'Syncs login state and app history after connecting to a trusted device',
+      'lanUnifiedStateLogin': 'Login state',
+      'lanUnifiedStateHistory': 'App history',
+      'lanUnifiedStateSynced': 'Synced',
+      'lanUnifiedStateNotSynced': 'Not synced',
+      'lanUnifiedStateFailed': 'Failed',
+      'lanUnifiedStateRecords': 'records',
+      'lanPermissionRevokeHint': 'Revoking stops new sync requests.',
       'oneMinute': '1 Minute',
       'tenMinute': '10 Minute',
       'oneHour': '1 Hour',
@@ -433,27 +609,102 @@ class en_US {
       'enableVerboseLogging': 'Enable Verbose Logging',
       'openLog': 'Open Log',
       'clearLogs': 'Clear Logs',
-      'clearImagesCache': 'Clear Images Cache',
       'longPress2Clear': 'Long press to clear',
       'checkUpdateAfterLaunchingApp': 'Check update after launching app',
       'checkClipboard': 'Check Gallery URL in Clipboard',
-      'clearPageCache': 'Clear Page Cache',
       'clearSuccess': 'Clear Success',
       'superResolution': 'Image Super Resolution',
+      'inferenceBackend': 'Inference Backend',
+      'inferenceRefresh': 'Refresh',
+      'inferenceModeSection': 'Mode',
+      'inferenceManualSection': 'Manual Backend',
+      'inferenceDetectionSection': 'Detection',
+      'inferenceModelSection': 'Model Integration',
+      'inferenceModeAuto': 'Auto',
+      'inferenceModeManual': 'Manual',
+      'inferenceModeCpu': 'CPU',
+      'inferencePreferredBackend': 'Preferred backend',
+      'inferenceDetectedDevice': 'Detected device',
+      'inferenceDeviceNotDetected':
+          'Not detected (filled after model integration)',
+      'inferenceDomainOcr': 'Image translation (OCR)',
+      'inferenceDomainSuperResolution': 'Super resolution',
+      'inferenceEnableNnapi': 'Enable NNAPI acceleration',
+      'inferenceEnableNnapiHint':
+          'Route to NPU/GPU/DSP on supported Android devices; falls back to CPU automatically.',
+      'inferenceEnableCpuFallback': 'CPU fallback',
+      'inferenceEnableCpuFallbackHint':
+          'Fall back to CPU when the selected backend is unavailable.',
+      'inferenceEngineOcr': 'Image/Text Translation',
+      'inferenceEngineSuperResolution': 'Image Upscaling',
+      'inferenceModelReady': 'Ready',
+      'inferenceModelNotIntegrated':
+          'Inference is not ready; see Inference Settings for details',
+      'inferenceOcrModel': 'PP-OCRv6 small multilingual OCR',
+      'inferenceOcrLanguageAuto':
+          'Automatically recognizes Chinese, Japanese, English, and 50 languages',
+      'inferenceSuperResolutionModel': 'Super resolution model (Real-ESRGAN)',
+      'inferenceModelNotDownloaded': 'Not downloaded',
+      'inferenceModelValidating': 'Validating model integrity',
+      'inferenceModelVerified': 'Downloaded and integrity verified',
+      'inferenceModelInvalid':
+          'Model is corrupt or failed verification; download it again',
+      'inferenceSessionStatus': 'Session status',
+      'inferenceSessionBackendUnavailable':
+          'The inference runtime or selected backend is unavailable',
+      'inferenceSessionWaitingForModel':
+          'Waiting for a downloaded and verified model',
+      'inferenceSessionNotTested':
+          'Not created yet; it will be verified on first inference',
+      'inferenceSessionReady': 'Created successfully and ready for inference',
+      'inferenceSessionFailed':
+          'The last creation failed; check logs or select another backend',
+      'inferenceFrameworkNote':
+          'Providers, model integrity, and session state are detected separately.',
+      'inferenceBackendAuto': 'Auto',
+      'inferenceBackendCpu': 'CPU',
+      'inferenceBackendDirectml': 'DirectML (GPU)',
+      'inferenceBackendCuda': 'CUDA (NVIDIA GPU)',
+      'inferenceBackendOpenvino': 'OpenVINO',
+      'inferenceBackendNnapi': 'NNAPI (Android)',
+      'inferenceBackendCoreml': 'CoreML (Apple)',
+      'inferenceBackendVulkan': 'Vulkan',
+      'inferenceBackendXnnpack': 'XNNPACK',
+      'imageTranslationOcrEngineOnnx': 'ONNX (on-device)',
+      'imageTranslationOcrEngineMangaOcr': 'manga-OCR (to be implemented)',
+      'imageTranslationOcrNotConfigured':
+          'ONNX OCR engine is not configured yet. Integrate models in the inference backend.',
+      'superResolutionEngine': 'Engine',
+      'superResolutionEngineNcnnVulkan': 'ncnn-vulkan (external)',
+      'superResolutionEngineOnnx': 'ONNX (in-app)',
+      'onnxModelDescRapidOcrSmall':
+          'Full PP-OCRv6 multilingual dictionary with high recognition accuracy at moderate size and speed. Good for most comics and images.',
+      'onnxModelDescRapidOcrTiny':
+          'Reduced dictionary and lightweight networks: the fastest and smallest tier, but with a smaller character set and slightly lower accuracy on complex glyphs. Best for low-end devices or speed-first use.',
+      'onnxModelDescRealEsrgan6B':
+          'High-quality tier: the most detail and best quality, slower on large images.',
+      'onnxModelDescRealEsrgan4B32F':
+          'Fast tier: roughly 3-4x faster with slightly less detail; ideal for batch processing.',
+      'superResolutionModelPickerHint':
+          'Switching models re-processes upscaled pages',
       'stopSuperResolution': 'Stop Super Resolution',
       'deleteSuperResolvedImage': 'Delete Super Resolved Image',
-      'superResolveOriginalImageHint': 'Process original image cost more time, space and performance, are you sure to continue?',
+      'superResolveOriginalImageHint':
+          'Process original image cost more time, space and performance, are you sure to continue?',
       'verityAppLinks4Android12': 'Verity App Links(Android 12+)',
-      'verityAppLinks4Android12Hint': 'For Android 12+, you need to manually add link to verified links in order to open JHenTai in 3-rd apps',
+      'verityAppLinks4Android12Hint':
+          'For Android 12+, you need to manually add link to verified links in order to open JHenTai in 3-rd apps',
       'noImageMode': 'No Image Mode',
       'exportData': 'Export Data',
       'exportDataHint': 'Export configs, block rules and history',
       'selectExportItems': 'Select Export Items',
       'importData': 'Import Data',
-      'importDataHint': 'App will shutdown automatically after importing to apply the latest configuration',
+      'importDataHint':
+          'App will shutdown automatically after importing to apply the latest configuration',
 
       /// host mapping page
-      'hostDataSource': 'No need to change by default.\nData source: https://dns.google/',
+      'hostDataSource':
+          'No need to change by default.\nData source: https://dns.google/',
 
       /// proxy page
       'proxySetting': 'Proxy Setting',
@@ -472,7 +723,8 @@ class en_US {
       'enableAuthOnResumeHints': '3 seconds delay',
       'enableBlurBackgroundApp': 'Enable Blur Page When Switch to Background',
       'hideImagesInAlbum': 'Hide Images in Album',
-      'hideImagesInAlbumHints': 'If you changed default download path, you need to create .nomedia manually',
+      'hideImagesInAlbumHints':
+          'If you changed default download path, you need to create .nomedia manually',
 
       /// read setting page
       'enableImmersiveMode': 'Enable Immersive Mode',
@@ -485,13 +737,16 @@ class en_US {
       'landscape': 'Landscape',
       'portrait': 'Portrait',
       'readDirection': 'Read Direction',
-      'enableOrientationSpecificReadDirection': 'Orientation-Specific Read Direction',
-      'enableOrientationSpecificReadDirectionHint': 'Set different read directions for portrait and landscape orientations',
+      'enableOrientationSpecificReadDirection':
+          'Orientation-Specific Read Direction',
+      'enableOrientationSpecificReadDirectionHint':
+          'Set different read directions for portrait and landscape orientations',
       'portraitReadDirection': 'Portrait Read Direction',
       'landscapeReadDirection': 'Landscape Read Direction',
       'autoSwitchedReadDirection': 'Auto-switched read direction',
       'notchOptimization': 'Notch Optimization',
-      'notchOptimizationHint': 'Add padding before the first image to avoid the notch and status bar',
+      'notchOptimizationHint':
+          'Add padding before the first image to avoid the notch and status bar',
       'imageRegionWidthRatio': 'Image Region Width Ratio',
       'portraitImageRegionWidthRatio': 'Portrait Image Width Ratio',
       'landscapeImageRegionWidthRatio': 'Landscape Image Width Ratio',
@@ -515,7 +770,8 @@ class en_US {
       'left2rightList': 'Left to Right (Continuous)',
       'right2leftList': 'Right to Left (Continuous)',
       'enablePageTurnByVolumeKeys': 'Use volume key to turn page',
-      'enablePageTurnByVolumeKeysHint': 'On iOS, if the volume is at 0 or 100%, it will be adjusted automatically when entering the reader to support page turning, and restored on exit',
+      'enablePageTurnByVolumeKeysHint':
+          'On iOS, if the volume is at 0 or 100%, it will be adjusted automatically when entering the reader to support page turning, and restored on exit',
       'enablePageTurnAnime': 'Enable Turn Page Animation',
       'enableDoubleTapToScaleUp': 'Enable Double Tap to Scale up',
       'enableTapDragToScaleUp': 'Enable Tap Drag to Scale up',
@@ -527,7 +783,8 @@ class en_US {
       'turnPageModeHint': 'To next screen or next image',
       'enableImageMaxKilobytes': 'Enable Image Compression',
       'imageMaxKilobytes': 'Image Max Size',
-      'imageMaxKilobytesHint': 'Images larger than this size will be compressed',
+      'imageMaxKilobytesHint':
+          'Images larger than this size will be compressed',
       'image': 'Image',
       'screen': 'Screen',
       'preloadDistanceInOnlineMode': 'Preload Distance(Online)',
@@ -535,6 +792,17 @@ class en_US {
       'ScreenHeight': 'Screen',
       'preloadPageCount': 'Preload Page Count(Online)',
       'preloadPageCountInLocalMode': 'Preload Page Count(Local)',
+      'failedImageRetryScope': "Retry Failed Images",
+      'failedImageRetryScopeHint':
+          "Scope when tapping a failed online image to reload it",
+      'imageTimeoutRetry': 'Timeout Retry',
+      'imageTimeoutRetryHint':
+          'Automatically retry when an online image has no response or stalled progress',
+      'imageTimeoutRetryCount': 'Retry Count',
+      'imageTimeoutRetryInterval': 'Timeout Threshold',
+      'retrySingleImage': "Only the tapped image",
+      'retryCurrentPageAndAfter': "Current image and after",
+      'retryAllFailedImages': "All failed images",
       'continuousScroll': 'Continuous Scroll',
       'continuousScrollHint': 'Splice multiple images',
       'doubleColumn': 'Double Column',
@@ -674,7 +942,8 @@ class en_US {
       'pageAtLeast': 'Page At Least',
       'pageAtMost': 'Page At Most',
       'pagesBetween': 'Pages Between',
-      'pageRangeSelectHint': 'min <= 1000, max >= 10\nmin/max <= 0.8, max-min >= 20',
+      'pageRangeSelectHint':
+          'min <= 1000, max >= 10\nmin/max <= 0.8, max-min >= 20',
       'to': 'to',
       'minimumRating': 'Minimum Rating',
       'disableFilterForLanguage': 'Disable Filter For Language',
@@ -728,14 +997,17 @@ class en_US {
       'originalImage': 'Original',
       'resampleImage': 'Resample',
       'defaultGalleryGroup': 'Default Gallery Group',
-      'prioritizeRecentGalleryGroups': 'Prioritize Recently Used Gallery Groups',
+      'prioritizeRecentGalleryGroups':
+          'Prioritize Recently Used Gallery Groups',
       'defaultArchiveGroup': 'Default Archive Group',
       'never': 'Never',
       'manual': 'Manual',
       'always': 'Always',
       'longPress2Reset': 'Long Press to Reset',
-      'needPermissionToChangeDownloadPath': 'Need permission to change download path',
-      'invalidPath': 'Invalid Path. Avoid using SD-Card, system path or root path.',
+      'needPermissionToChangeDownloadPath':
+          'Need permission to change download path',
+      'invalidPath':
+          'Invalid Path. Avoid using SD-Card, system path or root path.',
       'downloadTaskConcurrency': 'Download Concurrency',
       'needRestart': 'Need restart',
       'speedLimit': 'Speed Limit',
@@ -747,12 +1019,16 @@ class en_US {
       'downloadAllGalleriesOfSamePriorityHint': 'Download only 1 gallery simultaneously in 1 group with highest priority by default',
       'alwaysUseDefaultGroup': 'Always Use Default Group',
       'enableStoreMetadataForRestore': 'Enable Store Metadata for Restore',
-      'enableStoreMetadataForRestoreHint': 'If disable this, you can\'t restore download tasks',
+      'enableStoreMetadataForRestoreHint':
+          'If disable this, you can\'t restore download tasks',
       'archiveDownloadIsolateCount': 'Archive Download Thread Count',
-      'archiveDownloadIsolateCountHint': 'Sum of threads for all tasks needs to be less than 10, otherwise the download will fail',
+      'archiveDownloadIsolateCountHint':
+          'Sum of threads for all tasks needs to be less than 10, otherwise the download will fail',
       'manageArchiveDownloadConcurrency': 'Manage Archive Download Concurrency',
-      'manageArchiveDownloadConcurrencyHint': 'Archive will wait until there are enough threads to download',
-      'deleteArchiveFileAfterDownload': 'Delete Archive .zip File After Download',
+      'manageArchiveDownloadConcurrencyHint':
+          'Archive will wait until there are enough threads to download',
+      'deleteArchiveFileAfterDownload':
+          'Delete Archive .zip File After Download',
       'restoreDownloadTasks': 'Restore Download Tasks',
       'restoreDownloadTasksHint': 'Restore download tasks by metadata',
       'restoreDownloadTasksSuccess': 'Restore Download Tasks Success',
@@ -760,9 +1036,12 @@ class en_US {
       'restoredGalleryCount': 'Restored gallery count',
       'restoredArchiveCount': 'Restored archive count',
       'restoreTasksAutomatically': 'Restore Tasks Automatically',
-      'restoreTasksAutomaticallyHint': 'Restore tasks automatically when app launched',
-      'brokenDownloadPathHint': 'Seems your download path is broken, download function may be ineffective',
-      'brokenExtraScanPathHint': 'Seems your default local gallery path is broken, local gallery may be not recognized',
+      'restoreTasksAutomaticallyHint':
+          'Restore tasks automatically when app launched',
+      'brokenDownloadPathHint':
+          'Seems your download path is broken, download function may be ineffective',
+      'brokenExtraScanPathHint':
+          'Seems your default local gallery path is broken, local gallery may be not recognized',
       'useJH2UpdateGallery': 'Use JH server to accelerate gallery updates',
 
       /// archive bot settings
@@ -779,7 +1058,8 @@ class en_US {
       'checkInFailed': 'Check-in failed',
       'checkInSuccess': 'Check-in success',
       'checkInSuccessHint': 'Got GP: %s, current total GP: %s.',
-      'pauseDownloadByInvalidArchiveBotKey': 'Archive bot settings is invalid, download paused',
+      'pauseDownloadByInvalidArchiveBotKey':
+          'Archive bot settings is invalid, download paused',
       'chooseArchiveParseSource': 'Change Parse Source',
       'official': 'Official',
       'archiveBot': 'Archive Bot',
@@ -808,7 +1088,8 @@ class en_US {
       'upload2cloud': 'Upload to Cloud',
       'upload2cloudHint': 'Upload your current local configuration',
       'tap2upload': 'Tap to upload',
-      'copyIdentificationCodeSuccess': 'Upload successfully. Identification code has been copied',
+      'copyIdentificationCodeSuccess':
+          'Upload successfully. Identification code has been copied',
       'copyShareCode': 'Copy Share Code',
       'import': 'Import',
       'save2Local': 'Save to Local',
@@ -824,7 +1105,8 @@ class en_US {
       'inputNumberHint': 'Please input a correct number',
       'inputRegexHint': 'Please input a correct regex',
       'useBuiltInBlockedUsers': 'Enable Built-in User Blocklist',
-      'useBuiltInBlockedUsersHint': 'Filter out gallery comments from users on the blocklist',
+      'useBuiltInBlockedUsersHint':
+          'Filter out gallery comments from users on the blocklist',
       'blockingRules': 'Block Rules',
       'blockingRulesHint': 'Additional blocking rules for galleries and comments',
       'blockingTarget': 'Blocking Target',
@@ -840,7 +1122,8 @@ class en_US {
       'content': 'Content',
       'incompleteInformation': 'Incomplete information',
       'noBlockingRuleHint': 'Add at least 1 rule',
-      'notSameBlockingRuleTargetHint': 'All sub-rules should have the same blocking target',
+      'notSameBlockingRuleTargetHint':
+          'All sub-rules should have the same blocking target',
       'blockingRuleHelp': '''
 Blocking Target: Filter galleries on the list page or filter comments on the details page. All sub-rules under the same rule must have the same blocking target.
 Blocking Attribute: Specify the attribute of the target based on which the rule is written to block.
@@ -886,6 +1169,198 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'reclass': 'Reclass',
       'temp': 'Temp',
       'other': 'Other',
+
+      /// image text translation
+      'imageTextTranslation': 'Image Text Translation',
+      'translateImageText': 'Recognize and Translate This Page',
+      'currentPageSuperResolution': 'Super-resolve This Page',
+      'addBookmark': 'Add bookmark',
+      'removeBookmark': 'Remove bookmark',
+      'enableTranslationFloatingBall': 'Show translation floating ball',
+      'enableTranslationFloatingBallHint':
+          'Show the image translation ball on the reader page',
+      'enableBookmarkFloatingBall': 'Bookmark navigation ball',
+      'enableBookmarkFloatingBallHint':
+          'Jump to the nearest bookmark after the current page',
+      'bookmarkNavigation': 'Jump to next bookmark',
+      'readerTranslation': 'Reader translation',
+      'recognizingImageText': 'Recognizing image text…',
+      'translatingImageText': 'Translating image text…',
+      'showTranslation': 'Show Translation',
+      'showOriginal': 'Show Original',
+      'copy': 'Copy',
+      'retry': 'Retry',
+      'configure': 'Configure',
+      'saveSetting': 'Save',
+      'imageTranslationNoResult': 'No result to display',
+      'imageTranslationConfigureHint':
+          'Original text was recognized. Configure a translation provider in Advanced settings first.',
+      'imageTranslationUnsupportedPlatform':
+          'Image OCR is not available on this platform yet.',
+      'imageTranslationOcrUnavailable':
+          'OCR executable was not found. Install or configure Tesseract on desktop.',
+      'imageTranslationOcrFailed':
+          'Text recognition failed. Check the OCR language packs and image format.',
+      'imageTranslationNoText': 'No text was recognized in this image.',
+      'imageTranslationAlreadyTranslated': 'This page is already translated.',
+      'imageTranslationCancelled': 'Translation cancelled.',
+      'imageTranslationRequestFailed':
+          'Translation request failed. Check the endpoint, key, and network.',
+      'imageTranslationInvalidResponse':
+          'The translation provider returned an invalid result.',
+      'imageTranslationFailed': 'Image text translation failed.',
+      'imageTranslationPaddleNotReady':
+          'PaddleOCR runtime is not installed. Install it in Advanced settings first.',
+      'imageTranslationDeletePaddleRuntime': 'Delete PaddleOCR Runtime',
+      'imageTranslationDeletePaddleHint':
+          'Remove the virtual environment and downloaded models.',
+      'imageTranslationDeletePaddleConfirm': 'Delete the PaddleOCR runtime?',
+      'imageTranslationEnableThinking': 'Enable Thinking',
+      'imageTranslationEnableThinkingHint':
+          'Off for faster translation; on for deeper reasoning.',
+      'imageTranslationAutoMergeText': 'Automatically merge text blocks',
+      'imageTranslationAutoMergeTextHint':
+          'When enabled, lines in the same bubble or text box are translated and embedded as one block.',
+      'imageTranslationBubbleDetection': 'Detect speech bubbles',
+      'imageTranslationBubbleDetectionHint': 'Use the Manga109 bubble segmentation model for whole-bubble layout, with OCR-region fallback.',
+      'imageTranslationBackgroundColor': 'Embedded text background color',
+      'imageTranslationBackgroundOpacity': 'Embedded text background opacity',
+      'imageTranslationBubbleModel': 'Speech bubble detection model',
+      'imageTranslationTranslateScope': 'Translate Scope',
+      'imageTranslationScopeCurrent': 'Current page only',
+      'imageTranslationScopeSubsequent': 'Current and following pages',
+      'imageTranslationContextPages': 'Pages per context request',
+      'imageTranslationContextPagesValue': '@count page(s)',
+      'imageTranslationContextAppleUnsupported':
+          'Apple Translation currently supports one page per request.',
+      'imageTranslationCachedRetranslate': 'Cached · Retranslate',
+      'translationProgress': 'Translating @current/@total · @stage',
+      'translationStageIdle': 'Preparing',
+      'translationStageRecognizing': 'Recognizing',
+      'translationStageTranslating': 'Translating',
+      'translationStageMasking': 'Masking',
+      'translationStageEmbedding': 'Embedding text',
+      'translationStageDone': 'Done',
+      'imageTranslationSourceUnavailable': 'The current image is unavailable.',
+      'imageTranslationSettingHint': 'Configure OCR and translation provider',
+      'imageTranslationOcrSection': 'Text recognition',
+      'imageTranslationOcrHint':
+          'Desktop uses local Tesseract by default. Install the required language packs.',
+      'imageTranslationOcrExecutable': 'OCR executable',
+      'imageTranslationOcrLanguage': 'OCR languages',
+      'imageTranslationTranslatorSection': 'Translation provider',
+      'imageTranslationTranslatorEngine': 'Translation engine',
+      'imageTranslationTranslatorEngineApi': 'Third-party API',
+      'imageTranslationTranslatorEngineApple': 'Apple on-device',
+      'imageTranslationTranslatorEngineLocal': 'Local GGUF',
+      'imageTranslationLocalGgufHint':
+          'Uses the selected downloaded GGUF model and the configured local llama.cpp runtime.',
+      'imageTranslationLocalModel': 'Local translation model',
+      'imageTranslationLocalModelDownloading': 'Downloading @progress',
+      'imageTranslationLocalFfiRuntime': 'On-device llama.cpp runtime',
+      'imageTranslationLocalFfiRuntimeHint':
+          'Uses the built-in Flutter FFI runtime when it is available on this device.',
+      'imageTranslationLlamaServerPath': 'llama-server executable',
+      'imageTranslationLlamaServerPathHint':
+          'Select the local llama-server executable',
+      'imageTranslationBrowseRuntime': 'Choose runtime',
+      'imageTranslationLlamaRuntime': 'Managed llama.cpp runtime',
+      'imageTranslationLlamaRuntimeHint':
+          'Downloaded and verified automatically with local translation models.',
+      'imageTranslationLlamaRuntimeUnsupported':
+          'No managed llama.cpp runtime is available for this platform.',
+      'imageTranslationTranslatorHint':
+          'Uses an OpenAI-compatible Chat Completions endpoint. The key stays on this device.',
+      'imageTranslationEndpoint': 'Endpoint',
+      'imageTranslationModel': 'Model',
+      'imageTranslationTargetLanguage': 'Target language',
+      'imageTranslationApiTestHint':
+          'Enter an API base URL and key, then test it to load its available models. The key stays on this device.',
+      'imageTranslationProvider': 'API format',
+      'imageTranslationOpenAICompatible': 'OpenAI-compatible',
+      'imageTranslationApiBaseUrl': 'API base URL',
+      'imageTranslationTestAndFetchModels': 'Test and fetch models',
+      'imageTranslationFetchModelsFirst': 'Test the API and fetch models first',
+      'imageTranslationApiTestSuccess':
+          'Connection succeeded; @count models found',
+      'imageTranslationApiTestFailed': 'API test failed: @error',
+      'imageTranslationOcrDownloadHint':
+          'Download tessdata_fast language models into the local Tesseract data directory. Choose a China mirror or the official source.',
+      'imageTranslationOcrDataDirectory': 'OCR data directory',
+      'imageTranslationChooseDirectory': 'Choose data directory',
+      'imageTranslationDetectOcr': 'Detect local OCR',
+      'imageTranslationOcrModelSource': 'OCR model source',
+      'imageTranslationGiteeMirror': 'Gitee community mirror (China)',
+      'imageTranslationGithubOfficial': 'Official GitHub source',
+      'imageTranslationOcrInstalled': 'Installed',
+      'imageTranslationOcrNotInstalled': 'Not installed',
+      'imageTranslationOcrDetectFailed':
+          'OCR detection failed. Check the executable path.',
+      'imageTranslationOcrDirectoryRequired':
+          'Choose or detect the OCR data directory first.',
+      'imageTranslationOcrDownloadSuccess': 'OCR model downloaded.',
+      'imageTranslationOcrDownloadFailed':
+          'OCR model download failed. Try another source.',
+      'imageTranslationOcrEngine': 'OCR engine',
+      'imageTranslationPaddleHint':
+          'The app creates an isolated Python environment in its data directory. PaddleOCR-VL-1.6 is downloaded from Hugging Face and may take some time.',
+      'imageTranslationPaddleLanguage': 'PaddleOCR language',
+      'imageTranslationOcrEngineAppleLiveText': 'Apple Live Text',
+      'imageTranslationAppleLiveTextLanguage':
+          'Apple Live Text recognition language',
+      'imageTranslationAppleLiveTextHint':
+          'On-device OCR via Apple Vision. Works on iOS and macOS, no model download needed.',
+      'imageTranslationAppleLiveTextUnavailable':
+          'Apple Live Text is only available on iOS and macOS.',
+      'imageTranslationMethodSection': 'Translation method',
+      'onnxModelDescComicTextDetector':
+          'Detects comic text and produces precise repair masks. The model is downloaded separately under GPL-3.0.',
+      'imageTranslationImageProcessingSection': 'Image processing',
+      'imageTranslationImageProcessingMode': 'Translation display',
+      'imageTranslationImageProcessingHint':
+          'The source is always preserved. Missing models or processing failures automatically fall back to overlays.',
+      'imageTranslationDisplayOverlay': 'Text overlay',
+      'imageTranslationDisplayCtdMigan': 'CTD + MI-GAN repaired background',
+      'imageTranslationCtdModel': 'Comic Text Detector (CTD)',
+      'imageTranslationMiganModel': 'Background repair model (MI-GAN)',
+      'imageTranslationCtdLicenseNotice':
+          'The GPL-3.0 CTD model is downloaded at runtime and is not distributed with the app',
+      'imageTranslationCtdFallbackHint':
+          'Both CTD and MI-GAN are required. Any failure safely falls back to the text overlay.',
+      'imageTranslationMethodAppleLiveText': 'Apple Live Text',
+      'imageTranslationMethodCustom': 'Custom',
+      'imageTranslationAppleLiveTextUseApi':
+          'Use third-party API for translation',
+      'imageTranslationAppleLiveTextUseApiHint':
+          'Reuse the same OpenAI-compatible / Anthropic API as the custom mode instead of Apple on-device translation.',
+      'imageTranslationAppleLiveTextOnDeviceHint':
+          'Translation runs on-device via Apple, independently of the OCR engine. It needs iOS 26 / macOS 26 or newer.',
+      'autoTranslateGalleryText': 'Auto-translate titles & comments',
+      'autoTranslateGalleryTextHint':
+          'Translate the gallery titles and comments you see on-device (requires Apple on-device translation).',
+      'imageTranslationTranslationUnavailable':
+          'Apple on-device translation needs iOS 26 / macOS 26 or newer. Select the third-party API engine to translate on this system.',
+      'imageTranslationTranslationFailed':
+          'Apple on-device translation failed.',
+      'imageTranslationShow': 'Show translation',
+      'imageTranslationHide': 'Hide translation',
+      'imageTranslationRetranslate': 'Re-translate',
+      'imageTranslationStart': 'Start translation',
+      'imageTranslationSettings': 'Translation settings',
+      'imageTranslationTranslationNotInstalled':
+          'Apple on-device translation languages are not installed. Install them in System Settings → General → Language & Region → Translation Languages, or turn on "Use third-party API".',
+      'imageTranslationTranslationNotInstalledIos':
+          'Apple on-device translation languages are not installed. Install them in Settings → Translate → Downloaded Languages, or turn on "Use third-party API".',
+      'imageTranslationPaddleRuntimePath': 'Paddle runtime',
+      'imageTranslationPreparePaddle': 'Install runtime and download model',
+      'imageTranslationPaddleReady': 'PaddleOCR runtime is ready.',
+      'imageTranslationPaddlePrepareFailed': 'PaddleOCR setup failed: @error',
+      'imageTranslationExportOverlay': 'Create translated overlay',
+      'imageTranslationExporting': 'Creating…',
+      'imageTranslationOverlaySaved': 'Translated overlay saved: @path',
+      'imageTranslationOverlayUnavailable':
+          'The translated lines do not match the text regions, so an overlay cannot be generated safely.',
+      'imageTranslationOverlayFailed': 'Failed to create translated overlay.',
     };
   }
 }

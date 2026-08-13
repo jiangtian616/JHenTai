@@ -1,18 +1,23 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/service/jh_service.dart';
 import 'package:jhentai/src/service/log.dart';
+import 'package:jhentai/src/setting/preference_setting.dart';
 
 import '../model/jh_layout.dart';
 
 StyleSetting styleSetting = StyleSetting();
 
-class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
+class StyleSetting
+    with JHLifeCircleBeanWithConfigStorage
+    implements JHLifeCircleBean {
   Rx<ThemeMode> themeMode = ThemeMode.system.obs;
   Rx<Color> lightThemeColor = UIConfig.defaultLightThemeColor.obs;
   Rx<Color> darkThemeColor = UIConfig.defaultDarkThemeColor.obs;
@@ -23,14 +28,20 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
   RxnInt crossAxisCountInDetailPage = RxnInt(null);
   RxMap<String, ListMode> pageListMode = <String, ListMode>{}.obs;
   RxBool moveCover2RightSide = false.obs;
-  Rx<LayoutMode> layout = PlatformDispatcher.instance.views.first.physicalSize.width / PlatformDispatcher.instance.views.first.devicePixelRatio < 600
-      ? LayoutMode.mobileV2.obs
-      : GetPlatform.isDesktop
-          ? LayoutMode.desktop.obs
-          : LayoutMode.tabletV2.obs;
+  RxBool appleVisualStyle = false.obs;
+  Rx<LayoutMode> layout =
+      PlatformDispatcher.instance.views.first.physicalSize.width /
+                  PlatformDispatcher.instance.views.first.devicePixelRatio <
+              600
+          ? LayoutMode.mobileV2.obs
+          : GetPlatform.isDesktop
+              ? LayoutMode.desktop.obs
+              : LayoutMode.tabletV2.obs;
 
   bool get isInWaterFlowListMode =>
-      listMode.value == ListMode.waterfallFlowBig || listMode.value == ListMode.waterfallFlowSmall || listMode.value == ListMode.waterfallFlowMedium;
+      listMode.value == ListMode.waterfallFlowBig ||
+      listMode.value == ListMode.waterfallFlowSmall ||
+      listMode.value == ListMode.waterfallFlowMedium;
 
   Brightness currentBrightness() => themeMode.value == ThemeMode.system
       ? PlatformDispatcher.instance.platformBrightness
@@ -39,19 +50,27 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
           : Brightness.dark;
 
   /// If the current window width is too small, App will degrade to mobile mode. Use [actualLayout] to indicate actual layout.
-  LayoutMode actualLayout = PlatformDispatcher.instance.views.first.physicalSize.width / PlatformDispatcher.instance.views.first.devicePixelRatio < 600
-      ? LayoutMode.mobileV2
-      : GetPlatform.isDesktop
-          ? LayoutMode.desktop
-          : LayoutMode.tabletV2;
+  LayoutMode actualLayout =
+      PlatformDispatcher.instance.views.first.physicalSize.width /
+                  PlatformDispatcher.instance.views.first.devicePixelRatio <
+              600
+          ? LayoutMode.mobileV2
+          : GetPlatform.isDesktop
+              ? LayoutMode.desktop
+              : LayoutMode.tabletV2;
 
-  bool get isInMobileLayout => actualLayout == LayoutMode.mobileV2 || actualLayout == LayoutMode.mobile;
+  bool get isInMobileLayout =>
+      actualLayout == LayoutMode.mobileV2 || actualLayout == LayoutMode.mobile;
 
-  bool get isInTabletLayout => actualLayout == LayoutMode.tabletV2 || actualLayout == LayoutMode.tablet;
+  bool get isInTabletLayout =>
+      actualLayout == LayoutMode.tabletV2 || actualLayout == LayoutMode.tablet;
 
-  bool get isInV1Layout => actualLayout == LayoutMode.mobile || actualLayout == LayoutMode.tablet;
+  bool get isInV1Layout =>
+      actualLayout == LayoutMode.mobile || actualLayout == LayoutMode.tablet;
 
-  bool get isInV2Layout => actualLayout == LayoutMode.mobileV2 || actualLayout == LayoutMode.tabletV2;
+  bool get isInV2Layout =>
+      actualLayout == LayoutMode.mobileV2 ||
+      actualLayout == LayoutMode.tabletV2;
 
   bool get isInDesktopLayout => actualLayout == LayoutMode.desktop;
 
@@ -63,20 +82,32 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
     Map map = jsonDecode(configString);
 
     themeMode.value = ThemeMode.values[map['themeMode']];
-    lightThemeColor.value = Color(map['lightThemeColor'] ?? lightThemeColor.value.toARGB32());
-    darkThemeColor.value = Color(map['darkThemeColor'] ?? darkThemeColor.value.toARGB32());
+    lightThemeColor.value =
+        Color(map['lightThemeColor'] ?? lightThemeColor.value.toARGB32());
+    darkThemeColor.value =
+        Color(map['darkThemeColor'] ?? darkThemeColor.value.toARGB32());
     listMode.value = ListMode.values[map['listMode']];
     crossAxisCountInWaterFallFlow.value = map['crossAxisCountInWaterFallFlow'];
-    crossAxisCountInGridDownloadPageForGroup.value = map['crossAxisCountInGridDownloadPageForGroup'];
-    crossAxisCountInGridDownloadPageForGallery.value = map['crossAxisCountInGridDownloadPageForGallery'];
+    crossAxisCountInGridDownloadPageForGroup.value =
+        map['crossAxisCountInGridDownloadPageForGroup'];
+    crossAxisCountInGridDownloadPageForGallery.value =
+        map['crossAxisCountInGridDownloadPageForGallery'];
     crossAxisCountInDetailPage.value = map['crossAxisCountInDetailPage'];
-    pageListMode.value = Map.from(map['pageListMode']?.map((route, listModeIndex) => MapEntry(route, ListMode.values[listModeIndex])) ?? {});
-    moveCover2RightSide.value = map['moveCover2RightSide'] ?? moveCover2RightSide.value;
+    pageListMode.value = Map.from(map['pageListMode']?.map(
+            (route, listModeIndex) =>
+                MapEntry(route, ListMode.values[listModeIndex])) ??
+        {});
+    moveCover2RightSide.value =
+        map['moveCover2RightSide'] ?? moveCover2RightSide.value;
+    appleVisualStyle.value = map['appleVisualStyle'] ?? false;
+    ThemeConfig.appleVisualStyleEnabled = appleVisualStyle.value;
     layout.value = LayoutMode.values[map['layout'] ?? layout.value.index];
 
     /// old layout has been removed in v5.0.0
     if (isInV1Layout) {
-      layout = PlatformDispatcher.instance.views.first.physicalSize.width / PlatformDispatcher.instance.views.first.devicePixelRatio < 600
+      layout = PlatformDispatcher.instance.views.first.physicalSize.width /
+                  PlatformDispatcher.instance.views.first.devicePixelRatio <
+              600
           ? LayoutMode.mobileV2.obs
           : GetPlatform.isDesktop
               ? LayoutMode.desktop.obs
@@ -93,11 +124,15 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
       'darkThemeColor': darkThemeColor.value.toARGB32(),
       'listMode': listMode.value.index,
       'crossAxisCountInWaterFallFlow': crossAxisCountInWaterFallFlow.value,
-      'crossAxisCountInGridDownloadPageForGroup': crossAxisCountInGridDownloadPageForGroup.value,
-      'crossAxisCountInGridDownloadPageForGallery': crossAxisCountInGridDownloadPageForGallery.value,
+      'crossAxisCountInGridDownloadPageForGroup':
+          crossAxisCountInGridDownloadPageForGroup.value,
+      'crossAxisCountInGridDownloadPageForGallery':
+          crossAxisCountInGridDownloadPageForGallery.value,
       'crossAxisCountInDetailPage': crossAxisCountInDetailPage.value,
-      'pageListMode': pageListMode.map((route, listMode) => MapEntry(route, listMode.index)),
+      'pageListMode': pageListMode
+          .map((route, listMode) => MapEntry(route, listMode.index)),
       'moveCover2RightSide': moveCover2RightSide.value,
+      'appleVisualStyle': appleVisualStyle.value,
       'layout': layout.value.index,
     });
   }
@@ -107,8 +142,20 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
 
   @override
   void doAfterBeanReady() {
+    // Migrate configurations created before Apple navigation made the bottom
+    // bar mandatory. The in-memory value is cleared synchronously; the config
+    // write is allowed to finish after the first frame.
+    unawaited(_migrateAppleNavigationPreference());
     ever(themeMode, (_) {
       Get.changeThemeMode(themeMode.value);
+    });
+    ever(appleVisualStyle, (enabled) async {
+      ThemeConfig.appleVisualStyleEnabled = enabled;
+      Get.rootController.theme =
+          ThemeConfig.theme(lightThemeColor.value, Brightness.light);
+      Get.rootController.darkTheme =
+          ThemeConfig.theme(darkThemeColor.value, Brightness.dark);
+      await Get.forceAppUpdate();
     });
   }
 
@@ -136,25 +183,34 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
     await saveBeanConfig();
   }
 
-  Future<void> saveCrossAxisCountInWaterFallFlow(int? crossAxisCountInWaterFallFlow) async {
-    log.debug('saveCrossAxisCountInWaterFallFlow:$crossAxisCountInWaterFallFlow');
+  Future<void> saveCrossAxisCountInWaterFallFlow(
+      int? crossAxisCountInWaterFallFlow) async {
+    log.debug(
+        'saveCrossAxisCountInWaterFallFlow:$crossAxisCountInWaterFallFlow');
     this.crossAxisCountInWaterFallFlow.value = crossAxisCountInWaterFallFlow;
     await saveBeanConfig();
   }
 
-  Future<void> saveCrossAxisCountInGridDownloadPageForGroup(int? crossAxisCountInGridDownloadPageForGroup) async {
-    log.debug('saveCrossAxisCountInGridDownloadPageForGroup:$crossAxisCountInGridDownloadPageForGroup');
-    this.crossAxisCountInGridDownloadPageForGroup.value = crossAxisCountInGridDownloadPageForGroup;
+  Future<void> saveCrossAxisCountInGridDownloadPageForGroup(
+      int? crossAxisCountInGridDownloadPageForGroup) async {
+    log.debug(
+        'saveCrossAxisCountInGridDownloadPageForGroup:$crossAxisCountInGridDownloadPageForGroup');
+    this.crossAxisCountInGridDownloadPageForGroup.value =
+        crossAxisCountInGridDownloadPageForGroup;
     await saveBeanConfig();
   }
 
-  Future<void> saveCrossAxisCountInGridDownloadPageForGallery(int? crossAxisCountInGridDownloadPageForGallery) async {
-    log.debug('saveCrossAxisCountInGridDownloadPageForGallery:$crossAxisCountInGridDownloadPageForGallery');
-    this.crossAxisCountInGridDownloadPageForGallery.value = crossAxisCountInGridDownloadPageForGallery;
+  Future<void> saveCrossAxisCountInGridDownloadPageForGallery(
+      int? crossAxisCountInGridDownloadPageForGallery) async {
+    log.debug(
+        'saveCrossAxisCountInGridDownloadPageForGallery:$crossAxisCountInGridDownloadPageForGallery');
+    this.crossAxisCountInGridDownloadPageForGallery.value =
+        crossAxisCountInGridDownloadPageForGallery;
     await saveBeanConfig();
   }
 
-  Future<void> saveCrossAxisCountInDetailPage(int? crossAxisCountInDetailPage) async {
+  Future<void> saveCrossAxisCountInDetailPage(
+      int? crossAxisCountInDetailPage) async {
     log.debug('saveCrossAxisCountInDetailPage:$crossAxisCountInDetailPage');
     this.crossAxisCountInDetailPage.value = crossAxisCountInDetailPage;
     await saveBeanConfig();
@@ -174,6 +230,29 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
     log.debug('saveMoveCover2RightSide:$moveCover2RightSide');
     this.moveCover2RightSide.value = moveCover2RightSide;
     await saveBeanConfig();
+  }
+
+  Future<void> saveAppleVisualStyle(bool enabled) async {
+    log.debug('saveAppleVisualStyle:$enabled');
+    await _resetAppleNavigationPreference(enabled);
+    appleVisualStyle.value = enabled;
+    await saveBeanConfig();
+  }
+
+  Future<void> _resetAppleNavigationPreference(bool appleStyleEnabled) async {
+    if (!appleStyleEnabled || !preferenceSetting.hideBottomBar.value) {
+      return;
+    }
+    await preferenceSetting.saveHideBottomBar(false);
+  }
+
+  Future<void> _migrateAppleNavigationPreference() async {
+    try {
+      await _resetAppleNavigationPreference(appleVisualStyle.value);
+    } catch (error, stack) {
+      log.warning('Failed to migrate Apple navigation preference', error, true);
+      log.trace(stack);
+    }
   }
 
   Future<void> saveLayoutMode(LayoutMode layoutMode) async {

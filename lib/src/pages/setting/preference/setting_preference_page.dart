@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/tab_bar_icon.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
@@ -15,6 +16,10 @@ import '../../../setting/preference_setting.dart';
 import '../../../setting/style_setting.dart';
 import '../../../utils/locale_util.dart';
 import '../../../utils/route_util.dart';
+import '../../../utils/app_icons.dart';
+import '../../../widget/eh_apple_settings_list_view.dart';
+import '../../../widget/eh_apple_controls.dart';
+import '../../../widget/eh_codex_style_dropdown.dart';
 import '../../../widget/loading_state_indicator.dart';
 
 class SettingPreferencePage extends StatelessWidget {
@@ -25,40 +30,50 @@ class SettingPreferencePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(centerTitle: true, title: Text('preferenceSetting'.tr)),
       body: Obx(
-        () => SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.only(top: 16),
-            children: [
-              _buildLanguage(),
-              _buildTagTranslate(),
-              _buildTagOrderOptimization(),
-              _buildDefaultTab(),
-              _buildDefaultDownloadTab(),
-              if (styleSetting.isInV2Layout) _buildSimpleDashboardMode(),
-              if (styleSetting.isInV2Layout) _buildShowBottomNavigation(),
-              if (styleSetting.isInV2Layout || styleSetting.actualLayout == LayoutMode.desktop) _buildHideScroll2TopButton(),
-              _buildPreloadGalleryCover(),
-              _buildEnableSwipeBackGesture(),
-              if (styleSetting.isInV2Layout) _buildEnableLeftMenuDrawerGesture(),
-              if (styleSetting.isInV2Layout) _buildQuickSearch(),
-              if (styleSetting.isInV2Layout) _buildDrawerGestureEdgeWidth(context),
-              _buildShowAllGalleryTitles(),
-              _buildShowGalleryTagVoteStatus(),
-              _buildShowComments(),
-              if (preferenceSetting.showComments.isTrue) _buildShowAllComments().fadeIn(const Key('showAllComments')),
-              _buildEnableDefaultFavorite(),
-              _buildEnableDefaultTagSet(),
-              if (GetPlatform.isDesktop && styleSetting.isInDesktopLayout) _buildLaunchInFullScreen(),
-              _buildTagSearchConfig(),
-              if (preferenceSetting.enableTagZHTranslation.isTrue) _buildShowR18GImageDirectly().fadeIn(const Key('showR18GImageDirectly')),
-              _buildShowUtcTime(),
-              _buildShowDawnInfo(),
-              _buildShowEncounterMonster(),
-              _buildUseBuiltInBlockedUsers(),
-              _buildConfirmDestructiveActions(),
-              _buildBlockRules(),
-            ],
-          ).withListTileTheme(context),
+        () => EHAppleSettingsListView(
+          safeArea: true,
+          groups: [
+            EHAppleSettingsGroup(
+              children: [
+                _buildLanguage(),
+                _buildTagTranslate(),
+                _buildTagOrderOptimization(),
+                _buildDefaultTab(),
+                _buildDefaultDownloadTab(),
+                if (styleSetting.isInV2Layout) _buildSimpleDashboardMode(),
+                if (styleSetting.isInV2Layout) _buildShowBottomNavigation(),
+                if (styleSetting.isInV2Layout ||
+                    styleSetting.actualLayout == LayoutMode.desktop)
+                  _buildHideScroll2TopButton(),
+                _buildPreloadGalleryCover(),
+                _buildEnableSwipeBackGesture(),
+                if (styleSetting.isInV2Layout)
+                  _buildEnableLeftMenuDrawerGesture(),
+                if (styleSetting.isInV2Layout) _buildQuickSearch(),
+                if (styleSetting.isInV2Layout)
+                  _buildDrawerGestureEdgeWidth(context),
+                _buildShowAllGalleryTitles(),
+                _buildShowGalleryTagVoteStatus(),
+                _buildShowComments(),
+                if (preferenceSetting.showComments.isTrue)
+                  _buildShowAllComments().fadeIn(const Key('showAllComments')),
+                _buildEnableDefaultFavorite(),
+                _buildEnableDefaultTagSet(),
+                if (GetPlatform.isDesktop && styleSetting.isInDesktopLayout)
+                  _buildLaunchInFullScreen(),
+                _buildTagSearchConfig(),
+                if (preferenceSetting.enableTagZHTranslation.isTrue)
+                  _buildShowR18GImageDirectly()
+                      .fadeIn(const Key('showR18GImageDirectly')),
+                _buildShowUtcTime(),
+                _buildShowDawnInfo(),
+                _buildShowEncounterMonster(),
+                _buildUseBuiltInBlockedUsers(),
+                _buildConfirmDestructiveActions(),
+                _buildBlockRules(),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -67,11 +82,12 @@ class SettingPreferencePage extends StatelessWidget {
   Widget _buildLanguage() {
     return ListTile(
       title: Text('language'.tr),
-      trailing: DropdownButton<Locale>(
+      trailing: EHCodexStyleDropdown<Locale>(
         value: preferenceSetting.locale.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (Locale? newValue) => preferenceSetting.saveLanguage(newValue!),
+        onChanged: (Locale? newValue) =>
+            preferenceSetting.saveLanguage(newValue!),
         items: LocaleText()
             .keys
             .keys
@@ -88,14 +104,16 @@ class SettingPreferencePage extends StatelessWidget {
     return ListTile(
       title: Text('enableTagZHTranslation'.tr),
       subtitle: tagTranslationService.loadingState.value == LoadingState.success
-          ? Text('${'version'.tr}: ${tagTranslationService.timeStamp.value!}', style: const TextStyle(fontSize: 12))
+          ? Text('${'version'.tr}: ${tagTranslationService.timeStamp.value!}',
+              style: const TextStyle(fontSize: 12))
           : tagTranslationService.loadingState.value == LoadingState.loading
               ? Text(
                   '${'downloadTagTranslationHint'.tr}${tagTranslationService.downloadProgress.value}',
                   style: const TextStyle(fontSize: 12),
                 )
               : tagTranslationService.loadingState.value == LoadingState.error
-                  ? Text('downloadFailed'.tr, style: const TextStyle(fontSize: 12))
+                  ? Text('downloadFailed'.tr,
+                      style: const TextStyle(fontSize: 12))
                   : null,
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
@@ -105,15 +123,20 @@ class SettingPreferencePage extends StatelessWidget {
             loadingState: tagTranslationService.loadingState.value,
             indicatorRadius: 10,
             width: 40,
-            idleWidgetBuilder: () => IconButton(onPressed: tagTranslationService.fetchDataFromGithub, icon: const Icon(Icons.refresh)),
+            idleWidgetBuilder: () => EHAppleIconButton(
+                onPressed: tagTranslationService.fetchDataFromGithub,
+                icon: const Icon(Icons.refresh)),
             errorWidgetSameWithIdle: true,
             successWidgetSameWithIdle: true,
           ),
-          Switch(
+          const SizedBox(width: 8),
+          EHAppleSwitch(
             value: preferenceSetting.enableTagZHTranslation.value,
             onChanged: (value) {
               preferenceSetting.saveEnableTagZHTranslation(value);
-              if (value == true && tagTranslationService.loadingState.value != LoadingState.success) {
+              if (value == true &&
+                  tagTranslationService.loadingState.value !=
+                      LoadingState.success) {
                 tagTranslationService.fetchDataFromGithub();
               }
             },
@@ -126,15 +149,21 @@ class SettingPreferencePage extends StatelessWidget {
   Widget _buildTagOrderOptimization() {
     return ListTile(
       title: Text('zhTagSearchOrderOptimization'.tr),
-      subtitle: tagSearchOrderOptimizationService.loadingState.value == LoadingState.success
-          ? Text('${'version'.tr}: ${tagSearchOrderOptimizationService.version.value!}', style: const TextStyle(fontSize: 12))
-          : tagSearchOrderOptimizationService.loadingState.value == LoadingState.loading
+      subtitle: tagSearchOrderOptimizationService.loadingState.value ==
+              LoadingState.success
+          ? Text(
+              '${'version'.tr}: ${tagSearchOrderOptimizationService.version.value!}',
+              style: const TextStyle(fontSize: 12))
+          : tagSearchOrderOptimizationService.loadingState.value ==
+                  LoadingState.loading
               ? Text(
                   '${'downloadTagTranslationHint'.tr}${tagSearchOrderOptimizationService.downloadProgress.value}',
                   style: const TextStyle(fontSize: 12),
                 )
-              : tagSearchOrderOptimizationService.loadingState.value == LoadingState.error
-                  ? Text('downloadFailed'.tr, style: const TextStyle(fontSize: 12))
+              : tagSearchOrderOptimizationService.loadingState.value ==
+                      LoadingState.error
+                  ? Text('downloadFailed'.tr,
+                      style: const TextStyle(fontSize: 12))
                   : Text('zhTagSearchOrderOptimizationHint'.tr),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
@@ -144,15 +173,21 @@ class SettingPreferencePage extends StatelessWidget {
             loadingState: tagSearchOrderOptimizationService.loadingState.value,
             indicatorRadius: 10,
             width: 40,
-            idleWidgetBuilder: () => IconButton(onPressed: tagSearchOrderOptimizationService.fetchDataFromGithub, icon: const Icon(Icons.refresh)),
+            idleWidgetBuilder: () => EHAppleIconButton(
+                onPressed:
+                    tagSearchOrderOptimizationService.fetchDataFromGithub,
+                icon: const Icon(Icons.refresh)),
             errorWidgetSameWithIdle: true,
             successWidgetSameWithIdle: true,
           ),
-          Switch(
+          const SizedBox(width: 8),
+          EHAppleSwitch(
             value: preferenceSetting.enableTagZHSearchOrderOptimization.value,
             onChanged: (value) {
               preferenceSetting.saveEnableTagZHSearchOrderOptimization(value);
-              if (value == true && tagSearchOrderOptimizationService.loadingState.value != LoadingState.success) {
+              if (value == true &&
+                  tagSearchOrderOptimizationService.loadingState.value !=
+                      LoadingState.success) {
                 tagSearchOrderOptimizationService.fetchDataFromGithub();
               }
             },
@@ -165,11 +200,12 @@ class SettingPreferencePage extends StatelessWidget {
   Widget _buildDefaultTab() {
     return ListTile(
       title: Text('defaultTab'.tr),
-      trailing: DropdownButton<TabBarIconNameEnum>(
+      trailing: EHCodexStyleDropdown<TabBarIconNameEnum>(
         value: preferenceSetting.defaultTab.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (TabBarIconNameEnum? newValue) => preferenceSetting.saveDefaultTab(newValue!),
+        onChanged: (TabBarIconNameEnum? newValue) =>
+            preferenceSetting.saveDefaultTab(newValue!),
         items: [
           DropdownMenuItem(
             child: Text(TabBarIconNameEnum.home.name.tr),
@@ -199,11 +235,12 @@ class SettingPreferencePage extends StatelessWidget {
   Widget _buildDefaultDownloadTab() {
     return ListTile(
       title: Text('defaultDownloadTab'.tr),
-      trailing: DropdownButton<DownloadPageGalleryType>(
+      trailing: EHCodexStyleDropdown<DownloadPageGalleryType>(
         value: preferenceSetting.defaultDownloadTab.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (DownloadPageGalleryType? newValue) => preferenceSetting.saveDefaultDownloadTab(newValue!),
+        onChanged: (DownloadPageGalleryType? newValue) =>
+            preferenceSetting.saveDefaultDownloadTab(newValue!),
         items: [
           DropdownMenuItem(
             child: Text('download'.tr),
@@ -223,7 +260,7 @@ class SettingPreferencePage extends StatelessWidget {
   }
 
   Widget _buildSimpleDashboardMode() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('simpleDashboardMode'.tr),
       subtitle: Text('simpleDashboardModeHint'.tr),
       value: preferenceSetting.simpleDashboardMode.value,
@@ -232,21 +269,23 @@ class SettingPreferencePage extends StatelessWidget {
   }
 
   Widget _buildShowBottomNavigation() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('hideBottomBar'.tr),
-      value: preferenceSetting.hideBottomBar.value,
+      value: preferenceSetting.effectiveHideBottomBar,
       onChanged: preferenceSetting.saveHideBottomBar,
+      enabled: !ThemeConfig.isApple,
     );
   }
 
   Widget _buildHideScroll2TopButton() {
     return ListTile(
       title: Text('hideScroll2TopButton'.tr),
-      trailing: DropdownButton<Scroll2TopButtonModeEnum>(
+      trailing: EHCodexStyleDropdown<Scroll2TopButtonModeEnum>(
         value: preferenceSetting.hideScroll2TopButton.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (Scroll2TopButtonModeEnum? newValue) => preferenceSetting.saveHideScroll2TopButton(newValue!),
+        onChanged: (Scroll2TopButtonModeEnum? newValue) =>
+            preferenceSetting.saveHideScroll2TopButton(newValue!),
         items: [
           DropdownMenuItem(
             child: Text('whenScrollUp'.tr),
@@ -270,7 +309,7 @@ class SettingPreferencePage extends StatelessWidget {
   }
 
   Widget _buildPreloadGalleryCover() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('preloadGalleryCover'.tr),
       subtitle: Text('preloadGalleryCoverHint'.tr),
       value: preferenceSetting.preloadGalleryCover.value,
@@ -279,7 +318,7 @@ class SettingPreferencePage extends StatelessWidget {
   }
 
   Widget _buildEnableSwipeBackGesture() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('enableSwipeBackGesture'.tr),
       subtitle: Text('needRestart'.tr),
       value: preferenceSetting.enableSwipeBackGesture.value,
@@ -288,7 +327,7 @@ class SettingPreferencePage extends StatelessWidget {
   }
 
   Widget _buildEnableLeftMenuDrawerGesture() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('enableLeftMenuDrawerGesture'.tr),
       value: preferenceSetting.enableLeftMenuDrawerGesture.value,
       onChanged: preferenceSetting.saveEnableLeftMenuDrawerGesture,
@@ -296,7 +335,7 @@ class SettingPreferencePage extends StatelessWidget {
   }
 
   Widget _buildQuickSearch() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('enableQuickSearchDrawerGesture'.tr),
       value: preferenceSetting.enableQuickSearchDrawerGesture.value,
       onChanged: preferenceSetting.saveEnableQuickSearchDrawerGesture,
@@ -311,14 +350,18 @@ class SettingPreferencePage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SliderTheme(
-              data: SliderTheme.of(context).copyWith(showValueIndicator: ShowValueIndicator.onDrag),
-              child: Slider(
+              data: SliderTheme.of(context)
+                  .copyWith(showValueIndicator: ShowValueIndicator.onDrag),
+              child: EHAppleSlider(
                 min: 20,
                 max: 300,
-                label: preferenceSetting.drawerGestureEdgeWidth.value.toString(),
-                value: preferenceSetting.drawerGestureEdgeWidth.value.toDouble(),
+                label:
+                    preferenceSetting.drawerGestureEdgeWidth.value.toString(),
+                value:
+                    preferenceSetting.drawerGestureEdgeWidth.value.toDouble(),
                 onChanged: (value) {
-                  preferenceSetting.drawerGestureEdgeWidth.value = value.toInt();
+                  preferenceSetting.drawerGestureEdgeWidth.value =
+                      value.toInt();
                 },
                 onChangeEnd: (value) {
                   preferenceSetting.saveDrawerGestureEdgeWidth(value.toInt());
@@ -332,7 +375,7 @@ class SettingPreferencePage extends StatelessWidget {
   }
 
   Widget _buildShowAllGalleryTitles() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('showAllGalleryTitles'.tr),
       subtitle: Text('showAllGalleryTitlesHint'.tr),
       value: preferenceSetting.showAllGalleryTitles.value,
@@ -341,7 +384,7 @@ class SettingPreferencePage extends StatelessWidget {
   }
 
   Widget _buildShowGalleryTagVoteStatus() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('showGalleryTagVoteStatus'.tr),
       subtitle: Text('showGalleryTagVoteStatusHint'.tr),
       value: preferenceSetting.showGalleryTagVoteStatus.value,
@@ -350,7 +393,7 @@ class SettingPreferencePage extends StatelessWidget {
   }
 
   Widget _buildShowComments() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('showComments'.tr),
       value: preferenceSetting.showComments.value,
       onChanged: preferenceSetting.saveShowComments,
@@ -358,7 +401,7 @@ class SettingPreferencePage extends StatelessWidget {
   }
 
   Widget _buildShowAllComments() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('showAllComments'.tr),
       subtitle: Text('showAllCommentsHint'.tr),
       value: preferenceSetting.showAllComments.value,
@@ -367,7 +410,7 @@ class SettingPreferencePage extends StatelessWidget {
   }
 
   Widget _buildShowR18GImageDirectly() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('showR18GImageDirectly'.tr),
       value: preferenceSetting.showR18GImageDirectly.value,
       onChanged: preferenceSetting.saveShowR18GImageDirectly,
@@ -375,25 +418,29 @@ class SettingPreferencePage extends StatelessWidget {
   }
 
   Widget _buildEnableDefaultFavorite() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('enableDefaultFavorite'.tr),
-      subtitle: Text(preferenceSetting.enableDefaultFavorite.isTrue ? 'enableDefaultFavoriteHint'.tr : 'disableDefaultFavoriteHint'.tr),
+      subtitle: Text(preferenceSetting.enableDefaultFavorite.isTrue
+          ? 'enableDefaultFavoriteHint'.tr
+          : 'disableDefaultFavoriteHint'.tr),
       value: preferenceSetting.enableDefaultFavorite.value,
       onChanged: preferenceSetting.saveEnableDefaultFavorite,
     );
   }
 
   Widget _buildEnableDefaultTagSet() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('enableDefaultTagSet'.tr),
-      subtitle: Text(preferenceSetting.enableDefaultTagSet.isTrue ? 'enableDefaultTagSetHint'.tr : 'disableDefaultTagSetHint'.tr),
+      subtitle: Text(preferenceSetting.enableDefaultTagSet.isTrue
+          ? 'enableDefaultTagSetHint'.tr
+          : 'disableDefaultTagSetHint'.tr),
       value: preferenceSetting.enableDefaultTagSet.value,
       onChanged: preferenceSetting.saveEnableDefaultTagSet,
     );
   }
 
   Widget _buildLaunchInFullScreen() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('launchInFullScreen'.tr),
       subtitle: Text('launchInFullScreenHint'.tr),
       value: preferenceSetting.launchInFullScreen.value,
@@ -407,15 +454,17 @@ class SettingPreferencePage extends StatelessWidget {
       subtitle: Text(
         preferenceSetting.searchBehaviour.value == SearchBehaviour.inheritAll
             ? 'inheritAllHint'.tr
-            : preferenceSetting.searchBehaviour.value == SearchBehaviour.inheritPartially
+            : preferenceSetting.searchBehaviour.value ==
+                    SearchBehaviour.inheritPartially
                 ? 'inheritPartiallyHint'.tr
                 : 'noneHint'.tr,
       ),
-      trailing: DropdownButton<SearchBehaviour>(
+      trailing: EHCodexStyleDropdown<SearchBehaviour>(
         value: preferenceSetting.searchBehaviour.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (SearchBehaviour? newValue) => preferenceSetting.saveTagSearchConfig(newValue!),
+        onChanged: (SearchBehaviour? newValue) =>
+            preferenceSetting.saveTagSearchConfig(newValue!),
         items: [
           DropdownMenuItem(
             child: Text('inheritAll'.tr),
@@ -435,7 +484,7 @@ class SettingPreferencePage extends StatelessWidget {
   }
 
   Widget _buildShowUtcTime() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('showUtcTime'.tr),
       value: preferenceSetting.showUtcTime.value,
       onChanged: preferenceSetting.saveShowUtcTime,
@@ -446,13 +495,13 @@ class SettingPreferencePage extends StatelessWidget {
     return ListTile(
       title: Text('blockingRules'.tr),
       subtitle: Text('blockingRulesHint'.tr),
-      trailing: const Icon(Icons.keyboard_arrow_right),
+      trailing: Icon(AppIcons.chevronRight),
       onTap: () => toRoute(Routes.blockingRules),
     );
   }
 
   Widget _buildShowDawnInfo() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('showDawnInfo'.tr),
       value: preferenceSetting.showDawnInfo.value,
       onChanged: preferenceSetting.saveShowDawnInfo,
@@ -460,7 +509,7 @@ class SettingPreferencePage extends StatelessWidget {
   }
 
   Widget _buildShowEncounterMonster() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('showEncounterMonster'.tr),
       value: preferenceSetting.showHVInfo.value,
       onChanged: preferenceSetting.saveShowHVInfo,
@@ -474,14 +523,15 @@ class SettingPreferencePage extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          IconButton(
+          EHAppleIconButton(
             icon: const Icon(Icons.help),
             onPressed: () => launchUrlString(
               'https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/built_in_blocked_user.json',
               mode: LaunchMode.externalApplication,
             ),
           ),
-          Switch(
+          const SizedBox(width: 8),
+          EHAppleSwitch(
             value: preferenceSetting.useBuiltInBlockedUsers.value,
             onChanged: preferenceSetting.saveUseBuiltInBlockedUsers,
           )
@@ -491,7 +541,7 @@ class SettingPreferencePage extends StatelessWidget {
   }
 
   Widget _buildConfirmDestructiveActions() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('confirmDestructiveActions'.tr),
       subtitle: Text('confirmDestructiveActionsHint'.tr),
       value: preferenceSetting.confirmDestructiveActions.value,

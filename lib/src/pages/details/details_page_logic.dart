@@ -392,7 +392,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       );
       galleryDownloadService.downloadGallery(galleryDownloadRequest);
 
-      updateGlobalGalleryStatus();
+      updateGlobalGalleryStatus(state.galleryUrl.gid);
 
       toast('${'beginToDownload'.tr}： ${state.galleryUrl.gid}', isCenter: false);
       return;
@@ -547,7 +547,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     state.favoriteState = LoadingState.idle;
     updateSafely([favoriteId]);
 
-    updateGlobalGalleryStatus();
+    updateGlobalGalleryStatus(state.galleryUrl.gid);
 
     toast(
       operation.isDelete ? 'removeFavoriteSuccess'.tr : 'favoriteGallerySuccess'.tr,
@@ -628,7 +628,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     state.ratingState = LoadingState.idle;
     updateSafely();
 
-    updateGlobalGalleryStatus();
+    updateGlobalGalleryStatus(state.galleryUrl.gid);
 
     toast('ratingSuccess'.tr, isCenter: false);
   }
@@ -678,7 +678,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       );
       archiveDownloadService.downloadArchive(archive);
 
-      updateGlobalGalleryStatus();
+      updateGlobalGalleryStatus(state.galleryUrl.gid);
 
       log.info('${'beginToDownloadArchive'.tr}: ${archive.title}');
       toast('${'beginToDownloadArchive'.tr}:  ${archive.title}', isCenter: false);
@@ -868,7 +868,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       await archiveDownloadService.deleteArchive(gid);
     }
 
-    updateGlobalGalleryStatus();
+    updateGlobalGalleryStatus(gid);
   }
 
   void showTagDialog(GalleryTag tag) {
@@ -1035,6 +1035,11 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       openThirdPartyViewer(DownloadPathResolver.computeGalleryDownloadAbsolutePath(gallery.toGalleryDownloadedData()));
       return;
     }
+
+    // Completed downloads release their in-memory image list. Reload it before
+    // constructing ReadPageState, whose downloaded-mode image view is
+    // synchronous and expects the service list to already be resident.
+    await gallery.ensureImagesLoaded();
 
     toRoute(
       Routes.read,

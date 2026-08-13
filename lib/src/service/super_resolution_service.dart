@@ -17,6 +17,10 @@ import 'package:retry/retry.dart';
 
 import '../database/dao/super_resolution_info_dao.dart';
 import '../model/gallery_image.dart';
+import 'inference/inference_exception.dart';
+import 'inference/inference_task.dart';
+import 'inference_service.dart';
+import 'engine/engine.dart' as engine_lib;
 import 'jh_service.dart';
 import 'path_service.dart';
 import '../utils/archive_util.dart';
@@ -32,7 +36,9 @@ import 'gallery_download/gallery_images_retainer.dart';
 
 SuperResolutionService superResolutionService = SuperResolutionService();
 
-class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCatch, GalleryImagesRetainer implements JHLifeCircleBean {
+class SuperResolutionService extends GetxController
+    with JHLifeCircleBeanErrorCatch, GalleryImagesRetainer
+    implements JHLifeCircleBean {
   static const String downloadId = 'downloadId';
   static const String superResolutionId = 'superResolutionId';
   static const String superResolutionImageId = 'superResolutionImageId';
@@ -41,15 +47,21 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
   String downloadProgress = '0%';
 
   EHExecutor executor = EHExecutor(concurrency: 1);
+  final Map<String, InferenceCancellationToken> _taskTokens =
+      <String, InferenceCancellationToken>{};
+  final SuperResolutionPreemptionTracker _preemptionTracker =
+      SuperResolutionPreemptionTracker();
 
-  util.Table<int, SuperResolutionType, SuperResolutionInfo> superResolutionInfoTable = util.Table();
+  util.Table<int, SuperResolutionType, SuperResolutionInfo>
+  superResolutionInfoTable = util.Table();
 
   static const String imageDirName = 'super_resolution';
 
   @override
   List<JHLifeCircleBean> get initDependencies => super.initDependencies
     ..add(galleryDownloadService)
-    ..add(archiveDownloadService);
+    ..add(archiveDownloadService)
+    ..add(inferenceService);
 
   @override
   Future<void> doInitBean() async {
@@ -62,7 +74,8 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
       return;
     }
 
-    List<SuperResolutionInfoData> superResolutionInfoDatas = await _selectAllSuperResolutionInfo();
+    List<SuperResolutionInfoData> superResolutionInfoDatas =
+        await _selectAllSuperResolutionInfo();
     for (SuperResolutionInfoData data in superResolutionInfoDatas) {
       superResolutionInfoTable.put(
         data.gid,
@@ -77,18 +90,24 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
 
     _checkInfoSourceExists();
 
-    Future.wait(superResolutionInfoTable
-        .entries()
-        .where((e) => e.value.status == SuperResolutionStatus.running)
-        .map((e) => executor.scheduleTask(0, () => _doSuperResolve(e.key1, e.key2)))
-        .toList());
+    Future.wait(
+      superResolutionInfoTable
+          .entries()
+          .where((e) => e.value.status == SuperResolutionStatus.running)
+          .map(
+            (e) =>
+                executor.scheduleTask(0, () => _doSuperResolve(e.key1, e.key2)),
+          )
+          .toList(),
+    );
     super.onInit();
   }
 
   @override
   Future<void> doAfterBeanReady() async {}
 
-  SuperResolutionInfo? get(int gid, SuperResolutionType type) => superResolutionInfoTable.get(gid, type);
+  SuperResolutionInfo? get(int gid, SuperResolutionType type) =>
+      superResolutionInfoTable.get(gid, type);
 
   Future<void> downloadModelFile(ModelType model) async {
     String downloadUrl;
@@ -108,8 +127,12 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
     downloadState = LoadingState.loading;
     updateSafely([downloadId]);
 
-    final String modelDownloadPath = join(pathService.getVisibleDir().path, '${model.type}.zip');
-    final String extractPath = join(pathService.getVisibleDir().path, model.type);
+    await pathService.jhSrModelDir.create(recursive: true);
+    final String modelDownloadPath = join(
+      pathService.jhSrModelDir.path,
+      '${model.type}.zip',
+    );
+    final String extractPath = join(pathService.jhSrModelDir.path, model.type);
 
     try {
       await retry(
@@ -123,10 +146,15 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
           },
         ),
         maxAttempts: 5,
-        onRetry: (error) => log.warning('Download super-resolution model failed, retry.'),
+        delayFactor: const Duration(milliseconds: 500),
+        onRetry: (error) =>
+            log.warning('Download super-resolution model failed, retry.'),
       );
     } on DioException catch (e) {
-      log.error('Download super-resolution model failed after 5 times', e.errorMsg);
+      log.error(
+        'Download super-resolution model failed after 5 times',
+        e.errorMsg,
+      );
       downloadState = LoadingState.error;
       updateSafely([downloadId]);
       return;
@@ -159,6 +187,27 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
       return;
     }
 
+    /// `extractArchiveToDisk` does not preserve the zip's Unix executable bit,
+    /// so the ncnn-vulkan binary comes out non-executable and the shell would
+    /// refuse to run it (exit code 126). Make it executable right away.
+    if (!GetPlatform.isWindows) {
+      final String executableName = GetPlatform.isMacOS
+          ? model.macOSExecutableName
+          : model.linuxExecutableName;
+      final String executablePath = join(dirPath, executableName);
+      try {
+        if (File(executablePath).existsSync()) {
+          await Process.run('chmod', ['+x', executablePath]);
+        } else {
+          log.warning(
+            'Super-resolution executable not found after extraction: $executablePath',
+          );
+        }
+      } on Exception catch (e) {
+        log.error('Failed to make super-resolution executable runnable', e);
+      }
+    }
+
     superResolutionSetting.saveModelDirectoryPath(dirPath);
 
     downloadState = LoadingState.success;
@@ -166,17 +215,21 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
   }
 
   Future<bool> superResolve(int gid, SuperResolutionType type) async {
+    _preemptionTracker.recordUserAction(gid, type);
     if (type == SuperResolutionType.gallery) {
-      GalleryDownloadInfo? galleryDownloadInfo = galleryDownloadService.galleryDownloadInfos[gid];
-      if (galleryDownloadInfo?.downloadProgress.downloadStatus != DownloadStatus.downloaded) {
+      GalleryDownloadInfo? galleryDownloadInfo =
+          galleryDownloadService.galleryDownloadInfos[gid];
+      if (galleryDownloadInfo?.downloadProgress.downloadStatus !=
+          DownloadStatus.downloaded) {
         toast('requireDownloadComplete'.tr);
         return false;
       }
     } else {
-      ArchiveDownloadInfo? archiveDownloadInfo = archiveDownloadService.archiveDownloadInfos[gid];
+      ArchiveDownloadInfo? archiveDownloadInfo =
+          archiveDownloadService.archiveDownloadInfos[gid];
       if (archiveDownloadInfo?.archiveStatus != ArchiveStatus.completed) {
         toast('requireDownloadComplete'.tr);
-        return true;
+        return false;
       }
     }
 
@@ -200,6 +253,14 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
         rawImages = await archiveDownloadService.getUnpackedImages(gid);
       }
 
+      if (rawImages.isEmpty) {
+        log.error(
+          'super resolve failed: no images to process, gid: $gid, type: $type',
+        );
+        toast('failed'.tr);
+        return false;
+      }
+
       superResolutionInfo = SuperResolutionInfo(
         type,
         SuperResolutionStatus.running,
@@ -208,17 +269,35 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
       superResolutionInfoTable.put(gid, type, superResolutionInfo);
       await _insertSuperResolutionInfo(gid, superResolutionInfo);
 
-      Directory(dirname(computeImageOutputAbsolutePath(rawImages[0].path!))).createSync(recursive: true);
+      Directory(
+        dirname(computeImageOutputAbsolutePath(rawImages[0].path!)),
+      ).createSync(recursive: true);
 
       updateSafely(['$superResolutionId::$gid']);
     }
 
+    /// resuming is an explicit user action: flip the entry back to running now
+    /// so the worker (which may start later on the single-connection executor)
+    /// doesn't mistake it for a still-paused task
+    if (superResolutionInfo.status == SuperResolutionStatus.paused) {
+      superResolutionInfo.status = SuperResolutionStatus.running;
+      await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
+      updateSafely(['$superResolutionId::$gid']);
+    }
+
+    final String taskKey = _taskKey(gid, type);
+    _taskTokens[taskKey] = InferenceCancellationToken();
     toast('${'startProcess'.tr}: $gid');
     executor.scheduleTask(0, () => _doSuperResolve(gid, type));
     return true;
   }
 
   Future<void> pauseSuperResolve(int gid, SuperResolutionType type) async {
+    _preemptionTracker.recordUserAction(gid, type);
+    await _pauseSuperResolve(gid, type);
+  }
+
+  Future<void> _pauseSuperResolve(int gid, SuperResolutionType type) async {
     SuperResolutionInfo? superResolutionInfo = get(gid, type);
 
     if (superResolutionInfo == null || superResolutionInfo.status == SuperResolutionStatus.success || superResolutionInfo.status == SuperResolutionStatus.paused) {
@@ -226,19 +305,58 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
     }
 
     bool? success = superResolutionInfo.currentProcess?.kill();
+    _taskTokens.remove(_taskKey(gid, type))?.cancel('paused by user');
     log.info('pause super resolution: $gid $success');
 
     superResolutionInfo.status = SuperResolutionStatus.paused;
-    for (SuperResolutionStatus status in superResolutionInfo.imageStatuses) {
-      if (status == SuperResolutionStatus.running) {
-        status = SuperResolutionStatus.paused;
+
+    /// mark every still-running image as paused too, so the per-image status
+    /// matches the overall state (previously the loop only reassigned the
+    /// iteration copy and never modified the list)
+    for (int i = 0; i < superResolutionInfo.imageStatuses.length; i++) {
+      if (superResolutionInfo.imageStatuses[i] ==
+          SuperResolutionStatus.running) {
+        superResolutionInfo.imageStatuses[i] = SuperResolutionStatus.paused;
       }
     }
     await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
     updateSafely(['$superResolutionId::$gid']);
   }
 
+  /// Reader actions must be able to put a visible single-page request ahead
+  /// of queued whole-gallery work. This only pauses existing tasks; it does
+  /// not change any model/runtime implementation or delete their checkpoints.
+  Future<SuperResolutionPauseLease> pauseAllForReaderPage() async {
+    final entries = superResolutionInfoTable
+        .entries()
+        .where((entry) => entry.value.status == SuperResolutionStatus.running)
+        .toList();
+    final List<_ReaderPagePausedTask> pausedTasks = <_ReaderPagePausedTask>[];
+    try {
+      for (final entry in entries) {
+        pausedTasks.add(
+          _ReaderPagePausedTask(
+            gid: entry.key1,
+            type: entry.key2,
+            userActionRevision: _preemptionTracker.capture(
+              entry.key1,
+              entry.key2,
+            ),
+          ),
+        );
+        await _pauseSuperResolve(entry.key1, entry.key2);
+      }
+    } on Object {
+      await _resumeAfterReaderPage(pausedTasks);
+      rethrow;
+    }
+    return SuperResolutionPauseLease(
+      () => _resumeAfterReaderPage(pausedTasks),
+    );
+  }
+
   Future<void> deleteSuperResolve(int gid, SuperResolutionType type) async {
+    _preemptionTracker.recordUserAction(gid, type);
     SuperResolutionInfo? superResolutionInfo = get(gid, type);
     if (superResolutionInfo == null) {
       return;
@@ -247,6 +365,7 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
     log.info('delete super resolution: $gid');
 
     superResolutionInfo.currentProcess?.kill();
+    _taskTokens.remove(_taskKey(gid, type))?.cancel('deleted by user');
     superResolutionInfoTable.remove(gid, type);
     await SuperResolutionInfoDao.deleteSuperResolutionInfo(gid, type.index);
 
@@ -258,11 +377,15 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
       }
       dirPath = join(DownloadPathResolver.computeGalleryDownloadAbsolutePath(gallery.toGalleryDownloadedData()), imageDirName);
     } else {
-      ArchiveDownloadedData? archive = archiveDownloadService.archives.firstWhereOrNull((a) => a.gid == gid);
+      ArchiveDownloadedData? archive = archiveDownloadService.archives
+          .firstWhereOrNull((a) => a.gid == gid);
       if (archive == null) {
         return;
       }
-      dirPath = join(archiveDownloadService.computeArchiveUnpackingPath(archive), imageDirName);
+      dirPath = join(
+        archiveDownloadService.computeArchiveUnpackingPath(archive),
+        imageDirName,
+      );
     }
 
     Directory directory = Directory(dirPath);
@@ -274,82 +397,169 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
   }
 
   Future<void> _doSuperResolve(int gid, SuperResolutionType type) async {
-    /// Retain is acquired here (not in [superResolve]) so that a never-
-    /// scheduled task — executor cancelled, app shutdown, etc. — can't leak
-    /// a retain. try/finally covers every exit path (cancel / pause / error
-    /// / success); release is skipped for archive type (no retain taken).
     final bool needRetain = type == SuperResolutionType.gallery;
-    if (needRetain) {
-      await retainGalleryImages(gid);
+    if (needRetain && !await retainGalleryImages(gid)) {
+      return;
     }
+    final String taskKey = _taskKey(gid, type);
+    final InferenceCancellationToken token = _taskTokens.putIfAbsent(
+      taskKey,
+      InferenceCancellationToken.new,
+    );
     try {
-      List<GalleryImage> rawImages;
-      if (type == SuperResolutionType.gallery) {
-        /// [retainGalleryImages] above ensured images is resident.
-        rawImages = galleryDownloadService.galleryDownloadInfos[gid]!.images!.whereType<GalleryImage>().toList();
-      } else {
-        rawImages = await archiveDownloadService.getUnpackedImages(gid);
-      }
-
-      SuperResolutionInfo superResolutionInfo = get(gid, type)!;
-      if (superResolutionInfo.status != SuperResolutionStatus.running) {
-        superResolutionInfo.status = SuperResolutionStatus.running;
-        await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
-        updateSafely(['$superResolutionId::$gid']);
-      }
-
-      for (int i = 0; i < rawImages.length; i++) {
-        /// cancelled
-        if (get(gid, type) == null) {
-          return;
-        }
-
-        if (superResolutionInfo.status == SuperResolutionStatus.paused) {
-          return;
-        }
-
-        if (superResolutionInfo.imageStatuses[i] == SuperResolutionStatus.success) {
-          continue;
-        }
-
-        if (superResolutionSetting.modelDirectoryPath.value == null) {
-          return;
-        }
-
-        superResolutionInfo.imageStatuses[i] = SuperResolutionStatus.running;
-        await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
-        updateSafely(['$superResolutionId::$gid']);
-
-        bool success = await _handleImage(rawImages[i], superResolutionInfo);
-        if (!success) {
-          pauseSuperResolve(gid, type);
-          return;
-        }
-
-        superResolutionInfo.imageStatuses[i] = SuperResolutionStatus.success;
-        log.download('super resolve image ${rawImages[i].path} success');
-
-        /// we can't kill the process immediately on Windows
-        if (get(gid, type) != null) {
-          await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
-        }
-        updateSafely(['$superResolutionId::$gid', '$superResolutionImageId::$gid::$i']);
-      }
-
-      if (get(gid, type) != null && superResolutionInfo.imageStatuses.every((status) => status == SuperResolutionStatus.success)) {
-        superResolutionInfo.status = SuperResolutionStatus.success;
-        await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
-        updateSafely(['$superResolutionId::$gid']);
-        log.info('super resolve success, gid:$gid');
-      }
+      await _runSuperResolve(gid, type, taskKey, token);
     } finally {
+      if (identical(_taskTokens[taskKey], token)) {
+        _taskTokens.remove(taskKey);
+      }
       if (needRetain) {
         releaseGalleryImages(gid);
       }
     }
   }
 
-  Future<bool> _handleImage(GalleryImage rawImage, SuperResolutionInfo superResolutionInfo) async {
+  Future<void> _runSuperResolve(
+    int gid,
+    SuperResolutionType type,
+    String taskKey,
+    InferenceCancellationToken token,
+  ) async {
+    List<GalleryImage> rawImages;
+    if (type == SuperResolutionType.gallery) {
+      final GalleryDownloadInfo? info =
+          galleryDownloadService.galleryDownloadInfos[gid];
+      if (info == null) {
+        return;
+      }
+      rawImages = info.images!.whereType<GalleryImage>().toList();
+    } else {
+      rawImages = await archiveDownloadService.getUnpackedImages(gid);
+    }
+
+    final SuperResolutionInfo? currentInfo = get(gid, type);
+    if (currentInfo == null ||
+        token.isCancelled ||
+        _taskTokens[taskKey] != token) {
+      return;
+    }
+    final SuperResolutionInfo superResolutionInfo = currentInfo;
+
+    /// a paused entry must stay paused: this worker runs on a single-connection
+    /// executor, so it may start long after the user paused the task while it
+    /// was queued behind another one. Only [superResolve] (an explicit user
+    /// action) may flip it back to running.
+    if (superResolutionInfo.status == SuperResolutionStatus.paused) {
+      return;
+    }
+    if (superResolutionInfo.status != SuperResolutionStatus.running) {
+      superResolutionInfo.status = SuperResolutionStatus.running;
+      await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
+      updateSafely(['$superResolutionId::$gid']);
+    }
+
+    if (superResolutionSetting.engine.value ==
+            SuperResolutionEngine.ncnnVulkan &&
+        !await _ensureExecutableRunnable()) {
+      toast(
+        '${'internalError'.tr}: super resolution executable unavailable',
+        isShort: false,
+      );
+      _pauseSuperResolve(gid, type);
+      return;
+    }
+
+    /// Persisting the entire imageStatuses list after every single image makes
+    /// a large gallery O(n^2): each write serializes the full status list.
+    /// Keep the in-memory statuses (the UI source) updated immediately, but
+    /// only flush the DB every [superResolutionStatusFlushInterval] images.
+    /// Pause, failure and completion still flush synchronously, so resuming
+    /// never redoes already-processed images.
+    const int superResolutionStatusFlushInterval = 20;
+    int statusChangesSinceFlush = 0;
+
+    for (int i = 0; i < rawImages.length; i++) {
+      /// cancelled
+      if (get(gid, type) == null) {
+        return;
+      }
+
+      if (superResolutionInfo.status == SuperResolutionStatus.paused) {
+        return;
+      }
+
+      if (superResolutionInfo.imageStatuses[i] ==
+          SuperResolutionStatus.success) {
+        continue;
+      }
+
+      if (superResolutionSetting.engine.value ==
+              SuperResolutionEngine.ncnnVulkan &&
+          superResolutionSetting.modelDirectoryPath.value == null) {
+        return;
+      }
+
+      if (token.isCancelled || _taskTokens[taskKey] != token) {
+        return;
+      }
+
+      superResolutionInfo.imageStatuses[i] = SuperResolutionStatus.running;
+      statusChangesSinceFlush++;
+      if (statusChangesSinceFlush >= superResolutionStatusFlushInterval) {
+        await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
+        statusChangesSinceFlush = 0;
+      }
+      updateSafely(['$superResolutionId::$gid']);
+
+      bool success = await _handleImage(
+        rawImages[i],
+        superResolutionInfo,
+        token,
+      );
+      if (token.isCancelled ||
+          _taskTokens[taskKey] != token ||
+          get(gid, type) == null ||
+          superResolutionInfo.status == SuperResolutionStatus.paused) {
+        return;
+      }
+      if (!success) {
+        /// pauseSuperResolve flushes the accumulated statuses to the DB
+        await _pauseSuperResolve(gid, type);
+        return;
+      }
+
+      superResolutionInfo.imageStatuses[i] = SuperResolutionStatus.success;
+      log.download('super resolve image ${rawImages[i].path} success');
+
+      statusChangesSinceFlush++;
+
+      /// we can't kill the process immediately on Windows
+      if (get(gid, type) != null &&
+          statusChangesSinceFlush >= superResolutionStatusFlushInterval) {
+        await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
+        statusChangesSinceFlush = 0;
+      }
+      updateSafely([
+        '$superResolutionId::$gid',
+        '$superResolutionImageId::$gid::$i',
+      ]);
+    }
+
+    if (get(gid, type) != null &&
+        superResolutionInfo.imageStatuses.every(
+          (status) => status == SuperResolutionStatus.success,
+        )) {
+      superResolutionInfo.status = SuperResolutionStatus.success;
+      await _updateSuperResolutionInfoStatus(gid, superResolutionInfo);
+      updateSafely(['$superResolutionId::$gid']);
+      log.info('super resolve success, gid:$gid');
+    }
+  }
+
+  Future<bool> _handleImage(
+    GalleryImage rawImage,
+    SuperResolutionInfo superResolutionInfo,
+    InferenceCancellationToken token,
+  ) async {
     if (extension(rawImage.path!) == '.gif') {
       String inputAbsolutePath = DownloadPathResolver.computeImageDownloadAbsolutePathFromRelativePath(rawImage.path!);
       String outputAbsolutePath = computeImageOutputAbsolutePath(rawImage.path!);
@@ -360,6 +570,10 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
         return false;
       }
       return true;
+    }
+
+    if (superResolutionSetting.engine.value == SuperResolutionEngine.onnx) {
+      return _handleOnnx(rawImage, token);
     }
 
     Process? process;
@@ -406,6 +620,105 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
     return true;
   }
 
+  /// ONNX 超分：通过稳定 engine contract 执行。适配器仍由 [InferenceService] 提供；
+  /// 未接入模型时（[SuperResolutionEngine.isReady] 为 false）给出友好
+  /// 提示并让任务保持可暂停/重试状态，而不是崩溃。
+  Future<bool> _handleOnnx(
+    GalleryImage rawImage,
+    InferenceCancellationToken token,
+  ) async {
+    final engine_lib.SuperResolutionEngine? engine = engine_lib.engineRegistry
+        .findSuperResolution('onnx-super-resolution');
+    if (engine == null || !engine.isReady) {
+      toast('inferenceModelNotIntegrated'.tr, isShort: false);
+      return false;
+    }
+    final String inputAbsolutePath =
+        DownloadPathResolver.computeImageDownloadAbsolutePathFromRelativePath(
+          rawImage.path!,
+        );
+    final String outputAbsolutePath = computeImageOutputAbsolutePath(
+      rawImage.path!,
+    );
+    try {
+      final engine_lib.EngineTask<String> task = engine.upscale(
+        engine_lib.ImageProcessingRequest(
+          imagePath: inputAbsolutePath,
+          outputPath: outputAbsolutePath,
+        ),
+        scale: 4,
+      );
+      token.addListener(task.cancel);
+      await task.future;
+      return true;
+    } on engine_lib.EngineTaskCancelledException {
+      return false;
+    } on engine_lib.EngineException catch (error) {
+      if (error.code == 'not_ready') {
+        toast('inferenceModelNotIntegrated'.tr, isShort: false);
+        return false;
+      }
+      log.error('ONNX super resolution failed', error);
+      toast('internalError'.tr, isShort: false);
+      return false;
+    } on InferenceNotReadyException {
+      toast('inferenceModelNotIntegrated'.tr, isShort: false);
+      return false;
+    } catch (e, s) {
+      log.error('ONNX super resolution failed', e, s);
+      if (e is Exception || e is Error) {
+        log.uploadError(e, extraInfos: {'rawImage': rawImage});
+      }
+      toast('internalError'.tr, isShort: false);
+      return false;
+    }
+  }
+
+  String _taskKey(int gid, SuperResolutionType type) => '$gid:${type.index}';
+
+  /// `extractArchiveToDisk` does not preserve the zip's Unix executable bit, so
+  /// the ncnn-vulkan binary arrives non-executable and the shell refuses to run
+  /// it with exit code 126. Ensure the binary is runnable once per task; this
+  /// also repairs models extracted before this fix.
+  Future<bool> _ensureExecutableRunnable() async {
+    if (GetPlatform.isWindows) {
+      return true;
+    }
+
+    final String? modelDir = superResolutionSetting.modelDirectoryPath.value;
+    final ModelType modelType = superResolutionSetting.model.value;
+    if (modelDir == null) {
+      return false;
+    }
+
+    final String executablePath = join(
+      modelDir,
+      GetPlatform.isMacOS
+          ? modelType.macOSExecutableName
+          : modelType.linuxExecutableName,
+    );
+
+    try {
+      final File executable = File(executablePath);
+      if (!executable.existsSync()) {
+        log.error('Super-resolution executable not found: $executablePath');
+        return false;
+      }
+
+      // owner-execute bit (S_IXUSR)
+      if ((executable.statSync().mode & 0x40) == 0) {
+        log.info(
+          'Super-resolution executable missing +x, fixing: $executablePath',
+        );
+        await Process.run('chmod', ['+x', executablePath]);
+      }
+      return true;
+    } on Exception catch (e) {
+      log.error('Failed to prepare super-resolution executable', e);
+      return false;
+    }
+  }
+
   Future<Process> _callProcess(GalleryImage rawImage) {
     log.download('start to super resolve image ${rawImage.path}');
 
@@ -415,14 +728,11 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
     ModelType modelType = superResolutionSetting.model.value;
 
     log.trace(
-      'Run: ${join(
-        superResolutionSetting.modelDirectoryPath.value!,
-        GetPlatform.isWindows
-            ? modelType.windowsExecutableName
-            : GetPlatform.isMacOS
-                ? modelType.macOSExecutableName
-                : modelType.linuxExecutableName,
-      )} '
+      'Run: ${join(superResolutionSetting.modelDirectoryPath.value!, GetPlatform.isWindows
+          ? modelType.windowsExecutableName
+          : GetPlatform.isMacOS
+          ? modelType.macOSExecutableName
+          : modelType.linuxExecutableName)} '
       '-i $inputRelativePath '
       '-o $outputRelativePath '
       '-n ${superResolutionSetting.model.value.subType} '
@@ -438,8 +748,8 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
         GetPlatform.isWindows
             ? modelType.windowsExecutableName
             : GetPlatform.isMacOS
-                ? modelType.macOSExecutableName
-                : modelType.linuxExecutableName,
+            ? modelType.macOSExecutableName
+            : modelType.linuxExecutableName,
       ),
       [
         '-i',
@@ -455,7 +765,10 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
         '-g',
         superResolutionSetting.gpuId.value.toString(),
         '-m',
-        join(superResolutionSetting.modelDirectoryPath.value!, modelType.modelRelativePath),
+        join(
+          superResolutionSetting.modelDirectoryPath.value!,
+          modelType.modelRelativePath,
+        ),
       ],
       workingDirectory: pathService.getVisibleDir().path,
       runInShell: true,
@@ -463,21 +776,28 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
   }
 
   void _checkInfoSourceExists() {
-    List<TableEntry<int, SuperResolutionType, SuperResolutionInfo>> targetEntries = [];
+    List<TableEntry<int, SuperResolutionType, SuperResolutionInfo>>
+    targetEntries = [];
 
-    for (TableEntry<int, SuperResolutionType, SuperResolutionInfo> entry in superResolutionInfoTable.entries()) {
-      if (entry.key2 == SuperResolutionType.gallery && galleryDownloadService.galleryDownloadInfos.containsKey(entry.key1)) {
+    for (TableEntry<int, SuperResolutionType, SuperResolutionInfo> entry
+        in superResolutionInfoTable.entries()) {
+      if (entry.key2 == SuperResolutionType.gallery &&
+          galleryDownloadService.galleryDownloadInfos.containsKey(entry.key1)) {
         continue;
       }
-      if (entry.key2 == SuperResolutionType.archive && archiveDownloadService.archiveDownloadInfos.containsKey(entry.key1)) {
+      if (entry.key2 == SuperResolutionType.archive &&
+          archiveDownloadService.archiveDownloadInfos.containsKey(entry.key1)) {
         continue;
       }
 
-      log.error('Try to init super-resolution info but image source not exists: $entry');
+      log.error(
+        'Try to init super-resolution info but image source not exists: $entry',
+      );
       targetEntries.add(entry);
     }
 
-    for (TableEntry<int, SuperResolutionType, SuperResolutionInfo> entry in targetEntries) {
+    for (TableEntry<int, SuperResolutionType, SuperResolutionInfo> entry
+        in targetEntries) {
       deleteSuperResolve(entry.key1, entry.key2);
     }
   }
@@ -487,25 +807,37 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
     return SuperResolutionInfoDao.selectAllSuperResolutionInfo();
   }
 
-  Future<bool> _insertSuperResolutionInfo(int gid, SuperResolutionInfo superResolutionInfo) async {
+  Future<bool> _insertSuperResolutionInfo(
+    int gid,
+    SuperResolutionInfo superResolutionInfo,
+  ) async {
     return await SuperResolutionInfoDao.insertSuperResolutionInfo(
           SuperResolutionInfoData(
             gid: gid,
             type: superResolutionInfo.type.index,
             status: superResolutionInfo.status.index,
-            imageStatuses: superResolutionInfo.imageStatuses.map((status) => status.index).join(SuperResolutionInfo.imageStatusesSeparator),
+            imageStatuses: superResolutionInfo.imageStatuses
+                .map((status) => status.index)
+                .join(SuperResolutionInfo.imageStatusesSeparator),
           ),
         ) >
         0;
   }
 
-  Future<bool> _updateSuperResolutionInfoStatus(int gid, SuperResolutionInfo superResolutionInfo) async {
+  Future<bool> _updateSuperResolutionInfoStatus(
+    int gid,
+    SuperResolutionInfo superResolutionInfo,
+  ) async {
     return await SuperResolutionInfoDao.updateSuperResolutionInfo(
           SuperResolutionInfoCompanion(
             gid: Value(gid),
             type: Value(superResolutionInfo.type.index),
             status: Value(superResolutionInfo.status.index),
-            imageStatuses: Value(superResolutionInfo.imageStatuses.map((status) => status.index).join(SuperResolutionInfo.imageStatusesSeparator)),
+            imageStatuses: Value(
+              superResolutionInfo.imageStatuses
+                  .map((status) => status.index)
+                  .join(SuperResolutionInfo.imageStatusesSeparator),
+            ),
           ),
         ) >
         0;
@@ -514,17 +846,28 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
   // disk
 
   /// when we update a gallery, if this gallery is in super-resolution process, we need to copy current product
-  Future<void> copyImageInfo(GalleryDownloadedData oldGallery, GalleryDownloadedData newGallery, int oldImageSerialNo, int newImageSerialNo) async {
-    SuperResolutionInfo? oldGallerySuperResolutionInfo = get(oldGallery.gid, SuperResolutionType.gallery);
+  Future<void> copyImageInfo(
+    GalleryDownloadedData oldGallery,
+    GalleryDownloadedData newGallery,
+    int oldImageSerialNo,
+    int newImageSerialNo,
+  ) async {
+    SuperResolutionInfo? oldGallerySuperResolutionInfo = get(
+      oldGallery.gid,
+      SuperResolutionType.gallery,
+    );
     if (oldGallerySuperResolutionInfo == null) {
       return;
     }
 
-    if (oldGallerySuperResolutionInfo.imageStatuses[oldImageSerialNo] != SuperResolutionStatus.success) {
+    if (oldGallerySuperResolutionInfo.imageStatuses[oldImageSerialNo] !=
+        SuperResolutionStatus.success) {
       return;
     }
 
-    log.debug('copy old super resolution image to new gallery, old: ${oldGallery.gid} $oldImageSerialNo, new: ${newGallery.gid} $newImageSerialNo');
+    log.debug(
+      'copy old super resolution image to new gallery, old: ${oldGallery.gid} $oldImageSerialNo, new: ${newGallery.gid} $newImageSerialNo',
+    );
 
     SuperResolutionInfo? newGallerySuperResolutionInfo = get(newGallery.gid, SuperResolutionType.gallery);
     String oldPath = computeImageOutputAbsolutePath(galleryDownloadService.galleryDownloadInfos[oldGallery.gid]!.imageAtSync(oldImageSerialNo)!.path!);
@@ -536,8 +879,15 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
         SuperResolutionStatus.paused,
         List.generate(galleryDownloadService.galleryDownloadInfos[newGallery.gid]!.pageCount, (_) => SuperResolutionStatus.running),
       );
-      superResolutionInfoTable.put(newGallery.gid, SuperResolutionType.gallery, newGallerySuperResolutionInfo);
-      await _insertSuperResolutionInfo(newGallery.gid, newGallerySuperResolutionInfo);
+      superResolutionInfoTable.put(
+        newGallery.gid,
+        SuperResolutionType.gallery,
+        newGallerySuperResolutionInfo,
+      );
+      await _insertSuperResolutionInfo(
+        newGallery.gid,
+        newGallerySuperResolutionInfo,
+      );
       File(newPath).parent.createSync(recursive: true);
       updateSafely(['$superResolutionId::${newGallery.gid}']);
     }
@@ -550,22 +900,121 @@ class SuperResolutionService extends GetxController with JHLifeCircleBeanErrorCa
       log.uploadError(e);
     }
 
-    newGallerySuperResolutionInfo.imageStatuses[newImageSerialNo] = SuperResolutionStatus.success;
-    await _updateSuperResolutionInfoStatus(newGallery.gid, newGallerySuperResolutionInfo);
-    updateSafely(['$superResolutionId::${newGallery.gid}', '$superResolutionImageId::${newGallery.gid}::$newImageSerialNo']);
+    newGallerySuperResolutionInfo.imageStatuses[newImageSerialNo] =
+        SuperResolutionStatus.success;
+    await _updateSuperResolutionInfoStatus(
+      newGallery.gid,
+      newGallerySuperResolutionInfo,
+    );
+    updateSafely([
+      '$superResolutionId::${newGallery.gid}',
+      '$superResolutionImageId::${newGallery.gid}::$newImageSerialNo',
+    ]);
   }
 
   String computeImageOutputAbsolutePath(String rawImagePath) {
-    return join(pathService.getVisibleDir().path, computeImageOutputRelativePath(rawImagePath));
+    return join(
+      pathService.getVisibleDir().path,
+      computeImageOutputRelativePath(rawImagePath),
+    );
   }
 
   String computeImageOutputRelativePath(String rawImagePath) {
-    return join(computeImageOutputDirPath(rawImagePath), basenameWithoutExtension(rawImagePath) + (extension(rawImagePath) == '.gif' ? '.gif' : '.png'));
+    return join(
+      computeImageOutputDirPath(rawImagePath),
+      basenameWithoutExtension(rawImagePath) +
+          (extension(rawImagePath) == '.gif' ? '.gif' : '.png'),
+    );
   }
 
   String computeImageOutputDirPath(String rawImagePath) {
     return join(dirname(rawImagePath), imageDirName);
   }
+
+  Future<void> _resumeAfterReaderPage(
+    List<_ReaderPagePausedTask> pausedTasks,
+  ) async {
+    Object? firstError;
+    StackTrace? firstStack;
+    for (final _ReaderPagePausedTask pausedTask in pausedTasks) {
+      if (!_preemptionTracker.isCurrent(
+        pausedTask.gid,
+        pausedTask.type,
+        pausedTask.userActionRevision,
+      )) {
+        continue;
+      }
+      final SuperResolutionInfo? info = get(pausedTask.gid, pausedTask.type);
+      if (info == null || info.status != SuperResolutionStatus.paused) {
+        continue;
+      }
+
+      try {
+        info.status = SuperResolutionStatus.running;
+        await _updateSuperResolutionInfoStatus(pausedTask.gid, info);
+        updateSafely(['$superResolutionId::${pausedTask.gid}']);
+        final String taskKey = _taskKey(pausedTask.gid, pausedTask.type);
+        _taskTokens[taskKey] = InferenceCancellationToken();
+        executor.scheduleTask(
+          0,
+          () => _doSuperResolve(pausedTask.gid, pausedTask.type),
+        );
+      } on Object catch (error, stack) {
+        info.status = SuperResolutionStatus.paused;
+        firstError ??= error;
+        firstStack ??= stack;
+      }
+    }
+    if (firstError != null) {
+      Error.throwWithStackTrace(firstError, firstStack!);
+    }
+  }
+}
+
+/// Tracks explicit user actions so a reader preemption lease cannot revive a
+/// task that the user paused, resumed or deleted while the page job was active.
+class SuperResolutionPreemptionTracker {
+  final Map<String, int> _revisions = <String, int>{};
+
+  int capture(int gid, SuperResolutionType type) =>
+      _revisions[_key(gid, type)] ?? 0;
+
+  void recordUserAction(int gid, SuperResolutionType type) {
+    final String key = _key(gid, type);
+    _revisions[key] = (_revisions[key] ?? 0) + 1;
+  }
+
+  bool isCurrent(int gid, SuperResolutionType type, int revision) =>
+      capture(gid, type) == revision;
+
+  String _key(int gid, SuperResolutionType type) => '$gid::${type.index}';
+}
+
+class SuperResolutionPauseLease {
+  SuperResolutionPauseLease(this._resumeCallback);
+
+  final Future<void> Function() _resumeCallback;
+  bool _resumed = false;
+
+  Future<void> resume() async {
+    if (_resumed) {
+      return;
+    }
+    _resumed = true;
+    await _resumeCallback();
+  }
+}
+
+class _ReaderPagePausedTask {
+  const _ReaderPagePausedTask({
+    required this.gid,
+    required this.type,
+    required this.userActionRevision,
+  });
+
+  final int gid;
+  final SuperResolutionType type;
+  final int userActionRevision;
 }
 
 class SuperResolutionInfo {

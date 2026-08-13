@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_page_mixin.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/service/local_gallery_service.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:path/path.dart';
 
 import '../../../../utils/toast_util.dart';
@@ -25,41 +28,60 @@ class LocalGalleryGridPage extends StatelessWidget with Scroll2TopPageMixin, Gri
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
       centerTitle: true,
-      leading: IconButton(
+      leading: EHAppleIconButton(
         icon: const Icon(Icons.help),
         onPressed: () => toast((GetPlatform.isIOS || GetPlatform.isMacOS) ? 'localGalleryHelpInfo4iOSAndMacOS'.tr : 'localGalleryHelpInfo'.tr, isShort: false),
       ),
       titleSpacing: 0,
       title: DownloadPageSegmentControl(galleryType: galleryType),
       actions: [
-        PopupMenuButton(
-          itemBuilder: (context) {
-            return [
-              PopupMenuItem(
-                value: 0,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [const Icon(Icons.view_list), const SizedBox(width: 12), Text('switch2ListMode'.tr)],
-                ),
+        ThemeConfig.isApple
+            ? EHGlassMenu(
+                triggerBuilder: (context, toggle) =>
+                    EHAppleIconButton(icon: const Icon(Icons.more_vert), onPressed: toggle),
+                items: [
+                  GlassMenuItem(
+                    title: 'switch2ListMode'.tr,
+                    icon: const Icon(Icons.view_list),
+                    onTap: () => DownloadPageBodyTypeChangeNotification(
+                            bodyType: DownloadPageBodyType.list)
+                        .dispatch(context),
+                  ),
+                  GlassMenuItem(
+                    title: 'refresh'.tr,
+                    icon: const Icon(Icons.refresh),
+                    onTap: () => logic.handleRefreshLocalGallery(),
+                  ),
+                ],
+              )
+            : PopupMenuButton(
+                itemBuilder: (context) {
+                  return [
+                    PopupMenuItem(
+                      value: 0,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [const Icon(Icons.view_list), const SizedBox(width: 12), Text('switch2ListMode'.tr)],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 1,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [const Icon(Icons.refresh), const SizedBox(width: 12), Text('refresh'.tr)],
+                      ),
+                    ),
+                  ];
+                },
+                onSelected: (value) {
+                  if (value == 0) {
+                    DownloadPageBodyTypeChangeNotification(bodyType: DownloadPageBodyType.list).dispatch(context);
+                  }
+                  if (value == 1) {
+                    logic.handleRefreshLocalGallery();
+                  }
+                },
               ),
-              PopupMenuItem(
-                value: 1,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [const Icon(Icons.refresh), const SizedBox(width: 12), Text('refresh'.tr)],
-                ),
-              ),
-            ];
-          },
-          onSelected: (value) {
-            if (value == 0) {
-              DownloadPageBodyTypeChangeNotification(bodyType: DownloadPageBodyType.list).dispatch(context);
-            }
-            if (value == 1) {
-              logic.handleRefreshLocalGallery();
-            }
-          },
-        ),
       ],
     );
   }

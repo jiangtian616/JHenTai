@@ -62,10 +62,13 @@ android {
         }
     }
 
-    /// If you want to use debug signing config, use default [signingConfigs.debug]
+    /// Sign release with the debug keystore when no key.properties keystore is
+    /// configured, so local `--split-per-abi` builds produce installable APKs.
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            signingConfig keystorePropertiesFile.exists()
+                ? signingConfigs.release
+                : signingConfigs.debug
         }
     }
 }

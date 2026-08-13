@@ -27,8 +27,8 @@ class HorizontalPageLayout extends BaseLayout {
         scrollPhysics: const ClampingScrollPhysics(),
         pageController: logic.pageController,
         cacheExtent: readPageState.readPageInfo.mode == ReadMode.online
-            ? readSetting.preloadPageCount.value.toDouble()
-            : readSetting.preloadPageCountLocal.value.toDouble(),
+                ? readSetting.preloadPageCount.value.toDouble()
+                : readSetting.preloadPageCountLocal.value.toDouble(),
         reverse: logic.readPageLogic.isInRight2LeftDirection,
         builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
           initialScale: 1.0,
@@ -36,17 +36,19 @@ class HorizontalPageLayout extends BaseLayout {
           maxScale: 2.5,
           scaleStateCycle: readSetting.enableDoubleTapToScaleUp.isTrue ? logic.scaleStateCycle : null,
           enableTapDragZoom: readSetting.enableTapDragToScaleUp.isTrue,
-          child: Obx(() {
-            Widget item = readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index);
-
-            if (logic.readPageLogic.isInFitWidthReadDirection) {
-              item = Center(child: SingleChildScrollView(controller: ScrollController(), child: item));
-            }
-
-            return item;
-          }),
+          child: _buildPageItem(context, index),
         ),
       ),
     );
+  }
+
+  Widget _buildPageItem(BuildContext context, int index) {
+    Widget item = readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index);
+
+    if (logic.readPageLogic.isInFitWidthReadDirection) {
+      item = Center(child: SingleChildScrollView(controller: ScrollController(), child: item));
+    }
+
+    return item;
   }
 }

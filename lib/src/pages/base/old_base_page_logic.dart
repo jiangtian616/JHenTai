@@ -135,7 +135,7 @@ abstract class OldBasePageLogic extends BasePageLogic {
 
   /// has scrolled to bottom, so need to load more data.
   @override
-  Future<void> loadMore({bool checkLoadingState = true}) async {
+  Future<void> loadMore({bool checkLoadingState = true, bool useCacheIfAvailable = true}) async {
     if (checkLoadingState && state.loadingState == LoadingState.loading) {
       return;
     }

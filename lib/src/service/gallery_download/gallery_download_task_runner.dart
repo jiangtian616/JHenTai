@@ -10,6 +10,7 @@ part of 'gallery_download_service.dart';
 class _GalleryDownloadTaskRunner {
   static const int _maxRetryTimes = 5;
   static const int _maxRetryTimes4FetchImageHashes = 3;
+  static const int _maxConsecutiveNetworkFailures = 3;
 
   final GalleryDownloadService _service;
   final GalleryDownloadInfo gallery;
@@ -62,6 +63,7 @@ class _GalleryDownloadTaskRunner {
         retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
         onRetry: (e) => log.download('Failed to fetch image hashes, retry. Reason: ${(e as DioException).message}'),
         maxAttempts: _maxRetryTimes4FetchImageHashes,
+        delayFactor: const Duration(milliseconds: 500),
       );
 
       log.debug('Fetch image hashes response: $response');
@@ -128,9 +130,14 @@ class _GalleryDownloadTaskRunner {
           retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
           onRetry: (e) => log.download('Parse image hrefs failed, retry. Reason: ${(e as DioException).toString()}'),
           maxAttempts: _maxRetryTimes,
+          delayFactor: const Duration(milliseconds: 500),
         );
       } on DioException catch (e) {
         if (e.type == DioExceptionType.cancel) {
+          return;
+        }
+        if (_recordNetworkFailure()) {
+          await _service._pauseOnSiteError(gallery: gallery, pauseAll: false, message: 'networkError'.tr);
           return;
         }
         return _service._submitImageTask(gallery, serialNo, () => parseImageHrefTask(serialNo));
@@ -144,6 +151,7 @@ class _GalleryDownloadTaskRunner {
       /// For example, default setting is 40, but some galleries' thumbnails has only high quality thumbnails, which results in 20.
       bool thumbnailsCountPerPageChanged = galleryDownloadInfo.thumbnailsCountPerPage != detailPageInfo.thumbnailsCountPerPage;
       galleryDownloadInfo.thumbnailsCountPerPage = detailPageInfo.thumbnailsCountPerPage;
+      _resetNetworkFailures();
 
       for (int i = detailPageInfo.imageNoFrom; i <= detailPageInfo.imageNoTo; i++) {
         galleryDownloadInfo.imageHrefs[i] = detailPageInfo.thumbnails[i - detailPageInfo.imageNoFrom];
@@ -194,9 +202,14 @@ class _GalleryDownloadTaskRunner {
           retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
           onRetry: (e) => log.download('Parse image url failed, retry. Reason: ${(e as DioException).errorMsg}'),
           maxAttempts: _maxRetryTimes,
+          delayFactor: const Duration(milliseconds: 500),
         );
       } on DioException catch (e) {
         if (e.type == DioExceptionType.cancel) {
+          return;
+        }
+        if (_recordNetworkFailure()) {
+          await _service._pauseOnSiteError(gallery: gallery, pauseAll: false, message: 'networkError'.tr);
           return;
         }
         return _service._submitImageTask(gallery, serialNo, () => parseImageUrlTask(serialNo, reParse: true));
@@ -221,6 +234,7 @@ class _GalleryDownloadTaskRunner {
       final String downloadUrl = _downloadUrlFor(gallery.toGalleryDownloadedData(), image);
       image.path = DownloadPathResolver.computeImageDownloadRelativePath(gallery.toGalleryDownloadedData(), downloadUrl, serialNo);
       image.downloadStatus = DownloadStatus.downloading;
+      _resetNetworkFailures();
 
       await _service._saveNewImageInfoInDatabase(image, serialNo, gallery.gid);
 
@@ -269,6 +283,7 @@ class _GalleryDownloadTaskRunner {
 
       final String downloadUrl = _downloadUrlFor(gallery.toGalleryDownloadedData(), image);
       String path = DownloadPathResolver.computeImageDownloadAbsolutePath(gallery.toGalleryDownloadedData(), downloadUrl, serialNo);
+      final String tempPath = '$path.download';
 
       await tryLoadFromCacheInsteadDownload(image, downloadUrl, serialNo, path);
       if (image.downloadStatus == DownloadStatus.downloaded) {
@@ -280,12 +295,13 @@ class _GalleryDownloadTaskRunner {
         response = await retry(
           () => ehRequest.download(
             url: downloadUrl,
-            path: path,
+            path: tempPath,
             receiveTimeout: 3 * 60 * 1000,
             cancelToken: galleryDownloadInfo.cancelToken,
             onReceiveProgress: (int count, int total) => galleryDownloadInfo.speedComputer.updateProgress(count, total, serialNo),
           ),
           maxAttempts: _maxRetryTimes,
+          delayFactor: const Duration(milliseconds: 500),
 
           /// 403 is due to broken H@H node, we should re-parse
           /// If we have not downloaded any bytes, we should re-parse because we might encounter a death H@H node
@@ -300,12 +316,18 @@ class _GalleryDownloadTaskRunner {
           },
         );
       } on DioException catch (e) {
+        await _deleteTempImageFile(tempPath);
         if (e.type == DioExceptionType.cancel) {
           return;
         }
         log.download('Download ${gallery.title} image: $serialNo failed, try re-parse. Reason: ${e.errorMsg}. Url:$downloadUrl');
+        if (_recordNetworkFailure()) {
+          await _service._pauseOnSiteError(gallery: gallery, pauseAll: false, message: 'networkError'.tr);
+          return;
+        }
         return _reParseImageUrlAndDownload(serialNo);
       } on EHSiteException catch (e) {
+        await _deleteTempImageFile(tempPath);
         log.download('Download Error, reason: ${e.message}');
         await _service._pauseOnSiteError(gallery: gallery, pauseAll: e.shouldPauseAllDownloadTasks, message: e.message);
         return;
@@ -313,25 +335,37 @@ class _GalleryDownloadTaskRunner {
 
       /// what we downloaded is not an valid image
       if (!response.isRedirect && (response.headers[Headers.contentTypeHeader]?.contains("text/html; charset=UTF-8") ?? false)) {
-        String data = io.File(path).readAsStringSync();
+        String data = io.File(tempPath).readAsStringSync();
 
         EHImageException? exception = EHImageExceptionMatcher.match(data);
         log.error('Download ${gallery.title} image: $serialNo failed: $exception');
 
         if (exception != null) {
           if (exception.operation == EHImageExceptionAfterOperation.reParse) {
+            await _deleteTempImageFile(tempPath);
             return _reParseImageUrlAndDownload(serialNo);
           }
+          await _deleteTempImageFile(tempPath);
           return _service._pauseOnSiteError(
             gallery: gallery,
             pauseAll: exception.operation == EHImageExceptionAfterOperation.pauseAll,
             message: exception.message,
           );
         }
+        await _deleteTempImageFile(tempPath);
+        return _service._pauseOnSiteError(gallery: gallery, pauseAll: false, message: 'downloadFailed'.tr);
+      }
+
+      try {
+        await FileUtil.moveFileAtomic(tempPath, path);
+      } on Exception catch (e, st) {
+        log.error('Move downloaded image to final path failed, gid: ${gallery.gid}, serialNo: $serialNo', e, st);
+        await _deleteTempImageFile(tempPath);
         return _service._pauseOnSiteError(gallery: gallery, pauseAll: false, message: 'downloadFailed'.tr);
       }
 
       log.download('Download ${gallery.title} image: $serialNo success');
+      _resetNetworkFailures();
 
       await _service._updateImageStatus(gallery, image, serialNo, DownloadStatus.downloaded);
 
@@ -361,12 +395,59 @@ class _GalleryDownloadTaskRunner {
   }
 
   Future<void> tryLoadFromCacheInsteadDownload(GalleryImage image, String downloadUrl, int serialNo, String path) async {
-    io.File? cachedImageFile = await getCachedImageFile(downloadUrl);
-    if (cachedImageFile != null && cachedImageFile.existsSync()) {
+    try {
+      final List<String> candidates = <String>[
+        downloadUrl,
+        if (image.originalImageUrl != null && image.originalImageUrl != downloadUrl) image.originalImageUrl!,
+      ];
+      io.File? cachedImageFile;
+      for (final String candidate in candidates) {
+        final String? cacheDirectory = extendedImageDiskCacheDirectory;
+        cachedImageFile = cacheDirectory == null
+            ? await getCachedImageFile(candidate, cacheKey: normalizedImageCacheKey(candidate))
+            : await findCompatibleImageCacheFile(directory: cacheDirectory, url: candidate);
+        if (cachedImageFile != null && await cachedImageFile.exists()) {
+          break;
+        }
+      }
+      if (cachedImageFile == null || !await cachedImageFile.exists()) {
+        return;
+      }
       log.debug('download image from cache, gallery: ${gallery.gid}, serialNo:$serialNo');
-      await cachedImageFile.copy(path);
+      final int cacheSize = await cachedImageFile.length();
+      gallery.speedComputer.updateProgress(cacheSize, cacheSize, serialNo);
+      final String tempPath = '$path.download';
+      await cachedImageFile.copy(tempPath);
+      await FileUtil.moveFileAtomic(tempPath, path);
       await _service._updateImageStatus(gallery, image, serialNo, DownloadStatus.downloaded);
       await _service._updateProgressAfterImageDownloaded(gallery, serialNo);
+      _resetNetworkFailures();
+    } on Exception catch (e) {
+      log.warning('Load image from cache failed, will download, gid: ${gallery.gid}, serialNo: $serialNo', e, true);
+    }
+  }
+
+  bool _recordNetworkFailure() {
+    gallery.consecutiveNetworkFailures++;
+    if (gallery.consecutiveNetworkFailures < _maxConsecutiveNetworkFailures) {
+      return false;
+    }
+    gallery.consecutiveNetworkFailures = 0;
+    return true;
+  }
+
+  void _resetNetworkFailures() {
+    gallery.consecutiveNetworkFailures = 0;
+  }
+
+  Future<void> _deleteTempImageFile(String tempPath) async {
+    try {
+      final io.File file = io.File(tempPath);
+      if (await file.exists()) {
+        await file.delete();
+      }
+    } on Exception catch (e) {
+      log.error('Delete temp image file failed', e);
     }
   }
 }

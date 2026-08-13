@@ -36,6 +36,8 @@ import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
 import 'package:jhentai/src/utils/convert_util.dart';
+import 'package:jhentai/src/utils/file_util.dart';
+import 'package:jhentai/src/utils/image_cache_util.dart';
 import 'package:jhentai/src/utils/jh_response_parser.dart';
 import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
@@ -78,6 +80,10 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
 
   List<String> allGroups = [];
   Map<int, GalleryDownloadInfo> galleryDownloadInfos = {};
+
+  /// gid -> trusted LAN device that initiated a remote download. This is
+  /// presentation-only runtime state and is intentionally not persisted.
+  final Map<int, String> remoteDownloadSources = {};
 
   /// Cached sorted snapshot of [galleryDownloadInfos]. Invalidated on any
   /// mutation that affects order (add / delete / group rename / group change
@@ -496,6 +502,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       _clearDownloadedImageInDisk(gallery);
     }
     _clearGalleryInfoInMemory(gallery);
+    remoteDownloadSources.remove(gallery.gid);
   }
 
   /// Update local downloaded gallery if there's a new version.
@@ -801,7 +808,7 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       return galleryDirPaths.map((p) {
         try {
           return _GalleryMetadataStore.readForRestore(io.Directory(p));
-        } catch (e, st) {
+        } catch (e) {
           // Logging from a worker isolate may not reach file handlers; swallow
           // here so one bad metadata file doesn't abort the whole restore.
           return null;
@@ -1088,6 +1095,9 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     }
 
     GalleryDownloadProgress downloadProgress = info.downloadProgress;
+    if (downloadProgress.hasDownloaded[serialNo]) {
+      return;
+    }
     downloadProgress.curCount++;
     downloadProgress.hasDownloaded[serialNo] = true;
 
@@ -1571,6 +1581,10 @@ class GalleryDownloadInfo implements Comparable<GalleryDownloadInfo> {
 
   // === Download runtime state ===
   GalleryDownloadProgress downloadProgress;
+
+  /// Caps the parse -> download -> reparse loop when the network is dead.
+  /// Reset after any successful parse or download.
+  int consecutiveNetworkFailures = 0;
 
   /// 20, 40 and so on
   int thumbnailsCountPerPage;

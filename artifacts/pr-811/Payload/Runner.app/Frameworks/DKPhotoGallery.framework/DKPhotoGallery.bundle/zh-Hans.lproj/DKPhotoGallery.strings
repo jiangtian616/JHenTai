@@ -1,0 +1,31 @@
+//
+//  GitHub
+//  https://github.com/zhangao0086/DKPhotoGallery
+//
+//
+//  License
+//  Copyright (c) 2014 ZhangAo
+//  Released under an MIT license: http://opensource.org/licenses/MIT
+//
+
+"preview.3DTouch.saveImage.title" = "保存图片";
+
+"preview.image.extractQRCode.title" = "识别图中二维码";
+
+"preview.image.extractQRCode.result.text.title" = "扫描结果";
+
+"preview.image.longPress.cancel" = "取消";
+
+"preview.image.longPress.saveImage.title" = "保存图片";
+
+"preview.image.saveImage.result.success" = "图片保存成功";
+
+"preview.image.saveImage.permission.error" = "获取图片保存权限失败";
+
+"preview.image.fetch.error" = "获取图片失败";
+
+"preview.image.download.original.title" = "下载原图";
+
+"preview.player.fetch.error" = "获取视频失败";
+
+"preview.player.error.unknown" = "未知错误";

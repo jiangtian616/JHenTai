@@ -1,0 +1,31 @@
+//
+//  GitHub
+//  https://github.com/zhangao0086/DKImagePickerController
+//
+//
+//  License
+//  Copyright (c) 2014 ZhangAo
+//  Released under an MIT license: http://opensource.org/licenses/MIT
+//
+
+"permission.camera.title" = "Tillad venligst adgang til kameraet";
+
+"permission.photo.title" = "Tillad venilgst adgang til fotos";
+
+"permission.allow" = "Tillad adgang";
+
+"picker.alert.ok" = "OK";
+
+"picker.select.title" = "Tilføj(%@)";
+
+"picker.select.done.title" = "Udfør";
+
+"picker.select.all.title" = "Vælg alle";
+
+"picker.select.photosOrVideos.error.title" = "Tilføj fotos eller videoer";
+
+"picker.select.photosOrVideos.error.message" = "Det er ikke muligt at tilføje fotos og videoer på samme tid";
+
+"picker.select.maxLimitReached.error.title" = "Grænsen for antal billeder er nået";
+
+"picker.select.maxLimitReached.error.message" = "Du kan maksimalt tilføje %@ billeder";

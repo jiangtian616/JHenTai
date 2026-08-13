@@ -1,6 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/pages/gallery/simple/gallery_page_logic.dart';
 import 'package:jhentai/src/pages/gallery/simple/gallery_page_state.dart';
 import '../../base/base_page.dart';
@@ -14,4 +14,16 @@ class GalleryPage extends BasePage {
 
   @override
   GalleryPageState get state => Get.find<GalleryPageLogic>().state;
+
+  @override
+  AppBar? buildAppBar(BuildContext context) {
+    if (!ThemeConfig.isApple) {
+      return super.buildAppBar(context);
+    }
+    return AppBar(
+      title: Text('home'.tr),
+      centerTitle: true,
+      actions: super.buildAppBarActions(),
+    );
+  }
 }

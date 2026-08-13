@@ -4,15 +4,18 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   desktop_webview_window
+  flutter_onnxruntime
   pasteboard
   screen_retriever
   smart_auth
   sqlite3_flutter_libs
+  tray_manager
   url_launcher_linux
   window_manager
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
+  lib_llama_cpp_linux
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)

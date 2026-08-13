@@ -4,6 +4,7 @@ import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/service/quick_search_service.dart';
 import 'package:jhentai/src/utils/search_util.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 
 class QuickSearchPage extends StatelessWidget {
   final bool automaticallyImplyLeading;
@@ -19,7 +20,7 @@ class QuickSearchPage extends StatelessWidget {
         title: Text('quickSearch'.tr),
         automaticallyImplyLeading: automaticallyImplyLeading,
         actions: const [
-          IconButton(icon: Icon(Icons.add_circle_outline, size: 24), onPressed: handleAddQuickSearch),
+          EHAppleIconButton(icon: Icon(Icons.add), onPressed: handleAddQuickSearch),
         ],
       ),
       body: GetBuilder<QuickSearchService>(
@@ -38,7 +39,7 @@ class QuickSearchPage extends StatelessWidget {
                 ListTile(
                   dense: true,
                   title: Text(entries[index].key, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  trailing: IconButton(
+                  trailing: EHAppleIconButton(
                     icon: const Icon(Icons.settings),
                     onPressed: () => quickSearchService.handleUpdateQuickSearch(entries[index]),
                   ).marginOnly(right: GetPlatform.isDesktop ? 24 : 0),

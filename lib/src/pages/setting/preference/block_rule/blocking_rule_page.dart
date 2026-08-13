@@ -4,6 +4,7 @@ import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/pages/setting/preference/block_rule/add_block_rule/configure_blocking_rule_page_logic.dart';
 import 'package:jhentai/src/service/local_block_rule_service.dart';
 import 'package:jhentai/src/widget/eh_alert_dialog.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_context_menu.dart';
 import 'package:jhentai/src/widget/grouped_list.dart';
 import '../../../../config/ui_config.dart';
@@ -27,7 +28,7 @@ class BlockingRulePage extends StatelessWidget {
         centerTitle: true,
         title: Text('blockingRules'.tr),
         actions: [
-          IconButton(icon: const Icon(Icons.view_list), onPressed: logic.toggleShowGroup),
+          EHAppleIconButton(icon: const Icon(Icons.view_list), onPressed: logic.toggleShowGroup),
         ],
       ),
       body: _buildBody(context),
@@ -155,7 +156,7 @@ class BlockingRulePage extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        IconButton(
+        EHAppleIconButton(
           icon: const Icon(Icons.edit_note, size: 24),
           onPressed: () async {
             toRoute(
@@ -167,7 +168,8 @@ class BlockingRulePage extends StatelessWidget {
             )?.then((_) => logic.getBlockRules());
           },
         ),
-        IconButton(
+        const SizedBox(width: 8),
+        EHAppleIconButton(
           icon: const Icon(Icons.delete, size: 24),
           onPressed: () async {
             bool? result = await showDialog(context: context, builder: (_) => EHDialog(title: 'delete'.tr + '?'));

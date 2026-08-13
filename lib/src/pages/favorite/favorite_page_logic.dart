@@ -40,7 +40,11 @@ class FavoritePageLogic extends BasePageLogic {
     if (result == null) {
       return;
     }
+    await handleChangeSortOrderTo(result);
+  }
 
+  /// Shared by the sort dialog and the Apple liquid-glass sort menu.
+  Future<void> handleChangeSortOrderTo(FavoriteSortOrder result) async {
     if (state.refreshState == LoadingState.loading) {
       return;
     }
@@ -63,7 +67,7 @@ class FavoritePageLogic extends BasePageLogic {
     } on DioException catch (e) {
       /// handle with domain fronting, manually load more
       if (e.response?.statusCode == 403 && e.response!.redirects.isNotEmpty) {
-        return loadMore(checkLoadingState: false);
+        return loadMore(checkLoadingState: false, useCacheIfAvailable: false);
       }
 
       log.error('change favorite sort order fail', e.message);
@@ -85,7 +89,7 @@ class FavoritePageLogic extends BasePageLogic {
       return;
     }
 
-    return loadMore(checkLoadingState: false);
+    return loadMore(checkLoadingState: false, useCacheIfAvailable: false);
   }
 
   @override

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/config/ui_config.dart';
-import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/model/gallery_image.dart';
 import 'package:jhentai/src/utils/route_util.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
+import 'package:jhentai/src/widget/eh_translated_text.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 
@@ -39,7 +41,11 @@ mixin GridBasePage on StatelessWidget implements Scroll2TopPageMixin {
       appBar: buildAppBar(context),
       body: buildBody(context),
       floatingActionButton: buildFloatingActionButton(),
-      bottomNavigationBar: buildGridBottomAppBar(context),
+      floatingActionButtonLocation: GlassAwareFloatingActionButtonLocation(UIConfig.liquidGlassNavBarRaise(context)),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.only(bottom: UIConfig.liquidGlassNavContentInset(context)),
+        child: buildGridBottomAppBar(context),
+      ),
     );
   }
 
@@ -47,16 +53,32 @@ mixin GridBasePage on StatelessWidget implements Scroll2TopPageMixin {
     return AppBar(
       centerTitle: true,
       leading: styleSetting.isInV2Layout
-          ? IconButton(
-              icon: isRouteAtTop(Routes.download) ? const Icon(Icons.arrow_back) : Icon(Icons.menu, size: 20),
-              onPressed: () {
-                if (isRouteAtTop(Routes.download)) {
-                  backRoute(currentRoute: Routes.download);
-                } else {
-                  TapMenuButtonNotification().dispatch(context);
-                }
-              },
-            )
+          ? (ThemeConfig.isApple
+              ? IconButton(
+                  onPressed: () {
+                    if (isRouteAtTop(Routes.download)) {
+                      backRoute(currentRoute: Routes.download);
+                    } else {
+                      TapMenuButtonNotification().dispatch(context);
+                    }
+                  },
+                  icon: isRouteAtTop(Routes.download)
+                      ? const Icon(Icons.arrow_back)
+                      : Icon(Icons.menu, size: 22),
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  hoverColor: Colors.transparent,
+                )
+              : EHAppleIconButton(
+                  icon: isRouteAtTop(Routes.download) ? const Icon(Icons.arrow_back) : Icon(Icons.menu, size: 20),
+                  onPressed: () {
+                    if (isRouteAtTop(Routes.download)) {
+                      backRoute(currentRoute: Routes.download);
+                    } else {
+                      TapMenuButtonNotification().dispatch(context);
+                    }
+                  },
+                ))
           : null,
       titleSpacing: 0,
       title: DownloadPageSegmentControl(galleryType: galleryType),
@@ -81,7 +103,7 @@ mixin GridBasePage on StatelessWidget implements Scroll2TopPageMixin {
               () => DraggableGridViewBuilder(
                 key: PageStorageKey(state.currentGroup),
                 controller: state.scrollController,
-                padding: const EdgeInsets.only(left: 12, right: 16, bottom: 24),
+                padding: EdgeInsets.only(left: 12, right: 16, bottom: 24 + UIConfig.liquidGlassNavContentInset(context)),
                 children: getChildren(context),
                 dragFeedback: (List<DraggableGridItem> list, int index) {
                   return SizedBox(
@@ -271,7 +293,7 @@ class GridGallery extends StatelessWidget {
           ),
           GestureDetector(
             onTap: onTapTitle,
-            child: Center(child: Text(title.breakWord, maxLines: 1, overflow: TextOverflow.ellipsis)),
+            child: Center(child: EHTranslatedText(title, breakWord: true, maxLines: 1, overflow: TextOverflow.ellipsis)),
           ),
         ],
       ),

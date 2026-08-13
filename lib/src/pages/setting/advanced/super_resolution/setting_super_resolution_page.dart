@@ -2,15 +2,24 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
+import '../../../../routes/routes.dart';
 import '../../../../service/super_resolution_service.dart';
+import '../../../../service/inference/onnx_model_store.dart';
+import '../../../../service/inference_service.dart';
 import '../../../../setting/super_resolution_setting.dart';
+import '../../../../setting/inference_setting.dart';
 import '../../../../service/log.dart';
+import '../../../../utils/app_icons.dart';
+import '../../../../utils/route_util.dart';
+import '../../../../widget/eh_apple_settings_list_view.dart';
+import '../../../../widget/eh_codex_style_dropdown.dart';
 import '../../../../widget/loading_state_indicator.dart';
+import '../../../../widget/onnx_model_tile.dart';
 
 class SettingSuperResolutionPage extends StatelessWidget {
   const SettingSuperResolutionPage({Key? key}) : super(key: key);
@@ -22,28 +31,119 @@ class SettingSuperResolutionPage extends StatelessWidget {
         centerTitle: true,
         title: Text('superResolution'.tr),
         actions: [
-          IconButton(
+          EHAppleIconButton(
             icon: const Icon(Icons.help),
-            onPressed: () => launchUrlString(
-              preferenceSetting.locale.value.languageCode == 'zh'
-                  ? 'https://github.com/jiangtian616/JHenTai/wiki/%E5%9B%BE%E7%89%87%E8%B6%85%E5%88%86%E8%BE%A8%E7%8E%87%E6%94%BE%E5%A4%A7%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95'
-                  : preferenceSetting.locale.value.languageCode == 'ko'
+            onPressed:
+                () => launchUrlString(
+                  preferenceSetting.locale.value.languageCode == 'zh'
+                      ? 'https://github.com/jiangtian616/JHenTai/wiki/%E5%9B%BE%E7%89%87%E8%B6%85%E5%88%86%E8%BE%A8%E7%8E%87%E6%94%BE%E5%A4%A7%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95'
+                      : preferenceSetting.locale.value.languageCode == 'ko'
                       ? 'https://github.com/jiangtian616/JHenTai/wiki/AI-%EC%B4%88%EA%B3%A0%ED%99%94%EC%A7%88-%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%82%AC%EC%9A%A9-%EB%B0%A9%EB%B2%95'
                       : 'https://github.com/jiangtian616/JHenTai/wiki/AI-Image-Super-Resolution-Usage',
-            ),
-          )
+                ),
+          ),
         ],
       ),
       body: Obx(
-        () => ListView(
-          padding: const EdgeInsets.only(top: 16),
-          children: [
-            _buildModelDirectoryPath(),
-            _buildModelType(),
-            _buildGpuId(),
+        () => EHAppleSettingsListView(
+          groups: [
+            EHAppleSettingsGroup(
+              children: [
+                _buildEngine(),
+                if (superResolutionSetting.engine.value ==
+                    SuperResolutionEngine.onnx) ...[
+                  _buildOnnxModelPicker(),
+                  _buildOnnxModelTile(),
+                  _buildInferenceBackend(),
+                ],
+                if (superResolutionSetting.engine.value ==
+                    SuperResolutionEngine.ncnnVulkan) ...[
+                  _buildModelDirectoryPath(),
+                  _buildModelType(),
+                  _buildGpuId(),
+                ],
+              ],
+            ),
           ],
-        ).withListTileTheme(context),
+        ),
       ),
+    );
+  }
+
+  Widget _buildEngine() {
+    return ListTile(
+      title: Text('superResolutionEngine'.tr),
+      trailing: EHCodexStyleDropdown<SuperResolutionEngine>(
+        value: superResolutionSetting.engine.value,
+        elevation: 4,
+        alignment: AlignmentDirectional.centerEnd,
+        onChanged: (value) {
+          if (value != null) {
+            superResolutionSetting.saveEngine(value);
+          }
+        },
+        items: [
+          DropdownMenuItem(
+            value: SuperResolutionEngine.ncnnVulkan,
+            child: Text('superResolutionEngineNcnnVulkan'.tr),
+          ),
+          DropdownMenuItem(
+            value: SuperResolutionEngine.onnx,
+            child: Text('superResolutionEngineOnnx'.tr),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// ONNX 超分模型选择器：列出所有 superResolution manifest，名字下方标注
+  /// 速度/体积/精度差异，单选切换活动模型。
+  Widget _buildOnnxModelPicker() {
+    return Obx(() {
+      final String active = superResolutionSetting.onnxModelId.value;
+      final List<OnnxModelManifest> models =
+          OnnxModelStore.instance.manifestsOfKind('superResolution');
+      final bool activeKnown = models.any(
+        (OnnxModelManifest model) => model.id == active,
+      );
+      return OnnxModelPicker(
+        kind: 'superResolution',
+        activeId: activeKnown || models.isEmpty ? active : models.first.id,
+        onSelect: superResolutionSetting.saveOnnxModelId,
+      );
+    });
+  }
+
+  /// 活动 ONNX 超分模型（Real-ESRGAN anime）的下载/删除/状态。
+  Widget _buildOnnxModelTile() {
+    return Obx(() {
+      final List<OnnxModelManifest> models =
+          OnnxModelStore.instance.manifestsOfKind('superResolution');
+      final String active = superResolutionSetting.onnxModelId.value;
+      final bool activeKnown = models.any(
+        (OnnxModelManifest model) => model.id == active,
+      );
+      final String manifestId =
+          activeKnown || models.isEmpty ? active : models.first.id;
+      return OnnxModelTile(
+        manifestId: manifestId,
+        title: 'inferenceSuperResolutionModel'.tr,
+      );
+    });
+  }
+
+  Widget _buildInferenceBackend() {
+    return ListTile(
+      title: Text('inferenceBackend'.tr),
+      subtitle: Obx(
+        () => Text(
+          '${inferenceService.resolveBackendFor(InferenceDomain.superResolution)?.label ?? 'inferenceDeviceNotDetected'.tr} · '
+          '${inferenceService.superResolutionEngine.isReady ? 'inferenceModelReady'.tr : 'inferenceModelNotIntegrated'.tr}',
+          style: const TextStyle(fontSize: 12),
+        ),
+      ),
+      trailing: Icon(AppIcons.chevronRight).marginOnly(right: 4),
+      onTap: () => toRoute(Routes.inference),
     );
   }
 
@@ -51,7 +151,7 @@ class SettingSuperResolutionPage extends StatelessWidget {
     return ListTile(
       title: Text('modelDirectoryPath'.tr),
       subtitle: Text(superResolutionSetting.modelDirectoryPath.value ?? ''),
-      trailing: const Icon(Icons.keyboard_arrow_right),
+      trailing: Icon(AppIcons.chevronRight),
       onTap: () async {
         String? result;
         try {
@@ -76,41 +176,65 @@ class SettingSuperResolutionPage extends StatelessWidget {
       title: Text('modelType'.tr),
       subtitle: GetBuilder<SuperResolutionService>(
         id: SuperResolutionService.downloadId,
-        builder: (superResolutionService) => superResolutionService.downloadState == LoadingState.loading
-            ? Text('${'downloading'.tr} ${superResolutionService.downloadProgress}')
-            : superResolutionService.downloadState == LoadingState.success
-                ? Text('downloaded'.tr)
-                : const SizedBox(),
+        builder:
+            (superResolutionService) =>
+                superResolutionService.downloadState == LoadingState.loading
+                    ? Text(
+                      '${'downloading'.tr} ${superResolutionService.downloadProgress}',
+                    )
+                    : superResolutionService.downloadState ==
+                        LoadingState.success
+                    ? Text('downloaded'.tr)
+                    : const SizedBox(),
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           GetBuilder<SuperResolutionService>(
             id: SuperResolutionService.downloadId,
-            builder: (superResolutionService) => superResolutionService.downloadState == LoadingState.loading
-                ? IconButton(icon: const CupertinoActivityIndicator(), onPressed: () {}, enableFeedback: false)
-                : IconButton(
-                    icon: const Icon(Icons.download),
-                    padding: EdgeInsets.zero,
-                    onPressed: () {
-                      if (superResolutionService.downloadState == LoadingState.loading) {
-                        return;
-                      }
-                      superResolutionService.downloadModelFile(superResolutionSetting.model.value);
-                    },
-                  ),
+            builder:
+                (superResolutionService) =>
+                    superResolutionService.downloadState == LoadingState.loading
+                        ? EHAppleIconButton(
+                          icon: const CupertinoActivityIndicator(),
+                          onPressed: () {},
+                        )
+                        : EHAppleIconButton(
+                          icon: const Icon(Icons.download),
+                          padding: EdgeInsets.zero,
+                          onPressed: () {
+                            if (superResolutionService.downloadState ==
+                                LoadingState.loading) {
+                              return;
+                            }
+                            superResolutionService.downloadModelFile(
+                              superResolutionSetting.model.value,
+                            );
+                          },
+                        ),
           ),
           const SizedBox(width: 8),
-          DropdownButton<ModelType>(
+          EHCodexStyleDropdown<ModelType>(
             value: superResolutionSetting.model.value,
             elevation: 4,
-            onChanged: (ModelType? newValue) => superResolutionSetting.saveModel(newValue!),
+            onChanged:
+                (ModelType? newValue) =>
+                    superResolutionSetting.saveModel(newValue!),
             items: [
-              DropdownMenuItem(child: Text(ModelType.CUGAN.subType), value: ModelType.CUGAN),
-              DropdownMenuItem(child: Text(ModelType.ESRGAN.subType), value: ModelType.ESRGAN),
-              DropdownMenuItem(child: Text(ModelType.ESRGAN_ANIME.subType), value: ModelType.ESRGAN_ANIME),
+              DropdownMenuItem(
+                child: Text(ModelType.CUGAN.subType),
+                value: ModelType.CUGAN,
+              ),
+              DropdownMenuItem(
+                child: Text(ModelType.ESRGAN.subType),
+                value: ModelType.ESRGAN,
+              ),
+              DropdownMenuItem(
+                child: Text(ModelType.ESRGAN_ANIME.subType),
+                value: ModelType.ESRGAN_ANIME,
+              ),
             ],
-          )
+          ),
         ],
       ),
     );
@@ -119,11 +243,12 @@ class SettingSuperResolutionPage extends StatelessWidget {
   Widget _buildGpuId() {
     return ListTile(
       title: const Text('GPU-id'),
-      trailing: DropdownButton<int>(
+      trailing: EHCodexStyleDropdown<int>(
         value: superResolutionSetting.gpuId.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (int? newValue) => superResolutionSetting.saveGpuId(newValue!),
+        onChanged:
+            (int? newValue) => superResolutionSetting.saveGpuId(newValue!),
         items: const [
           DropdownMenuItem(child: Text('-1'), value: -1),
           DropdownMenuItem(child: Text('0'), value: 0),

@@ -4,9 +4,11 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 import 'package:jhentai/src/widget/fade_slide_widget.dart';
 
+import '../../../config/theme_config.dart';
 import '../../../config/ui_config.dart';
 import '../../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../../mixin/scroll_to_top_page_mixin.dart';
@@ -18,7 +20,9 @@ import 'desktop_search_page_tab_logic.dart';
 class DesktopSearchPage extends StatelessWidget with Scroll2TopPageMixin {
   const DesktopSearchPage({Key? key}) : super(key: key);
 
-  DesktopSearchPageLogic get logic => Get.put<DesktopSearchPageLogic>(DesktopSearchPageLogic(), permanent: true);
+  DesktopSearchPageLogic get logic =>
+      Get.put<DesktopSearchPageLogic>(DesktopSearchPageLogic(),
+          permanent: true);
 
   DesktopSearchPageState get state => Get.find<DesktopSearchPageLogic>().state;
 
@@ -39,7 +43,7 @@ class DesktopSearchPage extends StatelessWidget with Scroll2TopPageMixin {
         body: SafeArea(
           child: Column(
             children: [
-              buildTabBar().marginOnly(bottom: 8),
+              buildTabBar(context).marginOnly(bottom: 8),
               buildTabView(),
             ],
           ),
@@ -49,33 +53,57 @@ class DesktopSearchPage extends StatelessWidget with Scroll2TopPageMixin {
     );
   }
 
-  Widget buildTabBar() {
+  Widget buildTabBar(BuildContext context) {
     return GetBuilder<DesktopSearchPageLogic>(
       id: logic.tabBarId,
       builder: (_) => SizedBox(
         height: UIConfig.desktopSearchTabHeight,
-        child: LayoutBuilder(
-          builder: (context, constraints) => Row(
-            children: [
-              ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: constraints.maxWidth - UIConfig.desktopSearchTabRemainingWidth),
-                child: EHWheelSpeedController(
-                  controller: state.tabController,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    controller: state.tabController,
-                    shrinkWrap: true,
-                    children: _buildTabs(context),
-                  ).enableMouseDrag(withScrollBar: false),
+        child: DecoratedBox(
+          decoration: ThemeConfig.isApple
+              ? BoxDecoration(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .surface
+                      .withValues(alpha: 0.45),
+                  border: Border(
+                      bottom: BorderSide(
+                          width: 0.5,
+                          color: Theme.of(context)
+                              .dividerColor
+                              .withValues(alpha: 0.75))),
+                )
+              : const BoxDecoration(),
+          child: LayoutBuilder(
+            builder: (context, constraints) => Row(
+              children: [
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                      maxWidth: constraints.maxWidth -
+                          UIConfig.desktopSearchTabRemainingWidth),
+                  child: Padding(
+                    // Align the first tab with the search field directly below.
+                    padding: EdgeInsets.only(left: ThemeConfig.isApple ? 8 : 0),
+                    child: EHWheelSpeedController(
+                      controller: state.tabController,
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        controller: state.tabController,
+                        shrinkWrap: true,
+                        children: _buildTabs(context),
+                      ).enableMouseDrag(withScrollBar: false),
+                    ),
+                  ),
                 ),
-              ),
-              IconButton(
-                onPressed: () => logic.addNewTab(keyword: '', loadImmediately: false),
-                icon: const Icon(Icons.add),
-                constraints: const BoxConstraints.tightFor(width: UIConfig.desktopSearchTabHeight, height: UIConfig.desktopSearchTabHeight),
-                padding: EdgeInsets.zero,
-              ),
-            ],
+                EHAppleIconButton(
+                  onPressed: () => logic.addNewTab(
+                      keyword: '', loadImmediately: ThemeConfig.isApple),
+                  icon: const Icon(Icons.add, size: 18),
+                  constraints:
+                      const BoxConstraints.tightFor(width: 24, height: 24),
+                  padding: EdgeInsets.zero,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -83,7 +111,7 @@ class DesktopSearchPage extends StatelessWidget with Scroll2TopPageMixin {
   }
 
   List<Widget> _buildTabs(BuildContext context) {
-    return state.tabLogics
+    final tabs = state.tabLogics
         .mapIndexed<Widget>(
           (index, tabLogic) => FadeSlideWidget(
             key: ValueKey(tabLogic),
@@ -102,13 +130,22 @@ class DesktopSearchPage extends StatelessWidget with Scroll2TopPageMixin {
                   name: index == state.currentTabIndex
                       ? (tabLogic.state.totalCount != null
                           ? tabLogic.state.totalCount!.toPrintString()
-                          : tabLogic.state.searchConfig.computeFullKeywords().defaultIfEmpty('${'tab'.tr} ${index + 1}'))
-                      : tabLogic.state.searchConfig.computeFullKeywords().defaultIfEmpty('${'tab'.tr} ${index + 1}'),
+                          : tabLogic.state.searchConfig
+                              .computeFullKeywords()
+                              .defaultIfEmpty('${'tab'.tr} ${index + 1}'))
+                      : tabLogic.state.searchConfig
+                          .computeFullKeywords()
+                          .defaultIfEmpty('${'tab'.tr} ${index + 1}'),
                   selected: index == state.currentTabIndex,
-                  selectedColor: UIConfig.desktopSearchTabSelectedBackGroundColor(context),
-                  unSelectedColor: UIConfig.desktopSearchTabUnSelectedBackGroundColor(context),
-                  selectedTextColor: UIConfig.desktopSearchTabSelectedTextColor(context),
-                  unSelectedTextColor: UIConfig.desktopSearchTabUnSelectedTextColor(context),
+                  selectedColor:
+                      UIConfig.desktopSearchTabSelectedBackGroundColor(context),
+                  unSelectedColor:
+                      UIConfig.desktopSearchTabUnSelectedBackGroundColor(
+                          context),
+                  selectedTextColor:
+                      UIConfig.desktopSearchTabSelectedTextColor(context),
+                  unSelectedTextColor:
+                      UIConfig.desktopSearchTabUnSelectedTextColor(context),
                   onTap: () => logic.handleTapTab(index),
                   onDelete: () => logic.deleteTab(index),
                 ),
@@ -116,20 +153,28 @@ class DesktopSearchPage extends StatelessWidget with Scroll2TopPageMixin {
             ),
           ),
         )
-        .toList()
-        .joinNewElementIndexed(
-          (index) => _SearchTabDivider(
-            hasLeftTab: index >= 0,
-            hasRightTab: index != state.tabLogics.length - 1,
-            leftTabIsSelected: index == state.currentTabIndex,
-            rightTabIsSelected: index == state.currentTabIndex - 1,
-            selectedColor: UIConfig.desktopSearchTabSelectedBackGroundColor(context),
-            unSelectedColor: UIConfig.desktopSearchTabUnSelectedBackGroundColor(context),
-            backgroundColor: UIConfig.desktopSearchTabDividerBackGroundColor(context),
-          ),
-          joinAtFirst: true,
-          joinAtLast: true,
-        );
+        .toList();
+
+    if (ThemeConfig.isApple) {
+      return tabs;
+    }
+
+    return tabs.joinNewElementIndexed(
+      (index) => _SearchTabDivider(
+        hasLeftTab: index >= 0,
+        hasRightTab: index != state.tabLogics.length - 1,
+        leftTabIsSelected: index == state.currentTabIndex,
+        rightTabIsSelected: index == state.currentTabIndex - 1,
+        selectedColor:
+            UIConfig.desktopSearchTabSelectedBackGroundColor(context),
+        unSelectedColor:
+            UIConfig.desktopSearchTabUnSelectedBackGroundColor(context),
+        backgroundColor:
+            UIConfig.desktopSearchTabDividerBackGroundColor(context),
+      ),
+      joinAtFirst: true,
+      joinAtLast: true,
+    );
   }
 
   Widget buildTabView() {
@@ -139,7 +184,9 @@ class DesktopSearchPage extends StatelessWidget with Scroll2TopPageMixin {
         key: state.tabViewKey,
         child: PageView(
           controller: state.pageController,
-          physics: GetPlatform.isDesktop ? const NeverScrollableScrollPhysics() : null,
+          physics: GetPlatform.isDesktop
+              ? const NeverScrollableScrollPhysics()
+              : null,
           onPageChanged: logic.onPageChanged,
           children: state.tabs,
         ),
@@ -192,6 +239,53 @@ class _SearchTabState extends State<_SearchTab> {
 
   @override
   Widget build(BuildContext context) {
+    if (ThemeConfig.isApple) {
+      final colors = Theme.of(context).colorScheme;
+      return GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOutCubic,
+          width: UIConfig.desktopSearchTabWidth,
+          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+          padding: const EdgeInsets.only(left: 9),
+          decoration: BoxDecoration(
+            color: selected
+                ? colors.primary.withValues(alpha: 0.16)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(7),
+            border: Border.all(
+                color: selected
+                    ? colors.primary.withValues(alpha: 0.45)
+                    : Colors.transparent),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  widget.name,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      color:
+                          selected ? colors.onSurface : colors.onSurfaceVariant,
+                      letterSpacing: 0.1),
+                ),
+              ),
+              EHAppleIconButton(
+                onPressed: widget.onDelete,
+                icon: Icon(Icons.close,
+                    color: colors.onSurfaceVariant,
+                    size: UIConfig.desktopSearchTabIconSize),
+                constraints:
+                    const BoxConstraints.tightFor(width: 20, height: 20),
+                padding: EdgeInsets.zero,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return GestureDetector(
       onTap: widget.onTap,
       child: Container(
@@ -205,17 +299,24 @@ class _SearchTabState extends State<_SearchTab> {
               child: Text(
                 widget.name,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: selected ? widget.selectedTextColor : widget.unSelectedTextColor, letterSpacing: 0.1),
+                style: TextStyle(
+                    color: selected
+                        ? widget.selectedTextColor
+                        : widget.unSelectedTextColor,
+                    letterSpacing: 0.1),
               ).marginOnly(left: 2),
             ),
-            IconButton(
+            EHAppleIconButton(
               onPressed: widget.onDelete,
               icon: Icon(
                 Icons.clear,
-                color: selected ? widget.selectedTextColor : widget.unSelectedTextColor,
+                color: selected
+                    ? widget.selectedTextColor
+                    : widget.unSelectedTextColor,
                 size: UIConfig.desktopSearchTabIconSize,
               ),
-              constraints: const BoxConstraints.tightFor(width: UIConfig.desktopSearchTabHeight, height: UIConfig.desktopSearchTabHeight),
+              constraints:
+                  const BoxConstraints.tightFor(width: 20, height: 20),
               padding: EdgeInsets.zero,
             ),
           ],
@@ -263,15 +364,20 @@ class _SearchTabDivider extends StatelessWidget {
               height: UIConfig.desktopSearchTabHeight / 2,
               foregroundDecoration: hasLeftTab
                   ? BoxDecoration(
-                      color: leftTabIsSelected ? selectedColor : unSelectedColor,
-                      borderRadius: const BorderRadius.only(topRight: Radius.circular(UIConfig.desktopSearchTabDividerBorderRadius)),
+                      color:
+                          leftTabIsSelected ? selectedColor : unSelectedColor,
+                      borderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(
+                              UIConfig.desktopSearchTabDividerBorderRadius)),
                     )
                   : null,
             ),
             Container(
               width: UIConfig.desktopSearchTabDividerWidth / 2,
               height: UIConfig.desktopSearchTabHeight / 2,
-              color: leftTabIsSelected || rightTabIsSelected ? selectedColor : unSelectedColor,
+              color: leftTabIsSelected || rightTabIsSelected
+                  ? selectedColor
+                  : unSelectedColor,
               foregroundDecoration: BoxDecoration(
                 color: !hasLeftTab
                     ? backgroundColor
@@ -279,7 +385,9 @@ class _SearchTabDivider extends StatelessWidget {
                         ? unSelectedColor
                         : null,
                 borderRadius: !hasLeftTab || rightTabIsSelected
-                    ? const BorderRadius.only(bottomRight: Radius.circular(UIConfig.desktopSearchTabDividerBorderRadius))
+                    ? const BorderRadius.only(
+                        bottomRight: Radius.circular(
+                            UIConfig.desktopSearchTabDividerBorderRadius))
                     : null,
               ),
             ),
@@ -292,15 +400,20 @@ class _SearchTabDivider extends StatelessWidget {
               height: UIConfig.desktopSearchTabHeight / 2,
               foregroundDecoration: hasRightTab
                   ? BoxDecoration(
-                      color: rightTabIsSelected ? selectedColor : unSelectedColor,
-                      borderRadius: const BorderRadius.only(topLeft: Radius.circular(UIConfig.desktopSearchTabDividerBorderRadius)),
+                      color:
+                          rightTabIsSelected ? selectedColor : unSelectedColor,
+                      borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(
+                              UIConfig.desktopSearchTabDividerBorderRadius)),
                     )
                   : null,
             ),
             Container(
               width: UIConfig.desktopSearchTabDividerWidth / 2,
               height: UIConfig.desktopSearchTabHeight / 2,
-              color: leftTabIsSelected || rightTabIsSelected ? selectedColor : unSelectedColor,
+              color: leftTabIsSelected || rightTabIsSelected
+                  ? selectedColor
+                  : unSelectedColor,
               foregroundDecoration: BoxDecoration(
                 color: !hasRightTab
                     ? backgroundColor
@@ -308,7 +421,9 @@ class _SearchTabDivider extends StatelessWidget {
                         ? selectedColor
                         : unSelectedColor,
                 borderRadius: !hasRightTab || leftTabIsSelected
-                    ? const BorderRadius.only(bottomLeft: Radius.circular(UIConfig.desktopSearchTabDividerBorderRadius))
+                    ? const BorderRadius.only(
+                        bottomLeft: Radius.circular(
+                            UIConfig.desktopSearchTabDividerBorderRadius))
                     : null,
               ),
             ),

@@ -20,6 +20,8 @@ enum ConfigEnum {
   siteSetting('siteSetting'),
   styleSetting('styleSetting'),
   superResolutionSetting('SuperResolutionSetting'),
+  imageTranslationSetting('ImageTranslationSetting'),
+  inferenceSetting('inferenceSetting'),
   userSetting('userSetting'),
   archiveBotSetting('archiveBotSetting'),
   keyboardShortcutSetting('keyboardShortcutSetting'),
@@ -32,9 +34,11 @@ enum ConfigEnum {
 
   /// config
   ehCookie('eh_cookies'),
+  lanUnifiedState('lanUnifiedState'),
   searchConfig('searchConfig'),
   dismissVersion('dismissVersion'),
   readIndexRecord('readIndexRecord'),
+  readerActionPosition('readerActionPosition'),
   quickSearch('quickSearch'),
   oldGalleryHistory('history'),
   searchHistory('searchHistory'),
@@ -49,13 +53,14 @@ enum ConfigEnum {
   tagTranslationServiceLoadingState('TagTranslationServiceLoadingState'),
   tagTranslationServiceTimestamp('TagTranslationServiceTimestamp'),
   tagSearchOrderOptimizationServiceVersion('TagTranslationServiceVersion'),
-  tagSearchOrderOptimizationServiceLoadingState('TagSearchOrderOptimizationServiceLoadingState'),
+  tagSearchOrderOptimizationServiceLoadingState(
+    'TagSearchOrderOptimizationServiceLoadingState',
+  ),
   displayBlockingRulesGroup('displayBlockingRulesGroup'),
 
   /// cache
   isSpreadPage('isSpreadPage'),
-  galleryImageHash('galleryImageHash'),
-  ;
+  galleryImageHash('galleryImageHash');
 
   final String key;
 

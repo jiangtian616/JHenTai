@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
+import 'package:jhentai/src/utils/app_icons.dart';
 import 'package:jhentai/src/pages/gallery/dashboard/dashboard_page_logic.dart';
 import 'package:jhentai/src/pages/gallery/dashboard/simple/simple_dashboard_page_logic.dart';
 import 'package:jhentai/src/pages/search/mobile_v2/search_page_mobile_v2.dart';
@@ -42,9 +43,9 @@ class MobileLayoutPageV2State with DoubleTapToRefreshStateMixin {
       TabBarIcon(
         name: TabBarIconNameEnum.home,
         routeName: Routes.dashboard,
-        selectedIcon: const Icon(Icons.home),
-        unselectedIcon: const Icon(Icons.home_outlined),
-        page: () => preferenceSetting.simpleDashboardMode.isTrue ? const SimpleDashboardPage() : const DashboardPage(),
+        selectedIcon: Icon(AppIcons.homeFill),
+        unselectedIcon: Icon(AppIcons.home),
+        page: () => preferenceSetting.simpleDashboardMode.isTrue ? const SimpleDashboardPage() : DashboardPage(),
         scrollController: () => preferenceSetting.simpleDashboardMode.isTrue
             ? Get.find<SimpleDashboardPageLogic>().scroll2TopState.scrollController
             : Get.find<DashboardPageLogic>().scroll2TopState.scrollController,
@@ -53,8 +54,8 @@ class MobileLayoutPageV2State with DoubleTapToRefreshStateMixin {
       TabBarIcon(
         name: TabBarIconNameEnum.search,
         routeName: Routes.mobileV2Search,
-        selectedIcon: const Icon(Icons.search, shadows: [Shadow(blurRadius: 2)]),
-        unselectedIcon: const Icon(Icons.search),
+        selectedIcon: Icon(AppIcons.search, shadows: [Shadow(blurRadius: 2)]),
+        unselectedIcon: Icon(AppIcons.search),
         page: () => SearchPageMobileV2(),
         shouldRender: false,
         enterNewRoute: true,
@@ -62,8 +63,8 @@ class MobileLayoutPageV2State with DoubleTapToRefreshStateMixin {
       TabBarIcon(
         name: TabBarIconNameEnum.popular,
         routeName: Routes.popular,
-        selectedIcon: const Icon(Icons.whatshot),
-        unselectedIcon: const Icon(Icons.whatshot_outlined),
+        selectedIcon: Icon(AppIcons.popularFill),
+        unselectedIcon: Icon(AppIcons.popular),
         page: () => PopularPage(showMenuButton: true, showTitle: true, name: 'popular'.tr),
         scrollController: () => Get.find<PopularPageLogic>().scroll2TopState.scrollController,
         shouldRender: false,
@@ -71,8 +72,8 @@ class MobileLayoutPageV2State with DoubleTapToRefreshStateMixin {
       TabBarIcon(
         name: TabBarIconNameEnum.ranklist,
         routeName: Routes.ranklist,
-        selectedIcon: const Icon(Icons.bar_chart_rounded, shadows: [Shadow(blurRadius: 2)]),
-        unselectedIcon: const Icon(Icons.bar_chart_outlined),
+        selectedIcon: Icon(AppIcons.ranklistFill, shadows: [Shadow(blurRadius: 2)]),
+        unselectedIcon: Icon(AppIcons.ranklist),
         page: () => const RanklistPage(showMenuButton: true, showTitle: true),
         scrollController: () => Get.find<RanklistPageLogic>().scroll2TopState.scrollController,
         shouldRender: false,
@@ -80,8 +81,8 @@ class MobileLayoutPageV2State with DoubleTapToRefreshStateMixin {
       TabBarIcon(
         name: TabBarIconNameEnum.favorite,
         routeName: Routes.favorite,
-        selectedIcon: const Icon(Icons.favorite),
-        unselectedIcon: const Icon(Icons.favorite_outline),
+        selectedIcon: Icon(AppIcons.favoriteFill),
+        unselectedIcon: Icon(AppIcons.favorite),
         page: () => FavoritePage(showMenuButton: true, showTitle: true, name: 'favorite'.tr),
         scrollController: () => Get.find<FavoritePageLogic>().scroll2TopState.scrollController,
         shouldRender: false,
@@ -89,8 +90,8 @@ class MobileLayoutPageV2State with DoubleTapToRefreshStateMixin {
       TabBarIcon(
         name: TabBarIconNameEnum.watched,
         routeName: Routes.watched,
-        selectedIcon: const Icon(Icons.visibility),
-        unselectedIcon: const Icon(Icons.visibility_outlined),
+        selectedIcon: Icon(AppIcons.watchedFill),
+        unselectedIcon: Icon(AppIcons.watched),
         page: () => WatchedPage(showMenuButton: true, showTitle: true, name: 'watched'.tr),
         scrollController: () => Get.find<WatchedPageLogic>().scroll2TopState.scrollController,
         shouldRender: false,
@@ -98,8 +99,8 @@ class MobileLayoutPageV2State with DoubleTapToRefreshStateMixin {
       TabBarIcon(
         name: TabBarIconNameEnum.history,
         routeName: Routes.history,
-        selectedIcon: const Icon(Icons.history, shadows: [Shadow(blurRadius: 2)]),
-        unselectedIcon: const Icon(Icons.history_outlined),
+        selectedIcon: Icon(AppIcons.historyFill, shadows: [Shadow(blurRadius: 2)]),
+        unselectedIcon: Icon(AppIcons.history),
         page: () => HistoryPage(showMenuButton: true, showTitle: true, name: 'history'.tr),
         scrollController: () => Get.find<HistoryPageLogic>().scroll2TopState.scrollController,
         shouldRender: false,
@@ -107,16 +108,16 @@ class MobileLayoutPageV2State with DoubleTapToRefreshStateMixin {
       TabBarIcon(
         name: TabBarIconNameEnum.download,
         routeName: Routes.download,
-        selectedIcon: const Icon(Icons.download),
-        unselectedIcon: const Icon(Icons.download_outlined),
+        selectedIcon: Icon(AppIcons.downloadFill),
+        unselectedIcon: Icon(AppIcons.download),
         page: () => const DownloadPage(),
         shouldRender: false,
       ),
       TabBarIcon(
         name: TabBarIconNameEnum.setting,
         routeName: Routes.setting,
-        selectedIcon: const Icon(Icons.settings),
-        unselectedIcon: const Icon(Icons.settings_outlined),
+        selectedIcon: Icon(AppIcons.settingsFill),
+        unselectedIcon: Icon(AppIcons.settings),
         page: () => const SettingPage(),
         shouldRender: false,
         enterNewRoute: true,

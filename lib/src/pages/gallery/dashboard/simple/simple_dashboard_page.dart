@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/gallery/dashboard/simple/simple_dashboard_page_logic.dart';
 import 'package:jhentai/src/pages/gallery/dashboard/simple/simple_dashboard_page_state.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 
 import '../../../../routes/routes.dart';
 import '../../../../utils/route_util.dart';
@@ -30,9 +31,13 @@ class SimpleDashboardPage extends BasePage {
   @override
   List<Widget> buildAppBarActions() {
     return [
-      IconButton(icon: const Icon(Icons.settings), onPressed: logic.handleTapFilterButton),
-      IconButton(icon: const Icon(Icons.search), onPressed: () => toRoute(Routes.mobileV2Search)),
-      IconButton(icon: const Icon(Icons.more_vert), onPressed: MobileLayoutPageV2State.scaffoldKey.currentState?.openEndDrawer),
+      EHAppleIconButton(icon: const Icon(Icons.settings), onPressed: logic.handleTapFilterButton),
+      EHAppleIconButton(icon: const Icon(Icons.search), onPressed: () => toRoute(Routes.mobileV2Search)),
+      EHAppleIconButton(
+        icon: const Icon(Icons.more_vert),
+        onPressed:
+            MobileLayoutPageV2State.scaffoldKey.currentState?.openEndDrawer,
+      ),
     ];
   }
 }

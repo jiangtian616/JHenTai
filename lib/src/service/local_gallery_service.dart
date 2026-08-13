@@ -22,6 +22,12 @@ LocalGalleryService localGalleryService = LocalGalleryService();
 class LocalGalleryService extends GetxController with GridBasePageServiceMixin, JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   static const String rootPath = '';
 
+  // _loadGalleriesFromDisk reads downloadSetting.extraGalleryScanPath. Keep
+  // this bean behind DownloadSetting when startup initialization is parallel;
+  // otherwise the late field can be read before its config is initialized.
+  @override
+  List<JHLifeCircleBean> get initDependencies => [pathService, log, downloadSetting];
+
   LoadingState loadingState = LoadingState.idle;
 
   List<LocalGallery> allGalleries = [];

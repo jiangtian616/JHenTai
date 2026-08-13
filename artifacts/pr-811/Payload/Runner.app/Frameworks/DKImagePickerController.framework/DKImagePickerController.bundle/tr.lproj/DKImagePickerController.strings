@@ -1,0 +1,31 @@
+//
+//  GitHub
+//  https://github.com/zhangao0086/DKImagePickerController
+//
+//
+//  License
+//  Copyright (c) 2014 ZhangAo
+//  Released under an MIT license: http://opensource.org/licenses/MIT
+//
+
+"permission.camera.title" = "Kamera erişimine izin veriniz.";
+
+"permission.photo.title" = "Fotoğraf erişimine izin veriniz.";
+
+"permission.allow" = "Erişim izni veriniz.";
+
+"picker.alert.ok" = "Tamam";
+
+"picker.select.title" = "Seçili(%@)";
+
+"picker.select.done.title" = "Tamam";
+
+"picker.select.all.title" = "Hepsini seç";
+
+"picker.select.photosOrVideos.error.title" = "Fotoğraf veya video seçiniz.";
+
+"picker.select.photosOrVideos.error.message" = "Aynı anda fotoğraf ve video seçimi yapamazsınız.";
+
+"picker.select.maxLimitReached.error.title" = "Maksimum fotoğraf limitine ulaştınız.";
+
+"picker.select.maxLimitReached.error.message" = "%@ fotoğraf seçebilirsiniz.";

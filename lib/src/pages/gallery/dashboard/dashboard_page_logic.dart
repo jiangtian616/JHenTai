@@ -42,6 +42,14 @@ class DashboardPageLogic extends BasePageLogic {
     loadPopular();
   }
 
+  @override
+  void onClose() {
+    state.searchVisible.dispose();
+    state.searchController.dispose();
+    state.searchFocusNode.dispose();
+    super.onClose();
+  }
+
   Future<void> loadRanklist() async {
     if (state.ranklistLoadingState == LoadingState.loading) {
       return;
@@ -82,7 +90,7 @@ class DashboardPageLogic extends BasePageLogic {
     update([ranklistId]);
   }
 
-  Future<void> loadPopular() async {
+  Future<void> loadPopular({bool useCacheIfAvailable = true}) async {
     if (state.popularLoadingState == LoadingState.loading) {
       return;
     }
@@ -100,6 +108,7 @@ class DashboardPageLogic extends BasePageLogic {
       galleriesPage = await ehRequest.requestGalleryPage(
         url: EHConsts.EPopular,
         parser: EHSpiderParser.galleryPage2GalleryPageInfo,
+        useCacheIfAvailable: useCacheIfAvailable,
       );
     } on DioException catch (e) {
       log.error('getPopularListFailed'.tr, e.errorMsg);
@@ -128,7 +137,7 @@ class DashboardPageLogic extends BasePageLogic {
     update([loadingStateId]);
 
     loadRanklist();
-    loadPopular();
+    loadPopular(useCacheIfAvailable: false);
 
     await super.handleRefresh(updateId: galleryListId);
 

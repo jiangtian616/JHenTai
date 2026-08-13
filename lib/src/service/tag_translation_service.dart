@@ -1,6 +1,5 @@
 import 'dart:io' as io;
 import 'dart:collection';
-import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
@@ -9,6 +8,7 @@ import 'package:jhentai/src/database/dao/tag_dao.dart';
 import 'package:jhentai/src/enum/eh_namespace.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/service/isolate_service.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/service/tag_search_order_service.dart';
 import 'package:jhentai/src/service/path_service.dart';
@@ -41,6 +41,8 @@ TagTranslationService tagTranslationService = TagTranslationService();
 class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   final String downloadUrl = 'https://fastly.jsdelivr.net/gh/EhTagTranslation/DatabaseReleases/db.html.json';
   late final String savePath;
+
+  static const int _importBatchSize = 500;
 
   Rx<LoadingState> loadingState = LoadingState.idle.obs;
   RxnString timeStamp = RxnString(null);
@@ -104,8 +106,8 @@ class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCir
     log.info('Tag translation data downloaded');
 
     /// format
-    String json = io.File(savePath).readAsStringSync();
-    Map dataMap = jsonDecode(json);
+    String json = await io.File(savePath).readAsString();
+    Map dataMap = await isolateService.jsonDecodeAsync(json);
     Map head = dataMap['head'] as Map;
     Map committer = head['committer'] as Map;
     String newTimeStamp = committer['when'] as String;
@@ -144,20 +146,18 @@ class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCir
     timeStamp.value = null;
     await appDb.transaction(() async {
       await TagDao.deleteAllTags();
-      for (TagData tag in tagList) {
-        await TagDao.insertTag(
-          TagData(
-            namespace: tag.namespace,
-            key: tag.key,
-            translatedNamespace: tag.translatedNamespace,
-            tagName: tag.tagName,
-            fullTagName: tag.fullTagName,
-            intro: tag.intro,
-            links: tag.links,
-          ),
-        );
+      for (int i = 0; i < tagList.length; i += _importBatchSize) {
+        await appDb.batch((batch) {
+          batch.insertAll(
+            appDb.tag,
+            tagList.skip(i).take(_importBatchSize).toList(),
+          );
+        });
       }
     });
+
+    /// the `tag` table was replaced, so stale in-memory lookups must go
+    _translationCache.clear();
 
     timeStamp.value = newTimeStamp;
     loadingState.value = LoadingState.success;
@@ -198,9 +198,32 @@ class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCir
     return translatedTagDatas.toList();
   }
 
+  /// In-memory cache of translation lookups. The `tag` table only changes when
+  /// a fresh EhTagTranslation database is applied in [fetchDataFromGithub], so
+  /// the cache only needs invalidating there. Without it, every gallery list
+  /// page issues hundreds of point SELECTs (one per tag) against the DB.
+  final LinkedHashMap<String, TagData?> _translationCache = LinkedHashMap();
+
+  static const int _translationCacheCapacity = 10000;
+
   Future<TagData?> getTagTranslation(String namespace, String key) async {
+    // NUL can never appear in a tag namespace/key, so it is a safe separator.
+    final String cacheKey = '$namespace\u0000$key';
+    final TagData? cached = _translationCache[cacheKey];
+    if (cached != null || _translationCache.containsKey(cacheKey)) {
+      // re-insert to keep the entry hot in the LRU eviction order
+      _translationCache.remove(cacheKey);
+      _translationCache[cacheKey] = cached;
+      return cached;
+    }
+
     List<TagData> list = await TagDao.selectTagByNamespaceAndKey(namespace, key);
-    return list.isNotEmpty ? list.first : null;
+    TagData? value = list.isNotEmpty ? list.first : null;
+    _translationCache[cacheKey] = value;
+    if (_translationCache.length > _translationCacheCapacity) {
+      _translationCache.remove(_translationCache.keys.first);
+    }
+    return value;
   }
 
   Future<List<TagAutoCompletionMatch>> searchTags(String searchText, {int? limit}) async {

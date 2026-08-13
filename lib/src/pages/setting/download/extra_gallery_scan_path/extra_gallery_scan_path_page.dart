@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
+import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
 import 'package:jhentai/src/widget/eh_alert_dialog.dart';
 
 import '../../../../service/log.dart';
@@ -19,18 +21,21 @@ class ExtraGalleryScanPathPage extends StatelessWidget {
         centerTitle: true,
         title: Text('extraGalleryScanPath'.tr),
         actions: [
-          IconButton(onPressed: _handleAddPath, icon: const Icon(Icons.add)),
+          EHAppleIconButton(onPressed: _handleAddPath, icon: const Icon(Icons.add)),
         ],
       ),
       body: Obx(
-        () => ListView(
-          padding: const EdgeInsets.only(top: 16),
-          children: downloadSetting.extraGalleryScanPath
-              .map(
-                (path) => ListTile(
-                    title: Text(path), onTap: () => _handleDelete(path)),
-              )
-              .toList(),
+        () => EHAppleSettingsListView(
+          groups: [
+            EHAppleSettingsGroup(
+              children: downloadSetting.extraGalleryScanPath
+                  .map(
+                    (path) => ListTile(
+                        title: Text(path), onTap: () => _handleDelete(path)),
+                  )
+                  .toList(),
+            ),
+          ],
         ),
       ),
     );

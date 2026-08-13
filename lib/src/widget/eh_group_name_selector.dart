@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:simple_animations/animation_controller_extension/animation_controller_extension.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 
@@ -115,7 +116,7 @@ class _EHGroupNameSelectorState extends State<EHGroupNameSelector> {
 
   Widget _buildTextField() {
     return Center(
-      child: TextField(
+      child: EHAppleTextField(
         decoration: InputDecoration(
           isDense: true,
           alignLabelWithHint: true,

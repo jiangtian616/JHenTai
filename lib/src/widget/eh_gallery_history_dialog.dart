@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/utils/route_util.dart';
+import 'package:jhentai/src/widget/eh_translated_text.dart';
 import 'package:jhentai/src/widget/eh_wheel_speed_controller.dart';
 
 import '../config/ui_config.dart';
@@ -31,7 +32,7 @@ class EHGalleryHistoryDialog extends StatelessWidget {
           ...?childrenGalleries?.reversed.map(
             (e) => ListTile(
               dense: true,
-              title: Text(
+              title: EHTranslatedText(
                 e.title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -52,7 +53,7 @@ class EHGalleryHistoryDialog extends StatelessWidget {
           ),
           ListTile(
             dense: true,
-            title: Text(
+            title: EHTranslatedText(
               currentGalleryTitle,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

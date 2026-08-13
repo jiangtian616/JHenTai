@@ -54,17 +54,17 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/window_manager/macos
 
 SPEC CHECKSUMS:
-  audio_session: dea1f41890dbf1718f04a56f1d6150fd50039b72
-  desktop_webview_window: d4365e71bcd4e1aa0c14cf0377aa24db0c16a7e2
+  audio_session: 48ab6500f7a5e7c64363e206565a5dfe5a0c1441
+  desktop_webview_window: 7e37af677d6d19294cb433d9b1d878ef78dffa4d
   FlutterMacOS: d0db08ddef1a9af05a5ec4b724367152bb0500b1
-  just_audio: 9b67ca7b97c61cfc9784ea23cd8cc55eb226d489
-  package_info_plus: d2f71247aab4b6521434f887276093acc70d214c
-  screen_brightness_macos: 2d6d3af2165592d9a55ffcd95b7550970e41ebda
-  screen_retriever: 59634572a57080243dd1bf715e55b6c54f241a38
-  smart_auth: b38e3ab4bfe089eacb1e233aca1a2340f96c28e9
-  wakelock_plus: 4783562c9a43d209c458cb9b30692134af456269
-  window_manager: 3a1844359a6295ab1e47659b1a777e36773cd6e8
+  just_audio: eb8b016ac4493159ab24db4f7215e55303b39a84
+  package_info_plus: 4f85435d47d3cdedb9b420d168afd080840708ea
+  screen_brightness_macos: 2a3ee243f8051c340381e8e51bcedced8360f421
+  screen_retriever: 4f97c103641aab8ce183fa5af3b87029df167936
+  smart_auth: e10f1d22af5d9e1a51964fb1826cb177f993a7e1
+  wakelock_plus: 21ddc249ac4b8d018838dbdabd65c5976c308497
+  window_manager: 1d01fa7ac65a6e6f83b965471b1a7fdd3f06166c
 
-PODFILE CHECKSUM: 0d3963a09fc94f580682bd88480486da345dc3f0
+PODFILE CHECKSUM: 748a7475e10d47154245790518f9d314282968bf
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.17.0

@@ -10,6 +10,7 @@ import 'package:jhentai/src/model/gallery_torrent.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/service/log.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -142,7 +143,7 @@ class _TorrentList extends StatelessWidget {
           Text(torrent.postTime, style: const TextStyle(fontSize: UIConfig.torrentDialogSubtitleTextSize)).marginOnly(left: 6),
         ],
       ),
-      trailing: IconButton(
+      trailing: EHAppleIconButton(
         icon: Icon(Icons.attach_file_outlined, size: 16, color: UIConfig.resumePauseButtonColor(context)),
         padding: EdgeInsets.zero,
         onPressed: () => FlutterClipboard.copy(torrent.magnetUrl).then((_) => toast('hasCopiedToClipboard'.tr)),

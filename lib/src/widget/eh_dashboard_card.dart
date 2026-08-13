@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/gallery.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
+import 'package:jhentai/src/setting/performance_setting.dart';
 import 'package:jhentai/src/widget/eh_image.dart';
+import 'package:jhentai/src/widget/eh_translated_text.dart';
 import '../config/ui_config.dart';
 
 import '../consts/locale_consts.dart';
@@ -49,9 +51,20 @@ class _EHDashboardCardState extends State<EHDashboardCard> {
   }
 
   Widget _buildCover(GalleryImage image) {
+    const double size = UIConfig.dashboardCardSize;
     return EHImage(
-      containerHeight: UIConfig.dashboardCardSize,
-      containerWidth: UIConfig.dashboardCardSize,
+      containerHeight: size,
+      containerWidth: size,
+      cacheWidth: performanceSetting.enableCoverDecodeOptimization.isTrue
+          ? (size * MediaQuery.devicePixelRatioOf(context) * 2)
+              .round()
+              .clamp(1, 2048)
+          : null,
+      cacheHeight: performanceSetting.enableCoverDecodeOptimization.isTrue
+          ? (size * MediaQuery.devicePixelRatioOf(context) * 2)
+              .round()
+              .clamp(1, 2048)
+          : null,
       galleryImage: image,
       fit: BoxFit.cover,
       completedWidgetBuilder: (_) {
@@ -82,7 +95,7 @@ class _EHDashboardCardState extends State<EHDashboardCard> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        EHTranslatedText(
           widget.gallery.title,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(color: UIConfig.dashboardCardTextColor, fontSize: 12),

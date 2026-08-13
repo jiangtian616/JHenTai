@@ -1,0 +1,31 @@
+//
+//  GitHub
+//  https://github.com/zhangao0086/DKImagePickerController
+//
+//
+//  License
+//  Copyright (c) 2014 ZhangAo
+//  Released under an MIT license: http://opensource.org/licenses/MIT
+//
+
+"permission.camera.title" = "الرجاء السماح بالدخول إلى الكاميرا";
+
+"permission.photo.title" = "الرجاء السماح بالدخول إلى الصور";
+
+"permission.allow" = "السماح بالدخول";
+
+"picker.alert.ok" = "نعم";
+
+"picker.select.title" = "حدد(%@)";
+
+"picker.select.done.title" = "تم";
+
+"picker.select.all.title" = "اختر الكل";
+
+"picker.select.photosOrVideos.error.title" = "حدد صور أو مقاطع فيديو";
+
+"picker.select.photosOrVideos.error.message" = "لا يمكن تحديد الصور ومقاطع الفيديو في نفس الوقت.";
+
+"picker.select.maxLimitReached.error.title" = "بلغت الصور الحد المسموح به";
+
+"picker.select.maxLimitReached.error.message" = "يمكنك تحديد %@ من العناصر";

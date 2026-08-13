@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/config/theme_config.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/pages/gallery/simple/gallery_page_logic.dart';
@@ -9,6 +10,7 @@ import 'package:jhentai/src/pages/popular/popular_page.dart';
 import 'package:jhentai/src/pages/setting/setting_page.dart';
 import 'package:jhentai/src/pages/watched/watched_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/utils/app_icons.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 
 import '../../../mixin/double_tap_to_refresh_state_mixin.dart';
@@ -29,7 +31,10 @@ class DesktopLayoutPageState with DoubleTapToRefreshStateMixin {
   int selectedTabIndex = 0;
 
   /// selectedTabIndex in [shouldRender] icons
-  int get selectedTabOrder => icons.where((icon) => icon.shouldRender).toList().indexWhere((icon) => icon.name == icons[selectedTabIndex].name);
+  int get selectedTabOrder => icons
+      .where((icon) => icon.shouldRender)
+      .toList()
+      .indexWhere((icon) => icon.name == icons[selectedTabIndex].name);
   int? hoveringTabIndex;
 
   final ScrollController leftTabBarScrollController = ScrollController();
@@ -39,86 +44,105 @@ class DesktopLayoutPageState with DoubleTapToRefreshStateMixin {
       TabBarIcon(
         name: TabBarIconNameEnum.home,
         routeName: Routes.gallery,
-        selectedIcon: const Icon(Icons.home),
-        unselectedIcon: const Icon(Icons.home_outlined),
+        selectedIcon: Icon(AppIcons.homeFill),
+        unselectedIcon: Icon(AppIcons.home),
         page: () => const GalleryPage(),
-        scrollController: () => Get.find<GalleryPageLogic>().state.scrollController,
+        scrollController: () =>
+            Get.find<GalleryPageLogic>().state.scrollController,
         shouldRender: false,
       ),
       TabBarIcon(
         name: TabBarIconNameEnum.search,
         routeName: Routes.desktopSearch,
-        selectedIcon: const Icon(Icons.search, shadows: [Shadow(blurRadius: 2)]),
-        unselectedIcon: const Icon(Icons.search),
+        selectedIcon: Icon(AppIcons.search, shadows: [Shadow(blurRadius: 2)]),
+        unselectedIcon: Icon(AppIcons.search),
         page: () => const DesktopSearchPage(),
-        scrollController: () =>
-            Get.find<DesktopSearchPageLogic>().state.tabLogics[Get.find<DesktopSearchPageLogic>().state.currentTabIndex].state.scrollController,
+        scrollController: () => Get.find<DesktopSearchPageLogic>()
+            .state
+            .tabLogics[Get.find<DesktopSearchPageLogic>().state.currentTabIndex]
+            .state
+            .scrollController,
         shouldRender: true,
       ),
       TabBarIcon(
         name: TabBarIconNameEnum.popular,
         routeName: Routes.popular,
-        selectedIcon: const Icon(Icons.whatshot),
-        unselectedIcon: const Icon(Icons.whatshot_outlined),
-        page: () => const PopularPage(),
-        scrollController: () => Get.find<PopularPageLogic>().state.scrollController,
+        selectedIcon: Icon(AppIcons.popularFill),
+        unselectedIcon: Icon(AppIcons.popular),
+        page: () => ThemeConfig.isApple
+            ? PopularPage(showTitle: true, name: 'popular'.tr)
+            : const PopularPage(),
+        scrollController: () =>
+            Get.find<PopularPageLogic>().state.scrollController,
         shouldRender: false,
       ),
       TabBarIcon(
         name: TabBarIconNameEnum.ranklist,
         routeName: Routes.ranklist,
-        selectedIcon: const Icon(Icons.bar_chart_rounded, shadows: [Shadow(blurRadius: 2)]),
-        unselectedIcon: const Icon(Icons.bar_chart_outlined),
+        selectedIcon:
+            Icon(AppIcons.ranklistFill, shadows: [Shadow(blurRadius: 2)]),
+        unselectedIcon: Icon(AppIcons.ranklist),
         page: () => const RanklistPage(),
-        scrollController: () => Get.find<RanklistPageLogic>().state.scrollController,
+        scrollController: () =>
+            Get.find<RanklistPageLogic>().state.scrollController,
         shouldRender: false,
       ),
       TabBarIcon(
         name: TabBarIconNameEnum.favorite,
         routeName: Routes.favorite,
-        selectedIcon: const Icon(Icons.favorite),
-        unselectedIcon: const Icon(Icons.favorite_outline),
-        page: () => const FavoritePage(),
-        scrollController: () => Get.find<FavoritePageLogic>().state.scrollController,
+        selectedIcon: Icon(AppIcons.favoriteFill),
+        unselectedIcon: Icon(AppIcons.favorite),
+        page: () => ThemeConfig.isApple
+            ? FavoritePage(showTitle: true, name: 'favorite'.tr)
+            : const FavoritePage(),
+        scrollController: () =>
+            Get.find<FavoritePageLogic>().state.scrollController,
         shouldRender: false,
       ),
       TabBarIcon(
         name: TabBarIconNameEnum.watched,
         routeName: Routes.watched,
-        selectedIcon: const Icon(Icons.visibility),
-        unselectedIcon: const Icon(Icons.visibility_outlined),
+        selectedIcon: Icon(AppIcons.watchedFill),
+        unselectedIcon: Icon(AppIcons.watched),
         page: () => const WatchedPage(),
-        scrollController: () => Get.find<WatchedPageLogic>().state.scrollController,
+        scrollController: () =>
+            Get.find<WatchedPageLogic>().state.scrollController,
         shouldRender: false,
       ),
       TabBarIcon(
         name: TabBarIconNameEnum.history,
         routeName: Routes.history,
-        selectedIcon: const Icon(Icons.history, shadows: [Shadow(blurRadius: 2)]),
-        unselectedIcon: const Icon(Icons.history_outlined),
-        page: () => HistoryPage(),
-        scrollController: () => Get.find<HistoryPageLogic>().state.scrollController,
+        selectedIcon:
+            Icon(AppIcons.historyFill, shadows: [Shadow(blurRadius: 2)]),
+        unselectedIcon: Icon(AppIcons.history),
+        page: () => ThemeConfig.isApple
+            ? HistoryPage(showTitle: true, name: 'history'.tr)
+            : HistoryPage(),
+        scrollController: () =>
+            Get.find<HistoryPageLogic>().state.scrollController,
         shouldRender: false,
       ),
       TabBarIcon(
         name: TabBarIconNameEnum.download,
         routeName: Routes.download,
-        selectedIcon: const Icon(Icons.download),
-        unselectedIcon: const Icon(Icons.download_outlined),
+        selectedIcon: Icon(AppIcons.downloadFill),
+        unselectedIcon: Icon(AppIcons.download),
         page: () => const DownloadPage(),
         shouldRender: false,
       ),
       TabBarIcon(
         name: TabBarIconNameEnum.setting,
         routeName: Routes.setting,
-        selectedIcon: const Icon(Icons.settings),
-        unselectedIcon: const Icon(Icons.settings_outlined),
+        selectedIcon: Icon(AppIcons.settingsFill),
+        unselectedIcon: Icon(AppIcons.settings),
         page: () => const SettingPage(),
         shouldRender: true,
       ),
     ];
 
-    selectedTabIndex = icons.firstIndexWhereOrNull((icon) => icon.name == preferenceSetting.defaultTab.value) ?? 0;
+    selectedTabIndex = icons.firstIndexWhereOrNull(
+            (icon) => icon.name == preferenceSetting.defaultTab.value) ??
+        0;
     icons[selectedTabIndex].shouldRender = true;
   }
 }

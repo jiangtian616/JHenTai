@@ -95,19 +95,20 @@ class _GalleryMetadataStore {
     final List<GalleryImage?>? images = info.images;
     final List<Map<String, dynamic>?> imagesJson = images?.map((img) => img?.toJson()).toList() ?? <Map<String, dynamic>?>[];
 
-    Map<String, Object> metadata = {
+    final Map<String, Object> metadata = {
       'gallery': gallery.toGalleryDownloadedData().toJson(),
       'images': jsonEncode(imagesJson),
     };
 
     try {
-      io.File file = io.File(
-        path.join(DownloadPathResolver.computeGalleryDownloadAbsolutePath(gallery.toGalleryDownloadedData()), metadataFileName),
+      final String metadataPath = path.join(
+        DownloadPathResolver.computeGalleryDownloadAbsolutePath(gallery.toGalleryDownloadedData()),
+        metadataFileName,
       );
-      if (!await file.exists()) {
-        await file.create(recursive: true);
-      }
-      await file.writeAsString(jsonEncode(metadata));
+      final io.File tempFile = io.File('$metadataPath.tmp');
+      await tempFile.parent.create(recursive: true);
+      await tempFile.writeAsString(jsonEncode(metadata), flush: true);
+      await FileUtil.moveFileAtomic(tempFile.path, metadataPath);
     } catch (e, st) {
       log.error('Save gallery metadata failed, gid: ${gallery.gid}', e, st);
     }

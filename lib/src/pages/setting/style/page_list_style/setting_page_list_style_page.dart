@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/widget/eh_apple_settings_list_view.dart';
+import 'package:jhentai/src/widget/eh_codex_style_dropdown.dart';
 
 import '../../../../routes/routes.dart';
 import '../../../../setting/style_setting.dart';
@@ -24,32 +26,50 @@ class SettingPageListStylePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(centerTitle: true, title: Text('pageListStyle'.tr)),
       body: Obx(
-        () => ListView(
-          padding: const EdgeInsets.only(top: 16),
-          children: items
-              .where((item) => item.show())
-              .map(
-                (item) => ListTile(
-                  title: Text(item.name),
-                  trailing: DropdownButton<ListMode?>(
-                    value: styleSetting.pageListMode[item.route],
-                    elevation: 4,
-                    alignment: AlignmentDirectional.centerEnd,
-                    onChanged: (value) => styleSetting.savePageListMode(item.route, value),
-                    items: [
-                      DropdownMenuItem(child: Text('global'.tr), value: null),
-                      DropdownMenuItem(child: Text('flat'.tr), value: ListMode.flat),
-                      DropdownMenuItem(child: Text('flatWithoutTags'.tr), value: ListMode.flatWithoutTags),
-                      DropdownMenuItem(child: Text('listWithTags'.tr), value: ListMode.listWithTags),
-                      DropdownMenuItem(child: Text('listWithoutTags'.tr), value: ListMode.listWithoutTags),
-                      DropdownMenuItem(child: Text('waterfallFlowSmall'.tr), value: ListMode.waterfallFlowSmall),
-                      DropdownMenuItem(child: Text('waterfallFlowMedium'.tr), value: ListMode.waterfallFlowMedium),
-                      DropdownMenuItem(child: Text('waterfallFlowBig'.tr), value: ListMode.waterfallFlowBig),
-                    ],
-                  ),
-                ),
-              )
-              .toList(),
+        () => EHAppleSettingsListView(
+          groups: [
+            EHAppleSettingsGroup(
+              children: items
+                  .where((item) => item.show())
+                  .map(
+                    (item) => ListTile(
+                      title: Text(item.name),
+                      trailing: EHCodexStyleDropdown<ListMode?>(
+                        value: styleSetting.pageListMode[item.route],
+                        elevation: 4,
+                        alignment: AlignmentDirectional.centerEnd,
+                        onChanged: (value) =>
+                            styleSetting.savePageListMode(item.route, value),
+                        items: [
+                          DropdownMenuItem(
+                              child: Text('global'.tr), value: null),
+                          DropdownMenuItem(
+                              child: Text('flat'.tr), value: ListMode.flat),
+                          DropdownMenuItem(
+                              child: Text('flatWithoutTags'.tr),
+                              value: ListMode.flatWithoutTags),
+                          DropdownMenuItem(
+                              child: Text('listWithTags'.tr),
+                              value: ListMode.listWithTags),
+                          DropdownMenuItem(
+                              child: Text('listWithoutTags'.tr),
+                              value: ListMode.listWithoutTags),
+                          DropdownMenuItem(
+                              child: Text('waterfallFlowSmall'.tr),
+                              value: ListMode.waterfallFlowSmall),
+                          DropdownMenuItem(
+                              child: Text('waterfallFlowMedium'.tr),
+                              value: ListMode.waterfallFlowMedium),
+                          DropdownMenuItem(
+                              child: Text('waterfallFlowBig'.tr),
+                              value: ListMode.waterfallFlowBig),
+                        ],
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ],
         ),
       ),
     );
@@ -61,5 +81,6 @@ class PageListStyleItem {
   final String route;
   final ValueGetter<bool> show;
 
-  const PageListStyleItem({required this.name, required this.route, required this.show});
+  const PageListStyleItem(
+      {required this.name, required this.route, required this.show});
 }

@@ -110,6 +110,12 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
 
   @override
   Widget? completedWidgetBuilderCallBack(int index, ExtendedImageState state) {
+    logic.readPageState.failedOnlineImageIndices.remove(index);
+    logic.readPageLogic.markOnlineImageLoaded(
+      index,
+      hydrateTranslation: logic.hydrateTranslation,
+    );
+
     if (state.extendedImageInfo == null || logic.readPageState.imageContainerSizes[index] != null) {
       return null;
     }

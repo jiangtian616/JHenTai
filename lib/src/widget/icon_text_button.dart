@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:jhentai/src/config/theme_config.dart';
+import 'package:jhentai/src/widget/eh_apple_controls.dart';
 
 class IconTextButton extends StatelessWidget {
   final double? height;
@@ -22,22 +24,40 @@ class IconTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Widget button = ThemeConfig.isApple
+        ? EHAppleIconButton(
+            onPressed: onPressed,
+            icon: icon,
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            mouseCursor: SystemMouseCursors.basic,
+          )
+        : IconButton(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            mouseCursor: SystemMouseCursors.basic,
+            onPressed: onPressed,
+            icon: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [icon, text],
+            ),
+          );
+
     return SizedBox(
       height: height,
       width: width,
       child: GestureDetector(
         onLongPress: onLongPress,
         onSecondaryTap: onSecondaryTap,
-        child: IconButton(
-          splashColor: Colors.transparent,
-          highlightColor: Colors.transparent,
-          hoverColor: Colors.transparent,
-          onPressed: onPressed,
-          icon: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [icon, text],
-          ),
-        ),
+        // Apple style: a glass circular icon button with the label beneath it.
+        child: ThemeConfig.isApple
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [button, const SizedBox(height: 2), text],
+              )
+            : button,
       ),
     );
   }

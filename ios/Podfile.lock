@@ -125,27 +125,27 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/wakelock_plus/ios"
 
 SPEC CHECKSUMS:
-  audio_session: 088d2483ebd1dc43f51d253d4a1c517d9a2e7207
+  audio_session: f08db0697111ac84ba46191b55488c0563bb29c6
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
-  file_picker: 09aa5ec1ab24135ccd7a1621c46c84134bfd6655
+  file_picker: 9b3292d7c8bc68c8a7bf8eb78f730e49c8efc517
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
-  fluttertoast: e9a18c7be5413da53898f660530c56f35edfba9c
-  http_proxy: 20f129d3e1c70cfdef92530b374c619832027729
-  just_audio: baa7252489dbcf47a4c7cc9ca663e9661c99aafa
-  package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
-  permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
-  receive_sharing_intent: 79c848f5b045674ad60b9fea3bafea59962ad2c1
-  saver_gallery: 76172dc4bf6b40e66d694948ada9ff402304dd87
-  screen_brightness_ios: 715ca807df953bf676d339f11464e438143ee625
+  fluttertoast: 76fea30fcf04176325f6864c87306927bd7d2038
+  http_proxy: 6e9876b8b0d8bd9378a526bf49c51d8df64e891e
+  just_audio: 6c031bb61297cf218b4462be616638e81c058e97
+  package_info_plus: 580e9a5f1b6ca5594e7c9ed5f92d1dfb2a66b5e1
+  permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
+  receive_sharing_intent: 222384f00ffe7e952bbfabaa9e3967cb87e5fe00
+  saver_gallery: af2d0c762dafda254e0ad025ef0dabd6506cd490
+  screen_brightness_ios: 5ed898fa50fa82a26171c086ca5e28228f932576
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
-  smart_auth: 4bedbc118723912d0e45a07e8ab34039c19e04f2
+  smart_auth: 33668081c5f646af84f10492a067d25fdcd16951
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
-  system_network_proxy: 6f63fddb34a28776f091b1221a17850170c59e01
+  system_network_proxy: c0b2ba3a6d877b4861e22300ecfb60df4d200382
   Toast: 1f5ea13423a1e6674c4abdac5be53587ae481c4e
-  volume_button_override: 4f5d67fb6648f59aac1ad62a3703a4d90afc87d7
-  wakelock_plus: 78ec7c5b202cab7761af8e2b2b3d0671be6c4ae1
+  volume_button_override: 591c34d9d1542294e099948b4100dc5810721741
+  wakelock_plus: fd58c82b1388f4afe3fe8aa2c856503a262a5b03
 
-PODFILE CHECKSUM: f6c7589325fb831bbaaf87a4b15e4f7689a16952
+PODFILE CHECKSUM: 5140d49555a2085f7d7455c6ab4f2cf97f6f0c98
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.17.0

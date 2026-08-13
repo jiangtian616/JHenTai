@@ -3,16 +3,50 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
-import 'package:jhentai/src/network/eh_request.dart';
 
 import '../service/jh_service.dart';
 import '../service/log.dart';
 
 NetworkSetting networkSetting = NetworkSetting();
 
-class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
-  Rx<Duration> pageCacheMaxAge = const Duration(hours: 1).obs;
-  Rx<Duration> cacheImageExpireDuration = const Duration(days: 7).obs;
+class NetworkSetting
+    with JHLifeCircleBeanWithConfigStorage
+    implements JHLifeCircleBean {
+  /// Cache config version. v2 merged the separate page/image cache durations
+  /// into the smart cache switch and its retention period. v3 adds the
+  /// optional space limit and eviction policy.
+  static const int cacheConfigVersion = 3;
+
+  /// Fallback retention when smart cache is off: pages stay for a short time,
+  /// images keep the previous default. Users no longer configure these.
+  static const Duration fallbackPageCacheMaxAge = Duration(hours: 1);
+  static const Duration fallbackImageCacheExpireDuration = Duration(days: 7);
+
+  /// Smart cache: when enabled, pages and images you viewed are kept for
+  /// [smartCacheRetention] so revisiting them doesn't re-download. A zero
+  /// duration is the persisted sentinel for no time-based expiry.
+  RxBool enableSmartCache = true.obs;
+  Rx<Duration> smartCacheRetention = const Duration(days: 7).obs;
+
+  bool get isSmartCacheRetentionUnlimited =>
+      enableSmartCache.isTrue && smartCacheRetention.value == Duration.zero;
+
+  /// 0 means no space limit.
+  RxInt smartCacheMaxSizeMB = 0.obs;
+  Rx<SmartCacheEvictPolicy> smartCacheEvictPolicy =
+      SmartCacheEvictPolicy.addedDate.obs;
+
+  /// The retention actually in effect. When smart cache is on it governs both
+  /// the page cache and the image cache; otherwise fixed short-lived defaults
+  /// are used.
+  Duration get effectivePageCacheMaxAge =>
+      enableSmartCache.isTrue
+          ? smartCacheRetention.value
+          : fallbackPageCacheMaxAge;
+  Duration get effectiveCacheImageExpireDuration =>
+      enableSmartCache.isTrue
+          ? smartCacheRetention.value
+          : fallbackImageCacheExpireDuration;
   RxBool enableDomainFronting = false.obs;
   Rx<JProxyType> proxyType = JProxyType.system.obs;
   RxString proxyAddress = 'localhost:1080'.obs;
@@ -35,10 +69,16 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
       '178.175.132.19',
       '178.175.132.20',
       '178.175.132.21',
-      '178.175.132.22'
+      '178.175.132.22',
     ],
     'upld.e-hentai.org': ['95.211.208.236', '89.149.221.236'],
-    'api.e-hentai.org': ['37.48.92.161', '212.7.202.51', '5.79.104.110', '37.48.81.204', '212.7.200.104'],
+    'api.e-hentai.org': [
+      '37.48.92.161',
+      '212.7.202.51',
+      '5.79.104.110',
+      '37.48.81.204',
+      '212.7.200.104',
+    ],
     'forums.e-hentai.org': ['172.66.132.196', '172.66.140.62'],
   };
 
@@ -53,10 +93,29 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
   void applyBeanConfig(String configString) {
     Map map = jsonDecode(configString);
 
-    pageCacheMaxAge.value = Duration(milliseconds: map['pageCacheMaxAge'] ?? pageCacheMaxAge.value.inMilliseconds);
-    cacheImageExpireDuration.value = Duration(milliseconds: map['cacheImageExpireDuration'] ?? cacheImageExpireDuration.value.inMilliseconds);
-    enableDomainFronting.value = map['enableDomainFronting'] ?? enableDomainFronting.value;
-    proxyType.value = JProxyType.values[map['proxyType'] ?? proxyType.value.index];
+    final int version = map['cacheConfigVersion'] ?? 1;
+    enableSmartCache.value =
+        version < cacheConfigVersion
+            ? true
+            : (map['enableSmartCache'] ?? enableSmartCache.value);
+    smartCacheRetention.value = Duration(
+      milliseconds:
+          map['smartCacheRetention'] ??
+          smartCacheRetention.value.inMilliseconds,
+    );
+    smartCacheMaxSizeMB.value =
+        version < cacheConfigVersion
+            ? 0
+            : (map['smartCacheMaxSizeMB'] ?? smartCacheMaxSizeMB.value);
+    smartCacheEvictPolicy.value =
+        version < cacheConfigVersion
+            ? SmartCacheEvictPolicy.addedDate
+            : SmartCacheEvictPolicy.values[map['smartCacheEvictPolicy'] ??
+                smartCacheEvictPolicy.value.index];
+    enableDomainFronting.value =
+        map['enableDomainFronting'] ?? enableDomainFronting.value;
+    proxyType.value =
+        JProxyType.values[map['proxyType'] ?? proxyType.value.index];
     proxyAddress.value = map['proxyAddress'] ?? proxyAddress.value;
     proxyUsername.value = map['proxyUsername'] ?? proxyUsername.value;
     proxyPassword.value = map['proxyPassword'] ?? proxyPassword.value;
@@ -67,8 +126,11 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
   @override
   String toConfigString() {
     return jsonEncode({
-      'pageCacheMaxAge': pageCacheMaxAge.value.inMilliseconds,
-      'cacheImageExpireDuration': cacheImageExpireDuration.value.inMilliseconds,
+      'cacheConfigVersion': cacheConfigVersion,
+      'enableSmartCache': enableSmartCache.value,
+      'smartCacheRetention': smartCacheRetention.value.inMilliseconds,
+      'smartCacheMaxSizeMB': smartCacheMaxSizeMB.value,
+      'smartCacheEvictPolicy': smartCacheEvictPolicy.value.index,
       'enableDomainFronting': enableDomainFronting.value,
       'proxyType': proxyType.value.index,
       'proxyAddress': proxyAddress.value,
@@ -85,15 +147,27 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
   @override
   void doAfterBeanReady() {}
 
-  Future<void> savePageCacheMaxAge(Duration pageCacheMaxAge) async {
-    log.debug('savePageCacheMaxAge:$pageCacheMaxAge');
-    this.pageCacheMaxAge.value = pageCacheMaxAge;
+  Future<void> saveEnableSmartCache(bool value) async {
+    log.debug('saveEnableSmartCache:$value');
+    enableSmartCache.value = value;
     await saveBeanConfig();
   }
 
-  Future<void> saveCacheImageExpireDuration(Duration cacheImageExpireDuration) async {
-    log.debug('saveCacheImageExpireDuration:$cacheImageExpireDuration');
-    this.cacheImageExpireDuration.value = cacheImageExpireDuration;
+  Future<void> saveSmartCacheRetention(Duration value) async {
+    log.debug('saveSmartCacheRetention:$value');
+    smartCacheRetention.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveSmartCacheMaxSizeMB(int value) async {
+    log.debug('saveSmartCacheMaxSizeMB:$value');
+    smartCacheMaxSizeMB.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveSmartCacheEvictPolicy(SmartCacheEvictPolicy value) async {
+    log.debug('saveSmartCacheEvictPolicy:$value');
+    smartCacheEvictPolicy.value = value;
     await saveBeanConfig();
   }
 
@@ -103,8 +177,15 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
     await saveBeanConfig();
   }
 
-  Future<void> saveProxy(JProxyType proxyType, String proxyAddress, String? proxyUsername, String? proxyPassword) async {
-    log.debug('saveProxy:$proxyType,$proxyAddress,$proxyUsername,$proxyPassword');
+  Future<void> saveProxy(
+    JProxyType proxyType,
+    String proxyAddress,
+    String? proxyUsername,
+    String? proxyPassword,
+  ) async {
+    log.debug(
+      'saveProxy:$proxyType,$proxyAddress,$proxyUsername,$proxyPassword',
+    );
     this.proxyType.value = proxyType;
     this.proxyAddress.value = proxyAddress;
     this.proxyUsername.value = proxyUsername;
@@ -126,3 +207,5 @@ class NetworkSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCir
 }
 
 enum JProxyType { system, http, socks5, socks4, direct }
+
+enum SmartCacheEvictPolicy { addedDate, usageFrequency }

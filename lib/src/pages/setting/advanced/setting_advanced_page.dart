@@ -2,31 +2,32 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:android_intent_plus/android_intent.dart';
-import 'package:extended_image/extended_image.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/config.dart';
-import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/cloud_service.dart';
+import 'package:jhentai/src/service/lan_sharing_runtime.dart';
 import 'package:jhentai/src/setting/advanced_setting.dart';
-import 'package:jhentai/src/service/path_service.dart';
+import 'package:jhentai/src/setting/performance_setting.dart';
 import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/utils/app_icons.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
-import 'package:path/path.dart';
 
 import '../../../config/ui_config.dart';
 import '../../../enum/config_type_enum.dart';
 import '../../../routes/routes.dart';
 import '../../../service/isolate_service.dart';
-import '../../../utils/byte_util.dart';
-import '../../../utils/permission_util.dart';
 import '../../../utils/route_util.dart';
+import '../../../utils/text_input_formatter.dart';
 import '../../../widget/eh_config_type_select_dialog.dart';
+import '../../../widget/eh_apple_settings_list_view.dart';
+import '../../../widget/eh_apple_controls.dart';
+import '../../../widget/eh_apple_expandable_switch_list_tile.dart';
 
 class SettingAdvancedPage extends StatefulWidget {
   const SettingAdvancedPage({Key? key}) : super(key: key);
@@ -39,18 +40,24 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   LoadingState _logLoadingState = LoadingState.idle;
   String _logSize = '...';
 
-  LoadingState _imageCacheLoadingState = LoadingState.idle;
-  String _imageCacheSize = '...';
-
   LoadingState _exportDataLoadingState = LoadingState.idle;
   LoadingState _importDataLoadingState = LoadingState.idle;
+  late final TextEditingController _maxGalleryNum4AnimationController;
 
   @override
   void initState() {
     super.initState();
 
+    _maxGalleryNum4AnimationController = TextEditingController(
+      text: performanceSetting.maxGalleryNum4Animation.value.toString(),
+    );
     _loadingLogSize();
-    _getImagesCacheSize();
+  }
+
+  @override
+  void dispose() {
+    _maxGalleryNum4AnimationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -58,38 +65,143 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     return Scaffold(
       appBar: AppBar(centerTitle: true, title: Text('advancedSetting'.tr)),
       body: Obx(
-        () => ListView(
-          padding: const EdgeInsets.only(top: 16),
-          children: [
-            _buildEnableLogging(),
-            if (advancedSetting.enableLogging.isTrue) _buildRecordAllLogs().fadeIn(),
-            _buildOpenLogs(),
-            _buildClearLogs(context),
-            _buildClearImageCache(context),
-            _buildClearNetworkCache(),
-            if (GetPlatform.isDesktop) _buildSuperResolution(),
-            _buildCheckUpdate(),
-            _buildCheckClipboard(),
-            if (GetPlatform.isAndroid) _buildVerifyAppLinks(),
-            _buildInNoImageMode(),
-            _buildImportData(context),
-            _buildExportData(context),
+        () => EHAppleSettingsListView(
+          groups: [
+            EHAppleSettingsGroup(
+              title: 'experimentalFeatures'.tr,
+              children: [_buildLanSharingExperiment()],
+            ),
+            EHAppleSettingsGroup(
+              title: 'readerPerformanceExperiments'.tr,
+              children: [
+                _buildReaderEngine2(),
+                _buildPerformanceGovernor(),
+                _buildProgressiveImagePipeline(),
+                _buildCoverDecodeOptimization(),
+              ],
+            ),
+            EHAppleSettingsGroup(
+              children: [
+                EHAppleExpandableSwitchListTile(
+                  title: Text('enableLogging'.tr),
+                  subtitle: Text('needRestart'.tr),
+                  value: advancedSetting.enableLogging.value,
+                  onChanged: advancedSetting.saveEnableLogging,
+                  children: [_buildRecordAllLogs()],
+                ),
+                _buildOpenLogs(),
+                _buildClearLogs(context),
+                _buildMaxGalleryNum4Animation(context),
+                _buildCheckUpdate(),
+                _buildCheckClipboard(),
+                if (GetPlatform.isAndroid) _buildVerifyAppLinks(),
+                _buildInNoImageMode(),
+                _buildImportData(context),
+                _buildExportData(context),
+              ],
+            ),
           ],
-        ).withListTileTheme(context),
+        ),
       ),
     );
   }
 
-  Widget _buildEnableLogging() {
-    return ListTile(
-      title: Text('enableLogging'.tr),
-      subtitle: Text('needRestart'.tr),
-      trailing: Switch(value: advancedSetting.enableLogging.value, onChanged: advancedSetting.saveEnableLogging),
+  Widget _buildReaderEngine2() {
+    return EHAppleSwitchListTile(
+      title: Text('readerEngine2'.tr),
+      subtitle: Text('readerEngine2Hint'.tr),
+      value: performanceSetting.enableReaderEngine2.value,
+      onChanged: (value) async {
+        await performanceSetting.setEnableReaderEngine2(value);
+        toast('saveSuccess'.tr);
+      },
+    );
+  }
+
+  Widget _buildLanSharingExperiment() {
+    return EHAppleExpandableSwitchListTile(
+      title: Text('lanSharing'.tr),
+      subtitle: Text('lanSharingExperimentalHint'.tr),
+      value: advancedSetting.enableLanSharing.value,
+      onChanged: (value) async {
+        try {
+          await advancedSetting.saveEnableLanSharing(value);
+        } on Object catch (error, stack) {
+          log.warning('Failed to save LAN sharing setting', error, true);
+          log.trace(stack);
+          toast('saveFailed'.tr);
+          return;
+        }
+
+        try {
+          await lanSharingRuntime.setEnabled(value);
+        } on Object catch (error, stack) {
+          log.warning('Failed to update LAN sharing runtime', error, true);
+          log.trace(stack);
+          if (value) {
+            try {
+              await advancedSetting.saveEnableLanSharing(false);
+            } on Object catch (rollbackError, rollbackStack) {
+              log.warning(
+                'Failed to roll back LAN sharing setting',
+                rollbackError,
+                true,
+              );
+              log.trace(rollbackStack);
+            }
+          }
+          toast('lanSharingStartFailed'.tr);
+        }
+      },
+      children: [
+        ListTile(
+          title: Text('lanFindAndPairDevices'.tr),
+          subtitle: Text('lanFindAndPairDevicesHint'.tr),
+          trailing: Icon(AppIcons.chevronRight).marginOnly(right: 4),
+          onTap: () => toRoute(Routes.lanSharing),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPerformanceGovernor() {
+    return EHAppleSwitchListTile(
+      title: Text('performanceGovernor'.tr),
+      subtitle: Text('performanceGovernorHint'.tr),
+      value: performanceSetting.enablePerformanceGovernor.value,
+      onChanged: (value) async {
+        await performanceSetting.setEnablePerformanceGovernor(value);
+        toast('saveSuccess'.tr);
+      },
+    );
+  }
+
+  Widget _buildProgressiveImagePipeline() {
+    return EHAppleSwitchListTile(
+      title: Text('progressiveImagePipeline'.tr),
+      subtitle: Text('progressiveImagePipelineHint'.tr),
+      value: performanceSetting.enableProgressiveImagePipeline.value,
+      onChanged: (value) async {
+        await performanceSetting.setEnableProgressiveImagePipeline(value);
+        toast('saveSuccess'.tr);
+      },
+    );
+  }
+
+  Widget _buildCoverDecodeOptimization() {
+    return EHAppleSwitchListTile(
+      title: Text('enableCoverDecodeOptimization'.tr),
+      subtitle: Text('enableCoverDecodeOptimizationHint'.tr),
+      value: performanceSetting.enableCoverDecodeOptimization.value,
+      onChanged: (value) async {
+        await performanceSetting.setEnableCoverDecodeOptimization(value);
+        toast('saveSuccess'.tr);
+      },
     );
   }
 
   Widget _buildRecordAllLogs() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('enableVerboseLogging'.tr),
       subtitle: Text('needRestart'.tr),
       value: advancedSetting.enableVerboseLogging.value,
@@ -100,7 +212,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   Widget _buildOpenLogs() {
     return ListTile(
       title: Text('openLog'.tr),
-      trailing: const Icon(Icons.keyboard_arrow_right).marginOnly(right: 4),
+      trailing: Icon(AppIcons.chevronRight).marginOnly(right: 4),
       onTap: () => toRoute(Routes.logList),
     );
   }
@@ -115,61 +227,69 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
           LoadingStateIndicator(
             loadingState: _logLoadingState,
             useCupertinoIndicator: true,
-            successWidgetBuilder: () => Text(
-              _logSize,
-              style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.w500),
-            ),
+            successWidgetBuilder:
+                () => Text(
+                  _logSize,
+                  style: TextStyle(
+                    color: UIConfig.resumePauseButtonColor(context),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
             errorTapCallback: _loadingLogSize,
-          ).marginOnly(right: 8)
+          ).marginOnly(right: 8),
         ],
       ),
       onLongPress: _clearAndLoadingLogSize,
     );
   }
 
-  Widget _buildClearImageCache(BuildContext context) {
+  Widget _buildMaxGalleryNum4Animation(BuildContext context) {
     return ListTile(
-      title: Text('clearImagesCache'.tr),
-      subtitle: Text('longPress2Clear'.tr),
+      title: Text('maxGalleryNum4Animation'.tr),
+      subtitle: Text('maxGalleryNum4AnimationHint'.tr),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          LoadingStateIndicator(
-            loadingState: _imageCacheLoadingState,
-            useCupertinoIndicator: true,
-            successWidgetBuilder: () => Text(
-              _imageCacheSize,
-              style: TextStyle(color: UIConfig.resumePauseButtonColor(context), fontWeight: FontWeight.w500),
+          SizedBox(
+            width: 50,
+            child: EHAppleTextField(
+              controller: _maxGalleryNum4AnimationController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                isDense: true,
+                labelStyle: TextStyle(fontSize: 12),
+              ),
+              textAlign: TextAlign.center,
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly,
+                IntRangeTextInputFormatter(minValue: 0),
+              ],
             ),
-            errorTapCallback: _getImagesCacheSize,
-          ).marginOnly(right: 8)
+          ),
+          const SizedBox(width: 8),
+          EHAppleIconButton(
+            onPressed: () {
+              final int? value = int.tryParse(
+                _maxGalleryNum4AnimationController.value.text,
+              );
+              if (value == null) {
+                return;
+              }
+              performanceSetting.setMaxGalleryNum4Animation(value);
+              toast('saveSuccess'.tr);
+            },
+            icon: Icon(
+              Icons.check,
+              color: UIConfig.resumePauseButtonColor(context),
+            ),
+          ),
         ],
       ),
-      onLongPress: _clearAndLoadingImageCacheSize,
-    );
-  }
-
-  Widget _buildClearNetworkCache() {
-    return ListTile(
-      title: Text('clearPageCache'.tr),
-      subtitle: Text('longPress2Clear'.tr),
-      onLongPress: () async {
-        await ehRequest.removeAllCache();
-        toast('clearSuccess'.tr, isCenter: false);
-      },
-    );
-  }
-
-  Widget _buildSuperResolution() {
-    return ListTile(
-      title: Text('superResolution'.tr),
-      trailing: const Icon(Icons.keyboard_arrow_right).marginOnly(right: 4),
-      onTap: () => toRoute(Routes.superResolution),
     );
   }
 
   Widget _buildCheckUpdate() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('checkUpdateAfterLaunchingApp'.tr),
       value: advancedSetting.enableCheckUpdate.value,
       onChanged: advancedSetting.saveEnableCheckUpdate,
@@ -177,7 +297,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   }
 
   Widget _buildCheckClipboard() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('checkClipboard'.tr),
       value: advancedSetting.enableCheckClipboard.value,
       onChanged: advancedSetting.saveEnableCheckClipboard,
@@ -188,7 +308,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     return ListTile(
       title: Text('verityAppLinks4Android12'.tr),
       subtitle: Text('verityAppLinks4Android12Hint'.tr),
-      trailing: const Icon(Icons.keyboard_arrow_right).marginOnly(right: 4),
+      trailing: Icon(AppIcons.chevronRight).marginOnly(right: 4),
       onTap: () async {
         try {
           await const AndroidIntent(
@@ -205,7 +325,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
   }
 
   Widget _buildInNoImageMode() {
-    return SwitchListTile(
+    return EHAppleSwitchListTile(
       title: Text('noImageMode'.tr),
       value: advancedSetting.inNoImageMode.value,
       onChanged: advancedSetting.saveInNoImageMode,
@@ -220,11 +340,11 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
         children: [
           LoadingStateIndicator(
             loadingState: _importDataLoadingState,
-            idleWidgetBuilder: () => const Icon(Icons.keyboard_arrow_right),
+            idleWidgetBuilder: () => Icon(AppIcons.chevronRight),
             successWidgetSameWithIdle: true,
             useCupertinoIndicator: true,
             errorWidgetSameWithIdle: true,
-          ).marginOnly(right: 8)
+          ).marginOnly(right: 8),
         ],
       ),
       onTap: () => _importData(context),
@@ -239,11 +359,11 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
         children: [
           LoadingStateIndicator(
             loadingState: _exportDataLoadingState,
-            idleWidgetBuilder: () => const Icon(Icons.keyboard_arrow_right),
+            idleWidgetBuilder: () => Icon(AppIcons.chevronRight),
             successWidgetSameWithIdle: true,
             useCupertinoIndicator: true,
             errorWidgetSameWithIdle: true,
-          ).marginOnly(right: 8)
+          ).marginOnly(right: 8),
         ],
       ),
       onTap: () => _exportData(context),
@@ -262,7 +382,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     } catch (e) {
       log.error('loading log size error', e);
       _logSize = '-1B';
-      setStateSafely(() => _imageCacheLoadingState = LoadingState.error);
+      setStateSafely(() => _logLoadingState = LoadingState.error);
       return;
     }
 
@@ -276,50 +396,6 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
 
     await log.clear();
     await _loadingLogSize();
-
-    toast('clearSuccess'.tr, isCenter: false);
-  }
-
-  Future<void> _getImagesCacheSize() async {
-    if (_imageCacheLoadingState == LoadingState.loading) {
-      return;
-    }
-
-    setStateSafely(() => _imageCacheLoadingState = LoadingState.loading);
-
-    try {
-      _imageCacheSize = await compute(
-        (dirPath) {
-          Directory cacheImagesDirectory = Directory(dirPath);
-
-          int totalBytes;
-          if (!cacheImagesDirectory.existsSync()) {
-            totalBytes = 0;
-          } else {
-            totalBytes = cacheImagesDirectory.listSync().fold<int>(0, (previousValue, element) => previousValue += (element as File).lengthSync());
-          }
-
-          return byte2String(totalBytes.toDouble());
-        },
-        join(pathService.tempDir.path, cacheImageFolderName),
-      );
-    } catch (e) {
-      log.error(e);
-      _imageCacheSize = '-1B';
-      setStateSafely(() => _imageCacheLoadingState = LoadingState.error);
-      return;
-    }
-
-    setStateSafely(() => _imageCacheLoadingState = LoadingState.success);
-  }
-
-  Future<void> _clearAndLoadingImageCacheSize() async {
-    if (_imageCacheLoadingState == LoadingState.loading) {
-      return;
-    }
-
-    await clearDiskCachedImages();
-    await _getImagesCacheSize();
 
     toast('clearSuccess'.tr, isCenter: false);
   }
@@ -354,7 +430,8 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
 
     try {
       List list = await isolateService.jsonDecodeAsync(string);
-      List<CloudConfig> configs = list.map((e) => CloudConfig.fromJson(e)).toList();
+      List<CloudConfig> configs =
+          list.map((e) => CloudConfig.fromJson(e)).toList();
       for (CloudConfig config in configs) {
         await cloudConfigService.importConfig(config);
       }
@@ -378,7 +455,8 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
       return;
     }
 
-    String fileName = '${CloudConfigService.configFileName}-${DateFormat('yyyyMMddHHmmss').format(DateTime.now())}.json';
+    String fileName =
+        '${CloudConfigService.configFileName}-${DateFormat('yyyyMMddHHmmss').format(DateTime.now())}.json';
     if (GetPlatform.isMobile) {
       return _exportDataMobile(fileName, result);
     } else {
@@ -386,7 +464,10 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     }
   }
 
-  Future<void> _exportDataMobile(String fileName, List<CloudConfigTypeEnum>? result) async {
+  Future<void> _exportDataMobile(
+    String fileName,
+    List<CloudConfigTypeEnum>? result,
+  ) async {
     if (_exportDataLoadingState == LoadingState.loading) {
       return;
     }
@@ -420,7 +501,10 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
     }
   }
 
-  Future<void> _exportDataDesktop(String fileName, List<CloudConfigTypeEnum>? result) async {
+  Future<void> _exportDataDesktop(
+    String fileName,
+    List<CloudConfigTypeEnum>? result,
+  ) async {
     if (_exportDataLoadingState == LoadingState.loading) {
       return;
     }
@@ -458,7 +542,9 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
       if (await file.exists()) {
         await file.create(recursive: true);
       }
-      await file.writeAsString(await isolateService.jsonEncodeAsync(uploadConfigs));
+      await file.writeAsString(
+        await isolateService.jsonEncodeAsync(uploadConfigs),
+      );
       log.info('Export data to $savedPath success');
       toast('success'.tr);
       setStateSafely(() => _exportDataLoadingState = LoadingState.success);

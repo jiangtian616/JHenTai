@@ -14,6 +14,7 @@ import '../../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../../mixin/scroll_to_top_state_mixin.dart';
 import '../../../model/gallery_image.dart';
 import '../../../setting/style_setting.dart';
+import '../../../widget/eh_apple_controls.dart';
 import '../../../widget/eh_thumbnail.dart';
 import '../../../widget/eh_wheel_speed_controller.dart';
 import '../../../widget/loading_state_indicator.dart';
@@ -54,7 +55,7 @@ class ThumbnailsPage extends StatelessWidget with Scroll2TopPageMixin {
     return AppBar(
       title: Text(_mainTitleText, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
       actions: [
-        IconButton(
+        EHAppleIconButton(
           icon: Icon(Icons.send, size: 21),
           visualDensity: const VisualDensity(vertical: -2),
           onPressed: logic.handleTapJumpButton,

@@ -4,14 +4,27 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/service/log.dart';
 
+import '../service/inference/onnx_model_store.dart';
 import '../service/jh_service.dart';
 
 SuperResolutionSetting superResolutionSetting = SuperResolutionSetting();
 
-class SuperResolutionSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
+class SuperResolutionSetting
+    with JHLifeCircleBeanWithConfigStorage
+    implements JHLifeCircleBean {
   RxnString modelDirectoryPath = RxnString(null);
   Rx<ModelType> model = Rx<ModelType>(ModelType.CUGAN);
   RxInt gpuId = 0.obs;
+
+  /// 超分引擎：ncnn-vulkan 外部二进制或 AI Core 的 ONNX 分块推理。
+  Rx<SuperResolutionEngine> engine = Rx<SuperResolutionEngine>(
+    SuperResolutionEngine.ncnnVulkan,
+  );
+
+  /// The active ONNX super-resolution model manifest id. Both current models
+  /// (anime 6B and the lighter 4B32F) are x4 with the same input contract, so
+  /// the engine itself is unaffected by the choice.
+  RxString onnxModelId = RxString(OnnxModelStore.superResolutionManifestId);
 
   @override
   ConfigEnum get configEnum => ConfigEnum.superResolutionSetting;
@@ -21,8 +34,19 @@ class SuperResolutionSetting with JHLifeCircleBeanWithConfigStorage implements J
     Map map = jsonDecode(configString);
 
     modelDirectoryPath.value = map['modelDirectoryPath'];
-    model.value = map['model'] == null ? ModelType.CUGAN : ModelType.values[map['model']];
+    model.value =
+        map['model'] == null ? ModelType.CUGAN : ModelType.values[map['model']];
     gpuId.value = map['gpuId'] ?? gpuId.value;
+    engine.value = SuperResolutionEngine.values.firstWhere(
+      (value) => value.name == map['engine'],
+      orElse: () => SuperResolutionEngine.ncnnVulkan,
+    );
+    final String? savedOnnxModelId = map['onnxModelId'];
+    if (savedOnnxModelId != null &&
+        OnnxModelStore.instance.manifestOf(savedOnnxModelId)?.kind ==
+            'superResolution') {
+      onnxModelId.value = savedOnnxModelId;
+    }
   }
 
   @override
@@ -31,6 +55,8 @@ class SuperResolutionSetting with JHLifeCircleBeanWithConfigStorage implements J
       'modelDirectoryPath': modelDirectoryPath.value,
       'model': model.value.index,
       'gpuId': gpuId.value,
+      'engine': engine.value.name,
+      'onnxModelId': onnxModelId.value,
     });
   }
 
@@ -57,7 +83,22 @@ class SuperResolutionSetting with JHLifeCircleBeanWithConfigStorage implements J
     this.gpuId.value = gpuId;
     await saveBeanConfig();
   }
+
+  Future<void> saveEngine(SuperResolutionEngine engine) async {
+    log.debug('saveSuperResolutionEngine:$engine');
+    this.engine.value = engine;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveOnnxModelId(String modelId) async {
+    log.debug('saveOnnxModelId:$modelId');
+    onnxModelId.value = modelId;
+    await saveBeanConfig();
+  }
 }
+
+/// 超分推理引擎：现有 ncnn-vulkan 外部二进制，或统一推理后端的 ONNX 引擎。
+enum SuperResolutionEngine { ncnnVulkan, onnx }
 
 enum ModelType {
   ESRGAN(

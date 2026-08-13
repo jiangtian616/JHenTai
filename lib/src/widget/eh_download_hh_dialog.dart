@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/utils/route_util.dart';
+import 'package:jhentai/src/widget/eh_apple_button.dart';
 
 import '../config/ui_config.dart';
 import '../exception/eh_site_exception.dart';
@@ -111,7 +112,7 @@ class _HHDownloadButtonSet extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        ElevatedButton(
+        EHAppleElevatedButton(
           onPressed: archive.resolution == null ? null : () => backRoute(result: archive.resolution),
           child: SizedBox(
             width: UIConfig.hhDialogTextButtonWidth,

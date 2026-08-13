@@ -4,7 +4,9 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   battery_plus
+  bonsoir_windows
   desktop_webview_window
+  flutter_onnxruntime
   local_auth_windows
   pasteboard
   permission_handler_windows
@@ -13,11 +15,13 @@ list(APPEND FLUTTER_PLUGIN_LIST
   share_plus
   smart_auth
   sqlite3_flutter_libs
+  tray_manager
   url_launcher_windows
   window_manager
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
+  lib_llama_cpp_windows
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)
