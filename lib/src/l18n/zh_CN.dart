@@ -200,6 +200,8 @@ class zh_CN {
       'addTagFailed': '添加标签失败',
       'parentGallery': '父画廊',
       'blockUploaderLocally': '本地屏蔽上传者',
+      'blockTitleLocally': '本地屏蔽已选中标题',
+      'blockRuleAlreadyExists': '该规则已存在',
       'block': '屏蔽',
 
       /// detail dialog

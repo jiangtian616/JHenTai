@@ -200,6 +200,8 @@ class en_US {
       'addTagFailed': 'Add Tag Failed',
       'parentGallery': 'Parent',
       'blockUploaderLocally': 'Block user locally',
+      'blockTitleLocally': 'Block selected title locally',
+      'blockRuleAlreadyExists': 'This rule already exists',
       'block': 'Block',
 
       /// detail dialog
