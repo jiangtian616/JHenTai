@@ -203,6 +203,8 @@ class ru_RU {
       'addTagFailed': 'Не удалось добавить тег',
       'parentGallery': 'Родительская галерея',
       'blockUploaderLocally': 'Заблокировать пользователя локально',
+      'blockTitleLocally': 'Заблокировать выбранное название локально',
+      'blockRuleAlreadyExists': 'Это правило уже существует',
       'block': 'Block',
 
       /// detail dialog

@@ -200,6 +200,8 @@ class ko_KR {
       'addTagFailed': 'Add Tag Failed',
       'parentGallery': 'Parent',
       'blockUploaderLocally': 'Block user locally',
+      'blockTitleLocally': '선택한 제목을 로컬에서 차단',
+      'blockRuleAlreadyExists': '이 규칙은 이미 존재합니다',
       'block': 'Block',
 
       /// detail dialog

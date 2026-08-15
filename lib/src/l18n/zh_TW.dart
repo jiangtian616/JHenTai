@@ -200,6 +200,8 @@ class zh_TW {
       'addTagFailed': '新增標籤失敗',
       'parentGallery': '父畫廊',
       'blockUploaderLocally': '於本機端隱藏的上傳者',
+      'blockTitleLocally': '於本機端隱藏已選取的標題',
+      'blockRuleAlreadyExists': '該規則已存在',
       'block': '隱藏',
 
       /// detail dialog

@@ -151,6 +151,44 @@ class LocalBlockRuleService with JHLifeCircleBeanErrorCatch implements JHLifeCir
     return BlockRuleDao.existsGroup(groupId);
   }
 
+  Future<({bool success, bool inserted, String? msg})> insertBlockRuleIfAbsent(LocalBlockRule rule) async {
+    log.info('Insert block rule if absent: $rule');
+
+    LocalBlockRuleHandler handler = getHandlerByRule(rule);
+    ({bool success, String? msg}) validateResult = handler.validateRule(rule);
+    if (!validateResult.success) {
+      log.info('Insert block rule failed, result:$validateResult');
+      return (success: false, inserted: false, msg: validateResult.msg);
+    }
+
+    bool inserted = false;
+    await appDb.transaction(() async {
+      List<BlockRuleData> datas = await BlockRuleDao.selectBlockRulesByTarget(rule.target.code);
+      bool exists = datas.any(
+        (data) =>
+            data.attribute == rule.attribute.code &&
+            data.pattern == rule.pattern.code &&
+            data.expression == rule.expression,
+      );
+      if (exists) {
+        return;
+      }
+
+      await BlockRuleDao.insertBlockRule(
+        BlockRuleCompanion.insert(
+          groupId: rule.groupId!,
+          target: rule.target.code,
+          attribute: rule.attribute.code,
+          pattern: rule.pattern.code,
+          expression: rule.expression,
+        ),
+      );
+      inserted = true;
+    });
+
+    return (success: true, inserted: inserted, msg: null);
+  }
+
   Future<List<T>> executeRules<T>(List<T> items) async {
     List<T> results = List.of(items);
 
