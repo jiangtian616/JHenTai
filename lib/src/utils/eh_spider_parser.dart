@@ -730,27 +730,26 @@ class EHSpiderParser {
     List<Element> options = document.querySelectorAll('#tagset_outer > div > select > option');
     List<({int number, String name})> tagSets = options.map((o) => (number: int.parse(o.attributes['value']!), name: o.text)).toList();
 
-    bool tagSetEnable = document.querySelector('#tagset_outer > div:nth-child(5) > label > input[checked=checked]') != null;
-    Color? tagSetBackgroundColor = aRGBString2Color(document.querySelector('#tagset_outer > div:nth-child(9) > input')?.attributes['value']);
+    bool tagSetEnable = document.querySelector('#tagset_enable[checked]') != null;
+    Color? tagSetBackgroundColor = aRGBString2Color(document.querySelector('#tagcolor')?.attributes['value']);
 
     List<Element> tagDivs = document.querySelectorAll('#usertags_outer > div');
     List<WatchedTag> tags = tagDivs.where((element) => element.id != 'usertag_0').map(
       (div) {
-        String pair = div.querySelector('div:nth-child(1) > a > div')?.attributes['title'] ?? '';
-
-        /// some tag doesn't has a namespace
-        List<String> list = pair.split(':').toList();
-        String namespace = list[0].isNotEmpty ? list[0] : 'temp';
-        String key = list[1];
+        String tagId = div.id!.replaceFirst('usertag_', '');
+        String title = div.querySelector('#tagpreview_$tagId')?.attributes['title'] ?? '';
+        List<String> list = title.split(':').toList();
+        String namespace = list.length == 2 && list[0].isNotEmpty ? list[0] : 'temp';
+        String key = list.length == 2 ? list[1] : list[0];
         TagData tagData = TagData(namespace: namespace, key: key);
 
         return WatchedTag(
-          tagId: int.parse(div.querySelector('div:nth-child(1) > a > div')!.attributes['id']!.split('_')[1]),
+          tagId: int.parse(tagId),
           tagData: tagData,
-          watched: div.querySelector('div:nth-child(3) > label > input[checked=checked]') != null,
-          hidden: div.querySelector('div:nth-child(5) > label > input[checked=checked]') != null,
-          backgroundColor: aRGBString2Color(div.querySelector('div:nth-child(9) > input')?.attributes['value']),
-          weight: int.parse(div.querySelector('div:nth-child(11) > input')!.attributes['value']!),
+          watched: div.querySelector('#tagwatch_$tagId[checked]') != null,
+          hidden: div.querySelector('#taghide_$tagId[checked]') != null,
+          backgroundColor: aRGBString2Color(div.querySelector('#tagcolor_$tagId')?.attributes['value']),
+          weight: int.tryParse(div.querySelector('#tagweight_$tagId')?.attributes['value'] ?? '0') ?? 0,
         );
       },
     ).toList();
