@@ -246,6 +246,7 @@ class _GalleryDownloadTaskRunner {
       }
 
       GalleryDownloadInfo galleryDownloadInfo = _service.galleryDownloadInfos[gallery.gid]!;
+
       /// Image may be cleared between the sync read and the async fallback by
       /// a concurrent `_reParseImageUrlAndDownload` (403 re-parse on the same
       /// serialNo calls `clearImage`). The `!` would NPE in that window.
@@ -304,7 +305,7 @@ class _GalleryDownloadTaskRunner {
           return;
         }
         log.download('Download ${gallery.title} image: $serialNo failed, try re-parse. Reason: ${e.errorMsg}. Url:$downloadUrl');
-        return _reParseImageUrlAndDownload(serialNo);
+        return _recoverFromDownloadFailure(serialNo);
       } on EHSiteException catch (e) {
         log.download('Download Error, reason: ${e.message}');
         await _service._pauseOnSiteError(gallery: gallery, pauseAll: e.shouldPauseAllDownloadTasks, message: e.message);
@@ -320,7 +321,7 @@ class _GalleryDownloadTaskRunner {
 
         if (exception != null) {
           if (exception.operation == EHImageExceptionAfterOperation.reParse) {
-            return _reParseImageUrlAndDownload(serialNo);
+            return _recoverFromDownloadFailure(serialNo);
           }
           return _service._pauseOnSiteError(
             gallery: gallery,
@@ -337,6 +338,19 @@ class _GalleryDownloadTaskRunner {
 
       await _service._updateProgressAfterImageDownloaded(gallery, serialNo);
     };
+  }
+
+  /// The download failed, recover based on the download mode:
+  /// - Non-original downloads re-parse the URL to get a fresh H@H node
+  ///   (`_reParseImageUrlAndDownload` deletes the old image row and re-parses).
+  /// - Original downloads just retry `downloadImageTask`, because the original
+  ///   image URL does not support re-parsing, so the delete/re-parse steps in
+  ///   `_reParseImageUrlAndDownload` are useless for them.
+  Future<void> _recoverFromDownloadFailure(int serialNo) async {
+    if (gallery.downloadOriginalImage) {
+      return _service._submitImageTask(gallery, serialNo, () => downloadImageTask(serialNo));
+    }
+    return _reParseImageUrlAndDownload(serialNo);
   }
 
   /// the image's url may be invalid, try re-parse and then download
