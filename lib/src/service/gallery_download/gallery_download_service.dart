@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
 import 'dart:io' as io;
-import 'dart:isolate';
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
@@ -61,8 +60,8 @@ import 'download_path_resolver.dart';
 import 'eh_image_exception_matcher.dart';
 
 part 'gallery_download_task_runner.dart';
-part 'gallery_upgrade_migrator.dart';
 part 'gallery_metadata_store.dart';
+part 'gallery_upgrade_migrator.dart';
 
 /// Responsible for local images meta-data and download all images of a gallery
 GalleryDownloadService galleryDownloadService = GalleryDownloadService();
@@ -800,20 +799,14 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
       return 0;
     }
 
-    /// Parse all metadata files in a single background isolate. Each parse
-    /// is pure (static [_GalleryMetadataStore.readForRestore]); only primitive
-    /// paths cross the isolate boundary.
-    final List<({GalleryDownloadedData gallery, List<GalleryImage?> images})?> restoredList = await Isolate.run(() {
-      return galleryDirPaths.map((p) {
-        try {
-          return _GalleryMetadataStore.readForRestore(io.Directory(p));
-        } catch (e, st) {
-          // Logging from a worker isolate may not reach file handlers; swallow
-          // here so one bad metadata file doesn't abort the whole restore.
-          return null;
-        }
-      }).toList();
-    });
+    final List<({GalleryDownloadedData gallery, List<GalleryImage?> images})?> restoredList = galleryDirPaths.map((p) {
+      try {
+        return _GalleryMetadataStore.readForRestore(io.Directory(p));
+      } catch (e, st) {
+        log.error('Read gallery metadata failed: $p', e, st);
+        return null;
+      }
+    }).toList();
 
     int restoredCount = 0;
     for (final ({GalleryDownloadedData gallery, List<GalleryImage?> images})? restored in restoredList) {
@@ -1541,8 +1534,7 @@ class GalleryDownloadRequest {
 /// stores the original URL). For regular galleries, always use `url`.
 ///
 /// Free function (not a method on [GalleryImage]) so it can be called from
-/// any context — including the metadata store's [Isolate.run] restore path,
-/// which only has a [GalleryDownloadedData] (parsed from JSON) and no access
+/// any context — only has a [GalleryDownloadedData] (parsed from JSON) and no access
 /// to the [GalleryDownloadInfo] singleton.
 String _downloadUrlFor(GalleryDownloadedData gallery, GalleryImage image) {
   return gallery.downloadOriginalImage ? (image.originalImageUrl ?? image.url) : image.url;

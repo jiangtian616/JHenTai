@@ -117,10 +117,6 @@ class _GalleryMetadataStore {
   /// all compatibility back-fills (missing fields, sanitizedTitle, recomputed
   /// image paths after download-location change, and the downloaded-status
   /// sanity check).
-  ///
-  /// Static so it can run in a background isolate via [Isolate.run] — the
-  /// method has no instance state, only static deps (path/jsonDecode/
-  /// DownloadPathResolver/model fromJson).
   static ({GalleryDownloadedData gallery, List<GalleryImage?> images})? readForRestore(io.Directory galleryDir) {
     final Map<String, dynamic>? raw = read(galleryDir);
     if (raw == null) {
@@ -162,8 +158,6 @@ class _GalleryMetadataStore {
   /// Read + parse the metadata file in [galleryDir]. Returns null if the file
   /// is missing or unparseable. Compatibility back-fills (for fields added in
   /// later versions) are applied to the gallery map before returning.
-  ///
-  /// Static so it can run in a background isolate (see [readForRestore]).
   static Map<String, dynamic>? read(io.Directory galleryDir) {
     io.File metadataFile = io.File(path.join(galleryDir.path, metadataFileName));
     if (!metadataFile.existsSync()) {
