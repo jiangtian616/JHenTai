@@ -52,6 +52,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
           ? false.obs
           : true.obs;
   RxInt maxImageKilobyte = (1024 * 5).obs;
+  RxBool autoDetectWebtoon = false.obs;
 
   static bool isListDirection(ReadDirection d) =>
       d == ReadDirection.top2bottomList ||
@@ -162,6 +163,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     enableMaxImageKilobyte.value = map['enableMaxImageKilobyte'] ?? enableMaxImageKilobyte.value;
     maxImageKilobyte.value = map['maxImageKilobyte'] ?? maxImageKilobyte.value;
     enableOrientationSpecificReadDirection.value = map['enableOrientationSpecificReadDirection'] ?? enableOrientationSpecificReadDirection.value;
+    autoDetectWebtoon.value = map['autoDetectWebtoon'] ?? autoDetectWebtoon.value;
     /// On first load, migrate existing readDirection to both portrait and landscape
     portraitReadDirection.value = ReadDirection.values[map['portraitReadDirection'] ?? map['readDirection']];
     landscapeReadDirection.value = ReadDirection.values[map['landscapeReadDirection'] ?? map['readDirection']];
@@ -207,6 +209,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
       'enableMaxImageKilobyte': enableMaxImageKilobyte.value,
       'maxImageKilobyte': maxImageKilobyte.value,
       'enableOrientationSpecificReadDirection': enableOrientationSpecificReadDirection.value,
+      'autoDetectWebtoon': autoDetectWebtoon.value,
       'portraitReadDirection': portraitReadDirection.value.index,
       'landscapeReadDirection': landscapeReadDirection.value.index,
     });
@@ -437,6 +440,12 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   Future<void> saveEnableOrientationSpecificReadDirection(bool value) async {
     log.debug('saveEnableOrientationSpecificReadDirection:$value');
     enableOrientationSpecificReadDirection.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveAutoDetectWebtoon(bool value) async {
+    log.debug('saveAutoDetectWebtoon:$value');
+    autoDetectWebtoon.value = value;
     await saveBeanConfig();
   }
 

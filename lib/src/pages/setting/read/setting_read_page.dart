@@ -61,6 +61,7 @@ class SettingReadPage extends StatelessWidget {
                 _buildPortraitReadDirection().fadeIn(const Key('portraitReadDirection')).center(),
               if (GetPlatform.isMobile && readSetting.enableOrientationSpecificReadDirection.isTrue)
                 _buildLandscapeReadDirection().fadeIn(const Key('landscapeReadDirection')).center(),
+              _buildAutoDetectWebtoon().center(),
               if (!GetPlatform.isMobile || readSetting.enableOrientationSpecificReadDirection.isFalse) _buildReadDirection().center(),
               if (GetPlatform.isMobile && readSetting.enableOrientationSpecificReadDirection.isTrue
                   ? (readSetting.portraitReadDirection.value == ReadDirection.top2bottomList ||
@@ -350,6 +351,15 @@ class SettingReadPage extends StatelessWidget {
         onChanged: (ReadDirection? newValue) => readSetting.saveLandscapeReadDirection(newValue!),
         items: ReadDirection.values.map((e) => DropdownMenuItem(child: Text(e.name.tr), value: e)).toList(),
       ).marginOnly(right: 12),
+    );
+  }
+
+  Widget _buildAutoDetectWebtoon() {
+    return SwitchListTile(
+      title: Text('autoDetectWebtoon'.tr),
+      subtitle: Text('autoDetectWebtoonHint'.tr),
+      value: readSetting.autoDetectWebtoon.value,
+      onChanged: readSetting.saveAutoDetectWebtoon,
     );
   }
 

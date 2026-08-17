@@ -487,6 +487,8 @@ class en_US {
       'readDirection': 'Read Direction',
       'enableOrientationSpecificReadDirection': 'Orientation-Specific Read Direction',
       'enableOrientationSpecificReadDirectionHint': 'Set different read directions for portrait and landscape orientations',
+      'autoDetectWebtoon': 'Auto-detect Webtoon',
+      'autoDetectWebtoonHint': 'Automatically use top-to-bottom continuous reading mode for galleries tagged with webtoon',
       'portraitReadDirection': 'Portrait Read Direction',
       'landscapeReadDirection': 'Landscape Read Direction',
       'autoSwitchedReadDirection': 'Auto-switched read direction',
