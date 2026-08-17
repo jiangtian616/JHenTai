@@ -489,6 +489,8 @@ class zh_TW {
       'readDirection': '閱讀方向',
       'enableOrientationSpecificReadDirection': '橫直向獨立閱讀方向',
       'enableOrientationSpecificReadDirectionHint': '為直向和橫向分別設定不同的閱讀方向',
+      'autoDetectWebtoon': '自動偵測條漫',
+      'autoDetectWebtoonHint': '對帶有 webtoon 標籤的畫廊自動使用從上至下連續閱讀模式',
       'portraitReadDirection': '直向閱讀方向',
       'landscapeReadDirection': '橫向閱讀方向',
       'autoSwitchedReadDirection': '已自動切換閱讀方向',

@@ -94,6 +94,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
   late Worker landscapeImageRegionWidthRatioLister;
   late Worker portraitDisplayFirstPageAloneListener;
   late Worker landscapeDisplayFirstPageAloneListener;
+  late Worker autoDetectWebtoonListener;
 
   /// Tracks the last known portrait state for orientation-specific read direction
   bool? _lastIsPortrait;
@@ -179,6 +180,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
         onEffectiveSettingChanged();
       }
     });
+    autoDetectWebtoonListener = ever(readSetting.autoDetectWebtoon, (_) => onEffectiveSettingChanged());
     portraitImageRegionWidthRatioLister = ever(readSetting.portraitImageRegionWidthRatio, (_) {
       if (readSetting.enableOrientationSpecificReadDirection.isTrue && isPortrait) {
         updateSafely([layoutId]);
@@ -270,6 +272,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
     landscapeImageRegionWidthRatioLister.dispose();
     portraitDisplayFirstPageAloneListener.dispose();
     landscapeDisplayFirstPageAloneListener.dispose();
+    autoDetectWebtoonListener.dispose();
 
     restoreVolumeListener();
 
@@ -566,6 +569,9 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
   }
 
   ReadDirection get effectiveReadDirection {
+    if (readSetting.autoDetectWebtoon.isTrue && state.readPageInfo.readDirection != null) {
+      return state.readPageInfo.readDirection!;
+    }
     if (readSetting.enableOrientationSpecificReadDirection.isFalse || !GetPlatform.isMobile) {
       return readSetting.readDirection.value;
     }
@@ -576,6 +582,8 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
   }
 
   void saveReadDirection(ReadDirection value) {
+    state.readPageInfo.readDirection = null;
+  
     if (readSetting.enableOrientationSpecificReadDirection.isTrue && GetPlatform.isMobile) {
       if (isPortrait) {
         readSetting.savePortraitReadDirection(value);
