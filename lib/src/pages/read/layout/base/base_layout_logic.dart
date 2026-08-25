@@ -738,13 +738,10 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       return true;
     }
 
-    if (status.any((e) => e.isPermanentlyDenied)) {
-      log.warning('Save image to album failed: permission permanently denied');
-      await _showPermissionPermanentlyDeniedDialog();
-      return false;
-    }
-
     log.warning('Save image to album failed: permission denied, status: $status');
+
+    _showPermissionPermanentlyDeniedDialog();
+
     return false;
   }
 
@@ -764,24 +761,6 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     if (result == true) {
       await openAppSettings();
     }
-  }
-
-  Future<bool> _saveImage2Album(Uint8List imageData, String fileName) async {
-    if (!await _ensureSave2AlbumPermission()) {
-      return false;
-    }
-
-    SaveResult saveResult = await SaverGallery.saveImage(
-      imageData,
-      quality: 100,
-      fileName: fileName,
-      albumPath: "JHenTai",
-      skipIfExists: false,
-    );
-
-    log.info('Save image to album: $saveResult');
-
-    return saveResult.isSuccess;
   }
 
   Future<bool> _saveFile2Album(String filePath, String fileName) async {
