@@ -45,24 +45,31 @@ enum MediaType {
   audio,
 }
 
-Future<PermissionStatus> checkAndRequestPermissions({MediaType mediaType = MediaType.image}) async {
+Future<List<PermissionStatus>> checkAndRequestPermissions({MediaType mediaType = MediaType.image}) async {
   if (!Platform.isAndroid && !Platform.isIOS) {
     // Only Android and iOS platforms are supported
-    return PermissionStatus.denied;
+    return [PermissionStatus.denied];
   }
 
   if (Platform.isAndroid) {
     final deviceInfo = await DeviceInfoPlugin().androidInfo;
     final sdkInt = deviceInfo.version.sdkInt;
 
-    if (sdkInt >= 29) {
-      return PermissionStatus.granted;
+    if (sdkInt < 33) {
+      return Future.wait([Permission.storage.request()]);
     }
 
-    return Permission.storage.request();
+    switch (mediaType) {
+      case MediaType.image:
+        return Future.wait([Permission.photos.request()]);
+      case MediaType.video:
+        return Future.wait([Permission.videos.request()]);
+      case MediaType.audio:
+        return Future.wait([Permission.audio.request()]);
+    }
   } else {
     // iOS permission for saving images to the gallery
-    return Permission.photosAddOnly.request();
+    return Future.wait([Permission.photos.request(), Permission.photosAddOnly.request()]);
   }
 }
 

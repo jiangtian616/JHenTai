@@ -732,13 +732,13 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   }
 
   Future<bool> _ensureSave2AlbumPermission() async {
-    PermissionStatus status = await checkAndRequestPermissions();
+    List<PermissionStatus> status = await checkAndRequestPermissions();
 
-    if (status.isGranted) {
+    if (status.every((e) => e.isGranted)) {
       return true;
     }
 
-    if (status.isPermanentlyDenied) {
+    if (status.any((e) => e.isPermanentlyDenied)) {
       log.warning('Save image to album failed: permission permanently denied');
       await _showPermissionPermanentlyDeniedDialog();
       return false;
