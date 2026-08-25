@@ -887,6 +887,9 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'cosplayer': 'Cosplayer',
       'reclass': 'Reclass',
       'temp': 'Temp',
+      'permissionPermanentlyDenied': 'Permission permanently denied',
+      'permissionPermanentlyDeniedHint': 'Saving to album requires permission. Please go to system settings and grant full access to this app',
+      'goToSetting': 'Go to settings',
       'other': 'Other',
     };
   }

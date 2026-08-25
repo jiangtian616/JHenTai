@@ -14,8 +14,6 @@ import 'package:get/get_navigation/get_navigation.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:get/get_utils/get_utils.dart';
-import 'package:jhentai/src/utils/snack_util.dart';
-import 'package:jhentai/src/widget/eh_action_sheet_text.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
@@ -29,8 +27,10 @@ import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/permission_util.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
+import 'package:jhentai/src/widget/eh_action_sheet_text.dart';
 import 'package:pasteboard/pasteboard.dart';
 import 'package:path/path.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:saver_gallery/saver_gallery.dart';
 import 'package:share_plus/share_plus.dart';
@@ -731,9 +731,43 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     return Alignment((offset.dx - Get.size.width / 2) / (Get.size.width / 2), (offset.dy - Get.size.height / 2) / (Get.size.height / 2));
   }
 
+  Future<bool> _ensureSave2AlbumPermission() async {
+    PermissionStatus status = await checkAndRequestPermissions();
+
+    if (status.isGranted) {
+      return true;
+    }
+
+    if (status.isPermanentlyDenied) {
+      log.warning('Save image to album failed: permission permanently denied');
+      await _showPermissionPermanentlyDeniedDialog();
+      return false;
+    }
+
+    log.warning('Save image to album failed: permission denied, status: $status');
+    return false;
+  }
+
+  Future<void> _showPermissionPermanentlyDeniedDialog() async {
+    bool? result = await Get.dialog<bool>(
+      AlertDialog(
+        title: Text('permissionPermanentlyDenied'.tr),
+        content: Text('permissionPermanentlyDeniedHint'.tr),
+        actions: [
+          TextButton(onPressed: () => Get.back(result: false), child: Text('cancel'.tr)),
+          TextButton(onPressed: () => Get.back(result: true), child: Text('goToSetting'.tr)),
+        ],
+        actionsPadding: const EdgeInsets.only(left: 24, right: 24, bottom: 12),
+      ),
+    );
+
+    if (result == true) {
+      await openAppSettings();
+    }
+  }
+
   Future<bool> _saveImage2Album(Uint8List imageData, String fileName) async {
-    if (!await checkAndRequestPermissions()) {
-      log.warning('Save image to album failed: permission denied');
+    if (!await _ensureSave2AlbumPermission()) {
       return false;
     }
 
@@ -751,8 +785,7 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   }
 
   Future<bool> _saveFile2Album(String filePath, String fileName) async {
-    if (!await checkAndRequestPermissions()) {
-      log.warning('Save image to album failed: permission denied');
+    if (!await _ensureSave2AlbumPermission()) {
       return false;
     }
 

@@ -886,6 +886,9 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'cosplayer': '코스플레이어',
       'reclass': '재분류',
       'temp': '임시',
+      'permissionPermanentlyDenied': '권한이 영구적으로 거부됨',
+      'permissionPermanentlyDeniedHint': '앨범에 저장하려면 권한이 필요합니다. 시스템 설정에서 앱에 전체 액세스 권한을 부여해 주세요',
+      'goToSetting': '설정으로 이동',
       'other': '기타',
     };
   }

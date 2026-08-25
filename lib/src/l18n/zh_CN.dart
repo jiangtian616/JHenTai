@@ -892,6 +892,9 @@ favnote：匹配收藏备注
       'cosplayer': 'Coser',
       'reclass': '重新分类',
       'temp': '暂时',
+      'permissionPermanentlyDenied': '权限已被永久拒绝',
+      'permissionPermanentlyDeniedHint': '保存到相册需要相应权限。请在系统设置中为应用开启完全访问权限',
+      'goToSetting': '去设置',
       'other': '其他',
     };
   }

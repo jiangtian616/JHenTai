@@ -893,6 +893,9 @@ favnote：配對收藏備註
       'cosplayer': 'Coser',
       'reclass': '重新分類',
       'temp': '暫時',
+      'permissionPermanentlyDenied': '權限已被永久拒絕',
+      'permissionPermanentlyDeniedHint': '保存到相簿需要相應權限。請在系統設定中為應用開啟完全訪問權限',
+      'goToSetting': '去設定',
       'other': '其它',
     };
   }

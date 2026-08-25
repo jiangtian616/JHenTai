@@ -45,26 +45,25 @@ enum MediaType {
   audio,
 }
 
-Future<bool> checkAndRequestPermissions({MediaType mediaType = MediaType.image}) async {
+Future<PermissionStatus> checkAndRequestPermissions({MediaType mediaType = MediaType.image}) async {
   if (!Platform.isAndroid && !Platform.isIOS) {
-    return false; // Only Android and iOS platforms are supported
+    // Only Android and iOS platforms are supported
+    return PermissionStatus.denied;
   }
 
   if (Platform.isAndroid) {
     final deviceInfo = await DeviceInfoPlugin().androidInfo;
     final sdkInt = deviceInfo.version.sdkInt;
 
-    if (sdkInt < 29) {
-      return await Permission.storage.request().isGranted;
+    if (sdkInt >= 29) {
+      return PermissionStatus.granted;
     }
 
-    return true;
-  } else if (Platform.isIOS) {
+    return Permission.storage.request();
+  } else {
     // iOS permission for saving images to the gallery
-    return await Permission.photosAddOnly.request().isGranted;
+    return Permission.photosAddOnly.request();
   }
-
-  return false; // Unsupported platforms
 }
 
 bool checkPermissionForPath(String path) {

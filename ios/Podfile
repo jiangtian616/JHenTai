@@ -47,7 +47,7 @@ post_install do |installer|
         # 'PERMISSION_CAMERA=1',
         # 'PERMISSION_MICROPHONE=1',
         # 'PERMISSION_SPEECH_RECOGNIZER=1',
-        # 'PERMISSION_PHOTOS=1',
+        'PERMISSION_PHOTOS=1',
         # 'PERMISSION_LOCATION=1',
         # 'PERMISSION_NOTIFICATIONS=1',
         # 'PERMISSION_MEDIA_LIBRARY=1',
