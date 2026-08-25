@@ -49,8 +49,6 @@ PODS:
     - Flutter
   - receive_sharing_intent (1.8.1):
     - Flutter
-  - saver_gallery (0.0.1):
-    - Flutter
   - screen_brightness_ios (0.1.0):
     - Flutter
   - SDWebImage (5.21.7):
@@ -77,7 +75,6 @@ DEPENDENCIES:
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - receive_sharing_intent (from `.symlinks/plugins/receive_sharing_intent/ios`)
-  - saver_gallery (from `.symlinks/plugins/saver_gallery/ios`)
   - screen_brightness_ios (from `.symlinks/plugins/screen_brightness_ios/ios`)
   - smart_auth (from `.symlinks/plugins/smart_auth/ios`)
   - system_network_proxy (from `.symlinks/plugins/system_network_proxy/ios`)
@@ -111,8 +108,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/permission_handler_apple/ios"
   receive_sharing_intent:
     :path: ".symlinks/plugins/receive_sharing_intent/ios"
-  saver_gallery:
-    :path: ".symlinks/plugins/saver_gallery/ios"
   screen_brightness_ios:
     :path: ".symlinks/plugins/screen_brightness_ios/ios"
   smart_auth:
@@ -136,7 +131,6 @@ SPEC CHECKSUMS:
   package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
   permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
   receive_sharing_intent: 79c848f5b045674ad60b9fea3bafea59962ad2c1
-  saver_gallery: 76172dc4bf6b40e66d694948ada9ff402304dd87
   screen_brightness_ios: 715ca807df953bf676d339f11464e438143ee625
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   smart_auth: 4bedbc118723912d0e45a07e8ab34039c19e04f2

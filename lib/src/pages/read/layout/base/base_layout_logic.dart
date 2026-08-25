@@ -14,6 +14,7 @@ import 'package:get/get_navigation/get_navigation.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:get/get_utils/get_utils.dart';
+import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/widget/eh_action_sheet_text.dart';
 import 'package:jhentai/src/consts/eh_consts.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
@@ -122,12 +123,11 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   }
 
   void onPointerScroll(PointerScrollEvent value) {
-    final ctrlPressed = HardwareKeyboard.instance.logicalKeysPressed
-        .any((key) => key == LogicalKeyboardKey.controlLeft || key == LogicalKeyboardKey.controlRight);
+    final ctrlPressed = HardwareKeyboard.instance.logicalKeysPressed.any((key) => key == LogicalKeyboardKey.controlLeft || key == LogicalKeyboardKey.controlRight);
     if (ctrlPressed) {
       return;
     }
-    
+
     if (value.scrollDelta.dy > 0) {
       toNext();
     } else if (value.scrollDelta.dy < 0) {
@@ -732,13 +732,17 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   }
 
   Future<bool> _saveImage2Album(Uint8List imageData, String fileName) async {
-    await requestAlbumPermission();
+    if (!await checkAndRequestPermissions()) {
+      log.warning('Save image to album failed: permission denied');
+      return false;
+    }
 
     SaveResult saveResult = await SaverGallery.saveImage(
       imageData,
-      name: fileName,
-      androidRelativePath: "Pictures/JHenTai",
-      androidExistNotSave: false,
+      quality: 100,
+      fileName: fileName,
+      albumPath: "JHenTai",
+      skipIfExists: false,
     );
 
     log.info('Save image to album: $saveResult');
@@ -747,13 +751,16 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   }
 
   Future<bool> _saveFile2Album(String filePath, String fileName) async {
-    await requestAlbumPermission();
+    if (!await checkAndRequestPermissions()) {
+      log.warning('Save image to album failed: permission denied');
+      return false;
+    }
 
     SaveResult saveResult = await SaverGallery.saveFile(
-      file: filePath,
-      name: fileName,
-      androidRelativePath: "Pictures/JHenTai",
-      androidExistNotSave: false,
+      filePath: filePath,
+      fileName: fileName,
+      albumPath: "JHenTai",
+      skipIfExists: false,
     );
 
     log.info('Save image to album: $saveResult');

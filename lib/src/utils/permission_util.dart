@@ -35,8 +35,47 @@ Future<void> requestAlbumPermission() async {
   } else {
     statuses = await Permission.photosAddOnly.request().isGranted;
   }
-  
+
   log.info('requestPermission result: $statuses');
+}
+
+enum MediaType {
+  image,
+  video,
+  audio,
+}
+
+Future<bool> checkAndRequestPermissions({MediaType mediaType = MediaType.image}) async {
+  if (!Platform.isAndroid && !Platform.isIOS) {
+    return false; // Only Android and iOS platforms are supported
+  }
+
+  if (Platform.isAndroid) {
+    final deviceInfo = await DeviceInfoPlugin().androidInfo;
+    final sdkInt = deviceInfo.version.sdkInt;
+
+    if (sdkInt < 29) {
+      return await Permission.storage.request().isGranted;
+    }
+
+    if (sdkInt < 33) {
+      return await Permission.storage.request().isGranted;
+    }
+
+    switch (mediaType) {
+      case MediaType.image:
+        return await Permission.photos.request().isGranted;
+      case MediaType.video:
+        return await Permission.videos.request().isGranted;
+      case MediaType.audio:
+        return await Permission.audio.request().isGranted;
+    }
+  } else if (Platform.isIOS) {
+    // iOS permission for saving images to the gallery
+    return await Permission.photos.request().isGranted && await Permission.photosAddOnly.request().isGranted;
+  }
+
+  return false; // Unsupported platforms
 }
 
 bool checkPermissionForPath(String path) {
