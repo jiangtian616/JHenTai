@@ -58,21 +58,10 @@ Future<bool> checkAndRequestPermissions({MediaType mediaType = MediaType.image})
       return await Permission.storage.request().isGranted;
     }
 
-    if (sdkInt < 33) {
-      return await Permission.storage.request().isGranted;
-    }
-
-    switch (mediaType) {
-      case MediaType.image:
-        return await Permission.photos.request().isGranted;
-      case MediaType.video:
-        return await Permission.videos.request().isGranted;
-      case MediaType.audio:
-        return await Permission.audio.request().isGranted;
-    }
+    return true;
   } else if (Platform.isIOS) {
     // iOS permission for saving images to the gallery
-    return await Permission.photos.request().isGranted && await Permission.photosAddOnly.request().isGranted;
+    return await Permission.photosAddOnly.request().isGranted;
   }
 
   return false; // Unsupported platforms
