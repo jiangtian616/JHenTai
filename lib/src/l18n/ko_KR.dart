@@ -489,6 +489,8 @@ class ko_KR {
       'readDirection': '읽는 방향',
       'enableOrientationSpecificReadDirection': '화면 방향별 읽기 방향',
       'enableOrientationSpecificReadDirectionHint': '세로 및 가로 화면에 대해 서로 다른 읽기 방향을 설정합니다',
+      'autoDetectWebtoon': '웹툰 자동 감지',
+      'autoDetectWebtoonHint': '웹툰 태그가 있는 갤러리에 대해 위에서 아래로 연속 읽기 모드를 자동으로 사용합니다',
       'portraitReadDirection': '세로 화면 읽기 방향',
       'landscapeReadDirection': '가로 화면 읽기 방향',
       'autoSwitchedReadDirection': '읽기 방향 자동 전환됨',

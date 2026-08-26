@@ -489,6 +489,8 @@ class zh_CN {
       'readDirection': '阅读方向',
       'enableOrientationSpecificReadDirection': '横竖屏独立阅读方向',
       'enableOrientationSpecificReadDirectionHint': '为竖屏和横屏分别设置不同的阅读方向',
+      'autoDetectWebtoon': '自动检测条漫',
+      'autoDetectWebtoonHint': '对带有 webtoon 标签的画廊自动使用从上至下连续阅读模式',
       'portraitReadDirection': '竖屏阅读方向',
       'landscapeReadDirection': '横屏阅读方向',
       'autoSwitchedReadDirection': '已自动切换阅读方向',

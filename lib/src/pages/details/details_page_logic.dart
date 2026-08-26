@@ -707,6 +707,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     if (archiveStatus == ArchiveStatus.completed) {
       List<GalleryImage> images = await archiveDownloadService.getUnpackedImages(archive.gid);
 
+      ReadDirection? readDirection = isWebtoonGalleryFromTagString(archive.tags) ? ReadDirection.top2bottomList : null;
+
       toRoute(
         Routes.read,
         arguments: ReadPageInfo(
@@ -721,6 +723,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           readProgressRecordStorageKey: archive.gid.toString(),
           images: images,
           useSuperResolution: superResolutionService.get(archive.gid, SuperResolutionType.archive) != null,
+          readDirection: readDirection,
         ),
       );
     }
@@ -1038,6 +1041,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   Future<void> goToReadPage([int? forceIndex]) async {
+    ReadDirection? webtoonReadDirection = _detectWebtoonReadDirection();
+
     /// online
     if (galleryDownloadService.galleryDownloadInfos[state.galleryUrl.gid]?.downloadProgress == null) {
       toRoute(
@@ -1052,6 +1057,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           readProgressRecordStorageKey: state.galleryUrl.gid.toString(),
           pageCount: state.galleryDetails?.pageCount ?? state.gallery?.pageCount ?? state.galleryMetadata!.pageCount,
           useSuperResolution: false,
+          readDirection: webtoonReadDirection,
         ),
       )?.whenComplete(() => Future.delayed(const Duration(milliseconds: 800))).whenComplete(() => updateSafely([readButtonId]));
       return;
@@ -1077,8 +1083,31 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         readProgressRecordStorageKey: state.galleryUrl.gid.toString(),
         pageCount: gallery.pageCount,
         useSuperResolution: superResolutionService.get(state.galleryUrl.gid, SuperResolutionType.gallery) != null,
+        readDirection: webtoonReadDirection,
       ),
     )?.whenComplete(() => Future.delayed(const Duration(milliseconds: 800))).whenComplete(() => updateSafely([readButtonId]));
+  }
+
+  ReadDirection? _detectWebtoonReadDirection() {
+    if (state.galleryDetails != null) {
+      if (isWebtoonGallery(state.galleryDetails!.tags)) {
+        return ReadDirection.top2bottomList;
+      }
+      return null;
+    }
+    if (state.gallery != null) {
+      if (isWebtoonGallery(state.gallery!.tags)) {
+        return ReadDirection.top2bottomList;
+      }
+      return null;
+    }
+    if (state.galleryMetadata != null) {
+      if (isWebtoonGallery(state.galleryMetadata!.tags)) {
+        return ReadDirection.top2bottomList;
+      }
+      return null;
+    }
+    return null;
   }
 
   Future<int> getReadIndexRecord() async {

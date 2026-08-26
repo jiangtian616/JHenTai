@@ -18,6 +18,7 @@ import '../../../../setting/preference_setting.dart';
 import '../../../../utils/process_util.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../utils/toast_util.dart';
+import '../../../../utils/convert_util.dart';
 import '../../../../widget/eh_alert_dialog.dart';
 import '../../../../widget/eh_context_menu.dart';
 import '../../../../widget/eh_download_dialog.dart';
@@ -161,6 +162,8 @@ mixin GalleryDownloadPageLogicMixin on GetxController
       /// was fully downloaded), this reloads from DB.
       await galleryDownloadService.galleryDownloadInfos[gallery.gid]!.ensureImagesLoaded();
 
+      ReadDirection? readDirection = isWebtoonGalleryFromTagString(gallery.tags) ? ReadDirection.top2bottomList : null;
+
       toRoute(
         Routes.read,
         arguments: ReadPageInfo(
@@ -173,6 +176,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController
           readProgressRecordStorageKey: gallery.gid.toString(),
           pageCount: gallery.pageCount,
           useSuperResolution: superResolutionService.get(gallery.gid, SuperResolutionType.gallery) != null,
+          readDirection: readDirection,
         ),
       );
     }
