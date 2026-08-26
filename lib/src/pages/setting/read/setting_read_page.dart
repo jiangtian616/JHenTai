@@ -61,8 +61,8 @@ class SettingReadPage extends StatelessWidget {
                 _buildPortraitReadDirection().fadeIn(const Key('portraitReadDirection')).center(),
               if (GetPlatform.isMobile && readSetting.enableOrientationSpecificReadDirection.isTrue)
                 _buildLandscapeReadDirection().fadeIn(const Key('landscapeReadDirection')).center(),
-              _buildAutoDetectWebtoon().center(),
               if (!GetPlatform.isMobile || readSetting.enableOrientationSpecificReadDirection.isFalse) _buildReadDirection().center(),
+              _buildAutoDetectWebtoon().center(),
               if (GetPlatform.isMobile && readSetting.enableOrientationSpecificReadDirection.isTrue
                   ? (readSetting.portraitReadDirection.value == ReadDirection.top2bottomList ||
                       readSetting.landscapeReadDirection.value == ReadDirection.top2bottomList)
