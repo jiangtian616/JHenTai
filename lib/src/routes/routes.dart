@@ -27,6 +27,7 @@ import 'package:jhentai/src/pages/setting/download/setting_download_page.dart';
 import 'package:jhentai/src/pages/setting/eh/setting_eh_page.dart';
 import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page.dart';
 import 'package:jhentai/src/pages/setting/keyboard_shortcuts/setting_keyboard_shortcuts_page.dart';
+import 'package:jhentai/src/pages/setting/advanced/frame_rate/setting_frame_rate_page.dart';
 import 'package:jhentai/src/pages/setting/read/tap_zone/setting_tap_zone_page.dart';
 import 'package:jhentai/src/pages/setting/mousewheel/setting_mouse_wheel_page.dart';
 import 'package:jhentai/src/pages/setting/network/proxy/setting_proxy_page.dart';
@@ -99,6 +100,7 @@ class Routes {
   static const String settingNetwork = "/setting_network";
   static const String settingDownload = "/setting_download";
   static const String settingAdvanced = "/setting_advanced";
+  static const String settingFrameRate = "/setting_advanced/frameRate";
   static const String settingPerformance = "/setting_performance";
   static const String settingMouseWheel = "/setting_mouse_wheel";
   static const String settingCloud = "/setting_cloud";
@@ -331,6 +333,12 @@ class Routes {
       name: settingAdvanced,
       page: () => const SettingAdvancedPage().withEscOrFifthButton2BackRightRoute(),
       transition: defaultTransition,
+    ),
+    EHPage(
+      name: settingFrameRate,
+      page: () => const SettingFrameRatePage().withEscOrFifthButton2BackRightRoute(),
+      transition: defaultTransition,
+      offAllBefore: false,
     ),
     EHPage(
       name: settingCloud,
