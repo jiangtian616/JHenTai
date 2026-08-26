@@ -192,6 +192,12 @@ App翻译：
 1. 你需要自己管理安卓签名文件，见https://docs.flutter.dev/deployment/android#signing-the-app
 2. 使用IDEA或者VSCode直接运行即可
 
+## 关于代码贡献
+
+1. 对分支名无固定要求，可以在本地master分支上修改并提交pr。
+2. 如果改动功能点较大且且涉及多模块间的交互，不接受没有代码审查能力的开发者使用Vibe Coding提交的代码，该类代码常常不遵守项目现有编码规范，同时对代码拓展性有较大危害，代码正确性也没有保障。
+3. 单个pr需要聚焦于最小功能点，涉及多个功能点请提交多个pr。
+
 ## 主要dart依赖
 
 - [get](https://pub.flutter-io.cn/packages/get): 依赖管理、状态管理、国际化、NoSQL

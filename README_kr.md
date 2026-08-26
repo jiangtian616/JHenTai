@@ -168,6 +168,12 @@ Tag order optimization:
 
 1. Android 서명을 직접 관리하려면 다음 사이트를 확인하세요: https://docs.flutter.dev/deployment/android#signing-the-app
 
+## 코드 기여 안내
+
+1. 브랜치 이름에 대한 고정된 요구 사항은 없습니다. 로컬 master 브랜치에서 수정한 후 PR을 제출하시면 됩니다.
+2. 변경 규모가 크거나 여러 모듈 간의 상호작용이 포함되는 경우, 코드 리뷰 능력이 없는 개발자가 Vibe Coding으로 작성한 코드는 받아들이지 않습니다. 이러한 코드는 프로젝트의 기존 코딩 규칙을 따르지 않는 경우가 많고, 코드 확장성에 큰 해를 끼치며, 정확성도 보장되지 않습니다.
+3. 하나의 PR은 최소한의 기능 단위에 집중해야 합니다. 여러 기능이 포함된 경우에는 별도의 PR을 나누어 제출해 주세요.
+
 ## Dart 주요 종속성
 
 - [get](https://pub.flutter-io.cn/packages/get): 종속성 관리, 상태 관리, l18n, NoSQL
