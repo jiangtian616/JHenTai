@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
+import 'package:jhentai/src/model/tap_zone_config.dart';
 import 'package:jhentai/src/service/log.dart';
 
 import '../service/jh_service.dart';
@@ -32,7 +33,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   RxInt imageRegionWidthRatio = 100.obs;
   RxInt portraitImageRegionWidthRatio = 100.obs;
   RxInt landscapeImageRegionWidthRatio = 100.obs;
-  RxInt gestureRegionWidthRatio = 60.obs;
+  RxnString tapZoneConfigJson = RxnString();
   RxBool useThirdPartyViewer = false.obs;
   RxnString thirdPartyViewerPath = RxnString();
   RxDouble autoModeInterval = 2.0.obs;
@@ -45,8 +46,6 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   RxBool displayFirstPageAlone = true.obs;
   RxBool portraitDisplayFirstPageAlone = true.obs;
   RxBool landscapeDisplayFirstPageAlone = true.obs;
-  RxBool reverseTurnPageDirection = false.obs;
-  RxBool disablePageTurningOnTap = false.obs;
   RxBool enableMaxImageKilobyte =
       (GetPlatform.isDesktop || PlatformDispatcher.instance.views.first.physicalSize.width / PlatformDispatcher.instance.views.first.devicePixelRatio >= 600)
           ? false.obs
@@ -147,7 +146,8 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     imageRegionWidthRatio.value = map['imageRegionWidthRatio'] ?? imageRegionWidthRatio.value;
     portraitImageRegionWidthRatio.value = map['portraitImageRegionWidthRatio'] ?? map['imageRegionWidthRatio'] ?? portraitImageRegionWidthRatio.value;
     landscapeImageRegionWidthRatio.value = map['landscapeImageRegionWidthRatio'] ?? map['imageRegionWidthRatio'] ?? landscapeImageRegionWidthRatio.value;
-    gestureRegionWidthRatio.value = map['gestureRegionWidthRatio'] ?? gestureRegionWidthRatio.value;
+    tapZoneConfigJson.value = map['tapZoneConfig'] ?? TapZoneConfig.classic().toJsonString();
+    _cachedTapZoneConfig = null;
     useThirdPartyViewer.value = map['useThirdPartyViewer'] ?? useThirdPartyViewer.value;
     thirdPartyViewerPath.value = map['thirdPartyViewerPath'];
     turnPageMode.value = TurnPageMode.values[map['turnPageMode']];
@@ -158,8 +158,6 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     displayFirstPageAlone.value = map['displayFirstPageAlone'] ?? displayFirstPageAlone.value;
     portraitDisplayFirstPageAlone.value = map['portraitDisplayFirstPageAlone'] ?? map['displayFirstPageAlone'] ?? portraitDisplayFirstPageAlone.value;
     landscapeDisplayFirstPageAlone.value = map['landscapeDisplayFirstPageAlone'] ?? map['displayFirstPageAlone'] ?? landscapeDisplayFirstPageAlone.value;
-    reverseTurnPageDirection.value = map['reverseTurnPageDirection'] ?? reverseTurnPageDirection.value;
-    disablePageTurningOnTap.value = map['disablePageTurningOnTap'] ?? disablePageTurningOnTap.value;
     enableMaxImageKilobyte.value = map['enableMaxImageKilobyte'] ?? enableMaxImageKilobyte.value;
     maxImageKilobyte.value = map['maxImageKilobyte'] ?? maxImageKilobyte.value;
     enableOrientationSpecificReadDirection.value = map['enableOrientationSpecificReadDirection'] ?? enableOrientationSpecificReadDirection.value;
@@ -193,7 +191,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
       'imageRegionWidthRatio': imageRegionWidthRatio.value,
       'portraitImageRegionWidthRatio': portraitImageRegionWidthRatio.value,
       'landscapeImageRegionWidthRatio': landscapeImageRegionWidthRatio.value,
-      'gestureRegionWidthRatio': gestureRegionWidthRatio.value,
+      'tapZoneConfig': tapZoneConfigJson.value,
       'useThirdPartyViewer': useThirdPartyViewer.value,
       'thirdPartyViewerPath': thirdPartyViewerPath.value,
       'turnPageMode': turnPageMode.value.index,
@@ -204,8 +202,6 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
       'displayFirstPageAlone': displayFirstPageAlone.value,
       'portraitDisplayFirstPageAlone': portraitDisplayFirstPageAlone.value,
       'landscapeDisplayFirstPageAlone': landscapeDisplayFirstPageAlone.value,
-      'reverseTurnPageDirection': reverseTurnPageDirection.value,
-      'disablePageTurningOnTap': disablePageTurningOnTap.value,
       'enableMaxImageKilobyte': enableMaxImageKilobyte.value,
       'maxImageKilobyte': maxImageKilobyte.value,
       'enableOrientationSpecificReadDirection': enableOrientationSpecificReadDirection.value,
@@ -317,9 +313,28 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     await saveBeanConfig();
   }
 
-  Future<void> saveGestureRegionWidthRatio(int value) async {
-    log.debug('saveGestureRegionWidthRatio:$value');
-    gestureRegionWidthRatio.value = value;
+  TapZoneConfig? _cachedTapZoneConfig;
+
+  TapZoneConfig get tapZoneConfig {
+    if (_cachedTapZoneConfig != null) {
+      return _cachedTapZoneConfig!;
+    }
+    String? json = tapZoneConfigJson.value;
+    if (json == null) {
+      return _cachedTapZoneConfig = TapZoneConfig.classic();
+    }
+    try {
+      return _cachedTapZoneConfig = TapZoneConfig.fromJsonString(json);
+    } catch (e) {
+      log.error('Failed to parse tapZoneConfig, fallback to classic', e);
+      return _cachedTapZoneConfig = TapZoneConfig.classic();
+    }
+  }
+
+  Future<void> saveTapZoneConfig(TapZoneConfig value) async {
+    log.debug('saveTapZoneConfig:${value.toJsonString()}');
+    _cachedTapZoneConfig = value;
+    tapZoneConfigJson.value = value.toJsonString();
     await saveBeanConfig();
   }
 
@@ -410,18 +425,6 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   Future<void> saveLandscapeDisplayFirstPageAlone(bool value) async {
     log.debug('saveLandscapeDisplayFirstPageAlone:$value');
     landscapeDisplayFirstPageAlone.value = value;
-    await saveBeanConfig();
-  }
-
-  Future<void> saveReverseTurnPageDirection(bool value) async {
-    log.debug('saveReverseTurnPageDirection:$value');
-    reverseTurnPageDirection.value = value;
-    await saveBeanConfig();
-  }
-
-  Future<void> saveDisablePageTurningOnTap(bool value) async {
-    log.debug('saveDisablePageTurningOnTap:$value');
-    disablePageTurningOnTap.value = value;
     await saveBeanConfig();
   }
 

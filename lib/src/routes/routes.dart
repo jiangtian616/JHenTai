@@ -27,6 +27,7 @@ import 'package:jhentai/src/pages/setting/download/setting_download_page.dart';
 import 'package:jhentai/src/pages/setting/eh/setting_eh_page.dart';
 import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page.dart';
 import 'package:jhentai/src/pages/setting/keyboard_shortcuts/setting_keyboard_shortcuts_page.dart';
+import 'package:jhentai/src/pages/setting/read/tap_zone/setting_tap_zone_page.dart';
 import 'package:jhentai/src/pages/setting/mousewheel/setting_mouse_wheel_page.dart';
 import 'package:jhentai/src/pages/setting/network/proxy/setting_proxy_page.dart';
 import 'package:jhentai/src/pages/setting/network/setting_network_page.dart';
@@ -104,6 +105,7 @@ class Routes {
   static const String settingSecurity = "/setting_security";
   static const String settingAbout = "/setting_about";
   static const String settingKeyboardShortcuts = "/setting_read/keyboard_shortcuts";
+  static const String settingTapZoneStyle = "/setting_read/tapZoneStyle";
 
   static const String login = "/setting_account/login";
   static const String cookie = "/setting_account/cookie";
@@ -291,6 +293,12 @@ class Routes {
     EHPage(
       name: settingKeyboardShortcuts,
       page: () => const SettingKeyboardShortcutsPage(),
+      transition: defaultTransition,
+      offAllBefore: false,
+    ),
+    EHPage(
+      name: settingTapZoneStyle,
+      page: () => const SettingTapZonePage().withEscOrFifthButton2BackRightRoute(),
       transition: defaultTransition,
       offAllBefore: false,
     ),

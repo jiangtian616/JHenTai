@@ -5,6 +5,7 @@ enum ConfigEnum {
   migrateGalleryHistory('migrateGalleryHistory'),
   migrateStorageConfig('migrateStorageConfig'),
   renameGallerysPageLogicKey('renameGallerysPageLogicKey'),
+  tapZoneGuideShown('tapZoneGuideShown'),
 
   /// settings
   favoriteSetting('favoriteSetting'),

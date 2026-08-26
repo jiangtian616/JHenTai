@@ -21,7 +21,6 @@ class SettingReadPage extends StatelessWidget {
   final TextEditingController portraitImageRegionWidthRatioController = TextEditingController(text: readSetting.portraitImageRegionWidthRatio.value.toString());
   final TextEditingController landscapeImageRegionWidthRatioController =
       TextEditingController(text: readSetting.landscapeImageRegionWidthRatio.value.toString());
-  final TextEditingController gestureRegionWidthRatioController = TextEditingController(text: readSetting.gestureRegionWidthRatio.value.toString());
   final TextEditingController imageMaxKilobytesController = TextEditingController(text: readSetting.maxImageKilobyte.value.toString());
 
   SettingReadPage({Key? key}) : super(key: key);
@@ -47,11 +46,9 @@ class SettingReadPage extends StatelessWidget {
               _buildEnableDoubleTapToScaleUp().center(),
               _buildEnableTapDragToScaleUp().center(),
               _buildEnableBottomMenu().center(),
-              _buildReverseTurnPageDirection().center(),
-              _buildDisableTurnPageOnTap().center(),
+              _buildTapZoneStyle().center(),
               _buildEnableImageMaxKilobytes().center(),
               if (readSetting.enableMaxImageKilobyte.isTrue) _buildImageMaxKilobytes(context).fadeIn(const Key('imageMaxKilobytes')).center(),
-              _buildGestureRegionWidthRatio(context).center(),
               if (GetPlatform.isDesktop) _buildUseThirdPartyViewer().center(),
               if (GetPlatform.isDesktop) _buildThirdPartyViewerPath().center(),
               if (GetPlatform.isDesktop) _buildKeyboardShortcuts(context).center(),
@@ -249,19 +246,12 @@ class SettingReadPage extends StatelessWidget {
     );
   }
 
-  Widget _buildReverseTurnPageDirection() {
-    return SwitchListTile(
-      title: Text('reverseTurnPageDirection'.tr),
-      value: readSetting.reverseTurnPageDirection.value,
-      onChanged: readSetting.saveReverseTurnPageDirection,
-    );
-  }
-
-  Widget _buildDisableTurnPageOnTap() {
-    return SwitchListTile(
-      title: Text('disablePageTurningOnTap'.tr),
-      value: readSetting.disablePageTurningOnTap.value,
-      onChanged: readSetting.saveDisablePageTurningOnTap,
+  Widget _buildTapZoneStyle() {
+    return ListTile(
+      title: Text('tapZoneStyle'.tr),
+      subtitle: Text('tapZoneStyleHint'.tr),
+      trailing: const Icon(Icons.keyboard_arrow_right),
+      onTap: () => toRoute(Routes.settingTapZoneStyle),
     );
   }
 
@@ -499,55 +489,6 @@ class SettingReadPage extends StatelessWidget {
       return;
     }
     readSetting.saveLandscapeImageRegionWidthRatio(value);
-    toast('saveSuccess'.tr);
-  }
-
-  Widget _buildGestureRegionWidthRatio(BuildContext context) {
-    return ListTile(
-      title: Text('gestureRegionWidthRatio'.tr),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: 50,
-            child: TextField(
-              controller: gestureRegionWidthRatioController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
-              textAlign: TextAlign.center,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                IntRangeTextInputFormatter(minValue: 0, maxValue: 100),
-              ],
-              onSubmitted: (_) {
-                _saveGestureRegionWidthRatio();
-              },
-            ),
-          ),
-          const Text('%'),
-          IconButton(
-            onPressed: _saveGestureRegionWidthRatio,
-            icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),
-          ),
-        ],
-      ),
-    ).marginOnly(right: 12);
-  }
-
-  void _saveGestureRegionWidthRatio() {
-    int? value = int.tryParse(gestureRegionWidthRatioController.value.text);
-    if (value == null) {
-      return;
-    }
-
-    if (value <= 0) {
-      value = 1;
-    }
-    if (value >= 100) {
-      value = 99;
-    }
-
-    readSetting.saveGestureRegionWidthRatio(value);
     toast('saveSuccess'.tr);
   }
 

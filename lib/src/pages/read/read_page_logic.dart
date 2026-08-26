@@ -8,10 +8,12 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/exception/eh_parse_exception.dart';
 import 'package:jhentai/src/exception/eh_site_exception.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
+import 'package:jhentai/src/model/tap_zone_config.dart';
 import 'package:jhentai/src/pages/read/layout/base/base_layout_logic.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_double_column/horizontal_double_column_layout_logic.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_list/horizontal_list_layout_logic.dart';
@@ -33,6 +35,7 @@ import '../../model/gallery_image.dart';
 import '../../model/read_page_info.dart';
 import '../../network/eh_request.dart';
 import '../../routes/routes.dart';
+import '../../service/local_config_service.dart';
 import '../../service/log.dart';
 import '../../service/gallery_download/gallery_images_retainer.dart';
 import '../../service/read_progress_service.dart';
@@ -63,6 +66,8 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
   final String pageNoId = 'pageNoId';
   final String thumbnailNoId = 'thumbnailsId';
   final String sliderId = 'sliderId';
+  final String tapZoneId = 'tapZoneId';
+  final String guideOverlayId = 'guideOverlayId';
 
   ReadPageState state = ReadPageState();
 
@@ -95,6 +100,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
   late Worker portraitDisplayFirstPageAloneListener;
   late Worker landscapeDisplayFirstPageAloneListener;
   late Worker autoDetectWebtoonListener;
+  late Worker tapZoneConfigListener;
 
   /// Tracks the last known portrait state for orientation-specific read direction
   bool? _lastIsPortrait;
@@ -241,10 +247,29 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
 
     _syncDisplayFirstPageAloneToState();
 
+    tapZoneConfigListener = ever(readSetting.tapZoneConfigJson, (_) => updateSafely([tapZoneId]));
+
+    _maybeShowTapZoneGuide();
+
     inited = true;
     if (!delayInitCompleter.isCompleted) {
       delayInitCompleter.complete();
     }
+  }
+
+  Future<void> _maybeShowTapZoneGuide() async {
+    String? shown = await localConfigService.read(configKey: ConfigEnum.tapZoneGuideShown);
+    if (shown != null) {
+      return;
+    }
+    state.showTapZoneGuide = true;
+    updateSafely([guideOverlayId]);
+  }
+
+  void dismissTapZoneGuide() {
+    state.showTapZoneGuide = false;
+    update([guideOverlayId]);
+    localConfigService.write(configKey: ConfigEnum.tapZoneGuideShown, value: 'true');
   }
 
   @override
@@ -273,6 +298,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
     portraitDisplayFirstPageAloneListener.dispose();
     landscapeDisplayFirstPageAloneListener.dispose();
     autoDetectWebtoonListener.dispose();
+    tapZoneConfigListener.dispose();
 
     restoreVolumeListener();
 
@@ -583,7 +609,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
 
   void saveReadDirection(ReadDirection value) {
     state.readPageInfo.readDirection = null;
-  
+
     if (readSetting.enableOrientationSpecificReadDirection.isTrue && GetPlatform.isMobile) {
       if (isPortrait) {
         readSetting.savePortraitReadDirection(value);
@@ -649,51 +675,25 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
     layoutLogic.closeAutoMode();
   }
 
-  void tapLeftRegion() {
+  void handleTapZone(int index) {
     if (!inited) {
       return;
     }
 
-    if (readSetting.disablePageTurningOnTap.isTrue) {
-      return;
-    }
-
     if (state.isScrolling) {
       return;
     }
 
-    if (readSetting.reverseTurnPageDirection.isTrue) {
-      toRight();
-    } else {
-      toLeft();
+    switch (readSetting.tapZoneConfig.actions[index]) {
+      case TapZoneAction.none:
+        break;
+      case TapZoneAction.toggleMenu:
+        toggleMenu();
+      case TapZoneAction.prevPage:
+        toPrev();
+      case TapZoneAction.nextPage:
+        toNext();
     }
-  }
-
-  void tapRightRegion() {
-    if (!inited) {
-      return;
-    }
-    if (readSetting.disablePageTurningOnTap.isTrue) {
-      return;
-    }
-
-    if (state.isScrolling) {
-      return;
-    }
-
-    if (readSetting.reverseTurnPageDirection.isTrue) {
-      toLeft();
-    } else {
-      toRight();
-    }
-  }
-
-  void tapCenterRegion() {
-    if (state.isScrolling) {
-      return;
-    }
-
-    toggleMenu();
   }
 
   /// click right arrow key

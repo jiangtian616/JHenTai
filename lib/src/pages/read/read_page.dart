@@ -9,12 +9,14 @@ import 'package:jhentai/src/mixin/scroll_status_listener.dart';
 import 'package:jhentai/src/mixin/scroll_status_listener_state.dart';
 import 'package:jhentai/src/mixin/window_widget_mixin.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
+import 'package:jhentai/src/model/tap_zone_config.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_list/horizontal_list_layout.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_page/horizontal_page_layout.dart';
 import 'package:jhentai/src/pages/read/read_page_logic.dart';
 import 'package:jhentai/src/pages/read/read_page_state.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/widget/eh_mouse_button_listener.dart';
+import 'package:jhentai/src/widget/tap_zone_guide_overlay.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -108,6 +110,12 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
                       children: [
                         buildGestureRegion(),
                         buildLayout(),
+                        GetBuilder<ReadPageLogic>(
+                          id: logic.guideOverlayId,
+                          builder: (_) => state.showTapZoneGuide
+                              ? TapZoneGuideOverlay(onDismiss: logic.dismissTapZoneGuide)
+                              : const SizedBox.shrink(),
+                        ),
                       ],
                     ),
                     buildRightBottomInfo(context),
@@ -241,25 +249,42 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
 
   /// gesture for turn page and pop menu
   Widget buildGestureRegion() {
-    return Row(
-      children: [
-        /// left region
-        Expanded(
-          flex: (100 - readSetting.gestureRegionWidthRatio.value) ~/ 2,
-          child: GestureDetector(onTap: logic.tapLeftRegion, behavior: HitTestBehavior.opaque),
-        ),
+    return GetBuilder<ReadPageLogic>(
+      id: logic.tapZoneId,
+      builder: (_) {
+        TapZoneConfig config = readSetting.tapZoneConfig;
+        List<int> columnFlex = [
+          config.leftColumnWidthRatio,
+          config.middleColumnWidthRatio,
+          config.rightColumnWidthRatio,
+        ];
+        List<int> rowFlex = [
+          config.topRowHeightRatio,
+          config.middleRowHeightRatio,
+          config.bottomRowHeightRatio,
+        ];
+        Widget buildCell(int index) => Expanded(
+              flex: columnFlex[index % 3],
+              child: GestureDetector(
+                onTap: () => logic.handleTapZone(index),
+                behavior: HitTestBehavior.opaque,
+              ),
+            );
 
-        /// center region
-        Expanded(
-          flex: readSetting.gestureRegionWidthRatio.value,
-          child: GestureDetector(onTap: logic.tapCenterRegion, behavior: HitTestBehavior.opaque),
-        ),
-
-        /// right region: toRight
-        Expanded(
-            flex: (100 - readSetting.gestureRegionWidthRatio.value) ~/ 2,
-            child: GestureDetector(onTap: logic.tapRightRegion, behavior: HitTestBehavior.opaque)),
-      ],
+        return Column(
+          children: [
+            for (int row = 0; row < 3; row++)
+              Expanded(
+                flex: rowFlex[row],
+                child: Row(
+                  children: [
+                    for (int col = 0; col < 3; col++) buildCell(row * 3 + col),
+                  ],
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 
