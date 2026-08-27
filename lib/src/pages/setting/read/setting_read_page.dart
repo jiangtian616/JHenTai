@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/pages/setting/keyboard_shortcuts/setting_keyboard_shortcuts_page.dart';
+import 'package:jhentai/src/pages/setting/read/tap_zone/setting_tap_zone_page.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/setting/read_setting.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
@@ -20,7 +21,7 @@ class SettingReadPage extends StatelessWidget {
   final TextEditingController imageRegionWidthRatioController = TextEditingController(text: readSetting.imageRegionWidthRatio.value.toString());
   final TextEditingController portraitImageRegionWidthRatioController = TextEditingController(text: readSetting.portraitImageRegionWidthRatio.value.toString());
   final TextEditingController landscapeImageRegionWidthRatioController =
-      TextEditingController(text: readSetting.landscapeImageRegionWidthRatio.value.toString());
+  TextEditingController(text: readSetting.landscapeImageRegionWidthRatio.value.toString());
   final TextEditingController imageMaxKilobytesController = TextEditingController(text: readSetting.maxImageKilobyte.value.toString());
 
   SettingReadPage({Key? key}) : super(key: key);
@@ -30,69 +31,70 @@ class SettingReadPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(centerTitle: true, title: Text('readSetting'.tr)),
       body: Obx(
-        () => SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.only(top: 16),
-            children: [
-              if (GetPlatform.isMobile || GetPlatform.isWindows) _buildEnableImmersiveMode().center(),
-              _buildKeepScreenAwake().center(),
-              if (GetPlatform.isMobile) _buildEnableCustomReadBrightness().center(),
-              if (GetPlatform.isMobile) _buildCustomReadBrightness().center(),
-              _buildShowThumbnails().center(),
-              _buildShowScrollBar().center(),
-              _buildShowStatusInfo().center(),
-              if (GetPlatform.isMobile) _buildEnablePageTurnByVolumeKeys().center(),
-              _buildEnablePageTurnAnime().center(),
-              _buildEnableDoubleTapToScaleUp().center(),
-              _buildEnableTapDragToScaleUp().center(),
-              _buildEnableBottomMenu().center(),
-              _buildTapZoneStyle().center(),
-              _buildEnableImageMaxKilobytes().center(),
-              if (readSetting.enableMaxImageKilobyte.isTrue) _buildImageMaxKilobytes(context).fadeIn(const Key('imageMaxKilobytes')).center(),
-              if (GetPlatform.isDesktop) _buildUseThirdPartyViewer().center(),
-              if (GetPlatform.isDesktop) _buildThirdPartyViewerPath().center(),
-              if (GetPlatform.isDesktop) _buildKeyboardShortcuts(context).center(),
-              if (GetPlatform.isMobile) _buildDeviceDirection().center(),
-              if (GetPlatform.isMobile) _buildEnableOrientationSpecificReadDirection().center(),
-              if (GetPlatform.isMobile && readSetting.enableOrientationSpecificReadDirection.isTrue)
-                _buildPortraitReadDirection().fadeIn(const Key('portraitReadDirection')).center(),
-              if (GetPlatform.isMobile && readSetting.enableOrientationSpecificReadDirection.isTrue)
-                _buildLandscapeReadDirection().fadeIn(const Key('landscapeReadDirection')).center(),
-              if (!GetPlatform.isMobile || readSetting.enableOrientationSpecificReadDirection.isFalse) _buildReadDirection().center(),
-              _buildAutoDetectWebtoon().center(),
-              if (GetPlatform.isMobile && readSetting.enableOrientationSpecificReadDirection.isTrue
-                  ? (readSetting.portraitReadDirection.value == ReadDirection.top2bottomList ||
+            () =>
+            SafeArea(
+              child: ListView(
+                padding: const EdgeInsets.only(top: 16),
+                children: [
+                  if (GetPlatform.isMobile || GetPlatform.isWindows) _buildEnableImmersiveMode().center(),
+                  _buildKeepScreenAwake().center(),
+                  if (GetPlatform.isMobile) _buildEnableCustomReadBrightness().center(),
+                  if (GetPlatform.isMobile) _buildCustomReadBrightness().center(),
+                  _buildShowThumbnails().center(),
+                  _buildShowScrollBar().center(),
+                  _buildShowStatusInfo().center(),
+                  if (GetPlatform.isMobile) _buildEnablePageTurnByVolumeKeys().center(),
+                  _buildEnablePageTurnAnime().center(),
+                  _buildEnableDoubleTapToScaleUp().center(),
+                  _buildEnableTapDragToScaleUp().center(),
+                  _buildEnableBottomMenu().center(),
+                  _buildTapZoneStyle(context).center(),
+                  _buildEnableImageMaxKilobytes().center(),
+                  if (readSetting.enableMaxImageKilobyte.isTrue) _buildImageMaxKilobytes(context).fadeIn(const Key('imageMaxKilobytes')).center(),
+                  if (GetPlatform.isDesktop) _buildUseThirdPartyViewer().center(),
+                  if (GetPlatform.isDesktop) _buildThirdPartyViewerPath().center(),
+                  if (GetPlatform.isDesktop) _buildKeyboardShortcuts(context).center(),
+                  if (GetPlatform.isMobile) _buildDeviceDirection().center(),
+                  if (GetPlatform.isMobile) _buildEnableOrientationSpecificReadDirection().center(),
+                  if (GetPlatform.isMobile && readSetting.enableOrientationSpecificReadDirection.isTrue)
+                    _buildPortraitReadDirection().fadeIn(const Key('portraitReadDirection')).center(),
+                  if (GetPlatform.isMobile && readSetting.enableOrientationSpecificReadDirection.isTrue)
+                    _buildLandscapeReadDirection().fadeIn(const Key('landscapeReadDirection')).center(),
+                  if (!GetPlatform.isMobile || readSetting.enableOrientationSpecificReadDirection.isFalse) _buildReadDirection().center(),
+                  _buildAutoDetectWebtoon().center(),
+                  if (GetPlatform.isMobile && readSetting.enableOrientationSpecificReadDirection.isTrue
+                      ? (readSetting.portraitReadDirection.value == ReadDirection.top2bottomList ||
                       readSetting.landscapeReadDirection.value == ReadDirection.top2bottomList)
-                  : readSetting.readDirection.value == ReadDirection.top2bottomList)
-                _buildNotchOptimization().center(),
-              if (GetPlatform.isMobile && readSetting.enableOrientationSpecificReadDirection.isTrue) ...[
-                if (readSetting.portraitReadDirection.value == ReadDirection.top2bottomList)
-                  _buildPortraitImageRegionWidthRatio(context).fadeIn(const Key('portraitImageRegionWidthRatio')).center(),
-                if (readSetting.landscapeReadDirection.value == ReadDirection.top2bottomList)
-                  _buildLandscapeImageRegionWidthRatio(context).fadeIn(const Key('landscapeImageRegionWidthRatio')).center(),
-              ],
-              if (!GetPlatform.isMobile || readSetting.enableOrientationSpecificReadDirection.isFalse)
-                if (readSetting.readDirection.value == ReadDirection.top2bottomList) _buildImageRegionWidthRatio(context).center(),
-              if (readSetting.isInListReadDirection) _buildPreloadDistanceInOnlineMode(context).fadeIn(const Key('preloadDistanceInOnlineMode')).center(),
-              if (readSetting.isInListReadDirection) _buildPreloadDistanceInLocalMode(context).fadeIn(const Key('preloadDistanceInLocalMode')).center(),
-              if (!readSetting.isEveryInListReadDirection) _buildPreloadPageCount().fadeIn(const Key('preloadPageCount')).center(),
-              if (!readSetting.isEveryInListReadDirection) _buildPreloadPageCountInLocalMode().fadeIn(const Key('preloadPageCountInLocalMode')).center(),
-              if (GetPlatform.isMobile && readSetting.enableOrientationSpecificReadDirection.isTrue) ...[
-                if (readSetting.portraitReadDirection.value == ReadDirection.left2rightDoubleColumn ||
-                    readSetting.portraitReadDirection.value == ReadDirection.right2leftDoubleColumn)
-                  _buildPortraitDisplayFirstPageAlone().fadeIn(const Key('portraitDisplayFirstPageAlone')).center(),
-                if (readSetting.landscapeReadDirection.value == ReadDirection.left2rightDoubleColumn ||
-                    readSetting.landscapeReadDirection.value == ReadDirection.right2leftDoubleColumn)
-                  _buildLandscapeDisplayFirstPageAlone().fadeIn(const Key('landscapeDisplayFirstPageAlone')).center(),
-              ],
-              if (!GetPlatform.isMobile || readSetting.enableOrientationSpecificReadDirection.isFalse)
-                if (readSetting.isInDoubleColumnReadDirection) _buildDisplayFirstPageAlone().fadeIn(const Key('displayFirstPageAloneGlobally')).center(),
-              if (readSetting.isInListReadDirection) _buildAutoModeStyle().fadeIn(const Key('autoModeStyle')).center(),
-              if (readSetting.isInListReadDirection) _buildTurnPageMode().fadeIn(const Key('turnPageMode')).center(),
-              _buildImageSpace().center(),
-            ],
-          ).withListTileTheme(context),
-        ),
+                      : readSetting.readDirection.value == ReadDirection.top2bottomList)
+                    _buildNotchOptimization().center(),
+                  if (GetPlatform.isMobile && readSetting.enableOrientationSpecificReadDirection.isTrue) ...[
+                    if (readSetting.portraitReadDirection.value == ReadDirection.top2bottomList)
+                      _buildPortraitImageRegionWidthRatio(context).fadeIn(const Key('portraitImageRegionWidthRatio')).center(),
+                    if (readSetting.landscapeReadDirection.value == ReadDirection.top2bottomList)
+                      _buildLandscapeImageRegionWidthRatio(context).fadeIn(const Key('landscapeImageRegionWidthRatio')).center(),
+                  ],
+                  if (!GetPlatform.isMobile || readSetting.enableOrientationSpecificReadDirection.isFalse)
+                    if (readSetting.readDirection.value == ReadDirection.top2bottomList) _buildImageRegionWidthRatio(context).center(),
+                  if (readSetting.isInListReadDirection) _buildPreloadDistanceInOnlineMode(context).fadeIn(const Key('preloadDistanceInOnlineMode')).center(),
+                  if (readSetting.isInListReadDirection) _buildPreloadDistanceInLocalMode(context).fadeIn(const Key('preloadDistanceInLocalMode')).center(),
+                  if (!readSetting.isEveryInListReadDirection) _buildPreloadPageCount().fadeIn(const Key('preloadPageCount')).center(),
+                  if (!readSetting.isEveryInListReadDirection) _buildPreloadPageCountInLocalMode().fadeIn(const Key('preloadPageCountInLocalMode')).center(),
+                  if (GetPlatform.isMobile && readSetting.enableOrientationSpecificReadDirection.isTrue) ...[
+                    if (readSetting.portraitReadDirection.value == ReadDirection.left2rightDoubleColumn ||
+                        readSetting.portraitReadDirection.value == ReadDirection.right2leftDoubleColumn)
+                      _buildPortraitDisplayFirstPageAlone().fadeIn(const Key('portraitDisplayFirstPageAlone')).center(),
+                    if (readSetting.landscapeReadDirection.value == ReadDirection.left2rightDoubleColumn ||
+                        readSetting.landscapeReadDirection.value == ReadDirection.right2leftDoubleColumn)
+                      _buildLandscapeDisplayFirstPageAlone().fadeIn(const Key('landscapeDisplayFirstPageAlone')).center(),
+                  ],
+                  if (!GetPlatform.isMobile || readSetting.enableOrientationSpecificReadDirection.isFalse)
+                    if (readSetting.isInDoubleColumnReadDirection) _buildDisplayFirstPageAlone().fadeIn(const Key('displayFirstPageAloneGlobally')).center(),
+                  if (readSetting.isInListReadDirection) _buildAutoModeStyle().fadeIn(const Key('autoModeStyle')).center(),
+                  if (readSetting.isInListReadDirection) _buildTurnPageMode().fadeIn(const Key('turnPageMode')).center(),
+                  _buildImageSpace().center(),
+                ],
+              ).withListTileTheme(context),
+            ),
       ),
     );
   }
@@ -246,12 +248,41 @@ class SettingReadPage extends StatelessWidget {
     );
   }
 
-  Widget _buildTapZoneStyle() {
+  Widget _buildTapZoneStyle(BuildContext context) {
     return ListTile(
       title: Text('tapZoneStyle'.tr),
       subtitle: Text('tapZoneStyleHint'.tr),
       trailing: const Icon(Icons.keyboard_arrow_right),
-      onTap: () => toRoute(Routes.settingTapZoneStyle),
+      onTap: () {
+        final rootNav = Navigator.of(context, rootNavigator: true);
+        final nearestNav = Navigator.of(context);
+        if (rootNav != nearestNav &&
+            nearestNav.widget.key != Get.keys[left] &&
+            nearestNav.widget.key != Get.keys[right] &&
+            nearestNav.widget.key != Get.keys[leftV2] &&
+            nearestNav.widget.key != Get.keys[rightV2]) {
+          nearestNav.push(
+            PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) => const SettingTapZonePage(),
+                transitionsBuilder: preferenceSetting.enableSwipeBackGesture.isTrue && styleSetting.isInMobileLayout
+                    ? (context, animation, secondaryAnimation, child) =>
+                    SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(1, 0),
+                        end: Offset.zero,
+                      ).animate(CurvedAnimation(
+                        parent: animation,
+                        curve: Curves.easeInOut,
+                      )),
+                      child: child,
+                    )
+                    : (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
+                transitionDuration: UIConfig.defaultPageRouteTransitionDuration),
+          );
+        } else {
+          toRoute(Routes.settingTapZoneStyle);
+        }
+      },
     );
   }
 
@@ -540,16 +571,17 @@ class SettingReadPage extends StatelessWidget {
             PageRouteBuilder(
                 pageBuilder: (context, animation, secondaryAnimation) => const SettingKeyboardShortcutsPage(),
                 transitionsBuilder: preferenceSetting.enableSwipeBackGesture.isTrue && styleSetting.isInMobileLayout
-                    ? (context, animation, secondaryAnimation, child) => SlideTransition(
-                          position: Tween<Offset>(
-                            begin: const Offset(1, 0),
-                            end: Offset.zero,
-                          ).animate(CurvedAnimation(
-                            parent: animation,
-                            curve: Curves.easeInOut,
-                          )),
-                          child: child,
-                        )
+                    ? (context, animation, secondaryAnimation, child) =>
+                    SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(1, 0),
+                        end: Offset.zero,
+                      ).animate(CurvedAnimation(
+                        parent: animation,
+                        curve: Curves.easeInOut,
+                      )),
+                      child: child,
+                    )
                     : (context, animation, secondaryAnimation, child) => FadeTransition(opacity: animation, child: child),
                 transitionDuration: UIConfig.defaultPageRouteTransitionDuration),
           );

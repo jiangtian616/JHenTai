@@ -49,6 +49,7 @@ import '../../widget/eh_image.dart';
 import '../../widget/loading_state_indicator.dart';
 import '../home_page.dart';
 import '../setting/read/setting_read_page.dart';
+import '../setting/read/tap_zone/setting_tap_zone_page.dart';
 import '../setting/keyboard_shortcuts/setting_keyboard_shortcuts_page.dart';
 
 class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryImagesRetainer {
@@ -873,6 +874,13 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
                   if (settings.name == '/keyboard_shortcuts') {
                     return _buildDrawerRoute(
                       builder: (_) => const SettingKeyboardShortcutsPage(),
+                      settings: settings,
+                      useCupertino: useCupertino,
+                    );
+                  }
+                  if (settings.name == '/tap_zone_style') {
+                    return _buildDrawerRoute(
+                      builder: (_) => const SettingTapZonePage(),
                       settings: settings,
                       useCupertino: useCupertino,
                     );
