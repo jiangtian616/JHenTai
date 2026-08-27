@@ -900,16 +900,13 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'tagActionAccurate': 'Accurate',
       'tagActionInaccurate': 'Inaccurate',
       'tagActionFollow': 'Follow',
-      'tagActionMore': 'More',
       'tagActionHide': 'Hide Tag',
-      'tagActionRemove': 'Remove Tag',
-      'tagActionRename': 'Rename Tag',
       'tagActionTagSets': 'Manage Tag Sets',
-      'tagActionComingSoon': 'Coming soon',
       'tagActionVoteUpTooltip': 'Vote that this tag is correct for this gallery',
       'tagActionVoteDownTooltip': 'Vote that this tag is wrong for this gallery',
       'tagActionFollowHint': 'Add this tag to a watched tag set',
       'tagActionHideHint': 'Add this tag to a hidden tag set',
+      'tagActionTagSetsHint': 'Open tag set management',
 
       /// tag namespace
       'language': 'Idioma',

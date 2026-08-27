@@ -4,8 +4,8 @@ import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 /// Scrollable action list for the mobile tag bottom sheet.
-/// Common actions (vote / follow) are visible by default; management actions
-/// (hide / remove / rename / tag sets) are revealed by swiping up inside this list.
+/// Common actions (vote / follow / hide) are visible by default; management
+/// actions (tag sets) are revealed by swiping up inside this list.
 class EHTagDialogMobileActions extends StatelessWidget {
   final bool? currentVote;
   final LoadingState voteUpState;
@@ -100,20 +100,6 @@ class EHTagDialogMobileActions extends StatelessWidget {
           state: addHiddenTagState,
           subtitle: tagInfo?.hidden == true ? '${'hidden'.tr} · #${tagInfo!.tagSetNo}' : null,
           onTap: onHide,
-        ),
-        ListTile(
-          enabled: false,
-          dense: true,
-          leading: Icon(Icons.delete_outline, color: UIConfig.tagDialogLikedButtonColor(context)),
-          title: Text('tagActionRemove'.tr),
-          subtitle: Text('tagActionComingSoon'.tr),
-        ),
-        ListTile(
-          enabled: false,
-          dense: true,
-          leading: const Icon(Icons.drive_file_rename_outline),
-          title: Text('tagActionRename'.tr),
-          subtitle: Text('tagActionComingSoon'.tr),
         ),
         ListTile(
           dense: true,

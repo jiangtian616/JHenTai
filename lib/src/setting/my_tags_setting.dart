@@ -126,16 +126,6 @@ class MyTagsSetting with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean 
     return null;
   }
 
-  bool containWatchedOnlineTag(TagData tagData) {
-    ({Color? tagSetBackGroundColor, WatchedTag tag})? tagInfo = getOnlineTagSetByTagData(tagData);
-    return tagInfo?.tag.watched == true;
-  }
-
-  bool containHiddenOnlineTag(TagData tagData) {
-    ({Color? tagSetBackGroundColor, WatchedTag tag})? tagInfo = getOnlineTagSetByTagData(tagData);
-    return tagInfo?.tag.hidden == true;
-  }
-
   Future<void> _clearOnlineTagSets() async {
     onlineTags.clear();
     log.debug('clear MyTagsSetting success');

@@ -904,16 +904,13 @@ favnote：匹配收藏备注
       'tagActionAccurate': '准确',
       'tagActionInaccurate': '不准确',
       'tagActionFollow': '关注',
-      'tagActionMore': '更多',
       'tagActionHide': '屏蔽标签',
-      'tagActionRemove': '剔除标签',
-      'tagActionRename': '重命名标签',
       'tagActionTagSets': '管理标签集',
-      'tagActionComingSoon': '即将上线',
       'tagActionVoteUpTooltip': '投票认为此标签适用于当前画廊',
       'tagActionVoteDownTooltip': '投票认为此标签不适用于当前画廊',
       'tagActionFollowHint': '将此标签加入关注标签集',
       'tagActionHideHint': '将此标签加入屏蔽标签集',
+      'tagActionTagSetsHint': '打开标签集管理',
 
       /// tag namespace
       'language': '语言',

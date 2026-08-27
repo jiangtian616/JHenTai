@@ -76,7 +76,15 @@ class EHTagDialogDesktopActions extends StatelessWidget {
             tooltip: tagInfo?.hidden == true ? '${'hidden'.tr} · #${tagInfo!.tagSetNo}' : 'tagActionHideHint'.tr,
             onTap: onHide,
           ),
-          _MoreButton(onGotoTagSets: onGotoTagSets),
+          _ActionButton(
+            activeIcon: Icons.settings,
+            inactiveIcon: Icons.settings_outlined,
+            label: 'tagActionTagSets'.tr,
+            active: false,
+            state: LoadingState.idle,
+            tooltip: 'tagActionTagSetsHint'.tr,
+            onTap: onGotoTagSets,
+          ),
         ],
       ),
     );
@@ -133,78 +141,6 @@ class _ActionButton extends StatelessWidget {
     );
 
     return tooltip == null ? button : Tooltip(message: tooltip!, child: button);
-  }
-}
-
-class _MoreButton extends StatelessWidget {
-  final VoidCallback onGotoTagSets;
-
-  const _MoreButton({required this.onGotoTagSets});
-
-  @override
-  Widget build(BuildContext context) {
-    Color color = UIConfig.tagDialogButtonColor(context);
-
-    return PopupMenuButton<String>(
-      tooltip: 'tagActionMore'.tr,
-      onSelected: (String value) {
-        if (value == 'tagSets') {
-          onGotoTagSets();
-        }
-      },
-      itemBuilder: (context) => [
-        PopupMenuItem(
-          value: 'remove',
-          enabled: false,
-          child: _MenuItemRow(icon: Icons.delete_outline, label: 'tagActionRemove'.tr, danger: true, hint: 'tagActionComingSoon'.tr),
-        ),
-        PopupMenuItem(
-          value: 'rename',
-          enabled: false,
-          child: _MenuItemRow(icon: Icons.drive_file_rename_outline, label: 'tagActionRename'.tr, hint: 'tagActionComingSoon'.tr),
-        ),
-        PopupMenuItem(
-          value: 'tagSets',
-          child: _MenuItemRow(icon: Icons.settings_outlined, label: 'tagActionTagSets'.tr),
-        ),
-      ],
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.more_horiz, size: 20, color: color),
-            const SizedBox(height: 4),
-            Text('tagActionMore'.tr, style: TextStyle(fontSize: 12, color: color)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _MenuItemRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool danger;
-  final String? hint;
-
-  const _MenuItemRow({required this.icon, required this.label, this.danger = false, this.hint});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 18, color: danger ? UIConfig.tagDialogLikedButtonColor(context) : null),
-        const SizedBox(width: 12),
-        Text(label),
-        if (hint != null) ...[
-          const SizedBox(width: 8),
-          Text(hint!, style: TextStyle(fontSize: 11, color: Theme.of(context).hintColor)),
-        ],
-      ],
-    );
   }
 }
 

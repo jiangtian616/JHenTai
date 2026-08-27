@@ -908,16 +908,13 @@ class ru_RU {
       'tagActionAccurate': 'Точно',
       'tagActionInaccurate': 'Неточно',
       'tagActionFollow': 'Отслеживать',
-      'tagActionMore': 'Ещё',
       'tagActionHide': 'Скрыть тег',
-      'tagActionRemove': 'Удалить тег',
-      'tagActionRename': 'Переименовать тег',
       'tagActionTagSets': 'Управление наборами тегов',
-      'tagActionComingSoon': 'Скоро',
       'tagActionVoteUpTooltip': 'Проголосовать, что этот тег подходит для этой галереи',
       'tagActionVoteDownTooltip': 'Проголосовать, что этот тег не подходит для этой галереи',
       'tagActionFollowHint': 'Добавить этот тег в отслеживаемый набор',
       'tagActionHideHint': 'Добавить этот тег в скрытый набор',
+      'tagActionTagSetsHint': 'Открыть управление наборами тегов',
 
       /// tag namespace
       'language': 'Язык',

@@ -183,14 +183,14 @@ mixin EHTagVoteLogicMixin<T extends StatefulWidget> on State<T> implements Login
       return;
     }
 
-    if (watch && myTagsSetting.containWatchedOnlineTag(tagData)) {
-      return;
-    }
-    if (!watch && myTagsSetting.containHiddenOnlineTag(tagData)) {
-      return;
-    }
+    // Issue #405: always allow re-selecting the tag set, even if the tag is already
+    // watched / hidden. EH keeps the tag only in the most recently added set, so this
+    // effectively moves the tag to the newly chosen set.
+    final int? previousTagSetNo = findOnlineTag()?.tagSetNo;
 
-    if (preferenceSetting.enableDefaultTagSet.isTrue && userSetting.defaultTagSetNo.value != null) {
+    // The default tag set shortcut only applies to first-time adds; moving an
+    // already-categorized tag should always go through the selection dialog.
+    if (previousTagSetNo == null && preferenceSetting.enableDefaultTagSet.isTrue && userSetting.defaultTagSetNo.value != null) {
       await doAddNewTagSet(userSetting.defaultTagSetNo.value!, watch);
       return;
     }
@@ -204,10 +204,10 @@ mixin EHTagVoteLogicMixin<T extends StatefulWidget> on State<T> implements Login
       userSetting.saveDefaultTagSetNo(result.tagSetNo);
     }
 
-    await doAddNewTagSet(result.tagSetNo, watch);
+    await doAddNewTagSet(result.tagSetNo, watch, previousTagSetNo: previousTagSetNo);
   }
 
-  Future<void> doAddNewTagSet(int tagSetNumber, bool watch) async {
+  Future<void> doAddNewTagSet(int tagSetNumber, bool watch, {int? previousTagSetNo}) async {
     log.info('Add new watched tag: ${tagData.namespace}:${tagData.key},tagSetNumber:$tagSetNumber, watch:$watch');
 
     setStateSafely(() {
@@ -261,6 +261,9 @@ mixin EHTagVoteLogicMixin<T extends StatefulWidget> on State<T> implements Login
     toast(watch ? 'addNewWatchedTagSetSuccess'.tr : 'addNewHiddenTagSetSuccess'.tr);
 
     myTagsSetting.refreshOnlineTagSets(tagSetNumber);
+    if (previousTagSetNo != null && previousTagSetNo != tagSetNumber) {
+      myTagsSetting.refreshOnlineTagSets(previousTagSetNo);
+    }
   }
 
   void gotoTagSets() {
