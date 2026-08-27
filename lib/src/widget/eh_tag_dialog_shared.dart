@@ -236,7 +236,7 @@ mixin EHTagVoteLogicMixin<T extends StatefulWidget> on State<T> implements Login
       if (watch) {
         addWatchedTagState = LoadingState.loading;
       } else {
-        addHiddenTagState = LoadingState.loading;
+        addHiddenTagState = LoadingState.loading; 
       }
     });
 
@@ -266,14 +266,14 @@ mixin EHTagVoteLogicMixin<T extends StatefulWidget> on State<T> implements Login
       return;
     }
 
+    await myTagsSetting.refreshOnlineTagSets(tagSetNo);
+
     setStateSafely(() {
       addWatchedTagState = LoadingState.idle;
       addHiddenTagState = LoadingState.idle;
     });
 
     toast('deleteTagSuccess'.tr);
-
-    myTagsSetting.refreshOnlineTagSets(tagSetNo);
   }
 
   Future<void> doAddNewTagSet(int tagSetNumber, bool watch, {int? previousTagSetNo}) async {
@@ -319,6 +319,13 @@ mixin EHTagVoteLogicMixin<T extends StatefulWidget> on State<T> implements Login
       return;
     }
 
+    /// Wait for the cache refresh before flipping to success, so the button
+    /// reflects the new watched/hidden status and the tag set in one go.
+    await Future.wait([
+      myTagsSetting.refreshOnlineTagSets(tagSetNumber),
+      if (previousTagSetNo != null && previousTagSetNo != tagSetNumber) myTagsSetting.refreshOnlineTagSets(previousTagSetNo),
+    ]);
+
     setStateSafely(() {
       if (watch) {
         addWatchedTagState = LoadingState.success;
@@ -328,11 +335,6 @@ mixin EHTagVoteLogicMixin<T extends StatefulWidget> on State<T> implements Login
     });
 
     toast(watch ? 'addNewWatchedTagSetSuccess'.tr : 'addNewHiddenTagSetSuccess'.tr);
-
-    myTagsSetting.refreshOnlineTagSets(tagSetNumber);
-    if (previousTagSetNo != null && previousTagSetNo != tagSetNumber) {
-      myTagsSetting.refreshOnlineTagSets(previousTagSetNo);
-    }
   }
 
   void gotoTagSets() {
