@@ -377,7 +377,7 @@ class zh_TW {
       'enableDefaultFavorite': '使用預設收藏夾',
       'enableDefaultFavoriteHint': '預設直接收藏，長按重新選擇',
       'enableDefaultTagSet': '關注標籤時使用預設標籤集',
-      'enableDefaultTagSetHint': '預設直接關注，長按重新選擇',
+      'enableDefaultTagSetHint': '預設直接加入預設標籤集',
       'disableDefaultTagSetHint': '手動選擇',
       'launchInFullScreen': '以全螢幕模式啟動',
       'launchInFullScreenHint': 'F11手動切換全螢幕',
@@ -900,6 +900,21 @@ favnote：配對收藏備註
 
       /// tagSet dialog
       'chooseTagSet': '選擇標籤集',
+
+      /// tag dialog actions
+      'tagActionAccurate': '準確',
+      'tagActionInaccurate': '不準確',
+      'tagActionFollow': '關注',
+      'tagActionMore': '更多',
+      'tagActionHide': '隱藏標籤',
+      'tagActionRemove': '剔除標籤',
+      'tagActionRename': '重新命名標籤',
+      'tagActionTagSets': '管理標籤集',
+      'tagActionComingSoon': '即將推出',
+      'tagActionVoteUpTooltip': '投票認為此標籤適用於當前畫廊',
+      'tagActionVoteDownTooltip': '投票認為此標籤不適用於當前畫廊',
+      'tagActionFollowHint': '將此標籤加入關注標籤集',
+      'tagActionHideHint': '將此標籤加入隱藏標籤集',
 
       /// tag namespace
       'language': '語言',

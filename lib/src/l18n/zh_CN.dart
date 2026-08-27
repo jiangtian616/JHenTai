@@ -377,7 +377,7 @@ class zh_CN {
       'enableDefaultFavorite': '使用默认收藏夹',
       'enableDefaultFavoriteHint': '默认直接收藏，长按重新选择',
       'enableDefaultTagSet': '关注标签时使用默认标签集',
-      'enableDefaultTagSetHint': '默认直接关注，长按重新选择',
+      'enableDefaultTagSetHint': '默认直接加入默认标签集',
       'disableDefaultTagSetHint': '手动选择',
       'launchInFullScreen': '以全屏模式启动',
       'launchInFullScreenHint': 'F11手动切换全屏',
@@ -899,6 +899,21 @@ favnote：匹配收藏备注
 
       /// tagSet dialog
       'chooseTagSet': '选择标签集',
+
+      /// tag dialog actions
+      'tagActionAccurate': '准确',
+      'tagActionInaccurate': '不准确',
+      'tagActionFollow': '关注',
+      'tagActionMore': '更多',
+      'tagActionHide': '屏蔽标签',
+      'tagActionRemove': '剔除标签',
+      'tagActionRename': '重命名标签',
+      'tagActionTagSets': '管理标签集',
+      'tagActionComingSoon': '即将上线',
+      'tagActionVoteUpTooltip': '投票认为此标签适用于当前画廊',
+      'tagActionVoteDownTooltip': '投票认为此标签不适用于当前画廊',
+      'tagActionFollowHint': '将此标签加入关注标签集',
+      'tagActionHideHint': '将此标签加入屏蔽标签集',
 
       /// tag namespace
       'language': '语言',

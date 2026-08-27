@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:jhentai/src/widget/eh_tag_dialog_desktop_actions.dart';
+import 'package:get/get.dart';
+import 'package:jhentai/src/widget/eh_tag_dialog_mobile_actions.dart';
 
 import '../database/database.dart';
 import '../model/gallery_tag.dart';
 import 'eh_tag_dialog_shared.dart';
 
-/// Centered tag dialog for desktop / wide screens.
-class EHTagDialog extends StatefulWidget {
+/// Modal bottom sheet for tag details on mobile.
+class EHTagBottomSheet extends StatefulWidget {
   final TagData tagData;
   final int gid;
   final String token;
@@ -14,7 +15,7 @@ class EHTagDialog extends StatefulWidget {
   final EHTagVoteStatus? voteStatus;
   final OnTagVoted? onTagVoted;
 
-  const EHTagDialog({
+  const EHTagBottomSheet({
     Key? key,
     required this.tagData,
     required this.gid,
@@ -24,11 +25,34 @@ class EHTagDialog extends StatefulWidget {
     this.onTagVoted,
   }) : super(key: key);
 
+  static Future<void> show({
+    required TagData tagData,
+    required int gid,
+    required String token,
+    required String apikey,
+    EHTagVoteStatus? voteStatus,
+    OnTagVoted? onTagVoted,
+  }) {
+    return showModalBottomSheet(
+      context: Get.context!,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => EHTagBottomSheet(
+        tagData: tagData,
+        gid: gid,
+        token: token,
+        apikey: apikey,
+        voteStatus: voteStatus,
+        onTagVoted: onTagVoted,
+      ),
+    );
+  }
+
   @override
-  _EHTagDialogState createState() => _EHTagDialogState();
+  _EHTagBottomSheetState createState() => _EHTagBottomSheetState();
 }
 
-class _EHTagDialogState extends State<EHTagDialog> with EHTagVoteLogicMixin<EHTagDialog> {
+class _EHTagBottomSheetState extends State<EHTagBottomSheet> with EHTagVoteLogicMixin<EHTagBottomSheet> {
   final ScrollController scrollController = ScrollController();
 
   @override
@@ -63,17 +87,19 @@ class _EHTagDialogState extends State<EHTagDialog> with EHTagVoteLogicMixin<EHTa
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 400, maxHeight: 500),
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.7),
+      child: SafeArea(
+        top: false,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            EHTagDialogHeader(tagData: tagData, showCloseButton: true),
-            if (tagData.tagName != null) Flexible(child: EHTagDialogInfo(tagData: tagData, maxHeight: 300, scrollController: scrollController)),
+            EHTagDialogHeader(tagData: tagData),
+            if (tagData.tagName != null)
+              Flexible(child: EHTagDialogInfo(tagData: tagData, maxHeight: MediaQuery.of(context).size.height * 0.4, scrollController: scrollController)),
             const Divider(height: 1),
-            EHTagDialogDesktopActions(
+            EHTagDialogMobileActions(
               currentVote: currentVote,
               voteUpState: voteUpState,
               voteDownState: voteDownState,

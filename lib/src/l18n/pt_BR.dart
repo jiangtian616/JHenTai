@@ -378,7 +378,7 @@ class pt_BR {
       'enableDefaultFavorite': 'Enable Default Favorite',
       'enableDefaultFavoriteHint': 'Long press to re-select',
       'enableDefaultTagSet': 'Enable Default Tag Set',
-      'enableDefaultTagSetHint': 'Long press to re-select',
+      'enableDefaultTagSetHint': 'Add to your default tag set directly',
       'disableDefaultTagSetHint': 'Select manually',
       'launchInFullScreen': 'Launch In Full Screen',
       'launchInFullScreenHint': 'Switch manually by F11',
@@ -895,6 +895,21 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
 
       /// tagSet dialog
       'chooseTagSet': 'Choose Tag Set',
+
+      /// tag dialog actions
+      'tagActionAccurate': 'Accurate',
+      'tagActionInaccurate': 'Inaccurate',
+      'tagActionFollow': 'Follow',
+      'tagActionMore': 'More',
+      'tagActionHide': 'Hide Tag',
+      'tagActionRemove': 'Remove Tag',
+      'tagActionRename': 'Rename Tag',
+      'tagActionTagSets': 'Manage Tag Sets',
+      'tagActionComingSoon': 'Coming soon',
+      'tagActionVoteUpTooltip': 'Vote that this tag is correct for this gallery',
+      'tagActionVoteDownTooltip': 'Vote that this tag is wrong for this gallery',
+      'tagActionFollowHint': 'Add this tag to a watched tag set',
+      'tagActionHideHint': 'Add this tag to a hidden tag set',
 
       /// tag namespace
       'language': 'Idioma',

@@ -381,7 +381,7 @@ class ru_RU {
       'enableDefaultFavorite': 'Включить избранное по умолчанию',
       'enableDefaultFavoriteHint': 'Долгий тап для перевыбора',
       'enableDefaultTagSet': 'Включить набор тегов по умолчанию',
-      'enableDefaultTagSetHint': 'Долгий тап для перевыбора',
+      'enableDefaultTagSetHint': 'Добавлять в набор тегов по умолчанию напрямую',
       'disableDefaultTagSetHint': 'Выбирать вручную',
       'launchInFullScreen': 'Запускать в полноэкранном режиме',
       'launchInFullScreenHint': 'Переключение вручную по F11',
@@ -903,6 +903,21 @@ class ru_RU {
 
       /// tagSet dialog
       'chooseTagSet': 'Выбрать набор тегов',
+
+      /// tag dialog actions
+      'tagActionAccurate': 'Точно',
+      'tagActionInaccurate': 'Неточно',
+      'tagActionFollow': 'Отслеживать',
+      'tagActionMore': 'Ещё',
+      'tagActionHide': 'Скрыть тег',
+      'tagActionRemove': 'Удалить тег',
+      'tagActionRename': 'Переименовать тег',
+      'tagActionTagSets': 'Управление наборами тегов',
+      'tagActionComingSoon': 'Скоро',
+      'tagActionVoteUpTooltip': 'Проголосовать, что этот тег подходит для этой галереи',
+      'tagActionVoteDownTooltip': 'Проголосовать, что этот тег не подходит для этой галереи',
+      'tagActionFollowHint': 'Добавить этот тег в отслеживаемый набор',
+      'tagActionHideHint': 'Добавить этот тег в скрытый набор',
 
       /// tag namespace
       'language': 'Язык',
