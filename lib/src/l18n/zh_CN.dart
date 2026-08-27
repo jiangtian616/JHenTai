@@ -911,6 +911,7 @@ favnote：匹配收藏备注
       'tagActionFollowHint': '将此标签加入关注标签集',
       'tagActionHideHint': '将此标签加入屏蔽标签集',
       'tagActionTagSetsHint': '打开标签集管理',
+      'currentTagSet': '当前',
 
       /// tag namespace
       'language': '语言',

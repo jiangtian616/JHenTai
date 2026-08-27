@@ -86,6 +86,17 @@ mixin EHTagVoteLogicMixin<T extends StatefulWidget> on State<T> implements Login
     return null;
   }
 
+  int? findOnlineWatchedTagId() {
+    for (final entry in myTagsSetting.onlineTags.entries) {
+      for (final tag in entry.value.tags) {
+        if (tag.tagData.namespace == tagData.namespace && tag.tagData.key == tagData.key) {
+          return tag.tagId;
+        }
+      }
+    }
+    return null;
+  }
+
   Future<void> vote({required bool isVotingUp}) async {
     if (!userSetting.hasLoggedIn()) { 
       showLoginToast();
@@ -195,7 +206,7 @@ mixin EHTagVoteLogicMixin<T extends StatefulWidget> on State<T> implements Login
       return;
     }
 
-    ({int tagSetNo, bool remember})? result = await Get.dialog(const EHTagSetDialog());
+    ({int tagSetNo, bool remember})? result = await Get.dialog(EHTagSetDialog(currentTagSetNo: previousTagSetNo));
     if (result == null) {
       return;
     }
@@ -204,7 +215,65 @@ mixin EHTagVoteLogicMixin<T extends StatefulWidget> on State<T> implements Login
       userSetting.saveDefaultTagSetNo(result.tagSetNo);
     }
 
+    // Picking the set the tag already belongs to removes it (toggle behavior).
+    if (previousTagSetNo != null && result.tagSetNo == previousTagSetNo) {
+      await doDeleteWatchedTag(tagSetNo: result.tagSetNo, watch: watch);
+      return;
+    }
+
     await doAddNewTagSet(result.tagSetNo, watch, previousTagSetNo: previousTagSetNo);
+  }
+
+  Future<void> doDeleteWatchedTag({required int tagSetNo, required bool watch}) async {
+    final int? tagId = findOnlineWatchedTagId();
+    if (tagId == null) {
+      return;
+    }
+
+    log.info('Delete watched tag: ${tagData.namespace}:${tagData.key}, tagSetNo:$tagSetNo');
+
+    setStateSafely(() {
+      if (watch) {
+        addWatchedTagState = LoadingState.loading;
+      } else {
+        addHiddenTagState = LoadingState.loading;
+      }
+    });
+
+    try {
+      await ehRequest.requestDeleteWatchedTag(watchedTagId: tagId, tagSetNo: tagSetNo);
+    } on DioException catch (e) {
+      log.error('deleteTagFailed'.tr, e.errorMsg);
+      toast('${'deleteTagFailed'.tr}: ${e.errorMsg}', isShort: false);
+      setStateSafely(() {
+        if (watch) {
+          addWatchedTagState = LoadingState.idle;
+        } else {
+          addHiddenTagState = LoadingState.idle;
+        }
+      });
+      return;
+    } on EHSiteException catch (e) {
+      log.error('deleteTagFailed'.tr, e.message);
+      toast('${'deleteTagFailed'.tr}: ${e.message}', isShort: false);
+      setStateSafely(() {
+        if (watch) {
+          addWatchedTagState = LoadingState.idle;
+        } else {
+          addHiddenTagState = LoadingState.idle;
+        }
+      });
+      return;
+    }
+
+    setStateSafely(() {
+      addWatchedTagState = LoadingState.idle;
+      addHiddenTagState = LoadingState.idle;
+    });
+
+    toast('deleteTagSuccess'.tr);
+
+    myTagsSetting.refreshOnlineTagSets(tagSetNo);
   }
 
   Future<void> doAddNewTagSet(int tagSetNumber, bool watch, {int? previousTagSetNo}) async {

@@ -905,6 +905,7 @@ Example 2: Block comments with a score not exceeding 10————Comment Score
       'tagActionFollowHint': 'Add this tag to a watched tag set',
       'tagActionHideHint': 'Add this tag to a hidden tag set',
       'tagActionTagSetsHint': 'Open tag set management',
+      'currentTagSet': 'Current',
 
       /// tag namespace
       'language': '언어',

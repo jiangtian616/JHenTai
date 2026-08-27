@@ -16,7 +16,11 @@ import '../utils/snack_util.dart';
 import 'loading_state_indicator.dart';
 
 class EHTagSetDialog extends StatefulWidget {
-  const EHTagSetDialog({super.key});
+  /// Tag set the tag currently belongs to, if any. Shown as a marker in the list;
+  /// picking it again removes the tag from that set.
+  final int? currentTagSetNo;
+
+  const EHTagSetDialog({super.key, this.currentTagSetNo});
 
   @override
   State<EHTagSetDialog> createState() => _EHTagSetDialogState();
@@ -52,6 +56,9 @@ class _EHTagSetDialogState extends State<EHTagSetDialog> {
                 (tagSet) => ListTile(
                   title: Text(tagSet.name),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                  trailing: tagSet.number == widget.currentTagSetNo
+                      ? Text('currentTagSet'.tr, style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor))
+                      : null,
                   onTap: () => backRoute(result: (tagSetNo: tagSet.number, remember: remember)),
                 ),
               )

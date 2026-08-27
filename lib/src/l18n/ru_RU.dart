@@ -915,6 +915,7 @@ class ru_RU {
       'tagActionFollowHint': 'Добавить этот тег в отслеживаемый набор',
       'tagActionHideHint': 'Добавить этот тег в скрытый набор',
       'tagActionTagSetsHint': 'Открыть управление наборами тегов',
+      'currentTagSet': 'Текущий',
 
       /// tag namespace
       'language': 'Язык',

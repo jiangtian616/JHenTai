@@ -912,6 +912,7 @@ favnote：配對收藏備註
       'tagActionFollowHint': '將此標籤加入關注標籤集',
       'tagActionHideHint': '將此標籤加入隱藏標籤集',
       'tagActionTagSetsHint': '開啟標籤集管理',
+      'currentTagSet': '目前',
 
       /// tag namespace
       'language': '語言',
