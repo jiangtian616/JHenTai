@@ -148,24 +148,32 @@ class TagSetsPage extends StatelessWidget {
                         controller: state.scrollController,
                         itemBuilder: (_, int displayIndex) {
                           WatchedTag tag = logic.filteredTags[displayIndex];
-                          int index = state.tags.indexWhere((t) => t.tagId == tag.tagId);
                           return GetBuilder<TagSetsLogic>(
                             id: '${TagSetsLogic.tagId}::${tag.tagId}',
-                            builder: (_) => LoadingStateIndicator(
-                              loadingState: state.updateTagState,
-                              idleWidgetBuilder: () => FadeIn(
-                                child: _Tag(
-                                  tag: tag,
-                                  tagSetBackgroundColor: state.currentTagSetBackgroundColor,
-                                  onLongPress: (position) => logic.showBottomSheet(index, context, position: position),
-                                  onSecondaryTap: (position) => logic.showBottomSheet(index, context, position: position),
-                                  onColorUpdated: (v) => logic.handleUpdateTagColor(index, v),
-                                  onWeightUpdated: (v) => logic.handleUpdateTagWeight(index, v),
-                                  onStatusUpdated: (v) => logic.handleUpdateTagStatus(index, v),
+                            // Look up the tag inside the builder: _updateTag replaces
+                            // the object in state.tags, and a stale closure here would
+                            // keep rendering the pre-update tag.
+                            builder: (_) {
+                              int index = state.tags.indexWhere((t) => t.tagId == tag.tagId);
+                              if (index == -1) {
+                                return const SizedBox();
+                              }
+                              return LoadingStateIndicator(
+                                loadingState: state.updateTagState,
+                                idleWidgetBuilder: () => FadeIn(
+                                  child: _Tag(
+                                    tag: state.tags[index],
+                                    tagSetBackgroundColor: state.currentTagSetBackgroundColor,
+                                    onLongPress: (position) => logic.showBottomSheet(index, context, position: position),
+                                    onSecondaryTap: (position) => logic.showBottomSheet(index, context, position: position),
+                                    onColorUpdated: (v) => logic.handleUpdateTagColor(index, v),
+                                    onWeightUpdated: (v) => logic.handleUpdateTagWeight(index, v),
+                                    onStatusUpdated: (v) => logic.handleUpdateTagStatus(index, v),
+                                  ),
                                 ),
-                              ),
-                              errorWidgetSameWithIdle: true,
-                            ),
+                                errorWidgetSameWithIdle: true,
+                              );
+                            },
                           );
                         },
                       ),
