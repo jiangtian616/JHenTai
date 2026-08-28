@@ -31,6 +31,7 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
   static const String loadingStateId = 'loadingStateId';
   static const String tagSetId = 'tagSetId';
   static const String tagId = 'tagId';
+  static const String searchId = 'searchId';
 
   final TagSetsState state = TagSetsState();
 
@@ -44,9 +45,72 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
     getCurrentTagSet();
   }
 
+  @override
+  void onClose() {
+    state.searchController.dispose();
+    super.onClose();
+  }
+
+  List<WatchedTag> get filteredTags {
+    if (state.searchKeyword.isEmpty) {
+      return state.tags;
+    }
+    String keyword = state.searchKeyword.toLowerCase();
+    return state.tags.where((tag) => _matchTag(tag, keyword)).toList();
+  }
+
+  /// Suggestions complete the keyword to a full tag name from the current tag set.
+  List<WatchedTag> get autoCompleteSuggestions {
+    if (state.searchKeyword.isEmpty) {
+      return const [];
+    }
+    return filteredTags.take(8).toList();
+  }
+
+  bool _matchTag(WatchedTag tag, String keyword) {
+    TagData tagData = tag.tagData;
+    if ('${tagData.namespace}:${tagData.key}'.toLowerCase().contains(keyword)) {
+      return true;
+    }
+    if (tagData.key.toLowerCase().contains(keyword)) {
+      return true;
+    }
+    if (tagData.tagName?.toLowerCase().contains(keyword) ?? false) {
+      return true;
+    }
+    return tagData.translatedNamespace?.toLowerCase().contains(keyword) ?? false;
+  }
+
+  void enterSearchMode() {
+    state.searchMode = true;
+    updateSafely([searchId]);
+  }
+
+  void exitSearchMode() {
+    Get.focusScope?.unfocus();
+    state.searchMode = false;
+    state.searchKeyword = '';
+    state.searchController.clear();
+    updateSafely([searchId, bodyId]);
+  }
+
+  void updateSearchKeyword(String keyword) {
+    state.searchKeyword = keyword;
+    updateSafely([bodyId]);
+  }
+
+  void applySuggestion(WatchedTag tag) {
+    Get.focusScope?.unfocus();
+    String keyword = '${tag.tagData.namespace}:${tag.tagData.key}';
+    state.searchController.text = keyword;
+    updateSearchKeyword(keyword);
+  }
+
   Future<void> getCurrentTagSet() async {
     state.tagSets.clear();
     state.tags.clear();
+    state.searchKeyword = '';
+    state.searchController.clear();
     state.loadingState = LoadingState.loading;
     updateSafely([tagSetId, bodyId]);
 

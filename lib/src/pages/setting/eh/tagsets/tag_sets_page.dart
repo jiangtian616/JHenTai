@@ -32,10 +32,32 @@ class TagSetsPage extends StatelessWidget {
     return AppBar(
       centerTitle: true,
       title: GetBuilder<TagSetsLogic>(
-        id: TagSetsLogic.titleId,
-        builder: (_) => Text(state.tagSets.isEmpty ? 'myTags'.tr : state.tagSets.firstWhere((t) => t.number == state.currentTagSetNo).name),
+        id: TagSetsLogic.searchId,
+        builder: (_) => state.searchMode
+            ? TextField(
+                controller: state.searchController,
+                autofocus: true,
+                decoration: InputDecoration(
+                  isDense: true,
+                  hintText: 'search'.tr,
+                  prefixIcon: const Icon(Icons.search, size: 20),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                ),
+                onChanged: logic.updateSearchKeyword,
+              )
+            : GetBuilder<TagSetsLogic>(
+                id: TagSetsLogic.titleId,
+                builder: (_) => Text(state.tagSets.isEmpty ? 'myTags'.tr : state.tagSets.firstWhere((t) => t.number == state.currentTagSetNo).name),
+              ),
       ),
       actions: [
+        GetBuilder<TagSetsLogic>(
+          id: TagSetsLogic.searchId,
+          builder: (_) => IconButton(
+            icon: Icon(state.searchMode ? Icons.close : Icons.search),
+            onPressed: state.searchMode ? logic.exitSearchMode : logic.enterSearchMode,
+          ),
+        ),
         _buildTagSetColor(context),
         _buildTagSetSwitcher(),
       ],
@@ -110,34 +132,86 @@ class TagSetsPage extends StatelessWidget {
           successWidgetBuilder: () => EHWheelSpeedController(
             controller: state.scrollController,
             child: SafeArea(
-              child: ListView.builder(
-                itemExtent: 64,
-                scrollCacheExtent: ScrollCacheExtent.pixels(3000),
-                itemCount: state.tags.length,
-                controller: state.scrollController,
-                itemBuilder: (_, int index) => GetBuilder<TagSetsLogic>(
-                  id: '${TagSetsLogic.tagId}::${state.tags[index].tagId}',
-                  builder: (_) => LoadingStateIndicator(
-                    loadingState: state.updateTagState,
-                    idleWidgetBuilder: () => FadeIn(
-                      child: _Tag(
-                        tag: state.tags[index],
-                        tagSetBackgroundColor: state.currentTagSetBackgroundColor,
-                        onLongPress: (position) => logic.showBottomSheet(index, context, position: position),
-                        onSecondaryTap: (position) => logic.showBottomSheet(index, context, position: position),
-                        onColorUpdated: (v) => logic.handleUpdateTagColor(index, v),
-                        onWeightUpdated: (v) => logic.handleUpdateTagWeight(index, v),
-                        onStatusUpdated: (v) => logic.handleUpdateTagStatus(index, v),
+              child: Column(
+                children: [
+                  if (state.searchMode && state.searchKeyword.isNotEmpty) _buildAutoCompleteSuggestions(context),
+                  if (state.searchMode && state.searchKeyword.isNotEmpty && logic.filteredTags.isEmpty)
+                    Expanded(child: Center(child: Text('noData'.tr)))
+                  else
+                    Expanded(
+                      child: ListView.builder(
+                        itemExtent: 64,
+                        scrollCacheExtent: ScrollCacheExtent.pixels(3000),
+                        itemCount: logic.filteredTags.length,
+                        controller: state.scrollController,
+                        itemBuilder: (_, int displayIndex) {
+                          WatchedTag tag = logic.filteredTags[displayIndex];
+                          int index = state.tags.indexWhere((t) => t.tagId == tag.tagId);
+                          return GetBuilder<TagSetsLogic>(
+                            id: '${TagSetsLogic.tagId}::${tag.tagId}',
+                            builder: (_) => LoadingStateIndicator(
+                              loadingState: state.updateTagState,
+                              idleWidgetBuilder: () => FadeIn(
+                                child: _Tag(
+                                  tag: tag,
+                                  tagSetBackgroundColor: state.currentTagSetBackgroundColor,
+                                  onLongPress: (position) => logic.showBottomSheet(index, context, position: position),
+                                  onSecondaryTap: (position) => logic.showBottomSheet(index, context, position: position),
+                                  onColorUpdated: (v) => logic.handleUpdateTagColor(index, v),
+                                  onWeightUpdated: (v) => logic.handleUpdateTagWeight(index, v),
+                                  onStatusUpdated: (v) => logic.handleUpdateTagStatus(index, v),
+                                ),
+                              ),
+                              errorWidgetSameWithIdle: true,
+                            ),
+                          );
+                        },
                       ),
                     ),
-                    errorWidgetSameWithIdle: true,
-                  ),
-                ),
+                ],
               ),
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildAutoCompleteSuggestions(BuildContext context) {
+    List<WatchedTag> suggestions = logic.autoCompleteSuggestions;
+    if (suggestions.isEmpty) {
+      return const SizedBox();
+    }
+
+    return Material(
+      elevation: 4,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxHeight: 64.0 * 8),
+        child: ListView.builder(
+          shrinkWrap: true,
+          primary: false,
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          itemCount: suggestions.length,
+          itemBuilder: (_, int index) {
+            WatchedTag tag = suggestions[index];
+            return InkWell(
+              onTap: () => logic.applySuggestion(tag),
+              child: ListTile(
+                dense: true,
+                leading: Icon(Icons.subdirectory_arrow_left, size: 18, color: UIConfig.tagSetsPageIconDefaultColor(context)),
+                title: Text(
+                  tag.tagData.translatedNamespace == null
+                      ? '${tag.tagData.namespace}:${tag.tagData.key}'
+                      : '${tag.tagData.translatedNamespace}:${tag.tagData.tagName}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                subtitle: tag.tagData.translatedNamespace == null ? null : Text('${tag.tagData.namespace}:${tag.tagData.key}'),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }
