@@ -343,7 +343,7 @@ mixin EHTagVoteLogicMixin<T extends StatefulWidget> on State<T> implements Login
       return;
     }
     backRoute();
-    toRoute(Routes.tagSets);
+    toRoute(Routes.tagSets, arguments: '${tagData.namespace}:${tagData.key}');
   }
 }
 

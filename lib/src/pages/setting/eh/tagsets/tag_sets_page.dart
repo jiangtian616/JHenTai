@@ -111,6 +111,8 @@ class TagSetsPage extends StatelessWidget {
             return;
           }
           state.currentTagSetNo = value;
+          state.searchKeyword = '';
+          state.searchController.clear();
           logic.getCurrentTagSet();
         },
         itemBuilder: (_) => state.tagSets

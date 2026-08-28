@@ -42,6 +42,17 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
   void onInit() {
     super.onInit();
 
+    String? initialKeyword = Get.arguments;
+    if (initialKeyword != null && initialKeyword.isNotEmpty) {
+      state.searchMode = true;
+      state.searchKeyword = initialKeyword;
+      // Fill the controller after the first frame so autofocus / IME attachment
+      // doesn't wipe the text.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        state.searchController.text = initialKeyword;
+      });
+    }
+
     getCurrentTagSet();
   }
 
@@ -109,8 +120,6 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
   Future<void> getCurrentTagSet() async {
     state.tagSets.clear();
     state.tags.clear();
-    state.searchKeyword = '';
-    state.searchController.clear();
     state.loadingState = LoadingState.loading;
     updateSafely([tagSetId, bodyId]);
 
