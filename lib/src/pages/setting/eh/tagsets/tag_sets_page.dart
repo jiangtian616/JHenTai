@@ -266,6 +266,7 @@ class _Tag extends StatelessWidget {
   }
 
   Widget _buildLeadingIcon(BuildContext context) {
+    Color defaultColor = tag.hidden || tag.weight < 0 ? UIConfig.ehHiddenTagDefaultBackGroundColor : UIConfig.ehWatchedTagDefaultBackGroundColor;
     return IconButton(
       icon: Icon(
         tag.watched
@@ -273,12 +274,12 @@ class _Tag extends StatelessWidget {
             : tag.hidden
                 ? Icons.not_interested
                 : Icons.question_mark,
-        color: tag.backgroundColor ?? tagSetBackgroundColor ?? UIConfig.ehWatchedTagDefaultBackGroundColor,
+        color: tag.backgroundColor ?? tagSetBackgroundColor ?? defaultColor,
       ),
       onPressed: () async {
         dynamic result = await showDialog(
           context: context,
-          builder: (context) => _ColorSettingDialog(initialColor: tag.backgroundColor ?? tagSetBackgroundColor ?? UIConfig.ehWatchedTagDefaultBackGroundColor),
+          builder: (context) => _ColorSettingDialog(initialColor: tag.backgroundColor ?? tagSetBackgroundColor ?? defaultColor),
         );
 
         if (result == null) {

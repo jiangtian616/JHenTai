@@ -521,6 +521,7 @@ class UIConfig {
 
   /// EH Tag
   static Color ehWatchedTagDefaultBackGroundColor = const Color(0xFF3377FF);
+  static Color ehHiddenTagDefaultBackGroundColor = const Color.from(alpha: 1, red: 1, green: 0.4, blue: 0.4);
 
   static Color ehTagBackGroundColor(BuildContext context) => Theme.of(context).colorScheme.secondary.withValues(alpha: 0.15);
 
