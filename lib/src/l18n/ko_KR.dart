@@ -306,6 +306,7 @@ class ko_KR {
       'hidden': '숨김',
       'nope': '없음',
       'status': '상태',
+      'tagSetDefaultColor': '태그 세트 기본 색상',
       'weight': '가중치',
       'color': '색상',
       'getTagSetFailed': '태그 목록 불러오기 실패',

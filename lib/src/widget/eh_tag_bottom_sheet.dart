@@ -108,8 +108,22 @@ class _EHTagBottomSheetState extends State<EHTagBottomSheet> with EHTagVoteLogic
               tagInfo: findOnlineTag(),
               onVoteUp: () => vote(isVotingUp: true),
               onVoteDown: () => vote(isVotingUp: false),
-              onFollow: () => handleAddTagToSet(watch: true),
-              onHide: () => handleAddTagToSet(watch: false),
+              onFollow: () {
+                ({int tagSetNo, bool watched, bool hidden})? info = findOnlineTag();
+                if (info != null) {
+                  showTagEditDialog(tagSetNo: info.tagSetNo);
+                } else {
+                  handleAddTagToSet(watch: true);
+                }
+              },
+              onHide: () {
+                ({int tagSetNo, bool watched, bool hidden})? info = findOnlineTag();
+                if (info != null) {
+                  showTagEditDialog(tagSetNo: info.tagSetNo);
+                } else {
+                  handleAddTagToSet(watch: false);
+                }
+              },
               onGotoTagSets: gotoTagSets,
             ),
           ],

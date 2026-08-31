@@ -305,6 +305,7 @@ class zh_TW {
       'hidden': '隱藏',
       'nope': '無',
       'status': '狀態',
+      'tagSetDefaultColor': '標籤集預設顏色',
       'weight': '權重',
       'color': '顏色',
       'getTagSetFailed': '獲取標籤資料失敗',

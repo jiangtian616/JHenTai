@@ -310,6 +310,7 @@ class ru_RU {
       'hidden': 'Скрытый',
       'nope': 'Нет',
       'status': 'Статус',
+      'tagSetDefaultColor': 'Стандартный цвет набора тегов',
       'weight': 'Вес',
       'color': 'Цвет',
       'getTagSetFailed': 'Не удалось получить набор тегов',
