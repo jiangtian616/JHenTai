@@ -305,6 +305,7 @@ class en_US {
       'hidden': 'Hidden',
       'nope': 'Nope',
       'status': 'Status',
+      'tagSetDefaultColor': 'Default color of tag set',
       'weight': 'Weight',
       'color': 'Color',
       'getTagSetFailed': 'Get Tag Set Failed',

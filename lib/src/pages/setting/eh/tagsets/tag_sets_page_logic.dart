@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/network/eh_request.dart';
@@ -9,9 +8,7 @@ import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
-import 'package:jhentai/src/utils/search_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
-import 'package:jhentai/src/widget/eh_context_menu.dart';
 
 import '../../../../database/database.dart';
 import '../../../../exception/eh_site_exception.dart';
@@ -278,45 +275,6 @@ class TagSetsLogic extends GetxController with Scroll2TopLogicMixin {
     updateSafely([bodyId]);
 
     myTagsSetting.refreshOnlineTagSets(state.currentTagSetNo);
-  }
-
-  Future<void> showBottomSheet(int index, BuildContext context, {Offset? position}) async {
-    Get.focusScope?.unfocus();
-
-    WatchedTag tag = state.tags[index];
-
-    showEHContextMenu(
-      context,
-      position: position,
-      actions: [
-        EHContextMenuAction(
-          text: 'search'.tr,
-          icon: Icon(Icons.search),
-          onTap: () => newSearch(keyword: '${tag.tagData.namespace}:${tag.tagData.key}'),
-        ),
-        EHContextMenuAction(
-          text: 'favorite'.tr,
-          icon: Icon(Icons.favorite, color: UIConfig.tagSetsPageIconDefaultColor(context)),
-          onTap: () => handleUpdateTagStatus(index, TagSetStatus.watched),
-        ),
-        EHContextMenuAction(
-          text: 'hidden'.tr,
-          icon: Icon(Icons.not_interested, color: UIConfig.tagSetsPageIconDefaultColor(context)),
-          onTap: () => handleUpdateTagStatus(index, TagSetStatus.hidden),
-        ),
-        EHContextMenuAction(
-          text: 'nope'.tr,
-          icon: Icon(Icons.question_mark, color: UIConfig.tagSetsPageIconDefaultColor(context)),
-          onTap: () => handleUpdateTagStatus(index, TagSetStatus.nope),
-        ),
-        EHContextMenuAction(
-          text: 'delete'.tr,
-          icon: Icon(Icons.delete, color: UIConfig.alertColor(context)),
-          color: UIConfig.alertColor(context),
-          onTap: () => deleteTag(index),
-        ),
-      ],
-    );
   }
 
   Future<void> _updateTag(WatchedTag tag) async {

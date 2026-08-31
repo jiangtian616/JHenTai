@@ -304,6 +304,7 @@ class zh_CN {
       'hidden': '屏蔽',
       'nope': '无',
       'status': '状态',
+      'tagSetDefaultColor': '标签集默认颜色',
       'weight': '权重',
       'color': '颜色',
       'getTagSetFailed': '获取标签数据失败',

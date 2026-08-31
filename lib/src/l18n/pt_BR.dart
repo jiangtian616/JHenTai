@@ -306,6 +306,7 @@ class pt_BR {
       'hidden': 'Escondido',
       'nope': 'Nope(Não)',
       'status': 'Status',
+      'tagSetDefaultColor': 'Cor padrão do conjunto de tags',
       'weight': 'Peso',
       'color': 'Cor',
       'getTagSetFailed': 'Falha ao obter conjunto de tags',
