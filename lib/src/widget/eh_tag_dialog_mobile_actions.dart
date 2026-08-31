@@ -83,24 +83,28 @@ class EHTagDialogMobileActions extends StatelessWidget {
           state: voteDownState,
           onTap: onVoteDown,
         ),
-        _ActionTile(
-          activeIcon: Icons.favorite,
-          inactiveIcon: Icons.favorite_border,
-          label: 'tagActionFollow'.tr,
-          active: tagInfo?.watched == true,
-          state: addWatchedTagState,
-          subtitle: tagInfo?.watched == true ? '${'watched'.tr} · #${tagInfo!.tagSetNo}' : null,
-          onTap: onFollow,
-        ),
-        _ActionTile(
-          activeIcon: Icons.visibility_off,
-          inactiveIcon: Icons.visibility_off_outlined,
-          label: 'tagActionHide'.tr,
-          active: tagInfo?.hidden == true,
-          state: addHiddenTagState,
-          subtitle: tagInfo?.hidden == true ? '${'hidden'.tr} · #${tagInfo!.tagSetNo}' : null,
-          onTap: onHide,
-        ),
+        // A tag can only be in one state on EH: once watched, the hide action is
+        // redundant (and vice versa), so only show the inactive-state action.
+        if (tagInfo?.hidden != true)
+          _ActionTile(
+            activeIcon: Icons.favorite,
+            inactiveIcon: Icons.favorite_border,
+            label: 'tagActionFollow'.tr,
+            active: tagInfo?.watched == true,
+            state: addWatchedTagState,
+            subtitle: tagInfo?.watched == true ? '${'watched'.tr} · #${tagInfo!.tagSetNo}' : null,
+            onTap: onFollow,
+          ),
+        if (tagInfo?.watched != true)
+          _ActionTile(
+            activeIcon: Icons.visibility_off,
+            inactiveIcon: Icons.visibility_off_outlined,
+            label: 'tagActionHide'.tr,
+            active: tagInfo?.hidden == true,
+            state: addHiddenTagState,
+            subtitle: tagInfo?.hidden == true ? '${'hidden'.tr} · #${tagInfo!.tagSetNo}' : null,
+            onTap: onHide,
+          ),
         ListTile(
           dense: true,
           leading: const Icon(Icons.settings_outlined),

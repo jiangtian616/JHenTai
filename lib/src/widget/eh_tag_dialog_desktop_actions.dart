@@ -58,24 +58,28 @@ class EHTagDialogDesktopActions extends StatelessWidget {
             tooltip: 'tagActionVoteDownTooltip'.tr,
             onTap: onVoteDown,
           ),
-          _ActionButton(
-            activeIcon: Icons.favorite,
-            inactiveIcon: Icons.favorite_border,
-            label: 'tagActionFollow'.tr,
-            active: tagInfo?.watched == true,
-            state: addWatchedTagState,
-            tooltip: tagInfo?.watched == true ? '${'watched'.tr} · #${tagInfo!.tagSetNo}' : 'tagActionFollowHint'.tr,
-            onTap: onFollow,
-          ),
-          _ActionButton(
-            activeIcon: Icons.visibility_off,
-            inactiveIcon: Icons.visibility_off_outlined,
-            label: 'tagActionHide'.tr,
-            active: tagInfo?.hidden == true,
-            state: addHiddenTagState,
-            tooltip: tagInfo?.hidden == true ? '${'hidden'.tr} · #${tagInfo!.tagSetNo}' : 'tagActionHideHint'.tr,
-            onTap: onHide,
-          ),
+          // A tag can only be in one state on EH: once watched, the hide button is
+          // redundant (and vice versa), so only show the inactive-state action.
+          if (tagInfo?.hidden != true)
+            _ActionButton(
+              activeIcon: Icons.favorite,
+              inactiveIcon: Icons.favorite_border,
+              label: 'tagActionFollow'.tr,
+              active: tagInfo?.watched == true,
+              state: addWatchedTagState,
+              tooltip: tagInfo?.watched == true ? '${'watched'.tr} · #${tagInfo!.tagSetNo}' : 'tagActionFollowHint'.tr,
+              onTap: onFollow,
+            ),
+          if (tagInfo?.watched != true)
+            _ActionButton(
+              activeIcon: Icons.visibility_off,
+              inactiveIcon: Icons.visibility_off_outlined,
+              label: 'tagActionHide'.tr,
+              active: tagInfo?.hidden == true,
+              state: addHiddenTagState,
+              tooltip: tagInfo?.hidden == true ? '${'hidden'.tr} · #${tagInfo!.tagSetNo}' : 'tagActionHideHint'.tr,
+              onTap: onHide,
+            ),
           _ActionButton(
             activeIcon: Icons.settings,
             inactiveIcon: Icons.settings_outlined,
