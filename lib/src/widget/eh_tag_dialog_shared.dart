@@ -252,23 +252,11 @@ mixin EHTagVoteLogicMixin<T extends StatefulWidget> on State<T> implements Login
     if (GetPlatform.isDesktop || context.mediaQuerySize.width >= 600) {
       Get.dialog(dialog, barrierDismissible: true);
     } else {
-      Get.bottomSheet(
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(
-              width: 36,
-              height: 4,
-              child: Material(borderRadius: BorderRadius.all(Radius.circular(2)), color: Colors.grey),
-            ),
-            const SizedBox(height: 8),
-            Flexible(child: SafeArea(top: false, child: SingleChildScrollView(child: dialog))),
-          ],
-        ),
+      showModalBottomSheet(
+        context: context,
         isScrollControlled: true,
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
-        enableDrag: true,
+        showDragHandle: true,
+        builder: (_) => SingleChildScrollView(child: dialog),
       );
     }
   }
