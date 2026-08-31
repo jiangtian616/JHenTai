@@ -21,11 +21,13 @@ class FrameRateService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBe
   @override
   Future<void> doInitBean() async {
     if (!GetPlatform.isAndroid) {
+      log.debug('Frame rate service is skipped on non-Android platform');
       return;
     }
 
     try {
       supportedModes = await FlutterDisplayMode.supported;
+      log.info('Fetch supported display modes success, count: ${supportedModes.length}');
     } catch (e, stack) {
       log.error('Fetch supported display modes failed', e, stack);
       return;
@@ -36,13 +38,15 @@ class FrameRateService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBe
     // First launch: force the highest refresh rate and remember that choice.
     // Later launches only apply the user's saved selection.
     if (saved == null) {
-      await FlutterDisplayMode.setHighRefreshRate();
       selection = _highestModeId();
+      log.info('First launch, force highest refresh rate: $selection');
+      await FlutterDisplayMode.setHighRefreshRate();
       await localConfigService.write(configKey: ConfigEnum.frameRateMode, value: selection!);
       return;
     }
 
     selection = saved;
+    log.info('Apply saved refresh rate selection: $saved');
     await _apply(saved);
   }
 
@@ -50,6 +54,7 @@ class FrameRateService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBe
   Future<void> doAfterBeanReady() async {}
 
   Future<void> setSelection(String value) async {
+    log.info('Set refresh rate selection: $value');
     selection = value;
     await localConfigService.write(configKey: ConfigEnum.frameRateMode, value: value);
     await _apply(value);
@@ -76,6 +81,9 @@ class FrameRateService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBe
       return;
     }
 
+    // setPreferredMode only requests a preferred mode; the system may keep
+    // the current one based on its own heuristics, so it may not take effect.
+    log.info('Apply display mode: id=${mode.id}, ${mode.refreshRate} Hz, ${mode.width}x${mode.height}');
     await FlutterDisplayMode.setPreferredMode(mode);
   }
 
