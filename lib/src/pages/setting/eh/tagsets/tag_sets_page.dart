@@ -256,7 +256,8 @@ class TagSetsPage extends StatelessWidget {
       },
     );
     if (useDialog) {
-      showDialog(context: context, barrierDismissible: true, builder: (_) => dialog);
+      // showDialog doesn't provide a Material ancestor; the editor content needs one.
+      showDialog(context: context, barrierDismissible: true, builder: (_) => Dialog(child: dialog));
     } else {
       showModalBottomSheet(
         context: context,

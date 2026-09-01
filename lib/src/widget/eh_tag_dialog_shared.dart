@@ -101,7 +101,7 @@ mixin EHTagVoteLogicMixin<T extends StatefulWidget> on State<T> implements Login
   }
 
   Future<void> vote({required bool isVotingUp}) async {
-    if (!userSetting.hasLoggedIn()) { 
+    if (!userSetting.hasLoggedIn()) {
       showLoginToast();
       return;
     }
@@ -250,7 +250,9 @@ mixin EHTagVoteLogicMixin<T extends StatefulWidget> on State<T> implements Login
     );
 
     if (GetPlatform.isDesktop || context.mediaQuerySize.width >= 600) {
-      Get.dialog(dialog, barrierDismissible: true);
+      // Get.dialog doesn't provide a Material ancestor like Dialog does, and the
+      // editor content (InkWell / SegmentedButton / buttons) requires one.
+      Get.dialog(Dialog(child: dialog), barrierDismissible: true);
     } else {
       showModalBottomSheet(
         context: context,
@@ -321,7 +323,7 @@ mixin EHTagVoteLogicMixin<T extends StatefulWidget> on State<T> implements Login
       if (watch) {
         addWatchedTagState = LoadingState.loading;
       } else {
-        addHiddenTagState = LoadingState.loading; 
+        addHiddenTagState = LoadingState.loading;
       }
     });
 
@@ -502,24 +504,24 @@ class EHTagDialogInfo extends StatelessWidget {
               shrinkWrap: true,
               controller: scrollController,
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            ),
+            textStyle: const TextStyle(fontSize: 13),
+            onErrorBuilder: (context, element, error) => Text('$element error: $error'),
+            onLoadingBuilder: (context, element, loadingProgress) => const CircularProgressIndicator(),
+            onTapUrl: launchUrlString,
+            customWidgetBuilder: (element) {
+              if (element.localName != 'img') {
+                return null;
+              }
+              return Center(
+                child: EHWarningImage(
+                  warning: preferenceSetting.showR18GImageDirectly.isFalse && element.attributes['nsfw'] == 'R18G',
+                  src: element.attributes['src']!,
+                ).marginSymmetric(vertical: 20),
+              );
+            },
           ),
-          textStyle: const TextStyle(fontSize: 13),
-          onErrorBuilder: (context, element, error) => Text('$element error: $error'),
-          onLoadingBuilder: (context, element, loadingProgress) => const CircularProgressIndicator(),
-          onTapUrl: launchUrlString,
-          customWidgetBuilder: (element) {
-            if (element.localName != 'img') {
-              return null;
-            }
-            return Center(
-              child: EHWarningImage(
-                warning: preferenceSetting.showR18GImageDirectly.isFalse && element.attributes['nsfw'] == 'R18G',
-                src: element.attributes['src']!,
-              ).marginSymmetric(vertical: 20),
-            );
-          },
         ),
-      ),
       ),
     ).enableMouseDrag();
   }

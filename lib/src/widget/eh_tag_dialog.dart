@@ -73,6 +73,7 @@ class _EHTagDialogState extends State<EHTagDialog> with EHTagVoteLogicMixin<EHTa
             EHTagDialogHeader(tagData: tagData, showCloseButton: true),
             if (tagData.tagName != null) Flexible(child: EHTagDialogInfo(tagData: tagData, maxHeight: 300, scrollController: scrollController)),
             const Divider(height: 1),
+            const SizedBox(height: 4),
             EHTagDialogDesktopActions(
               currentVote: currentVote,
               voteUpState: voteUpState,
