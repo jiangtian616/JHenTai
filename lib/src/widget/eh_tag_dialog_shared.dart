@@ -11,6 +11,7 @@ import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
 import 'package:jhentai/src/setting/preference_setting.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
@@ -242,14 +243,17 @@ mixin EHTagVoteLogicMixin<T extends StatefulWidget> on State<T> implements Login
       return;
     }
 
+    bool useDialog = !styleSetting.isInMobileLayout;
+
     Widget dialog = EHTagEditDialog(
       tag: onlineTag,
       tagSetBackgroundColor: tagSet.tagSetBackGroundColor,
+      isDialog: useDialog,
       onConfirm: (_, WatchedTag newTag) => doUpdateWatchedTag(newTag, tagSetNo: tagSetNo),
       onDelete: (WatchedTag _) => doDeleteWatchedTag(tagSetNo: tagSetNo, watch: onlineTag.watched),
     );
 
-    if (GetPlatform.isDesktop || context.mediaQuerySize.width >= 600) {
+    if (useDialog) {
       // Get.dialog doesn't provide a Material ancestor like Dialog does, and the
       // editor content (InkWell / SegmentedButton / buttons) requires one.
       Get.dialog(Dialog(child: dialog), barrierDismissible: true);

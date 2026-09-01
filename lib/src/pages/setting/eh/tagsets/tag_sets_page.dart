@@ -1,9 +1,8 @@
-import 'dart:ui' show PlatformDispatcher;
-
 import 'package:flutter/rendering.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';import 'package:jhentai/src/config/ui_config.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/model/tag_set.dart';
 import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page_logic.dart';
 import 'package:jhentai/src/pages/setting/eh/tagsets/tag_sets_page_state.dart';
@@ -235,13 +234,13 @@ class TagSetsPage extends StatelessWidget {
     );
   }
   void _showTagEditDialog(BuildContext context, WatchedTag tag) {
-    bool useDialog = GetPlatform.isDesktop ||
-        PlatformDispatcher.instance.views.first.physicalSize.width / PlatformDispatcher.instance.views.first.devicePixelRatio >= 600;
+    bool useDialog = !styleSetting.isInMobileLayout;
 
     Widget dialog = EHTagEditDialog(
       tag: tag,
       tagSetBackgroundColor: state.currentTagSetBackgroundColor,
       showSearchButton: true,
+      isDialog: useDialog,
       onConfirm: (_, WatchedTag newTag) {
         int index = logic.state.tags.indexWhere((t) => t.tagId == newTag.tagId);
         if (index != -1) {

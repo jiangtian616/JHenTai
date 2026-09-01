@@ -22,6 +22,7 @@ class EHTagEditDialog extends StatefulWidget {
   final OnTagEdited? onConfirm;
   final OnTagDeleted? onDelete;
   final bool showSearchButton;
+  final bool isDialog;
 
   const EHTagEditDialog({
     Key? key,
@@ -30,6 +31,7 @@ class EHTagEditDialog extends StatefulWidget {
     this.onConfirm,
     this.onDelete,
     this.showSearchButton = false,
+    required this.isDialog,
   }) : super(key: key);
 
   @override
@@ -57,7 +59,11 @@ class _EHTagEditDialogState extends State<EHTagEditDialog> {
   void initState() {
     super.initState();
     tag = widget.tag;
-    status = tag.watched ? TagSetStatus.watched : tag.hidden ? TagSetStatus.hidden : TagSetStatus.nope;
+    status = tag.watched
+        ? TagSetStatus.watched
+        : tag.hidden
+            ? TagSetStatus.hidden
+            : TagSetStatus.nope;
     weight = tag.weight;
     color = tag.backgroundColor;
   }
@@ -77,10 +83,12 @@ class _EHTagEditDialogState extends State<EHTagEditDialog> {
     Color defaultColor = status == TagSetStatus.hidden || weight < 0 ? UIConfig.ehHiddenTagDefaultBackGroundColor : UIConfig.ehWatchedTagDefaultBackGroundColor;
     Color currentColor = color ?? widget.tagSetBackgroundColor ?? defaultColor;
 
+    // Dialog renders with no top inset; mobile's bottom sheet gets its
+    // spacing from the drag handle area.
     return SizedBox(
       width: 400,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+        padding: widget.isDialog ? const EdgeInsets.fromLTRB(24, 20, 24, 24) : const EdgeInsets.fromLTRB(24, 0, 24, 24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -93,9 +101,7 @@ class _EHTagEditDialogState extends State<EHTagEditDialog> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        tag.tagData.translatedNamespace == null
-                            ? '${tag.tagData.namespace}:${tag.tagData.key}'
-                            : '${tag.tagData.translatedNamespace}:${tag.tagData.tagName}',
+                        tag.tagData.translatedNamespace == null ? '${tag.tagData.namespace}:${tag.tagData.key}' : '${tag.tagData.translatedNamespace}:${tag.tagData.tagName}',
                         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       if (tag.tagData.translatedNamespace != null)
@@ -216,7 +222,11 @@ class _EHTagEditDialogState extends State<EHTagEditDialog> {
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: [
-              _colorChip(context, widget.tagSetBackgroundColor ?? (status == TagSetStatus.hidden || weight < 0 ? UIConfig.ehHiddenTagDefaultBackGroundColor : UIConfig.ehWatchedTagDefaultBackGroundColor), null),
+              _colorChip(
+                  context,
+                  widget.tagSetBackgroundColor ??
+                      (status == TagSetStatus.hidden || weight < 0 ? UIConfig.ehHiddenTagDefaultBackGroundColor : UIConfig.ehWatchedTagDefaultBackGroundColor),
+                  null),
               ...presetColors.map((preset) => _colorChip(context, preset, preset)),
             ],
           ),
