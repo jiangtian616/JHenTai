@@ -203,7 +203,8 @@ class pt_BR {
       'blockUploaderLocally': 'Block user locally',
       'blockTitleLocally': 'Bloquear título selecionado localmente',
       'blockRuleAlreadyExists': 'Esta regra já existe',
-      'block': 'Block',
+      'blockThisGallery': 'Block this gallery',
+      'blockGallerySuccess': 'Gallery blocked. You can modify it in Preference - Block Rules',
 
       /// detail dialog
       'galleryUrl': 'Gallery Url',

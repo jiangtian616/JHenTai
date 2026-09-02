@@ -155,7 +155,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                         value: 5,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [Text('block'.tr), const Icon(Icons.block)],
+                          children: [Text('blockThisGallery'.tr), const Icon(Icons.block)],
                         ),
                       ),
                     PopupMenuItem(

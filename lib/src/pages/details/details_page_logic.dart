@@ -1053,7 +1053,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         expression: state.galleryUrl.gid.toString(),
       ),
     );
-    toast('success'.tr);
+    toast('blockGallerySuccess'.tr);
   }
 
   Future<void> goToReadPage([int? forceIndex]) async {

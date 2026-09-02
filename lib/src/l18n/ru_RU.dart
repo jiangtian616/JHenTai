@@ -205,7 +205,8 @@ class ru_RU {
       'blockUploaderLocally': 'Заблокировать пользователя локально',
       'blockTitleLocally': 'Заблокировать выбранное название локально',
       'blockRuleAlreadyExists': 'Это правило уже существует',
-      'block': 'Block',
+      'blockThisGallery': 'Заблокировать эту галерею',
+      'blockGallerySuccess': 'Галерея заблокирована. Изменить можно в Настройках — Правила блокировки',
 
       /// detail dialog
       'galleryUrl': 'URL Галереи',

@@ -202,7 +202,8 @@ class zh_TW {
       'blockUploaderLocally': '於本機端隱藏的上傳者',
       'blockTitleLocally': '於本機端隱藏已選取的標題',
       'blockRuleAlreadyExists': '該規則已存在',
-      'block': '隱藏',
+      'blockThisGallery': '隱藏該畫廊',
+      'blockGallerySuccess': '已隱藏該畫廊，可在 偏好設定-隱藏規則 中修改',
 
       /// detail dialog
       'galleryUrl': '畫廊連結',

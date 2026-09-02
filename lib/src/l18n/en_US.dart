@@ -202,7 +202,8 @@ class en_US {
       'blockUploaderLocally': 'Block user locally',
       'blockTitleLocally': 'Block selected title locally',
       'blockRuleAlreadyExists': 'This rule already exists',
-      'block': 'Block',
+      'blockThisGallery': 'Block this gallery',
+      'blockGallerySuccess': 'Gallery blocked. You can modify it in Preference - Block Rules',
 
       /// detail dialog
       'galleryUrl': 'Gallery Url',
