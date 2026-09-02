@@ -19,27 +19,27 @@ class SettingNetworkPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(centerTitle: true, title: Text('networkSetting'.tr)),
-      body: ListView(
-        padding: const EdgeInsets.only(top: 16),
-        children: [
-          _buildEnableDomainFronting(),
-          _buildProxyAddress(),
-          _buildPageCacheMaxAge(),
-          _buildCacheImageExpireDuration(),
-          _buildTimeoutTile(
-            context: context,
-            title: 'connectTimeout'.tr,
-            value: networkSetting.connectTimeout,
-            onSave: networkSetting.saveConnectTimeout,
-          ),
-          _buildTimeoutTile(
-            context: context,
-            title: 'receiveTimeout'.tr,
-            value: networkSetting.receiveTimeout,
-            onSave: networkSetting.saveReceiveTimeout,
-          ),
-        ],
-      ).withListTileTheme(context),
+      body: Obx(() => ListView(
+            padding: const EdgeInsets.only(top: 16),
+            children: [
+              _buildEnableDomainFronting(),
+              _buildProxyAddress(),
+              _buildPageCacheMaxAge(),
+              _buildCacheImageExpireDuration(),
+              _buildTimeoutTile(
+                context: context,
+                title: 'connectTimeout'.tr,
+                value: networkSetting.connectTimeout,
+                onSave: networkSetting.saveConnectTimeout,
+              ),
+              _buildTimeoutTile(
+                context: context,
+                title: 'receiveTimeout'.tr,
+                value: networkSetting.receiveTimeout,
+                onSave: networkSetting.saveReceiveTimeout,
+              ),
+            ],
+          ).withListTileTheme(context)),
     );
   }
 
