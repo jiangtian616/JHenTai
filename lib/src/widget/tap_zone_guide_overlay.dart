@@ -16,6 +16,8 @@ class TapZoneGuideOverlay extends StatelessWidget {
         TapZoneAction.prevPage => Colors.blue,
         TapZoneAction.nextPage => Colors.green,
         TapZoneAction.toggleMenu => Colors.orange,
+        TapZoneAction.flipLeft => Colors.blue,
+        TapZoneAction.flipRight => Colors.green,
       };
 
   @override

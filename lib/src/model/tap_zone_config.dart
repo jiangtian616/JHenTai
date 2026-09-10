@@ -2,16 +2,34 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 enum TapZoneAction {
+  // Declaration order is frozen: it maps to the persisted action index in
+  // each user's tap-zone config JSON. New actions must be appended at the end.
   none,
   prevPage,
   nextPage,
-  toggleMenu;
+  toggleMenu,
+  flipLeft,
+  flipRight;
+
+  /// Display order in the picker dialog: none, left/right flip, prev/next,
+  /// then menu. Kept separate from [values] so presentation can differ from
+  /// the storage layout.
+  static const List<TapZoneAction> pickerOrder = [
+    TapZoneAction.none,
+    TapZoneAction.flipLeft,
+    TapZoneAction.flipRight,
+    TapZoneAction.prevPage,
+    TapZoneAction.nextPage,
+    TapZoneAction.toggleMenu,
+  ];
 
   String get i18nKey => switch (this) {
         TapZoneAction.none => 'tapZoneActionNone',
         TapZoneAction.prevPage => 'tapZoneActionPrevPage',
         TapZoneAction.nextPage => 'tapZoneActionNextPage',
         TapZoneAction.toggleMenu => 'tapZoneActionToggleMenu',
+        TapZoneAction.flipLeft => 'tapZoneActionFlipLeft',
+        TapZoneAction.flipRight => 'tapZoneActionFlipRight',
       };
 }
 
@@ -80,18 +98,21 @@ class TapZoneConfig {
         middleRowHeightRatio,
       );
 
-  /// Left = prev page, middle column = menu, right = next page.
+  /// Left zone flips left, middle column = menu, right zone flips right.
+  /// Flip follows the current read direction, so in LTR this behaves like the
+  /// old "left = prev / right = next"; in RTL the zones swap to match the page
+  /// flow (the next page slides in from the left).
   factory TapZoneConfig.classic() => TapZoneConfig(
         actions: const [
-          TapZoneAction.prevPage,
+          TapZoneAction.flipLeft,
           TapZoneAction.toggleMenu,
-          TapZoneAction.nextPage,
-          TapZoneAction.prevPage,
+          TapZoneAction.flipRight,
+          TapZoneAction.flipLeft,
           TapZoneAction.toggleMenu,
-          TapZoneAction.nextPage,
-          TapZoneAction.prevPage,
+          TapZoneAction.flipRight,
+          TapZoneAction.flipLeft,
           TapZoneAction.toggleMenu,
-          TapZoneAction.nextPage,
+          TapZoneAction.flipRight,
         ],
         leftColumnWidthRatio: 20,
         middleColumnWidthRatio: 60,

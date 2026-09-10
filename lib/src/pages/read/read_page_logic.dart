@@ -694,6 +694,10 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
         toPrev();
       case TapZoneAction.nextPage:
         toNext();
+      case TapZoneAction.flipLeft:
+        toLeft();
+      case TapZoneAction.flipRight:
+        toRight();
     }
   }
 

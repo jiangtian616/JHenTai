@@ -61,11 +61,11 @@
       "versions": [
         {
           "version": "8.0.16",
-          "buildVersion": "",
-          "date": "2026-09-02T12:15:17Z",
-          "localizedDescription": "- 修复网络设置中修改设置未更新UI的bug\\n\\n--------------------\\n\\n- Fix the bug where modifying network settings did not update the UI\\n",
-          "downloadURL": "https://github.com/jiangtian616/JHenTai/releases/download/v8.0.16/JHenTai_8.0.16+333.ipa",
-          "size": 13019846
+          "buildVersion": "334",
+          "date": "2026-09-09T13:55:26Z",
+          "localizedDescription": "- 优化在RTL阅读方向下对点击区域动作的语义处理\\n- 修复恢复部分长标题画廊任务时标题读取错误的bug\\n- 降低详情页预载图片的数量\\n\\n--------------------\\n\\n- Fix the bug where modifying network settings did not update the UI\\n",
+          "downloadURL": "https://github.com/jiangtian616/JHenTai/releases/download/v8.0.16+334/JHenTai_8.0.16+334.ipa",
+          "size": 13025015
         }
       ]
     }

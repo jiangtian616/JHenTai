@@ -519,6 +519,8 @@ class ko_KR {
       'tapZoneActionPrevPage': 'Previous Page',
       'tapZoneActionNextPage': 'Next Page',
       'tapZoneActionToggleMenu': 'Toggle Menu',
+      'tapZoneActionFlipLeft': '왼쪽으로 넘기기',
+      'tapZoneActionFlipRight': '오른쪽으로 넘기기',
       'tapZoneLeftColumnRatio': 'Left Column Width',
       'tapZoneMiddleColumnRatio': 'Middle Column Width',
       'tapZoneRightColumnRatio': 'Right Column Width',

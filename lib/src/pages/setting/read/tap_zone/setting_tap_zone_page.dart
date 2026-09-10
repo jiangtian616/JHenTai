@@ -31,7 +31,7 @@ class _SettingTapZonePageState extends State<SettingTapZonePage> {
       SimpleDialog(
         title: Text('tapZoneAction'.tr),
         children: [
-          for (TapZoneAction action in TapZoneAction.values)
+          for (TapZoneAction action in TapZoneAction.pickerOrder)
             SimpleDialogOption(
               onPressed: () => Get.back(result: action),
               child: Row(

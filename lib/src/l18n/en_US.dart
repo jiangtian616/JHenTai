@@ -519,6 +519,8 @@ class en_US {
       'tapZoneActionPrevPage': 'Previous Page',
       'tapZoneActionNextPage': 'Next Page',
       'tapZoneActionToggleMenu': 'Toggle Menu',
+      'tapZoneActionFlipLeft': 'Flip Left',
+      'tapZoneActionFlipRight': 'Flip Right',
       'tapZoneLeftColumnRatio': 'Left Column Width',
       'tapZoneMiddleColumnRatio': 'Middle Column Width',
       'tapZoneRightColumnRatio': 'Right Column Width',

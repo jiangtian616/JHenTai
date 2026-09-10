@@ -520,6 +520,8 @@ class pt_BR {
       'tapZoneActionPrevPage': 'Previous Page',
       'tapZoneActionNextPage': 'Next Page',
       'tapZoneActionToggleMenu': 'Toggle Menu',
+      'tapZoneActionFlipLeft': 'Virar à esquerda',
+      'tapZoneActionFlipRight': 'Virar à direita',
       'tapZoneLeftColumnRatio': 'Left Column Width',
       'tapZoneMiddleColumnRatio': 'Middle Column Width',
       'tapZoneRightColumnRatio': 'Right Column Width',

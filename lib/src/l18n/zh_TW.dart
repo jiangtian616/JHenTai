@@ -519,6 +519,8 @@ class zh_TW {
       'tapZoneActionPrevPage': '上一頁',
       'tapZoneActionNextPage': '下一頁',
       'tapZoneActionToggleMenu': '切換選單',
+      'tapZoneActionFlipLeft': '向左翻頁',
+      'tapZoneActionFlipRight': '向右翻頁',
       'tapZoneLeftColumnRatio': '左列寬度',
       'tapZoneMiddleColumnRatio': '中列寬度',
       'tapZoneRightColumnRatio': '右列寬度',

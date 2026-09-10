@@ -525,6 +525,8 @@ class ru_RU {
       'tapZoneActionPrevPage': 'Предыдущая страница',
       'tapZoneActionNextPage': 'Следующая страница',
       'tapZoneActionToggleMenu': 'Показать/скрыть меню',
+      'tapZoneActionFlipLeft': 'Листать влево',
+      'tapZoneActionFlipRight': 'Листать вправо',
       'tapZoneLeftColumnRatio': 'Ширина левого столбца',
       'tapZoneMiddleColumnRatio': 'Ширина среднего столбца',
       'tapZoneRightColumnRatio': 'Ширина правого столбца',
