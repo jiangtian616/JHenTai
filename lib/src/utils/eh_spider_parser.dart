@@ -448,6 +448,16 @@ class EHSpiderParser {
     );
   }
 
+  static ({int filesize, int posted}) galleryMetadataJson2FileSizeAndPosted(Headers headers, dynamic data) {
+    Map? body = json.decode(data);
+    if (body == null || body['gmetadata'] is! List || body['gmetadata'].isEmpty) {
+      throw EHParseException(type: EHParseExceptionType.getMetaDataFailed, message: 'getMetaDataFailed'.tr, shouldPauseAllDownloadTasks: false);
+    }
+
+    Map map = (body['gmetadata'] as List).first;
+    return (filesize: map['filesize'] as int, posted: int.parse(map['posted']));
+  }
+
   static List<GalleryMetadata> galleryMetadataJson2GalleryMetadatas(Headers headers, dynamic data) {
     Map? body = json.decode(data);
     if (body == null || body['gmetadata'] is! List || body['gmetadata'].isEmpty) {

@@ -78,6 +78,9 @@ class ArchiveBotSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
 
   final RxnString apiKey = RxnString(null);
 
+  /// Last source (official / bot) the user picked in the archive download dialog
+  final RxBool preferBotSource = false.obs;
+
   bool get isReady => apiKey.value != null && apiAddress.value != null;
 
   @override
@@ -93,6 +96,10 @@ class ArchiveBotSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
     }
 
     apiAddress.value = map['apiAddress'];
+
+    if (map['preferBotSource'] != null) {
+      preferBotSource.value = map['preferBotSource'] as bool;
+    }
   }
 
   @override
@@ -101,6 +108,7 @@ class ArchiveBotSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
       'botType': botType.value.code,
       'apiAddress': apiAddress.value,
       'apiKey': apiKey.value,
+      'preferBotSource': preferBotSource.value,
     });
   }
 
@@ -131,6 +139,12 @@ class ArchiveBotSetting with JHLifeCircleBeanWithConfigStorage implements JHLife
   Future<void> saveApiKey(String? value) async {
     log.debug('saveApiKey: $value');
     apiKey.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> savePreferBotSource(bool value) async {
+    log.debug('savePreferBotSource: $value');
+    preferBotSource.value = value;
     await saveBeanConfig();
   }
 }
