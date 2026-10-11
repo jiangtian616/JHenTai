@@ -550,6 +550,8 @@ class en_US {
       'enablePageTurnByVolumeKeys': 'Use volume key to turn page',
       'enablePageTurnByVolumeKeysHint': 'On iOS, if the volume is at 0 or 100%, it will be adjusted automatically when entering the reader to support page turning, and restored on exit',
       'enablePageTurnAnime': 'Enable Turn Page Animation',
+      'enableSwipePageTurnAnime': "Swipe Turn Page Animation",
+      'enableSwipePageTurnAnimeHint': "Page follows your finger and animates when swiping, turn off to switch page instantly. Turn off turn page animation first to change this",
       'enableDoubleTapToScaleUp': 'Enable Double Tap to Scale up',
       'enableTapDragToScaleUp': 'Enable Tap Drag to Scale up',
       'enableBottomMenu': 'Enable Bottom Menu',

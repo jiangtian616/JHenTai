@@ -550,6 +550,8 @@ class ko_KR {
       'enablePageTurnByVolumeKeys': 'Use volume key to turn page',
       'enablePageTurnByVolumeKeysHint': 'iOS에서 볼륨이 0 또는 100%일 때 읽기 페이지에 들어가면 페이지 넘기기를 위해 볼륨이 자동으로 조정되고, 나가면 복원됩니다',
       'enablePageTurnAnime': '페이지 넘기기 애니메이션 사용',
+      'enableSwipePageTurnAnime': "스와이프 페이지 넘김 애니메이션",
+      'enableSwipePageTurnAnimeHint': "스와이프할 때 페이지가 손가락을 따라가며 애니메이션이 재생됩니다. 끄면 스와이프 시 즉시 전환됩니다. 페이지 넘김 애니메이션을 먼저 꺼야 변경할 수 있습니다",
       'enableDoubleTapToScaleUp': '두 번 터치해 확대 사용',
       'enableTapDragToScaleUp': 'Enable Tap Drag to Scale up',
       'enableBottomMenu': 'Enable Bottom Menu',
