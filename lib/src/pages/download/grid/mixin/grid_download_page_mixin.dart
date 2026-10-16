@@ -191,21 +191,25 @@ mixin GridBasePage on StatelessWidget implements Scroll2TopPageMixin {
   GridGallery galleryBuilder(BuildContext context, covariant Object gallery, bool inEditMode);
 
   Widget buildGroupInnerImage(GalleryImage image) {
-    return EHImage.autoLayout(
-      galleryImage: image,
-      fit: BoxFit.cover,
-      borderRadius: BorderRadius.circular(8),
-      maxBytes: 2 * 1024 * 1024,
-    );
+    return _coverImage(image, radius: 8, fadeIn: false);
   }
 
   Widget buildGalleryImage(GalleryImage image) {
-    return EHImage.autoLayout(
-      galleryImage: image,
-      fit: BoxFit.cover,
-      forceFadeIn: true,
-      borderRadius: BorderRadius.circular(12),
-      maxBytes: 2 * 1024 * 1024,
+    return _coverImage(image, radius: 12, fadeIn: true);
+  }
+
+  Widget _coverImage(GalleryImage image, {required double radius, required bool fadeIn}) {
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        return EHImage.autoLayout(
+          galleryImage: image,
+          fit: BoxFit.cover,
+          forceFadeIn: fadeIn,
+          borderRadius: BorderRadius.circular(radius),
+          cacheWidth: displayDecodePixels(constraints.maxWidth, context),
+          cacheHeight: displayDecodePixels(constraints.maxHeight, context),
+        );
+      },
     );
   }
 }

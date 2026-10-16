@@ -43,6 +43,9 @@ class EHImage extends StatefulWidget {
   final bool forceFadeIn;
   final int? maxBytes;
 
+  final int? cacheWidth;
+  final int? cacheHeight;
+
   final LoadingProgressWidgetBuilder? loadingProgressWidgetBuilder;
   final FailedWidgetBuilder? failedWidgetBuilder;
   final DownloadingWidgetBuilder? downloadingWidgetBuilder;
@@ -72,6 +75,8 @@ class EHImage extends StatefulWidget {
     this.shadows,
     this.forceFadeIn = false,
     this.maxBytes,
+    this.cacheWidth,
+    this.cacheHeight,
     this.disableAnimation = false,
     this.animateOnlyWhenVisible = false,
     this.loadingProgressWidgetBuilder,
@@ -97,6 +102,8 @@ class EHImage extends StatefulWidget {
     this.shadows,
     this.forceFadeIn = false,
     this.maxBytes,
+    this.cacheWidth,
+    this.cacheHeight,
     this.disableAnimation = false,
     this.animateOnlyWhenVisible = false,
     this.loadingProgressWidgetBuilder,
@@ -109,6 +116,13 @@ class EHImage extends StatefulWidget {
 
   @override
   State<EHImage> createState() => _EHImageState();
+}
+
+int? displayDecodePixels(double? logicalPixels, BuildContext context) {
+  if (logicalPixels == null || !logicalPixels.isFinite || logicalPixels <= 0) {
+    return null;
+  }
+  return (logicalPixels * MediaQuery.devicePixelRatioOf(context)).round().clamp(1, 4096);
 }
 
 class _EHImageState extends State<EHImage> {
@@ -207,11 +221,10 @@ class _EHImageState extends State<EHImage> {
     final bool useGate = widget.animateOnlyWhenVisible && !widget.disableAnimation;
 
     return ExtendedImage(
-      image: ExtendedResizeImage.resizeIfNeeded(
-        provider: useGate
+      image: _sizedProvider(
+        useGate
             ? _GateExtendedNetworkImageProvider(url, cache: true, printError: kDebugMode, gate: _gate)
             : ExtendedNetworkImageProvider(url, cache: true, printError: kDebugMode),
-        maxBytes: widget.maxBytes,
       ),
       fit: widget.fit,
       height: widget.containerHeight,
@@ -280,7 +293,7 @@ class _EHImageState extends State<EHImage> {
     }
 
     return ExtendedImage(
-      image: ExtendedResizeImage.resizeIfNeeded(provider: provider, maxBytes: widget.maxBytes),
+      image: _sizedProvider(provider),
       fit: widget.fit,
       height: widget.containerHeight,
       width: widget.containerWidth,
@@ -309,17 +322,29 @@ class _EHImageState extends State<EHImage> {
               child = ExtendedImageSlidePageHandler(child: child, extendedImageSlidePageState: state.slidePageState);
             }
 
-            return FadeIn(
-              child: Center(
-                child: Container(
-                  decoration: BoxDecoration(boxShadow: widget.shadows, borderRadius: widget.borderRadius),
-                  child: child,
-                ),
+            final Widget framed = Center(
+              child: Container(
+                decoration: BoxDecoration(boxShadow: widget.shadows, borderRadius: widget.borderRadius),
+                child: child,
               ),
             );
+            return widget.forceFadeIn || !state.wasSynchronouslyLoaded ? FadeIn(child: framed) : framed;
         }
       },
       filterQuality: FilterQuality.medium,
+    );
+  }
+
+  ImageProvider<Object> _sizedProvider(ImageProvider<Object> provider) {
+    if (widget.cacheWidth == null && widget.cacheHeight == null) {
+      return ExtendedResizeImage.resizeIfNeeded(provider: provider, maxBytes: widget.maxBytes);
+    }
+    return ExtendedResizeImage(
+      provider,
+      width: widget.cacheWidth,
+      height: widget.cacheHeight,
+      maxBytes: null,
+      policy: ResizeImagePolicy.fit,
     );
   }
 

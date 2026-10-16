@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:executor/executor.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
@@ -649,6 +650,13 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
   void toggleMenu() {
     state.isMenuOpen = !state.isMenuOpen;
     update([topMenuId, bottomMenuId, rightBottomInfoId]);
+    if (state.isMenuOpen) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (!isClosed) {
+          syncThumbnails(state.readPageInfo.currentImageIndex);
+        }
+      });
+    }
   }
 
   Future<void> toggleAutoMode() async {
@@ -811,6 +819,9 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
   }
 
   void recordReadProgress(int index) {
+    if (state.readPageInfo.currentImageIndex == index) {
+      return;
+    }
     state.readPageInfo.currentImageIndex = index;
     update([sliderId, pageNoId, thumbnailNoId]);
   }
