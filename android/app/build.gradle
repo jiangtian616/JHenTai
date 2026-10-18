@@ -71,11 +71,11 @@ android {
 }
 
 import com.android.build.gradle.internal.api.ApkVariantOutputImpl
-val abiCodes = mapOf("armeabi-v7a" to 1, "arm64-v8a" to 2, "x86_64" to 4)
-android.applicationVariants.configureEach {
-    val variant = this
+def abiCodes = ['armeabi-v7a': 1, 'arm64-v8a': 2, 'x86_64': 4]
+android.applicationVariants.configureEach { variant ->
     variant.outputs.forEach { output ->
-        val abiVersionCode = abiCodes[output.filters.find { it.filterType == "ABI" }?.identifier]
+        def abi = output.filters.find { it.filterType == 'ABI' }?.identifier
+        def abiVersionCode = abiCodes[abi]
         if (abiVersionCode != null) {
             (output as ApkVariantOutputImpl).versionCodeOverride = variant.versionCode * 1000 + abiVersionCode
         }
