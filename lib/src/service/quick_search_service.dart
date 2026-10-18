@@ -2,20 +2,23 @@ import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 
+import '../widget/eh_search_config_dialog.dart';
 import 'jh_service.dart';
 import 'log.dart';
-import '../widget/eh_search_config_dialog.dart';
 
 QuickSearchService quickSearchService = QuickSearchService();
 
 class QuickSearchService extends GetxController with JHLifeCircleBeanWithConfigStorage implements JHLifeCircleBean {
   LinkedHashMap<String, SearchConfig> quickSearchConfigs = LinkedHashMap();
+
+  final ScrollController drawerScrollController = _PersistentScrollController();
 
   @override
   ConfigEnum get configEnum => ConfigEnum.quickSearch;
@@ -75,14 +78,8 @@ class QuickSearchService extends GetxController with JHLifeCircleBeanWithConfigS
     log.info('reOrder quick search, oldIndex:$oldIndex, newIndex:$newIndex');
 
     List<MapEntry<String, SearchConfig>> entries = quickSearchConfigs.entries.toList();
-
-    if (newIndex != entries.length) {
-      entries.insert(newIndex, entries[oldIndex]);
-      entries.removeAt(newIndex > oldIndex ? oldIndex : oldIndex + 1);
-    } else {
-      entries.add(entries[oldIndex]);
-      entries.removeAt(newIndex > oldIndex ? oldIndex : oldIndex + 1);
-    }
+    final MapEntry<String, SearchConfig> item = entries.removeAt(oldIndex);
+    entries.insert(newIndex, item);
 
     quickSearchConfigs = LinkedHashMap.fromEntries(entries);
     await saveBeanConfig();
@@ -127,5 +124,44 @@ class QuickSearchService extends GetxController with JHLifeCircleBeanWithConfigS
     updateSafely();
     
     toast('updateSuccess'.tr);
+  }
+}
+
+
+
+
+/// 在 attach 时自动跳回上次记录的偏移量，解决 Drawer 卸载重挂后位置丢失的问题
+class _PersistentScrollController extends ScrollController {
+  double _savedOffset = 0.0;
+
+  _PersistentScrollController() : super(keepScrollOffset: false) {
+    addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (hasClients) {
+      _savedOffset = offset;
+    }
+  }
+
+  @override
+  void attach(ScrollPosition position) {
+    super.attach(position);
+    if (_savedOffset > 0.0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (hasClients && position.hasContentDimensions) {
+          final double target = _savedOffset.clamp(position.minScrollExtent, position.maxScrollExtent);
+          if ((position.pixels - target).abs() > 0.5) {
+            position.jumpTo(target);
+          }
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    removeListener(_onScroll);
+    super.dispose();
   }
 }

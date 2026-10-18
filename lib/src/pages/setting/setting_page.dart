@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import '../../setting/user_setting.dart';
@@ -18,7 +17,7 @@ class SettingPage extends StatelessWidget {
         centerTitle: true,
         title: Text('setting'.tr),
         leading: showMenuButton
-            ? IconButton(icon: const Icon(FontAwesomeIcons.bars, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context))
+            ? IconButton(icon: Icon(Icons.menu, size: 20), onPressed: () => TapMenuButtonNotification().dispatch(context))
             : null,
       ),
       body: Obx(

@@ -20,15 +20,16 @@ class HorizontalPageLayout extends BaseLayout {
   @override
   Widget buildBody(BuildContext context) {
     return EHWheelListener(
-      onPointerScroll: readSetting.isInFitWidthReadDirection ? null : logic.onPointerScroll,
+      onPointerScroll: logic.readPageLogic.isInFitWidthReadDirection ? null : logic.onPointerScroll,
       child: PhotoViewGallery.builder(
+        enableCtrlScrollZoom: true,
         itemCount: readPageState.readPageInfo.pageCount,
         scrollPhysics: const ClampingScrollPhysics(),
         pageController: logic.pageController,
         cacheExtent: readPageState.readPageInfo.mode == ReadMode.online
             ? readSetting.preloadPageCount.value.toDouble()
             : readSetting.preloadPageCountLocal.value.toDouble(),
-        reverse: readSetting.isInRight2LeftDirection,
+        reverse: logic.readPageLogic.isInRight2LeftDirection,
         builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
           initialScale: 1.0,
           minScale: 1.0,
@@ -38,7 +39,7 @@ class HorizontalPageLayout extends BaseLayout {
           child: Obx(() {
             Widget item = readPageState.readPageInfo.mode == ReadMode.online ? buildItemInOnlineMode(context, index) : buildItemInLocalMode(context, index);
 
-            if (readSetting.isInFitWidthReadDirection) {
+            if (logic.readPageLogic.isInFitWidthReadDirection) {
               item = Center(child: SingleChildScrollView(controller: ScrollController(), child: item));
             }
 

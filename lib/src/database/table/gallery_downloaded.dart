@@ -42,6 +42,11 @@ class GalleryDownloaded extends Table {
 
   TextColumn get tagRefreshTime => text().nullable()();
 
+  /// Sanitized and truncated title used as the directory name on disk.
+  /// Computed once when the download task is first created and stored here to
+  /// ensure the path never changes even if the truncation algorithm is updated.
+  TextColumn get sanitizedTitle => text().nullable()();
+
   @override
   Set<Column<Object>>? get primaryKey => {gid};
 }

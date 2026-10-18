@@ -1,7 +1,6 @@
 import 'package:clipboard/clipboard.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
@@ -144,7 +143,7 @@ class _TorrentList extends StatelessWidget {
         ],
       ),
       trailing: IconButton(
-        icon: Icon(FontAwesomeIcons.magnet, size: 16, color: UIConfig.resumePauseButtonColor(context)),
+        icon: Icon(Icons.attach_file_outlined, size: 16, color: UIConfig.resumePauseButtonColor(context)),
         padding: EdgeInsets.zero,
         onPressed: () => FlutterClipboard.copy(torrent.magnetUrl).then((_) => toast('hasCopiedToClipboard'.tr)),
       ),

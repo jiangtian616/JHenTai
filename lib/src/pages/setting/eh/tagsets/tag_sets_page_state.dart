@@ -1,5 +1,4 @@
-import 'dart:ui';
-
+import 'package:flutter/material.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_state_mixin.dart';
 import 'package:jhentai/src/model/tag_set.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
@@ -17,4 +16,8 @@ class TagSetsState with Scroll2TopStateMixin {
   LoadingState loadingState = LoadingState.idle;
   LoadingState updateTagSetState = LoadingState.idle;
   LoadingState updateTagState = LoadingState.idle;
+
+  final TextEditingController searchController = TextEditingController();
+  bool searchMode = false;
+  String searchKeyword = '';
 }

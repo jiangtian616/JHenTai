@@ -1,5 +1,7 @@
 import 'gallery_image.dart';
 
+import '../setting/read_setting.dart';
+
 enum ReadMode { downloaded, online, archive, local }
 
 class ReadPageInfo {
@@ -32,6 +34,8 @@ class ReadPageInfo {
   /// used for initialize
   bool useSuperResolution;
 
+  ReadDirection? readDirection;
+
   ReadPageInfo({
     required this.mode,
     this.gid,
@@ -44,5 +48,6 @@ class ReadPageInfo {
     required this.readProgressRecordStorageKey,
     this.images,
     required this.useSuperResolution,
+    this.readDirection,
   }) : currentImageIndex = initialIndex;
 }

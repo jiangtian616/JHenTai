@@ -16,7 +16,7 @@ mixin ScrollStatusListener {
           scrollStatusListerState.isScrolling = true;
         }
         if (notification is ScrollEndNotification) {
-          timer = Timer(const Duration(milliseconds: 250), () {
+          timer = Timer(const Duration(milliseconds: 300), () {
             scrollStatusListerState.isScrolling = false;
           });
         }

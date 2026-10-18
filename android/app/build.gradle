@@ -30,7 +30,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace 'top.jtmonster.jhentai'
-    compileSdkVersion 34
+    compileSdkVersion 36
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -47,8 +47,8 @@ android {
 
     defaultConfig {
         applicationId "top.jtmonster.jhentai"
-        minSdkVersion 21
-        targetSdkVersion 34
+        minSdkVersion 24
+        targetSdkVersion 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

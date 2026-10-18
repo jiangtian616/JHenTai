@@ -22,7 +22,7 @@ class EHGalleryCategoryTag extends StatelessWidget {
     this.borderRadius = 4,
     this.enabled = true,
     this.color,
-    this.padding = const EdgeInsets.only(top: 3, bottom: 4, left: 6, right: 6),
+    this.padding = const EdgeInsets.only(top: 3, bottom: 4, left: 2, right: 2),
     this.textStyle = const TextStyle(height: 1, fontSize: 15, color: UIConfig.galleryCategoryTagTextColor),
     this.onTap,
     this.onLongPress,
@@ -44,7 +44,11 @@ class EHGalleryCategoryTag extends StatelessWidget {
           color: enabled ? color ?? UIConfig.galleryCategoryColor[category] : UIConfig.galleryCategoryTagDisabledBackGroundColor(context),
           borderRadius: BorderRadius.circular(borderRadius),
         ),
-        child: Text(category, style: enabled ? textStyle : textStyle.copyWith(color: UIConfig.galleryCategoryTagDisabledTextColor(context))),
+        child: Text(
+          category,
+          overflow: TextOverflow.ellipsis,
+          style: enabled ? textStyle : textStyle.copyWith(color: UIConfig.galleryCategoryTagDisabledTextColor(context)),
+        ),
       ),
     );
   }

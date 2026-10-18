@@ -55,7 +55,7 @@ class DesktopSearchPageTabView extends BasePage<DesktopSearchPageTabLogic, Deskt
       child: Row(
         children: [
           Expanded(child: buildSearchField().marginOnly(left: 8)),
-          ...buildActionButtons(),
+          ...buildActionButtons(compactSize: UIConfig.desktopSearchBarHeight, spacing: 4),
         ],
       ),
     );

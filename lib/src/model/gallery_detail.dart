@@ -40,14 +40,14 @@ class GalleryDetail {
   String torrentPageUrl;
   String archivePageUrl;
   GalleryUrl? parentGalleryUrl;
-  List<({GalleryUrl galleryUrl, String title, String updateTime})>? childrenGallerys;
+  List<({GalleryUrl galleryUrl, String title, String updateTime})>? childrenGalleries;
   List<GalleryComment> comments;
   List<GalleryThumbnail> thumbnails;
   int thumbnailsPageCount;
 
   bool get isFavorite => favoriteTagIndex != null || favoriteTagName != null;
 
-  GalleryUrl? get newVersionGalleryUrl => childrenGallerys?.lastOrNull?.galleryUrl;
+  GalleryUrl? get newVersionGalleryUrl => childrenGalleries?.lastOrNull?.galleryUrl;
 
   GalleryDetail({
     required this.galleryUrl,
@@ -73,7 +73,7 @@ class GalleryDetail {
     required this.torrentPageUrl,
     required this.archivePageUrl,
     this.parentGalleryUrl,
-    this.childrenGallerys,
+    this.childrenGalleries,
     required this.comments,
     required this.thumbnails,
     required this.thumbnailsPageCount,

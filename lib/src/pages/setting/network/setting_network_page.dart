@@ -12,8 +12,6 @@ import '../../../utils/toast_util.dart';
 
 class SettingNetworkPage extends StatelessWidget {
   final TextEditingController proxyAddressController = TextEditingController(text: networkSetting.proxyAddress.value);
-  final TextEditingController connectTimeoutController = TextEditingController(text: networkSetting.connectTimeout.value.toString());
-  final TextEditingController receiveTimeoutController = TextEditingController(text: networkSetting.receiveTimeout.value.toString());
 
   SettingNetworkPage({Key? key}) : super(key: key);
 
@@ -21,19 +19,27 @@ class SettingNetworkPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(centerTitle: true, title: Text('networkSetting'.tr)),
-      body: Obx(
-        () => ListView(
-          padding: const EdgeInsets.only(top: 16),
-          children: [
-            _buildEnableDomainFronting(),
-            _buildProxyAddress(),
-            _buildPageCacheMaxAge(),
-            _buildCacheImageExpireDuration(),
-            _buildConnectTimeout(context),
-            _buildReceiveTimeout(context),
-          ],
-        ).withListTileTheme(context),
-      ),
+      body: Obx(() => ListView(
+            padding: const EdgeInsets.only(top: 16),
+            children: [
+              _buildEnableDomainFronting(),
+              _buildProxyAddress(),
+              _buildPageCacheMaxAge(),
+              _buildCacheImageExpireDuration(),
+              _buildTimeoutTile(
+                context: context,
+                title: 'connectTimeout'.tr,
+                value: networkSetting.connectTimeout,
+                onSave: networkSetting.saveConnectTimeout,
+              ),
+              _buildTimeoutTile(
+                context: context,
+                title: 'receiveTimeout'.tr,
+                value: networkSetting.receiveTimeout,
+                onSave: networkSetting.saveReceiveTimeout,
+              ),
+            ],
+          ).withListTileTheme(context)),
     );
   }
 
@@ -96,74 +102,149 @@ class SettingNetworkPage extends StatelessWidget {
     );
   }
 
-  Widget _buildConnectTimeout(BuildContext context) {
-    return ListTile(
-      title: Text('connectTimeout'.tr),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: 50,
-            child: TextField(
-              controller: connectTimeoutController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
-              textAlign: TextAlign.center,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                IntRangeTextInputFormatter(minValue: 0),
-              ],
-            ),
-          ),
-          Text('ms', style: UIConfig.settingPageListTileTrailingTextStyle(context)),
-          IconButton(
-            onPressed: () {
-              int? value = int.tryParse(connectTimeoutController.value.text);
-              if (value == null) {
-                return;
-              }
-              networkSetting.saveConnectTimeout(value);
-              toast('saveSuccess'.tr);
-            },
-            icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),
-          ),
-        ],
+  Widget _buildTimeoutTile({
+    required BuildContext context,
+    required String title,
+    required RxInt value,
+    required Future<void> Function(int) onSave,
+  }) {
+    return Obx(
+      () => ListTile(
+        title: Text(title),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('${value.value} ms', style: UIConfig.settingPageListTileTrailingTextStyle(context)),
+            const Icon(Icons.keyboard_arrow_right).marginOnly(left: 4),
+          ],
+        ),
+        onTap: () async {
+          int? result = await showDialog<int>(
+            context: context,
+            builder: (context) => _TimeoutSettingDialog(title: title, initialValue: value.value),
+          );
+          if (result != null) {
+            await onSave(result);
+            toast('saveSuccess'.tr);
+          }
+        },
       ),
     );
   }
+}
 
-  Widget _buildReceiveTimeout(BuildContext context) {
-    return ListTile(
-      title: Text('receiveTimeout'.tr),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: 50,
-            child: TextField(
-              controller: receiveTimeoutController,
-              decoration: const InputDecoration(isDense: true, labelStyle: TextStyle(fontSize: 12)),
+class _TimeoutSettingDialog extends StatefulWidget {
+  final String title;
+  final int initialValue;
+
+  const _TimeoutSettingDialog({Key? key, required this.title, required this.initialValue}) : super(key: key);
+
+  @override
+  State<_TimeoutSettingDialog> createState() => _TimeoutSettingDialogState();
+}
+
+class _TimeoutSettingDialogState extends State<_TimeoutSettingDialog> {
+  static const int min = 0;
+  static const int max = 60000;
+  static const int step = 500;
+
+  late int value;
+  late final TextEditingController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    value = widget.initialValue.clamp(min, max);
+    controller = TextEditingController(text: value.toString());
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.title),
+      contentPadding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
+      content: SizedBox(
+        width: 360,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text('$value', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
+                const SizedBox(width: 4),
+                Text('ms', style: TextStyle(fontSize: 14, color: Theme.of(context).hintColor)),
+              ],
+            ),
+            Slider(
+              value: value.toDouble(),
+              min: min.toDouble(),
+              max: max.toDouble(),
+              divisions: (max - min) ~/ step,
+              label: '$value ms',
+              onChanged: (double v) => _setValue(v.round()),
+            ),
+            TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
               textAlign: TextAlign.center,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
-                IntRangeTextInputFormatter(minValue: 0),
+                IntRangeTextInputFormatter(minValue: min, maxValue: max),
               ],
+              decoration: InputDecoration(
+                isDense: true,
+                suffixText: 'ms',
+                errorText: _hasError() ? 'invalid'.tr : null,
+              ),
+              onSubmitted: (String text) => _confirm(),
+              onChanged: (String text) {
+                int? parsed = _parse();
+                if (parsed != null) {
+                  setState(() => value = parsed);
+                }
+              },
             ),
-          ),
-          Text('ms', style: UIConfig.settingPageListTileTrailingTextStyle(context)),
-          IconButton(
-            onPressed: () {
-              int? value = int.tryParse(receiveTimeoutController.value.text);
-              if (value == null) {
-                return;
-              }
-              networkSetting.saveReceiveTimeout(value);
-              toast('saveSuccess'.tr);
-            },
-            icon: Icon(Icons.check, color: UIConfig.resumePauseButtonColor(context)),
-          ),
-        ],
+          ],
+        ),
       ),
+      actions: [
+        TextButton(onPressed: backRoute, child: Text('cancel'.tr)),
+        TextButton(onPressed: _confirm, child: Text('OK'.tr)),
+      ],
     );
+  }
+
+  int? _parse() {
+    int? parsed = int.tryParse(controller.text);
+    if (parsed == null || parsed < min || parsed > max) {
+      return null;
+    }
+    return parsed;
+  }
+
+  bool _hasError() => controller.text.isNotEmpty && _parse() == null;
+
+  void _setValue(int newValue) {
+    setState(() {
+      value = newValue;
+      controller.text = newValue.toString();
+    });
+  }
+
+  void _confirm() {
+    int? parsed = _parse();
+    if (parsed == null) {
+      return;
+    }
+    backRoute(result: parsed);
   }
 }

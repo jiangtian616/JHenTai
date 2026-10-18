@@ -51,5 +51,5 @@ mixin MultiSelectDownloadPageLogicMixin<T> on GetxController {
 
   void handleTapItem(T item);
 
-  void handleLongPressOrSecondaryTapItem(T item, BuildContext context);
+  void handleLongPressOrSecondaryTapItem(T item, BuildContext context, {Offset? position});
 }

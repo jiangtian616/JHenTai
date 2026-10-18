@@ -9,6 +9,7 @@
 #include <battery_plus/battery_plus_windows_plugin.h>
 #include <desktop_webview_window/desktop_webview_window_plugin.h>
 #include <local_auth_windows/local_auth_plugin.h>
+#include <pasteboard/pasteboard_plugin.h>
 #include <permission_handler_windows/permission_handler_windows_plugin.h>
 #include <screen_brightness_windows/screen_brightness_windows_plugin.h>
 #include <screen_retriever/screen_retriever_plugin.h>
@@ -25,6 +26,8 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("DesktopWebviewWindowPlugin"));
   LocalAuthPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("LocalAuthPlugin"));
+  PasteboardPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("PasteboardPlugin"));
   PermissionHandlerWindowsPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("PermissionHandlerWindowsPlugin"));
   ScreenBrightnessWindowsPluginRegisterWithRegistrar(

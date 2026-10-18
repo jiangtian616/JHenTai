@@ -50,11 +50,11 @@ class HistoryService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean
     }
   }
 
-  Future<void> batchRecord(List<GalleryHistoryV2Data> gallerys) async {
-    log.trace('Batch record history, size: ${gallerys.length}');
+  Future<void> batchRecord(List<GalleryHistoryV2Data> galleries) async {
+    log.trace('Batch record history, size: ${galleries.length}');
 
     try {
-      for (List<GalleryHistoryV2Data> partition in gallerys.partition(2000)) {
+      for (List<GalleryHistoryV2Data> partition in galleries.partition(2000)) {
         await GalleryHistoryDao.batchReplaceHistory(partition);
         await Future.delayed(const Duration(milliseconds: 200));
       }

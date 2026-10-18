@@ -4,6 +4,7 @@ import 'dart:collection';
 import 'package:clipboard/clipboard.dart';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
@@ -11,7 +12,6 @@ import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/database/dao/archive_dao.dart';
 import 'package:jhentai/src/database/dao/gallery_dao.dart';
 import 'package:jhentai/src/database/database.dart';
-import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/login_required_logic_mixin.dart';
@@ -23,7 +23,7 @@ import 'package:jhentai/src/model/gallery_url.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/download/download_base_page.dart';
-import 'package:jhentai/src/service/local_config_service.dart';
+import 'package:jhentai/src/service/read_progress_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/my_tags_setting.dart';
@@ -38,6 +38,7 @@ import 'package:jhentai/src/widget/eh_rating_dialog.dart';
 import 'package:jhentai/src/widget/eh_gallery_stat_dialog.dart';
 import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
+import 'package:jhentai/src/service/gallery_download/gallery_images_retainer.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/setting/favorite_setting.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
@@ -59,7 +60,8 @@ import '../../model/gallery_note.dart';
 import '../../model/search_config.dart';
 import '../../model/tag_set.dart';
 import '../../service/history_service.dart';
-import '../../service/gallery_download_service.dart';
+import '../../service/gallery_download/download_path_resolver.dart';
+import '../../service/gallery_download/gallery_download_service.dart';
 import '../../service/local_block_rule_service.dart';
 import '../../service/storage_service.dart';
 import '../../setting/eh_setting.dart';
@@ -73,6 +75,7 @@ import '../../utils/uuid_util.dart';
 import '../../widget/eh_download_dialog.dart';
 import '../../widget/eh_download_hh_dialog.dart';
 import '../../widget/eh_gallery_history_dialog.dart';
+import '../../widget/eh_tag_bottom_sheet.dart';
 import '../../widget/eh_tag_dialog.dart';
 import '../../widget/jump_page_dialog.dart';
 import '../../widget/re_unlock_dialog.dart';
@@ -93,7 +96,7 @@ class DetailsPageArgument {
   }
 }
 
-class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2TopLogicMixin, UpdateGlobalGalleryStatusLogicMixin {
+class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2TopLogicMixin, UpdateGlobalGalleryStatusLogicMixin, GalleryImagesRetainer {
   static const String galleryId = 'galleryId';
   static const String uploaderId = 'uploaderId';
   static const String detailsId = 'detailsId';
@@ -145,6 +148,16 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   void onReady() async {
     super.onReady();
 
+    /// If this gallery is in the download list and its image list has been
+    /// evicted (fully downloaded earlier), reload so detail/thumbnails pages
+    /// can read image status synchronously. Retain for the lifetime of this
+    /// controller so eviction stays deferred until details (and any spawned
+    /// thumbnails page) closes.
+    final int gid = state.galleryUrl.gid;
+    if (galleryDownloadService.containGallery(gid)) {
+      await retainGalleryImages(gid);
+    }
+
     if (state.galleryDetails == null || state.apikey == null) {
       getDetails();
     }
@@ -162,17 +175,9 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
 
     if (SiteSetting.preferJapaneseTitle.isTrue) {
-      return state.galleryDetails?.japaneseTitle ??
-          state.galleryDetails?.rawTitle ??
-          state.galleryMetadata?.japaneseTitle ??
-          state.galleryMetadata?.title ??
-          '';
+      return state.galleryDetails?.japaneseTitle ?? state.galleryDetails?.rawTitle ?? state.galleryMetadata?.japaneseTitle ?? state.galleryMetadata?.title ?? '';
     } else {
-      return state.galleryDetails?.rawTitle ??
-          state.galleryDetails?.japaneseTitle ??
-          state.galleryMetadata?.title ??
-          state.galleryMetadata?.japaneseTitle ??
-          '';
+      return state.galleryDetails?.rawTitle ?? state.galleryDetails?.japaneseTitle ?? state.galleryMetadata?.title ?? state.galleryMetadata?.japaneseTitle ?? '';
     }
   }
 
@@ -226,6 +231,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     state.galleryDetails = detailPageInfo.galleryDetails;
     state.apikey = detailPageInfo.apikey;
     state.nextPageIndexToLoadThumbnails = 1;
+    state.loadingThumbnailsState = LoadingState.idle;
 
     await tagTranslationService.translateTagsIfNeeded(state.galleryDetails!.tags);
 
@@ -346,7 +352,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   Future<void> handleTapDownload() async {
-    GalleryDownloadedData? galleryDownloadedData = galleryDownloadService.gallerys.singleWhereOrNull((g) => g.gid == state.galleryUrl.gid);
+    GalleryDownloadInfo? galleryDownloadedData = galleryDownloadService.galleryDownloadInfos[state.galleryUrl.gid];
     GalleryDownloadProgress? downloadProgress = galleryDownloadService.galleryDownloadInfos[state.galleryUrl.gid]?.downloadProgress;
 
     /// new download
@@ -358,6 +364,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           candidates: galleryDownloadService.allGroups,
           showDownloadOriginalImageCheckBox: userSetting.hasLoggedIn(),
           downloadOriginalImage: downloadSetting.downloadOriginalImageByDefault.value,
+          preferredGroups: downloadSetting.preferredGalleryGroups,
         ),
       );
 
@@ -369,7 +376,9 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         return;
       }
 
-      GalleryDownloadedData galleryDownloadedData = GalleryDownloadedData(
+      unawaited(downloadSetting.saveRecentGalleryGroup(result.group));
+
+      GalleryDownloadRequest galleryDownloadRequest = GalleryDownloadRequest(
         gid: state.galleryDetails?.galleryUrl.gid ?? state.gallery!.galleryUrl.gid,
         token: state.galleryDetails?.galleryUrl.token ?? state.gallery!.galleryUrl.token,
         title: mainTitleText,
@@ -378,16 +387,12 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         galleryUrl: state.galleryDetails?.galleryUrl.url ?? state.gallery!.galleryUrl.url,
         uploader: state.galleryDetails?.uploader ?? state.gallery?.uploader,
         publishTime: state.galleryDetails?.publishTime ?? state.gallery!.publishTime,
-        downloadStatusIndex: DownloadStatus.downloading.index,
         downloadOriginalImage: result.downloadOriginalImage,
-        sortOrder: 0,
-        groupName: result.group,
-        insertTime: DateTime.now().toString(),
-        priority: GalleryDownloadService.defaultDownloadGalleryPriority,
+        group: result.group,
         tags: state.galleryDetails != null ? tagMap2TagString(state.galleryDetails!.tags) : tagMap2TagString(state.gallery!.tags),
         tagRefreshTime: DateTime.now().toString(),
       );
-      galleryDownloadService.downloadGallery(galleryDownloadedData);
+      galleryDownloadService.downloadGallery(galleryDownloadRequest);
 
       updateGlobalGalleryStatus();
 
@@ -643,6 +648,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       ({bool useBot, bool isOriginal, int size, String group})? result = await Get.dialog(
         EHArchiveDialog(
           title: 'chooseArchive'.tr,
+          gid: state.galleryDetails!.galleryUrl.gid,
+          token: state.galleryDetails!.galleryUrl.token,
           archivePageUrl: state.galleryDetails!.archivePageUrl,
           currentGroup: downloadSetting.defaultArchiveGroup.value,
           candidates: archiveDownloadService.allGroups,
@@ -704,6 +711,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     if (archiveStatus == ArchiveStatus.completed) {
       List<GalleryImage> images = await archiveDownloadService.getUnpackedImages(archive.gid);
 
+      ReadDirection? readDirection = isWebtoonGalleryFromTagString(archive.tags) ? ReadDirection.top2bottomList : null;
+
       toRoute(
         Routes.read,
         arguments: ReadPageInfo(
@@ -718,6 +727,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           readProgressRecordStorageKey: archive.gid.toString(),
           images: images,
           useSuperResolution: superResolutionService.get(archive.gid, SuperResolutionType.archive) != null,
+          readDirection: readDirection,
         ),
       );
     }
@@ -807,7 +817,7 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
       builder: (_) => EHGalleryHistoryDialog(
         currentGalleryTitle: state.gallery?.title ?? state.galleryDetails?.japaneseTitle ?? state.galleryDetails?.rawTitle ?? '',
         parentUrl: state.galleryDetails?.parentGalleryUrl,
-        childrenGallerys: state.galleryDetails?.childrenGallerys,
+        childrenGalleries: state.galleryDetails?.childrenGalleries,
       ),
     );
   }
@@ -869,13 +879,28 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
   }
 
   void showTagDialog(GalleryTag tag) {
-    Get.dialog(EHTagDialog(
-      tagData: tag.tagData,
-      gid: state.galleryDetails!.galleryUrl.gid,
-      token: state.galleryDetails!.galleryUrl.token,
-      apikey: state.apikey!,
-      onTagVoted: (bool isVoted) => onTagVoted(tag, isVoted),
-    ));
+    bool useDialog = GetPlatform.isDesktop ||
+        PlatformDispatcher.instance.views.first.physicalSize.width / PlatformDispatcher.instance.views.first.devicePixelRatio >= 600;
+
+    if (useDialog) {
+      Get.dialog(EHTagDialog(
+        tagData: tag.tagData,
+        gid: state.galleryDetails!.galleryUrl.gid,
+        token: state.galleryDetails!.galleryUrl.token,
+        apikey: state.apikey!,
+        voteStatus: tag.voteStatus,
+        onTagVoted: (bool isVoted, bool isCancel) => onTagVoted(tag, isVoted, isCancel),
+      ));
+    } else {
+      EHTagBottomSheet.show(
+        tagData: tag.tagData,
+        gid: state.galleryDetails!.galleryUrl.gid,
+        token: state.galleryDetails!.galleryUrl.token,
+        apikey: state.apikey!,
+        voteStatus: tag.voteStatus,
+        onTagVoted: (bool isVoted, bool isCancel) => onTagVoted(tag, isVoted, isCancel),
+      );
+    }
   }
 
   Future<void> handleAddTag(BuildContext context) async {
@@ -930,8 +955,10 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     }
   }
 
-  void onTagVoted(GalleryTag tag, bool isVoted) {
-    if (tag.voteStatus == EHTagVoteStatus.none) {
+  void onTagVoted(GalleryTag tag, bool isVoted, bool isCancel) {
+    if (isCancel) {
+      tag.voteStatus = EHTagVoteStatus.none;
+    } else if (tag.voteStatus == EHTagVoteStatus.none) {
       tag.voteStatus = isVoted ? EHTagVoteStatus.up : EHTagVoteStatus.down;
     } else if (tag.voteStatus == EHTagVoteStatus.up) {
       tag.voteStatus = isVoted ? EHTagVoteStatus.up : EHTagVoteStatus.none;
@@ -983,7 +1010,57 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
     toast('success'.tr);
   }
 
+  Future<void> blockTitle(String title) async {
+    String expression = title.trim();
+    if (expression.isEmpty) {
+      return;
+    }
+
+    LocalBlockRule rule = LocalBlockRule(
+      groupId: newUUID(),
+      target: LocalBlockTargetEnum.gallery,
+      attribute: LocalBlockAttributeEnum.title,
+      pattern: LocalBlockPatternEnum.like,
+      expression: expression,
+    );
+
+    try {
+      ({bool success, bool inserted, String? msg}) result = await localBlockRuleService.insertBlockRuleIfAbsent(rule);
+      if (!result.success) {
+        snack('configureBlockRuleFailed'.tr, result.msg ?? '');
+      } else if (result.inserted) {
+        toast('success'.tr);
+      } else {
+        toast('blockRuleAlreadyExists'.tr);
+      }
+    } catch (e, stack) {
+      log.error('Block title failed, expression:$expression', e, stack);
+      snack('configureBlockRuleFailed'.tr, e.toString());
+    }
+  }
+
+  Future<void> handleResetReadProgress() async {
+    await readProgressService.deleteReadProgress(state.galleryUrl.gid.toString());
+    updateSafely([readButtonId]);
+    toast('success'.tr);
+  }
+
+  Future<void> blockGallery() async {
+    await localBlockRuleService.upsertBlockRule(
+      LocalBlockRule(
+        groupId: newUUID(),
+        target: LocalBlockTargetEnum.gallery,
+        attribute: LocalBlockAttributeEnum.gid,
+        pattern: LocalBlockPatternEnum.equal,
+        expression: state.galleryUrl.gid.toString(),
+      ),
+    );
+    toast('blockGallerySuccess'.tr);
+  }
+
   Future<void> goToReadPage([int? forceIndex]) async {
+    ReadDirection? webtoonReadDirection = _detectWebtoonReadDirection();
+
     /// online
     if (galleryDownloadService.galleryDownloadInfos[state.galleryUrl.gid]?.downloadProgress == null) {
       toRoute(
@@ -998,16 +1075,17 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
           readProgressRecordStorageKey: state.galleryUrl.gid.toString(),
           pageCount: state.galleryDetails?.pageCount ?? state.gallery?.pageCount ?? state.galleryMetadata!.pageCount,
           useSuperResolution: false,
+          readDirection: webtoonReadDirection,
         ),
       )?.whenComplete(() => Future.delayed(const Duration(milliseconds: 800))).whenComplete(() => updateSafely([readButtonId]));
       return;
     }
 
     /// use GalleryDownloadedData's title
-    GalleryDownloadedData gallery = galleryDownloadService.gallerys.firstWhere((g) => g.gid == state.galleryUrl.gid);
+    GalleryDownloadInfo gallery = galleryDownloadService.galleryDownloadInfos[state.galleryUrl.gid]!;
 
     if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
-      openThirdPartyViewer(galleryDownloadService.computeGalleryDownloadAbsolutePath(gallery.title, gallery.gid));
+      openThirdPartyViewer(DownloadPathResolver.computeGalleryDownloadAbsolutePath(gallery.toGalleryDownloadedData()));
       return;
     }
 
@@ -1023,17 +1101,35 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         readProgressRecordStorageKey: state.galleryUrl.gid.toString(),
         pageCount: gallery.pageCount,
         useSuperResolution: superResolutionService.get(state.galleryUrl.gid, SuperResolutionType.gallery) != null,
+        readDirection: webtoonReadDirection,
       ),
     )?.whenComplete(() => Future.delayed(const Duration(milliseconds: 800))).whenComplete(() => updateSafely([readButtonId]));
   }
 
-  Future<int> getReadIndexRecord() async {
-    String? string = await localConfigService.read(configKey: ConfigEnum.readIndexRecord, subConfigKey: state.galleryUrl.gid.toString());
-    if (string == null) {
-      return 0;
-    } else {
-      return int.tryParse(string) ?? 0;
+  ReadDirection? _detectWebtoonReadDirection() {
+    if (state.galleryDetails != null) {
+      if (isWebtoonGallery(state.galleryDetails!.tags)) {
+        return ReadDirection.top2bottomList;
+      }
+      return null;
     }
+    if (state.gallery != null) {
+      if (isWebtoonGallery(state.gallery!.tags)) {
+        return ReadDirection.top2bottomList;
+      }
+      return null;
+    }
+    if (state.galleryMetadata != null) {
+      if (isWebtoonGallery(state.galleryMetadata!.tags)) {
+        return ReadDirection.top2bottomList;
+      }
+      return null;
+    }
+    return null;
+  }
+
+  Future<int> getReadIndexRecord() async {
+    return readProgressService.getReadProgress(state.galleryUrl.gid);
   }
 
   Future<({GalleryDetail galleryDetails, String apikey})> _getDetailsWithRedirectAndFallback({bool useCache = true}) async {
@@ -1195,7 +1291,8 @@ class DetailsPageLogic extends GetxController with LoginRequiredMixin, Scroll2To
         }
 
         Color? backGroundColor = tagInfo.tag.backgroundColor ?? tagInfo.tagSetBackGroundColor;
-        tag.backgroundColor = backGroundColor ?? UIConfig.ehWatchedTagDefaultBackGroundColor;
+        bool hidden = tagInfo.tag.hidden || tagInfo.tag.weight < 0;
+        tag.backgroundColor = backGroundColor ?? (hidden ? UIConfig.ehHiddenTagDefaultBackGroundColor : UIConfig.ehWatchedTagDefaultBackGroundColor);
         tag.color = backGroundColor == null
             ? const Color(0xFFF1F1F1)
             : ThemeData.estimateBrightnessForColor(backGroundColor) == Brightness.light

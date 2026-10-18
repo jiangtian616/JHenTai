@@ -64,7 +64,7 @@ class _CookiePageState extends State<CookiePage> {
                         ],
                       )
                     : null,
-                onTap: _copyAllCookies,
+                onTap: () => _copyCookie(cookie),
                 dense: true,
               ),
             )
@@ -73,8 +73,8 @@ class _CookiePageState extends State<CookiePage> {
     );
   }
 
-  Future<void> _copyAllCookies() async {
-    await FlutterClipboard.copy(CookieUtil.parse2String(ehRequest.cookies));
+  Future<void> _copyCookie(Cookie cookie) async {
+    await FlutterClipboard.copy(CookieUtil.parse2String([cookie]));
     toast('hasCopiedToClipboard'.tr);
   }
 
@@ -159,7 +159,7 @@ class _CookiePageState extends State<CookiePage> {
       });
       return;
     } on DioException catch (e) {
-      log.error('Refresh igneous failed: ${e.message}');
+      log.error('Refresh igneous failed: ${e.errorMsg}');
       snack('refreshIgneousFailed'.tr, e.errorMsg ?? '');
       setStateSafely(() {
         _refreshIgneousState = LoadingState.error;

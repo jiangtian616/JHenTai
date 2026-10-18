@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '../setting/mouse_setting.dart';
@@ -7,11 +8,13 @@ import '../setting/mouse_setting.dart';
 class EHWheelSpeedControllerForReadPage extends StatelessWidget {
   final Widget child;
   final ScrollOffsetController scrollOffsetController;
+  final bool stopScrollWhenCtrlPressed;
 
   const EHWheelSpeedControllerForReadPage({
     Key? key,
     required this.child,
     required this.scrollOffsetController,
+    required this.stopScrollWhenCtrlPressed,
   }) : super(key: key);
 
   @override
@@ -21,6 +24,14 @@ class EHWheelSpeedControllerForReadPage extends StatelessWidget {
       /// so i call [animateTo] to simulate a faster scroll speed.
       onPointerSignal: (PointerSignalEvent event) {
         if (event is PointerScrollEvent) {
+          if (stopScrollWhenCtrlPressed) {
+            final ctrlPressed =
+                HardwareKeyboard.instance.logicalKeysPressed.any((key) => key == LogicalKeyboardKey.controlLeft || key == LogicalKeyboardKey.controlRight);
+            if (ctrlPressed) {
+              return;
+            }
+          }
+
           final double delta = event.scrollDelta.dy * mouseSetting.wheelScrollSpeed.value;
 
           if (delta != 0.0) {

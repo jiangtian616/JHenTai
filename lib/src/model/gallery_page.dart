@@ -9,14 +9,14 @@ class GalleryPageInfo {
 
   final FavoriteSortOrder? favoriteSortOrder;
 
-  final List<Gallery> gallerys;
+  final List<Gallery> galleries;
 
   final String? prevGid;
 
   final String? nextGid;
 
   GalleryPageInfo({
-    required this.gallerys,
+    required this.galleries,
     this.favoriteSortOrder,
     this.totalCount,
     this.prevGid,

@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -18,13 +17,13 @@ import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/utils/snack_util.dart';
 import 'package:jhentai/src/utils/toast_util.dart';
 import 'package:jhentai/src/widget/eh_config_type_select_dialog.dart';
+import 'package:jhentai/src/widget/eh_context_menu.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 import '../../../../config/ui_config.dart';
 import '../../../../model/config.dart';
 import '../../../../utils/jh_spider_parser.dart';
 import '../../../../utils/permission_util.dart';
-import '../../../../utils/route_util.dart';
 
 class ConfigSyncPage extends StatefulWidget {
   const ConfigSyncPage({super.key});
@@ -55,14 +54,17 @@ class _ConfigSyncPageState extends State<ConfigSyncPage> {
                 padding: const EdgeInsets.only(top: 16),
                 children: configs
                     .mapIndexed(
-                      (index, config) => ListTile(
-                        titleAlignment: ListTileTitleAlignment.center,
-                        leading: Text((configs.length - index).toString()),
-                        isThreeLine: true,
-                        title: Text(config.type.name.tr),
-                        subtitle: Text('v${config.version}\n${config.shareCode}'),
-                        trailing: Text(DateFormat('yyyy-MM-dd HH:mm:ss').format(config.ctime)),
-                        onTap: () => _handleTapConfig(context, config),
+                      (index, config) => GestureDetector(
+                        onLongPressStart: (details) => _handleTapConfig(context, config, position: details.globalPosition),
+                        onSecondaryTapDown: (details) => _handleTapConfig(context, config, position: details.globalPosition),
+                        child: ListTile(
+                          titleAlignment: ListTileTitleAlignment.center,
+                          leading: Text((configs.length - index).toString()),
+                          isThreeLine: true,
+                          title: Text(config.type.name.tr),
+                          subtitle: Text('v${config.version}\n${config.shareCode}'),
+                          trailing: Text(DateFormat('yyyy-MM-dd HH:mm:ss').format(config.ctime)),
+                        ),
                       ),
                     )
                     .toList(),
@@ -124,43 +126,32 @@ class _ConfigSyncPageState extends State<ConfigSyncPage> {
     }
   }
 
-  Future<void> _handleTapConfig(BuildContext context, CloudConfig config) async {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        actions: <CupertinoActionSheetAction>[
-          CupertinoActionSheetAction(
-            child: Text('copyShareCode'.tr),
-            onPressed: () {
-              backRoute();
-              Clipboard.setData(ClipboardData(text: config.shareCode));
-              toast('hasCopiedToClipboard'.tr);
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: Text('download'.tr),
-            onPressed: () {
-              backRoute();
-              _downloadConfig(config);
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: Text('import'.tr),
-            onPressed: () {
-              backRoute();
-              _importConfig(config);
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: Text('delete'.tr, style: TextStyle(color: UIConfig.alertColor(context))),
-            onPressed: () {
-              backRoute();
-              _deleteConfig(config);
-            },
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(child: Text('cancel'.tr), onPressed: backRoute),
-      ),
+  Future<void> _handleTapConfig(BuildContext context, CloudConfig config, {Offset? position}) async {
+    showEHContextMenu(
+      context,
+      position: position,
+      actions: [
+        EHContextMenuAction(
+          text: 'copyShareCode'.tr,
+          onTap: () {
+            Clipboard.setData(ClipboardData(text: config.shareCode));
+            toast('hasCopiedToClipboard'.tr);
+          },
+        ),
+        EHContextMenuAction(
+          text: 'download'.tr,
+          onTap: () => _downloadConfig(config),
+        ),
+        EHContextMenuAction(
+          text: 'import'.tr,
+          onTap: () => _importConfig(config),
+        ),
+        EHContextMenuAction(
+          text: 'delete'.tr,
+          color: UIConfig.alertColor(context),
+          onTap: () => _deleteConfig(config),
+        ),
+      ],
     );
   }
 

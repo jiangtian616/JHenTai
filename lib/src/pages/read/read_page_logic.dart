@@ -1,10 +1,11 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:executor/executor.dart';
 import 'package:extended_image/extended_image.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
@@ -12,15 +13,16 @@ import 'package:jhentai/src/exception/eh_parse_exception.dart';
 import 'package:jhentai/src/exception/eh_site_exception.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
+import 'package:jhentai/src/model/tap_zone_config.dart';
 import 'package:jhentai/src/pages/read/layout/base/base_layout_logic.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_double_column/horizontal_double_column_layout_logic.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_list/horizontal_list_layout_logic.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_page/horizontal_page_layout_logic.dart';
 import 'package:jhentai/src/pages/read/layout/vertical_list/vertical_list_layout_logic.dart';
 import 'package:jhentai/src/pages/read/read_page_state.dart';
-import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/service/volume_service.dart';
+import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/eh_executor.dart';
 import 'package:retry/retry.dart';
 import 'package:screen_brightness/screen_brightness.dart';
@@ -32,14 +34,25 @@ import '../../model/detail_page_info.dart';
 import '../../model/gallery_image.dart';
 import '../../model/read_page_info.dart';
 import '../../network/eh_request.dart';
-import '../../service/storage_service.dart';
+import '../../routes/routes.dart';
+import '../../service/local_config_service.dart';
+import '../../service/log.dart';
+import '../../service/gallery_download/gallery_images_retainer.dart';
+import '../../service/read_progress_service.dart';
+import '../../setting/preference_setting.dart';
 import '../../setting/read_setting.dart';
 import '../../utils/eh_spider_parser.dart';
-import '../../service/log.dart';
+import '../../utils/route_util.dart';
+import '../../utils/toast_util.dart';
 import '../../widget/auto_mode_interval_dialog.dart';
+import '../../widget/eh_image.dart';
 import '../../widget/loading_state_indicator.dart';
+import '../home_page.dart';
+import '../setting/read/setting_read_page.dart';
+import '../setting/read/tap_zone/setting_tap_zone_page.dart';
+import '../setting/keyboard_shortcuts/setting_keyboard_shortcuts_page.dart';
 
-class ReadPageLogic extends GetxController {
+class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryImagesRetainer {
   final String pageId = 'pageId';
   final String layoutId = 'layoutId';
   final String onlineImageId = 'onlineImageId';
@@ -54,14 +67,16 @@ class ReadPageLogic extends GetxController {
   final String pageNoId = 'pageNoId';
   final String thumbnailNoId = 'thumbnailsId';
   final String sliderId = 'sliderId';
+  final String tapZoneId = 'tapZoneId';
+  final String guideOverlayId = 'guideOverlayId';
 
   ReadPageState state = ReadPageState();
 
-  BaseLayoutLogic get layoutLogic => readSetting.readDirection.value == ReadDirection.top2bottomList
+  BaseLayoutLogic get layoutLogic => effectiveReadDirection == ReadDirection.top2bottomList
       ? Get.find<VerticalListLayoutLogic>()
-      : readSetting.isInListReadDirection
+      : isInListReadDirection
           ? Get.find<HorizontalListLayoutLogic>()
-          : readSetting.isInDoubleColumnReadDirection
+          : isInDoubleColumnReadDirection
               ? Get.find<HorizontalDoubleColumnLayoutLogic>()
               : Get.find<HorizontalPageLayoutLogic>();
 
@@ -77,6 +92,19 @@ class ReadPageLogic extends GetxController {
   late Worker enableCustomBrightnessListener;
   late Worker customBrightnessListener;
   late Worker preloadListener;
+  late Worker enableBottomMenuListener;
+  late Worker orientationSpecificReadDirectionLister;
+  late Worker portraitReadDirectionLister;
+  late Worker landscapeReadDirectionLister;
+  late Worker portraitImageRegionWidthRatioLister;
+  late Worker landscapeImageRegionWidthRatioLister;
+  late Worker portraitDisplayFirstPageAloneListener;
+  late Worker landscapeDisplayFirstPageAloneListener;
+  late Worker autoDetectWebtoonListener;
+  late Worker tapZoneConfigListener;
+
+  /// Tracks the last known portrait state for orientation-specific read direction
+  bool? _lastIsPortrait;
 
   /// limit the rate of parsing to decrease the lagging of build
   final EHExecutor executor = EHExecutor(
@@ -93,6 +121,18 @@ class ReadPageLogic extends GetxController {
   @override
   void onReady() {
     super.onReady();
+
+    /// Retain the gallery's image list for the lifetime of the read page.
+    /// The caller (goToReadPage) already ensured [ensureImagesLoaded] so the
+    /// list is resident when [ReadPageState] was constructed; this retain
+    /// keeps it resident even if the download completes mid-read (eviction
+    /// is deferred to our onClose). Online / archive / local modes have no
+    /// service-side list to retain — skip.
+    if (state.readPageInfo.mode == ReadMode.downloaded && state.readPageInfo.gid != null) {
+      retainGalleryImages(state.readPageInfo.gid!);
+    }
+
+    WidgetsBinding.instance.addObserver(this);
 
     Timer(const Duration(milliseconds: 120), () {
       if (inited && !delayInitCompleter.isCompleted) {
@@ -117,21 +157,45 @@ class ReadPageLogic extends GetxController {
     toggleDeviceOrientationLister = ever(readSetting.deviceDirection, (_) => updateDeviceOrientation());
 
     /// Listen to read direction change
-    readDirectionLister = ever(readSetting.readDirection, (_) {
-      clearImageContainerSized();
-      state.readPageInfo.initialIndex = state.readPageInfo.currentImageIndex;
-      updateSafely([layoutId]);
-    });
+    readDirectionLister = ever(readSetting.readDirection, (_) => onEffectiveSettingChanged());
 
     imageSpaceLister = ever(readSetting.imageSpace, (_) {
       updateSafely([layoutId]);
     });
 
-    displayFirstPageAloneListener = ever(readSetting.displayFirstPageAlone, (value) {
-      if (state.displayFirstPageAlone != value) {
-        state.displayFirstPageAlone = value;
-        layoutLogic.toggleDisplayFirstPageAlone();
-        updateSafely([topMenuId, bottomMenuId]);
+    displayFirstPageAloneListener = ever(readSetting.displayFirstPageAlone, (_) => _syncDisplayFirstPageAloneToState());
+    portraitDisplayFirstPageAloneListener = ever(readSetting.portraitDisplayFirstPageAlone, (_) {
+      if (readSetting.enableOrientationSpecificReadDirection.isTrue && isPortrait) {
+        _syncDisplayFirstPageAloneToState();
+      }
+    });
+    landscapeDisplayFirstPageAloneListener = ever(readSetting.landscapeDisplayFirstPageAlone, (_) {
+      if (readSetting.enableOrientationSpecificReadDirection.isTrue && !isPortrait) {
+        _syncDisplayFirstPageAloneToState();
+      }
+    });
+
+    /// Listen to orientation-specific settings changes for rebuild
+    orientationSpecificReadDirectionLister = ever(readSetting.enableOrientationSpecificReadDirection, (_) => onEffectiveSettingChanged());
+    portraitReadDirectionLister = ever(readSetting.portraitReadDirection, (_) {
+      if (readSetting.enableOrientationSpecificReadDirection.isTrue && isPortrait) {
+        onEffectiveSettingChanged();
+      }
+    });
+    landscapeReadDirectionLister = ever(readSetting.landscapeReadDirection, (_) {
+      if (readSetting.enableOrientationSpecificReadDirection.isTrue && !isPortrait) {
+        onEffectiveSettingChanged();
+      }
+    });
+    autoDetectWebtoonListener = ever(readSetting.autoDetectWebtoon, (_) => onEffectiveSettingChanged());
+    portraitImageRegionWidthRatioLister = ever(readSetting.portraitImageRegionWidthRatio, (_) {
+      if (readSetting.enableOrientationSpecificReadDirection.isTrue && isPortrait) {
+        updateSafely([layoutId]);
+      }
+    });
+    landscapeImageRegionWidthRatioLister = ever(readSetting.landscapeImageRegionWidthRatio, (_) {
+      if (readSetting.enableOrientationSpecificReadDirection.isTrue && !isPortrait) {
+        updateSafely([layoutId]);
       }
     });
 
@@ -173,10 +237,20 @@ class ReadPageLogic extends GetxController {
       applyCurrentBrightness();
     });
 
+    enableBottomMenuListener = ever(readSetting.enableBottomMenu, (_) {
+      updateSafely([topMenuId]);
+    });
+
     preloadListener = everAll(
       [readSetting.preloadPageCountLocal, readSetting.preloadPageCount, readSetting.preloadDistanceLocal, readSetting.preloadDistance],
       (_) => updateSafely([layoutId]),
     );
+
+    _syncDisplayFirstPageAloneToState();
+
+    tapZoneConfigListener = ever(readSetting.tapZoneConfigJson, (_) => updateSafely([tapZoneId]));
+
+    _maybeShowTapZoneGuide();
 
     inited = true;
     if (!delayInitCompleter.isCompleted) {
@@ -184,12 +258,30 @@ class ReadPageLogic extends GetxController {
     }
   }
 
+  Future<void> _maybeShowTapZoneGuide() async {
+    String? shown = await localConfigService.read(configKey: ConfigEnum.tapZoneGuideShown);
+    if (shown != null) {
+      return;
+    }
+    state.showTapZoneGuide = true;
+    updateSafely([guideOverlayId]);
+  }
+
+  void dismissTapZoneGuide() {
+    state.showTapZoneGuide = false;
+    update([guideOverlayId]);
+    localConfigService.write(configKey: ConfigEnum.tapZoneGuideShown, value: 'true');
+  }
+
   @override
   void onClose() {
     super.onClose();
 
+    WidgetsBinding.instance.removeObserver(this);
+
     state.focusNode.dispose();
     refreshCurrentTimeAndBatteryLevelTimer.cancel();
+    toggleTurnPageByVolumeKeyLister.dispose();
     toggleCurrentImmersiveModeLister.dispose();
     readDirectionLister.dispose();
     imageSpaceLister.dispose();
@@ -198,6 +290,16 @@ class ReadPageLogic extends GetxController {
     enableCustomBrightnessListener.dispose();
     customBrightnessListener.dispose();
     preloadListener.dispose();
+    enableBottomMenuListener.dispose();
+    orientationSpecificReadDirectionLister.dispose();
+    portraitReadDirectionLister.dispose();
+    landscapeReadDirectionLister.dispose();
+    portraitImageRegionWidthRatioLister.dispose();
+    landscapeImageRegionWidthRatioLister.dispose();
+    portraitDisplayFirstPageAloneListener.dispose();
+    landscapeDisplayFirstPageAloneListener.dispose();
+    autoDetectWebtoonListener.dispose();
+    tapZoneConfigListener.dispose();
 
     restoreVolumeListener();
 
@@ -211,6 +313,10 @@ class ReadPageLogic extends GetxController {
       resetBrightness();
     }
 
+    /// Gallery image retain released by [GalleryImagesRetainer.onClose]
+    /// (super.onClose below). If the gallery is fully downloaded and no
+    /// other consumer holds a retain, the list is evicted there.
+
     Get.delete<VerticalListLayoutLogic>(force: true);
     Get.delete<HorizontalListLayoutLogic>(force: true);
     Get.delete<HorizontalPageLayoutLogic>(force: true);
@@ -219,6 +325,10 @@ class ReadPageLogic extends GetxController {
     executor.close();
 
     WakelockPlus.disable();
+
+    /// Unpause + forget every animation gate this page created so a codec
+    /// parked on a gate is not frozen forever after the page is torn down.
+    EHImageAnimationGateRegistry.clear();
   }
 
   void beginToParseImageHref(int index) {
@@ -265,7 +375,7 @@ class ReadPageLogic extends GetxController {
     state.parseImageHrefsStates[index] = LoadingState.idle;
 
     /// some gallery's [thumbnailsCountPerPage] is not equal to default setting, we need to compute and update it.
-    /// For example, default setting is 40, but some gallerys' thumbnails has only high quality thumbnails, which results in 20.
+    /// For example, default setting is 40, but some galleries' thumbnails has only high quality thumbnails, which results in 20.
     bool thumbnailsCountPerPageChanged = state.thumbnailsCountPerPage != detailPageInfo.thumbnailsCountPerPage;
     state.thumbnailsCountPerPage = detailPageInfo.thumbnailsCountPerPage;
 
@@ -348,6 +458,11 @@ class ReadPageLogic extends GetxController {
   }
 
   void listen2VolumeKeys() {
+    if (readSetting.enablePageTurnByVolumeKeys.isFalse) {
+      volumeService.cancelListen();
+      return;
+    }
+
     volumeService.listen((VolumeEventType type) {
       if (type == VolumeEventType.volumeUp) {
         layoutLogic.toPrev();
@@ -355,12 +470,10 @@ class ReadPageLogic extends GetxController {
         layoutLogic.toNext();
       }
     });
-    volumeService.setInterceptVolumeEvent(readSetting.enablePageTurnByVolumeKeys.value);
   }
 
   void restoreVolumeListener() {
     volumeService.cancelListen();
-    volumeService.setInterceptVolumeEvent(false);
   }
 
   /// If [immersiveMode], switch to [SystemUiMode.immersiveSticky], otherwise reset to [SystemUiMode.edgeToEdge]
@@ -419,6 +532,120 @@ class ReadPageLogic extends GetxController {
     SystemChrome.setPreferredOrientations([]);
   }
 
+  @override
+  void didChangeMetrics() {
+    if (!GetPlatform.isMobile) {
+      return;
+    }
+
+    if (readSetting.enableOrientationSpecificReadDirection.isFalse) {
+      return;
+    }
+
+    if (readSetting.deviceDirection.value != DeviceDirection.followSystem) {
+      return;
+    }
+
+    final Size size = WidgetsBinding.instance.platformDispatcher.views.first.physicalSize;
+    final bool isPortrait = size.height >= size.width;
+
+    if (_lastIsPortrait == null) {
+      _lastIsPortrait = isPortrait;
+      return;
+    }
+
+    if (_lastIsPortrait == isPortrait) {
+      return;
+    }
+
+    _lastIsPortrait = isPortrait;
+
+    final ReadDirection targetDirection = isPortrait ? readSetting.portraitReadDirection.value : readSetting.landscapeReadDirection.value;
+    final String directionName = targetDirection.name.tr;
+    final String orientationKey = isPortrait ? 'portrait' : 'landscape';
+    toast('${'autoSwitchedReadDirection'.tr}: $directionName (${orientationKey.tr})');
+
+    onEffectiveSettingChanged();
+  }
+
+  void onEffectiveSettingChanged() {
+    clearImageContainerSized();
+    state.readPageInfo.initialIndex = state.readPageInfo.currentImageIndex;
+    _syncDisplayFirstPageAloneToState();
+    updateSafely([layoutId]);
+  }
+
+  void _syncDisplayFirstPageAloneToState() {
+    final bool effective = effectiveDisplayFirstPageAlone;
+    if (state.displayFirstPageAlone != effective) {
+      state.displayFirstPageAlone = effective;
+      layoutLogic.toggleDisplayFirstPageAlone();
+      updateSafely([topMenuId, bottomMenuId]);
+    }
+  }
+
+  bool get isPortrait {
+    if (readSetting.deviceDirection.value == DeviceDirection.portrait) {
+      return true;
+    }
+    if (readSetting.deviceDirection.value == DeviceDirection.landscape) {
+      return false;
+    }
+    final Size size = WidgetsBinding.instance.platformDispatcher.views.first.physicalSize;
+    return size.height >= size.width;
+  }
+
+  ReadDirection get effectiveReadDirection {
+    if (readSetting.autoDetectWebtoon.isTrue && state.readPageInfo.readDirection != null) {
+      return state.readPageInfo.readDirection!;
+    }
+    if (readSetting.enableOrientationSpecificReadDirection.isFalse || !GetPlatform.isMobile) {
+      return readSetting.readDirection.value;
+    }
+    if (isPortrait) {
+      return readSetting.portraitReadDirection.value;
+    }
+    return readSetting.landscapeReadDirection.value;
+  }
+
+  void saveReadDirection(ReadDirection value) {
+    state.readPageInfo.readDirection = null;
+
+    if (readSetting.enableOrientationSpecificReadDirection.isTrue && GetPlatform.isMobile) {
+      if (isPortrait) {
+        readSetting.savePortraitReadDirection(value);
+      } else {
+        readSetting.saveLandscapeReadDirection(value);
+      }
+    } else {
+      readSetting.saveReadDirection(value);
+    }
+  }
+
+  int get effectiveImageRegionWidthRatio {
+    if (!GetPlatform.isMobile || readSetting.enableOrientationSpecificReadDirection.isFalse) {
+      return readSetting.imageRegionWidthRatio.value;
+    }
+    return isPortrait ? readSetting.portraitImageRegionWidthRatio.value : readSetting.landscapeImageRegionWidthRatio.value;
+  }
+
+  bool get effectiveDisplayFirstPageAlone {
+    if (!GetPlatform.isMobile || readSetting.enableOrientationSpecificReadDirection.isFalse) {
+      return readSetting.displayFirstPageAlone.value;
+    }
+    return isPortrait ? readSetting.portraitDisplayFirstPageAlone.value : readSetting.landscapeDisplayFirstPageAlone.value;
+  }
+
+  bool get isInListReadDirection => ReadSetting.isListDirection(effectiveReadDirection);
+
+  bool get isInDoubleColumnReadDirection => ReadSetting.isDoubleColumnDirection(effectiveReadDirection);
+
+  bool get isInSinglePageReadDirection => ReadSetting.isSinglePageDirection(effectiveReadDirection);
+
+  bool get isInFitWidthReadDirection => ReadSetting.isFitWidthDirection(effectiveReadDirection);
+
+  bool get isInRight2LeftDirection => ReadSetting.isRight2LeftDirection(effectiveReadDirection);
+
   void toggleMenu() {
     state.isMenuOpen = !state.isMenuOpen;
     update([topMenuId, bottomMenuId, rightBottomInfoId]);
@@ -449,51 +676,29 @@ class ReadPageLogic extends GetxController {
     layoutLogic.closeAutoMode();
   }
 
-  void tapLeftRegion() {
+  void handleTapZone(int index) {
     if (!inited) {
       return;
     }
 
-    if (readSetting.disablePageTurningOnTap.isTrue) {
-      return;
-    }
-
     if (state.isScrolling) {
       return;
     }
 
-    if (readSetting.reverseTurnPageDirection.isTrue) {
-      toRight();
-    } else {
-      toLeft();
+    switch (readSetting.tapZoneConfig.actions[index]) {
+      case TapZoneAction.none:
+        break;
+      case TapZoneAction.toggleMenu:
+        toggleMenu();
+      case TapZoneAction.prevPage:
+        toPrev();
+      case TapZoneAction.nextPage:
+        toNext();
+      case TapZoneAction.flipLeft:
+        toLeft();
+      case TapZoneAction.flipRight:
+        toRight();
     }
-  }
-
-  void tapRightRegion() {
-    if (!inited) {
-      return;
-    }
-    if (readSetting.disablePageTurningOnTap.isTrue) {
-      return;
-    }
-
-    if (state.isScrolling) {
-      return;
-    }
-
-    if (readSetting.reverseTurnPageDirection.isTrue) {
-      toLeft();
-    } else {
-      toRight();
-    }
-  }
-
-  void tapCenterRegion() {
-    if (state.isScrolling) {
-      return;
-    }
-
-    toggleMenu();
   }
 
   /// click right arrow key
@@ -611,14 +816,111 @@ class ReadPageLogic extends GetxController {
   }
 
   Future<void> _flushReadProgress() async {
-    await localConfigService.write(
-      configKey: ConfigEnum.readIndexRecord,
-      subConfigKey: state.readPageInfo.readProgressRecordStorageKey,
-      value: state.readPageInfo.currentImageIndex.toString(),
+    readProgressService.updateReadProgress(
+      state.readPageInfo.readProgressRecordStorageKey,
+      state.readPageInfo.currentImageIndex,
     );
   }
 
   void clearImageContainerSized() {
     state.imageContainerSizes = List.generate(state.readPageInfo.pageCount, (_) => null);
+  }
+
+  Future<void> openReadSetting(BuildContext context) async {
+    if (styleSetting.isInDesktopLayout || styleSetting.isInTabletLayout) {
+      await _showReadSettingDrawer(context);
+    } else {
+      await _pushReadSettingPage();
+    }
+  }
+
+  Future<void> _pushReadSettingPage() async {
+    restoreImmersiveMode();
+    toRoute(Routes.settingRead, id: fullScreen)?.then((_) {
+      applyCurrentImmersiveMode();
+      state.focusNode.requestFocus();
+    });
+  }
+
+  Future<void> _showReadSettingDrawer(BuildContext context) async {
+    restoreImmersiveMode();
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      barrierColor: Colors.black.withOpacity(0.4),
+      builder: (_) {
+        double width = MediaQuery.of(context).size.width * 0.55;
+        if (width < 360) {
+          width = 360;
+        }
+        if (width > 600) {
+          width = 600;
+        }
+        return Align(
+          alignment: Alignment.centerRight,
+          child: SizedBox(
+            width: width,
+            child: Material(
+              elevation: 16,
+              child: Navigator(
+                key: const Key('readPageLogic'),
+                initialRoute: '/',
+                onGenerateRoute: (settings) {
+                  final bool useCupertino = preferenceSetting.enableSwipeBackGesture.isTrue;
+                  if (settings.name == '/') {
+                    return _buildDrawerRoute(
+                      builder: (_) => SettingReadPage(),
+                      settings: settings,
+                      useCupertino: useCupertino,
+                    );
+                  }
+                  if (settings.name == '/keyboard_shortcuts') {
+                    return _buildDrawerRoute(
+                      builder: (_) => const SettingKeyboardShortcutsPage(),
+                      settings: settings,
+                      useCupertino: useCupertino,
+                    );
+                  }
+                  if (settings.name == '/tap_zone_style') {
+                    return _buildDrawerRoute(
+                      builder: (_) => const SettingTapZonePage(),
+                      settings: settings,
+                      useCupertino: useCupertino,
+                    );
+                  }
+                  return null;
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    applyCurrentImmersiveMode();
+    state.focusNode.requestFocus();
+  }
+
+  Route _buildDrawerRoute({
+    required Widget Function(BuildContext) builder,
+    required RouteSettings settings,
+    required bool useCupertino,
+  }) {
+    if (useCupertino) {
+      return PageRouteBuilder(
+        pageBuilder: (context, __, ___) => builder(context),
+        transitionsBuilder: (_, animation, __, child) => SlideTransition(
+          position: Tween<Offset>(begin: const Offset(1, 0), end: Offset.zero).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
+          child: child,
+        ),
+        settings: settings,
+      );
+    }
+    return PageRouteBuilder(
+      pageBuilder: (context, __, ___) => builder(context),
+      transitionsBuilder: (_, animation, __, child) => FadeTransition(opacity: animation, child: child),
+      settings: settings,
+    );
   }
 }

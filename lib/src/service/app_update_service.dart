@@ -10,7 +10,7 @@ import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/model/search_config.dart';
 import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
-import 'package:jhentai/src/service/gallery_download_service.dart';
+import 'package:jhentai/src/service/gallery_download/gallery_download_service.dart';
 import 'package:jhentai/src/service/isolate_service.dart';
 import 'package:jhentai/src/service/local_block_rule_service.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
@@ -49,7 +49,7 @@ AppUpdateService appUpdateService = AppUpdateService();
 class AppUpdateService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   late File file;
   int? fromVersion;
-  static const int toVersion = 12;
+  static const int toVersion = 13;
 
   List<UpdateHandler> updateHandlers = [
     FirstOpenHandler(),
@@ -63,6 +63,7 @@ class AppUpdateService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBe
     MigrateLocalFilterTagsHandler(),
     MigrateGalleryHistoryHandler(),
     MigrateStorageConfigHandler(),
+    RenameGallerysPageLogicKeyHandler(),
   ];
 
   @override
@@ -666,7 +667,7 @@ class MigrateStorageConfigHandler implements UpdateHandler {
     Map<String, dynamic>? gallerysPageSearchConfigMap = storageService.read('${ConfigEnum.searchConfig.key}: GallerysPageLogic');
     if (gallerysPageSearchConfigMap != null) {
       SearchConfig searchConfig = SearchConfig.fromJson(gallerysPageSearchConfigMap);
-      futures.add(localConfigService.write(configKey: ConfigEnum.searchConfig, subConfigKey: 'GallerysPageLogic', value: jsonEncode(searchConfig)));
+      futures.add(localConfigService.write(configKey: ConfigEnum.searchConfig, subConfigKey: 'GalleryPageLogic', value: jsonEncode(searchConfig)));
     }
     Map<String, dynamic>? favoritePageSearchConfigMap = storageService.read('${ConfigEnum.searchConfig.key}: FavoritePageLogic');
     if (favoritePageSearchConfigMap != null) {
@@ -782,4 +783,35 @@ class MigrateStorageConfigHandler implements UpdateHandler {
 
     await localConfigService.write(configKey: ConfigEnum.migrateStorageConfig, value: 'true');
   }
+}
+
+class RenameGallerysPageLogicKeyHandler implements UpdateHandler {
+  @override
+  List<JHLifeCircleBean> get initDependencies => [localConfigService];
+
+  @override
+  Future<bool> match(int? fromVersion, int toVersion) async {
+    if (fromVersion == null) {
+      await localConfigService.write(configKey: ConfigEnum.renameGallerysPageLogicKey, value: 'true');
+      return false;
+    } else {
+      return fromVersion <= 12 || (await localConfigService.read(configKey: ConfigEnum.renameGallerysPageLogicKey) == null);
+    }
+  }
+
+  @override
+  Future<void> onInit() async {
+    log.info('RenameGallerysPageLogicKeyHandler onInit');
+
+    String? oldValue = await localConfigService.read(configKey: ConfigEnum.searchConfig, subConfigKey: 'GallerysPageLogic');
+    if (oldValue != null) {
+      await localConfigService.write(configKey: ConfigEnum.searchConfig, subConfigKey: 'GalleryPageLogic', value: oldValue);
+      await localConfigService.delete(configKey: ConfigEnum.searchConfig, subConfigKey: 'GallerysPageLogic');
+    }
+
+    await localConfigService.write(configKey: ConfigEnum.renameGallerysPageLogicKey, value: 'true');
+  }
+
+  @override
+  Future<void> onReady() async {}
 }

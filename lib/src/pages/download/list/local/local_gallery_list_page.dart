@@ -184,8 +184,8 @@ class LocalGalleryListPage extends StatelessWidget with Scroll2TopPageMixin {
       key: Key(gallery.title),
       endActionPane: _buildEndActionPane(context, gallery),
       child: GestureDetector(
-        onSecondaryTap: () => logic.showBottomSheet(gallery, context),
-        onLongPress: () => logic.showBottomSheet(gallery, context),
+        onSecondaryTapDown: (details) => logic.showBottomSheet(gallery, context, position: details.globalPosition),
+        onLongPressStart: (details) => logic.showBottomSheet(gallery, context, position: details.globalPosition),
         child: FadeSlideWidget(
           show: !state.removedGalleryTitles.contains(gallery.title),
           child: _buildGallery(gallery, context).marginAll(5),

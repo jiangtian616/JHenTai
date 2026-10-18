@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//mnt/c/code/**)",
+      "Bash(flutter analyze *)",
+      "Bash(flutter --version)",
+      "Git",
+      "Flutter",
+      "Dart",
+      "Java",
+      "Mvn",
+      "Find",
+      "Read",
+      "WebSearch",
+      "Bash(flutter pub *)",
+      "WebFetch(domain:skillsmp.com)",
+      "Bash(npx --version)",
+      "Bash(npx skills@latest *)",
+      "PowerShell(Test-Path *)",
+      "Bash(dart analyze *)",
+      "WebFetch(domain:pub.dev)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(dart --version)",
+      "Bash(flutter channel *)",
+      "Read(//d/Program/flutter/**)",
+      "Bash(flutter upgrade *)",
+      "Bash(tasklist)",
+      "Bash(grep -nE \"platform|deployment\" ios/Podfile)",
+      "Bash(grep -nE \"platform|deployment\" macos/Podfile)",
+      "Bash(grep -rn \"MACOSX_DEPLOYMENT_TARGET\" macos/Runner/*.xcconfig macos/Podfile)",
+      "Bash(grep -rn \"IPHONEOS_DEPLOYMENT_TARGET\" ios/Runner/*.xcconfig)"
+    ]
+  }
+}

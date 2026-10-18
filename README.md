@@ -21,7 +21,22 @@ Still in development stage, welcome to submit issues or feature requests.
 
 ## Download & Install
 
-[Download](https://github.com/jiangtian616/JHenTai/releases)
+[<img src="https://raw.githubusercontent.com/jiangtian616/JHenTai/master/badges/download_from_github.png" 
+      alt="Download from GitHub" 
+      height="60">](https://github.com/jiangtian616/JHenTai/releases)
+[<img src="https://raw.githubusercontent.com/jiangtian616/JHenTai/master/badges/get_it_on_obtainium.png" 
+      alt="Get it on Obtainium" 
+      height="60">](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22top.jtmonster.jhentai%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fjiangtian616%2FJHenTai%22%2C%22author%22%3A%22jiangtian616%22%2C%22name%22%3A%22JHenTai%22%2C%22preferredApkIndex%22%3A0%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22filterReleaseTitlesByRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22filterReleaseNotesByRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22verifyLatestTag%5C%22%3Afalse%2C%5C%22sortMethodChoice%5C%22%3A%5C%22date%5C%22%2C%5C%22useLatestAssetDateAsReleaseDate%5C%22%3Afalse%2C%5C%22releaseTitleAsVersion%5C%22%3Afalse%2C%5C%22trackOnly%5C%22%3Afalse%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22v(.*)%5C%22%2C%5C%22matchGroupToUse%5C%22%3A%5C%22%241%5C%22%2C%5C%22versionDetection%5C%22%3Atrue%2C%5C%22releaseDateAsVersion%5C%22%3Afalse%2C%5C%22useVersionCodeAsOSVersion%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22invertAPKFilter%5C%22%3Afalse%2C%5C%22autoApkFilterByArch%5C%22%3Atrue%2C%5C%22appName%5C%22%3A%5C%22JHenTai%5C%22%2C%5C%22appAuthor%5C%22%3A%5C%22JTMonster%5C%22%2C%5C%22shizukuPretendToBeGooglePlay%5C%22%3Afalse%2C%5C%22allowInsecure%5C%22%3Afalse%2C%5C%22exemptFromBackgroundUpdates%5C%22%3Afalse%2C%5C%22skipUpdateNotifications%5C%22%3Afalse%2C%5C%22about%5C%22%3A%5C%22https%3A%2F%2Fgithub.com%2Fjiangtian616%2FJHenTai%2Fblob%2Fmaster%2FREADME.md%5C%22%2C%5C%22refreshBeforeDownload%5C%22%3Afalse%7D%22%2C%22overrideSource%22%3Anull%7D)
+
+[<img src="https://raw.githubusercontent.com/jiangtian616/JHenTai/master/badges/add_to_altstore.png" 
+      alt="Add to AltStore" 
+      height="60">](https://intradeus.github.io/http-protocol-redirector?r=altstore://source?url=https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/altsource/AltSource.json)
+[<img src="https://raw.githubusercontent.com/jiangtian616/JHenTai/master/badges/add_to_sidestore.png" 
+      alt="Add to SideStore" 
+      height="60">](https://intradeus.github.io/http-protocol-redirector?r=sidestore://source?url=https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/altsource/AltSource.json)
+[<img src="https://raw.githubusercontent.com/jiangtian616/JHenTai/master/badges/add_to_feather.png" 
+      alt="Add to Feather" 
+      height="60">](https://intradeus.github.io/http-protocol-redirector?r=feather://source/https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/altsource/AltSource.json)
 
 Install for Android: download .apk according to your device architecture and install.
 
@@ -30,6 +45,8 @@ Install for Android: download .apk according to your device architecture and ins
 - x86_64：rare
 
 Install for iOS: download .ipa, then use [AltStore](https://altstore.io) or SideLoadly to sign.
+
+- You can get easier installation and updates by adding [AltStore Repo](https://intradeus.github.io/http-protocol-redirector?r=altstore://source?url=https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/altsource/AltSource.json)
 
 Install for Windows: download Windows_xxx.zip, then unpack it.
 
@@ -44,6 +61,14 @@ Install for MacOS(No maintenance): download .dmg.
 
 Install for Linux(No maintenance): download Linux-amd64.deb or Linux-x86_64.AppImage due to your platform, then install
 or execute it (You may need to install webkit2gtk-4.1).
+
+Fedora-based dnf linux distro:
+
+```bash
+sudo rpm --import https://meeks233.github.io/Jhentai-rpm/fedora/RPM-GPG-KEY-jhentai
+sudo curl -fsSL -o /etc/yum.repos.d/jhentai.repo https://meeks233.github.io/Jhentai-rpm/fedora/jhentai.repo
+sudo dnf install -y jhentai
+```
 
 
 - If you use a proxy server, set proxy address at network setting page.
@@ -183,6 +208,12 @@ Now you can submit your PR, I'll do the remaining things. Or you can go on with:
 1. You need to manage your Android signing by yourself,
    check https://docs.flutter.dev/deployment/android#signing-the-app
 2. Just run this project via IDEA or VSCode simply.
+
+## About code contribution
+
+1. There is no fixed requirement for branch names. You can make changes on your local master branch and submit a PR.
+2. For changes that are large in scope or involve interactions between multiple modules, code submitted via Vibe Coding by developers without code review capability will not be accepted. Such code often fails to follow the project's existing coding conventions, is harmful to code extensibility, and its correctness cannot be guaranteed.
+3. A single PR should focus on the minimal feature scope. If multiple features are involved, please submit separate PRs.
 
 ## Main Dart Dependencies
 

@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../config/ui_config.dart';
@@ -78,7 +78,7 @@ class LoadingStateIndicator extends StatelessWidget {
                 ? idleWidgetBuilder!.call()
                 : GestureDetector(
                     onTap: errorTapCallback,
-                    child: Icon(FontAwesomeIcons.redoAlt, size: indicatorRadius * 2, color: UIConfig.loadingStateIndicatorButtonColor(context)),
+                    child: Icon(Icons.refresh, size: indicatorRadius * 2.5, color: UIConfig.loadingStateIndicatorButtonColor(context)),
                   ));
         break;
       case LoadingState.idle:

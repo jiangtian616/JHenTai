@@ -8,6 +8,7 @@ import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/pages/download/grid/local/local_gallery_grid_page.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
+import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:simple_animations/animation_controller_extension/animation_controller_extension.dart';
 import 'package:simple_animations/animation_mixin/animation_mixin.dart';
 import '../../config/ui_config.dart';
@@ -25,7 +26,7 @@ class DownloadPage extends StatefulWidget {
 }
 
 class _DownloadPageState extends State<DownloadPage> {
-  DownloadPageGalleryType galleryType = DownloadPageGalleryType.download;
+  DownloadPageGalleryType galleryType = preferenceSetting.defaultDownloadTab.value;
   DownloadPageBodyType bodyType = GetPlatform.isMobile ? DownloadPageBodyType.list : DownloadPageBodyType.grid;
   Completer<void> bodyTypeCompleter = Completer<void>();
 

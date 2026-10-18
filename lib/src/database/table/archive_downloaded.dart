@@ -50,6 +50,11 @@ class ArchiveDownloaded extends Table {
 
   IntColumn get parseSource => integer().withDefault(const Constant(0))();
   
+  /// Sanitized and truncated title used as the directory/file name on disk.
+  /// Computed once when the download task is first created and stored here to
+  /// ensure the path never changes even if the truncation algorithm is updated.
+  TextColumn get sanitizedTitle => text().nullable()();
+
   @override
   Set<Column<Object>>? get primaryKey => {gid};
 }

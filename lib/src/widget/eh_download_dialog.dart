@@ -13,6 +13,7 @@ class EHDownloadDialog extends StatefulWidget {
   final List<String> candidates;
   final bool showDownloadOriginalImageCheckBox;
   final bool downloadOriginalImage;
+  final List<String> preferredGroups;
 
   const EHDownloadDialog({
     Key? key,
@@ -21,6 +22,7 @@ class EHDownloadDialog extends StatefulWidget {
     required this.candidates,
     this.showDownloadOriginalImageCheckBox = false,
     this.downloadOriginalImage = false,
+    this.preferredGroups = const [],
   }) : super(key: key);
 
   @override
@@ -37,9 +39,8 @@ class _EHDownloadDialogState extends State<EHDownloadDialog> {
     super.initState();
 
     group = widget.currentGroup ?? widget.candidates.firstOrNull ?? 'default'.tr;
-    candidates = List.of(widget.candidates);
-    candidates.remove(group);
-    candidates.insert(0, group);
+    final validGroups = widget.candidates.toSet();
+    candidates = <String>{...widget.preferredGroups.where(validGroups.contains), group, ...widget.candidates}.toList();
     downloadOriginalImage = widget.downloadOriginalImage;
   }
 

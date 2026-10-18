@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
 import 'package:jhentai/src/model/tab_bar_icon.dart';
+import 'package:jhentai/src/pages/download/download_base_page.dart';
 import 'package:jhentai/src/service/tag_search_order_service.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -32,6 +33,7 @@ class SettingPreferencePage extends StatelessWidget {
               _buildTagTranslate(),
               _buildTagOrderOptimization(),
               _buildDefaultTab(),
+              _buildDefaultDownloadTab(),
               if (styleSetting.isInV2Layout) _buildSimpleDashboardMode(),
               if (styleSetting.isInV2Layout) _buildShowBottomNavigation(),
               if (styleSetting.isInV2Layout || styleSetting.actualLayout == LayoutMode.desktop) _buildHideScroll2TopButton(),
@@ -53,6 +55,7 @@ class SettingPreferencePage extends StatelessWidget {
               _buildShowDawnInfo(),
               _buildShowEncounterMonster(),
               _buildUseBuiltInBlockedUsers(),
+              _buildConfirmDestructiveActions(),
               _buildBlockRules(),
             ],
           ).withListTileTheme(context),
@@ -193,6 +196,32 @@ class SettingPreferencePage extends StatelessWidget {
     );
   }
 
+  Widget _buildDefaultDownloadTab() {
+    return ListTile(
+      title: Text('defaultDownloadTab'.tr),
+      trailing: DropdownButton<DownloadPageGalleryType>(
+        value: preferenceSetting.defaultDownloadTab.value,
+        elevation: 4,
+        alignment: AlignmentDirectional.centerEnd,
+        onChanged: (DownloadPageGalleryType? newValue) => preferenceSetting.saveDefaultDownloadTab(newValue!),
+        items: [
+          DropdownMenuItem(
+            child: Text('download'.tr),
+            value: DownloadPageGalleryType.download,
+          ),
+          DropdownMenuItem(
+            child: Text('archive'.tr),
+            value: DownloadPageGalleryType.archive,
+          ),
+          DropdownMenuItem(
+            child: Text('local'.tr),
+            value: DownloadPageGalleryType.local,
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSimpleDashboardMode() {
     return SwitchListTile(
       title: Text('simpleDashboardMode'.tr),
@@ -282,7 +311,7 @@ class SettingPreferencePage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SliderTheme(
-              data: SliderTheme.of(context).copyWith(showValueIndicator: ShowValueIndicator.always),
+              data: SliderTheme.of(context).copyWith(showValueIndicator: ShowValueIndicator.onDrag),
               child: Slider(
                 min: 20,
                 max: 300,
@@ -458,6 +487,15 @@ class SettingPreferencePage extends StatelessWidget {
           )
         ],
       ),
+    );
+  }
+
+  Widget _buildConfirmDestructiveActions() {
+    return SwitchListTile(
+      title: Text('confirmDestructiveActions'.tr),
+      subtitle: Text('confirmDestructiveActionsHint'.tr),
+      value: preferenceSetting.confirmDestructiveActions.value,
+      onChanged: preferenceSetting.saveConfirmDestructiveActions,
     );
   }
 }

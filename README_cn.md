@@ -21,7 +21,23 @@ E-hentai 的一个多端app，现支持Android、iOS、Windows、MacOS和Linux�
 
 ## 下载&安装
 
-[下载](https://github.com/jiangtian616/JHenTai/releases)
+[<img src="https://raw.githubusercontent.com/jiangtian616/JHenTai/master/badges/download_from_github.png" 
+      alt="Download from GitHub" 
+      height="60">](https://github.com/jiangtian616/JHenTai/releases)
+[<img src="https://raw.githubusercontent.com/jiangtian616/JHenTai/master/badges/get_it_on_obtainium.png" 
+      alt="Get it on Obtainium" 
+      height="60">](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22%3A%22top.jtmonster.jhentai%22%2C%22url%22%3A%22https%3A%2F%2Fgithub.com%2Fjiangtian616%2FJHenTai%22%2C%22author%22%3A%22jiangtian616%22%2C%22name%22%3A%22JHenTai%22%2C%22preferredApkIndex%22%3A0%2C%22additionalSettings%22%3A%22%7B%5C%22includePrereleases%5C%22%3Afalse%2C%5C%22fallbackToOlderReleases%5C%22%3Atrue%2C%5C%22filterReleaseTitlesByRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22filterReleaseNotesByRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22verifyLatestTag%5C%22%3Afalse%2C%5C%22sortMethodChoice%5C%22%3A%5C%22date%5C%22%2C%5C%22useLatestAssetDateAsReleaseDate%5C%22%3Afalse%2C%5C%22releaseTitleAsVersion%5C%22%3Afalse%2C%5C%22trackOnly%5C%22%3Afalse%2C%5C%22versionExtractionRegEx%5C%22%3A%5C%22v(.*)%5C%22%2C%5C%22matchGroupToUse%5C%22%3A%5C%22%241%5C%22%2C%5C%22versionDetection%5C%22%3Atrue%2C%5C%22releaseDateAsVersion%5C%22%3Afalse%2C%5C%22useVersionCodeAsOSVersion%5C%22%3Afalse%2C%5C%22apkFilterRegEx%5C%22%3A%5C%22%5C%22%2C%5C%22invertAPKFilter%5C%22%3Afalse%2C%5C%22autoApkFilterByArch%5C%22%3Atrue%2C%5C%22appName%5C%22%3A%5C%22JHenTai%5C%22%2C%5C%22appAuthor%5C%22%3A%5C%22JTMonster%5C%22%2C%5C%22shizukuPretendToBeGooglePlay%5C%22%3Afalse%2C%5C%22allowInsecure%5C%22%3Afalse%2C%5C%22exemptFromBackgroundUpdates%5C%22%3Afalse%2C%5C%22skipUpdateNotifications%5C%22%3Afalse%2C%5C%22about%5C%22%3A%5C%22https%3A%2F%2Fgithub.com%2Fjiangtian616%2FJHenTai%2Fblob%2Fmaster%2FREADME.md%5C%22%2C%5C%22refreshBeforeDownload%5C%22%3Afalse%7D%22%2C%22overrideSource%22%3Anull%7D)
+
+
+[<img src="https://raw.githubusercontent.com/jiangtian616/JHenTai/master/badges/add_to_altstore.png" 
+      alt="Add to AltStore" 
+      height="60">](https://intradeus.github.io/http-protocol-redirector?r=altstore://source?url=https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/altsource/AltSource.json)
+[<img src="https://raw.githubusercontent.com/jiangtian616/JHenTai/master/badges/add_to_sidestore.png" 
+      alt="Add to SideStore" 
+      height="60">](https://intradeus.github.io/http-protocol-redirector?r=sidestore://source?url=https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/altsource/AltSource.json)
+[<img src="https://raw.githubusercontent.com/jiangtian616/JHenTai/master/badges/add_to_feather.png" 
+      alt="Add to Feather" 
+      height="60">](https://intradeus.github.io/http-protocol-redirector?r=feather://source/https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/altsource/AltSource.json)
 
 安卓安装:  下载对应自己设置架构的apk文件，直接安装即可。
 
@@ -30,6 +46,8 @@ E-hentai 的一个多端app，现支持Android、iOS、Windows、MacOS和Linux�
 - x86_64：少见
 
 iOS安装:  下载ipa文件后，使用[AltStore](https://altstore.io)、SideLoadly、爱思助手等任一工具进行自签名。
+
+- 你可以通过[ AltStore 订阅](https://intradeus.github.io/http-protocol-redirector?r=altstore://source?url=https://raw.githubusercontent.com/jiangtian616/JHenTai/refs/heads/master/altsource/AltSource.json)来获得更便捷的安装与更新体验
 
 Windows安装： 下载Windows_xxx.zip后解压即可。
 
@@ -43,6 +61,14 @@ MacOS安装（不维护）： 下载dmg后安装即可。
 - 如果你使用了代理服务器，在网络设置里配置代理地址。
 
 Linux安装（不维护）：根据你的系统选择 Linux-amd64.deb 或 Linux-x86_64.AppImage，下载后安装运行即可。(视需要你可能需要安装webkit2gtk-4.1)
+
+基于 Fedora 的 dnf Linux 发行版：
+
+```bash
+sudo rpm --import https://meeks233.github.io/Jhentai-rpm/fedora/RPM-GPG-KEY-jhentai
+sudo curl -fsSL -o /etc/yum.repos.d/jhentai.repo https://meeks233.github.io/Jhentai-rpm/fedora/jhentai.repo
+sudo dnf install -y jhentai
+```
 
 - 如果你使用了代理服务器，在网络设置里配置代理地址。
 
@@ -165,6 +191,12 @@ App翻译：
 
 1. 你需要自己管理安卓签名文件，见https://docs.flutter.dev/deployment/android#signing-the-app
 2. 使用IDEA或者VSCode直接运行即可
+
+## 关于代码贡献
+
+1. 对分支名无固定要求，可以在本地master分支上修改并提交pr。
+2. 如果改动功能点较大且且涉及多模块间的交互，不接受没有代码审查能力的开发者使用Vibe Coding提交的代码，该类代码常常不遵守项目现有编码规范，同时对代码拓展性有较大危害，代码正确性也没有保障。
+3. 单个pr需要聚焦于最小功能点，涉及多个功能点请提交多个pr。
 
 ## 主要dart依赖
 

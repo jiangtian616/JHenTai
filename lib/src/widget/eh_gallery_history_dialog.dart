@@ -11,13 +11,13 @@ import '../routes/routes.dart';
 class EHGalleryHistoryDialog extends StatelessWidget {
   final String currentGalleryTitle;
   final GalleryUrl? parentUrl;
-  final List<({GalleryUrl galleryUrl, String title, String updateTime})>? childrenGallerys;
+  final List<({GalleryUrl galleryUrl, String title, String updateTime})>? childrenGalleries;
 
   const EHGalleryHistoryDialog({
     super.key,
     required this.currentGalleryTitle,
     this.parentUrl,
-    this.childrenGallerys,
+    this.childrenGalleries,
   });
 
   @override
@@ -28,7 +28,7 @@ class EHGalleryHistoryDialog extends StatelessWidget {
         title: Center(child: Text('history'.tr)),
         contentPadding: const EdgeInsets.only(top: 18, left: 12, right: 12, bottom: 12),
         children: [
-          ...?childrenGallerys?.reversed.map(
+          ...?childrenGalleries?.reversed.map(
             (e) => ListTile(
               dense: true,
               title: Text(

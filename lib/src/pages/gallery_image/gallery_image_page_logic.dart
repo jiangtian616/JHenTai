@@ -11,7 +11,7 @@ import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/pages/details/details_page_logic.dart';
 import 'package:jhentai/src/pages/gallery_image/gallery_image_page_state.dart';
 import 'package:jhentai/src/routes/routes.dart';
-import 'package:jhentai/src/service/gallery_download_service.dart';
+import 'package:jhentai/src/service/gallery_download/gallery_download_service.dart';
 import 'package:jhentai/src/service/storage_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
@@ -199,7 +199,8 @@ class GalleryImagePageLogic extends GetxController {
         }
 
         Color? backGroundColor = tagInfo.tag.backgroundColor ?? tagInfo.tagSetBackGroundColor;
-        tag.backgroundColor = backGroundColor ?? UIConfig.ehWatchedTagDefaultBackGroundColor;
+        bool hidden = tagInfo.tag.hidden || tagInfo.tag.weight < 0;
+        tag.backgroundColor = backGroundColor ?? (hidden ? UIConfig.ehHiddenTagDefaultBackGroundColor : UIConfig.ehWatchedTagDefaultBackGroundColor);
         tag.color = backGroundColor == null
             ? const Color(0xFFF1F1F1)
             : ThemeData.estimateBrightnessForColor(backGroundColor) == Brightness.light

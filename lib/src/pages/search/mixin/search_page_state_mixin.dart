@@ -7,7 +7,7 @@ import 'package:jhentai/src/pages/base/base_page_state.dart';
 
 import '../../../service/tag_translation_service.dart';
 
-enum SearchPageBodyType { gallerys, suggestionAndHistory }
+enum SearchPageBodyType { galleries, suggestionAndHistory }
 
 mixin SearchPageStateMixin on BasePageState {
   /// used to init body

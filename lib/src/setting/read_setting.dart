@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
+import 'package:jhentai/src/model/tap_zone_config.dart';
 import 'package:jhentai/src/service/log.dart';
 
 import '../service/jh_service.dart';
@@ -18,16 +19,21 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   RxBool showThumbnails = true.obs;
   RxBool showScrollBar = true.obs;
   RxBool showStatusInfo = true.obs;
-  RxBool enablePageTurnByVolumeKeys = true.obs;
+  RxBool enablePageTurnByVolumeKeys = (GetPlatform.isIOS ? false : true).obs;
   RxBool enablePageTurnAnime = true.obs;
   RxBool enableDoubleTapToScaleUp = false.obs;
   RxBool enableTapDragToScaleUp = false.obs;
   RxBool enableBottomMenu = false.obs;
   Rx<DeviceDirection> deviceDirection = DeviceDirection.followSystem.obs;
   Rx<ReadDirection> readDirection = GetPlatform.isMobile ? ReadDirection.top2bottomList.obs : ReadDirection.left2rightList.obs;
+  RxBool enableOrientationSpecificReadDirection = false.obs;
+  Rx<ReadDirection> portraitReadDirection = GetPlatform.isMobile ? ReadDirection.top2bottomList.obs : ReadDirection.left2rightList.obs;
+  Rx<ReadDirection> landscapeReadDirection = ReadDirection.left2rightList.obs;
   RxBool notchOptimization = false.obs;
   RxInt imageRegionWidthRatio = 100.obs;
-  RxInt gestureRegionWidthRatio = 60.obs;
+  RxInt portraitImageRegionWidthRatio = 100.obs;
+  RxInt landscapeImageRegionWidthRatio = 100.obs;
+  RxnString tapZoneConfigJson = RxnString();
   RxBool useThirdPartyViewer = false.obs;
   RxnString thirdPartyViewerPath = RxnString();
   RxDouble autoModeInterval = 2.0.obs;
@@ -38,46 +44,79 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   RxInt preloadPageCount = 1.obs;
   RxInt preloadPageCountLocal = 3.obs;
   RxBool displayFirstPageAlone = true.obs;
-  RxBool reverseTurnPageDirection = false.obs;
-  RxBool disablePageTurningOnTap = false.obs;
+  RxBool portraitDisplayFirstPageAlone = true.obs;
+  RxBool landscapeDisplayFirstPageAlone = true.obs;
   RxBool enableMaxImageKilobyte =
       (GetPlatform.isDesktop || PlatformDispatcher.instance.views.first.physicalSize.width / PlatformDispatcher.instance.views.first.devicePixelRatio >= 600)
           ? false.obs
           : true.obs;
   RxInt maxImageKilobyte = (1024 * 5).obs;
+  RxBool autoDetectWebtoon = false.obs;
 
-  bool get isInListReadDirection =>
-      readDirection.value == ReadDirection.top2bottomList ||
-      readDirection.value == ReadDirection.left2rightList ||
-      readDirection.value == ReadDirection.right2leftList;
+  static bool isListDirection(ReadDirection d) =>
+      d == ReadDirection.top2bottomList ||
+      d == ReadDirection.left2rightList ||
+      d == ReadDirection.right2leftList;
 
-  bool get isInHorizontalReadDirection =>
-      readDirection.value == ReadDirection.left2rightSinglePage ||
-      readDirection.value == ReadDirection.right2leftSinglePage ||
-      readDirection.value == ReadDirection.left2rightSinglePageFitWidth ||
-      readDirection.value == ReadDirection.right2leftSinglePageFitWidth ||
-      readDirection.value == ReadDirection.left2rightDoubleColumn ||
-      readDirection.value == ReadDirection.right2leftDoubleColumn ||
-      readDirection.value == ReadDirection.left2rightList ||
-      readDirection.value == ReadDirection.right2leftList;
+  static bool isDoubleColumnDirection(ReadDirection d) =>
+      d == ReadDirection.left2rightDoubleColumn || d == ReadDirection.right2leftDoubleColumn;
 
-  bool get isInSinglePageReadDirection =>
-      readDirection.value == ReadDirection.left2rightSinglePage ||
-      readDirection.value == ReadDirection.right2leftSinglePage ||
-      readDirection.value == ReadDirection.left2rightSinglePageFitWidth ||
-      readDirection.value == ReadDirection.right2leftSinglePageFitWidth;
+  static bool isSinglePageDirection(ReadDirection d) =>
+      d == ReadDirection.left2rightSinglePage ||
+      d == ReadDirection.right2leftSinglePage ||
+      d == ReadDirection.left2rightSinglePageFitWidth ||
+      d == ReadDirection.right2leftSinglePageFitWidth;
 
-  bool get isInFitWidthReadDirection =>
-      readDirection.value == ReadDirection.left2rightSinglePageFitWidth || readDirection.value == ReadDirection.right2leftSinglePageFitWidth;
+  static bool isFitWidthDirection(ReadDirection d) =>
+      d == ReadDirection.left2rightSinglePageFitWidth || d == ReadDirection.right2leftSinglePageFitWidth;
 
-  bool get isInDoubleColumnReadDirection =>
-      readDirection.value == ReadDirection.left2rightDoubleColumn || readDirection.value == ReadDirection.right2leftDoubleColumn;
+  static bool isRight2LeftDirection(ReadDirection d) =>
+      d == ReadDirection.right2leftSinglePage ||
+      d == ReadDirection.right2leftSinglePageFitWidth ||
+      d == ReadDirection.right2leftDoubleColumn ||
+      d == ReadDirection.right2leftList;
 
-  bool get isInRight2LeftDirection =>
-      readDirection.value == ReadDirection.right2leftSinglePage ||
-      readDirection.value == ReadDirection.right2leftSinglePageFitWidth ||
-      readDirection.value == ReadDirection.right2leftDoubleColumn ||
-      readDirection.value == ReadDirection.right2leftList;
+  bool get isInListReadDirection {
+    if (enableOrientationSpecificReadDirection.isTrue && GetPlatform.isMobile) {
+      return isListDirection(portraitReadDirection.value) || isListDirection(landscapeReadDirection.value);
+    }
+    return isListDirection(readDirection.value);
+  }
+
+  bool get isEveryInListReadDirection {
+    if (enableOrientationSpecificReadDirection.isTrue && GetPlatform.isMobile) {
+      return isListDirection(portraitReadDirection.value) && isListDirection(landscapeReadDirection.value);
+    }
+    return isListDirection(readDirection.value);
+  }
+
+  bool get isInSinglePageReadDirection {
+    if (enableOrientationSpecificReadDirection.isTrue && GetPlatform.isMobile) {
+      return isSinglePageDirection(portraitReadDirection.value) || isSinglePageDirection(landscapeReadDirection.value);
+    }
+    return isSinglePageDirection(readDirection.value);
+  }
+
+  bool get isInFitWidthReadDirection {
+    if (enableOrientationSpecificReadDirection.isTrue && GetPlatform.isMobile) {
+      return isFitWidthDirection(portraitReadDirection.value) || isFitWidthDirection(landscapeReadDirection.value);
+    }
+    return isFitWidthDirection(readDirection.value);
+  }
+
+  bool get isInDoubleColumnReadDirection {
+    if (enableOrientationSpecificReadDirection.isTrue && GetPlatform.isMobile) {
+      return isDoubleColumnDirection(portraitReadDirection.value) || isDoubleColumnDirection(landscapeReadDirection.value);
+    }
+    return isDoubleColumnDirection(readDirection.value);
+  }
+
+  bool get isInRight2LeftDirection {
+    if (enableOrientationSpecificReadDirection.isTrue && GetPlatform.isMobile) {
+      return isRight2LeftDirection(portraitReadDirection.value) || isRight2LeftDirection(landscapeReadDirection.value);
+    }
+    return isRight2LeftDirection(readDirection.value);
+  }
 
   @override
   ConfigEnum get configEnum => ConfigEnum.readSetting;
@@ -105,7 +144,10 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     readDirection.value = ReadDirection.values[map['readDirection']];
     notchOptimization.value = map['notchOptimization'] ?? notchOptimization.value;
     imageRegionWidthRatio.value = map['imageRegionWidthRatio'] ?? imageRegionWidthRatio.value;
-    gestureRegionWidthRatio.value = map['gestureRegionWidthRatio'] ?? gestureRegionWidthRatio.value;
+    portraitImageRegionWidthRatio.value = map['portraitImageRegionWidthRatio'] ?? map['imageRegionWidthRatio'] ?? portraitImageRegionWidthRatio.value;
+    landscapeImageRegionWidthRatio.value = map['landscapeImageRegionWidthRatio'] ?? map['imageRegionWidthRatio'] ?? landscapeImageRegionWidthRatio.value;
+    tapZoneConfigJson.value = map['tapZoneConfig'] ?? TapZoneConfig.classic().toJsonString();
+    _cachedTapZoneConfig = null;
     useThirdPartyViewer.value = map['useThirdPartyViewer'] ?? useThirdPartyViewer.value;
     thirdPartyViewerPath.value = map['thirdPartyViewerPath'];
     turnPageMode.value = TurnPageMode.values[map['turnPageMode']];
@@ -114,10 +156,15 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     preloadPageCount.value = map['preloadPageCount'];
     preloadPageCountLocal.value = map['preloadPageCountLocal'] ?? preloadPageCountLocal.value;
     displayFirstPageAlone.value = map['displayFirstPageAlone'] ?? displayFirstPageAlone.value;
-    reverseTurnPageDirection.value = map['reverseTurnPageDirection'] ?? reverseTurnPageDirection.value;
-    disablePageTurningOnTap.value = map['disablePageTurningOnTap'] ?? disablePageTurningOnTap.value;
+    portraitDisplayFirstPageAlone.value = map['portraitDisplayFirstPageAlone'] ?? map['displayFirstPageAlone'] ?? portraitDisplayFirstPageAlone.value;
+    landscapeDisplayFirstPageAlone.value = map['landscapeDisplayFirstPageAlone'] ?? map['displayFirstPageAlone'] ?? landscapeDisplayFirstPageAlone.value;
     enableMaxImageKilobyte.value = map['enableMaxImageKilobyte'] ?? enableMaxImageKilobyte.value;
     maxImageKilobyte.value = map['maxImageKilobyte'] ?? maxImageKilobyte.value;
+    enableOrientationSpecificReadDirection.value = map['enableOrientationSpecificReadDirection'] ?? enableOrientationSpecificReadDirection.value;
+    autoDetectWebtoon.value = map['autoDetectWebtoon'] ?? autoDetectWebtoon.value;
+    /// On first load, migrate existing readDirection to both portrait and landscape
+    portraitReadDirection.value = ReadDirection.values[map['portraitReadDirection'] ?? map['readDirection']];
+    landscapeReadDirection.value = ReadDirection.values[map['landscapeReadDirection'] ?? map['readDirection']];
   }
 
   @override
@@ -142,7 +189,9 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
       'readDirection': readDirection.value.index,
       'notchOptimization': notchOptimization.value,
       'imageRegionWidthRatio': imageRegionWidthRatio.value,
-      'gestureRegionWidthRatio': gestureRegionWidthRatio.value,
+      'portraitImageRegionWidthRatio': portraitImageRegionWidthRatio.value,
+      'landscapeImageRegionWidthRatio': landscapeImageRegionWidthRatio.value,
+      'tapZoneConfig': tapZoneConfigJson.value,
       'useThirdPartyViewer': useThirdPartyViewer.value,
       'thirdPartyViewerPath': thirdPartyViewerPath.value,
       'turnPageMode': turnPageMode.value.index,
@@ -151,10 +200,14 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
       'preloadPageCount': preloadPageCount.value,
       'preloadPageCountLocal': preloadPageCountLocal.value,
       'displayFirstPageAlone': displayFirstPageAlone.value,
-      'reverseTurnPageDirection': reverseTurnPageDirection.value,
-      'disablePageTurningOnTap': disablePageTurningOnTap.value,
+      'portraitDisplayFirstPageAlone': portraitDisplayFirstPageAlone.value,
+      'landscapeDisplayFirstPageAlone': landscapeDisplayFirstPageAlone.value,
       'enableMaxImageKilobyte': enableMaxImageKilobyte.value,
       'maxImageKilobyte': maxImageKilobyte.value,
+      'enableOrientationSpecificReadDirection': enableOrientationSpecificReadDirection.value,
+      'autoDetectWebtoon': autoDetectWebtoon.value,
+      'portraitReadDirection': portraitReadDirection.value.index,
+      'landscapeReadDirection': landscapeReadDirection.value.index,
     });
   }
 
@@ -248,9 +301,40 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     await saveBeanConfig();
   }
 
-  Future<void> saveGestureRegionWidthRatio(int value) async {
-    log.debug('saveGestureRegionWidthRatio:$value');
-    gestureRegionWidthRatio.value = value;
+  Future<void> savePortraitImageRegionWidthRatio(int value) async {
+    log.debug('savePortraitImageRegionWidthRatio:$value');
+    portraitImageRegionWidthRatio.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveLandscapeImageRegionWidthRatio(int value) async {
+    log.debug('saveLandscapeImageRegionWidthRatio:$value');
+    landscapeImageRegionWidthRatio.value = value;
+    await saveBeanConfig();
+  }
+
+  TapZoneConfig? _cachedTapZoneConfig;
+
+  TapZoneConfig get tapZoneConfig {
+    if (_cachedTapZoneConfig != null) {
+      return _cachedTapZoneConfig!;
+    }
+    String? json = tapZoneConfigJson.value;
+    if (json == null) {
+      return _cachedTapZoneConfig = TapZoneConfig.classic();
+    }
+    try {
+      return _cachedTapZoneConfig = TapZoneConfig.fromJsonString(json);
+    } catch (e) {
+      log.error('Failed to parse tapZoneConfig, fallback to classic', e);
+      return _cachedTapZoneConfig = TapZoneConfig.classic();
+    }
+  }
+
+  Future<void> saveTapZoneConfig(TapZoneConfig value) async {
+    log.debug('saveTapZoneConfig:${value.toJsonString()}');
+    _cachedTapZoneConfig = value;
+    tapZoneConfigJson.value = value.toJsonString();
     await saveBeanConfig();
   }
 
@@ -332,15 +416,15 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     await saveBeanConfig();
   }
 
-  Future<void> saveReverseTurnPageDirection(bool value) async {
-    log.debug('saveReverseTurnPageDirection:$value');
-    reverseTurnPageDirection.value = value;
+  Future<void> savePortraitDisplayFirstPageAlone(bool value) async {
+    log.debug('savePortraitDisplayFirstPageAlone:$value');
+    portraitDisplayFirstPageAlone.value = value;
     await saveBeanConfig();
   }
 
-  Future<void> saveDisablePageTurningOnTap(bool value) async {
-    log.debug('saveDisablePageTurningOnTap:$value');
-    disablePageTurningOnTap.value = value;
+  Future<void> saveLandscapeDisplayFirstPageAlone(bool value) async {
+    log.debug('saveLandscapeDisplayFirstPageAlone:$value');
+    landscapeDisplayFirstPageAlone.value = value;
     await saveBeanConfig();
   }
 
@@ -353,6 +437,30 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   Future<void> saveMaxImageKilobyte(int value) async {
     log.debug('saveMaxImageKilobyte:$value');
     maxImageKilobyte.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveEnableOrientationSpecificReadDirection(bool value) async {
+    log.debug('saveEnableOrientationSpecificReadDirection:$value');
+    enableOrientationSpecificReadDirection.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveAutoDetectWebtoon(bool value) async {
+    log.debug('saveAutoDetectWebtoon:$value');
+    autoDetectWebtoon.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> savePortraitReadDirection(ReadDirection value) async {
+    log.debug('savePortraitReadDirection:${value.name}');
+    portraitReadDirection.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveLandscapeReadDirection(ReadDirection value) async {
+    log.debug('saveLandscapeReadDirection:${value.name}');
+    landscapeReadDirection.value = value;
     await saveBeanConfig();
   }
 }

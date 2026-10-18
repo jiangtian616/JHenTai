@@ -146,7 +146,7 @@ class DesktopLayoutPage extends StatelessWidget {
 
           popGesture: preferenceSetting.enableSwipeBackGesture.isTrue,
           transition: Transition.fadeIn,
-          transitionDuration: const Duration(milliseconds: 150),
+          transitionDuration: UIConfig.defaultPageRouteTransitionDuration,
         );
       },
     );
@@ -177,7 +177,7 @@ class DesktopLayoutPage extends StatelessWidget {
           /// do not use swipe back in tablet layout!
           popGesture: false,
           transition: Transition.fadeIn,
-          transitionDuration: const Duration(milliseconds: 150),
+          transitionDuration: UIConfig.defaultPageRouteTransitionDuration,
           showCupertinoParallax: false,
         );
       },

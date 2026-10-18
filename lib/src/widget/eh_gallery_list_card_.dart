@@ -18,16 +18,18 @@ import '../utils/date_util.dart';
 import 'eh_image.dart';
 import 'eh_tag.dart';
 import 'eh_gallery_category_tag.dart';
+import '../service/read_progress_service.dart';
 
 typedef CardCallback = FutureOr<void> Function(Gallery gallery);
+typedef CardContextMenuCallback = void Function(Gallery gallery, Offset position);
 
 class EHGalleryListCard extends StatelessWidget {
   final Gallery gallery;
   final bool downloaded;
   final ListMode listMode;
   final CardCallback handleTapCard;
-  final CardCallback? handleLongPressCard;
-  final CardCallback? handleSecondaryTapCard;
+  final CardContextMenuCallback? handleLongPressCard;
+  final CardContextMenuCallback? handleSecondaryTapCard;
   final bool withTags;
 
   const EHGalleryListCard({
@@ -46,8 +48,8 @@ class EHGalleryListCard extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => handleTapCard(gallery),
-      onLongPress: handleLongPressCard == null ? null : () => handleLongPressCard!(gallery),
-      onSecondaryTap: handleSecondaryTapCard == null ? null : () => handleSecondaryTapCard!(gallery),
+      onLongPressStart: handleLongPressCard == null ? null : (details) => handleLongPressCard!(gallery, details.globalPosition),
+      onSecondaryTapDown: handleSecondaryTapCard == null ? null : (details) => handleSecondaryTapCard!(gallery, details.globalPosition),
       child: FadeIn(
         duration: const Duration(milliseconds: 100),
         child: SizedBox(
@@ -201,6 +203,7 @@ class EHGalleryListCard extends StatelessWidget {
           children: [
             EHGalleryCategoryTag(category: gallery.category),
             const Expanded(child: SizedBox()),
+            if (gallery.pageCount != null) _buildReadingProgress(context).marginOnly(right: 8),
             if (downloaded) _buildDownloadIcon(context).marginOnly(right: 4),
             if (gallery.isFavorite) _buildFavoriteIcon().marginOnly(right: 4),
             if (gallery.language != null) _buildLanguage(context).marginOnly(right: 4),
@@ -232,6 +235,43 @@ class EHGalleryListCard extends StatelessWidget {
         color: gallery.hasRated ? UIConfig.galleryRatingStarRatedColor(context) : UIConfig.galleryRatingStarColor,
       ),
       onRatingUpdate: (rating) {},
+    );
+  }
+
+  Widget _buildReadingProgress(BuildContext context) {
+    return GetBuilder<ReadProgressService>(
+      init: Get.find<ReadProgressService>(),
+      id: '${ReadProgressService.readProgressUpdateId}::${gallery.gid}',
+      builder: (_) {
+        return FutureBuilder<int>(
+          future: readProgressService.getReadProgress(gallery.gid),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const SizedBox.shrink();
+            }
+
+            final readIndex = snapshot.data ?? 0;
+
+            double progress = gallery.pageCount != null && gallery.pageCount! > 0 ? ((readIndex + 1) / gallery.pageCount!).clamp(0.0, 1.0) : 0.0;
+
+            // Don't show indicator if no progress
+            if (readIndex == 0.0) {
+              return const SizedBox.shrink();
+            }
+
+            return SizedBox(
+              width: UIConfig.galleryCardReadProgressIndicatorSize,
+              height: UIConfig.galleryCardReadProgressIndicatorSize,
+              child: CircularProgressIndicator(
+                value: progress,
+                strokeWidth: 2,
+                backgroundColor: UIConfig.galleryCardTextColor(context).withValues(alpha: 0.2),
+                valueColor: AlwaysStoppedAnimation<Color>(UIConfig.galleryCardTextColor(context)),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 

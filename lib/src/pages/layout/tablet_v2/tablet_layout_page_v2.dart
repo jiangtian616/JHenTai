@@ -93,7 +93,7 @@ class _TabletLayoutPageV2State extends State<TabletLayoutPageV2> {
 
           popGesture: preferenceSetting.enableSwipeBackGesture.isTrue,
           transition: Routes.defaultTransition,
-          transitionDuration: const Duration(milliseconds: 150),
+          transitionDuration: UIConfig.defaultPageRouteTransitionDuration,
         );
       },
     );
@@ -124,7 +124,7 @@ class _TabletLayoutPageV2State extends State<TabletLayoutPageV2> {
           /// do not use swipe back in tablet layout!
           popGesture: false,
           transition: Transition.fadeIn,
-          transitionDuration: const Duration(milliseconds: 150),
+          transitionDuration: UIConfig.defaultPageRouteTransitionDuration,
           showCupertinoParallax: false,
         );
       },

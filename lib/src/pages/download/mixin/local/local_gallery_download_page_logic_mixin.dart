@@ -18,6 +18,7 @@ import '../../../../utils/process_util.dart';
 import '../../../../utils/route_util.dart' as route;
 import '../../../../utils/toast_util.dart';
 import '../../../../widget/eh_alert_dialog.dart';
+import '../../../../widget/eh_context_menu.dart';
 import '../../../../widget/loading_state_indicator.dart';
 
 mixin LocalGalleryDownloadPageLogicMixin on GetxController {
@@ -85,7 +86,7 @@ mixin LocalGalleryDownloadPageLogicMixin on GetxController {
     if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
       openThirdPartyViewer(gallery.path);
     } else {
-      String? string = await localConfigService.read(configKey: ConfigEnum.readIndexRecord, subConfigKey: gallery.title);
+      String? string = await localConfigService.read(configKey: ConfigEnum.readIndexRecord, subConfigKey: gallery.cover.path!);
       int readIndexRecord = (string == null ? 0 : (int.tryParse(string) ?? 0));
 
       List<GalleryImage> images = localGalleryService.getGalleryImages(gallery);
@@ -97,7 +98,7 @@ mixin LocalGalleryDownloadPageLogicMixin on GetxController {
           galleryTitle: gallery.title,
           initialIndex: readIndexRecord,
           pageCount: images.length,
-          readProgressRecordStorageKey: gallery.title,
+          readProgressRecordStorageKey: gallery.cover.path!,
           images: images,
           useSuperResolution: false,
         ),
@@ -110,33 +111,26 @@ mixin LocalGalleryDownloadPageLogicMixin on GetxController {
       return;
     }
 
-    int preCount = localGalleryService.allGallerys.length;
+    int preCount = localGalleryService.allGalleries.length;
 
-    localGalleryService.refreshLocalGallerys().then((_) {
+    localGalleryService.refreshLocalGalleries().then((_) {
       currentPath = LocalGalleryService.rootPath;
       update([bodyId]);
-      toast('${'newGalleryCount'.tr}: ${localGalleryService.allGallerys.length - preCount}');
+      toast('${'newGalleryCount'.tr}: ${localGalleryService.allGalleries.length - preCount}');
     });
   }
 
-  void showBottomSheet(LocalGallery gallery, BuildContext context) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        actions: <CupertinoActionSheetAction>[
-          CupertinoActionSheetAction(
-            child: Text('delete'.tr, style: TextStyle(color: UIConfig.alertColor(context))),
-            onPressed: () {
-              route.backRoute();
-              handleRemoveItem(gallery);
-            },
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          child: Text('cancel'.tr),
-          onPressed: route.backRoute,
+  void showBottomSheet(LocalGallery gallery, BuildContext context, {Offset? position}) {
+    showEHContextMenu(
+      context,
+      position: position,
+      actions: [
+        EHContextMenuAction(
+          text: 'delete'.tr,
+          color: UIConfig.alertColor(context),
+          onTap: () => handleRemoveItem(gallery),
         ),
-      ),
+      ],
     );
   }
 

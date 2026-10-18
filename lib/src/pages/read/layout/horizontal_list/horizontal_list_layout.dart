@@ -24,6 +24,7 @@ class HorizontalListLayout extends BaseLayout {
   Widget buildBody(BuildContext context) {
     /// user PhotoViewGallery to scale up the whole gallery list, so set itemCount to 1
     return PhotoViewGallery.builder(
+      enableCtrlScrollZoom: true,
       itemCount: 1,
       builder: (_, __) => PhotoViewGalleryPageOptions.customChild(
         controller: state.photoViewController,
@@ -34,9 +35,10 @@ class HorizontalListLayout extends BaseLayout {
         enableTapDragZoom: readSetting.enableTapDragToScaleUp.isTrue,
         child: EHWheelSpeedControllerForReadPage(
           scrollOffsetController: state.scrollOffsetController,
+          stopScrollWhenCtrlPressed: true,
           child: ScrollablePositionedList.separated(
             scrollDirection: Axis.horizontal,
-            reverse: readSetting.isInRight2LeftDirection,
+            reverse: logic.readPageLogic.isInRight2LeftDirection,
             physics: const ClampingScrollPhysics(),
             minCacheExtent: readPageState.readPageInfo.mode == ReadMode.online
                 ? readSetting.preloadDistance * screenHeight * 1

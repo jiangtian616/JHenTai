@@ -1072,6 +1072,12 @@ class $ArchiveDownloadedTable extends ArchiveDownloaded
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(0));
+  static const VerificationMeta _sanitizedTitleMeta =
+      const VerificationMeta('sanitizedTitle');
+  @override
+  late final GeneratedColumn<String> sanitizedTitle = GeneratedColumn<String>(
+      'sanitized_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         gid,
@@ -1094,7 +1100,8 @@ class $ArchiveDownloadedTable extends ArchiveDownloaded
         groupName,
         tags,
         tagRefreshTime,
-        parseSource
+        parseSource,
+        sanitizedTitle
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1237,6 +1244,12 @@ class $ArchiveDownloadedTable extends ArchiveDownloaded
           parseSource.isAcceptableOrUnknown(
               data['parse_source']!, _parseSourceMeta));
     }
+    if (data.containsKey('sanitized_title')) {
+      context.handle(
+          _sanitizedTitleMeta,
+          sanitizedTitle.isAcceptableOrUnknown(
+              data['sanitized_title']!, _sanitizedTitleMeta));
+    }
     return context;
   }
 
@@ -1288,6 +1301,8 @@ class $ArchiveDownloadedTable extends ArchiveDownloaded
           DriftSqlType.string, data['${effectivePrefix}tag_refresh_time']),
       parseSource: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}parse_source'])!,
+      sanitizedTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sanitized_title']),
     );
   }
 
@@ -1320,6 +1335,11 @@ class ArchiveDownloadedData extends DataClass
   final String tags;
   final String? tagRefreshTime;
   final int parseSource;
+
+  /// Sanitized and truncated title used as the directory/file name on disk.
+  /// Computed once when the download task is first created and stored here to
+  /// ensure the path never changes even if the truncation algorithm is updated.
+  final String? sanitizedTitle;
   const ArchiveDownloadedData(
       {required this.gid,
       required this.token,
@@ -1341,7 +1361,8 @@ class ArchiveDownloadedData extends DataClass
       required this.groupName,
       required this.tags,
       this.tagRefreshTime,
-      required this.parseSource});
+      required this.parseSource,
+      this.sanitizedTitle});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1374,6 +1395,9 @@ class ArchiveDownloadedData extends DataClass
       map['tag_refresh_time'] = Variable<String>(tagRefreshTime);
     }
     map['parse_source'] = Variable<int>(parseSource);
+    if (!nullToAbsent || sanitizedTitle != null) {
+      map['sanitized_title'] = Variable<String>(sanitizedTitle);
+    }
     return map;
   }
 
@@ -1408,6 +1432,9 @@ class ArchiveDownloadedData extends DataClass
           ? const Value.absent()
           : Value(tagRefreshTime),
       parseSource: Value(parseSource),
+      sanitizedTitle: sanitizedTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sanitizedTitle),
     );
   }
 
@@ -1436,6 +1463,7 @@ class ArchiveDownloadedData extends DataClass
       tags: serializer.fromJson<String>(json['tags']),
       tagRefreshTime: serializer.fromJson<String?>(json['tagRefreshTime']),
       parseSource: serializer.fromJson<int>(json['parseSource']),
+      sanitizedTitle: serializer.fromJson<String?>(json['sanitizedTitle']),
     );
   }
   @override
@@ -1463,6 +1491,7 @@ class ArchiveDownloadedData extends DataClass
       'tags': serializer.toJson<String>(tags),
       'tagRefreshTime': serializer.toJson<String?>(tagRefreshTime),
       'parseSource': serializer.toJson<int>(parseSource),
+      'sanitizedTitle': serializer.toJson<String?>(sanitizedTitle),
     };
   }
 
@@ -1487,7 +1516,8 @@ class ArchiveDownloadedData extends DataClass
           String? groupName,
           String? tags,
           Value<String?> tagRefreshTime = const Value.absent(),
-          int? parseSource}) =>
+          int? parseSource,
+          Value<String?> sanitizedTitle = const Value.absent()}) =>
       ArchiveDownloadedData(
         gid: gid ?? this.gid,
         token: token ?? this.token,
@@ -1513,6 +1543,8 @@ class ArchiveDownloadedData extends DataClass
         tagRefreshTime:
             tagRefreshTime.present ? tagRefreshTime.value : this.tagRefreshTime,
         parseSource: parseSource ?? this.parseSource,
+        sanitizedTitle:
+            sanitizedTitle.present ? sanitizedTitle.value : this.sanitizedTitle,
       );
   ArchiveDownloadedData copyWithCompanion(ArchiveDownloadedCompanion data) {
     return ArchiveDownloadedData(
@@ -1551,6 +1583,9 @@ class ArchiveDownloadedData extends DataClass
           : this.tagRefreshTime,
       parseSource:
           data.parseSource.present ? data.parseSource.value : this.parseSource,
+      sanitizedTitle: data.sanitizedTitle.present
+          ? data.sanitizedTitle.value
+          : this.sanitizedTitle,
     );
   }
 
@@ -1577,7 +1612,8 @@ class ArchiveDownloadedData extends DataClass
           ..write('groupName: $groupName, ')
           ..write('tags: $tags, ')
           ..write('tagRefreshTime: $tagRefreshTime, ')
-          ..write('parseSource: $parseSource')
+          ..write('parseSource: $parseSource, ')
+          ..write('sanitizedTitle: $sanitizedTitle')
           ..write(')'))
         .toString();
   }
@@ -1604,7 +1640,8 @@ class ArchiveDownloadedData extends DataClass
         groupName,
         tags,
         tagRefreshTime,
-        parseSource
+        parseSource,
+        sanitizedTitle
       ]);
   @override
   bool operator ==(Object other) =>
@@ -1630,7 +1667,8 @@ class ArchiveDownloadedData extends DataClass
           other.groupName == this.groupName &&
           other.tags == this.tags &&
           other.tagRefreshTime == this.tagRefreshTime &&
-          other.parseSource == this.parseSource);
+          other.parseSource == this.parseSource &&
+          other.sanitizedTitle == this.sanitizedTitle);
 }
 
 class ArchiveDownloadedCompanion
@@ -1656,6 +1694,7 @@ class ArchiveDownloadedCompanion
   final Value<String> tags;
   final Value<String?> tagRefreshTime;
   final Value<int> parseSource;
+  final Value<String?> sanitizedTitle;
   const ArchiveDownloadedCompanion({
     this.gid = const Value.absent(),
     this.token = const Value.absent(),
@@ -1678,6 +1717,7 @@ class ArchiveDownloadedCompanion
     this.tags = const Value.absent(),
     this.tagRefreshTime = const Value.absent(),
     this.parseSource = const Value.absent(),
+    this.sanitizedTitle = const Value.absent(),
   });
   ArchiveDownloadedCompanion.insert({
     this.gid = const Value.absent(),
@@ -1701,6 +1741,7 @@ class ArchiveDownloadedCompanion
     this.tags = const Value.absent(),
     this.tagRefreshTime = const Value.absent(),
     this.parseSource = const Value.absent(),
+    this.sanitizedTitle = const Value.absent(),
   })  : token = Value(token),
         title = Value(title),
         category = Value(category),
@@ -1736,6 +1777,7 @@ class ArchiveDownloadedCompanion
     Expression<String>? tags,
     Expression<String>? tagRefreshTime,
     Expression<int>? parseSource,
+    Expression<String>? sanitizedTitle,
   }) {
     return RawValuesInsertable({
       if (gid != null) 'gid': gid,
@@ -1759,6 +1801,7 @@ class ArchiveDownloadedCompanion
       if (tags != null) 'tags': tags,
       if (tagRefreshTime != null) 'tag_refresh_time': tagRefreshTime,
       if (parseSource != null) 'parse_source': parseSource,
+      if (sanitizedTitle != null) 'sanitized_title': sanitizedTitle,
     });
   }
 
@@ -1783,7 +1826,8 @@ class ArchiveDownloadedCompanion
       Value<String>? groupName,
       Value<String>? tags,
       Value<String?>? tagRefreshTime,
-      Value<int>? parseSource}) {
+      Value<int>? parseSource,
+      Value<String?>? sanitizedTitle}) {
     return ArchiveDownloadedCompanion(
       gid: gid ?? this.gid,
       token: token ?? this.token,
@@ -1806,6 +1850,7 @@ class ArchiveDownloadedCompanion
       tags: tags ?? this.tags,
       tagRefreshTime: tagRefreshTime ?? this.tagRefreshTime,
       parseSource: parseSource ?? this.parseSource,
+      sanitizedTitle: sanitizedTitle ?? this.sanitizedTitle,
     );
   }
 
@@ -1875,6 +1920,9 @@ class ArchiveDownloadedCompanion
     if (parseSource.present) {
       map['parse_source'] = Variable<int>(parseSource.value);
     }
+    if (sanitizedTitle.present) {
+      map['sanitized_title'] = Variable<String>(sanitizedTitle.value);
+    }
     return map;
   }
 
@@ -1901,7 +1949,8 @@ class ArchiveDownloadedCompanion
           ..write('groupName: $groupName, ')
           ..write('tags: $tags, ')
           ..write('tagRefreshTime: $tagRefreshTime, ')
-          ..write('parseSource: $parseSource')
+          ..write('parseSource: $parseSource, ')
+          ..write('sanitizedTitle: $sanitizedTitle')
           ..write(')'))
         .toString();
   }
@@ -3077,6 +3126,12 @@ class $GalleryDownloadedTable extends GalleryDownloaded
   late final GeneratedColumn<String> tagRefreshTime = GeneratedColumn<String>(
       'tag_refresh_time', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _sanitizedTitleMeta =
+      const VerificationMeta('sanitizedTitle');
+  @override
+  late final GeneratedColumn<String> sanitizedTitle = GeneratedColumn<String>(
+      'sanitized_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         gid,
@@ -3095,7 +3150,8 @@ class $GalleryDownloadedTable extends GalleryDownloaded
         sortOrder,
         groupName,
         tags,
-        tagRefreshTime
+        tagRefreshTime,
+        sanitizedTitle
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3210,6 +3266,12 @@ class $GalleryDownloadedTable extends GalleryDownloaded
           tagRefreshTime.isAcceptableOrUnknown(
               data['tag_refresh_time']!, _tagRefreshTimeMeta));
     }
+    if (data.containsKey('sanitized_title')) {
+      context.handle(
+          _sanitizedTitleMeta,
+          sanitizedTitle.isAcceptableOrUnknown(
+              data['sanitized_title']!, _sanitizedTitleMeta));
+    }
     return context;
   }
 
@@ -3255,6 +3317,8 @@ class $GalleryDownloadedTable extends GalleryDownloaded
           .read(DriftSqlType.string, data['${effectivePrefix}tags'])!,
       tagRefreshTime: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}tag_refresh_time']),
+      sanitizedTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sanitized_title']),
     );
   }
 
@@ -3283,6 +3347,11 @@ class GalleryDownloadedData extends DataClass
   final String groupName;
   final String tags;
   final String? tagRefreshTime;
+
+  /// Sanitized and truncated title used as the directory name on disk.
+  /// Computed once when the download task is first created and stored here to
+  /// ensure the path never changes even if the truncation algorithm is updated.
+  final String? sanitizedTitle;
   const GalleryDownloadedData(
       {required this.gid,
       required this.token,
@@ -3300,7 +3369,8 @@ class GalleryDownloadedData extends DataClass
       required this.sortOrder,
       required this.groupName,
       required this.tags,
-      this.tagRefreshTime});
+      this.tagRefreshTime,
+      this.sanitizedTitle});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -3326,6 +3396,9 @@ class GalleryDownloadedData extends DataClass
     map['tags'] = Variable<String>(tags);
     if (!nullToAbsent || tagRefreshTime != null) {
       map['tag_refresh_time'] = Variable<String>(tagRefreshTime);
+    }
+    if (!nullToAbsent || sanitizedTitle != null) {
+      map['sanitized_title'] = Variable<String>(sanitizedTitle);
     }
     return map;
   }
@@ -3355,6 +3428,9 @@ class GalleryDownloadedData extends DataClass
       tagRefreshTime: tagRefreshTime == null && nullToAbsent
           ? const Value.absent()
           : Value(tagRefreshTime),
+      sanitizedTitle: sanitizedTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sanitizedTitle),
     );
   }
 
@@ -3382,6 +3458,7 @@ class GalleryDownloadedData extends DataClass
       groupName: serializer.fromJson<String>(json['groupName']),
       tags: serializer.fromJson<String>(json['tags']),
       tagRefreshTime: serializer.fromJson<String?>(json['tagRefreshTime']),
+      sanitizedTitle: serializer.fromJson<String?>(json['sanitizedTitle']),
     );
   }
   @override
@@ -3405,6 +3482,7 @@ class GalleryDownloadedData extends DataClass
       'groupName': serializer.toJson<String>(groupName),
       'tags': serializer.toJson<String>(tags),
       'tagRefreshTime': serializer.toJson<String?>(tagRefreshTime),
+      'sanitizedTitle': serializer.toJson<String?>(sanitizedTitle),
     };
   }
 
@@ -3425,7 +3503,8 @@ class GalleryDownloadedData extends DataClass
           int? sortOrder,
           String? groupName,
           String? tags,
-          Value<String?> tagRefreshTime = const Value.absent()}) =>
+          Value<String?> tagRefreshTime = const Value.absent(),
+          Value<String?> sanitizedTitle = const Value.absent()}) =>
       GalleryDownloadedData(
         gid: gid ?? this.gid,
         token: token ?? this.token,
@@ -3448,6 +3527,8 @@ class GalleryDownloadedData extends DataClass
         tags: tags ?? this.tags,
         tagRefreshTime:
             tagRefreshTime.present ? tagRefreshTime.value : this.tagRefreshTime,
+        sanitizedTitle:
+            sanitizedTitle.present ? sanitizedTitle.value : this.sanitizedTitle,
       );
   GalleryDownloadedData copyWithCompanion(GalleryDownloadedCompanion data) {
     return GalleryDownloadedData(
@@ -3479,6 +3560,9 @@ class GalleryDownloadedData extends DataClass
       tagRefreshTime: data.tagRefreshTime.present
           ? data.tagRefreshTime.value
           : this.tagRefreshTime,
+      sanitizedTitle: data.sanitizedTitle.present
+          ? data.sanitizedTitle.value
+          : this.sanitizedTitle,
     );
   }
 
@@ -3501,7 +3585,8 @@ class GalleryDownloadedData extends DataClass
           ..write('sortOrder: $sortOrder, ')
           ..write('groupName: $groupName, ')
           ..write('tags: $tags, ')
-          ..write('tagRefreshTime: $tagRefreshTime')
+          ..write('tagRefreshTime: $tagRefreshTime, ')
+          ..write('sanitizedTitle: $sanitizedTitle')
           ..write(')'))
         .toString();
   }
@@ -3524,7 +3609,8 @@ class GalleryDownloadedData extends DataClass
       sortOrder,
       groupName,
       tags,
-      tagRefreshTime);
+      tagRefreshTime,
+      sanitizedTitle);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3545,7 +3631,8 @@ class GalleryDownloadedData extends DataClass
           other.sortOrder == this.sortOrder &&
           other.groupName == this.groupName &&
           other.tags == this.tags &&
-          other.tagRefreshTime == this.tagRefreshTime);
+          other.tagRefreshTime == this.tagRefreshTime &&
+          other.sanitizedTitle == this.sanitizedTitle);
 }
 
 class GalleryDownloadedCompanion
@@ -3567,6 +3654,7 @@ class GalleryDownloadedCompanion
   final Value<String> groupName;
   final Value<String> tags;
   final Value<String?> tagRefreshTime;
+  final Value<String?> sanitizedTitle;
   const GalleryDownloadedCompanion({
     this.gid = const Value.absent(),
     this.token = const Value.absent(),
@@ -3585,6 +3673,7 @@ class GalleryDownloadedCompanion
     this.groupName = const Value.absent(),
     this.tags = const Value.absent(),
     this.tagRefreshTime = const Value.absent(),
+    this.sanitizedTitle = const Value.absent(),
   });
   GalleryDownloadedCompanion.insert({
     this.gid = const Value.absent(),
@@ -3604,6 +3693,7 @@ class GalleryDownloadedCompanion
     required String groupName,
     this.tags = const Value.absent(),
     this.tagRefreshTime = const Value.absent(),
+    this.sanitizedTitle = const Value.absent(),
   })  : token = Value(token),
         title = Value(title),
         category = Value(category),
@@ -3632,6 +3722,7 @@ class GalleryDownloadedCompanion
     Expression<String>? groupName,
     Expression<String>? tags,
     Expression<String>? tagRefreshTime,
+    Expression<String>? sanitizedTitle,
   }) {
     return RawValuesInsertable({
       if (gid != null) 'gid': gid,
@@ -3654,6 +3745,7 @@ class GalleryDownloadedCompanion
       if (groupName != null) 'group_name': groupName,
       if (tags != null) 'tags': tags,
       if (tagRefreshTime != null) 'tag_refresh_time': tagRefreshTime,
+      if (sanitizedTitle != null) 'sanitized_title': sanitizedTitle,
     });
   }
 
@@ -3674,7 +3766,8 @@ class GalleryDownloadedCompanion
       Value<int>? sortOrder,
       Value<String>? groupName,
       Value<String>? tags,
-      Value<String?>? tagRefreshTime}) {
+      Value<String?>? tagRefreshTime,
+      Value<String?>? sanitizedTitle}) {
     return GalleryDownloadedCompanion(
       gid: gid ?? this.gid,
       token: token ?? this.token,
@@ -3694,6 +3787,7 @@ class GalleryDownloadedCompanion
       groupName: groupName ?? this.groupName,
       tags: tags ?? this.tags,
       tagRefreshTime: tagRefreshTime ?? this.tagRefreshTime,
+      sanitizedTitle: sanitizedTitle ?? this.sanitizedTitle,
     );
   }
 
@@ -3753,6 +3847,9 @@ class GalleryDownloadedCompanion
     if (tagRefreshTime.present) {
       map['tag_refresh_time'] = Variable<String>(tagRefreshTime.value);
     }
+    if (sanitizedTitle.present) {
+      map['sanitized_title'] = Variable<String>(sanitizedTitle.value);
+    }
     return map;
   }
 
@@ -3775,7 +3872,8 @@ class GalleryDownloadedCompanion
           ..write('sortOrder: $sortOrder, ')
           ..write('groupName: $groupName, ')
           ..write('tags: $tags, ')
-          ..write('tagRefreshTime: $tagRefreshTime')
+          ..write('tagRefreshTime: $tagRefreshTime, ')
+          ..write('sanitizedTitle: $sanitizedTitle')
           ..write(')'))
         .toString();
   }
@@ -4729,6 +4827,12 @@ class $ImageTable extends Image with TableInfo<$ImageTable, ImageData> {
   late final GeneratedColumn<String> url = GeneratedColumn<String>(
       'url', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _originalImageUrlMeta =
+      const VerificationMeta('originalImageUrl');
+  @override
+  late final GeneratedColumn<String> originalImageUrl = GeneratedColumn<String>(
+      'originalImageUrl', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _serialNoMeta =
       const VerificationMeta('serialNo');
   @override
@@ -4753,8 +4857,15 @@ class $ImageTable extends Image with TableInfo<$ImageTable, ImageData> {
       'downloadStatusIndex', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns =>
-      [gid, url, serialNo, path, imageHash, downloadStatusIndex];
+  List<GeneratedColumn> get $columns => [
+        gid,
+        url,
+        originalImageUrl,
+        serialNo,
+        path,
+        imageHash,
+        downloadStatusIndex
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -4776,6 +4887,12 @@ class $ImageTable extends Image with TableInfo<$ImageTable, ImageData> {
           _urlMeta, url.isAcceptableOrUnknown(data['url']!, _urlMeta));
     } else if (isInserting) {
       context.missing(_urlMeta);
+    }
+    if (data.containsKey('originalImageUrl')) {
+      context.handle(
+          _originalImageUrlMeta,
+          originalImageUrl.isAcceptableOrUnknown(
+              data['originalImageUrl']!, _originalImageUrlMeta));
     }
     if (data.containsKey('serialNo')) {
       context.handle(_serialNoMeta,
@@ -4816,6 +4933,8 @@ class $ImageTable extends Image with TableInfo<$ImageTable, ImageData> {
           .read(DriftSqlType.int, data['${effectivePrefix}gid'])!,
       url: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}url'])!,
+      originalImageUrl: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}originalImageUrl']),
       serialNo: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}serialNo'])!,
       path: attachedDatabase.typeMapping
@@ -4836,6 +4955,12 @@ class $ImageTable extends Image with TableInfo<$ImageTable, ImageData> {
 class ImageData extends DataClass implements Insertable<ImageData> {
   final int gid;
   final String url;
+
+  /// Original (full-size) image URL. Null for galleries downloaded without
+  /// `downloadOriginalImage`, or for legacy rows written before this column
+  /// existed — runtime falls back to `url` via
+  /// `GalleryImageIndex.downloadUrlFor`.
+  final String? originalImageUrl;
   final int serialNo;
   final String path;
   final String imageHash;
@@ -4843,6 +4968,7 @@ class ImageData extends DataClass implements Insertable<ImageData> {
   const ImageData(
       {required this.gid,
       required this.url,
+      this.originalImageUrl,
       required this.serialNo,
       required this.path,
       required this.imageHash,
@@ -4852,6 +4978,9 @@ class ImageData extends DataClass implements Insertable<ImageData> {
     final map = <String, Expression>{};
     map['gid'] = Variable<int>(gid);
     map['url'] = Variable<String>(url);
+    if (!nullToAbsent || originalImageUrl != null) {
+      map['originalImageUrl'] = Variable<String>(originalImageUrl);
+    }
     map['serialNo'] = Variable<int>(serialNo);
     map['path'] = Variable<String>(path);
     map['imageHash'] = Variable<String>(imageHash);
@@ -4863,6 +4992,9 @@ class ImageData extends DataClass implements Insertable<ImageData> {
     return ImageCompanion(
       gid: Value(gid),
       url: Value(url),
+      originalImageUrl: originalImageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalImageUrl),
       serialNo: Value(serialNo),
       path: Value(path),
       imageHash: Value(imageHash),
@@ -4876,6 +5008,7 @@ class ImageData extends DataClass implements Insertable<ImageData> {
     return ImageData(
       gid: serializer.fromJson<int>(json['gid']),
       url: serializer.fromJson<String>(json['url']),
+      originalImageUrl: serializer.fromJson<String?>(json['originalImageUrl']),
       serialNo: serializer.fromJson<int>(json['serialNo']),
       path: serializer.fromJson<String>(json['path']),
       imageHash: serializer.fromJson<String>(json['imageHash']),
@@ -4889,6 +5022,7 @@ class ImageData extends DataClass implements Insertable<ImageData> {
     return <String, dynamic>{
       'gid': serializer.toJson<int>(gid),
       'url': serializer.toJson<String>(url),
+      'originalImageUrl': serializer.toJson<String?>(originalImageUrl),
       'serialNo': serializer.toJson<int>(serialNo),
       'path': serializer.toJson<String>(path),
       'imageHash': serializer.toJson<String>(imageHash),
@@ -4899,6 +5033,7 @@ class ImageData extends DataClass implements Insertable<ImageData> {
   ImageData copyWith(
           {int? gid,
           String? url,
+          Value<String?> originalImageUrl = const Value.absent(),
           int? serialNo,
           String? path,
           String? imageHash,
@@ -4906,6 +5041,9 @@ class ImageData extends DataClass implements Insertable<ImageData> {
       ImageData(
         gid: gid ?? this.gid,
         url: url ?? this.url,
+        originalImageUrl: originalImageUrl.present
+            ? originalImageUrl.value
+            : this.originalImageUrl,
         serialNo: serialNo ?? this.serialNo,
         path: path ?? this.path,
         imageHash: imageHash ?? this.imageHash,
@@ -4915,6 +5053,9 @@ class ImageData extends DataClass implements Insertable<ImageData> {
     return ImageData(
       gid: data.gid.present ? data.gid.value : this.gid,
       url: data.url.present ? data.url.value : this.url,
+      originalImageUrl: data.originalImageUrl.present
+          ? data.originalImageUrl.value
+          : this.originalImageUrl,
       serialNo: data.serialNo.present ? data.serialNo.value : this.serialNo,
       path: data.path.present ? data.path.value : this.path,
       imageHash: data.imageHash.present ? data.imageHash.value : this.imageHash,
@@ -4929,6 +5070,7 @@ class ImageData extends DataClass implements Insertable<ImageData> {
     return (StringBuffer('ImageData(')
           ..write('gid: $gid, ')
           ..write('url: $url, ')
+          ..write('originalImageUrl: $originalImageUrl, ')
           ..write('serialNo: $serialNo, ')
           ..write('path: $path, ')
           ..write('imageHash: $imageHash, ')
@@ -4938,14 +5080,15 @@ class ImageData extends DataClass implements Insertable<ImageData> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(gid, url, serialNo, path, imageHash, downloadStatusIndex);
+  int get hashCode => Object.hash(gid, url, originalImageUrl, serialNo, path,
+      imageHash, downloadStatusIndex);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ImageData &&
           other.gid == this.gid &&
           other.url == this.url &&
+          other.originalImageUrl == this.originalImageUrl &&
           other.serialNo == this.serialNo &&
           other.path == this.path &&
           other.imageHash == this.imageHash &&
@@ -4955,6 +5098,7 @@ class ImageData extends DataClass implements Insertable<ImageData> {
 class ImageCompanion extends UpdateCompanion<ImageData> {
   final Value<int> gid;
   final Value<String> url;
+  final Value<String?> originalImageUrl;
   final Value<int> serialNo;
   final Value<String> path;
   final Value<String> imageHash;
@@ -4963,6 +5107,7 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
   const ImageCompanion({
     this.gid = const Value.absent(),
     this.url = const Value.absent(),
+    this.originalImageUrl = const Value.absent(),
     this.serialNo = const Value.absent(),
     this.path = const Value.absent(),
     this.imageHash = const Value.absent(),
@@ -4972,6 +5117,7 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
   ImageCompanion.insert({
     required int gid,
     required String url,
+    this.originalImageUrl = const Value.absent(),
     required int serialNo,
     required String path,
     required String imageHash,
@@ -4986,6 +5132,7 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
   static Insertable<ImageData> custom({
     Expression<int>? gid,
     Expression<String>? url,
+    Expression<String>? originalImageUrl,
     Expression<int>? serialNo,
     Expression<String>? path,
     Expression<String>? imageHash,
@@ -4995,6 +5142,7 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
     return RawValuesInsertable({
       if (gid != null) 'gid': gid,
       if (url != null) 'url': url,
+      if (originalImageUrl != null) 'originalImageUrl': originalImageUrl,
       if (serialNo != null) 'serialNo': serialNo,
       if (path != null) 'path': path,
       if (imageHash != null) 'imageHash': imageHash,
@@ -5007,6 +5155,7 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
   ImageCompanion copyWith(
       {Value<int>? gid,
       Value<String>? url,
+      Value<String?>? originalImageUrl,
       Value<int>? serialNo,
       Value<String>? path,
       Value<String>? imageHash,
@@ -5015,6 +5164,7 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
     return ImageCompanion(
       gid: gid ?? this.gid,
       url: url ?? this.url,
+      originalImageUrl: originalImageUrl ?? this.originalImageUrl,
       serialNo: serialNo ?? this.serialNo,
       path: path ?? this.path,
       imageHash: imageHash ?? this.imageHash,
@@ -5031,6 +5181,9 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
     }
     if (url.present) {
       map['url'] = Variable<String>(url.value);
+    }
+    if (originalImageUrl.present) {
+      map['originalImageUrl'] = Variable<String>(originalImageUrl.value);
     }
     if (serialNo.present) {
       map['serialNo'] = Variable<int>(serialNo.value);
@@ -5055,6 +5208,7 @@ class ImageCompanion extends UpdateCompanion<ImageData> {
     return (StringBuffer('ImageCompanion(')
           ..write('gid: $gid, ')
           ..write('url: $url, ')
+          ..write('originalImageUrl: $originalImageUrl, ')
           ..write('serialNo: $serialNo, ')
           ..write('path: $path, ')
           ..write('imageHash: $imageHash, ')
@@ -7271,6 +7425,7 @@ typedef $$ArchiveDownloadedTableCreateCompanionBuilder
   Value<String> tags,
   Value<String?> tagRefreshTime,
   Value<int> parseSource,
+  Value<String?> sanitizedTitle,
 });
 typedef $$ArchiveDownloadedTableUpdateCompanionBuilder
     = ArchiveDownloadedCompanion Function({
@@ -7295,6 +7450,7 @@ typedef $$ArchiveDownloadedTableUpdateCompanionBuilder
   Value<String> tags,
   Value<String?> tagRefreshTime,
   Value<int> parseSource,
+  Value<String?> sanitizedTitle,
 });
 
 class $$ArchiveDownloadedTableFilterComposer
@@ -7372,6 +7528,10 @@ class $$ArchiveDownloadedTableFilterComposer
 
   ColumnFilters<int> get parseSource => $composableBuilder(
       column: $table.parseSource, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sanitizedTitle => $composableBuilder(
+      column: $table.sanitizedTitle,
+      builder: (column) => ColumnFilters(column));
 }
 
 class $$ArchiveDownloadedTableOrderingComposer
@@ -7449,6 +7609,10 @@ class $$ArchiveDownloadedTableOrderingComposer
 
   ColumnOrderings<int> get parseSource => $composableBuilder(
       column: $table.parseSource, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sanitizedTitle => $composableBuilder(
+      column: $table.sanitizedTitle,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$ArchiveDownloadedTableAnnotationComposer
@@ -7522,6 +7686,9 @@ class $$ArchiveDownloadedTableAnnotationComposer
 
   GeneratedColumn<int> get parseSource => $composableBuilder(
       column: $table.parseSource, builder: (column) => column);
+
+  GeneratedColumn<String> get sanitizedTitle => $composableBuilder(
+      column: $table.sanitizedTitle, builder: (column) => column);
 }
 
 class $$ArchiveDownloadedTableTableManager extends RootTableManager<
@@ -7573,6 +7740,7 @@ class $$ArchiveDownloadedTableTableManager extends RootTableManager<
             Value<String> tags = const Value.absent(),
             Value<String?> tagRefreshTime = const Value.absent(),
             Value<int> parseSource = const Value.absent(),
+            Value<String?> sanitizedTitle = const Value.absent(),
           }) =>
               ArchiveDownloadedCompanion(
             gid: gid,
@@ -7596,6 +7764,7 @@ class $$ArchiveDownloadedTableTableManager extends RootTableManager<
             tags: tags,
             tagRefreshTime: tagRefreshTime,
             parseSource: parseSource,
+            sanitizedTitle: sanitizedTitle,
           ),
           createCompanionCallback: ({
             Value<int> gid = const Value.absent(),
@@ -7619,6 +7788,7 @@ class $$ArchiveDownloadedTableTableManager extends RootTableManager<
             Value<String> tags = const Value.absent(),
             Value<String?> tagRefreshTime = const Value.absent(),
             Value<int> parseSource = const Value.absent(),
+            Value<String?> sanitizedTitle = const Value.absent(),
           }) =>
               ArchiveDownloadedCompanion.insert(
             gid: gid,
@@ -7642,6 +7812,7 @@ class $$ArchiveDownloadedTableTableManager extends RootTableManager<
             tags: tags,
             tagRefreshTime: tagRefreshTime,
             parseSource: parseSource,
+            sanitizedTitle: sanitizedTitle,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -8192,6 +8363,7 @@ typedef $$GalleryDownloadedTableCreateCompanionBuilder
   required String groupName,
   Value<String> tags,
   Value<String?> tagRefreshTime,
+  Value<String?> sanitizedTitle,
 });
 typedef $$GalleryDownloadedTableUpdateCompanionBuilder
     = GalleryDownloadedCompanion Function({
@@ -8212,6 +8384,7 @@ typedef $$GalleryDownloadedTableUpdateCompanionBuilder
   Value<String> groupName,
   Value<String> tags,
   Value<String?> tagRefreshTime,
+  Value<String?> sanitizedTitle,
 });
 
 final class $$GalleryDownloadedTableReferences extends BaseReferences<_$AppDb,
@@ -8299,6 +8472,10 @@ class $$GalleryDownloadedTableFilterComposer
       column: $table.tagRefreshTime,
       builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get sanitizedTitle => $composableBuilder(
+      column: $table.sanitizedTitle,
+      builder: (column) => ColumnFilters(column));
+
   Expression<bool> imageRefs(
       Expression<bool> Function($$ImageTableFilterComposer f) f) {
     final $$ImageTableFilterComposer composer = $composerBuilder(
@@ -8384,6 +8561,10 @@ class $$GalleryDownloadedTableOrderingComposer
   ColumnOrderings<String> get tagRefreshTime => $composableBuilder(
       column: $table.tagRefreshTime,
       builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sanitizedTitle => $composableBuilder(
+      column: $table.sanitizedTitle,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$GalleryDownloadedTableAnnotationComposer
@@ -8445,6 +8626,9 @@ class $$GalleryDownloadedTableAnnotationComposer
 
   GeneratedColumn<String> get tagRefreshTime => $composableBuilder(
       column: $table.tagRefreshTime, builder: (column) => column);
+
+  GeneratedColumn<String> get sanitizedTitle => $composableBuilder(
+      column: $table.sanitizedTitle, builder: (column) => column);
 
   Expression<T> imageRefs<T extends Object>(
       Expression<T> Function($$ImageTableAnnotationComposer a) f) {
@@ -8510,6 +8694,7 @@ class $$GalleryDownloadedTableTableManager extends RootTableManager<
             Value<String> groupName = const Value.absent(),
             Value<String> tags = const Value.absent(),
             Value<String?> tagRefreshTime = const Value.absent(),
+            Value<String?> sanitizedTitle = const Value.absent(),
           }) =>
               GalleryDownloadedCompanion(
             gid: gid,
@@ -8529,6 +8714,7 @@ class $$GalleryDownloadedTableTableManager extends RootTableManager<
             groupName: groupName,
             tags: tags,
             tagRefreshTime: tagRefreshTime,
+            sanitizedTitle: sanitizedTitle,
           ),
           createCompanionCallback: ({
             Value<int> gid = const Value.absent(),
@@ -8548,6 +8734,7 @@ class $$GalleryDownloadedTableTableManager extends RootTableManager<
             required String groupName,
             Value<String> tags = const Value.absent(),
             Value<String?> tagRefreshTime = const Value.absent(),
+            Value<String?> sanitizedTitle = const Value.absent(),
           }) =>
               GalleryDownloadedCompanion.insert(
             gid: gid,
@@ -8567,6 +8754,7 @@ class $$GalleryDownloadedTableTableManager extends RootTableManager<
             groupName: groupName,
             tags: tags,
             tagRefreshTime: tagRefreshTime,
+            sanitizedTitle: sanitizedTitle,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (
@@ -9072,6 +9260,7 @@ typedef $$GalleryGroupTableProcessedTableManager = ProcessedTableManager<
 typedef $$ImageTableCreateCompanionBuilder = ImageCompanion Function({
   required int gid,
   required String url,
+  Value<String?> originalImageUrl,
   required int serialNo,
   required String path,
   required String imageHash,
@@ -9081,6 +9270,7 @@ typedef $$ImageTableCreateCompanionBuilder = ImageCompanion Function({
 typedef $$ImageTableUpdateCompanionBuilder = ImageCompanion Function({
   Value<int> gid,
   Value<String> url,
+  Value<String?> originalImageUrl,
   Value<int> serialNo,
   Value<String> path,
   Value<String> imageHash,
@@ -9118,6 +9308,10 @@ class $$ImageTableFilterComposer extends Composer<_$AppDb, $ImageTable> {
   });
   ColumnFilters<String> get url => $composableBuilder(
       column: $table.url, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get originalImageUrl => $composableBuilder(
+      column: $table.originalImageUrl,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get serialNo => $composableBuilder(
       column: $table.serialNo, builder: (column) => ColumnFilters(column));
@@ -9164,6 +9358,10 @@ class $$ImageTableOrderingComposer extends Composer<_$AppDb, $ImageTable> {
   ColumnOrderings<String> get url => $composableBuilder(
       column: $table.url, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get originalImageUrl => $composableBuilder(
+      column: $table.originalImageUrl,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<int> get serialNo => $composableBuilder(
       column: $table.serialNo, builder: (column) => ColumnOrderings(column));
 
@@ -9208,6 +9406,9 @@ class $$ImageTableAnnotationComposer extends Composer<_$AppDb, $ImageTable> {
   });
   GeneratedColumn<String> get url =>
       $composableBuilder(column: $table.url, builder: (column) => column);
+
+  GeneratedColumn<String> get originalImageUrl => $composableBuilder(
+      column: $table.originalImageUrl, builder: (column) => column);
 
   GeneratedColumn<int> get serialNo =>
       $composableBuilder(column: $table.serialNo, builder: (column) => column);
@@ -9268,6 +9469,7 @@ class $$ImageTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<int> gid = const Value.absent(),
             Value<String> url = const Value.absent(),
+            Value<String?> originalImageUrl = const Value.absent(),
             Value<int> serialNo = const Value.absent(),
             Value<String> path = const Value.absent(),
             Value<String> imageHash = const Value.absent(),
@@ -9277,6 +9479,7 @@ class $$ImageTableTableManager extends RootTableManager<
               ImageCompanion(
             gid: gid,
             url: url,
+            originalImageUrl: originalImageUrl,
             serialNo: serialNo,
             path: path,
             imageHash: imageHash,
@@ -9286,6 +9489,7 @@ class $$ImageTableTableManager extends RootTableManager<
           createCompanionCallback: ({
             required int gid,
             required String url,
+            Value<String?> originalImageUrl = const Value.absent(),
             required int serialNo,
             required String path,
             required String imageHash,
@@ -9295,6 +9499,7 @@ class $$ImageTableTableManager extends RootTableManager<
               ImageCompanion.insert(
             gid: gid,
             url: url,
+            originalImageUrl: originalImageUrl,
             serialNo: serialNo,
             path: path,
             imageHash: imageHash,

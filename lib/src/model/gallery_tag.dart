@@ -22,8 +22,8 @@ class GalleryTag {
 
   Map<String, dynamic> toJson() {
     return {
-      'color': color?.value,
-      'backgroundColor': backgroundColor?.value,
+      'color': color?.toARGB32(),
+      'backgroundColor': backgroundColor?.toARGB32(),
       'tagData': tagData.toJson()..removeWhere((key, value) => value == null),
       'tagStatus': tagStatus?.index,
       'voteStatus': voteStatus?.index,

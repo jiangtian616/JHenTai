@@ -204,11 +204,14 @@ class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCir
   }
 
   Future<List<TagAutoCompletionMatch>> searchTags(String searchText, {int? limit}) async {
+    // - ~ before a term are search operators, the effective key is what follows them;
+    // quoted content is treated literally so operator-like chars inside quotes are kept.
     // xy:"ab cd ef"    xy:"ab cd ef...       [-~]?(\S+?):"([^"]+)"?
     // "ab cd ef"       "ab cd ef...          [-~]?"([^"]+)"?
     // xy:ab                                  [-~]?(\S+?):(\S+)
     // abcd                                   [-~]?(\S+)
-    List<RegExpMatch> matches = RegExp(r'[-~]?(\S+?):"([^"]+)"?|[-~]?"([^"]+)"?|[-~]?(\S+?):(\S+)|[-~]?(\S+)').allMatches(searchText.toLowerCase()).toList();
+    List<RegExpMatch> matches =
+        RegExp(r'[-~]?(\S+?):"([^"]+)"?|[-~]?"([^"]+)"?|[-~]?(\S+?):(\S+)|[-~]?(\S+)').allMatches(searchText.toLowerCase()).toList();
     if (matches.isEmpty) {
       return [];
     }
@@ -219,7 +222,8 @@ class TagTranslationService with JHLifeCircleBeanErrorCatch implements JHLifeCir
       int matchStart = match.start;
       int matchEnd = match.end;
       String? sNamespace = match.group(1) ?? match.group(4);
-      String sKey = match.group(2) ?? match.group(3) ?? match.group(5) ?? match.group(0)!;
+      // group 2/3 are quoted content; group 5/6 are the bare keys of the 3rd/4th alternatives
+      String sKey = match.group(2) ?? match.group(3) ?? match.group(5) ?? match.group(6) ?? match.group(0)!;
       return (sNamespace: sNamespace, sKey: sKey, matchStart: matchStart, matchEnd: matchEnd);
     }).toList();
 

@@ -4,6 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   desktop_webview_window
+  pasteboard
   screen_retriever
   smart_auth
   sqlite3_flutter_libs

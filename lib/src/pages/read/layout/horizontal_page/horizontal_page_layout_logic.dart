@@ -25,7 +25,7 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
 
   @override
   void toLeft() {
-    if (readSetting.isInRight2LeftDirection) {
+    if (readPageLogic.isInRight2LeftDirection) {
       toNext();
     } else {
       toPrev();
@@ -34,7 +34,7 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
 
   @override
   void toRight() {
-    if (readSetting.isInRight2LeftDirection) {
+    if (readPageLogic.isInRight2LeftDirection) {
       toPrev();
     } else {
       toNext();
@@ -81,7 +81,7 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
       Duration(milliseconds: (readSetting.autoModeInterval.value * 1000).toInt()),
       (_) {
         /// changed read setting
-        if (!readSetting.isInSinglePageReadDirection) {
+        if (!readPageLogic.isInSinglePageReadDirection) {
           Get.engine.addPostFrameCallback((_) {
             readPageLogic.closeAutoMode();
           });

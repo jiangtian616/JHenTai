@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/string_extension.dart';
@@ -49,7 +48,7 @@ mixin GridBasePage on StatelessWidget implements Scroll2TopPageMixin {
       centerTitle: true,
       leading: styleSetting.isInV2Layout
           ? IconButton(
-              icon: isRouteAtTop(Routes.download) ? const Icon(Icons.arrow_back) : const Icon(FontAwesomeIcons.bars, size: 20),
+              icon: isRouteAtTop(Routes.download) ? const Icon(Icons.arrow_back) : Icon(Icons.menu, size: 20),
               onPressed: () {
                 if (isRouteAtTop(Routes.download)) {
                   backRoute(currentRoute: Routes.download);
@@ -235,8 +234,8 @@ class GridGallery extends StatelessWidget {
   final SuperResolutionType? superResolutionType;
   final VoidCallback? onTapWidget;
   final VoidCallback? onTapTitle;
-  final VoidCallback? onLongPress;
-  final VoidCallback? onSecondTap;
+  final void Function(Offset globalPosition)? onLongPress;
+  final void Function(Offset globalPosition)? onSecondTap;
   final VoidCallback? onTertiaryTap;
 
   const GridGallery({
@@ -259,8 +258,8 @@ class GridGallery extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTapWidget,
-      onLongPress: onLongPress,
-      onSecondaryTap: onSecondTap,
+      onLongPressStart: onLongPress == null ? null : (details) => onLongPress!(details.globalPosition),
+      onSecondaryTapDown: onSecondTap == null ? null : (details) => onSecondTap!(details.globalPosition),
       onTertiaryTapDown: (_) => onTertiaryTap?.call(),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -352,8 +351,8 @@ class GridGroup extends StatelessWidget {
   final List<Widget> widgets;
   final VoidCallback? onTap;
   final IconData? emptyIcon;
-  final VoidCallback? onLongPress;
-  final VoidCallback? onSecondTap;
+  final void Function(Offset globalPosition)? onLongPress;
+  final void Function(Offset globalPosition)? onSecondTap;
 
   const GridGroup({
     Key? key,
@@ -370,8 +369,8 @@ class GridGroup extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      onSecondaryTap: onSecondTap,
-      onLongPress: onLongPress,
+      onSecondaryTapDown: onSecondTap == null ? null : (details) => onSecondTap!(details.globalPosition),
+      onLongPressStart: onLongPress == null ? null : (details) => onLongPress!(details.globalPosition),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
-import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_logic_mixin.dart';
 import 'package:jhentai/src/mixin/update_global_gallery_status_logic_mixin.dart';
@@ -13,14 +12,17 @@ import '../../../../model/gallery_image.dart';
 import '../../../../model/read_page_info.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/archive_download_service.dart';
-import '../../../../service/local_config_service.dart';
+import '../../../../service/read_progress_service.dart';
 import '../../../../service/super_resolution_service.dart';
 import '../../../../setting/read_setting.dart';
+import '../../../../setting/preference_setting.dart';
 import '../../../../setting/super_resolution_setting.dart';
 import '../../../../utils/process_util.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../utils/toast_util.dart';
+import '../../../../utils/convert_util.dart';
 import '../../../../widget/eh_alert_dialog.dart';
+import '../../../../widget/eh_context_menu.dart';
 import '../../../../widget/eh_download_dialog.dart';
 import '../../../../widget/re_unlock_dialog.dart';
 import '../basic/multi_select/multi_select_download_page_logic_mixin.dart';
@@ -35,6 +37,14 @@ mixin ArchiveDownloadPageLogicMixin on GetxController
 
   @override
   MultiSelectDownloadPageStateMixin get multiSelectDownloadPageState => archiveDownloadPageState;
+
+  Future<bool> confirmDestructiveAction({required String title, String? content}) async {
+    if (!preferenceSetting.confirmDestructiveActions.isTrue) {
+      return true;
+    }
+    bool? result = await Get.dialog(EHDialog(title: title, content: content));
+    return result == true;
+  }
 
   Future<void> handleChangeArchiveGroup(ArchiveDownloadedData archive) async {
     String oldGroup = archiveDownloadService.archiveDownloadInfos[archive.gid]!.group;
@@ -70,11 +80,11 @@ mixin ArchiveDownloadPageLogicMixin on GetxController
   }
 
   @override
-  void handleLongPressOrSecondaryTapItem(ArchiveDownloadedData item, BuildContext context) {
+  void handleLongPressOrSecondaryTapItem(ArchiveDownloadedData item, BuildContext context, {Offset? position}) {
     if (multiSelectDownloadPageState.inMultiSelectMode) {
       toggleSelectItem(item.gid);
     } else {
-      showBottomSheet(item, context);
+      showBottomSheet(item, context, position: position);
     }
   }
 
@@ -140,12 +150,13 @@ mixin ArchiveDownloadPageLogicMixin on GetxController
     }
 
     if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
-      openThirdPartyViewer(archiveDownloadService.computeArchiveUnpackingPath(archive.title, archive.gid));
+      openThirdPartyViewer(archiveDownloadService.computeArchiveUnpackingPath(archive));
     } else {
-      String? string = await localConfigService.read(configKey: ConfigEnum.readIndexRecord, subConfigKey: archive.gid.toString());
-      int readIndexRecord = (string == null ? 0 : (int.tryParse(string) ?? 0));
+      int readIndexRecord = await readProgressService.getReadProgress(archive.gid);
 
       List<GalleryImage> images = await archiveDownloadService.getUnpackedImages(archive.gid);
+
+      ReadDirection? readDirection = isWebtoonGalleryFromTagString(archive.tags) ? ReadDirection.top2bottomList : null;
 
       toRoute(
         Routes.read,
@@ -160,96 +171,71 @@ mixin ArchiveDownloadPageLogicMixin on GetxController
           readProgressRecordStorageKey: archive.gid.toString(),
           images: images,
           useSuperResolution: superResolutionService.get(archive.gid, SuperResolutionType.archive) != null,
+          readDirection: readDirection,
         ),
       );
     }
   }
 
-  void showBottomSheet(ArchiveDownloadedData archive, BuildContext context) {
+  void showBottomSheet(ArchiveDownloadedData archive, BuildContext context, {Offset? position}) {
     ArchiveDownloadInfo? archiveDownloadInfo = archiveDownloadService.archiveDownloadInfos[archive.gid];
 
-    showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        actions: <CupertinoActionSheetAction>[
-          if (superResolutionSetting.modelDirectoryPath.value != null &&
-              (superResolutionService.get(archive.gid, SuperResolutionType.archive) == null ||
-                  superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.paused))
-            CupertinoActionSheetAction(
-              child: Text('superResolution'.tr),
-              onPressed: () async {
-                backRoute();
-
-                if (superResolutionService.get(archive.gid, SuperResolutionType.archive) == null && archive.isOriginal) {
-                  bool? result = await Get.dialog(EHDialog(title: 'attention'.tr + '!', content: 'superResolveOriginalImageHint'.tr));
-                  if (result == false) {
-                    return;
-                  }
+    showEHContextMenu(
+      context,
+      position: position,
+      actions: [
+        if (superResolutionSetting.modelDirectoryPath.value != null &&
+            (superResolutionService.get(archive.gid, SuperResolutionType.archive) == null ||
+                superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.paused))
+          EHContextMenuAction(
+            text: 'superResolution'.tr,
+            onTap: () async {
+              if (superResolutionService.get(archive.gid, SuperResolutionType.archive) == null && archive.isOriginal) {
+                bool? result = await Get.dialog(EHDialog(title: 'attention'.tr + '!', content: 'superResolveOriginalImageHint'.tr));
+                if (result != true) {
+                  return;
                 }
+              }
 
-                superResolutionService.superResolve(archive.gid, SuperResolutionType.archive);
-              },
-            ),
-          if (superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.running)
-            CupertinoActionSheetAction(
-              child: Text('stopSuperResolution'.tr),
-              onPressed: () async {
-                backRoute();
-
-                superResolutionService.pauseSuperResolve(archive.gid, SuperResolutionType.archive).then((_) => toast("success".tr));
-              },
-            ),
-          if (superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.paused ||
-              superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.success)
-            CupertinoActionSheetAction(
-              child: Text('deleteSuperResolvedImage'.tr),
-              onPressed: () async {
-                backRoute();
-
-                superResolutionService.deleteSuperResolve(archive.gid, SuperResolutionType.archive).then((_) => toast("success".tr));
-              },
-            ),
-          if (archiveDownloadInfo != null &&
-              archiveDownloadInfo.archiveStatus.code < ArchiveStatus.downloaded.code &&
-              archiveDownloadInfo.parseSource == ArchiveParseSource.bot.code)
-            CupertinoActionSheetAction(
-              child: Text('changeParseSource2Official'.tr),
-              onPressed: () {
-                backRoute();
-                changeParseSource(archive.gid, ArchiveParseSource.official);
-              },
-            ),
-          if (archiveDownloadInfo != null &&
-              archiveDownloadInfo.archiveStatus.code < ArchiveStatus.downloaded.code &&
-              archiveBotSetting.isReady &&
-              archiveDownloadInfo.parseSource == ArchiveParseSource.official.code)
-            CupertinoActionSheetAction(
-              child: Text('changeParseSource2Bot'.tr),
-              onPressed: () {
-                backRoute();
-                changeParseSource(archive.gid, ArchiveParseSource.bot);
-              },
-            ),
-          CupertinoActionSheetAction(
-            child: Text('changeGroup'.tr),
-            onPressed: () {
-              backRoute();
-              handleChangeArchiveGroup(archive);
+              superResolutionService.superResolve(archive.gid, SuperResolutionType.archive);
             },
           ),
-          CupertinoActionSheetAction(
-            child: Text('delete'.tr, style: TextStyle(color: UIConfig.alertColor(context))),
-            onPressed: () {
-              handleRemoveItem(archive);
-              backRoute();
-            },
+        if (superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.running)
+          EHContextMenuAction(
+            text: 'stopSuperResolution'.tr,
+            onTap: () => superResolutionService.pauseSuperResolve(archive.gid, SuperResolutionType.archive).then((_) => toast("success".tr)),
           ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          child: Text('cancel'.tr),
-          onPressed: backRoute,
+        if (superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.paused ||
+            superResolutionService.get(archive.gid, SuperResolutionType.archive)?.status == SuperResolutionStatus.success)
+          EHContextMenuAction(
+            text: 'deleteSuperResolvedImage'.tr,
+            onTap: () => superResolutionService.deleteSuperResolve(archive.gid, SuperResolutionType.archive).then((_) => toast("success".tr)),
+          ),
+        if (archiveDownloadInfo != null &&
+            archiveDownloadInfo.archiveStatus.code < ArchiveStatus.downloaded.code &&
+            archiveDownloadInfo.parseSource == ArchiveParseSource.bot.code)
+          EHContextMenuAction(
+            text: 'changeParseSource2Official'.tr,
+            onTap: () => changeParseSource(archive.gid, ArchiveParseSource.official),
+          ),
+        if (archiveDownloadInfo != null &&
+            archiveDownloadInfo.archiveStatus.code < ArchiveStatus.downloaded.code &&
+            archiveBotSetting.isReady &&
+            archiveDownloadInfo.parseSource == ArchiveParseSource.official.code)
+          EHContextMenuAction(
+            text: 'changeParseSource2Bot'.tr,
+            onTap: () => changeParseSource(archive.gid, ArchiveParseSource.bot),
+          ),
+        EHContextMenuAction(
+          text: 'changeGroup'.tr,
+          onTap: () => handleChangeArchiveGroup(archive),
         ),
-      ),
+        EHContextMenuAction(
+          text: 'delete'.tr,
+          color: UIConfig.alertColor(context),
+          onTap: () => handleRemoveItem(archive),
+        ),
+      ],
     );
   }
 
@@ -313,7 +299,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController
       }
 
       exitSelectMode();
-      
+
       await Future.wait(futures);
       updateGlobalGalleryStatus();
     }

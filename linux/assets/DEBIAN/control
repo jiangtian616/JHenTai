@@ -8,4 +8,4 @@ Essential: no
 Installed-Size: 34648
 Description: A cross-platform app made for e-hentai & exhentai by Flutter.
 Homepage: https://github.com/jiangtian616/JHenTai
-Depends: webkit2gtk-4.1
+Depends: libwebkit2gtk-4.1-0

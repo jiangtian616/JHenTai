@@ -8,6 +8,7 @@ import 'package:jhentai/src/setting/preference_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/uuid_util.dart';
 
+import '../../../service/quick_search_service.dart';
 import '../../base/base_page.dart';
 import '../mixin/search_page_mixin.dart';
 import '../mixin/search_page_state_mixin.dart';
@@ -17,7 +18,6 @@ class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMob
     with SearchPageMixin<SearchPageMobileV2Logic, SearchPageMobileV2State> {
   final String tag = newUUID();
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
-
   SearchPageMobileV2({Key? key}) : super(key: key, showJumpButton: true, showScroll2TopButton: true) {
     logic = Get.put(SearchPageMobileV2Logic(), tag: tag);
     state = logic.state;
@@ -39,7 +39,7 @@ class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMob
           key: scaffoldKey,
           appBar: buildAppBar(context),
           drawerEdgeDragWidth: preferenceSetting.drawerGestureEdgeWidth.value.toDouble(),
-          endDrawer: Drawer(width: 278, child: QuickSearchPage()),
+          endDrawer: Drawer(width: 278, child: QuickSearchPage(scrollController: quickSearchService.drawerScrollController)),
           endDrawerEnableOpenDragGesture: preferenceSetting.enableQuickSearchDrawerGesture.isTrue,
           body: SafeArea(child: buildBody(context)),
           floatingActionButton: buildFloatingActionButton(),

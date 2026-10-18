@@ -27,6 +27,7 @@ class LocalBlockRuleService with JHLifeCircleBeanErrorCatch implements JHLifeCir
     handlers.addAll([
       GalleryTagEqualLocalBlockRuleHandler(),
       GalleryUploaderEqualLocalBlockRuleHandler(),
+      GalleryGidEqualLocalBlockRuleHandler(),
       CommentUsernameEqualLocalBlockRuleHandler(),
       CommentUserIdEqualLocalBlockRuleHandler(),
       CommentScoreGreaterThanLocalBlockRuleHandler(),
@@ -150,6 +151,44 @@ class LocalBlockRuleService with JHLifeCircleBeanErrorCatch implements JHLifeCir
     return BlockRuleDao.existsGroup(groupId);
   }
 
+  Future<({bool success, bool inserted, String? msg})> insertBlockRuleIfAbsent(LocalBlockRule rule) async {
+    log.info('Insert block rule if absent: $rule');
+
+    LocalBlockRuleHandler handler = getHandlerByRule(rule);
+    ({bool success, String? msg}) validateResult = handler.validateRule(rule);
+    if (!validateResult.success) {
+      log.info('Insert block rule failed, result:$validateResult');
+      return (success: false, inserted: false, msg: validateResult.msg);
+    }
+
+    bool inserted = false;
+    await appDb.transaction(() async {
+      List<BlockRuleData> datas = await BlockRuleDao.selectBlockRulesByTarget(rule.target.code);
+      bool exists = datas.any(
+        (data) =>
+            data.attribute == rule.attribute.code &&
+            data.pattern == rule.pattern.code &&
+            data.expression == rule.expression,
+      );
+      if (exists) {
+        return;
+      }
+
+      await BlockRuleDao.insertBlockRule(
+        BlockRuleCompanion.insert(
+          groupId: rule.groupId!,
+          target: rule.target.code,
+          attribute: rule.attribute.code,
+          pattern: rule.pattern.code,
+          expression: rule.expression,
+        ),
+      );
+      inserted = true;
+    });
+
+    return (success: true, inserted: inserted, msg: null);
+  }
+
   Future<List<T>> executeRules<T>(List<T> items) async {
     List<T> results = List.of(items);
 
@@ -269,6 +308,17 @@ mixin GalleryUploaderAttributeGetter on AttributeGetter<String, Gallery> {
   }
 }
 
+mixin GalleryGidAttributeGetter on AttributeGetter<String, Gallery> {
+  @override
+  bool matchRuleAttribute(LocalBlockAttributeEnum attribute) {
+    return attribute == LocalBlockAttributeEnum.gid;
+  }
+
+  @override
+  List<String> getItemAttributes(covariant Gallery item) {
+    return [item.gid.toString()];
+  }
+}
 mixin CommentUsernameAttributeGetter on AttributeGetter<String, GalleryComment> {
   @override
   bool matchRuleAttribute(LocalBlockAttributeEnum attribute) {
@@ -514,6 +564,8 @@ class GalleryTagEqualLocalBlockRuleHandler extends EqualLocalBlockRuleHandler<Ga
 
 class GalleryUploaderEqualLocalBlockRuleHandler extends EqualLocalBlockRuleHandler<Gallery> with GalleryUploaderAttributeGetter {}
 
+class GalleryGidEqualLocalBlockRuleHandler extends EqualLocalBlockRuleHandler<Gallery> with GalleryGidAttributeGetter {}
+
 class CommentUsernameEqualLocalBlockRuleHandler extends EqualLocalBlockRuleHandler<GalleryComment> with CommentUsernameAttributeGetter {}
 
 class CommentUserIdEqualLocalBlockRuleHandler extends EqualLocalBlockRuleHandler<GalleryComment> with CommentUserIdAttributeGetter {}
@@ -574,6 +626,7 @@ enum LocalBlockAttributeEnum {
   title(0, LocalBlockTargetEnum.gallery, 'title'),
   tag(10, LocalBlockTargetEnum.gallery, 'tag'),
   uploader(20, LocalBlockTargetEnum.gallery, 'uploader'),
+  gid(30, LocalBlockTargetEnum.gallery, 'gid'),
   userName(100, LocalBlockTargetEnum.comment, 'userName'),
   userId(110, LocalBlockTargetEnum.comment, 'userId'),
   score(120, LocalBlockTargetEnum.comment, 'score'),
@@ -601,6 +654,7 @@ enum LocalBlockPatternEnum {
       LocalBlockAttributeEnum.uploader,
       LocalBlockAttributeEnum.userName,
       LocalBlockAttributeEnum.userId,
+      LocalBlockAttributeEnum.gid
     ],
     '=',
   ),

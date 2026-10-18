@@ -12,7 +12,7 @@ import '../../config/ui_config.dart';
 import '../../model/gallery_image.dart';
 import '../../model/gallery_url.dart';
 import '../../routes/routes.dart';
-import '../../service/gallery_download_service.dart';
+import '../../service/gallery_download/gallery_download_service.dart';
 import '../../service/super_resolution_service.dart';
 import '../../utils/byte_util.dart';
 import '../../utils/date_util.dart';
@@ -80,9 +80,9 @@ class DownloadSearchPage extends StatelessWidget {
           scrollBehavior: UIConfig.scrollBehaviourWithScrollBarWithMouse,
           slivers: [
             SliverList.separated(
-              itemBuilder: (context, index) => _buildGallery(context, state.gallerys[index]),
+              itemBuilder: (context, index) => _buildGallery(context, state.galleries[index]),
               separatorBuilder: (context, index) => const SizedBox(height: 10),
-              itemCount: state.gallerys.length,
+              itemCount: state.galleries.length,
             ),
             const SliverToBoxAdapter(child: SizedBox(height: 10)),
             SliverList.separated(
@@ -103,7 +103,7 @@ class DownloadSearchPage extends StatelessWidget {
       child: GetBuilder<GalleryDownloadService>(
         id: '${galleryDownloadService.galleryDownloadProgressId}::${gallery.gid}',
         builder: (_) {
-          GalleryImage? cover = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.images[0];
+          GalleryImage? cover = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.coverImage;
           GalleryDownloadProgress? downloadProgress = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress;
           String? groupName = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.group;
 
@@ -115,8 +115,8 @@ class DownloadSearchPage extends StatelessWidget {
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => logic.goToGalleryReadPage(gallery),
-                  onLongPress: () => logic.onLongPressGallery(context, gallery),
-                  onSecondaryTap: () => logic.onLongPressGallery(context, gallery),
+                  onLongPressStart: (details) => logic.onLongPressGallery(context, gallery, position: details.globalPosition),
+                  onSecondaryTapDown: (details) => logic.onLongPressGallery(context, gallery, position: details.globalPosition),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -184,7 +184,7 @@ class DownloadSearchPage extends StatelessWidget {
       child: GetBuilder<GalleryDownloadService>(
         id: '${galleryDownloadService.downloadImageUrlId}::${gallery.gid}::0',
         builder: (_) {
-          GalleryImage? image = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.images[0];
+          GalleryImage? image = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.coverImage;
 
           /// cover is the first image, if we haven't downloaded first image, then return a [UIConfig.loadingAnimation]
           if (image?.downloadStatus != DownloadStatus.downloaded) {
@@ -362,8 +362,8 @@ class DownloadSearchPage extends StatelessWidget {
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
                   onTap: () => logic.goToArchiveReadPage(archive),
-                  onLongPress: () => logic.onLongPressArchive(context, archive),
-                  onSecondaryTap: () => logic.onLongPressArchive(context, archive),
+                  onLongPressStart: (details) => logic.onLongPressArchive(context, archive, position: details.globalPosition),
+                  onSecondaryTapDown: (details) => logic.onLongPressArchive(context, archive, position: details.globalPosition),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

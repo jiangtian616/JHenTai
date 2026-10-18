@@ -1,5 +1,7 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/widget/eh_keyboard_listener.dart';
 import 'package:jhentai/src/widget/eh_mouse_button_listener.dart';
@@ -33,9 +35,9 @@ extension WidgetExtension on Widget {
 
   Widget withEscOrFifthButton2BackRightRoute() {
     return EHKeyboardListener(
-      handleEsc: popRightRoute,
+      keyHandlers: {LogicalKeyboardKey.escape: popRightRoute},
       child: EHMouseButtonListener(
-        onFifthButtonTapDown: (_) => popRightRoute(),
+        mouseHandlers: {kBackMouseButton: popRightRoute},
         child: this,
       ),
     );

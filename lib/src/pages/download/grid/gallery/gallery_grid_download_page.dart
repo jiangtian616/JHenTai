@@ -19,7 +19,7 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../../../../config/ui_config.dart';
 import '../../../../model/gallery_image.dart';
-import '../../../../service/gallery_download_service.dart';
+import '../../../../service/gallery_download/gallery_download_service.dart';
 import '../../download_base_page.dart';
 import '../mixin/grid_download_page_mixin.dart';
 import 'gallery_grid_download_page_logic.dart';
@@ -131,19 +131,19 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
 
   @override
   GridGroup groupBuilder(BuildContext context, String groupName, bool inEditMode) {
-    List<GalleryDownloadedData> gallerys = state.galleryObjectsWithGroup(groupName);
+    List<GalleryDownloadInfo> galleries = state.galleryObjectsWithGroup(groupName);
     return GridGroup(
       groupName: groupName,
-      contentSize: gallerys.length,
-      widgets: gallerys
-          .sublist(0, min(GridGroup.maxWidgetCount, gallerys.length))
+      contentSize: galleries.length,
+      widgets: galleries
+          .sublist(0, min(GridGroup.maxWidgetCount, galleries.length))
           .map(
             (gallery) => GetBuilder<GalleryDownloadService>(
               id: '${logic.downloadService.galleryDownloadSuccessId}::${gallery.gid}',
               builder: (_) => GetBuilder<GalleryDownloadService>(
                 id: '${logic.downloadService.downloadImageUrlId}::${gallery.gid}::0',
                 builder: (_) {
-                  GalleryImage? image = logic.downloadService.galleryDownloadInfos[gallery.gid]?.images[0];
+                  GalleryImage? image = logic.downloadService.galleryDownloadInfos[gallery.gid]?.coverImage;
 
                   if (image == null) {
                     return Center(
@@ -173,13 +173,13 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
           )
           .toList(),
       onTap: inEditMode ? null : () => logic.enterGroup(groupName),
-      onLongPress: inEditMode ? null : () => logic.handleLongPressGroup(groupName),
-      onSecondTap: inEditMode ? null : () => logic.handleLongPressGroup(groupName),
+      onLongPress: inEditMode ? null : (_) => logic.handleLongPressGroup(groupName),
+      onSecondTap: inEditMode ? null : (_) => logic.handleLongPressGroup(groupName),
     );
   }
 
   @override
-  GridGallery galleryBuilder(BuildContext context, GalleryDownloadedData gallery, bool inEditMode) {
+  GridGallery galleryBuilder(BuildContext context, GalleryDownloadInfo gallery, bool inEditMode) {
     return GridGallery(
       title: gallery.title,
       widget: GetBuilder<GalleryGridDownloadPageLogic>(
@@ -226,17 +226,17 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       superResolutionType: SuperResolutionType.gallery,
       onTapWidget: inEditMode ? null : () => logic.handleTapItem(gallery),
       onTapTitle: inEditMode ? null : () => logic.handleTapTitle(gallery),
-      onLongPress: inEditMode ? null : () => logic.handleLongPressOrSecondaryTapItem(gallery, context),
-      onSecondTap: inEditMode ? null : () => logic.handleLongPressOrSecondaryTapItem(gallery, context),
+      onLongPress: inEditMode ? null : (position) => logic.handleLongPressOrSecondaryTapItem(gallery, context, position: position),
+      onSecondTap: inEditMode ? null : (position) => logic.handleLongPressOrSecondaryTapItem(gallery, context, position: position),
       onTertiaryTap: inEditMode ? null : () => logic.handleTapTitle(gallery),
     );
   }
 
-  GetBuilder<GalleryDownloadService> _buildCover(GalleryDownloadedData gallery) {
+  GetBuilder<GalleryDownloadService> _buildCover(GalleryDownloadInfo gallery) {
     return GetBuilder<GalleryDownloadService>(
       id: '${logic.downloadService.downloadImageUrlId}::${gallery.gid}::0',
       builder: (_) {
-        GalleryImage? image = logic.downloadService.galleryDownloadInfos[gallery.gid]?.images[0];
+        GalleryImage? image = logic.downloadService.galleryDownloadInfos[gallery.gid]?.coverImage;
 
         if (image?.downloadStatus == DownloadStatus.downloaded) {
           return buildGalleryImage(image!);
@@ -260,7 +260,7 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
     );
   }
 
-  Center _buildCircularProgressIndicator(GalleryDownloadedData gallery, GalleryDownloadProgress downloadProgress) {
+  Center _buildCircularProgressIndicator(GalleryDownloadInfo gallery, GalleryDownloadProgress downloadProgress) {
     return Center(
       child: GetBuilder<GalleryDownloadService>(
         id: '${logic.downloadService.galleryDownloadProgressId}::${gallery.gid}',
@@ -279,7 +279,7 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
     );
   }
 
-  Center _buildDownloadProgress(GalleryDownloadedData gallery, GalleryDownloadProgress downloadProgress) {
+  Center _buildDownloadProgress(GalleryDownloadInfo gallery, GalleryDownloadProgress downloadProgress) {
     return Center(
       child: GetBuilder<GalleryDownloadService>(
         id: '${logic.downloadService.galleryDownloadProgressId}::${gallery.gid}',
@@ -291,7 +291,7 @@ class GalleryGridDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
     );
   }
 
-  GestureDetector _buildActionButton(GalleryDownloadedData gallery, GalleryDownloadProgress downloadProgress, GalleryDownloadSpeedComputer speedComputer) {
+  GestureDetector _buildActionButton(GalleryDownloadInfo gallery, GalleryDownloadProgress downloadProgress, GalleryDownloadSpeedComputer speedComputer) {
     return GestureDetector(
       onTap: () {
         downloadProgress.downloadStatus == DownloadStatus.paused

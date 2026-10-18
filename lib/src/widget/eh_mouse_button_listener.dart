@@ -4,15 +4,17 @@ import 'package:flutter/material.dart';
 class EHMouseButtonListener extends StatelessWidget {
   final Widget child;
   final HitTestBehavior? behavior;
-  final GestureTapDownCallback? onForthButtonTapDown;
-  final GestureTapDownCallback? onFifthButtonTapDown;
+
+  /// Handler map: physical mouse button code → callback.
+  ///
+  /// Supported button codes: [kForwardMouseButton] (button 4) and [kBackMouseButton] (button 5).
+  final Map<int, VoidCallback>? mouseHandlers;
 
   const EHMouseButtonListener({
     Key? key,
     required this.child,
     this.behavior,
-    this.onForthButtonTapDown,
-    this.onFifthButtonTapDown,
+    this.mouseHandlers,
   }) : super(key: key);
 
   @override
@@ -20,13 +22,16 @@ class EHMouseButtonListener extends StatelessWidget {
     final Map<Type, GestureRecognizerFactory> gestures = <Type, GestureRecognizerFactory>{};
     final DeviceGestureSettings? gestureSettings = MediaQuery.maybeOf(context)?.gestureSettings;
 
-    if (onForthButtonTapDown != null || onFifthButtonTapDown != null) {
+    final VoidCallback? forthCallback = mouseHandlers?[kForwardMouseButton];
+    final VoidCallback? fifthCallback = mouseHandlers?[kBackMouseButton];
+
+    if (forthCallback != null || fifthCallback != null) {
       gestures[ForthAndFifthButtonTapGestureRecognizer] = GestureRecognizerFactoryWithHandlers<ForthAndFifthButtonTapGestureRecognizer>(
         () => ForthAndFifthButtonTapGestureRecognizer(),
         (ForthAndFifthButtonTapGestureRecognizer instance) {
           instance
-            ..onForthTapDown = onForthButtonTapDown
-            ..onFifthTapDown = onFifthButtonTapDown
+            ..onForthTapDown = forthCallback != null ? (_) => forthCallback() : null
+            ..onFifthTapDown = fifthCallback != null ? (_) => fifthCallback() : null
             ..gestureSettings = gestureSettings;
         },
       );

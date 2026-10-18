@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/database/database.dart';
@@ -58,7 +57,7 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       centerTitle: true,
       leading: styleSetting.isInV2Layout
           ? IconButton(
-              icon: isRouteAtTop(Routes.download) ? const Icon(Icons.arrow_back) : const Icon(FontAwesomeIcons.bars, size: 20),
+              icon: isRouteAtTop(Routes.download) ? const Icon(Icons.arrow_back) : Icon(Icons.menu, size: 20),
               onPressed: () {
                 if (isRouteAtTop(Routes.download)) {
                   backRoute(currentRoute: Routes.download);
@@ -195,8 +194,8 @@ class ArchiveListDownloadPage extends StatelessWidget with Scroll2TopPageMixin, 
       key: Key(archive.gid.toString()),
       endActionPane: _buildEndActionPane(context, archive),
       child: GestureDetector(
-        onSecondaryTap: () => logic.handleLongPressOrSecondaryTapItem(archive, context),
-        onLongPress: () => logic.handleLongPressOrSecondaryTapItem(archive, context),
+        onSecondaryTapDown: (details) => logic.handleLongPressOrSecondaryTapItem(archive, context, position: details.globalPosition),
+        onLongPressStart: (details) => logic.handleLongPressOrSecondaryTapItem(archive, context, position: details.globalPosition),
         child: _buildCard(context, archive).marginAll(5),
       ),
     );

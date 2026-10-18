@@ -8,7 +8,7 @@ import 'package:jhentai/src/pages/read/layout/horizontal_double_column/horizonta
 import 'package:jhentai/src/widget/eh_wheel_scroll_listener.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
-import '../../../../service/gallery_download_service.dart';
+import '../../../../service/gallery_download/gallery_download_service.dart';
 import '../../../../setting/read_setting.dart';
 import '../base/base_layout.dart';
 import 'horizontal_double_column_layout_logic.dart';
@@ -30,12 +30,13 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             return PhotoViewGallery.builder(
+              enableCtrlScrollZoom: true,
               scrollPhysics: const ClampingScrollPhysics(),
               pageController: state.pageController,
               cacheExtent: readPageState.readPageInfo.mode == ReadMode.online
                   ? (readSetting.preloadPageCount.value.toDouble() + 1) / 2
                   : (readSetting.preloadPageCountLocal.value.toDouble() + 1) / 2,
-              reverse: readSetting.isInRight2LeftDirection,
+              reverse: logic.readPageLogic.isInRight2LeftDirection,
               itemCount: state.pageCount,
               builder: (context, index) => PhotoViewGalleryPageOptions.customChild(
                 initialScale: 1.0,
@@ -63,7 +64,7 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
       return null;
     }
 
-    if (readSetting.isInRight2LeftDirection) {
+    if (logic.readPageLogic.isInRight2LeftDirection) {
       displayImageIndexes.reverseRange(0, displayImageIndexes.length);
     }
 
@@ -88,7 +89,7 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
       return null;
     }
 
-    if (readSetting.isInRight2LeftDirection) {
+    if (logic.readPageLogic.isInRight2LeftDirection) {
       displayImageIndexes.reverseRange(0, displayImageIndexes.length);
     }
 

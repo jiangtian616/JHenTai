@@ -108,6 +108,9 @@ class FavoriteSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCi
     } on EHSiteException catch (e) {
       log.error('Fetch favorite setting from EH fail', e.message);
       return;
+    } catch (e) {
+      log.error('Fetch favorite setting from EH fail', e.toString());
+      return;
     }
 
     log.info('Fetch favorite setting from EH success');

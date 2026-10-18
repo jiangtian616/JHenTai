@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
@@ -15,18 +16,19 @@ import 'package:j_downloader/j_downloader.dart';
 import 'package:jhentai/src/database/dao/archive_group_dao.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/exception/eh_site_exception.dart';
+import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/model/archive_bot_response/archive_bot_response.dart';
 import 'package:jhentai/src/model/archive_bot_response/archive_resolve_vo.dart';
+import 'package:jhentai/src/model/archive_unlock_result.dart';
 import 'package:jhentai/src/network/archive_bot_request.dart';
 import 'package:jhentai/src/network/eh_request.dart';
+import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/archive_bot_setting.dart';
 import 'package:jhentai/src/setting/download_setting.dart';
 import 'package:jhentai/src/setting/network_setting.dart';
-import 'package:jhentai/src/service/path_service.dart';
-import 'package:jhentai/src/utils/archive_bot_response_parser.dart';
-import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:jhentai/src/utils/eh_spider_parser.dart';
+import 'package:jhentai/src/utils/speed_computer.dart';
 import 'package:logger/logger.dart';
 import 'package:path/path.dart';
 import 'package:retry/retry.dart';
@@ -40,10 +42,11 @@ import '../model/gallery_image.dart';
 import '../pages/download/grid/mixin/grid_download_page_service_mixin.dart';
 import '../utils/archive_util.dart';
 import '../utils/file_util.dart';
+import '../utils/snack_util.dart';
+import 'gallery_download/download_path_resolver.dart';
+import 'gallery_download/gallery_download_service.dart';
 import 'jh_service.dart';
 import 'log.dart';
-import '../utils/snack_util.dart';
-import 'gallery_download_service.dart';
 
 ArchiveDownloadService archiveDownloadService = ArchiveDownloadService();
 
@@ -53,7 +56,6 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
   static const int _maxRetryTimes = 3;
   static const String metadataFileName = 'ametadata';
-  static const int _maxTitleLength = 80;
   static const int _maxIsolateCountsTotal = 10;
 
   final Completer<bool> _completer = Completer();
@@ -69,6 +71,9 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   late Worker isolateCountListener;
   late Worker proxyConfigListener;
   late Worker timeoutListener;
+
+  @override
+  List<JHLifeCircleBean> get initDependencies => super.initDependencies..addAll([downloadSetting, networkSetting]);
 
   @override
   Future<void> doInitBean() async {
@@ -118,9 +123,12 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       if (archiveDownloadInfos.containsKey(archive.gid)) {
         return;
       }
-      if (!await _initArchiveInfo(archive)) {
+
+      ArchiveDownloadedData? archiveWithSanitizedTitle = await _initArchiveInfo(archive);
+      if (archiveWithSanitizedTitle == null) {
         return;
       }
+      archive = archiveWithSanitizedTitle;
 
       _generateComicInfoInDisk(archive);
     }
@@ -256,47 +264,6 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     }
   }
 
-  Future<void> migrate2Gallery(int gid) async {
-    ArchiveDownloadedData? archive = archives.firstWhereOrNull((archive) => archive.gid == gid);
-    if (archive == null) {
-      log.error('Archive not found: $gid');
-      return;
-    }
-
-    ArchiveDownloadInfo archiveDownloadInfo = archiveDownloadInfos[archive.gid]!;
-    if (archiveDownloadInfo.archiveStatus != ArchiveStatus.completed) {
-      log.error('Archive not completed: $gid');
-      return;
-    }
-
-    GalleryDownloadedData galleryDownloadedData = GalleryDownloadedData(
-      gid: archive.gid,
-      token: archive.token,
-      title: archive.title,
-      category: archive.category,
-      pageCount: archive.pageCount,
-      galleryUrl: archive.galleryUrl,
-      uploader: archive.uploader,
-      publishTime: archive.publishTime,
-      downloadStatusIndex: DownloadStatus.downloaded.index,
-      downloadOriginalImage: archive.isOriginal,
-      sortOrder: 0,
-      groupName: archiveDownloadInfo.group,
-      insertTime: DateTime.now().toString(),
-      priority: GalleryDownloadService.defaultDownloadGalleryPriority,
-      tags: archive.tags,
-      tagRefreshTime: archive.tagRefreshTime,
-    );
-    List<GalleryImage> images = await getUnpackedImages(gid);
-
-    if (images.length != archive.pageCount) {
-      log.error('Unpacked images count not equal to page count: ${images.length} != ${archive.pageCount}');
-      return;
-    }
-
-    return galleryDownloadService.importGallery(galleryDownloadedData, images);
-  }
-
   Future<bool> updateArchiveGroup(int gid, String group) async {
     ArchiveDownloadInfo? archiveDownloadInfo = archiveDownloadInfos[gid];
     if (archiveDownloadInfo == null) {
@@ -313,7 +280,14 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     _sortArchives();
 
-    return _updateArchiveInDatabase(gid);
+    bool success = await _updateArchiveInDatabase(gid);
+    if (!success) {
+      return false;
+    }
+
+    _updateArchiveInfoInDisk(gid);
+
+    return true;
   }
 
   Future<void> renameGroup(String oldGroup, String newGroup) async {
@@ -333,6 +307,10 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
       await deleteGroup(oldGroup);
     });
+
+    for (ArchiveDownloadedData a in archiveDownloadedDatas) {
+      await _updateArchiveInfoInDisk(a.gid);
+    }
 
     _sortArchives();
   }
@@ -392,6 +370,10 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     });
 
     _sortArchives();
+
+    for (ArchiveDownloadedData archive in archives) {
+      await _updateArchiveInfoInDisk(archive.gid);
+    }
   }
 
   /// Use meta in each archive folder to restore download tasks, then sync to database.
@@ -433,12 +415,40 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
       ArchiveDownloadedData archive = ArchiveDownloadedData.fromJson(metadata as Map<String, dynamic>);
 
-      /// skip if exists
-      if (archiveDownloadInfos.containsKey(archive.gid)) {
+      archive = archive.copyWith(archiveStatusCode: ArchiveStatus.completed.code);
+
+      /// The scanned unpacking directory is where the unpacked image bytes
+      /// actually live. Metadata written before sanitizedTitle has no such field,
+      /// and restoring one of those files with the newer byte-based rule (issue
+      /// #823) can store a title that points at a directory which never existed.
+      /// Reconcile the title to the real on-disk directory in both cases.
+      final String restoredSanitizedTitle = DownloadPathResolver.resolveArchiveSanitizedTitleForRestore(
+        gid: archive.gid,
+        rawTitle: archive.title,
+        persistedSanitizedTitle: archive.sanitizedTitle,
+        archiveDirectoryPath: galleryDir.path,
+      );
+
+      final ArchiveDownloadInfo? existingInfo = archiveDownloadInfos[archive.gid];
+      if (existingInfo != null) {
+        /// A stale record restored once under the bug keeps a sanitizedTitle that
+        /// points at a missing directory. If the scanned metadata now resolves to
+        /// a real unpacking directory, patch that record in place instead of
+        /// skipping it. Archive images are never persisted — readers list the
+        /// unpacking directory live — so only the stored title must change and no
+        /// disk data is ever touched.
+        if (!_shouldRepairRestoredArchivePath(existingInfo, archive, restoredSanitizedTitle)) {
+          continue;
+        }
+
+        log.info('Repair stale restored archive path, gid: ${archive.gid}');
+
+        await _repairRestoredArchiveInfo(archive.gid, restoredSanitizedTitle);
+        restoredCount++;
         continue;
       }
 
-      archive = archive.copyWith(archiveStatusCode: ArchiveStatus.completed.code);
+      archive = archive.copyWith(sanitizedTitle: Value(restoredSanitizedTitle));
 
       if (!await _saveArchiveAndGroupInDatabase(archive)) {
         log.error('Restore archive failed: $archive');
@@ -447,6 +457,16 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       }
 
       _initArchiveInMemory(archive, sort: false);
+
+      /// Persist the corrected snapshot back to the real unpacking directory's
+      /// metadata file so future installs / transfers no longer need to re-apply
+      /// the legacy naming compatibility. A metadata write failure is logged and
+      /// does not roll back the successful restore.
+      try {
+        await _saveArchiveInfoInDisk(archive);
+      } catch (e, st) {
+        log.error('Save restored archive metadata failed, gid: ${archive.gid}', e, st);
+      }
 
       restoredCount++;
     }
@@ -458,9 +478,79 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     return restoredCount;
   }
 
+  /// Return true only for the stale-path shape created by the old restore bug:
+  /// an already-completed record points at an unpacking directory that holds no
+  /// image bytes, while the metadata being scanned resolves to an existing
+  /// directory that does contain at least one image file.
+  bool _shouldRepairRestoredArchivePath(
+    ArchiveDownloadInfo existingInfo,
+    ArchiveDownloadedData restoredArchive,
+    String restoredSanitizedTitle,
+  ) {
+    if (existingInfo.archiveStatus != ArchiveStatus.completed) {
+      return false;
+    }
+
+    final ArchiveDownloadedData? existingData = archives.firstWhereOrNull((a) => a.gid == restoredArchive.gid);
+    if (existingData == null) {
+      return false;
+    }
+
+    final String existingPath = normalize(computeArchiveUnpackingPath(existingData));
+    final String restoredPath = normalize(computeArchiveUnpackingPath(restoredArchive.copyWith(sanitizedTitle: Value(restoredSanitizedTitle))));
+
+    if (existingPath == restoredPath || !_unpackingDirectoryHasImage(restoredPath)) {
+      return false;
+    }
+
+    /// A previous bad restore can later materialize the wrong directory just by
+    /// writing metadata. Existing image bytes therefore take precedence when
+    /// they are actually readable; only an existing directory without any image
+    /// inside is treated as stale.
+    return !_unpackingDirectoryHasImage(existingPath);
+  }
+
+  bool _unpackingDirectoryHasImage(String directoryPath) {
+    final Directory directory = Directory(directoryPath);
+    if (!directory.existsSync()) {
+      return false;
+    }
+    return directory.listSync().whereType<File>().any((file) => FileUtil.isImageExtension(file.path));
+  }
+
+  /// Patch a stale archive's stored title in database, memory and its metadata
+  /// file, keeping the existing record's own data intact (group, sort order,
+  /// tags, ...). Only the title changes and no unpacked image bytes on disk are
+  /// ever deleted.
+  Future<void> _repairRestoredArchiveInfo(int gid, String restoredSanitizedTitle) async {
+    final ArchiveDownloadedData? existingData = archives.firstWhereOrNull((a) => a.gid == gid);
+    if (existingData == null) {
+      return;
+    }
+
+    final ArchiveDownloadedData repaired = existingData.copyWith(sanitizedTitle: Value(restoredSanitizedTitle));
+    final int index = archives.indexWhere((a) => a.gid == gid);
+    if (index >= 0) {
+      archives[index] = repaired;
+    }
+
+    await ArchiveDao.updateArchive(
+      ArchiveDownloadedCompanion(
+        gid: Value(gid),
+        sanitizedTitle: Value(restoredSanitizedTitle),
+      ),
+    );
+
+    try {
+      await _saveArchiveInfoInDisk(repaired);
+    } catch (e, st) {
+      log.error('Save repaired archive metadata failed, gid: $gid', e, st);
+    }
+  }
+
   Future<List<GalleryImage>> getUnpackedImages(int gid, {bool computeHash = false}) async {
     ArchiveDownloadedData archive = archives.firstWhere((a) => a.gid == gid);
-    Directory directory = Directory(computeArchiveUnpackingPath(archive.title, archive.gid));
+    Directory directory = Directory(computeArchiveUnpackingPath(archive));
 
     return directory.list().toList().then((files) {
       List<File> imageFiles = files.whereType<File>().where((file) => FileUtil.isImageExtension(file.path)).toList();
@@ -521,7 +611,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     );
 
     try {
-      File file = File(join(computeArchiveUnpackingPath(archive.title, archive.gid), 'ComicInfo.xml'));
+      File file = File(join(computeArchiveUnpackingPath(archive), 'ComicInfo.xml'));
       if (!await file.exists()) {
         await file.create(recursive: true);
       }
@@ -531,26 +621,24 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     }
   }
 
-  String _computeArchiveTitle(String rawTitle) {
+  static const int _maxFileNameBytes = 200;
+
+  /// Compute the sanitized title for the first time. Strips illegal file-name
+  /// characters then truncates to fit within [_maxFileNameBytes] bytes minus
+  /// [reservedBytes] (the byte length of the surrounding prefix / suffix).
+  String _computeSanitizedArchiveTitle(String rawTitle, int reservedBytes) {
     String title = rawTitle.replaceAll(RegExp(r'[/|?,:*"<>\\.]'), ' ').trim();
-
-    if (title.length > _maxTitleLength) {
-      title = title.substring(0, _maxTitleLength).trim();
-    }
-
-    return title;
+    return FileUtil.truncateTitleToBytes(title, _maxFileNameBytes - reservedBytes);
   }
 
   String computePackingFileDownloadPath(ArchiveDownloadedData archive) {
-    String title = _computeArchiveTitle(archive.title);
-
-    return join(downloadSetting.downloadPath.value, 'ArchiveV2 - ${archive.gid} - $title.zip');
+    /// File name format: 'ArchiveV2 - {gid} - {title}.zip'
+    return join(downloadSetting.downloadPath.value, 'ArchiveV2 - ${archive.gid} - ${archive.sanitizedTitle}.zip');
   }
 
-  String computeArchiveUnpackingPath(String rawTitle, int gid) {
-    String title = _computeArchiveTitle(rawTitle);
-
-    return join(downloadSetting.downloadPath.value, 'Archive - $gid - $title');
+  String computeArchiveUnpackingPath(ArchiveDownloadedData archive) {
+    /// Directory name format: 'Archive - {gid} - {title}'
+    return join(downloadSetting.downloadPath.value, 'Archive - ${archive.gid} - ${archive.sanitizedTitle}');
   }
 
   void _sortArchives() {
@@ -612,7 +700,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     );
   }
 
-  Future<void> _check410Reason(String url, ArchiveDownloadedData archive) async {
+  Future<void> _check410Or404Reason(String url, ArchiveDownloadedData archive) async {
     try {
       await ehRequest.get(
         url: url,
@@ -623,7 +711,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         return;
       }
 
-      if (e.response?.statusCode != 410) {
+      if (e.response?.statusCode != 410 && e.response?.statusCode != 404) {
         log.download('Check archive  ${archive.title} 410 reason failed, pause task.');
         return pauseDownloadArchive(archive.gid);
       }
@@ -740,9 +828,9 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     await _updateArchiveStatus(archive.gid, ArchiveStatus.unlocking);
 
-    String? downloadPageUrl;
+    ArchiveUnlockResult result;
     try {
-      downloadPageUrl = await retry(
+      result = await retry(
         () => ehRequest.requestUnlockArchive(
           url: archive.archivePageUrl.replaceFirst('--', '-'),
           isOriginal: archive.isOriginal,
@@ -763,18 +851,21 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       snack('archiveError'.tr, e.message, isShort: true);
 
       if (e.shouldPauseAllDownloadTasks) {
-        return pauseAllDownloadArchive();
+        return await pauseAllDownloadArchive();
       } else {
-        return pauseDownloadArchive(archive.gid);
+        return await pauseDownloadArchive(archive.gid);
       }
     }
 
-    if (downloadPageUrl != null) {
+    if (result.success) {
       log.download('Get archive download page url success: ${archive.title}');
-      archiveDownloadInfo.downloadPageUrl = downloadPageUrl;
+      archiveDownloadInfo.downloadPageUrl = result.url;
+      await _updateArchiveStatus(archive.gid, ArchiveStatus.unlocked);
+    } else {
+      log.download('Unlock archive failed. Archive: ${archive.title}, reason: ${result.msg}');
+      snack('archiveError'.tr, result.msg, isShort: true);
+      await pauseDownloadArchive(archive.gid);
     }
-
-    await _updateArchiveStatus(archive.gid, ArchiveStatus.unlocked);
   }
 
   Future<void> _getDownloadPageUrl(ArchiveDownloadedData archive) async {
@@ -795,9 +886,9 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     await _updateArchiveStatus(archive.gid, ArchiveStatus.parsingDownloadPageUrl);
 
-    String? downloadPageUrl;
+    ArchiveUnlockResult result;
     try {
-      downloadPageUrl = await retry(
+      result = await retry(
         () => ehRequest.requestUnlockArchive(
           url: archive.archivePageUrl.replaceFirst('--', '-'),
           isOriginal: archive.isOriginal,
@@ -824,14 +915,19 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       }
     }
 
-    if (downloadPageUrl == null) {
+    if (result.success && result.url != null) {
+      log.download('Get archive download page url success: ${archive.title}');
+      archiveDownloadInfo.downloadPageUrl = result.url;
+      await _updateArchiveStatus(archive.gid, ArchiveStatus.parsedDownloadPageUrl);
+    } else if (result.success && result.url == null) {
       /// wait for server operation
       await Future.delayed(const Duration(milliseconds: 1000));
       return _getDownloadPageUrl(archive);
     } else {
-      log.download('Get archive download page url success: ${archive.title}');
-      archiveDownloadInfo.downloadPageUrl = downloadPageUrl;
-      await _updateArchiveStatus(archive.gid, ArchiveStatus.parsedDownloadPageUrl);
+      log.download('Get archive download page url failed. Archive: ${archive.title}, reason: ${result.msg}');
+      snack('archiveError'.tr, result.msg, isShort: true);
+      await pauseDownloadArchive(archive.gid);
+      return;
     }
   }
 
@@ -866,7 +962,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
             parser: EHSpiderParser.downloadArchivePage2DownloadUrl,
           ),
           retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
-          onRetry: (e) => log.download('Parse archive download url: ${archive.title} failed, retry. Reason: ${(e as DioException).message}'),
+          onRetry: (e) => log.download('Parse archive download url: ${archive.title} failed, retry. Reason: ${(e as DioException).errorMsg}'),
           maxAttempts: _maxRetryTimes,
         );
       } on DioException catch (e) {
@@ -898,13 +994,13 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
       try {
         ArchiveBotResponse response = await retry(
           () => archiveBotRequest.requestResolve(
-            apiAddress: archiveBotSetting.apiAddress.value,
+            botType: archiveBotSetting.botType.value,
+            apiAddress: archiveBotSetting.apiAddress.value!,
             apiKey: archiveBotSetting.apiKey.value!,
             gid: archive.gid,
             token: archive.token,
             reParse: reParse,
             cancelToken: archiveDownloadInfo.cancelToken,
-            parser: ArchiveBotResponseParser.commonParse,
           ),
           retryIf: (e) => e is DioException && e.type != DioExceptionType.cancel,
           onRetry: (e) => log.download('Parse archive download url: ${archive.title} failed, retry. Reason: ${(e as DioException).message}'),
@@ -913,7 +1009,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
         log.download('Parse archive download url via bot, response: $response');
 
         if (response.isSuccess) {
-          ArchiveResolveVO archiveResolveVO = ArchiveResolveVO.fromResponse(response.data);
+          ArchiveResolveVO archiveResolveVO = archiveBotSetting.botType.value.parseResolve(response.data);
           downloadPath = archiveResolveVO.url;
         } else {
           snack('archiveError'.tr, response.errorMessage);
@@ -939,6 +1035,17 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     queryParameters.putIfAbsent('start', () => '1');
     Uri replacedUri = uri.replace(queryParameters: queryParameters);
     downloadPath = replacedUri.toString();
+
+    /// the bot protocol only returns the original archive url; the resample variant lives at the same path with trailing '/2' replaced by '/3'
+    if (archiveDownloadInfo.parseSource != ArchiveParseSource.official.code && !archive.isOriginal) {
+      List<String> segments = List.of(replacedUri.pathSegments);
+      if (segments.isNotEmpty && segments.last == '2') {
+        segments[segments.length - 1] = '3';
+        downloadPath = replacedUri.replace(pathSegments: segments).toString();
+      } else {
+        log.warning('Bot returned archive url without trailing /2 segment, fallback to original: $downloadPath');
+      }
+    }
 
     if (archiveDownloadInfo.parseSource == ArchiveParseSource.official.code) {
       archiveDownloadInfo.downloadUrl = 'https://' + Uri.parse(archiveDownloadInfo.downloadPageUrl!).host + downloadPath;
@@ -998,9 +1105,9 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
           DioException dioException = e.error;
           Response? response = dioException.response;
 
-          /// download too many bytes will cause 410
-          if (response?.statusCode == 410) {
-            return await _check410Reason(archiveDownloadInfos[archive.gid]!.downloadUrl!, archive);
+          /// download too many bytes will cause 410/404
+          if (response?.statusCode == 410 || response?.statusCode == 404) {
+            return await _check410Or404Reason(archiveDownloadInfos[archive.gid]!.downloadUrl!, archive);
           }
 
           /// too many download thread will cause 410
@@ -1042,7 +1149,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
 
     bool success = await extractZipArchive(
       computePackingFileDownloadPath(archive),
-      computeArchiveUnpackingPath(archive.title, archive.gid),
+      computeArchiveUnpackingPath(archive),
     );
 
     if (!success) {
@@ -1082,12 +1189,18 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
     _sortArchives();
   }
 
-  Future<bool> _initArchiveInfo(ArchiveDownloadedData archive) async {
+  Future<ArchiveDownloadedData?> _initArchiveInfo(ArchiveDownloadedData archive) async {
+    /// Compute and attach the sanitized title before the first DB write so the
+    /// path is frozen for the lifetime of this download task.
+    final int reservedBytes = utf8.encode('Archive - ${archive.gid} - ').length;
+    archive = archive.copyWith(sanitizedTitle: Value(_computeSanitizedArchiveTitle(archive.title, reservedBytes)));
+
     if (!await _saveArchiveAndGroupInDatabase(archive)) {
-      return false;
+      return null;
     }
+
     _initArchiveInMemory(archive);
-    return true;
+    return archive;
   }
 
   Future<bool> _addGroup(String group) async {
@@ -1127,6 +1240,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
               tags: Value(archive.tags),
               tagRefreshTime: Value(archive.tagRefreshTime),
               parseSource: Value(archive.parseSource),
+              sanitizedTitle: Value(archive.sanitizedTitle),
             ),
           ) >
           0;
@@ -1201,12 +1315,27 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   // DISK
 
   Future<void> _saveArchiveInfoInDisk(ArchiveDownloadedData archive) async {
-    File file = File(join(computeArchiveUnpackingPath(archive.title, archive.gid), metadataFileName));
+    File file = File(join(computeArchiveUnpackingPath(archive), metadataFileName));
     if (!await file.exists()) {
       await file.create(recursive: true);
     }
 
     await file.writeAsString(jsonEncode(archive.toJson()));
+  }
+
+  Future<void> _updateArchiveInfoInDisk(int gid) async {
+    ArchiveDownloadedData? archive = archives.firstWhereOrNull((a) => a.gid == gid);
+    ArchiveDownloadInfo? archiveDownloadInfo = archiveDownloadInfos[gid];
+    if (archive == null || archiveDownloadInfo == null) {
+      return;
+    }
+
+    ArchiveDownloadedData archiveWithUpdatedInfo = archive.copyWith(
+      sortOrder: archiveDownloadInfo.sortOrder,
+      groupName: archiveDownloadInfo.group,
+    );
+
+    return _saveArchiveInfoInDisk(archiveWithUpdatedInfo);
   }
 
   Future<void> _deletePackingFileInDisk(ArchiveDownloadedData archive) async {
@@ -1220,7 +1349,7 @@ class ArchiveDownloadService extends GetxController with GridBasePageServiceMixi
   Future<void> _deleteArchiveInDisk(ArchiveDownloadedData archive) async {
     await _deletePackingFileInDisk(archive);
 
-    Directory directory = Directory(computeArchiveUnpackingPath(archive.title, archive.gid));
+    Directory directory = Directory(computeArchiveUnpackingPath(archive));
     if (directory.existsSync()) {
       directory.deleteSync(recursive: true);
     }

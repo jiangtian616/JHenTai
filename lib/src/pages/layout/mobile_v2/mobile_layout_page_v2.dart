@@ -1,3 +1,4 @@
+import 'package:flutter/rendering.dart';
 import 'package:collection/collection.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
@@ -10,11 +11,14 @@ import 'package:jhentai/src/pages/layout/mobile_v2/notification/tap_menu_button_
 import 'package:jhentai/src/pages/search/quick_search/quick_search_page.dart';
 import 'package:jhentai/src/pages/setting/setting_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/service/quick_search_service.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/widget/will_pop_interceptor.dart';
+
+import '../../../network/eh_request.dart';
 import '../../../setting/preference_setting.dart';
-import '../../../widget/eh_log_out_dialog.dart';
+import '../../../widget/eh_alert_dialog.dart';
 import 'notification/tap_tab_bat_button_notification.dart';
 
 class MobileLayoutPageV2 extends StatelessWidget {
@@ -58,7 +62,7 @@ class MobileLayoutPageV2 extends StatelessWidget {
                     key: const PageStorageKey('leftDrawer'),
                     controller: state.scrollController,
                     itemCount: state.icons.length,
-                    cacheExtent: 1000,
+                    scrollCacheExtent: ScrollCacheExtent.pixels(1000),
                     itemBuilder: (context, index) => ListTile(
                       dense: true,
                       title: Text(state.icons[index].name.name.tr, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
@@ -81,7 +85,7 @@ class MobileLayoutPageV2 extends StatelessWidget {
   }
 
   Widget buildRightDrawer() {
-    return Drawer(width: 278, child: QuickSearchPage());
+    return Drawer(width: 278, child: QuickSearchPage(scrollController: quickSearchService.drawerScrollController));
   }
 
   Widget buildBottomNavigationBar(BuildContext context) {
@@ -163,12 +167,15 @@ class EHUserAvatar extends StatelessWidget {
             ),
           ),
           title: Text(userSetting.nickName.value ?? userSetting.userName.value ?? 'tap2Login'.tr),
-          onTap: () {
+          onTap: () async {
             if (!userSetting.hasLoggedIn()) {
               toRoute(Routes.login);
               return;
             }
-            Get.dialog(const LogoutDialog());
+            bool? result = await Get.dialog( EHDialog(title: '${'logout'.tr} ?'));
+            if (result == true) {
+              await ehRequest.requestLogout();
+            }
           },
         ),
       ),

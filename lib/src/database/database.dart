@@ -4,7 +4,6 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
-
 import 'package:drift/native.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
@@ -27,11 +26,11 @@ import 'package:jhentai/src/database/table/tag_count.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/exception/upload_exception.dart';
 import 'package:jhentai/src/extension/directory_extension.dart';
-import 'package:jhentai/src/service/path_service.dart';
 import 'package:jhentai/src/service/log.dart';
+import 'package:jhentai/src/service/path_service.dart';
 import 'package:path/path.dart';
-import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 import 'package:sqlite3/sqlite3.dart';
+import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 
 import '../model/gallery.dart';
 import '../model/gallery_history_model.dart';
@@ -67,7 +66,7 @@ class AppDb extends _$AppDb {
   AppDb() : super(_openConnection());
 
   @override
-  int get schemaVersion => 23;
+  int get schemaVersion => 25;
 
   @override
   MigrationStrategy get migration {
@@ -162,6 +161,30 @@ class AppDb extends _$AppDb {
             if (17 <= from && from < 23) {
               await m.alterTable(TableMigration(archiveDownloaded, newColumns: [archiveDownloaded.parseSource]));
             }
+            if (from < 24) {
+              await m.alterTable(TableMigration(archiveDownloaded, newColumns: [archiveDownloaded.sanitizedTitle]));
+              await m.alterTable(TableMigration(galleryDownloaded, newColumns: [galleryDownloaded.sanitizedTitle]));
+              await _backfillSanitizedTitles();
+            }
+            if (from < 25) {
+              /// Add `originalImageUrl` column to the `image` table. The DB
+              /// `url` column previously stored whichever URL was actually
+              /// downloaded (regular or original); new rows store the regular
+              /// URL in `url` and the original URL here. Old rows keep `url`
+              /// as-is (may be original URL for download-original galleries)
+              /// and `originalImageUrl` stays null — runtime fallback
+              /// (`originalImageUrl ?? url`) handles this transparently.
+              try {
+                await m.addColumn(image, image.originalImageUrl);
+              } on SqliteException catch (e) {
+                log.warning('Add originalImageUrl column failed: ${e.message}');
+                if (e.extendedResultCode == SqlError.SQLITE_ERROR && e.message.contains('duplicate column name')) {
+                  log.warning('Ignore duplicate column name error: ${e.message}');
+                } else {
+                  rethrow;
+                }
+              }
+            }
           });
         } on Exception catch (e) {
           log.error(e);
@@ -197,9 +220,9 @@ class AppDb extends _$AppDb {
       await m.createTable(galleryHistory);
 
       if (Get.isRegistered<StorageService>()) {
-        List<Gallery>? gallerys = storageService.read<List>(ConfigEnum.oldGalleryHistory.key)?.map((e) => Gallery.fromJson(e)).toList();
+        List<Gallery>? galleries = storageService.read<List>(ConfigEnum.oldGalleryHistory.key)?.map((e) => Gallery.fromJson(e)).toList();
 
-        List<GalleryHistoryModel>? historyModels = gallerys
+        List<GalleryHistoryModel>? historyModels = galleries
             ?.map(
               (g) => GalleryHistoryModel(
                 galleryUrl: g.galleryUrl,
@@ -245,7 +268,7 @@ class AppDb extends _$AppDb {
       await m.createTable(galleryGroup);
       await m.createTable(archiveGroup);
 
-      Set<String> galleryGroups = (await GalleryDao.selectOldGallerys()).map((g) => g.groupName ?? 'default'.tr).toSet();
+      Set<String> galleryGroups = (await GalleryDao.selectOldGalleries()).map((g) => g.groupName ?? 'default'.tr).toSet();
       Set<String> archiveGroups = (await ArchiveDao.selectOldArchives()).map((g) => g.groupName ?? 'default'.tr).toSet();
 
       log.info('Migrate gallery groups: $galleryGroups');
@@ -306,9 +329,9 @@ class AppDb extends _$AppDb {
       await m.createTable(galleryDownloaded);
       await m.createTable(archiveDownloaded);
 
-      List<GalleryDownloadedOldData> gallerys = await GalleryDao.selectOldGallerys();
+      List<GalleryDownloadedOldData> galleries = await GalleryDao.selectOldGalleries();
       await appDb.transaction(() async {
-        for (GalleryDownloadedOldData g in gallerys) {
+        for (GalleryDownloadedOldData g in galleries) {
           await GalleryDao.insertGallery(
             GalleryDownloadedCompanion.insert(
               gid: Value(g.gid),
@@ -379,6 +402,47 @@ class AppDb extends _$AppDb {
     await ArchiveDao.updateArchiveStatus(OldArchiveStatus.downloaded.index, ArchiveStatus.downloaded.code);
     await ArchiveDao.updateArchiveStatus(OldArchiveStatus.unpacking.index, ArchiveStatus.unpacking.code);
     await ArchiveDao.updateArchiveStatus(OldArchiveStatus.completed.index, ArchiveStatus.completed.code);
+  }
+
+  /// Back-fill [sanitizedTitle] for existing rows using the old character-count
+  /// truncation algorithm so their on-disk paths remain unchanged after the
+  /// upgrade to the byte-based algorithm.
+  Future<void> _backfillSanitizedTitles() async {
+    final RegExp illegalChars = RegExp(r'[/|?,:*"<>\\.]');
+
+    String legacyArchiveTitle(String rawTitle) {
+      String title = rawTitle.replaceAll(illegalChars, ' ').trim();
+      if (title.length > 80) {
+        title = title.substring(0, 80).trim();
+      }
+      return title;
+    }
+
+    String legacyGalleryTitle(String rawTitle) {
+      String title = rawTitle.replaceAll(illegalChars, ' ').trim();
+      if (title.length > 85) {
+        title = title.substring(0, 85).trim();
+      }
+      return title;
+    }
+
+    final List<ArchiveDownloadedData> archives = await ArchiveDao.selectArchives();
+    await transaction(() async {
+      for (final ArchiveDownloadedData a in archives) {
+        await (update(archiveDownloaded)..where((t) => t.gid.equals(a.gid))).write(
+          ArchiveDownloadedCompanion(sanitizedTitle: Value(legacyArchiveTitle(a.title))),
+        );
+      }
+    });
+
+    final List<GalleryDownloadedData> galleries = await GalleryDao.selectGalleries();
+    await transaction(() async {
+      for (final GalleryDownloadedData g in galleries) {
+        await (update(galleryDownloaded)..where((t) => t.gid.equals(g.gid))).write(
+          GalleryDownloadedCompanion(sanitizedTitle: Value(legacyGalleryTitle(g.title))),
+        );
+      }
+    });
   }
 }
 

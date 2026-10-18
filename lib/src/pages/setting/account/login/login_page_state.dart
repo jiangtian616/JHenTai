@@ -3,8 +3,11 @@ import 'package:jhentai/src/widget/loading_state_indicator.dart';
 
 enum LoginType { password, cookie, web }
 
+enum CookieVerificationType { normal, webview, skip }
+
 class LoginPageState {
   LoginType loginType = LoginType.password;
+  CookieVerificationType cookieVerificationType = CookieVerificationType.normal;
 
   FocusNode passwordFocusNode = FocusNode();
   FocusNode ipbPassHashFocusNode = FocusNode();
@@ -19,4 +22,5 @@ class LoginPageState {
   String? igneous;
 
   LoadingState loginState = LoadingState.idle;
+  LoadingState cookieLoginLoadingState = LoadingState.idle;
 }

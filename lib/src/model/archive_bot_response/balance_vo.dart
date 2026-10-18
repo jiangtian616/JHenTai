@@ -3,9 +3,15 @@ class BalanceVO {
 
   BalanceVO({required this.gp});
 
-  factory BalanceVO.fromResponse(Map<String, dynamic> json) {
+  factory BalanceVO.fromEhArBotResponse(Map<String, dynamic> json) {
     return BalanceVO(
       gp: json["current_GP"],
+    );
+  }
+
+  factory BalanceVO.fromArchiveAtHomeResponse(Map<String, dynamic> json) {
+    return BalanceVO(
+      gp: json["balance"],
     );
   }
 }

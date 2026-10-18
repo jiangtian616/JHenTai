@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/dio_exception_extension.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
@@ -17,7 +16,11 @@ import '../utils/snack_util.dart';
 import 'loading_state_indicator.dart';
 
 class EHTagSetDialog extends StatefulWidget {
-  const EHTagSetDialog({super.key});
+  /// Tag set the tag currently belongs to, if any. Shown as a marker in the list;
+  /// picking it again removes the tag from that set.
+  final int? currentTagSetNo;
+
+  const EHTagSetDialog({super.key, this.currentTagSetNo});
 
   @override
   State<EHTagSetDialog> createState() => _EHTagSetDialogState();
@@ -45,7 +48,7 @@ class _EHTagSetDialogState extends State<EHTagSetDialog> {
         if (_loadingState == LoadingState.error)
           GestureDetector(
             onTap: _getTagSet,
-            child: Icon(FontAwesomeIcons.redoAlt, size: 24, color: UIConfig.loadingStateIndicatorButtonColor(context)),
+            child: Icon(Icons.refresh, size: 24, color: UIConfig.loadingStateIndicatorButtonColor(context)),
           ),
         if (_loadingState == LoadingState.success)
           ..._tagSets
@@ -53,6 +56,9 @@ class _EHTagSetDialogState extends State<EHTagSetDialog> {
                 (tagSet) => ListTile(
                   title: Text(tagSet.name),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                  trailing: tagSet.number == widget.currentTagSetNo
+                      ? Text('currentTagSet'.tr, style: TextStyle(fontSize: 12, color: Theme.of(context).hintColor))
+                      : null,
                   onTap: () => backRoute(result: (tagSetNo: tagSet.number, remember: remember)),
                 ),
               )

@@ -4,10 +4,9 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
-import 'package:jhentai/src/service/storage_service.dart';
+import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/service/tag_translation_service.dart';
 import 'package:jhentai/src/utils/convert_util.dart';
-import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/utils/string_uril.dart';
 import 'package:jhentai/src/widget/loading_state_indicator.dart';
 import 'package:throttling/throttling.dart';
@@ -19,7 +18,8 @@ import '../../model/gallery_image.dart';
 import '../../model/read_page_info.dart';
 import '../../routes/routes.dart';
 import '../../service/archive_download_service.dart';
-import '../../service/gallery_download_service.dart';
+import '../../service/gallery_download/download_path_resolver.dart';
+import '../../service/gallery_download/gallery_download_service.dart';
 import '../../service/super_resolution_service.dart';
 import '../../setting/preference_setting.dart';
 import '../../setting/read_setting.dart';
@@ -28,6 +28,7 @@ import '../../utils/process_util.dart';
 import '../../utils/route_util.dart';
 import '../../utils/table.dart' as t;
 import '../../widget/eh_alert_dialog.dart';
+import '../../widget/eh_context_menu.dart';
 import '../../widget/eh_download_dialog.dart';
 import 'download_search_state.dart';
 
@@ -89,11 +90,11 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
     }
 
     loadingState = LoadingState.loading;
-    state.gallerys.clear();
+    state.galleries.clear();
     state.archives.clear();
     updateSafely([loadingStateId]);
 
-    List<TagData> allGalleryTags = galleryDownloadService.gallerys.map((g) => g.tags).mapMany(tagDataString2TagDataList).toList();
+    List<TagData> allGalleryTags = galleryDownloadService.galleries.map((g) => g.tags).mapMany(tagDataString2TagDataList).toList();
     List<TagData> allArchiveTags = archiveDownloadService.archives.map((a) => a.tags).mapMany(tagDataString2TagDataList).toList();
     List<TagData> allTags = {...allGalleryTags, ...allArchiveTags}.toList();
     List<TagData> translatedTags = await tagTranslationService.translateTagDatasIfNeeded(allTags);
@@ -102,7 +103,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
       translatedTagDataTable.put(tag.namespace, tag.key, tag);
     }
 
-    List<GallerySearchVO> gallerys = galleryDownloadService.gallerys
+    List<GallerySearchVO> galleries = galleryDownloadService.galleries
         .map(
           (g) => GallerySearchVO(
             gid: g.gid,
@@ -118,7 +119,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
             downloadOriginalImage: g.downloadOriginalImage,
             priority: g.priority,
             sortOrder: g.sortOrder,
-            groupName: g.groupName,
+            groupName: g.group,
             tags: tagDataString2TagDataList(g.tags).map((tagData) => translatedTagDataTable.get(tagData.namespace, tagData.key) ?? tagData).toList(),
             tagRefreshTime: g.tagRefreshTime,
           ),
@@ -159,7 +160,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
         return;
       }
 
-      state.gallerys = gallerys.where((g) {
+      state.galleries = galleries.where((g) {
         if (regExp!.hasMatch(g.title)) {
           return true;
         }
@@ -194,7 +195,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
         return false;
       }).toList();
     } else {
-      state.gallerys = gallerys.where((g) {
+      state.galleries = galleries.where((g) {
         if (g.title.contains(value)) {
           return true;
         }
@@ -249,10 +250,16 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
     }
 
     if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
-      openThirdPartyViewer(galleryDownloadService.computeGalleryDownloadAbsolutePath(gallery.title, gallery.gid));
+      GalleryDownloadInfo galleryData = galleryDownloadService.galleryDownloadInfos[gallery.gid]!;
+      openThirdPartyViewer(DownloadPathResolver.computeGalleryDownloadAbsolutePath(galleryData.toGalleryDownloadedData()));
     } else {
       String? string = await localConfigService.read(configKey: ConfigEnum.readIndexRecord, subConfigKey: gallery.gid.toString());
       int readIndexRecord = (string == null ? 0 : (int.tryParse(string) ?? 0));
+
+      /// Ensure image list is resident before entering read page.
+      await galleryDownloadService.galleryDownloadInfos[gallery.gid]!.ensureImagesLoaded();
+
+      ReadDirection? readDirection = isWebtoonGalleryFromTagDataList(gallery.tags) ? ReadDirection.top2bottomList : null;
 
       toRoute(
         Routes.read,
@@ -266,6 +273,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
           readProgressRecordStorageKey: gallery.gid.toString(),
           pageCount: gallery.pageCount,
           useSuperResolution: superResolutionService.get(gallery.gid, SuperResolutionType.gallery) != null,
+          readDirection: readDirection,
         ),
       );
     }
@@ -277,12 +285,15 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
     }
 
     if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
-      openThirdPartyViewer(archiveDownloadService.computeArchiveUnpackingPath(archive.title, archive.gid));
+      ArchiveDownloadedData archiveData = archiveDownloadService.archives.firstWhere((a) => a.gid == archive.gid);
+      openThirdPartyViewer(archiveDownloadService.computeArchiveUnpackingPath(archiveData));
     } else {
       String? string = await localConfigService.read(configKey: ConfigEnum.readIndexRecord, subConfigKey: archive.gid.toString());
       int readIndexRecord = (string == null ? 0 : (int.tryParse(string) ?? 0));
 
       List<GalleryImage> images = await archiveDownloadService.getUnpackedImages(archive.gid);
+
+      ReadDirection? readDirection = isWebtoonGalleryFromTagDataList(archive.tags) ? ReadDirection.top2bottomList : null;
 
       toRoute(
         Routes.read,
@@ -297,61 +308,45 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
           readProgressRecordStorageKey: archive.gid.toString(),
           images: images,
           useSuperResolution: superResolutionService.get(archive.gid, SuperResolutionType.archive) != null,
+          readDirection: readDirection,
         ),
       );
     }
   }
 
-  void onLongPressGallery(BuildContext context, GallerySearchVO gallery) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        actions: <CupertinoActionSheetAction>[
-          CupertinoActionSheetAction(
-            child: Text('changeGroup'.tr),
-            onPressed: () {
-              backRoute();
-              handleChangeGalleryGroup(gallery);
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: Text('deleteTaskAndImages'.tr, style: TextStyle(color: UIConfig.alertColor(context))),
-            onPressed: () {
-              backRoute();
-              handleRemoveGallery(gallery, context);
-            },
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(child: Text('cancel'.tr), onPressed: backRoute),
-      ),
+  void onLongPressGallery(BuildContext context, GallerySearchVO gallery, {Offset? position}) {
+    showEHContextMenu(
+      context,
+      position: position,
+      actions: [
+        EHContextMenuAction(
+          text: 'changeGroup'.tr,
+          onTap: () => handleChangeGalleryGroup(gallery),
+        ),
+        EHContextMenuAction(
+          text: 'deleteTaskAndImages'.tr,
+          color: UIConfig.alertColor(context),
+          onTap: () => handleRemoveGallery(gallery, context),
+        ),
+      ],
     );
   }
 
-  void onLongPressArchive(BuildContext context, ArchiveSearchVO archive) {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (BuildContext context) => CupertinoActionSheet(
-        actions: <CupertinoActionSheetAction>[
-          CupertinoActionSheetAction(
-            child: Text('changeGroup'.tr),
-            onPressed: () {
-              backRoute();
-              handleChangeArchiveGroup(archive);
-            },
-          ),
-          CupertinoActionSheetAction(
-            child: Text('delete'.tr, style: TextStyle(color: UIConfig.alertColor(context))),
-            onPressed: () {
-              handleRemoveArchive(archive);
-              backRoute();
-            },
-          ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          child: Text('cancel'.tr),
-          onPressed: backRoute,
+  void onLongPressArchive(BuildContext context, ArchiveSearchVO archive, {Offset? position}) {
+    showEHContextMenu(
+      context,
+      position: position,
+      actions: [
+        EHContextMenuAction(
+          text: 'changeGroup'.tr,
+          onTap: () => handleChangeArchiveGroup(archive),
         ),
-      ),
+        EHContextMenuAction(
+          text: 'delete'.tr,
+          color: UIConfig.alertColor(context),
+          onTap: () => handleRemoveArchive(archive),
+        ),
+      ],
     );
   }
 
@@ -394,9 +389,14 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
       if (result == null || !result) {
         return;
       }
+    } else if (preferenceSetting.confirmDestructiveActions.isTrue) {
+      bool? result = await Get.dialog(EHDialog(title: 'delete'.tr + '?'));
+      if (result == null || !result) {
+        return;
+      }
     }
 
-    state.gallerys.remove(gallery);
+    state.galleries.remove(gallery);
     await galleryDownloadService.deleteGalleryByGid(gallery.gid);
     update([bodyId]);
     updateGlobalGalleryStatus();
@@ -427,6 +427,12 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
   }
 
   Future<void> handleRemoveArchive(ArchiveSearchVO archive) async {
+    if (preferenceSetting.confirmDestructiveActions.isTrue) {
+      bool? result = await Get.dialog(EHDialog(title: 'delete'.tr + '?'));
+      if (result == null || !result) {
+        return;
+      }
+    }
     state.archives.remove(archive);
     await archiveDownloadService.deleteArchive(archive.gid);
     update([bodyId]);

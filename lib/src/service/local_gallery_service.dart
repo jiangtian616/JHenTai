@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/list_extension.dart';
-import 'package:jhentai/src/service/gallery_download_service.dart';
+import 'package:jhentai/src/service/gallery_download/gallery_download_service.dart';
 import 'package:jhentai/src/utils/file_util.dart';
 import 'package:path/path.dart';
 
@@ -24,7 +24,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin, 
 
   LoadingState loadingState = LoadingState.idle;
 
-  List<LocalGallery> allGallerys = [];
+  List<LocalGallery> allGalleries = [];
   Map<String, List<LocalGallery>> path2GalleryDir = {};
   Map<String, List<String>> path2SubDir = {};
 
@@ -36,21 +36,21 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin, 
   Future<void> doInitBean() async {
     Get.put(this, permanent: true);
 
-    await refreshLocalGallerys();
+    await refreshLocalGalleries();
   }
 
   @override
   Future<void> doAfterBeanReady() async {}
 
-  Future<void> refreshLocalGallerys() {
+  Future<void> refreshLocalGalleries() {
     if (loadingState == LoadingState.loading) {
       return Future.value();
     }
     loadingState = LoadingState.loading;
 
-    int preCount = allGallerys.length;
+    int preCount = allGalleries.length;
 
-    allGallerys.clear();
+    allGalleries.clear();
     path2GalleryDir.clear();
     path2SubDir.clear();
     update([galleryCountChangedId]);
@@ -58,7 +58,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin, 
     DateTime start = DateTime.now();
     return _loadGalleriesFromDisk().whenComplete(() {
       log.info(
-        'Refresh local gallerys, preCount:$preCount, newCount: ${allGallerys.length}, timeCost: ${DateTime.now().difference(start).inMilliseconds}ms',
+        'Refresh local galleries, preCount:$preCount, newCount: ${allGalleries.length}, timeCost: ${DateTime.now().difference(start).inMilliseconds}ms',
       );
       loadingState = LoadingState.success;
       update([galleryCountChangedId]);
@@ -101,7 +101,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin, 
       }
     }
 
-    allGallerys.removeWhere((g) => g.title == gallery.title);
+    allGalleries.removeWhere((g) => g.title == gallery.title);
     path2GalleryDir[parentPath]?.removeWhere((g) => g.title == gallery.title);
 
     update([galleryCountChangedId]);
@@ -114,7 +114,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin, 
       log.error('_loadGalleriesFromDisk failed, path: ${downloadSetting.extraGalleryScanPath}', error, stackTrace);
       return [];
     }).whenComplete(() {
-      allGallerys.sort((a, b) => FileUtil.naturalCompare(a.title, b.title));
+      allGalleries.sort((a, b) => FileUtil.naturalCompare(a.title, b.title));
       for (List<LocalGallery> dirs in path2GalleryDir.values) {
         dirs.sort((a, b) => FileUtil.naturalCompare(a.title, b.title));
       }
@@ -211,7 +211,7 @@ class LocalGalleryService extends GetxController with GridBasePageServiceMixin, 
       ),
     );
 
-    allGallerys.add(gallery);
+    allGalleries.add(gallery);
     (path2GalleryDir[parentPath] ??= []).add(gallery);
   }
 }

@@ -11,6 +11,7 @@ import '../../../../database/database.dart';
 import '../../../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../../../mixin/scroll_to_top_state_mixin.dart';
 import '../../../../mixin/update_global_gallery_status_logic_mixin.dart';
+import '../../../../service/gallery_download/gallery_download_service.dart';
 import '../../../../service/local_config_service.dart';
 import '../../../../widget/eh_alert_dialog.dart';
 import '../../mixin/basic/multi_select/multi_select_download_page_logic_mixin.dart';
@@ -18,7 +19,7 @@ import '../../mixin/basic/multi_select/multi_select_download_page_state_mixin.da
 import 'gallery_list_download_page_state.dart';
 
 class GalleryListDownloadPageLogic extends GetxController
-    with Scroll2TopLogicMixin, MultiSelectDownloadPageLogicMixin<GalleryDownloadedData>, GalleryDownloadPageLogicMixin, UpdateGlobalGalleryStatusLogicMixin {
+    with Scroll2TopLogicMixin, MultiSelectDownloadPageLogicMixin<GalleryDownloadInfo>, GalleryDownloadPageLogicMixin, UpdateGlobalGalleryStatusLogicMixin {
   GalleryListDownloadPageState state = GalleryListDownloadPageState();
 
   @override
@@ -73,7 +74,12 @@ class GalleryListDownloadPageLogic extends GetxController
   }
 
   @override
-  void handleRemoveItem(GalleryDownloadedData gallery, bool deleteImages, BuildContext context) async {
+  void handleRemoveItem(GalleryDownloadInfo gallery, bool deleteImages, BuildContext context) async {
+    bool confirmed = await confirmDestructiveAction(title: deleteImages ? 'deleteTaskAndImages'.tr + '?' : 'deleteTask'.tr + '?');
+    if (!confirmed) {
+      return;
+    }
+
     bool isUpdatingDependent = downloadService.isUpdatingDependent(gallery.gid);
 
     if (isUpdatingDependent) {
@@ -100,12 +106,12 @@ class GalleryListDownloadPageLogic extends GetxController
   Future<void> selectAllItem() async {
     await state.displayGroupsCompleter.future;
 
-    List<GalleryDownloadedData> gallerys = [];
+    List<GalleryDownloadInfo> galleries = [];
     for (String group in state.displayGroups) {
-      gallerys.addAll(downloadService.gallerysWithGroup(group));
+      galleries.addAll(downloadService.galleriesWithGroup(group));
     }
 
-    multiSelectDownloadPageState.selectedGids.addAll(gallerys.map((gallery) => gallery.gid));
+    multiSelectDownloadPageState.selectedGids.addAll(galleries.map((gallery) => gallery.gid));
     updateSafely(multiSelectDownloadPageState.selectedGids.map((gid) => '$itemCardId::$gid').toList());
   }
 }

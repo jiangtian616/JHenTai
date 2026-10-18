@@ -29,11 +29,9 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '../database/database.dart';
 import '../enum/config_enum.dart';
 import '../model/archive_bot_response/archive_bot_response.dart';
-import '../model/archive_bot_response/check_in_vo.dart';
 import '../model/gallery_metadata.dart';
 import '../network/archive_bot_request.dart';
 import '../setting/advanced_setting.dart';
-import '../utils/archive_bot_response_parser.dart';
 import '../utils/version_util.dart';
 import '../widget/update_dialog.dart';
 import 'jh_service.dart';
@@ -57,8 +55,10 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
     Timer(const Duration(seconds: 5), checkEHEvent);
     Timer.periodic(const Duration(minutes: 5), (_) => checkEHEvent());
 
-    Timer(const Duration(seconds: 5), checkInArchiveBot);
-    Timer.periodic(const Duration(minutes: 5), (_) => checkInArchiveBot());
+    if (archiveBotSetting.botType.value.supportsCheckIn) {
+      Timer(const Duration(seconds: 5), checkInArchiveBot);
+      Timer.periodic(const Duration(minutes: 5), (_) => checkInArchiveBot());
+    }
   }
 
   Future<void> _checkUpdate() async {
@@ -101,11 +101,11 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
 
   Future<void> refreshGalleryTags() async {
     int pageNo = 1;
-    List<GalleryDownloadedData> gallerys = await GalleryDao.selectGallerysForTagRefresh(pageNo, 25);
-    while (gallerys.isNotEmpty) {
+    List<GalleryDownloadedData> galleries = await GalleryDao.selectGalleriesForTagRefresh(pageNo, 25);
+    while (galleries.isNotEmpty) {
       try {
         List<GalleryMetadata> metadatas = await ehRequest.requestGalleryMetadatas<List<GalleryMetadata>>(
-          list: gallerys.map((a) => (gid: a.gid, token: a.token)).toList(),
+          list: galleries.map((a) => (gid: a.gid, token: a.token)).toList(),
           parser: EHSpiderParser.galleryMetadataJson2GalleryMetadatas,
         );
 
@@ -120,13 +120,13 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
               )
               .toList(),
         );
-        log.trace('refreshGalleryTags success, pageNo: $pageNo, archives: ${gallerys.map((a) => a.gid).toList()}');
+        log.trace('refreshGalleryTags success, pageNo: $pageNo, archives: ${galleries.map((a) => a.gid).toList()}');
       } catch (e) {
-        log.warning('refreshGalleryTags error, gallerys: ${gallerys.map((a) => (gid: a.gid, token: a.token)).toList()}', e, true);
+        log.warning('refreshGalleryTags error, galleries: ${galleries.map((a) => (gid: a.gid, token: a.token)).toList()}', e, true);
       }
 
       pageNo++;
-      gallerys = await GalleryDao.selectGallerysForTagRefresh(pageNo, 25);
+      galleries = await GalleryDao.selectGalleriesForTagRefresh(pageNo, 25);
     }
   }
 
@@ -163,6 +163,10 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
 
   Future<void> clearOutdatedImageCache() async {
     Directory cacheImageDirectory = Directory(join((await getTemporaryDirectory()).path, cacheImageFolderName));
+
+    if (!cacheImageDirectory.existsSync()) {
+      return;
+    }
 
     int count = 0;
     cacheImageDirectory.list().forEach((FileSystemEntity entity) {
@@ -228,16 +232,19 @@ class ScheduleService with JHLifeCircleBeanErrorCatch implements JHLifeCircleBea
     if (!archiveBotSetting.isReady) {
       return;
     }
+    if (!archiveBotSetting.botType.value.supportsCheckIn) {
+      return;
+    }
 
     try {
       ArchiveBotResponse response = await archiveBotRequest.requestCheckIn(
-        apiAddress: archiveBotSetting.apiAddress.value,
+        botType: archiveBotSetting.botType.value,
+        apiAddress: archiveBotSetting.apiAddress.value!,
         apiKey: archiveBotSetting.apiKey.value!,
-        parser: ArchiveBotResponseParser.commonParse,
       );
       log.debug('Auto Checkin response: $response');
       if (response.isSuccess) {
-        CheckInVO checkInVO = CheckInVO.fromResponse(response.data);
+        final checkInVO = archiveBotSetting.botType.value.parseCheckIn(response.data);
         snack('checkInSuccess'.tr, 'checkInSuccessHint'.trArgs([checkInVO.getGP.toString(), checkInVO.currentGP.toString()]));
       }
     } on DioException catch (e) {

@@ -18,7 +18,7 @@ import 'package:path/path.dart';
 
 import '../../../routes/routes.dart';
 import '../../../service/archive_download_service.dart';
-import '../../../service/gallery_download_service.dart';
+import '../../../service/gallery_download/gallery_download_service.dart';
 import '../../../service/log.dart';
 import '../../../utils/permission_util.dart';
 import '../../../utils/route_util.dart';
@@ -59,11 +59,12 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
               if (GetPlatform.isDesktop) _buildSingleImageSavePath(),
               _buildDownloadOriginalImage(),
               _buildDefaultGalleryGroup(context),
+              _buildPrioritizeRecentGalleryGroups(),
               _buildDefaultArchiveGroup(context),
               _buildArchiveBotSettings(),
               _buildDownloadConcurrency(),
               _buildSpeedLimit(context),
-              _buildDownloadAllGallerysOfSamePriority(),
+              _buildDownloadAllGalleriesOfSamePriority(),
               _buildUseJH2UpdateGallery(),
               _buildArchiveDownloadIsolateCount(),
               _buildManageArchiveDownloadConcurrency(),
@@ -180,6 +181,14 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
         }).marginOnly(right: 12);
   }
 
+  Widget _buildPrioritizeRecentGalleryGroups() {
+    return SwitchListTile(
+      title: Text('prioritizeRecentGalleryGroups'.tr),
+      value: downloadSetting.prioritizeRecentGalleryGroups.value,
+      onChanged: downloadSetting.savePrioritizeRecentGalleryGroups,
+    );
+  }
+
   Widget _buildDownloadConcurrency() {
     return ListTile(
       title: Text('downloadTaskConcurrency'.tr),
@@ -248,12 +257,12 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
     );
   }
 
-  Widget _buildDownloadAllGallerysOfSamePriority() {
+  Widget _buildDownloadAllGalleriesOfSamePriority() {
     return SwitchListTile(
-      title: Text('downloadAllGallerysOfSamePriority'.tr),
-      subtitle: Text('${'downloadAllGallerysOfSamePriorityHint'.tr} | ${'needRestart'.tr}'),
-      value: downloadSetting.downloadAllGallerysOfSamePriority.value,
-      onChanged: downloadSetting.saveDownloadAllGallerysOfSamePriority,
+      title: Text('downloadAllGalleriesOfSamePriority'.tr),
+      subtitle: Text('${'downloadAllGalleriesOfSamePriorityHint'.tr} | ${'needRestart'.tr}'),
+      value: downloadSetting.downloadAllGalleriesOfSamePriority.value,
+      onChanged: downloadSetting.saveDownloadAllGalleriesOfSamePriority,
     );
   }
 
@@ -374,7 +383,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
       /// to be compatible with the previous version, update the database.
       await galleryDownloadService.updateImagePathAfterDownloadPathChanged();
 
-      await localGalleryService.refreshLocalGallerys();
+      await localGalleryService.refreshLocalGalleries();
     } on Exception catch (e) {
       log.error('_handleChangeDownloadPath failed!', e);
       log.uploadError(e);

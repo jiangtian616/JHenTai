@@ -8,7 +8,7 @@ class SettingPageListStylePage extends StatelessWidget {
   SettingPageListStylePage({Key? key}) : super(key: key);
 
   final List<PageListStyleItem> items = [
-    PageListStyleItem(name: 'home'.tr, route: Routes.gallerys, show: () => styleSetting.isInDesktopLayout),
+    PageListStyleItem(name: 'home'.tr, route: Routes.gallery, show: () => styleSetting.isInDesktopLayout),
     PageListStyleItem(name: 'home'.tr, route: Routes.dashboard, show: () => styleSetting.isInMobileLayout || styleSetting.isInTabletLayout),
     PageListStyleItem(name: 'search'.tr, route: Routes.desktopSearch, show: () => styleSetting.isInDesktopLayout),
     PageListStyleItem(name: 'search'.tr, route: Routes.mobileV2Search, show: () => styleSetting.isInMobileLayout || styleSetting.isInTabletLayout),

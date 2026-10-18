@@ -4,6 +4,8 @@ enum ConfigEnum {
   renameDownloadMetadata('renameDownloadMetadata'),
   migrateGalleryHistory('migrateGalleryHistory'),
   migrateStorageConfig('migrateStorageConfig'),
+  renameGallerysPageLogicKey('renameGallerysPageLogicKey'),
+  tapZoneGuideShown('tapZoneGuideShown'),
 
   /// settings
   favoriteSetting('favoriteSetting'),
@@ -21,12 +23,14 @@ enum ConfigEnum {
   superResolutionSetting('SuperResolutionSetting'),
   userSetting('userSetting'),
   archiveBotSetting('archiveBotSetting'),
+  keyboardShortcutSetting('keyboardShortcutSetting'),
   downloadSearchPageType('downloadSearchPageType'),
   windowFullScreen('windowFullScreen'),
   windowMaximize('windowMaximize'),
   windowWidth('windowWidth'),
   windowHeight('windowHeight'),
   leftColumnWidthRatio('leftColumnWidthRatio'),
+  frameRateMode('frameRateMode'),
 
   /// config
   ehCookie('eh_cookies'),

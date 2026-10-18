@@ -43,7 +43,7 @@ class ConfigureBlockingRulePage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 OutlinedButton(
-                  child: const Icon(Icons.add),
+                  child: const Icon(Icons.add, size: 24),
                   style: FilledButton.styleFrom(shape: const CircleBorder(), padding: EdgeInsets.zero),
                   onPressed: logic.addRuleForm,
                 ),
@@ -130,7 +130,7 @@ class ConfigureBlockingRulePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             OutlinedButton(
-              child: const Icon(Icons.remove),
+              child: const Icon(Icons.remove, size: 24),
               style: FilledButton.styleFrom(shape: const CircleBorder(), padding: EdgeInsets.zero),
               onPressed: () {
                 logic.removeRuleForm(rule);

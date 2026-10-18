@@ -6,4 +6,9 @@
           android:drawable="@drawable/ic_launcher_foreground"
           android:inset="16%" />
   </foreground>
+  <monochrome>
+      <inset
+          android:drawable="@drawable/ic_launcher_foreground"
+          android:inset="16%" />
+  </monochrome>
 </adaptive-icon>

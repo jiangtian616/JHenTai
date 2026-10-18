@@ -34,6 +34,7 @@ import '../config/ui_config.dart';
 import '../consts/eh_consts.dart';
 import '../database/database.dart';
 import '../exception/eh_parse_exception.dart';
+import '../model/archive_unlock_result.dart';
 import '../model/detail_page_info.dart';
 import '../model/gallery.dart';
 import '../model/gallery_metadata.dart';
@@ -63,7 +64,7 @@ class EHSpiderParser {
     return map;
   }
 
-  /// [gallerys, pageCount, prevPageIndex, nextPageIndex]
+  /// [galleries, pageCount, prevPageIndex, nextPageIndex]
   static GalleryPageInfo galleryPage2GalleryPageInfo(Headers headers, dynamic data) {
     String html = data as String;
     Document document = parse(data);
@@ -81,10 +82,6 @@ class EHSpiderParser {
       return _thumbnailGalleryPageDocument2GalleryListAndPageInfo(document);
     }
 
-    if (!html.contains('No hits found')) {
-      log.error('Parse gallery inline type failed');
-      log.uploadError(Exception('Parse gallery inline type failed'), extraInfos: {'html': html});
-    }
     return _compactGalleryPageDocument2GalleryPageInfo(document);
   }
 
@@ -93,7 +90,7 @@ class EHSpiderParser {
     String? sortOrderText = document.querySelector('.searchnav > div > select > option[selected]')?.text;
 
     return GalleryPageInfo(
-      gallerys: galleryListElements
+      galleries: galleryListElements
 
           /// remove ad and table header
           .where((element) => element.children.length != 1 && element.querySelector('th') == null)
@@ -115,7 +112,7 @@ class EHSpiderParser {
     String? sortOrderText = document.querySelector('.searchnav > div > select > option[selected]')?.text;
 
     return GalleryPageInfo(
-      gallerys: galleryListElements
+      galleries: galleryListElements
 
           /// remove ad
           .where((element) => element.children.length != 1)
@@ -137,7 +134,7 @@ class EHSpiderParser {
     String? sortOrderText = document.querySelector('.searchnav > div > select > option[selected]')?.text;
 
     return GalleryPageInfo(
-      gallerys: galleryListElements
+      galleries: galleryListElements
 
           /// remove ad and table header
           .where((element) => element.children.length != 1 && element.querySelector('th') == null)
@@ -159,7 +156,7 @@ class EHSpiderParser {
     String? sortOrderText = document.querySelector('.searchnav > div > select > option[selected]')?.text;
 
     return GalleryPageInfo(
-      gallerys: galleryListElements.map(_parseThumbnailGallery).toList(),
+      galleries: galleryListElements.map(_parseThumbnailGallery).toList(),
       prevGid: _galleryPageDocument2PrevGid(document),
       nextGid: _galleryPageDocument2NextGid(document),
       favoriteSortOrder: sortOrderText == 'Published Time'
@@ -218,7 +215,7 @@ class EHSpiderParser {
 
     List<Element> galleryListElements = document.querySelectorAll('.itg.gltc > tbody > tr');
 
-    List<Gallery> gallerys = galleryListElements
+    List<Gallery> galleries = galleryListElements
 
         /// remove ad and table header
         .where((element) => element.children.length != 1 && element.querySelector('th') == null)
@@ -229,7 +226,7 @@ class EHSpiderParser {
     int? prevPageIndex = _ranklistPageDocument2PrevPageIndex(document);
     int? nextPageIndex = _ranklistPageDocument2NextPageIndex(document);
 
-    return [gallerys, pageCount, prevPageIndex, nextPageIndex];
+    return [galleries, pageCount, prevPageIndex, nextPageIndex];
   }
 
   static int _ranklistPageDocument2TotalPageCount(Document document) {
@@ -306,7 +303,7 @@ class EHSpiderParser {
       torrentPageUrl: document.querySelector('#gd5')?.children[2].querySelector('a')?.attributes['onclick']?.split('\'')[1] ?? '',
       archivePageUrl: document.querySelector('#gd5')?.children[1].querySelector('a')?.attributes['onclick']?.split('\'')[1] ?? '',
       parentGalleryUrl: GalleryUrl.tryParse(document.querySelector('#gdd > table > tbody > tr:nth-child(1) > .gdt2 > a')?.attributes['href'] ?? ''),
-      childrenGallerys: _detailPageDocument2ChildrenGallerys(document),
+      childrenGalleries: _detailPageDocument2ChildrenGalleries(document),
       comments: _parseGalleryDetailsComments(document.querySelectorAll('#cdiv > .c1')),
       thumbnails: _detailPageDocument2Thumbnails(document),
       thumbnailsPageCount: _detailPageDocument2ThumbnailsPageCount(document),
@@ -451,6 +448,16 @@ class EHSpiderParser {
     );
   }
 
+  static ({int filesize, int posted}) galleryMetadataJson2FileSizeAndPosted(Headers headers, dynamic data) {
+    Map? body = json.decode(data);
+    if (body == null || body['gmetadata'] is! List || body['gmetadata'].isEmpty) {
+      throw EHParseException(type: EHParseExceptionType.getMetaDataFailed, message: 'getMetaDataFailed'.tr, shouldPauseAllDownloadTasks: false);
+    }
+
+    Map map = (body['gmetadata'] as List).first;
+    return (filesize: map['filesize'] as int, posted: int.parse(map['posted']));
+  }
+
   static List<GalleryMetadata> galleryMetadataJson2GalleryMetadatas(Headers headers, dynamic data) {
     Map? body = json.decode(data);
     if (body == null || body['gmetadata'] is! List || body['gmetadata'].isEmpty) {
@@ -488,7 +495,13 @@ class EHSpiderParser {
     }).toList();
   }
 
-  static Map<String, String?>? forumPage2UserInfo(Headers headers, dynamic data) {
+  static String? forumPage2UserName(Headers headers, dynamic data) {
+    Document document = parse(data as String);
+
+    return document.querySelector('.home > b > a')?.text;
+  }
+
+  static Map<String, String?>? profilePage2UserInfo(Headers headers, dynamic data) {
     Document document = parse(data as String);
 
     /// cookie is wrong, not logged in
@@ -601,46 +614,6 @@ class EHSpiderParser {
       originalImageWidth: originalImgWidth,
       originalImageHeight: originalImgHeight,
       reloadKey: reloadKey,
-      imageHash: imageHash,
-    );
-  }
-
-  static GalleryImage imagePage2OriginalGalleryImage(Headers headers, dynamic data) {
-    Document document = parse(data as String);
-    Element? img = document.querySelector('#img');
-    if (img == null && document.querySelector('#pane_images') != null) {
-      throw EHParseException(type: EHParseExceptionType.unsupportedImagePageStyle, message: 'unsupportedImagePageStyle'.tr);
-    }
-
-    /// height: 1600px; width: 1124px;
-    String style = img!.attributes['style']!;
-    String url = img.attributes['src']!;
-    if (url == EHConsts.EH509ImageUrl || url == EHConsts.EX509ImageUrl) {
-      throw EHParseException(type: EHParseExceptionType.exceedLimit, message: 'exceedImageLimits'.tr);
-    }
-    double height = double.parse(RegExp(r'height:(\d+)px').firstMatch(style)!.group(1)!);
-    double width = double.parse(RegExp(r'width:(\d+)px').firstMatch(style)!.group(1)!);
-
-    Element hashElement = document.querySelector('#i6 div a')!;
-    String imageHash = RegExp(r'f_shash=(\w+)').firstMatch(hashElement.attributes['href']!)!.group(1)!;
-
-    Element? originalImg = document.querySelector('#i6 a[id]')?.parent?.nextElementSibling?.querySelector('a');
-    String? originalImgHref = originalImg?.attributes['href'];
-    RegExpMatch? originalImgWidthAndHeight = RegExp(r'(\d+) x (\d+)').firstMatch(originalImg?.text ?? '');
-    double? originalImgWidth = double.tryParse(originalImgWidthAndHeight?.group(1) ?? '');
-    double? originalImgHeight = double.tryParse(originalImgWidthAndHeight?.group(2) ?? '');
-
-    /// return nl('WZG-474997')
-    Element reloadKeyElement = document.querySelector('#loadfail')!;
-    String reloadKey = RegExp(r"return nl\('(.*)'\)").firstMatch(reloadKeyElement.attributes['onclick']!)!.group(1)!;
-
-    return GalleryImage(
-      url: originalImgHref ?? url,
-      height: originalImgHeight ?? height,
-      width: originalImgWidth ?? width,
-
-      /// reload is not available for original image
-      reloadKey: originalImgHref == null ? reloadKey : null,
       imageHash: imageHash,
     );
   }
@@ -767,27 +740,26 @@ class EHSpiderParser {
     List<Element> options = document.querySelectorAll('#tagset_outer > div > select > option');
     List<({int number, String name})> tagSets = options.map((o) => (number: int.parse(o.attributes['value']!), name: o.text)).toList();
 
-    bool tagSetEnable = document.querySelector('#tagset_outer > div:nth-child(5) > label > input[checked=checked]') != null;
-    Color? tagSetBackgroundColor = aRGBString2Color(document.querySelector('#tagset_outer > div:nth-child(9) > input')?.attributes['value']);
+    bool tagSetEnable = document.querySelector('#tagset_enable[checked]') != null;
+    Color? tagSetBackgroundColor = aRGBString2Color(document.querySelector('#tagcolor')?.attributes['value']);
 
     List<Element> tagDivs = document.querySelectorAll('#usertags_outer > div');
     List<WatchedTag> tags = tagDivs.where((element) => element.id != 'usertag_0').map(
       (div) {
-        String pair = div.querySelector('div:nth-child(1) > a > div')?.attributes['title'] ?? '';
-
-        /// some tag doesn't has a namespace
-        List<String> list = pair.split(':').toList();
-        String namespace = list[0].isNotEmpty ? list[0] : 'temp';
-        String key = list[1];
+        String tagId = div.id!.replaceFirst('usertag_', '');
+        String title = div.querySelector('#tagpreview_$tagId')?.attributes['title'] ?? '';
+        List<String> list = title.split(':').toList();
+        String namespace = list.length == 2 && list[0].isNotEmpty ? list[0] : 'temp';
+        String key = list.length == 2 ? list[1] : list[0];
         TagData tagData = TagData(namespace: namespace, key: key);
 
         return WatchedTag(
-          tagId: int.parse(div.querySelector('div:nth-child(1) > a > div')!.attributes['id']!.split('_')[1]),
+          tagId: int.parse(tagId),
           tagData: tagData,
-          watched: div.querySelector('div:nth-child(3) > label > input[checked=checked]') != null,
-          hidden: div.querySelector('div:nth-child(5) > label > input[checked=checked]') != null,
-          backgroundColor: aRGBString2Color(div.querySelector('div:nth-child(9) > input')?.attributes['value']),
-          weight: int.parse(div.querySelector('div:nth-child(11) > input')!.attributes['value']!),
+          watched: div.querySelector('#tagwatch_$tagId[checked]') != null,
+          hidden: div.querySelector('#taghide_$tagId[checked]') != null,
+          backgroundColor: aRGBString2Color(div.querySelector('#tagcolor_$tagId')?.attributes['value']),
+          weight: int.tryParse(div.querySelector('#tagweight_$tagId')?.attributes['value'] ?? '0') ?? 0,
         );
       },
     ).toList();
@@ -849,10 +821,14 @@ class EHSpiderParser {
     return headers['Location']!.first;
   }
 
-  static String? unlockArchivePage2DownloadArchivePageUrl(Headers headers, dynamic data) {
-    Document document = parse(data as String);
+  static ArchiveUnlockResult unlockArchivePage2DownloadArchivePageUrl(Headers headers, dynamic data) {
+    String str = data as String;
+    if (str.startsWith('You do not have enough funds to download this archive. Obtain some Credits or GP and try again.')) {
+      return ArchiveUnlockResult(success: false, msg: str);
+    }
 
-    return document.querySelector('#continue > a')?.attributes['href'];
+    Document document = parse(str);
+    return ArchiveUnlockResult(success: true, msg: 'success', url: document.querySelector('#continue > a')?.attributes['href']);
   }
 
   static String downloadArchivePage2DownloadUrl(Headers headers, dynamic data) {
@@ -998,6 +974,15 @@ class EHSpiderParser {
     String? gp = RegExp(r'([\d,k ]+)GP').firstMatch(gpCreditDesc ?? '')?.group(1);
 
     return {'credit': credit?.trim() ?? '-1', 'gp': gp?.trim() ?? '-1'};
+  }
+
+  static String? hathPage2Hath(Headers headers, dynamic data) {
+    Document document = parse(data as String);
+
+    List<Element> ps = document.querySelectorAll('.stuffbox > div > p');
+    String? hath = ps.length >= 4 ? RegExp(r'You currently have ([\d,.]+) Hath').firstMatch(ps[3].text)?.group(1) : null;
+
+    return hath?.trim();
   }
 
   static String githubReleasePage2LatestVersion(Headers headers, dynamic data) {
@@ -1398,7 +1383,7 @@ class EHSpiderParser {
     }
   }
 
-  static List<({GalleryUrl galleryUrl, String title, String updateTime})> _detailPageDocument2ChildrenGallerys(Document document) {
+  static List<({GalleryUrl galleryUrl, String title, String updateTime})> _detailPageDocument2ChildrenGalleries(Document document) {
     List<({GalleryUrl galleryUrl, String title, String updateTime})> result = [];
 
     List<Node>? nodes = document.querySelector('#gnd')?.nodes;
