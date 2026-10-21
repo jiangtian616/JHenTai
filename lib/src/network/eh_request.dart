@@ -818,7 +818,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     try {
       await _postWithErrorHandler(
         EHConsts.ELookup,
-        data: FormData.fromMap({
+        data: {
           'sfile': MultipartFile.fromFileSync(
             imagePath,
             filename: imageName,
@@ -827,7 +827,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
           'f_sfile': "File Search",
           'fs_similar': 'on',
           'fs_exp': 'on',
-        }),
+        },
       );
     } on DioException catch (e) {
       if (e.response?.statusCode != 302) {
@@ -848,10 +848,19 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }) async {
     Response response = await _postWithErrorHandler(
       url,
-      data: FormData.fromMap({
+      data: {
         'dltype': isOriginal ? 'org' : 'res',
         'dlcheck': isOriginal ? 'Download Original Archive' : 'Download Resample Archive',
-      }),
+      },
+      options: Options(
+        contentType: Headers.formUrlEncodedContentType,
+        headers: {
+          'user-agent': 'IntelliJ HTTP Client/IntelliJ IDEA 2024.3.7',
+          'Accept-Encoding': 'br, deflate, gzip, x-gzip',
+          'Accept': '*/*',
+          'Content-Length': 44,
+        },
+      ),
       cancelToken: cancelToken,
     );
 
@@ -862,7 +871,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
     Response response = await _postWithErrorHandler(
       url,
       cancelToken: cancelToken,
-      data: FormData.fromMap({'invalidate_sessions': 1}),
+      data: {'invalidate_sessions': 1},
     );
 
     return _parseResponse(response, parser);
@@ -875,7 +884,7 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   }) async {
     Response response = await _postWithErrorHandler(
       url,
-      data: FormData.fromMap({'hathdl_xres': resolution}),
+      data: {'hathdl_xres': resolution},
     );
 
     return _parseResponse(response, parser);
@@ -896,9 +905,9 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
   Future<T> requestResetImageLimit<T>({HtmlParser<T>? parser}) async {
     Response response = await _postWithErrorHandler(
       EHConsts.EHome,
-      data: FormData.fromMap({
+      data: {
         'reset_imagelimit': 'Reset Limit',
-      }),
+      },
     );
 
     return _parseResponse(response, parser);
