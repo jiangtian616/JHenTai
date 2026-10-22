@@ -1,23 +1,21 @@
-## Description
-
-A manga app for E-Hentai, supporting Android & iOS & Windows & MacOS & Linux.
-
-Still in development stage, welcome to submit issues or feature requests.
-
-## Main Features
-
-- Mobile, tablet, desktop layout(3 kinds)
-- Vertical, horizontal, double column read page layout(4 kinds)
-- GalleryPage, Popular, Favorite, Watched, History, support multiple gallery list style
-- search, search suggestion, tap tag to search, file search, jump to a certain page
-- online reading and download, support restore download task, support synchronize updates after the uploader has uploaded a new version
-- archive download and automatic unpacking and reading
-- support loading local images and read
-- support assign priority to download task manually
-- support assign group to gallery and archive
-- favorite, rating, torrent, archive, statistics, share
-- password login, Cookie login, web login
-- support EX site(domain fronting optional)
-- vote for Tag, watch and hidden tags
-- comment, vote for comment
-- Fingerprint unlock (Removed in F-Droid builds due to non-free dependencies)
+<h2>Description</h2>
+<p>A manga app for E-Hentai, supporting Android &amp; iOS &amp; Windows &amp; MacOS &amp; Linux.</p>
+<p>Still in development stage, welcome to submit issues or feature requests.</p>
+<h2>Main Features</h2>
+<ul>
+<li>Mobile, tablet, desktop layout(3 kinds)</li>
+<li>Vertical, horizontal, double column read page layout(4 kinds)</li>
+<li>GalleryPage, Popular, Favorite, Watched, History, support multiple gallery list style</li>
+<li>search, search suggestion, tap tag to search, file search, jump to a certain page</li>
+<li>online reading and download, support restore download task, support synchronize updates after the uploader has uploaded a new version</li>
+<li>archive download and automatic unpacking and reading</li>
+<li>support loading local images and read</li>
+<li>support assign priority to download task manually</li>
+<li>support assign group to gallery and archive</li>
+<li>favorite, rating, torrent, archive, statistics, share</li>
+<li>password login, Cookie login, web login</li>
+<li>support EX site(domain fronting optional)</li>
+<li>vote for Tag, watch and hidden tags</li>
+<li>comment, vote for comment</li>
+<li>Fingerprint unlock (Removed in F-Droid builds due to non-free dependencies)</li>
+</ul>
