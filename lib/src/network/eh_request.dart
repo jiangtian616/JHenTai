@@ -854,12 +854,6 @@ emyPxgcYxn/eR44/KJ4EBs+lVDR3veyJm+kXQ99b21/+jh5Xos1AnX5iItreGCc=
       },
       options: Options(
         contentType: Headers.formUrlEncodedContentType,
-        headers: {
-          'user-agent': 'IntelliJ HTTP Client/IntelliJ IDEA 2024.3.7',
-          'Accept-Encoding': 'br, deflate, gzip, x-gzip',
-          'Accept': '*/*',
-          'Content-Length': 44,
-        },
       ),
       cancelToken: cancelToken,
     );
