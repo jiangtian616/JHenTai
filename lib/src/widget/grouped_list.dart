@@ -46,6 +46,15 @@ class GroupedList<G, E> extends StatefulWidget {
 }
 
 class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
+  static const int _absoluteClosedGroupBuildLimit = 30;
+
+  int get _closedGroupBuildLimit {
+    final int configured = maxGalleryNum4Animation;
+    if (configured < _absoluteClosedGroupBuildLimit) {
+      return configured;
+    }
+    return _absoluteClosedGroupBuildLimit;
+  }
   late GroupedListLogic logic;
 
   late int maxGalleryNum4Animation;
@@ -162,9 +171,16 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
     for (G group in _groups.keys) {
       slivers.add(_buildGroupSliver(context, group));
 
-      if (group2Elements.containsKey(group)) {
-        slivers.add(_buildElementsSliver(context, group2Elements[group]!, group));
+      final List<E>? elements = group2Elements[group];
+      if (elements == null) {
+        continue;
       }
+
+      final bool isOpen = _groups[group] ?? false;
+      if (!isOpen && elements.length > _closedGroupBuildLimit) {
+        continue;
+      }
+      slivers.add(_buildElementsSliver(context, elements, group));
     }
 
     return slivers;
@@ -253,6 +269,11 @@ class _GroupedListState<G, E> extends State<GroupedList<G, E>> {
       return;
     }
     _groups[group] = !_groups[group]!;
+    final int elementCount = _group2Elements[group]?.length ?? 0;
+    if (elementCount > _closedGroupBuildLimit) {
+      setState(() {});
+      return;
+    }
     logic.updateSafely(['group::${widget.groupUniqueKey(group)}']);
   }
 
