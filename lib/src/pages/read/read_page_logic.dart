@@ -93,6 +93,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
   late Worker customBrightnessListener;
   late Worker preloadListener;
   late Worker enableBottomMenuListener;
+  late Worker enablePageTurnAnimeListener;
   late Worker orientationSpecificReadDirectionLister;
   late Worker portraitReadDirectionLister;
   late Worker landscapeReadDirectionLister;
@@ -241,6 +242,12 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
       updateSafely([topMenuId]);
     });
 
+    /// rebuild layout so that swipe page turn follows the switches immediately
+    enablePageTurnAnimeListener = everAll(
+      [readSetting.enablePageTurnAnime, readSetting.enableSwipePageTurnAnime],
+      (_) => updateSafely([layoutId]),
+    );
+
     preloadListener = everAll(
       [readSetting.preloadPageCountLocal, readSetting.preloadPageCount, readSetting.preloadDistanceLocal, readSetting.preloadDistance],
       (_) => updateSafely([layoutId]),
@@ -291,6 +298,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
     customBrightnessListener.dispose();
     preloadListener.dispose();
     enableBottomMenuListener.dispose();
+    enablePageTurnAnimeListener.dispose();
     orientationSpecificReadDirectionLister.dispose();
     portraitReadDirectionLister.dispose();
     landscapeReadDirectionLister.dispose();

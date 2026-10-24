@@ -45,6 +45,7 @@ class SettingReadPage extends StatelessWidget {
                   _buildShowStatusInfo().center(),
                   if (GetPlatform.isMobile) _buildEnablePageTurnByVolumeKeys().center(),
                   _buildEnablePageTurnAnime().center(),
+                  _buildEnableSwipePageTurnAnime().center(),
                   _buildEnableDoubleTapToScaleUp().center(),
                   _buildEnableTapDragToScaleUp().center(),
                   _buildEnableBottomMenu().center(),
@@ -221,6 +222,19 @@ class SettingReadPage extends StatelessWidget {
       title: Text('enablePageTurnAnime'.tr),
       value: readSetting.enablePageTurnAnime.value,
       onChanged: readSetting.saveEnablePageTurnAnime,
+    );
+  }
+
+  Widget _buildEnableSwipePageTurnAnime() {
+    /// only configurable while turn page animation is off, otherwise swiping always animates
+    bool enabled = readSetting.swipePageTurnAnimeConfigurable;
+
+    return SwitchListTile(
+      title: Text('enableSwipePageTurnAnime'.tr),
+      subtitle: Text('enableSwipePageTurnAnimeHint'.tr),
+      isThreeLine: true,
+      value: readSetting.swipePageTurnAnimated,
+      onChanged: enabled ? readSetting.saveEnableSwipePageTurnAnime : null,
     );
   }
 

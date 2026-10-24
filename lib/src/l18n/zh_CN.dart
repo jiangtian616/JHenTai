@@ -550,6 +550,8 @@ class zh_CN {
       'enablePageTurnByVolumeKeys': '使用音量键翻页',
       'enablePageTurnByVolumeKeysHint': 'iOS 上，若音量为 0 或 100%，进入阅读页时音量将被自动调整以支持翻页，退出后恢复',
       'enablePageTurnAnime': '开启翻页动画',
+      'enableSwipePageTurnAnime': "滑动翻页动画",
+      'enableSwipePageTurnAnimeHint': "滑动时页面跟随手指并播放翻页动画，关闭后滑动直接切换页面。需先关闭「开启翻页动画」才能修改此项",
       'enableDoubleTapToScaleUp': '允许双击放大图片',
       'enableTapDragToScaleUp': '允许单击后拖拽放大图片',
       'enableBottomMenu': '开启底部菜单',
