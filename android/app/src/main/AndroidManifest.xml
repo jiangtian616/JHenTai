@@ -22,6 +22,13 @@
                     android:name="io.flutter.embedding.android.NormalTheme"
                     android:resource="@style/NormalTheme"
             />
+            <!-- Links are handled by receive_sharing_intent. Disable Flutter's built-in deep linking (enabled by
+                 default since Flutter 3.27), otherwise onNewIntent pushes the raw url path (e.g. /g/123/abc/) as an
+                 extra route, which GetX resolves to HomePage and overwrites Get.arguments of the details page. -->
+            <meta-data
+                    android:name="flutter_deeplinking_enabled"
+                    android:value="false"
+            />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
