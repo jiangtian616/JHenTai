@@ -12,7 +12,12 @@ Future<String> getSystemProxyAddress() async {
 
   if (GetPlatform.isDesktop) {
     SystemNetworkProxy.init();
-    systemProxyAddress = await SystemNetworkProxy.getProxyServer();
+    // Only pick up the proxy server address when the system proxy is actually enabled,
+    // otherwise a stale address (e.g. Windows registry ProxyServer with ProxyEnable=0)
+    // would still be used.
+    if (await SystemNetworkProxy.getProxyEnable()) {
+      systemProxyAddress = await SystemNetworkProxy.getProxyServer();
+    }
   }
   if (GetPlatform.isMobile) {
     HttpProxy httpProxy = await HttpProxy.createHttpProxy();
