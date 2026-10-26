@@ -10,6 +10,7 @@ import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/network/jh_request.dart';
 import 'package:jhentai/src/routes/getx_router_observer.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/pages/home_page.dart';
 import 'package:jhentai/src/service/app_update_service.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
 import 'package:jhentai/src/service/built_in_blocked_user_service.dart';
@@ -103,6 +104,8 @@ List<JHLifeCircleBean> lifeCircleBeans = [
 ];
 
 void main(List<String> args) async {
+  launchArguments = args;
+
   if (GetPlatform.isDesktop && runWebViewTitleBarWidget(args)) {
     return;
   }

@@ -2,7 +2,7 @@ name: jhentai
 description: A flutter app for E-Hentai/EXHentai
 
 publish_to: 'none'
-version: 8.0.18+342
+version: 8.0.18+343
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -91,6 +91,7 @@ dependencies:
   simple_animations: 5.0.2
   animated_flip_counter: 0.2.6
   saver_gallery: 5.1.0
+  args: 2.6.0
   system_network_proxy: 
     git: 
       url: https://github.com/jiangtian616/system_network_proxy
