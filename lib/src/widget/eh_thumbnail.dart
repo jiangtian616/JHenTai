@@ -25,11 +25,19 @@ class EHThumbnail extends StatelessWidget {
   }
 
   Widget _buildLargeThumbnail() {
-    return EHImage(
-      galleryImage: GalleryImage(url: thumbnail.thumbUrl),
-      containerHeight: containerHeight,
-      containerWidth: containerWidth,
-      borderRadius: borderRadius,
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        final double width = containerWidth ?? constraints.maxWidth;
+        final double height = containerHeight ?? constraints.maxHeight;
+        return EHImage(
+          galleryImage: GalleryImage(url: thumbnail.thumbUrl),
+          containerHeight: containerHeight,
+          containerWidth: containerWidth,
+          borderRadius: borderRadius,
+          cacheWidth: displayDecodePixels(width, context),
+          cacheHeight: displayDecodePixels(height, context),
+        );
+      },
     );
   }
 
