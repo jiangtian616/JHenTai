@@ -1,0 +1,128 @@
+name: AltSource Update
+
+# Maintains altsource/AltSource.json, decoupled from the release steps of build_publish.yml.
+# Called right after the Publish job via workflow_call, so the release's IPA asset is already
+# uploaded; `workflow_dispatch` stays available to (re)publish any tag afterwards.
+#
+# Single source of truth = the release's IPA asset. Its file name is produced at build time
+# from the pubspec.yaml of the exact checkout that was built, so it always matches the shipped
+# binary's CFBundleVersion. Tag/pubspec mismatches (tag v8.0.17+339 with pubspec 8.0.17+338)
+# or tags without a +build suffix (v8.0.18) therefore cannot corrupt the feed.
+#
+# Note: a `release: published` trigger would never fire here — the release itself is created
+# with GITHUB_TOKEN (github-actions[bot]), and workflow events caused by GITHUB_TOKEN do not
+# create new workflow runs (same reason bot push fd5d3b3 triggered no build run).
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: "Release tag to publish into AltSource.json"
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to (re)publish into AltSource.json; empty = latest release"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: altsource-json
+      cancel-in-progress: false
+    env:
+      DEFAULT_BRANCH: ${{ github.event.repository.default_branch || 'master' }}
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch || 'master' }}
+
+      - name: Resolve release and its IPA asset
+        id: rel
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          TAG="${INPUT_TAG:-}"
+          if [ -n "$TAG" ]; then
+            REL_JSON=$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${TAG}")
+          else
+            REL_JSON=$(gh api "repos/${GITHUB_REPOSITORY}/releases/latest")
+          fi
+
+          ASSET=$(jq -r '.assets[]
+                         | select(.name | test("^JHenTai_.*\\.ipa$"))
+                         | [.name, .browser_download_url, (.size | tostring)]
+                         | @tsv' <<<"$REL_JSON" | head -n1)
+          if [ -z "$ASSET" ]; then
+            echo "::warning::release has no JHenTai_*.ipa asset, keeping current AltSource.json"
+            echo "skip=true" >>$GITHUB_OUTPUT
+            exit 0
+          fi
+          IFS=$'\t' read -r NAME URL SIZE <<<"$ASSET"
+
+          # The asset name is the single source of truth: JHenTai_<version>+<build>.ipa
+          VER="${NAME#JHenTai_}"; VER="${VER%.ipa}"        # e.g. 8.0.18+341
+          BASE="${VER%%+*}"; BUILD="${VER##*+}"
+          if [[ ! "$BASE" =~ ^[0-9]+(\.[0-9]+)+$ || ! "$BUILD" =~ ^[0-9]+$ ]]; then
+            echo "::error::unexpected IPA asset name '$NAME' (expected JHenTai_<version>+<build>.ipa)"
+            exit 1
+          fi
+
+          jq -r '.body // ""' <<<"$REL_JSON" > /tmp/desc.md
+
+          {
+            echo "skip=false"
+            echo "version=${BASE}"
+            echo "build=${BUILD}"
+            echo "date=$(jq -r '.published_at' <<<"$REL_JSON")"
+            echo "url=${URL}"
+            echo "size=${SIZE}"
+          } >>$GITHUB_OUTPUT
+
+      - name: Update altsource/AltSource.json
+        if: steps.rel.outputs.skip != 'true'
+        run: |
+          set -euo pipefail
+          # Replace the single version entry (AltStore treats versions[0] as the latest; keeping
+          # history would surface stale entries when an old tag is re-published via dispatch).
+          jq \
+            --arg version "${{ steps.rel.outputs.version }}" \
+            --arg build   "${{ steps.rel.outputs.build }}" \
+            --arg date    "${{ steps.rel.outputs.date }}" \
+            --arg url     "${{ steps.rel.outputs.url }}" \
+            --argjson size "${{ steps.rel.outputs.size }}" \
+            --rawfile desc /tmp/desc.md \
+            '.apps[0].versions = [{
+               version: $version,
+               buildVersion: $build,
+               date: $date,
+               localizedDescription: $desc,
+               downloadURL: $url,
+               size: $size
+             }]' \
+            altsource/AltSource.json > altsource/AltSource.json.tmp
+          mv altsource/AltSource.json.tmp altsource/AltSource.json
+
+      - name: Commit and push
+        if: steps.rel.outputs.skip != 'true'
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- altsource/AltSource.json; then
+            echo "AltSource.json already up to date, nothing to commit"
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add altsource/AltSource.json
+          git commit -m "Update AltSource.json for ${{ steps.rel.outputs.version }}+${{ steps.rel.outputs.build }}"
+          git pull --rebase origin "$DEFAULT_BRANCH"
+          git push origin "HEAD:$DEFAULT_BRANCH"
