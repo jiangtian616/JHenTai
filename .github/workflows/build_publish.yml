@@ -118,6 +118,22 @@ jobs:
         run: |
           echo "version=$(head -n 5 pubspec.yaml | tail -n 1 | cut -d ' ' -f 2)" >> $GITHUB_OUTPUT
           echo "arch=$(echo $RUNNER_ARCH | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+      # Guard: when a tag carries a +build suffix it must equal pubspec's, otherwise the published
+      # IPA and the release name disagree (see #842: tag v8.0.17+339 vs pubspec 8.0.17+338).
+      - name: Verify tag matches pubspec
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME#v}"
+          VERSION='${{ steps.get_version.outputs.version }}'
+          case "$TAG" in
+            *+*)
+              if [ "$TAG" != "$VERSION" ]; then
+                echo "::error::tag '${GITHUB_REF_NAME}' ($TAG) does not match pubspec version '$VERSION'"
+                exit 1
+              fi ;;
+          esac
       # Build Android .apk
       - name: Build Android
         if: matrix.target == 'Android'
@@ -259,37 +275,47 @@ jobs:
           IPA_SIZE=$(stat -c %s /tmp/artifacts/release-iOS/*.ipa)
           echo "ipa_size=$IPA_SIZE" >> $GITHUB_OUTPUT
 
-      # Get changelog content
-      - name: Get changelog content
-        id: get_changelog
-        run: |
-          # Read changelog and preserve newlines for JSON
-          CHANGELOG=$(cat changelog/${{ github.ref_name }}.md | jq -Rs .)
-          echo "changelog=$CHANGELOG" >> $GITHUB_OUTPUT
-
-      # Extract build version from tag
+      # Extract build version from pubspec output (same source as asset names & the shipped binary).
+      # Previously this parsed the *tag name*: with tag v8.0.17+339 but pubspec 8.0.17+338 the
+      # AltSource entry got buildVersion "339" while the IPA's CFBundleVersion is 338
+      # (AltStore VerificationError 5, see #842). With a tag like v8.0.18 (no +N) grep matched
+      # nothing — its exit code was masked by the trailing `tr`, silently emitting an empty build.
       - name: Get build version
         id: get_build_version
         run: |
-          BUILD_VERSION=$(echo "${{ github.ref_name }}" | grep -oE '\+[0-9]+' | tr -d '+')
+          set -euo pipefail
+          FULL="${{ needs.Build.outputs.version }}"
+          BUILD_VERSION="${FULL##*+}"
+          if [ "$BUILD_VERSION" = "$FULL" ]; then
+            echo "::error::pubspec version '$FULL' has no +build suffix"
+            exit 1
+          fi
           echo "build_version=$BUILD_VERSION" >> $GITHUB_OUTPUT
 
-      # Update AltSource.json
+      # Regenerate the feed entry on top of a separate checkout of the *latest* master, not the
+      # tag checkout: the tag commit may predate the bot's previous feed update (v8.0.18 vs
+      # fd5d3b3), and rewriting versions[0] there always turns the later rebase into a conflict.
+      - name: Checkout master for AltSource
+        uses: actions/checkout@v3
+        with:
+          ref: master
+          path: altsource-master
+
       - name: Update AltSource.json
+        working-directory: altsource-master
         run: |
+          set -euo pipefail
           FULL_VERSION="${{ needs.Build.outputs.version }}"
           # Remove build number part (content after +)
           VERSION="${FULL_VERSION%%+*}"
           DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          
-          # Get changelog as raw string (remove quotes added by jq -Rs)
-          CHANGELOG=${{ steps.get_changelog.outputs.changelog }}
-          
-          # Create new version entry
+
+          # Create new version entry. --rawfile reads the changelog verbatim; the old
+          # `jq -Rs` + unquoted shell assignment left a literal \n in the feed (see review).
           jq --arg version "$VERSION" \
              --arg build "${{ steps.get_build_version.outputs.build_version }}" \
              --arg date "$DATE" \
-             --arg desc "$CHANGELOG" \
+             --rawfile desc "$GITHUB_WORKSPACE/changelog/${{ github.ref_name }}.md" \
              --arg url "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/JHenTai_${FULL_VERSION}.ipa" \
              --arg size "${{ steps.get_ipa_size.outputs.ipa_size }}" \
              '.apps[0].versions[0] = {
@@ -302,13 +328,18 @@ jobs:
               }' altsource/AltSource.json > altsource/AltSource.json.tmp
           mv altsource/AltSource.json.tmp altsource/AltSource.json
 
-      # Commit and push updated AltSource.json
+      # Commit and push from the master checkout: the tree is clean before pull, so a plain
+      # rebase suffices. GITHUB_TOKEN pushes never re-trigger workflows, so [skip ci] is not
+      # needed.
       - name: Commit changes
+        working-directory: altsource-master
         run: |
+          set -euo pipefail
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git pull origin master
           git add altsource/AltSource.json
-          git commit -m "Update AltSource.json for version ${{ needs.Build.outputs.version }}"
+          git diff --cached --quiet || \
+            git commit -m "Update AltSource.json for version ${{ needs.Build.outputs.version }}"
+          git pull --rebase origin master
           git push origin HEAD:master
 
