@@ -551,6 +551,8 @@ class pt_BR {
       'enablePageTurnByVolumeKeys': 'Use volume key to turn page',
       'enablePageTurnByVolumeKeysHint': 'No iOS, se o volume estiver em 0 ou 100%, ele será ajustado automaticamente ao entrar no leitor para suportar a virada de página e restaurado ao sair',
       'enablePageTurnAnime': 'Ativar animação de virada',
+      'enableSwipePageTurnAnime': "Animação ao virar página com gesto",
+      'enableSwipePageTurnAnimeHint': "A página segue o dedo e anima ao deslizar; desative para trocar de página instantaneamente. Desative a animação de virada primeiro para alterar isto",
       'enableDoubleTapToScaleUp': 'Ativar toque duplo para aumentar a escala',
       'enableTapDragToScaleUp': 'Enable Tap Drag to Scale up',
       'disableGestureWhenScrolling': 'Disable Gesture When Scrolling',
