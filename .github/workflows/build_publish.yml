@@ -118,6 +118,22 @@ jobs:
         run: |
           echo "version=$(head -n 5 pubspec.yaml | tail -n 1 | cut -d ' ' -f 2)" >> $GITHUB_OUTPUT
           echo "arch=$(echo $RUNNER_ARCH | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+      # Guard: when a tag carries a +build suffix it must equal pubspec's, otherwise the published
+      # IPA and the release name disagree (see #842: tag v8.0.17+339 vs pubspec 8.0.17+338).
+      - name: Verify tag matches pubspec
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME#v}"
+          VERSION='${{ steps.get_version.outputs.version }}'
+          case "$TAG" in
+            *+*)
+              if [ "$TAG" != "$VERSION" ]; then
+                echo "::error::tag '${GITHUB_REF_NAME}' ($TAG) does not match pubspec version '$VERSION'"
+                exit 1
+              fi ;;
+          esac
       # Build Android .apk
       - name: Build Android
         if: matrix.target == 'Android'
@@ -251,64 +267,14 @@ jobs:
           artifacts: /tmp/artifacts/release-Android/*.apk,/tmp/artifacts/release-iOS/*.ipa,/tmp/artifacts/release-macOS/*.dmg,/tmp/artifacts/release-Windows/*.zip,/tmp/artifacts/release-Linux-x64-deb/*.deb,/tmp/artifacts/release-Linux-arm64-deb/*.deb
           artifactErrorsFailBuild: true
           replacesArtifacts: true
-
-      # Get IPA file size
-      - name: Get IPA file size
-        id: get_ipa_size
-        run: |
-          IPA_SIZE=$(stat -c %s /tmp/artifacts/release-iOS/*.ipa)
-          echo "ipa_size=$IPA_SIZE" >> $GITHUB_OUTPUT
-
-      # Get changelog content
-      - name: Get changelog content
-        id: get_changelog
-        run: |
-          # Read changelog and preserve newlines for JSON
-          CHANGELOG=$(cat changelog/${{ github.ref_name }}.md | jq -Rs .)
-          echo "changelog=$CHANGELOG" >> $GITHUB_OUTPUT
-
-      # Extract build version from tag
-      - name: Get build version
-        id: get_build_version
-        run: |
-          BUILD_VERSION=$(echo "${{ github.ref_name }}" | grep -oE '\+[0-9]+' | tr -d '+')
-          echo "build_version=$BUILD_VERSION" >> $GITHUB_OUTPUT
-
-      # Update AltSource.json
-      - name: Update AltSource.json
-        run: |
-          FULL_VERSION="${{ needs.Build.outputs.version }}"
-          # Remove build number part (content after +)
-          VERSION="${FULL_VERSION%%+*}"
-          DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          
-          # Get changelog as raw string (remove quotes added by jq -Rs)
-          CHANGELOG=${{ steps.get_changelog.outputs.changelog }}
-          
-          # Create new version entry
-          jq --arg version "$VERSION" \
-             --arg build "${{ steps.get_build_version.outputs.build_version }}" \
-             --arg date "$DATE" \
-             --arg desc "$CHANGELOG" \
-             --arg url "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/JHenTai_${FULL_VERSION}.ipa" \
-             --arg size "${{ steps.get_ipa_size.outputs.ipa_size }}" \
-             '.apps[0].versions[0] = {
-                "version": $version,
-                "buildVersion": $build,
-                "date": $date,
-                "localizedDescription": $desc,
-                "downloadURL": $url,
-                "size": ($size | tonumber)
-              }' altsource/AltSource.json > altsource/AltSource.json.tmp
-          mv altsource/AltSource.json.tmp altsource/AltSource.json
-
-      # Commit and push updated AltSource.json
-      - name: Commit changes
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git pull origin master
-          git add altsource/AltSource.json
-          git commit -m "Update AltSource.json for version ${{ needs.Build.outputs.version }}"
-          git push origin HEAD:master
-
+      # NOTE: AltSource feed maintenance has been decoupled to .github/workflows/altsource.yml,
+      # invoked by the AltSource job below right after Publish (assets are then uploaded).
+  AltSource:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: Publish
+    name: AltSource
+    permissions:
+      contents: write
+    uses: ./.github/workflows/altsource.yml
+    with:
+      tag: ${{ github.ref_name }}
