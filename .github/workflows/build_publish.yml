@@ -267,11 +267,21 @@ jobs:
           CHANGELOG=$(cat changelog/${{ github.ref_name }}.md | jq -Rs .)
           echo "changelog=$CHANGELOG" >> $GITHUB_OUTPUT
 
-      # Extract build version from tag
+      # Extract build version from pubspec output (same source as asset names & the shipped binary).
+      # Previously this parsed the *tag name*: with tag v8.0.17+339 but pubspec 8.0.17+338 the
+      # AltSource entry got buildVersion "339" while the IPA's CFBundleVersion is 338
+      # (AltStore VerificationError 5, see #842). With a tag like v8.0.18 (no +N) grep matched
+      # nothing — its exit code was masked by the trailing `tr`, silently emitting an empty build.
       - name: Get build version
         id: get_build_version
         run: |
-          BUILD_VERSION=$(echo "${{ github.ref_name }}" | grep -oE '\+[0-9]+' | tr -d '+')
+          set -euo pipefail
+          FULL="${{ needs.Build.outputs.version }}"
+          BUILD_VERSION="${FULL##*+}"
+          if [ "$BUILD_VERSION" = "$FULL" ]; then
+            echo "::error::pubspec version '$FULL' has no +build suffix"
+            exit 1
+          fi
           echo "build_version=$BUILD_VERSION" >> $GITHUB_OUTPUT
 
       # Update AltSource.json
@@ -302,13 +312,19 @@ jobs:
               }' altsource/AltSource.json > altsource/AltSource.json.tmp
           mv altsource/AltSource.json.tmp altsource/AltSource.json
 
-      # Commit and push updated AltSource.json
+      # Commit and push updated AltSource.json.
+      # Previously `git pull` ran *before* commit while the working tree already had uncommitted
+      # changes to altsource/AltSource.json; if master had touched that file in the meantime the
+      # merge aborted with "Your local changes ... would be overwritten by merge" and the release
+      # entry was lost (run 39978021208, tag v8.0.18). Commit first, then rebase, then push.
       - name: Commit changes
         run: |
+          set -euo pipefail
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git pull origin master
           git add altsource/AltSource.json
-          git commit -m "Update AltSource.json for version ${{ needs.Build.outputs.version }}"
+          git diff --cached --quiet || \
+            git commit -m "Update AltSource.json for version ${{ needs.Build.outputs.version }} [skip ci]"
+          git pull --rebase --autostash origin master
           git push origin HEAD:master
 
