@@ -183,7 +183,7 @@ class SettingStylePage extends StatelessWidget {
       title: Text('layoutMode'.tr),
       subtitle: Text(JHLayout.allLayouts.firstWhere((e) => e.mode == styleSetting.layout.value).desc),
       trailing: DropdownButton<LayoutMode>(
-        value: styleSetting.actualLayout,
+        value: styleSetting.layout.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
         onChanged: (LayoutMode? newValue) => styleSetting.saveLayoutMode(newValue!),

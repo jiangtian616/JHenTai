@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_resizable_container/flutter_resizable_container.dart';
+import 'dart:collection';
+
+import '../../../utils/adaptive_pane_navigation.dart';
+import '../../../widget/adaptive_split_view.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2.dart';
 import 'package:jhentai/src/widget/will_pop_interceptor.dart';
@@ -12,65 +15,61 @@ import '../../blank_page.dart';
 import '../../home_page.dart';
 
 class TabletLayoutPageV2 extends StatefulWidget {
-  const TabletLayoutPageV2({super.key});
+  final bool compact;
+  const TabletLayoutPageV2({super.key, this.compact = false});
 
   @override
   State<TabletLayoutPageV2> createState() => _TabletLayoutPageV2State();
 }
 
 class _TabletLayoutPageV2State extends State<TabletLayoutPageV2> {
-  final ResizableController resizableController = ResizableController();
+  late final NavigatorObserver _leftObserver;
+  late final NavigatorObserver _rightObserver;
 
   @override
   void initState() {
     super.initState();
-
-    resizableController.addListener(() {
-      windowService.handleDoubleColumnResized(resizableController.ratios);
-    });
+    adaptivePaneNavigation.attach();
+    _leftObserver = adaptivePaneNavigation.observer(AdaptivePane.left);
+    _rightObserver = adaptivePaneNavigation.observer(AdaptivePane.right);
   }
 
   @override
   void dispose() {
+    adaptivePaneNavigation.detach();
     super.dispose();
-
-    resizableController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    adaptivePaneNavigation.compact = widget.compact;
     return WillPopInterceptor(
       child: Scaffold(
         backgroundColor: UIConfig.backGroundColor(context),
-        body: ResizableContainer(
-          direction: Axis.horizontal,
-          controller: resizableController,
-          children: [
-            ResizableChild(
-              // The left pane does not touch the window's right edge.
+        body: AnimatedBuilder(
+          animation: adaptivePaneNavigation,
+          builder: (context, _) => AdaptiveSplitView(
+            compact: widget.compact,
+            showRight: adaptivePaneNavigation.activePane == AdaptivePane.right,
+            initialRatio: windowService.leftColumnWidthRatio,
+            onRatioChanged: (ratio) => windowService.handleDoubleColumnResized(UnmodifiableListView([ratio, 1 - ratio])),
+            dividerColor: UIConfig.layoutDividerColor(context),
+            left: Listener(
+              onPointerDown: (_) => adaptivePaneNavigation.focus(AdaptivePane.left),
               child: MediaQuery.removePadding(
                 context: context,
-                removeRight: true,
+                removeRight: !widget.compact,
                 child: _leftColumn(),
               ),
-              size: ResizableSize.ratio(windowService.leftColumnWidthRatio),
-              minSize: 100,
             ),
-            ResizableChild(
-              // The right pane does not touch the window's left edge.
+            right: Listener(
+              onPointerDown: (_) => adaptivePaneNavigation.focus(AdaptivePane.right),
               child: MediaQuery.removePadding(
                 context: context,
-                removeLeft: true,
+                removeLeft: !widget.compact,
                 child: _rightColumn(),
               ),
-              size: ResizableSize.ratio(1 - windowService.leftColumnWidthRatio),
-              minSize: 100,
             ),
-          ],
-          divider: ResizableDivider(
-            thickness: 1.5,
-            size: 7.5,
-            color: UIConfig.layoutDividerColor(context),
           ),
         ),
       ),
@@ -82,7 +81,7 @@ class _TabletLayoutPageV2State extends State<TabletLayoutPageV2> {
       key: Get.nestedKey(leftV2),
 
       /// make sure controller is destroyed automatically and route args is passed properly
-      observers: [GetObserver(null, leftRouting)],
+      observers: [GetObserver(null, leftRouting), _leftObserver],
       onGenerateInitialRoutes: (_, __) => [
         GetPageRoute(
           settings: const RouteSettings(name: Routes.mobileLayoutV2),
@@ -112,7 +111,7 @@ class _TabletLayoutPageV2State extends State<TabletLayoutPageV2> {
   Widget _rightColumn() {
     return Navigator(
       key: Get.nestedKey(rightV2),
-      observers: [GetObserver(null, rightRouting)],
+      observers: [GetObserver(null, rightRouting), _rightObserver],
       onGenerateInitialRoutes: (_, __) => [
         GetPageRoute(
           settings: const RouteSettings(name: Routes.blank),
@@ -131,8 +130,8 @@ class _TabletLayoutPageV2State extends State<TabletLayoutPageV2> {
           /// setting name may include path params
           page: Routes.pages.firstWhere((page) => settings.name!.split('?')[0] == page.name).page,
 
-          /// do not use swipe back in tablet layout!
-          popGesture: false,
+          // New compact routes can use the user's normal phone back gesture.
+          popGesture: widget.compact && preferenceSetting.enableSwipeBackGesture.isTrue,
           transition: Transition.fadeIn,
           transitionDuration: UIConfig.defaultPageRouteTransitionDuration,
           showCupertinoParallax: false,
