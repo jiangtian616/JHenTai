@@ -47,12 +47,22 @@ class _TabletLayoutPageV2State extends State<TabletLayoutPageV2> {
           controller: resizableController,
           children: [
             ResizableChild(
-              child: _leftColumn(),
+              // The left pane does not touch the window's right edge.
+              child: MediaQuery.removePadding(
+                context: context,
+                removeRight: true,
+                child: _leftColumn(),
+              ),
               size: ResizableSize.ratio(windowService.leftColumnWidthRatio),
               minSize: 100,
             ),
             ResizableChild(
-              child: _rightColumn(),
+              // The right pane does not touch the window's left edge.
+              child: MediaQuery.removePadding(
+                context: context,
+                removeLeft: true,
+                child: _rightColumn(),
+              ),
               size: ResizableSize.ratio(1 - windowService.leftColumnWidthRatio),
               minSize: 100,
             ),
