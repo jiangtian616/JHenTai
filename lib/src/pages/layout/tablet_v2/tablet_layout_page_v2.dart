@@ -46,13 +46,15 @@ class _TabletLayoutPageV2State extends State<TabletLayoutPageV2> {
           direction: Axis.horizontal,
           controller: resizableController,
           children: [
+            /// each column only keeps the safe area of the screen edge it touches,
+            /// e.g. iPhone Duo's inner screen has a large right inset in landscape
             ResizableChild(
-              child: _leftColumn(),
+              child: MediaQuery.removePadding(context: context, removeRight: true, child: _leftColumn()),
               size: ResizableSize.ratio(windowService.leftColumnWidthRatio),
               minSize: 100,
             ),
             ResizableChild(
-              child: _rightColumn(),
+              child: MediaQuery.removePadding(context: context, removeLeft: true, child: _rightColumn()),
               size: ResizableSize.ratio(1 - windowService.leftColumnWidthRatio),
               minSize: 100,
             ),
