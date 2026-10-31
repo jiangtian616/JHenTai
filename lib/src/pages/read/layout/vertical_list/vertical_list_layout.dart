@@ -1,3 +1,4 @@
+import 'package:jhentai/src/widget/reader_window_chrome.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
@@ -75,7 +76,7 @@ class VerticalListLayout extends BaseLayout {
     );
 
     if (GetPlatform.isMobile && index == 0) {
-      return Obx(() => child.marginOnly(top: readSetting.notchOptimization.isTrue ? MediaQuery.of(context).padding.top : 0));
+      return Obx(() => child.marginOnly(top: readSetting.notchOptimization.isTrue && !ReaderWindowScope.isEdgeToEdge(context) ? MediaQuery.of(context).padding.top : 0));
     }
 
     return child;

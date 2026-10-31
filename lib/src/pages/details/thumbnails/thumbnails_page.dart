@@ -1,3 +1,4 @@
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -41,7 +42,7 @@ class ThumbnailsPage extends StatelessWidget with Scroll2TopPageMixin {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ThumbnailsPageLogic>(
-      builder: (_) => Scaffold(
+      builder: (_) => NativeWindowScaffold(
         backgroundColor: UIConfig.backGroundColor(context),
         appBar: buildAppBar(),
         body: buildBody(),

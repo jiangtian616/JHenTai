@@ -1,3 +1,4 @@
+import '../widget/reader_window_chrome.dart';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
@@ -7,6 +8,7 @@ import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../utils/screen_size_util.dart';
+import '../widget/viewport_scrollbar.dart';
 
 class UIConfig {
   /// common
@@ -672,7 +674,10 @@ class EHScrollBehaviourWithScrollBar extends MaterialScrollBehavior {
             radius: styleSetting.isInMobileLayout ? CupertinoScrollbar.defaultRadius : const Radius.circular(8),
             thickness: WidgetStateProperty.all(styleSetting.isInMobileLayout ? CupertinoScrollbar.defaultThickness : 8),
           ),
-          child: Scrollbar(controller: details.controller, child: child),
+          child: styleSetting.isInTabletLayout || ReaderWindowScope.isEdgeToEdge(context)
+              ? ViewportScrollbar(controller: details.controller,
+                  scrollbarOrientation: ReaderWindowScope.isEdgeToEdge(context) ? ScrollbarOrientation.right : null, child: child)
+              : Scrollbar(controller: details.controller, child: child),
         );
     }
   }

@@ -1,3 +1,4 @@
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -13,7 +14,7 @@ class SettingMouseWheelPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return NativeWindowScaffold(
       appBar: AppBar(centerTitle: true, title: Text('mouseWheelSetting'.tr)),
       body: Obx(() {
         TextEditingController wheelScrollSpeedController = TextEditingController(text: mouseSetting.wheelScrollSpeed.value.toString());

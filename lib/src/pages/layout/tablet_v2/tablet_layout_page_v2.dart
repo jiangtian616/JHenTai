@@ -1,3 +1,4 @@
+import 'package:jhentai/src/utils/native_window_geometry.dart';
 import 'package:flutter/material.dart';
 import 'dart:collection';
 
@@ -59,7 +60,7 @@ class _TabletLayoutPageV2State extends State<TabletLayoutPageV2> {
               child: MediaQuery.removePadding(
                 context: context,
                 removeRight: !widget.compact,
-                child: _leftColumn(),
+                child: NativeWindowPane(trailing: widget.compact, child: _leftColumn()),
               ),
             ),
             right: Listener(
@@ -67,7 +68,7 @@ class _TabletLayoutPageV2State extends State<TabletLayoutPageV2> {
               child: MediaQuery.removePadding(
                 context: context,
                 removeLeft: !widget.compact,
-                child: _rightColumn(),
+                child: NativeWindowPane(trailing: true, child: _rightColumn()),
               ),
             ),
           ),

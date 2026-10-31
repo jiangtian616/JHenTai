@@ -1,3 +1,4 @@
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,6 +12,7 @@ import '../../mixin/scroll_to_top_logic_mixin.dart';
 import '../../mixin/scroll_to_top_page_mixin.dart';
 import '../../mixin/scroll_to_top_state_mixin.dart';
 import '../../widget/eh_gallery_collection.dart';
+import '../../widget/scroll_body_safe_area.dart';
 import '../../widget/loading_state_indicator.dart';
 import 'base_page_logic.dart';
 import 'base_page_state.dart';
@@ -49,10 +51,10 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
     return GetBuilder<L>(
       global: false,
       init: logic,
-      builder: (_) => Scaffold(
+      builder: (_) => NativeWindowScaffold(
         backgroundColor: UIConfig.backGroundColor(context),
         appBar: showFilterButton || showJumpButton || showMenuButton || showTitle ? buildAppBar(context) : null,
-        body: SafeArea(child: buildBody(context)),
+        body: ScrollBodySafeArea(extendToBottom: styleSetting.isInTabletLayout, child: buildBody(context)),
         floatingActionButton: showScroll2TopButton ? buildFloatingActionButton() : null,
       ),
     );
@@ -76,8 +78,7 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
 
   List<Widget> buildAppBarActions() {
     return [
-      if (showJumpButton && state.galleries.isNotEmpty)
-        IconButton(icon: Icon(Icons.send, size: 20), onPressed: logic.handleTapJumpButton),
+      if (showJumpButton && state.galleries.isNotEmpty) IconButton(icon: Icon(Icons.send, size: 20), onPressed: logic.handleTapJumpButton),
       if (showFilterButton) IconButton(icon: const Icon(Icons.filter_alt_outlined, size: 28), onPressed: logic.handleTapFilterButton),
     ];
   }
@@ -142,19 +143,24 @@ abstract class BasePage<L extends BasePageLogic, S extends BasePageState> extend
   }
 
   Widget buildLoadMoreIndicator() {
-    return SliverPadding(
-      padding: const EdgeInsets.only(top: 16, bottom: 40),
-      sliver: SliverToBoxAdapter(
-        child: GetBuilder<L>(
-          id: logic.loadingStateId,
-          global: false,
-          init: logic,
-          builder: (_) => LoadingStateIndicator(
-            loadingState: state.loadingState,
-            errorTapCallback: () {
-              log.info('LoadMoreIndicator errorTapCallback => loadMore');
-              logic.loadMore();
-            },
+    return SliverSafeArea(
+      top: false,
+      left: false,
+      right: false,
+      sliver: SliverPadding(
+        padding: const EdgeInsets.only(top: 16, bottom: 40),
+        sliver: SliverToBoxAdapter(
+          child: GetBuilder<L>(
+            id: logic.loadingStateId,
+            global: false,
+            init: logic,
+            builder: (_) => LoadingStateIndicator(
+              loadingState: state.loadingState,
+              errorTapCallback: () {
+                log.info('LoadMoreIndicator errorTapCallback => loadMore');
+                logic.loadMore();
+              },
+            ),
           ),
         ),
       ),

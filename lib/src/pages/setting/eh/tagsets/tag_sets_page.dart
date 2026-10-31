@@ -1,3 +1,4 @@
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'package:flutter/rendering.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +20,7 @@ class TagSetsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return NativeWindowScaffold(
       appBar: _buildAppBar(context),
       body: _buildBody(context),
     );

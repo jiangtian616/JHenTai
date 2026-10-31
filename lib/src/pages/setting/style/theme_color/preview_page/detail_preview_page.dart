@@ -1,3 +1,4 @@
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'package:flutter/rendering.dart';
 import 'dart:collection';
 import 'dart:math';
@@ -30,9 +31,10 @@ class DetailPreviewPage extends DetailsPage {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return NativeWindowScaffold(
       backgroundColor: UIConfig.backGroundColor(context),
       body: buildBody(context),
+      avoidBodyRight: false,
       floatingActionButton: buildFloatingActionButton(),
     );
   }
@@ -46,7 +48,7 @@ class DetailPreviewPage extends DetailsPage {
         child: CustomScrollView(
           scrollCacheExtent: ScrollCacheExtent.pixels(5000),
           controller: state.scrollController,
-          scrollBehavior: UIConfig.scrollBehaviourWithScrollBarWithMouse  ,
+          scrollBehavior: UIConfig.scrollBehaviourWithScrollBarWithMouse,
           slivers: [
             buildDetail(context),
             buildDivider(),
@@ -271,7 +273,8 @@ class DetailsPreviewPageState extends DetailsPageState {
       galleryUrl: const GalleryUrl(isEH: true, gid: 2454686, token: '4227b22404'),
       rawTitle: 'Title - This is the detail preview page',
       category: 'Doujinshi',
-      cover: GalleryImage(url: 'https://ehgt.org/e5/21/e5217336083e509d7f5757c0b19dc45f1b0ae6ab-4871964-2490-3523-png_250.jpg', height: 354, width: 250),
+      cover: GalleryImage(
+          url: 'https://ehgt.org/e5/21/e5217336083e509d7f5757c0b19dc45f1b0ae6ab-4871964-2490-3523-png_250.jpg', height: 354, width: 250),
       pageCount: 66,
       rating: 4.5,
       realRating: 4,

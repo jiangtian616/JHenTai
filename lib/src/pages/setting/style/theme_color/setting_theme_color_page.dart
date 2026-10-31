@@ -1,3 +1,4 @@
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -27,7 +28,7 @@ class _SettingThemeColorPageState extends State<SettingThemeColorPage> {
 
     return Theme(
       data: previewThemeData,
-      child: Scaffold(
+      child: NativeWindowScaffold(
         appBar: AppBar(centerTitle: true, title: Text('preview'.tr)),
         body: DetailPreviewPage(),
         bottomNavigationBar: _buildBottomAppBar(),

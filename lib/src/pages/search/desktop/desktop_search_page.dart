@@ -1,3 +1,4 @@
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -34,7 +35,7 @@ class DesktopSearchPage extends StatelessWidget with Scroll2TopPageMixin {
       global: false,
       init: logic,
       id: logic.pageId,
-      builder: (_) => Scaffold(
+      builder: (_) => NativeWindowScaffold(
         backgroundColor: UIConfig.backGroundColor(context),
         body: SafeArea(
           child: Column(
