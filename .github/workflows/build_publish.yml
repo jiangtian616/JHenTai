@@ -42,8 +42,9 @@ jobs:
             artifact_name: release-Linux-arm64-deb
             artifact_path: |
               build/linux/*.deb
+          # Build with iOS 27 SDK, otherwise app will be letterboxed on iPhone Duo
           - target: iOS
-            os: macos-latest
+            os: xcode-27
             cache_pod_key: ios-pods
             cache_pod_path: ios/Pods
             cache_pod_restore_keys_hash_file: ios/Podfile.lock
@@ -66,6 +67,16 @@ jobs:
       # Checkout branch
       - name: Checkout
         uses: actions/checkout@v3
+      # Select latest stable Xcode (iOS)
+      - name: Setup Xcode
+        if: matrix.target == 'iOS'
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      # Output Xcode Version
+      - name: Output Xcode Version
+        if: matrix.target == 'iOS' || matrix.target == 'macOS'
+        run: xcodebuild -version
       # Add Android keystore
       - name: Setup Android keystore
         if: matrix.target == 'Android'
@@ -109,7 +120,7 @@ jobs:
           flutter pub get
       # Xcodebuild
       - name: Build Xcode
-        if: matrix.os == 'macos-latest'
+        if: matrix.target == 'iOS' || matrix.target == 'macOS'
         run: xcodebuild -resolvePackageDependencies -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release
       # Get app version
       - name: Get app version
