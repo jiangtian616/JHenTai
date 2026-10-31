@@ -1,3 +1,5 @@
+import 'package:jhentai/src/widget/native_window_title_inset.dart';
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'package:flutter/rendering.dart';
 import 'dart:math';
 
@@ -68,9 +70,10 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
     return GetBuilder<DetailsPageLogic>(
       global: false,
       init: logic,
-      builder: (_) => Scaffold(
+      builder: (_) => NativeWindowScaffold(
         appBar: buildAppBar(context),
         body: buildBody(context),
+        avoidBodyRight: false,
         floatingActionButton: buildFloatingActionButton(),
       ),
     );
@@ -82,7 +85,12 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         id: DetailsPageLogic.galleryId,
         global: false,
         init: logic,
-        builder: (_) => Text(logic.mainTitleText.breakWord, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+        builder: (_) => Text(
+          logic.mainTitleText.breakWord,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+        ),
       ),
       actions: [
         _buildMenuButton(context),
@@ -306,7 +314,8 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
       global: false,
       init: logic,
       builder: (_) {
-        return SelectableText(
+        return NativeWindowTitleInset(
+            child: SelectableText(
           logic.mainTitleText,
           minLines: 1,
           maxLines: 5,
@@ -325,7 +334,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
 
             return toolbar;
           },
-        ).enableMouseDrag(withScrollBar: false);
+        ).enableMouseDrag(withScrollBar: false));
       },
     );
   }
@@ -362,7 +371,8 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
 
             return AnimatedSwitcher(
               duration: const Duration(milliseconds: UIConfig.detailsPageAnimationDuration),
-              child: SelectableText(
+              child: NativeWindowTitleInset(
+                  child: SelectableText(
                 subTitle,
                 minLines: 1,
                 maxLines: 2,
@@ -377,7 +387,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
 
                   return toolbar;
                 },
-              ),
+              )),
             );
           },
         ),
@@ -639,8 +649,10 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
       global: false,
       init: logic,
       builder: (_) {
-        String pageCount =
-            state.galleryDetails?.pageCount.toString() ?? state.gallery?.pageCount?.toString() ?? state.galleryMetadata?.pageCount.toString() ?? '...';
+        String pageCount = state.galleryDetails?.pageCount.toString() ??
+            state.gallery?.pageCount?.toString() ??
+            state.galleryMetadata?.pageCount.toString() ??
+            '...';
 
         return Row(
           mainAxisSize: MainAxisSize.min,
@@ -812,13 +824,15 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                   enabled: false,
                   category: '               ',
                   padding: EdgeInsets.only(top: 2, bottom: 4, left: 4, right: 4),
-                  textStyle: TextStyle(fontSize: UIConfig.detailsPageRatingTextSize, color: UIConfig.galleryCategoryTagTextColor, height: 1),
+                  textStyle:
+                      TextStyle(fontSize: UIConfig.detailsPageRatingTextSize, color: UIConfig.galleryCategoryTagTextColor, height: 1),
                   borderRadius: 3,
                 )
               : EHGalleryCategoryTag(
                   category: category,
                   padding: const EdgeInsets.only(top: 2, bottom: 4, left: 4, right: 4),
-                  textStyle: const TextStyle(fontSize: UIConfig.detailsPageRatingTextSize, color: UIConfig.galleryCategoryTagTextColor, height: 1),
+                  textStyle:
+                      const TextStyle(fontSize: UIConfig.detailsPageRatingTextSize, color: UIConfig.galleryCategoryTagTextColor, height: 1),
                   borderRadius: 3,
                 ),
         );
@@ -898,7 +912,8 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
       global: false,
       init: logic,
       builder: (_) {
-        bool disabled = state.galleryDetails?.pageCount == null && state.gallery?.pageCount == null && state.galleryMetadata?.pageCount == null;
+        bool disabled =
+            state.galleryDetails?.pageCount == null && state.gallery?.pageCount == null && state.galleryMetadata?.pageCount == null;
 
         return GetBuilder<DetailsPageLogic>(
           id: DetailsPageLogic.readButtonId,
@@ -961,7 +976,8 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                             : 'update'.tr;
 
             Icon icon = downloadProgress == null
-                ? Icon(Icons.download, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context))
+                ? Icon(Icons.download,
+                    color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context))
                 : downloadProgress.downloadStatus == DownloadStatus.paused
                     ? Icon(Icons.play_circle_outline, color: UIConfig.resumePauseButtonColor(context))
                     : downloadProgress.downloadStatus == DownloadStatus.downloading
@@ -1024,8 +1040,10 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
               ),
             ),
             onPressed: disabled ? null : () => logic.handleTapFavorite(useDefault: preferenceSetting.enableDefaultFavorite.isTrue),
-            onLongPress: disabled || preferenceSetting.enableDefaultFavorite.isFalse ? null : () => logic.handleTapFavorite(useDefault: false),
-            onSecondaryTap: disabled || preferenceSetting.enableDefaultFavorite.isFalse ? null : () => logic.handleTapFavorite(useDefault: false),
+            onLongPress:
+                disabled || preferenceSetting.enableDefaultFavorite.isFalse ? null : () => logic.handleTapFavorite(useDefault: false),
+            onSecondaryTap:
+                disabled || preferenceSetting.enableDefaultFavorite.isFalse ? null : () => logic.handleTapFavorite(useDefault: false),
           ),
           errorWidgetSameWithIdle: true,
         );
@@ -1087,7 +1105,8 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
             String text = archiveStatus == null ? 'archive'.tr : archiveStatus.name.tr;
 
             Icon icon = archiveStatus == null
-                ? Icon(Icons.archive, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context))
+                ? Icon(Icons.archive,
+                    color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context))
                 : archiveStatus == ArchiveStatus.needReUnlock
                     ? Icon(Icons.lock_open, color: UIConfig.alertColor(context))
                     : archiveStatus == ArchiveStatus.paused
@@ -1127,8 +1146,8 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
 
         return IconTextButton(
           width: UIConfig.detailsPageActionExtent,
-          icon:
-              Icon(Icons.cloud_download, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
+          icon: Icon(Icons.cloud_download,
+              color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
           text: Text(
             'H@H',
             style: TextStyle(
@@ -1153,7 +1172,8 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
 
         return IconTextButton(
           width: UIConfig.detailsPageActionExtent,
-          icon: Icon(Icons.saved_search, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
+          icon: Icon(Icons.saved_search,
+              color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
           text: Text(
             'similar'.tr,
             style: TextStyle(
@@ -1180,7 +1200,8 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
 
         return IconTextButton(
           width: UIConfig.detailsPageActionExtent,
-          icon: Icon(Icons.file_present, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
+          icon: Icon(Icons.file_present,
+              color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
           text: Text(
             text,
             style: TextStyle(
@@ -1205,7 +1226,8 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
 
         return IconTextButton(
           width: UIConfig.detailsPageActionExtent,
-          icon: Icon(Icons.analytics, color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
+          icon: Icon(Icons.analytics,
+              color: disabled ? UIConfig.detailsPageActionDisabledIconColor(context) : UIConfig.detailsPageActionIconColor(context)),
           text: Text(
             'statistic'.tr,
             style: TextStyle(
@@ -1359,7 +1381,8 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                         comment: state.galleryDetails!.comments[index],
                         inDetailPage: true,
                         disableButtons: disableButtons,
-                        onVoted: (bool isVotingUp, String score) => logic.onCommentVoted(state.galleryDetails!.comments[index], isVotingUp, score),
+                        onVoted: (bool isVotingUp, String score) =>
+                            logic.onCommentVoted(state.galleryDetails!.comments[index], isVotingUp, score),
                         onBlockUser: () => logic.blockUser(state.galleryDetails!.comments[index]),
                       ),
                     ).enableMouseDrag(withScrollBar: false),

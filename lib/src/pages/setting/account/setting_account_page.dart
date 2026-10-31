@@ -1,4 +1,5 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
@@ -13,7 +14,7 @@ class SettingAccountPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return NativeWindowScaffold(
       appBar: AppBar(centerTitle: true, title: Text('accountSetting'.tr)),
       body: Obx(
         () => ListView(

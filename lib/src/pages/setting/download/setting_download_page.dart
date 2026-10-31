@@ -1,3 +1,4 @@
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'dart:io' as io;
 
 import 'package:file_picker/file_picker.dart';
@@ -44,7 +45,7 @@ class _SettingDownloadPageState extends State<SettingDownloadPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return NativeWindowScaffold(
       appBar: AppBar(centerTitle: true, title: Text('downloadSetting'.tr)),
       body: Obx(
         () => EHWheelSpeedController(

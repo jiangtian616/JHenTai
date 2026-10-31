@@ -1,3 +1,4 @@
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:get/get.dart';
@@ -36,7 +37,7 @@ class _SettingFrameRatePageState extends State<SettingFrameRatePage> {
   Widget build(BuildContext context) {
     List<DisplayMode> rateModes = frameRateService.distinctRateModes;
 
-    return Scaffold(
+    return NativeWindowScaffold(
       appBar: AppBar(centerTitle: true, title: Text('refreshRate'.tr)),
       body: SafeArea(
         child: ListView(

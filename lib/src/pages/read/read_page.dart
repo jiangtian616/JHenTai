@@ -1,4 +1,5 @@
 ﻿import 'dart:math';
+import 'package:jhentai/src/widget/reader_window_chrome.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -59,7 +60,11 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
   double get fullScreenTopPadding => 0;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Obx(
+        () => ReaderWindowSession(immersiveMode: readSetting.enableImmersiveMode.value, child: Builder(builder: _buildReader)),
+      );
+
+  Widget _buildReader(BuildContext context) {
     Widget child = AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         systemNavigationBarColor: Colors.transparent,
@@ -297,16 +302,14 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
         // top instead of animating its height. Growing the height only animates
         // the middle/trailing slots; the leading is laid out at full toolbar
         // height and pops in place.
-        final double menuHeight = UIConfig.appBarHeight + context.mediaQuery.padding.top;
-        return AnimatedPositioned(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.ease,
-          top: state.isMenuOpen ? 0 : -menuHeight,
-          height: menuHeight,
-          width: fullScreenWidth,
-          child: AppBar(
-            backgroundColor: UIConfig.readPageMenuColor,
-            title: Text(state.readPageInfo.galleryTitle, style: const TextStyle(color: UIConfig.readPageButtonColor)),
+        return ReaderTopMenu(
+          visible: state.isMenuOpen,
+          toolbarHeight: UIConfig.appBarHeight,
+          backgroundColor: UIConfig.readPageMenuColor,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            surfaceTintColor: Colors.transparent,
+            title: Text(state.readPageInfo.galleryTitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: UIConfig.readPageButtonColor)),
             leading: const BackButton(color: UIConfig.readPageButtonColor),
             actions: [
               if (GetPlatform.isDesktop &&

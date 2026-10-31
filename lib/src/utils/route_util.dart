@@ -7,7 +7,17 @@ import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 
 import '../model/jh_layout.dart';
+import 'adaptive_pane_navigation.dart';
 import '../pages/layout/desktop/desktop_layout_page_logic.dart';
+
+bool get _mobileRootNavigation => styleSetting.isInMobileLayout && !adaptivePaneNavigation.mounted;
+
+int? get _compactActiveNavigator {
+  if (Get.key.currentState?.canPop() == true) {
+    return null;
+  }
+  return adaptivePaneNavigation.activePane == AdaptivePane.right ? rightV2 : leftV2;
+}
 
 /// adaptive to different layout
 Future<T?>? toRoute<T>(
@@ -21,7 +31,7 @@ Future<T?>? toRoute<T>(
   EHPage page = Routes.pages.firstWhere((page) => page.name == routeName);
 
   /// only one [Route]
-  if (styleSetting.isInMobileLayout || page.side == Side.fullScreen || id == fullScreen) {
+  if (_mobileRootNavigation || page.side == Side.fullScreen || id == fullScreen) {
     return Get.toNamed(
       routeName,
       arguments: arguments,
@@ -30,8 +40,12 @@ Future<T?>? toRoute<T>(
     );
   }
 
+  if (adaptivePaneNavigation.mounted) {
+    adaptivePaneNavigation.focus(page.side == Side.left ? AdaptivePane.left : AdaptivePane.right);
+  }
+
   if (page.side == Side.left) {
-    if (styleSetting.layout.value == LayoutMode.desktop) {
+    if (styleSetting.actualLayout == LayoutMode.desktop) {
       DesktopLayoutPageLogic logic = Get.find<DesktopLayoutPageLogic>();
 
       int? tabIndex = logic.state.icons.firstIndexWhereOrNull((icon) => icon.routeName == routeName);
@@ -59,7 +73,7 @@ Future<T?>? toRoute<T>(
     );
   }
 
-  if (offAllBefore ?? page.offAllBefore) {
+  if (!styleSetting.isInMobileLayout && (offAllBefore ?? page.offAllBefore)) {
     Get.until(
       (route) => route.settings.name == Routes.blank,
       id: styleSetting.isInV2Layout ? rightV2 : right,
@@ -105,7 +119,7 @@ void backRoute<T>({
     result: result,
     closeOverlays: closeOverlays,
     canPop: canPop,
-    id: styleSetting.isInMobileLayout
+    id: _mobileRootNavigation
         ? null
         : side == Side.left
             ? styleSetting.isInV2Layout
@@ -129,11 +143,13 @@ void popLeftRoute<T>({
     result: result,
     closeOverlays: closeOverlays,
     canPop: canPop,
-    id: styleSetting.isInMobileLayout
+    id: _mobileRootNavigation
         ? null
-        : styleSetting.isInV2Layout
-            ? leftV2
-            : left,
+        : adaptivePaneNavigation.mounted && adaptivePaneNavigation.compact
+            ? _compactActiveNavigator
+            : styleSetting.isInV2Layout
+                ? leftV2
+                : left,
   );
 }
 
@@ -148,11 +164,13 @@ void popRightRoute<T>({
     result: result,
     closeOverlays: closeOverlays,
     canPop: canPop,
-    id: styleSetting.isInMobileLayout
+    id: _mobileRootNavigation
         ? null
-        : styleSetting.isInV2Layout
-            ? rightV2
-            : right,
+        : adaptivePaneNavigation.mounted && adaptivePaneNavigation.compact
+            ? _compactActiveNavigator
+            : styleSetting.isInV2Layout
+                ? rightV2
+                : right,
   );
 }
 
@@ -168,7 +186,7 @@ Future<T?>? offRoute<T>(
   return Get.offNamed(
     routeName,
     arguments: arguments,
-    id: styleSetting.isInMobileLayout
+    id: _mobileRootNavigation
         ? null
         : side == Side.left
             ? styleSetting.isInV2Layout
@@ -190,7 +208,7 @@ void untilRoute({String? currentRoute, required RoutePredicate predicate}) {
 
   return Get.until(
     predicate,
-    id: styleSetting.isInMobileLayout
+    id: _mobileRootNavigation
         ? null
         : side == Side.left
             ? styleSetting.isInV2Layout
@@ -224,7 +242,7 @@ void untilRoute2DesktopHomePage() {
 bool isRouteAtTop(String routeName) {
   Side side = Routes.pages.firstWhereOrNull((page) => page.name == routeName)?.side ?? Side.fullScreen;
 
-  if (styleSetting.isInMobileLayout || side == Side.fullScreen) {
+  if (_mobileRootNavigation || side == Side.fullScreen) {
     return Get.currentRoute == routeName;
   }
 

@@ -8,6 +8,7 @@ import 'package:jhentai/src/setting/style_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 
 import '../utils/toast_util.dart';
+import '../utils/adaptive_pane_navigation.dart';
 
 class WillPopInterceptor extends StatefulWidget {
   final Widget child;
@@ -42,6 +43,13 @@ class _WillPopInterceptorState extends State<WillPopInterceptor> {
   /// system back
   Future<bool> _handlePopApp() {
     if (styleSetting.isInMobileLayout) {
+      if (adaptivePaneNavigation.mounted) {
+        final id = adaptivePaneNavigation.activePane == AdaptivePane.right ? rightV2 : leftV2;
+        if (Get.global(id).currentState?.canPop() == true) {
+          popRightRoute();
+          return Future.value(false);
+        }
+      }
       return _handleDoubleTapPopApp();
     }
 

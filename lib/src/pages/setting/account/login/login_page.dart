@@ -1,3 +1,4 @@
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
@@ -16,7 +17,7 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<LoginPageLogic>( 
-      builder: (_) => Scaffold(
+      builder: (_) => NativeWindowScaffold(
         /// set false to deal with keyboard
         resizeToAvoidBottomInset: false,
         backgroundColor: UIConfig.loginPageBackgroundColor(context),

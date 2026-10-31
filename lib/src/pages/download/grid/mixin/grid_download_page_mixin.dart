@@ -1,3 +1,4 @@
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_draggable_gridview/flutter_draggable_gridview.dart';
 import 'package:get/get.dart';
@@ -35,7 +36,7 @@ mixin GridBasePage on StatelessWidget implements Scroll2TopPageMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return NativeWindowScaffold(
       appBar: buildAppBar(context),
       body: buildBody(context),
       floatingActionButton: buildFloatingActionButton(),

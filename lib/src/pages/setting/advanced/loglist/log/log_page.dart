@@ -1,3 +1,4 @@
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'dart:io';
 
 import 'package:clipboard/clipboard.dart';
@@ -31,7 +32,7 @@ class _LogPageState extends State<LogPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return NativeWindowScaffold(
       appBar: AppBar(
         title: Text(basename(log.path)),
         centerTitle: true,
