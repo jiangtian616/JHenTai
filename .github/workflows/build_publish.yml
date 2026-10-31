@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - 'master'
+      # TODO: temporary, revert before merging into master
+      - 'feature/foldable-layout'
     tags:
       - v*
 
