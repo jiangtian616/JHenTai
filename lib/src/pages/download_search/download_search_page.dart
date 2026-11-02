@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/database/database.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
@@ -29,7 +30,7 @@ class DownloadSearchPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return NativeWindowScaffold(
       appBar: AppBar(centerTitle: true, title: Text('search'.tr)),
       body: Column(
         children: [
@@ -103,7 +104,6 @@ class DownloadSearchPage extends StatelessWidget {
       child: GetBuilder<GalleryDownloadService>(
         id: '${galleryDownloadService.galleryDownloadProgressId}::${gallery.gid}',
         builder: (_) {
-          GalleryImage? cover = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.coverImage;
           GalleryDownloadProgress? downloadProgress = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.downloadProgress;
           String? groupName = galleryDownloadService.galleryDownloadInfos[gallery.gid]?.group;
 

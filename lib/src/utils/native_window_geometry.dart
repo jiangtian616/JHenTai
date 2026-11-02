@@ -10,13 +10,16 @@ class NativeWindowGeometry {
   final EdgeInsets safeArea;
   final bool horizontalBars;
   final bool statusBarHidden;
+  /// Explicit native model match; viewport width alone cannot identify Duo.
+  final bool isDuoDevice;
 
   const NativeWindowGeometry(
       {required this.size,
       required this.statusBar,
       required this.safeArea,
       required this.horizontalBars,
-      this.statusBarHidden = false});
+      this.statusBarHidden = false,
+      this.isDuoDevice = false});
 
   factory NativeWindowGeometry.fromMap(Map<dynamic, dynamic> data) {
     double number(Map<dynamic, dynamic> map, String key) =>
@@ -31,6 +34,7 @@ class NativeWindowGeometry {
           number(safe, 'right'), number(safe, 'bottom')),
       horizontalBars: data['horizontalBars'] == true,
       statusBarHidden: data['statusBarHidden'] == true,
+      isDuoDevice: data['isDuoDevice'] == true,
     );
   }
 
@@ -46,6 +50,7 @@ class NativeWindowGeometry {
         size: viewport,
         horizontalBars: horizontalBars,
         statusBarHidden: statusBarHidden,
+        isDuoDevice: isDuoDevice,
         statusBar: Rect.fromLTRB(statusBar.left * x, statusBar.top * y,
             statusBar.right * x, statusBar.bottom * y),
         safeArea: EdgeInsets.fromLTRB(safeArea.left * x, safeArea.top * y,
@@ -102,6 +107,22 @@ class NativeWindowGeometry {
     }
     return Rect.fromLTWH(size.width - width, 0, width, size.height);
   }
+
+  /// One rail placement policy for ordinary page actions and window-level
+  /// scroll-to-top. Keyboard, bottom bars and snackbars may increase clearance.
+  Rect? railActionRect(Size buttonSize, {double bottomInset = 0, double? availableHeight}) {
+    final rail = rightRail;
+    if (rail == null || buttonSize.isEmpty || buttonSize.width > rail.width) {
+      return null;
+    }
+    final height = math.min(size.height, availableHeight ?? size.height);
+    final top = height - math.max(safeArea.bottom, bottomInset) - 16 - buttonSize.height;
+    if (top < statusBar.bottom + 12) {
+      return null;
+    }
+    return Rect.fromLTWH(rail.center.dx - buttonSize.width / 2, top, buttonSize.width, buttonSize.height);
+  }
+
 }
 
 class NativeWindowGeometryController

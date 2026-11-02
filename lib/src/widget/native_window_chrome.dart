@@ -166,17 +166,12 @@ class _NativeWindowChromeState extends State<NativeWindowChrome> with WidgetsBin
                           }
                           final side = math.min(56.0, rail.width - 8).clamp(44.0, 56.0);
                           final media = MediaQuery.of(context);
-                          final bottom = math.max(geometry!.safeArea.bottom, media.viewInsets.bottom) + 16;
-                          final top = geometry.size.height - bottom - side;
-                          // Never move a button over the system status group in a short window.
-                          if (top < geometry.statusBar.bottom + 12) {
+                          final rect = geometry!.railActionRect(Size.square(side), bottomInset: media.viewInsets.bottom);
+                          if (rect == null) {
                             return const SizedBox.shrink();
                           }
-                          return Positioned(
-                            left: rail.center.dx - side / 2,
-                            top: top,
-                            width: side,
-                            height: side,
+                          return Positioned.fromRect(
+                            rect: rect,
                             child: FloatingActionButton(
                                 key: const ValueKey('native-rail-scroll-to-top'),
                                 heroTag: null,

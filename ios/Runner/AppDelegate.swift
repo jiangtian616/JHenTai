@@ -1,5 +1,26 @@
 import Flutter
 import UIKit
+import Darwin
+
+/// Only the verified Duo model receives its device-specific toolbar calibration.
+/// Keep normal layout selection based on the current window's available space.
+enum JHDeviceIdentity {
+  static func isDuo(modelIdentifier: String) -> Bool {
+    modelIdentifier == "iPhone19,4"
+  }
+
+  static let modelIdentifier: String = {
+    #if targetEnvironment(simulator)
+    return ProcessInfo.processInfo.environment["SIMULATOR_MODEL_IDENTIFIER"] ?? ""
+    #else
+    var system = utsname()
+    guard uname(&system) == 0 else { return "" }
+    return withUnsafeBytes(of: &system.machine) { bytes in
+      String(decoding: bytes.prefix(while: { $0 != 0 }), as: UTF8.self)
+    }
+    #endif
+  }()
+}
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
@@ -98,6 +119,8 @@ class JHFlutterViewController: FlutterViewController {
       "statusBar": ["x": status.minX, "y": status.minY, "width": status.width, "height": status.height],
       "safeArea": ["top": safe.top, "right": safe.right, "bottom": safe.bottom, "left": safe.left],
       "horizontalBars": usesHorizontalBars, "statusBarHidden": manager?.isStatusBarHidden ?? true,
+      "isDuoDevice": JHDeviceIdentity.isDuo(modelIdentifier: JHDeviceIdentity.modelIdentifier),
+      "deviceModelIdentifier": JHDeviceIdentity.modelIdentifier,
       "readerActive": readerActive, "readerImmersive": readerImmersive,
       "viewFrameInWindow": ["x": frame.minX, "y": frame.minY, "width": frame.width, "height": frame.height],
       "windowWidth": window.bounds.width, "windowHeight": window.bounds.height,

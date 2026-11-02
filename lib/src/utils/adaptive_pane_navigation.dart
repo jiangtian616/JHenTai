@@ -10,6 +10,25 @@ class AdaptivePaneNavigation extends ChangeNotifier {
   bool compact = false;
   bool _notificationPending = false;
   int _sequence = 0;
+  PageRoute<dynamic>? _rightBoundaryRoute;
+
+  /// The first content route above the right placeholder. Keep a popped route
+  /// here until its reverse animation finishes, including interactive back.
+  PageRoute<dynamic>? get rightBoundaryRoute => _rightBoundaryRoute;
+
+  void _watchRightBoundary(PageRoute<dynamic>? route) {
+    _rightBoundaryRoute?.animation?.removeStatusListener(_boundaryStatusChanged);
+    _rightBoundaryRoute = route;
+    route?.animation?.addStatusListener(_boundaryStatusChanged);
+  }
+
+  void _boundaryStatusChanged(AnimationStatus status) {
+    if (status == AnimationStatus.dismissed && !_routes[AdaptivePane.right]!.contains(_rightBoundaryRoute)) {
+      _watchRightBoundary(null);
+    }
+    _changed();
+  }
+
   final _routes = <AdaptivePane, List<Route<dynamic>>>{
     AdaptivePane.left: [],
     AdaptivePane.right: [],
@@ -33,6 +52,7 @@ class AdaptivePaneNavigation extends ChangeNotifier {
   void detach() {
     mounted = false;
     compact = false;
+    _watchRightBoundary(null);
     for (final routes in _routes.values) {
       routes.clear();
     }
@@ -46,6 +66,13 @@ class AdaptivePaneNavigation extends ChangeNotifier {
     }
     _activity[routes.last] = ++_sequence;
     _changed();
+  }
+
+  Route<dynamic>? baseRoute(AdaptivePane pane) => _routes[pane]!.firstOrNull;
+
+  PageRoute<dynamic>? topPageRoute(AdaptivePane pane) {
+    final route = _routes[pane]!.lastOrNull;
+    return route is PageRoute<dynamic> ? route : null;
   }
 
   NavigatorObserver observer(AdaptivePane pane) => _PaneObserver(this, pane);
@@ -74,17 +101,25 @@ class _PaneObserver extends NavigatorObserver {
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
     owner._routes[pane]!.add(route);
+    if (pane == AdaptivePane.right && owner._routes[pane]!.length == 2 && route is PageRoute<dynamic>) {
+      owner._watchRightBoundary(route);
+    }
     owner.focus(pane);
   }
 
   @override
-  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) => _remove(route);
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) => _remove(route, retainTransition: true);
 
   @override
   void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) => _remove(route);
 
-  void _remove(Route<dynamic> route) {
+  void _remove(Route<dynamic> route, {bool retainTransition = false}) {
     owner._routes[pane]!.remove(route);
+    if (identical(route, owner._rightBoundaryRoute) &&
+        (!retainTransition || owner._rightBoundaryRoute?.animation?.status == AnimationStatus.dismissed)) {
+      final routes = owner._routes[AdaptivePane.right]!;
+      owner._watchRightBoundary(routes.length > 1 && routes[1] is PageRoute<dynamic> ? routes[1] as PageRoute<dynamic> : null);
+    }
     owner._activity.remove(route);
     owner._changed();
   }
@@ -98,6 +133,9 @@ class _PaneObserver extends NavigatorObserver {
       if (newRoute != null) {
         routes.insert(index, newRoute);
       }
+    }
+    if (identical(oldRoute, owner._rightBoundaryRoute)) {
+      owner._watchRightBoundary(newRoute is PageRoute<dynamic> ? newRoute : null);
     }
     owner._activity.remove(oldRoute);
     owner.focus(pane);

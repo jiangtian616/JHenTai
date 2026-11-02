@@ -6,10 +6,15 @@ import '../utils/native_window_geometry.dart';
 /// unrelated pages, dialogs or readers. Content consumes outer right clearance
 /// once, so pages without their own SafeArea cannot enter the native status rail.
 class NativeWindowScaffold extends StatelessWidget {
+  /// Device-specific optical calibration confirmed on iPhone Duo.
+  static const double _duoInnerHeaderDownshift = 7;
+
   final GlobalKey<ScaffoldState>? scaffoldKey;
   final Color? backgroundColor;
   final PreferredSizeWidget? appBar;
   final Widget? body;
+  /// Embedded drawers keep their local header instead of sharing the window band.
+  final bool adaptHeader;
 
   /// Gallery details avoid the native rail in title widgets only.
   final bool avoidBodyRight;
@@ -27,6 +32,7 @@ class NativeWindowScaffold extends StatelessWidget {
       this.backgroundColor,
       this.appBar,
       this.body,
+      this.adaptHeader = true,
       this.avoidBodyRight = true,
       this.floatingActionButton,
       this.floatingActionButtonLocation,
@@ -42,16 +48,17 @@ class NativeWindowScaffold extends StatelessWidget {
     return LayoutBuilder(builder: (context, constraints) {
       final trailing = NativeWindowPane.isTrailing(context);
       final reserve = geometry != null && trailing ? geometry.headerTrailingWidth : 0.0;
-      final inline = geometry?.hasInlineHeader == true && appBar is AppBar && constraints.maxWidth >= reserve + 144;
+      final inline = adaptHeader && geometry?.hasInlineHeader == true && appBar is AppBar && constraints.maxWidth >= reserve + 144;
+      final downshift = geometry?.isDuoDevice == true ? _duoInnerHeaderDownshift : 0.0;
       final media = MediaQuery.of(context);
       final nativeRight = trailing ? math.max(geometry?.safeArea.right ?? 0.0, geometry?.rightRail?.width ?? 0.0) : 0.0;
       final rightInset = math.max(media.padding.right, nativeRight);
       final protectedMedia = media.copyWith(padding: media.padding.copyWith(right: rightInset, top: inline ? 0 : media.padding.top));
       final bar = inline
           ? PreferredSize(
-              preferredSize: Size.fromHeight(geometry!.headerHeight + ((appBar as AppBar).bottom?.preferredSize.height ?? 0)),
+              preferredSize: Size.fromHeight(geometry!.headerHeight + downshift + ((appBar as AppBar).bottom?.preferredSize.height ?? 0)),
               child: Padding(
-                  padding: EdgeInsets.only(top: geometry.headerTopInset, right: math.max(0.0, reserve - rightInset)),
+                  padding: EdgeInsets.only(top: geometry.headerTopInset + downshift, right: math.max(0.0, reserve - rightInset)),
                   child: Theme(
                     data: Theme.of(context).copyWith(
                         appBarTheme:
@@ -68,7 +75,9 @@ class NativeWindowScaffold extends StatelessWidget {
             appBar: bar,
             body: _buildBody(media),
             floatingActionButton: floatingActionButton,
-            floatingActionButtonLocation: floatingActionButtonLocation,
+            floatingActionButtonLocation: floatingActionButtonLocation ??
+                (geometry != null && (constraints.maxHeight - geometry.size.height).abs() < 1
+                    ? _NativeWindowFabLocation(geometry, allowRail: trailing && (constraints.maxWidth - geometry.size.width).abs() < 1) : null),
             endDrawer: endDrawer,
             drawerEdgeDragWidth: drawerEdgeDragWidth,
             endDrawerEnableOpenDragGesture: endDrawerEnableOpenDragGesture,
@@ -97,5 +106,26 @@ class NativeWindowScaffold extends StatelessWidget {
         child: body!,
       );
     });
+  }
+}
+
+
+/// Use the same native rail as the root scroll action without changing the
+/// button callback, size or page transition. Explicit page locations win.
+class _NativeWindowFabLocation extends FloatingActionButtonLocation {
+  final NativeWindowGeometry geometry;
+  final bool allowRail;
+  const _NativeWindowFabLocation(this.geometry, {required this.allowRail});
+  @override
+  Offset getOffset(ScaffoldPrelayoutGeometry scaffold) {
+    final normal = FloatingActionButtonLocation.endFloat.getOffset(scaffold);
+    final safeY = scaffold.scaffoldSize.height - geometry.safeArea.bottom - 16 - scaffold.floatingActionButtonSize.height;
+    final protected = Offset(normal.dx, safeY >= 0 ? math.min(normal.dy, safeY) : normal.dy);
+    if (!allowRail) {
+      return protected;
+    }
+    final clearance = math.max(0.0, scaffold.scaffoldSize.height - protected.dy - scaffold.floatingActionButtonSize.height - 16);
+    return geometry.railActionRect(scaffold.floatingActionButtonSize,
+        bottomInset: clearance, availableHeight: scaffold.scaffoldSize.height)?.topLeft ?? protected;
   }
 }

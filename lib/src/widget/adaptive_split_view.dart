@@ -1,10 +1,15 @@
 import 'dart:math' as math;
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
 
 /// Relayout panes in place instead of replacing their Navigators on resize.
 class AdaptiveSplitView extends StatefulWidget {
   final bool compact;
   final bool showRight;
+  final Animation<double>? rightTransition;
+  final PageRoute<dynamic>? rightRoute;
+  final ValueListenable<bool>? rightGestureInProgress;
+  final bool rightParallax;
   final Widget left;
   final Widget right;
   final double initialRatio;
@@ -15,12 +20,19 @@ class AdaptiveSplitView extends StatefulWidget {
     super.key,
     required this.compact,
     required this.showRight,
+    this.rightTransition,
+    this.rightRoute,
+    this.rightGestureInProgress,
+    this.rightParallax = false,
     required this.left,
     required this.right,
     required this.initialRatio,
     required this.dividerColor,
     required this.onRatioChanged,
   });
+
+  /// Depend on the actual pane layout so retained children rebuild on a fold.
+  static bool? compactOf(BuildContext context) => context.dependOnInheritedWidgetOfExactType<_AdaptivePaneViewport>()?.compact;
 
   @override
   State<AdaptiveSplitView> createState() => _AdaptiveSplitViewState();
@@ -31,6 +43,32 @@ class _AdaptiveSplitViewState extends State<AdaptiveSplitView> {
 
   @override
   Widget build(BuildContext context) {
+    return _AdaptivePaneViewport(
+      compact: widget.compact,
+      child: AnimatedBuilder(
+        animation: Listenable.merge([widget.rightTransition, widget.rightGestureInProgress]),
+        builder: (context, _) => _buildPanes(context),
+      ),
+    );
+  }
+
+  Widget _buildPanes(BuildContext context) {
+    final animation = widget.rightTransition;
+    final transitioning = animation?.status == AnimationStatus.forward || animation?.status == AnimationStatus.reverse;
+    // HeroController briefly lays out the destination offstage at its final
+    // position. Keep the actual source visible during that preparation frame.
+    final preparingHero = widget.rightRoute?.offstage ?? false;
+    final showBoth = widget.compact && (transitioning || preparingHero);
+    final showRight = widget.showRight && animation?.status != AnimationStatus.dismissed;
+    final hideLeft = widget.compact && showRight && !showBoth;
+    final hideRight = widget.compact && !showRight && !showBoth;
+    final left = CupertinoPageTransition(
+      primaryRouteAnimation: const AlwaysStoppedAnimation(1),
+      secondaryRouteAnimation:
+          widget.compact && widget.rightParallax && animation != null && (showRight || showBoth) ? animation : const AlwaysStoppedAnimation(0),
+      linearTransition: widget.rightGestureInProgress?.value ?? false,
+      child: widget.left,
+    );
     return LayoutBuilder(builder: (context, constraints) {
       final available = math.max(0.0, constraints.maxWidth - 7.5);
       final minimum = math.min(100.0, available / 2);
@@ -41,12 +79,22 @@ class _AdaptiveSplitViewState extends State<AdaptiveSplitView> {
           LayoutId(
             id: 0,
             child: Offstage(
-                offstage: widget.compact && widget.showRight, child: TickerMode(enabled: !widget.compact || !widget.showRight, child: widget.left)),
+              offstage: hideLeft,
+              child: HeroMode(
+                enabled: !widget.compact || !showRight,
+                child: TickerMode(enabled: !hideLeft, child: IgnorePointer(ignoring: widget.compact && (showRight || showBoth), child: left)),
+              ),
+            ),
           ),
           LayoutId(
             id: 1,
             child: Offstage(
-                offstage: widget.compact && !widget.showRight, child: TickerMode(enabled: !widget.compact || widget.showRight, child: widget.right)),
+              offstage: hideRight,
+              child: HeroMode(
+                enabled: !widget.compact || showRight,
+                child: TickerMode(enabled: !hideRight, child: widget.right),
+              ),
+            ),
           ),
           LayoutId(
             id: 2,
@@ -93,4 +141,21 @@ class _PaneLayout extends MultiChildLayoutDelegate {
 
   @override
   bool shouldRelayout(_PaneLayout oldDelegate) => compact != oldDelegate.compact || leftWidth != oldDelegate.leftWidth;
+}
+
+/// The right stack's base must reveal the retained list during a compact
+/// cross-pane transition. On the inner display it keeps its normal placeholder.
+class AdaptivePanePlaceholder extends StatelessWidget {
+  final Widget wideChild;
+  const AdaptivePanePlaceholder({super.key, required this.wideChild});
+  @override
+  Widget build(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_AdaptivePaneViewport>()?.compact == true ? const SizedBox.expand() : wideChild;
+}
+
+class _AdaptivePaneViewport extends InheritedWidget {
+  final bool compact;
+  const _AdaptivePaneViewport({required this.compact, required super.child});
+  @override
+  bool updateShouldNotify(_AdaptivePaneViewport oldWidget) => compact != oldWidget.compact;
 }

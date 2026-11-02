@@ -19,6 +19,7 @@ import 'dart:io' as io;
 import 'dart:ui' as ui;
 
 import '../service/gallery_download/download_path_resolver.dart';
+import 'adaptive_split_view.dart';
 import '../service/gallery_download/gallery_download_service.dart';
 
 typedef LoadingProgressWidgetBuilder = Widget Function(double);
@@ -179,7 +180,9 @@ class _EHImageState extends State<EHImage> {
             ? buildNetworkImage(context)
             : buildFileImage(context);
 
-    if (widget.heroTag != null && styleSetting.isInMobileLayout) {
+    // Cached covers survive a fold with their State intact. Subscribe to the
+    // pane's actual layout instead of relying only on the nonreactive global.
+    if (widget.heroTag != null && (AdaptiveSplitView.compactOf(context) ?? styleSetting.isInMobileLayout)) {
       child = Hero(tag: widget.heroTag!, child: child);
     }
 
