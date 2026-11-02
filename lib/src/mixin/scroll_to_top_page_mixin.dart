@@ -3,6 +3,8 @@ import 'package:get/get_state_manager/src/simple/get_state.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_logic_mixin.dart';
 import 'package:jhentai/src/mixin/scroll_to_top_state_mixin.dart';
 
+import '../widget/native_window_chrome.dart';
+
 mixin Scroll2TopPageMixin on Widget {
   Scroll2TopLogicMixin get scroll2TopLogic;
 
@@ -14,15 +16,19 @@ mixin Scroll2TopPageMixin on Widget {
       global: false,
       init: scroll2TopLogic,
       builder: (_) {
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
-          child: scroll2TopLogic.shouldDisplayFAB
-              ? FloatingActionButton(
-                  child: const Icon(Icons.arrow_upward),
-                  heroTag: null,
-                  onPressed: scroll2TopLogic.scroll2Top,
-                )
-              : null,
+        return NativeWindowScrollToTop(
+          visible: scroll2TopLogic.shouldDisplayFAB,
+          onPressed: scroll2TopLogic.scroll2Top,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            child: scroll2TopLogic.shouldDisplayFAB
+                ? FloatingActionButton(
+                    child: const Icon(Icons.arrow_upward),
+                    heroTag: null,
+                    onPressed: scroll2TopLogic.scroll2Top,
+                  )
+                : null,
+          ),
         );
       },
     );

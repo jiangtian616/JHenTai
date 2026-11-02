@@ -1,3 +1,4 @@
+import 'widget/native_window_chrome.dart';
 import 'dart:io';
 
 import 'package:desktop_webview_window/desktop_webview_window.dart';
@@ -155,8 +156,11 @@ class MyApp extends StatelessWidget {
 
       getPages: Routes.pages,
       initialRoute: securitySetting.enablePasswordAuth.isTrue || securitySetting.enableBiometricAuth.isTrue ? Routes.lock : Routes.home,
-      navigatorObservers: [GetXRouterObserver()],
-      builder: (context, child) => AppManager(child: child!),
+      navigatorObservers: [GetXRouterObserver(), NativeWindowRouteObserver()],
+      builder: (context, child) => NativeWindowChrome(
+        onDiagnostic: (data) => log.info('Native window geometry: $data'),
+        child: AppManager(child: child!),
+      ),
 
       /// enable swipe back feature
       popGesture: preferenceSetting.enableSwipeBackGesture.isTrue,

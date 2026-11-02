@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/gallery_image/gallery_image_page_logic.dart';
 import 'package:jhentai/src/pages/gallery_image/gallery_image_page_state.dart';
@@ -12,7 +13,7 @@ class GalleryImagePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return NativeWindowScaffold(
       appBar: AppBar(),
       body: () {
         return GetBuilder<GalleryImagePageLogic>(builder: (_) {

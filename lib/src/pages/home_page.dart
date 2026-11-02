@@ -24,7 +24,6 @@ import '../model/jh_layout.dart';
 import '../routes/routes.dart';
 import '../setting/advanced_setting.dart';
 import '../utils/route_util.dart';
-import '../utils/screen_size_util.dart';
 import '../utils/snack_util.dart';
 
 const int left = 1;
@@ -79,23 +78,18 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
   Widget build(BuildContext context) {
     return buildWindow(
       child: LayoutBuilder(
-        builder: (_, __) => Obx(
+        builder: (_, constraints) => Obx(
           () {
-            if (styleSetting.layout.value == LayoutMode.mobileV2 || styleSetting.layout.value == LayoutMode.mobile) {
-              styleSetting.actualLayout = LayoutMode.mobileV2;
-              return MobileLayoutPageV2();
-            }
+            final preferred = styleSetting.layout.value;
+            final resolved = resolveLayoutMode(preferred, constraints.maxWidth, isDesktop: GetPlatform.isDesktop);
+            styleSetting.actualLayout = resolved;
 
-            /// Device width is under 600, degrade to mobileV2 layout.
-            if (fullScreenWidth < 600) {
-              styleSetting.actualLayout = LayoutMode.mobileV2;
-              untilRoute2BlankPage();
-              return MobileLayoutPageV2();
+            // Keep the same navigation shell mounted across compact/wide sizes.
+            if (preferred == LayoutMode.tabletV2 || preferred == LayoutMode.tablet || (preferred == LayoutMode.automatic && !GetPlatform.isDesktop)) {
+              return TabletLayoutPageV2(compact: resolved == LayoutMode.mobileV2);
             }
-
-            if (styleSetting.layout.value == LayoutMode.tabletV2 || styleSetting.layout.value == LayoutMode.tablet) {
-              styleSetting.actualLayout = LayoutMode.tabletV2;
-              return TabletLayoutPageV2();
+            if (resolved == LayoutMode.mobileV2) {
+              return MobileLayoutPageV2();
             }
 
             styleSetting.actualLayout = LayoutMode.desktop;

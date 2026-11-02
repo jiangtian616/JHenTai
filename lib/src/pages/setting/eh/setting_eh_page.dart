@@ -1,3 +1,4 @@
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -61,7 +62,7 @@ class _SettingEHPageState extends State<SettingEHPage> {
     if (!userSetting.hasLoggedIn()) {
       return const SizedBox();
     }
-    return Scaffold(
+    return NativeWindowScaffold(
       appBar: AppBar(centerTitle: true, title: Text('ehSetting'.tr)),
       body: Obx(
         () => ListView(

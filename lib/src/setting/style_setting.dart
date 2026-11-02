@@ -23,11 +23,7 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
   RxnInt crossAxisCountInDetailPage = RxnInt(null);
   RxMap<String, ListMode> pageListMode = <String, ListMode>{}.obs;
   RxBool moveCover2RightSide = false.obs;
-  Rx<LayoutMode> layout = PlatformDispatcher.instance.views.first.physicalSize.width / PlatformDispatcher.instance.views.first.devicePixelRatio < 600
-      ? LayoutMode.mobileV2.obs
-      : GetPlatform.isDesktop
-          ? LayoutMode.desktop.obs
-          : LayoutMode.tabletV2.obs;
+  Rx<LayoutMode> layout = (GetPlatform.isDesktop ? LayoutMode.desktop : LayoutMode.automatic).obs;
 
   bool get isInWaterFlowListMode =>
       listMode.value == ListMode.waterfallFlowBig || listMode.value == ListMode.waterfallFlowSmall || listMode.value == ListMode.waterfallFlowMedium;
@@ -39,11 +35,12 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
           : Brightness.dark;
 
   /// If the current window width is too small, App will degrade to mobile mode. Use [actualLayout] to indicate actual layout.
-  LayoutMode actualLayout = PlatformDispatcher.instance.views.first.physicalSize.width / PlatformDispatcher.instance.views.first.devicePixelRatio < 600
-      ? LayoutMode.mobileV2
-      : GetPlatform.isDesktop
-          ? LayoutMode.desktop
-          : LayoutMode.tabletV2;
+  LayoutMode actualLayout =
+      PlatformDispatcher.instance.views.first.physicalSize.width / PlatformDispatcher.instance.views.first.devicePixelRatio < 600
+          ? LayoutMode.mobileV2
+          : GetPlatform.isDesktop
+              ? LayoutMode.desktop
+              : LayoutMode.tabletV2;
 
   bool get isInMobileLayout => actualLayout == LayoutMode.mobileV2 || actualLayout == LayoutMode.mobile;
 
@@ -75,12 +72,11 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
     layout.value = LayoutMode.values[map['layout'] ?? layout.value.index];
 
     /// old layout has been removed in v5.0.0
-    if (isInV1Layout) {
-      layout = PlatformDispatcher.instance.views.first.physicalSize.width / PlatformDispatcher.instance.views.first.devicePixelRatio < 600
-          ? LayoutMode.mobileV2.obs
-          : GetPlatform.isDesktop
-              ? LayoutMode.desktop.obs
-              : LayoutMode.tabletV2.obs;
+    if (layout.value == LayoutMode.mobile) {
+      layout.value = LayoutMode.mobileV2;
+    }
+    if (layout.value == LayoutMode.tablet) {
+      layout.value = LayoutMode.tabletV2;
     }
     actualLayout = layout.value;
   }

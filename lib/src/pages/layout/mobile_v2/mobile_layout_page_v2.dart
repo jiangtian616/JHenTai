@@ -1,4 +1,5 @@
 import 'package:flutter/rendering.dart';
+import 'dart:math' as math;
 import 'package:collection/collection.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ import 'package:jhentai/src/service/quick_search_service.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/widget/will_pop_interceptor.dart';
+import 'package:jhentai/src/utils/native_window_geometry.dart';
 
 import '../../../network/eh_request.dart';
 import '../../../setting/preference_setting.dart';
@@ -46,11 +48,19 @@ class MobileLayoutPageV2 extends StatelessWidget {
   }
 
   Widget buildLeftDrawer(BuildContext context) {
+    final geometry = NativeWindowGeometryScope.geometryOf(context);
+    final extendToBottom = geometry?.isDuoDevice == true;
+    // The inner status group is at the far right, outside this left drawer.
+    // Do not inherit its whole top band as padding above the drawer contents.
+    final removeInnerTopInset = extendToBottom && geometry?.hasInlineHeader == true;
+    final bottomClearance = math.max(MediaQuery.paddingOf(context).bottom, geometry?.safeArea.bottom ?? 0.0);
     return Drawer(
       width: 278,
       child: GetBuilder<MobileLayoutPageV2Logic>(
         id: logic.tabBarId,
         builder: (_) => SafeArea(
+          top: !removeInnerTopInset,
+          bottom: !extendToBottom,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -61,6 +71,9 @@ class MobileLayoutPageV2 extends StatelessWidget {
                   child: ListView.builder(
                     key: const PageStorageKey('leftDrawer'),
                     controller: state.scrollController,
+                    // Keep the viewport edge-to-edge; scroll the last option
+                    // above the gesture area instead of clipping at a fixed band.
+                    padding: extendToBottom ? EdgeInsets.only(bottom: bottomClearance) : null,
                     itemCount: state.icons.length,
                     scrollCacheExtent: ScrollCacheExtent.pixels(1000),
                     itemBuilder: (context, index) => ListTile(

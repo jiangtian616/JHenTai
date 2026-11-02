@@ -1,3 +1,4 @@
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/extension/widget_extension.dart';
@@ -35,7 +36,7 @@ class _SettingCloudPageState extends State<SettingCloudPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return NativeWindowScaffold(
       appBar: AppBar(centerTitle: true, title: Text('cloud'.tr)),
       body: ListView(
         padding: const EdgeInsets.only(top: 16),

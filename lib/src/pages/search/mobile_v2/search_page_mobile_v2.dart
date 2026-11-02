@@ -1,3 +1,4 @@
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
@@ -9,6 +10,8 @@ import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/utils/uuid_util.dart';
 
 import '../../../service/quick_search_service.dart';
+import '../../../setting/style_setting.dart';
+import '../../../widget/scroll_body_safe_area.dart';
 import '../../base/base_page.dart';
 import '../mixin/search_page_mixin.dart';
 import '../mixin/search_page_state_mixin.dart';
@@ -35,13 +38,13 @@ class SearchPageMobileV2 extends BasePage<SearchPageMobileV2Logic, SearchPageMob
       global: false,
       init: logic,
       builder: (_) => Obx(
-        () => Scaffold(
-          key: scaffoldKey,
+        () => NativeWindowScaffold(
+          scaffoldKey: scaffoldKey,
           appBar: buildAppBar(context),
           drawerEdgeDragWidth: preferenceSetting.drawerGestureEdgeWidth.value.toDouble(),
           endDrawer: Drawer(width: 278, child: QuickSearchPage(scrollController: quickSearchService.drawerScrollController)),
           endDrawerEnableOpenDragGesture: preferenceSetting.enableQuickSearchDrawerGesture.isTrue,
-          body: SafeArea(child: buildBody(context)),
+          body: ScrollBodySafeArea(extendToBottom: styleSetting.isInTabletLayout, child: buildBody(context)),
           floatingActionButton: buildFloatingActionButton(),
           resizeToAvoidBottomInset: false,
         ),

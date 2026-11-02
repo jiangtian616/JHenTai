@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'package:get/get.dart';
 import 'package:html/dom.dart' as dom;
 import 'package:jhentai/src/extension/get_logic_extension.dart';
@@ -38,9 +39,9 @@ class _CommentPageState extends State<CommentPage> with LoginRequiredMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return NativeWindowScaffold(
       appBar: AppBar(title: Text('allComments'.tr)),
-      floatingActionButton: FloatingActionButton(onPressed: _handleTapAddCommentButton, child: const Icon(Icons.add)),
+      floatingActionButton: FloatingActionButton(key: const ValueKey('add-gallery-comment'), heroTag: null, onPressed: _handleTapAddCommentButton, child: const Icon(Icons.add)),
       body: EHWheelSpeedController(
         controller: _scrollController,
         child: ListView(

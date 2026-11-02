@@ -1,3 +1,4 @@
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'dart:convert';
 import 'dart:io';
 
@@ -55,7 +56,7 @@ class _SettingAdvancedPageState extends State<SettingAdvancedPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return NativeWindowScaffold(
       appBar: AppBar(centerTitle: true, title: Text('advancedSetting'.tr)),
       body: Obx(
         () => ListView(

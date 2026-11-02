@@ -1,3 +1,4 @@
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/config/ui_config.dart';
@@ -13,7 +14,7 @@ class SettingStylePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return NativeWindowScaffold(
       appBar: AppBar(centerTitle: true, title: Text('styleSetting'.tr)),
       body: Obx(
         () => ListView(
@@ -183,7 +184,7 @@ class SettingStylePage extends StatelessWidget {
       title: Text('layoutMode'.tr),
       subtitle: Text(JHLayout.allLayouts.firstWhere((e) => e.mode == styleSetting.layout.value).desc),
       trailing: DropdownButton<LayoutMode>(
-        value: styleSetting.actualLayout,
+        value: styleSetting.layout.value,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
         onChanged: (LayoutMode? newValue) => styleSetting.saveLayoutMode(newValue!),

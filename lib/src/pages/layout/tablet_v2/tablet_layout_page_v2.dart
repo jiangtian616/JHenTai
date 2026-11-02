@@ -1,5 +1,11 @@
+import 'package:jhentai/src/utils/native_window_geometry.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_resizable_container/flutter_resizable_container.dart';
+import 'dart:collection';
+
+import '../../../utils/adaptive_pane_navigation.dart';
+import '../../../utils/adaptive_pane_hero_controller.dart';
+import '../../../utils/adaptive_page_route.dart';
+import '../../../widget/adaptive_split_view.dart';
 import 'package:get/get.dart';
 import 'package:jhentai/src/pages/layout/mobile_v2/mobile_layout_page_v2.dart';
 import 'package:jhentai/src/widget/will_pop_interceptor.dart';
@@ -12,55 +18,71 @@ import '../../blank_page.dart';
 import '../../home_page.dart';
 
 class TabletLayoutPageV2 extends StatefulWidget {
-  const TabletLayoutPageV2({super.key});
+  final bool compact;
+  const TabletLayoutPageV2({super.key, this.compact = false});
 
   @override
   State<TabletLayoutPageV2> createState() => _TabletLayoutPageV2State();
 }
 
 class _TabletLayoutPageV2State extends State<TabletLayoutPageV2> {
-  final ResizableController resizableController = ResizableController();
+  late final NavigatorObserver _leftObserver;
+  late final NavigatorObserver _rightObserver;
+  late final HeroController _leftHeroController;
+  late final AdaptivePaneHeroController _rightHeroController;
 
   @override
   void initState() {
     super.initState();
-
-    resizableController.addListener(() {
-      windowService.handleDoubleColumnResized(resizableController.ratios);
-    });
+    adaptivePaneNavigation.attach();
+    _leftObserver = adaptivePaneNavigation.observer(AdaptivePane.left);
+    _rightObserver = adaptivePaneNavigation.observer(AdaptivePane.right);
+    _leftHeroController = MaterialApp.createMaterialHeroController();
+    _rightHeroController = AdaptivePaneHeroController(adaptivePaneNavigation);
   }
 
   @override
   void dispose() {
+    _leftHeroController.dispose();
+    _rightHeroController.dispose();
+    adaptivePaneNavigation.detach();
     super.dispose();
-
-    resizableController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    adaptivePaneNavigation.compact = widget.compact;
     return WillPopInterceptor(
       child: Scaffold(
         backgroundColor: UIConfig.backGroundColor(context),
-        body: ResizableContainer(
-          direction: Axis.horizontal,
-          controller: resizableController,
-          children: [
-            ResizableChild(
-              child: _leftColumn(),
-              size: ResizableSize.ratio(windowService.leftColumnWidthRatio),
-              minSize: 100,
+        body: AnimatedBuilder(
+          animation: adaptivePaneNavigation,
+          builder: (context, _) => AdaptiveSplitView(
+            compact: widget.compact,
+            showRight: adaptivePaneNavigation.activePane == AdaptivePane.right,
+            rightTransition: adaptivePaneNavigation.rightBoundaryRoute?.animation,
+            rightRoute: adaptivePaneNavigation.rightBoundaryRoute,
+            rightGestureInProgress: adaptivePaneNavigation.rightBoundaryRoute?.navigator?.userGestureInProgressNotifier,
+            rightParallax: usesPhoneParallax(adaptivePaneNavigation.topPageRoute(AdaptivePane.left), adaptivePaneNavigation.rightBoundaryRoute),
+            initialRatio: windowService.leftColumnWidthRatio,
+            onRatioChanged: (ratio) => windowService.handleDoubleColumnResized(UnmodifiableListView([ratio, 1 - ratio])),
+            dividerColor: UIConfig.layoutDividerColor(context),
+            left: Listener(
+              onPointerDown: (_) => adaptivePaneNavigation.focus(AdaptivePane.left),
+              child: MediaQuery.removePadding(
+                context: context,
+                removeRight: !widget.compact,
+                child: NativeWindowPane(trailing: widget.compact, child: _leftColumn()),
+              ),
             ),
-            ResizableChild(
-              child: _rightColumn(),
-              size: ResizableSize.ratio(1 - windowService.leftColumnWidthRatio),
-              minSize: 100,
+            right: Listener(
+              onPointerDown: (_) => adaptivePaneNavigation.focus(AdaptivePane.right),
+              child: MediaQuery.removePadding(
+                context: context,
+                removeLeft: !widget.compact,
+                child: NativeWindowPane(trailing: true, child: _rightColumn()),
+              ),
             ),
-          ],
-          divider: ResizableDivider(
-            thickness: 1.5,
-            size: 7.5,
-            color: UIConfig.layoutDividerColor(context),
           ),
         ),
       ),
@@ -72,7 +94,7 @@ class _TabletLayoutPageV2State extends State<TabletLayoutPageV2> {
       key: Get.nestedKey(leftV2),
 
       /// make sure controller is destroyed automatically and route args is passed properly
-      observers: [GetObserver(null, leftRouting)],
+      observers: [GetObserver(null, leftRouting), _leftObserver, _leftHeroController],
       onGenerateInitialRoutes: (_, __) => [
         GetPageRoute(
           settings: const RouteSettings(name: Routes.mobileLayoutV2),
@@ -85,15 +107,14 @@ class _TabletLayoutPageV2State extends State<TabletLayoutPageV2> {
       onGenerateRoute: (settings) {
         Get.routing.args = settings.arguments;
         Get.parameters = Get.routeTree.matchRoute(settings.name!).parameters;
-        return GetPageRoute(
+        return adaptivePageRoute(
           settings: settings,
-
-          /// setting name may include path params
-          page: Routes.pages.firstWhere((page) => settings.name!.split('?')[0] == page.name).page,
-
+          page: Routes.pages.firstWhere((page) => settings.name!.split('?')[0] == page.name),
+          compact: widget.compact,
           popGesture: preferenceSetting.enableSwipeBackGesture.isTrue,
-          transition: Routes.defaultTransition,
-          transitionDuration: UIConfig.defaultPageRouteTransitionDuration,
+          wideTransition: Routes.defaultTransition,
+          wideDuration: UIConfig.defaultPageRouteTransitionDuration,
+          wideParallax: true,
         );
       },
     );
@@ -102,11 +123,11 @@ class _TabletLayoutPageV2State extends State<TabletLayoutPageV2> {
   Widget _rightColumn() {
     return Navigator(
       key: Get.nestedKey(rightV2),
-      observers: [GetObserver(null, rightRouting)],
+      observers: [GetObserver(null, rightRouting), _rightObserver, _rightHeroController],
       onGenerateInitialRoutes: (_, __) => [
         GetPageRoute(
           settings: const RouteSettings(name: Routes.blank),
-          page: () => const BlankPage(),
+          page: () => const AdaptivePanePlaceholder(wideChild: BlankPage()),
           popGesture: false,
           transition: Transition.fadeIn,
           showCupertinoParallax: false,
@@ -115,17 +136,13 @@ class _TabletLayoutPageV2State extends State<TabletLayoutPageV2> {
       onGenerateRoute: (settings) {
         Get.routing.args = settings.arguments;
         Get.parameters = Get.routeTree.matchRoute(settings.name!).parameters;
-        return GetPageRoute(
+        return adaptivePageRoute(
           settings: settings,
-
-          /// setting name may include path params
-          page: Routes.pages.firstWhere((page) => settings.name!.split('?')[0] == page.name).page,
-
-          /// do not use swipe back in tablet layout!
-          popGesture: false,
-          transition: Transition.fadeIn,
-          transitionDuration: UIConfig.defaultPageRouteTransitionDuration,
-          showCupertinoParallax: false,
+          page: Routes.pages.firstWhere((page) => settings.name!.split('?')[0] == page.name),
+          compact: widget.compact,
+          popGesture: widget.compact && preferenceSetting.enableSwipeBackGesture.isTrue,
+          wideTransition: Transition.fadeIn,
+          wideDuration: UIConfig.defaultPageRouteTransitionDuration,
         );
       },
     );

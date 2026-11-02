@@ -1,3 +1,4 @@
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'dart:io';
 
 import 'package:collection/collection.dart';
@@ -44,7 +45,7 @@ class _ConfigSyncPageState extends State<ConfigSyncPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return NativeWindowScaffold(
       appBar: AppBar(centerTitle: true, title: Text('configSync'.tr)),
       body: LoadingStateIndicator(
         loadingState: _loadingState,

@@ -1,3 +1,4 @@
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'dart:io';
 
 import 'package:clipboard/clipboard.dart';
@@ -35,7 +36,7 @@ class _CookiePageState extends State<CookiePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return NativeWindowScaffold(
       appBar: AppBar(
         centerTitle: true,
         title: Text('accountSetting'.tr),

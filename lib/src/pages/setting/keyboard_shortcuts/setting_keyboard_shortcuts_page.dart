@@ -1,3 +1,4 @@
+import 'package:jhentai/src/widget/native_window_scaffold.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -52,7 +53,7 @@ class _SettingKeyboardShortcutsPageState extends State<SettingKeyboardShortcutsP
       behavior: HitTestBehavior.translucent,
       child: Listener(
         onPointerDown: _onPointerDown,
-        child: Scaffold(
+        child: NativeWindowScaffold(
           appBar: AppBar(
             centerTitle: true,
             title: Text('keyboardShortcuts'.tr),
