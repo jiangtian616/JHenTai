@@ -842,9 +842,9 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
     });
   }
 
+  /// The drawer covers only part of read page, so keep immersive mode. Otherwise system bars show up during its animation,
+  /// and the drawer and read page jitter because the safe area changes. Toggling immersive mode inside it still applies at once.
   Future<void> _showReadSettingDrawer(BuildContext context) async {
-    restoreImmersiveMode();
-
     await showDialog<void>(
       context: context,
       barrierDismissible: true,
@@ -898,7 +898,6 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
       },
     );
 
-    applyCurrentImmersiveMode();
     state.focusNode.requestFocus();
   }
 
