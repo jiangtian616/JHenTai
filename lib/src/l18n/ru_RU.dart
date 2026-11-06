@@ -330,6 +330,10 @@ class ru_RU {
 
       /// Layout
       'layoutMode': 'Режим макета',
+      'layoutFollowOrientation': 'Макет по ориентации',
+      'layoutFollowOrientationHint': 'Использовать разные макеты в портретной и альбомной ориентации',
+      'portraitLayout': 'Портретный макет',
+      'landscapeLayout': 'Альбомный макет',
       'mobileLayoutV2Name': 'Мобильный',
       'mobileLayoutV2Desc': 'Одна колонка',
       'mobileLayoutName': 'Мобильный (старый)',

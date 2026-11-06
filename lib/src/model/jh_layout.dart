@@ -18,7 +18,18 @@ class JHLayout {
 
   final String desc;
 
+  /// Whether this layout can be applied in current window, layouts except mobile need a window width of at least 600.
   final ValueGetter<bool> isSupported;
+
+  /// Whether this layout can be applied when the screen is in [orientation].
+  bool isSupportedIn(Orientation orientation) {
+    if (mode == LayoutMode.mobileV2) {
+      return true;
+    }
+    FlutterView view = PlatformDispatcher.instance.views.first;
+    Size size = view.physicalSize / view.devicePixelRatio;
+    return (orientation == Orientation.landscape ? size.longestSide : size.shortestSide) >= 600;
+  }
 
   JHLayout({
     required this.mode,

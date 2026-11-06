@@ -337,6 +337,10 @@ class zh_CN {
 
       /// style setting page
       'layoutMode': '布局模式',
+      'layoutFollowOrientation': '按横竖屏区分布局',
+      'layoutFollowOrientationHint': '竖屏和横屏时分别使用不同的布局',
+      'portraitLayout': '竖屏布局',
+      'landscapeLayout': '横屏布局',
       'enableTagZHTranslation': '开启标签中文翻译',
       'version': '版本',
       'downloadTagTranslationHint': '下载数据中... 已下载: ',

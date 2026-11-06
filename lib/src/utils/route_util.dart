@@ -4,6 +4,7 @@ import 'package:jhentai/src/extension/list_extension.dart';
 import 'package:jhentai/src/pages/home_page.dart';
 import 'package:jhentai/src/routes/eh_page.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/service/log.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 
 import '../model/jh_layout.dart';
@@ -205,17 +206,6 @@ void untilRoute({String? currentRoute, required RoutePredicate predicate}) {
 }
 
 /// pop all pages in right screen if exists
-void untilRoute2BlankPage() {
-  if (Get.keys.containsKey(right) && Get.keys[right]?.currentContext != null) {
-    Get.until((route) => route.settings.name == Routes.blank, id: right);
-  }
-
-  if (Get.keys.containsKey(rightV2) && Get.keys[rightV2]?.currentContext != null) {
-    Get.until((route) => route.settings.name == Routes.blank, id: rightV2);
-  }
-}
-
-/// pop all pages in right screen if exists
 void untilRoute2DesktopHomePage() {
   Get.until((route) => route.settings.name == Routes.desktopHome, id: left);
 }
@@ -245,18 +235,91 @@ bool isRouteAtTop(String routeName) {
 /// layout, [left] & [right] in desktop layout. Switching layout only replaces the layout widget in [HomePage], so pages opened
 /// before would stay where they are, e.g. setting pages opened in mobile layout would keep covering the new tablet layout in full
 /// screen until they are popped. So pop them from the old navigators and push them again into the new ones, they will be rebuilt.
-Future<void> switchLayoutMode(LayoutMode layoutMode) async {
+Future<void> switchLayoutMode(LayoutMode layoutMode) => _saveLayoutSetting(() => styleSetting.saveLayoutMode(layoutMode));
+
+Future<void> switchLayoutFollowOrientation(bool followOrientation) =>
+    _saveLayoutSetting(() => styleSetting.saveLayoutFollowOrientation(followOrientation));
+
+Future<void> switchPortraitLayoutMode(LayoutMode layoutMode) => _saveLayoutSetting(() => styleSetting.savePortraitLayout(layoutMode));
+
+Future<void> switchLandscapeLayoutMode(LayoutMode layoutMode) => _saveLayoutSetting(() => styleSetting.saveLandscapeLayout(layoutMode));
+
+/// [save] updates the setting value synchronously before persisting it, so the new layout can be resolved right after it's called.
+Future<void> _saveLayoutSetting(Future<void> Function() save) async {
+  Future<void> saveFuture = save();
+  relayout();
+  await saveFuture;
+}
+
+/// Re-resolve the layout to apply, e.g. after layout settings changed or the window was resized or rotated, and move the opened
+/// pages into the new layout if it changes.
+///
+/// Must be called before [HomePage] rebuilds, because nested navigators of the old layout are disposed then.
+void relayout() {
   LayoutMode oldLayout = styleSetting.actualLayout;
-  LayoutMode newLayout = styleSetting.resolveActualLayout(layoutMode);
+  LayoutMode newLayout = resolveLayoutToApply();
+  if (oldLayout == newLayout) {
+    return;
+  }
 
-  /// pop before saving, because nested navigators of the old layout are disposed once [HomePage] rebuilds
-  List<RouteSettings> openedRoutes = oldLayout == newLayout ? [] : _popOpenedRoutes(oldLayout);
+  log.info('Relayout from ${oldLayout.name} to ${newLayout.name}');
 
-  Future<void> saveFuture = styleSetting.saveLayoutMode(layoutMode);
+  List<RouteSettings> openedRoutes = _popOpenedRoutes(oldLayout);
+  styleSetting.actualLayout = newLayout;
   if (openedRoutes.isNotEmpty) {
     _pushOpenedRoutesAfterLayoutBuilt(openedRoutes, newLayout);
   }
-  await saveFuture;
+}
+
+/// The layout [HomePage] should build now.
+///
+/// It's kept unchanged while full screen pages like read page cover [HomePage], because pages opened below them can't be moved, e.g.
+/// details page would be pushed above read page when rotating from tablet layout to mobile layout. [FullScreenPageObserver] calls
+/// [relayout] after they are popped.
+LayoutMode resolveLayoutToApply() {
+  /// always read the observable settings so that [Obx] in [HomePage] can subscribe to them
+  LayoutMode layout = styleSetting.resolveActualLayout(styleSetting.preferredLayout);
+  return FullScreenPageObserver.hasFullScreenPage ? styleSetting.actualLayout : layout;
+}
+
+/// Track full screen pages except [Routes.home] in root navigator, see [resolveLayoutToApply].
+class FullScreenPageObserver extends NavigatorObserver {
+  static final Set<Route> _fullScreenPages = {};
+
+  static bool get hasFullScreenPage => _fullScreenPages.isNotEmpty;
+
+  @override
+  void didPush(Route route, Route? previousRoute) => _add(route);
+
+  @override
+  void didPop(Route route, Route? previousRoute) => _remove(route);
+
+  @override
+  void didRemove(Route route, Route? previousRoute) => _remove(route);
+
+  @override
+  void didReplace({Route? newRoute, Route? oldRoute}) {
+    if (newRoute != null) {
+      _add(newRoute);
+    }
+    if (oldRoute != null) {
+      _remove(oldRoute);
+    }
+  }
+
+  void _add(Route route) {
+    if (route is PageRoute && route.settings.name?.split('?')[0] != Routes.home && _sideOfRoute(route.settings.name) == Side.fullScreen) {
+      _fullScreenPages.add(route);
+    }
+  }
+
+  void _remove(Route route) {
+    if (_fullScreenPages.remove(route) && _fullScreenPages.isEmpty) {
+      /// navigator is locked in observer callbacks
+      WidgetsBinding.instance.addPostFrameCallback((_) => relayout());
+      WidgetsBinding.instance.ensureVisualUpdate();
+    }
+  }
 }
 
 /// Pop pages opened in [layout], return their settings in the order they were pushed, left side pages first.

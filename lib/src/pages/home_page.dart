@@ -50,7 +50,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowListener, WindowWidgetMixin {
+class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowListener, WindowWidgetMixin, WidgetsBindingObserver {
   StreamSubscription? _intentDataStreamSubscription;
   String? _lastDetectedText;
 
@@ -65,10 +65,18 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
     _initLaunchArguments();
 
     _listener = AppLifecycleListener(onResume: _handleUrlInClipBoard);
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  /// Window resized or rotated, which may change the layout to apply. Called before rebuilding, when the old layout is still alive.
+  @override
+  void didChangeMetrics() {
+    relayout();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
     _intentDataStreamSubscription?.cancel();
     _listener.dispose();
@@ -80,13 +88,10 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
       child: LayoutBuilder(
         builder: (_, __) => Obx(
           () {
-            styleSetting.actualLayout = styleSetting.resolveActualLayout(styleSetting.layout.value);
+            /// Opened pages have been moved by [relayout] when the layout changes, this only keeps [StyleSetting.actualLayout] in sync.
+            styleSetting.actualLayout = resolveLayoutToApply();
 
             if (styleSetting.actualLayout == LayoutMode.mobileV2) {
-              /// Device width is under 600, degrade to mobileV2 layout.
-              if (styleSetting.layout.value != LayoutMode.mobileV2 && styleSetting.layout.value != LayoutMode.mobile) {
-                untilRoute2BlankPage();
-              }
               return MobileLayoutPageV2();
             }
 

@@ -326,6 +326,10 @@ class en_US {
 
       /// Layout
       'layoutMode': 'Layout Mode',
+      'layoutFollowOrientation': 'Layout follows orientation',
+      'layoutFollowOrientationHint': 'Use different layouts in portrait and landscape',
+      'portraitLayout': 'Portrait layout',
+      'landscapeLayout': 'Landscape layout',
       'mobileLayoutV2Name': 'Mobile',
       'mobileLayoutV2Desc': 'Single column',
       'mobileLayoutName': 'Mobile(old)',

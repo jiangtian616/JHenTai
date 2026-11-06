@@ -337,6 +337,10 @@ class zh_TW {
 
       /// style setting page
       'layoutMode': '佈局模式',
+      'layoutFollowOrientation': '依橫豎螢幕區分佈局',
+      'layoutFollowOrientationHint': '直向和橫向時分別使用不同的佈局',
+      'portraitLayout': '直向佈局',
+      'landscapeLayout': '橫向佈局',
       'enableTagZHTranslation': '開啟標籤中文翻譯',
       'version': '版本',
       'downloadTagTranslationHint': '下載資料中... 已下載: ',

@@ -10,6 +10,7 @@ import 'package:jhentai/src/network/eh_request.dart';
 import 'package:jhentai/src/network/jh_request.dart';
 import 'package:jhentai/src/routes/getx_router_observer.dart';
 import 'package:jhentai/src/routes/routes.dart';
+import 'package:jhentai/src/utils/route_util.dart';
 import 'package:jhentai/src/pages/home_page.dart';
 import 'package:jhentai/src/service/app_update_service.dart';
 import 'package:jhentai/src/service/archive_download_service.dart';
@@ -155,7 +156,7 @@ class MyApp extends StatelessWidget {
 
       getPages: Routes.pages,
       initialRoute: securitySetting.enablePasswordAuth.isTrue || securitySetting.enableBiometricAuth.isTrue ? Routes.lock : Routes.home,
-      navigatorObservers: [GetXRouterObserver()],
+      navigatorObservers: [GetXRouterObserver(), FullScreenPageObserver()],
       builder: (context, child) => AppManager(child: child!),
 
       /// enable swipe back feature

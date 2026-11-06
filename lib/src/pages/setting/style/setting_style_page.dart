@@ -179,22 +179,69 @@ class SettingStylePage extends StatelessWidget {
   }
 
   Widget _buildLayout(BuildContext context) {
-    return ListTile(
-      title: Text('layoutMode'.tr),
-      subtitle: Text(JHLayout.allLayouts.firstWhere((e) => e.mode == styleSetting.layout.value).desc),
-      trailing: DropdownButton<LayoutMode>(
-        value: styleSetting.actualLayout,
-        elevation: 4,
-        alignment: AlignmentDirectional.centerEnd,
-        onChanged: (LayoutMode? newValue) => switchLayoutMode(newValue!),
-        items: JHLayout.allLayouts
-            .map((e) => DropdownMenuItem(
-                  enabled: e.isSupported(),
-                  child: Text(e.name, style: e.isSupported() ? null : TextStyle(color: UIConfig.settingPageLayoutSelectorUnSupportColor(context))),
-                  value: e.mode,
-                ))
-            .toList(),
-      ),
+    return Column(
+      children: [
+        if (styleSetting.layoutFollowOrientation.isFalse)
+          ListTile(
+            title: Text('layoutMode'.tr),
+            subtitle: Text(JHLayout.allLayouts.firstWhere((e) => e.mode == styleSetting.layout.value).desc),
+            trailing: _buildLayoutSelector(
+              context,
+              value: styleSetting.actualLayout,
+              isSupported: (layout) => layout.isSupported(),
+              onChanged: switchLayoutMode,
+            ),
+          ),
+        SwitchListTile(
+          title: Text('layoutFollowOrientation'.tr),
+          subtitle: Text('layoutFollowOrientationHint'.tr),
+          value: styleSetting.layoutFollowOrientation.value,
+          onChanged: switchLayoutFollowOrientation,
+        ),
+        if (styleSetting.layoutFollowOrientation.isTrue)
+          ListTile(
+            title: Text('portraitLayout'.tr),
+            subtitle: Text(JHLayout.allLayouts.firstWhere((e) => e.mode == styleSetting.portraitLayout.value).desc),
+            trailing: _buildLayoutSelector(
+              context,
+              value: styleSetting.portraitLayout.value,
+              isSupported: (layout) => layout.isSupportedIn(Orientation.portrait),
+              onChanged: switchPortraitLayoutMode,
+            ),
+          ).fadeIn(),
+        if (styleSetting.layoutFollowOrientation.isTrue)
+          ListTile(
+            title: Text('landscapeLayout'.tr),
+            subtitle: Text(JHLayout.allLayouts.firstWhere((e) => e.mode == styleSetting.landscapeLayout.value).desc),
+            trailing: _buildLayoutSelector(
+              context,
+              value: styleSetting.landscapeLayout.value,
+              isSupported: (layout) => layout.isSupportedIn(Orientation.landscape),
+              onChanged: switchLandscapeLayoutMode,
+            ),
+          ).fadeIn(),
+      ],
+    );
+  }
+
+  Widget _buildLayoutSelector(
+    BuildContext context, {
+    required LayoutMode value,
+    required bool Function(JHLayout layout) isSupported,
+    required ValueChanged<LayoutMode> onChanged,
+  }) {
+    return DropdownButton<LayoutMode>(
+      value: value,
+      elevation: 4,
+      alignment: AlignmentDirectional.centerEnd,
+      onChanged: (LayoutMode? newValue) => onChanged(newValue!),
+      items: JHLayout.allLayouts
+          .map((e) => DropdownMenuItem(
+                enabled: isSupported(e),
+                child: Text(e.name, style: isSupported(e) ? null : TextStyle(color: UIConfig.settingPageLayoutSelectorUnSupportColor(context))),
+                value: e.mode,
+              ))
+          .toList(),
     );
   }
 }

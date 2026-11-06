@@ -326,6 +326,10 @@ class ko_KR {
 
       /// Layout
       'layoutMode': '레이아웃 모드',
+      'layoutFollowOrientation': '화면 방향별 레이아웃',
+      'layoutFollowOrientationHint': '세로 및 가로 화면에서 서로 다른 레이아웃 사용',
+      'portraitLayout': '세로 레이아웃',
+      'landscapeLayout': '가로 레이아웃',
       'mobileLayoutV2Name': '모바일',
       'mobileLayoutV2Desc': '단일 리스트',
       'mobileLayoutName': '모바일(구형)',

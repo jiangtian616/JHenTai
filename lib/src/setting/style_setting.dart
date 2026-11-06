@@ -29,6 +29,11 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
           ? LayoutMode.desktop.obs
           : LayoutMode.tabletV2.obs;
 
+  /// Whether to apply [portraitLayout] or [landscapeLayout] by the current window orientation instead of [layout].
+  RxBool layoutFollowOrientation = false.obs;
+  Rx<LayoutMode> portraitLayout = LayoutMode.mobileV2.obs;
+  Rx<LayoutMode> landscapeLayout = GetPlatform.isDesktop ? LayoutMode.desktop.obs : LayoutMode.tabletV2.obs;
+
   bool get isInWaterFlowListMode =>
       listMode.value == ListMode.waterfallFlowBig || listMode.value == ListMode.waterfallFlowSmall || listMode.value == ListMode.waterfallFlowMedium;
 
@@ -54,6 +59,20 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
   bool get isInV2Layout => actualLayout == LayoutMode.mobileV2 || actualLayout == LayoutMode.tabletV2;
 
   bool get isInDesktopLayout => actualLayout == LayoutMode.desktop;
+
+  /// Whether the current window is wider than it is high.
+  bool get isLandscape {
+    Size size = PlatformDispatcher.instance.views.first.physicalSize;
+    return size.width > size.height;
+  }
+
+  /// The layout chosen by user for the current window orientation, may be degraded by [resolveActualLayout].
+  LayoutMode get preferredLayout {
+    if (layoutFollowOrientation.isFalse) {
+      return layout.value;
+    }
+    return isLandscape ? landscapeLayout.value : portraitLayout.value;
+  }
 
   /// The layout actually applied for [layoutMode], degrade to mobile layout if the window width is under 600.
   LayoutMode resolveActualLayout(LayoutMode layoutMode) {
@@ -84,6 +103,9 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
     pageListMode.value = Map.from(map['pageListMode']?.map((route, listModeIndex) => MapEntry(route, ListMode.values[listModeIndex])) ?? {});
     moveCover2RightSide.value = map['moveCover2RightSide'] ?? moveCover2RightSide.value;
     layout.value = LayoutMode.values[map['layout'] ?? layout.value.index];
+    layoutFollowOrientation.value = map['layoutFollowOrientation'] ?? layoutFollowOrientation.value;
+    portraitLayout.value = _migrateV1Layout(LayoutMode.values[map['portraitLayout'] ?? portraitLayout.value.index]);
+    landscapeLayout.value = _migrateV1Layout(LayoutMode.values[map['landscapeLayout'] ?? landscapeLayout.value.index]);
 
     /// old layout has been removed in v5.0.0
     if (isInV1Layout) {
@@ -93,7 +115,17 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
               ? LayoutMode.desktop.obs
               : LayoutMode.tabletV2.obs;
     }
-    actualLayout = layout.value;
+    actualLayout = preferredLayout;
+  }
+
+  LayoutMode _migrateV1Layout(LayoutMode layoutMode) {
+    if (layoutMode == LayoutMode.mobile) {
+      return LayoutMode.mobileV2;
+    }
+    if (layoutMode == LayoutMode.tablet) {
+      return LayoutMode.tabletV2;
+    }
+    return layoutMode;
   }
 
   @override
@@ -110,6 +142,9 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
       'pageListMode': pageListMode.map((route, listMode) => MapEntry(route, listMode.index)),
       'moveCover2RightSide': moveCover2RightSide.value,
       'layout': layout.value.index,
+      'layoutFollowOrientation': layoutFollowOrientation.value,
+      'portraitLayout': portraitLayout.value.index,
+      'landscapeLayout': landscapeLayout.value.index,
     });
   }
 
@@ -190,6 +225,24 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
   Future<void> saveLayoutMode(LayoutMode layoutMode) async {
     log.debug('saveLayoutMode:${layoutMode.name}');
     this.layout.value = layoutMode;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveLayoutFollowOrientation(bool layoutFollowOrientation) async {
+    log.debug('saveLayoutFollowOrientation:$layoutFollowOrientation');
+    this.layoutFollowOrientation.value = layoutFollowOrientation;
+    await saveBeanConfig();
+  }
+
+  Future<void> savePortraitLayout(LayoutMode layoutMode) async {
+    log.debug('savePortraitLayout:${layoutMode.name}');
+    this.portraitLayout.value = layoutMode;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveLandscapeLayout(LayoutMode layoutMode) async {
+    log.debug('saveLandscapeLayout:${layoutMode.name}');
+    this.landscapeLayout.value = layoutMode;
     await saveBeanConfig();
   }
 }

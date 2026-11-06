@@ -327,6 +327,10 @@ class pt_BR {
 
       /// Layout
       'layoutMode': 'Modo de layout',
+      'layoutFollowOrientation': 'Layout segue a orientação',
+      'layoutFollowOrientationHint': 'Usar layouts diferentes em retrato e paisagem',
+      'portraitLayout': 'Layout em retrato',
+      'landscapeLayout': 'Layout em paisagem',
       'mobileLayoutV2Name': 'Celular',
       'mobileLayoutV2Desc': 'Uma coluna',
       'mobileLayoutName': 'Celular(antigo)',
