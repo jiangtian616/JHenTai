@@ -181,6 +181,12 @@ class SettingStylePage extends StatelessWidget {
   Widget _buildLayout(BuildContext context) {
     return Column(
       children: [
+        SwitchListTile(
+          title: Text('layoutFollowOrientation'.tr),
+          subtitle: Text('layoutFollowOrientationHint'.tr),
+          value: styleSetting.layoutFollowOrientation.value,
+          onChanged: switchLayoutFollowOrientation,
+        ),
         if (styleSetting.layoutFollowOrientation.isFalse)
           ListTile(
             title: Text('layoutMode'.tr),
@@ -192,12 +198,6 @@ class SettingStylePage extends StatelessWidget {
               onChanged: switchLayoutMode,
             ),
           ),
-        SwitchListTile(
-          title: Text('layoutFollowOrientation'.tr),
-          subtitle: Text('layoutFollowOrientationHint'.tr),
-          value: styleSetting.layoutFollowOrientation.value,
-          onChanged: switchLayoutFollowOrientation,
-        ),
         if (styleSetting.layoutFollowOrientation.isTrue)
           ListTile(
             title: Text('portraitLayout'.tr),
