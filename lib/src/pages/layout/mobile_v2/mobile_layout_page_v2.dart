@@ -14,6 +14,7 @@ import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/service/quick_search_service.dart';
 import 'package:jhentai/src/setting/user_setting.dart';
 import 'package:jhentai/src/utils/route_util.dart';
+import 'package:jhentai/src/widget/horizontal_safe_area.dart';
 import 'package:jhentai/src/widget/will_pop_interceptor.dart';
 
 import '../../../network/eh_request.dart';
@@ -38,7 +39,9 @@ class MobileLayoutPageV2 extends StatelessWidget {
           drawerEnableOpenDragGesture: preferenceSetting.enableLeftMenuDrawerGesture.isTrue,
           endDrawer: buildRightDrawer(),
           endDrawerEnableOpenDragGesture: preferenceSetting.enableQuickSearchDrawerGesture.isTrue,
-          body: buildBody(),
+
+          /// tab pages are not routes, so they are not wrapped by [EHPage]. Drawers and bottom bar avoid insets by themselves.
+          body: HorizontalSafeArea(child: buildBody()),
           bottomNavigationBar: preferenceSetting.hideBottomBar.isTrue ? null : buildBottomNavigationBar(context),
         ),
       ),

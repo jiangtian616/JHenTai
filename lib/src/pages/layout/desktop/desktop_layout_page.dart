@@ -34,17 +34,26 @@ class DesktopLayoutPage extends StatelessWidget {
   Widget _leftTabBar(BuildContext context) {
     return Material(
       child: Container(
-        width: UIConfig.desktopLeftTabBarWidth,
         color: UIConfig.backGroundColor(context),
-        child: GetBuilder<DesktopLayoutPageLogic>(
-          id: logic.tabBarId,
-          builder: (_) => ScrollConfiguration(
-            behavior: UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
-            child: ListView.builder(
-              controller: state.leftTabBarScrollController,
-              itemCount: state.icons.length,
-              itemExtent: UIConfig.desktopLeftTabBarItemHeight,
-              itemBuilder: _tabBarIcon,
+
+        /// tab bar touches the left screen edge, e.g. display cutout in landscape
+        child: SafeArea(
+          top: false,
+          bottom: false,
+          right: false,
+          child: SizedBox(
+            width: UIConfig.desktopLeftTabBarWidth,
+            child: GetBuilder<DesktopLayoutPageLogic>(
+              id: logic.tabBarId,
+              builder: (_) => ScrollConfiguration(
+                behavior: UIConfig.scrollBehaviourWithoutScrollBarWithMouse,
+                child: ListView.builder(
+                  controller: state.leftTabBarScrollController,
+                  itemCount: state.icons.length,
+                  itemExtent: UIConfig.desktopLeftTabBarItemHeight,
+                  itemBuilder: _tabBarIcon,
+                ),
+              ),
             ),
           ),
         ),
@@ -102,13 +111,15 @@ class DesktopLayoutPage extends StatelessWidget {
         direction: Axis.horizontal,
         controller: logic.resizableController,
         children: [
+          /// same as tablet layout, each column only keeps the safe area of the screen edge it touches,
+          /// and the left column is next to the tab bar instead of the screen edge
           ResizableChild(
-            child: _leftColumn(),
+            child: MediaQuery.removePadding(context: context, removeLeft: true, removeRight: true, child: _leftColumn()),
             size: ResizableSize.ratio(windowService.leftColumnWidthRatio),
             minSize: 100,
           ),
           ResizableChild(
-            child: _rightColumn(),
+            child: MediaQuery.removePadding(context: context, removeLeft: true, child: _rightColumn()),
             size: ResizableSize.ratio(1 - windowService.leftColumnWidthRatio),
             minSize: 100,
           ),
