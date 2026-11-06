@@ -205,8 +205,14 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
               ),
               alignment: Alignment.center,
 
-              /// keep the text out of the right system inset, e.g. the vertical status bar of iPhone Duo's inner screen
-              padding: EdgeInsets.only(right: max(32, MediaQuery.paddingOf(context).right + 8), bottom: 1, top: 3, left: 6),
+              /// keep the text out of the right system inset, e.g. the vertical status bar of iPhone Duo's inner screen,
+              /// except in immersive mode, where the status bar is hidden
+              padding: EdgeInsets.only(
+                right: readSetting.enableImmersiveMode.isTrue ? 32 : max(32, MediaQuery.paddingOf(context).right + 8),
+                bottom: 1,
+                top: 3,
+                left: 6,
+              ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -407,10 +413,13 @@ class _ReadPageState extends State<ReadPage> with ScrollStatusListener, WindowLi
           child: ColoredBox(
             color: UIConfig.readPageMenuColor,
 
-            /// menu background stays edge-to-edge, while its content avoids the left and right system insets
+            /// menu background stays edge-to-edge, while its content avoids the left and right system insets,
+            /// except in immersive mode, where the status bar is hidden and the menu takes the full width
             child: SafeArea(
               top: false,
               bottom: false,
+              left: readSetting.enableImmersiveMode.isFalse,
+              right: readSetting.enableImmersiveMode.isFalse,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
