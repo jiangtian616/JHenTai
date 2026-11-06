@@ -55,6 +55,17 @@ class StyleSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircl
 
   bool get isInDesktopLayout => actualLayout == LayoutMode.desktop;
 
+  /// The layout actually applied for [layoutMode], degrade to mobile layout if the window width is under 600.
+  LayoutMode resolveActualLayout(LayoutMode layoutMode) {
+    if (layoutMode == LayoutMode.mobileV2 || layoutMode == LayoutMode.mobile || Get.width < 600) {
+      return LayoutMode.mobileV2;
+    }
+    if (layoutMode == LayoutMode.tabletV2 || layoutMode == LayoutMode.tablet) {
+      return LayoutMode.tabletV2;
+    }
+    return LayoutMode.desktop;
+  }
+
   @override
   ConfigEnum get configEnum => ConfigEnum.styleSetting;
 

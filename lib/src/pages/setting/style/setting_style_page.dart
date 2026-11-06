@@ -186,7 +186,7 @@ class SettingStylePage extends StatelessWidget {
         value: styleSetting.actualLayout,
         elevation: 4,
         alignment: AlignmentDirectional.centerEnd,
-        onChanged: (LayoutMode? newValue) => styleSetting.saveLayoutMode(newValue!),
+        onChanged: (LayoutMode? newValue) => switchLayoutMode(newValue!),
         items: JHLayout.allLayouts
             .map((e) => DropdownMenuItem(
                   enabled: e.isSupported(),

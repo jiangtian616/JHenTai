@@ -24,7 +24,6 @@ import '../model/jh_layout.dart';
 import '../routes/routes.dart';
 import '../setting/advanced_setting.dart';
 import '../utils/route_util.dart';
-import '../utils/screen_size_util.dart';
 import '../utils/snack_util.dart';
 
 const int left = 1;
@@ -81,24 +80,20 @@ class _HomePageState extends State<HomePage> with LoginRequiredMixin, WindowList
       child: LayoutBuilder(
         builder: (_, __) => Obx(
           () {
-            if (styleSetting.layout.value == LayoutMode.mobileV2 || styleSetting.layout.value == LayoutMode.mobile) {
-              styleSetting.actualLayout = LayoutMode.mobileV2;
+            styleSetting.actualLayout = styleSetting.resolveActualLayout(styleSetting.layout.value);
+
+            if (styleSetting.actualLayout == LayoutMode.mobileV2) {
+              /// Device width is under 600, degrade to mobileV2 layout.
+              if (styleSetting.layout.value != LayoutMode.mobileV2 && styleSetting.layout.value != LayoutMode.mobile) {
+                untilRoute2BlankPage();
+              }
               return MobileLayoutPageV2();
             }
 
-            /// Device width is under 600, degrade to mobileV2 layout.
-            if (fullScreenWidth < 600) {
-              styleSetting.actualLayout = LayoutMode.mobileV2;
-              untilRoute2BlankPage();
-              return MobileLayoutPageV2();
-            }
-
-            if (styleSetting.layout.value == LayoutMode.tabletV2 || styleSetting.layout.value == LayoutMode.tablet) {
-              styleSetting.actualLayout = LayoutMode.tabletV2;
+            if (styleSetting.actualLayout == LayoutMode.tabletV2) {
               return TabletLayoutPageV2();
             }
 
-            styleSetting.actualLayout = LayoutMode.desktop;
             return DesktopLayoutPage();
           },
         ),
