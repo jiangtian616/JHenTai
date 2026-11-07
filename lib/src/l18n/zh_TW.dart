@@ -404,6 +404,7 @@ class zh_TW {
       'showGalleryTagVoteStatus': '顯示畫廊標籤投票狀態',
       'showGalleryTagVoteStatusHint': '包括可信、存疑與錯誤三種狀態',
       'showComments': '顯示畫廊評論',
+      'showCommentsHint': '關閉後詳情頁不再展示評論列表，但仍可點擊所有評論進入評論頁',
       'showAllComments': '顯示畫廊所有評論',
       'showAllCommentsHint': '預設只會顯示45個最高分評論和5個最新評論，低分評論也會被自動隱藏',
       'addTag': '新增標籤',

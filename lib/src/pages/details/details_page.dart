@@ -222,7 +222,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
             buildCopyRightRemovedHint(),
             buildLoadingDetailsIndicator(),
             buildTags(),
-            if (preferenceSetting.showComments.isTrue) buildComments(),
+            buildComments(),
             buildThumbnails(),
             buildLoadingThumbnailIndicator(context),
           ],
@@ -1344,7 +1344,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
                   ),
                 ),
               ),
-              if (state.galleryDetails!.comments.isNotEmpty)
+              if (preferenceSetting.showComments.isTrue && state.galleryDetails!.comments.isNotEmpty)
                 GestureDetector(
                   onTap: () => toRoute(Routes.comment, arguments: state.galleryDetails!.comments),
                   child: SizedBox(
