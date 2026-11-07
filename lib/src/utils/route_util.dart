@@ -286,7 +286,23 @@ LayoutMode resolveLayoutToApply() {
 class FullScreenPageObserver extends NavigatorObserver {
   static final Set<Route> _fullScreenPages = {};
 
-  static bool get hasFullScreenPage => _fullScreenPages.isNotEmpty;
+  /// The last full screen page has been popped but [relayout] hasn't run yet.
+  ///
+  /// [HomePage] becomes onstage and is laid out again in the frame the page is popped, before the post frame callback calling [relayout].
+  /// If the window was resized or rotated while the page was open, [HomePage] would rebuild with the new layout then, disposing the
+  /// nested navigators of the old layout together with the pages opened in them, e.g. details page. So keep the old layout until
+  /// [relayout] has moved them.
+  static bool _relayoutPending = false;
+
+  /// Bumped after [_relayoutPending] is reset to rebuild [HomePage], not changing [_relayoutPending] directly because observer callbacks
+  /// may be called while building.
+  static final RxInt _relayoutCount = 0.obs;
+
+  static bool get hasFullScreenPage {
+    /// let [Obx] in [HomePage] subscribe to it
+    _relayoutCount.value;
+    return _relayoutPending || _fullScreenPages.isNotEmpty;
+  }
 
   @override
   void didPush(Route route, Route? previousRoute) => _add(route);
@@ -314,9 +330,21 @@ class FullScreenPageObserver extends NavigatorObserver {
   }
 
   void _remove(Route route) {
-    if (_fullScreenPages.remove(route) && _fullScreenPages.isEmpty) {
+    if (_fullScreenPages.remove(route) && _fullScreenPages.isEmpty && !_relayoutPending) {
+      _relayoutPending = true;
+
       /// navigator is locked in observer callbacks
-      WidgetsBinding.instance.addPostFrameCallback((_) => relayout());
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _relayoutPending = false;
+
+        /// another full screen page has been pushed in the meantime, it will relayout after that page is popped
+        if (_fullScreenPages.isEmpty) {
+          relayout();
+        }
+
+        /// [relayout] only updates [StyleSetting.actualLayout], rebuild [HomePage] to apply it
+        _relayoutCount.value++;
+      });
       WidgetsBinding.instance.ensureVisualUpdate();
     }
   }
