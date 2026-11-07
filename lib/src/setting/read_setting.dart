@@ -21,6 +21,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   RxBool showStatusInfo = true.obs;
   RxBool enablePageTurnByVolumeKeys = (GetPlatform.isIOS ? false : true).obs;
   RxBool enablePageTurnAnime = true.obs;
+  RxBool enableSwipePageTurnAnime = false.obs;
   RxBool enableDoubleTapToScaleUp = false.obs;
   RxBool enableTapDragToScaleUp = false.obs;
   RxBool enableBottomMenu = false.obs;
@@ -75,6 +76,17 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
       d == ReadDirection.right2leftSinglePageFitWidth ||
       d == ReadDirection.right2leftDoubleColumn ||
       d == ReadDirection.right2leftList;
+
+  /// The swipe animation switch only takes effect when turn page animation is off.
+  ///
+  /// While turn page animation is on, swiping always animates, so the switch is disabled.
+  bool get swipePageTurnAnimeConfigurable => enablePageTurnAnime.isFalse;
+
+  /// Whether swiping animates (the page follows the finger and snaps).
+  bool get swipePageTurnAnimated => enablePageTurnAnime.isTrue || enableSwipePageTurnAnime.isTrue;
+
+  /// Whether a swipe should switch page immediately instead of dragging the page with the finger.
+  bool get instantSwipeTurnPage => !swipePageTurnAnimated;
 
   bool get isInListReadDirection {
     if (enableOrientationSpecificReadDirection.isTrue && GetPlatform.isMobile) {
@@ -135,6 +147,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     showStatusInfo.value = map['showStatusInfo'] ?? showStatusInfo.value;
     enablePageTurnByVolumeKeys.value = map['enablePageTurnByVolumeKeys'] ?? enablePageTurnByVolumeKeys.value;
     enablePageTurnAnime.value = map['enablePageTurnAnime'];
+    enableSwipePageTurnAnime.value = map['enableSwipePageTurnAnime'] ?? enableSwipePageTurnAnime.value;
     enableDoubleTapToScaleUp.value = map['enableDoubleTapToScaleUp'] ?? enableDoubleTapToScaleUp.value;
     enableTapDragToScaleUp.value = map['enableTapDragToScaleUp'] ?? enableTapDragToScaleUp.value;
     enableBottomMenu.value = map['enableBottomMenu'] ?? enableBottomMenu.value;
@@ -180,6 +193,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
       'showStatusInfo': showStatusInfo.value,
       'enablePageTurnByVolumeKeys': enablePageTurnByVolumeKeys.value,
       'enablePageTurnAnime': enablePageTurnAnime.value,
+      'enableSwipePageTurnAnime': enableSwipePageTurnAnime.value,
       'enableDoubleTapToScaleUp': enableDoubleTapToScaleUp.value,
       'enableTapDragToScaleUp': enableTapDragToScaleUp.value,
       'enableBottomMenu': enableBottomMenu.value,
@@ -359,6 +373,12 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   Future<void> saveEnablePageTurnAnime(bool value) async {
     log.debug('saveEnablePageTurnAnime:$value');
     enablePageTurnAnime.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveEnableSwipePageTurnAnime(bool value) async {
+    log.debug('saveEnableSwipePageTurnAnime:$value');
+    enableSwipePageTurnAnime.value = value;
     await saveBeanConfig();
   }
 
