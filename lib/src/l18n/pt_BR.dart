@@ -405,6 +405,7 @@ class pt_BR {
       'showGalleryTagVoteStatus': 'Show Gallery Tag Vote Status',
       'showGalleryTagVoteStatusHint': 'Include confidence, skepticism and incorrect',
       'showComments': 'Show Comments',
+      'showCommentsHint': 'When disabled, comments are hidden in details page, but you can still tap All Comments to view them',
       'showAllComments': 'Show All Comments',
       'showAllCommentsHint': 'By default only the 45 highest scoring and 5 most recent comments will be shown',
       'addTag': 'Add Tag',

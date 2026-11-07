@@ -45,7 +45,7 @@ class SettingPreferencePage extends StatelessWidget {
               _buildShowAllGalleryTitles(),
               _buildShowGalleryTagVoteStatus(),
               _buildShowComments(),
-              if (preferenceSetting.showComments.isTrue) _buildShowAllComments().fadeIn(const Key('showAllComments')),
+              _buildShowAllComments(),
               _buildEnableDefaultFavorite(),
               _buildEnableDefaultTagSet(),
               if (GetPlatform.isDesktop && styleSetting.isInDesktopLayout) _buildLaunchInFullScreen(),
@@ -352,6 +352,7 @@ class SettingPreferencePage extends StatelessWidget {
   Widget _buildShowComments() {
     return SwitchListTile(
       title: Text('showComments'.tr),
+      subtitle: Text('showCommentsHint'.tr),
       value: preferenceSetting.showComments.value,
       onChanged: preferenceSetting.saveShowComments,
     );
