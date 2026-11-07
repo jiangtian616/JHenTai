@@ -116,6 +116,10 @@ void main(List<String> args) async {
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.transparent,
     systemNavigationBarDividerColor: Colors.transparent,
+
+    /// Otherwise the system (and many OEM ROMs even with gesture navigation) draws a translucent scrim behind the navigation bar,
+    /// which doesn't match the color of our bottom navigation bar.
+    systemNavigationBarContrastEnforced: false,
     statusBarColor: Colors.transparent,
   ));
 
@@ -157,7 +161,17 @@ class MyApp extends StatelessWidget {
       getPages: Routes.pages,
       initialRoute: securitySetting.enablePasswordAuth.isTrue || securitySetting.enableBiometricAuth.isTrue ? Routes.lock : Routes.home,
       navigatorObservers: [GetXRouterObserver(), FullScreenPageObserver()],
-      builder: (context, child) => AppManager(child: child!),
+
+      /// Without the contrast scrim, navigation bar icons must follow the app theme to stay visible. Pages like the read page override it.
+      builder: (context, child) =>
+          AnnotatedRegion<SystemUiOverlayStyle>(
+            value: SystemUiOverlayStyle(
+              systemNavigationBarIconBrightness: Theme
+                  .of(context)
+                  .brightness == Brightness.dark ? Brightness.light : Brightness.dark,
+            ),
+            child: AppManager(child: child!),
+          ),
 
       /// enable swipe back feature
       popGesture: preferenceSetting.enableSwipeBackGesture.isTrue,
