@@ -217,7 +217,7 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
         controller: state.scrollController,
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-          scrollBehavior: UIConfig.scrollBehaviourWithScrollBarWithMouse,
+          scrollBehavior: UIConfig.detailScrollBehaviourWithScrollBarWithMouse,
           controller: state.scrollController,
           scrollCacheExtent: const ScrollCacheExtent.pixels(250),
           slivers: [

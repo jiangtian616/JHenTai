@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/cupertino.dart';
+import '../utils/adaptive_pane_navigation.dart';
 
 /// Relayout panes in place instead of replacing their Navigators on resize.
 class AdaptiveSplitView extends StatefulWidget {
@@ -158,4 +159,23 @@ class _AdaptivePaneViewport extends InheritedWidget {
   const _AdaptivePaneViewport({required this.compact, required super.child});
   @override
   bool updateShouldNotify(_AdaptivePaneViewport oldWidget) => compact != oldWidget.compact;
+}
+
+/// Suppress stale pages underneath a cross-pane transition without disposing
+/// their scroll state or changing ModalRoute's Hero preparation/offstage flag.
+class AdaptivePaneRouteVisibility extends StatelessWidget {
+  final Widget child;
+  const AdaptivePaneRouteVisibility({super.key, required this.child});
+  @override
+  Widget build(BuildContext context) {
+    final compact = AdaptiveSplitView.compactOf(context) == true;
+    final route = ModalRoute.of(context);
+    return AnimatedBuilder(
+        animation: adaptivePaneNavigation,
+        child: child,
+        builder: (context, child) {
+          final hidden = compact && adaptivePaneNavigation.hidesRightRoute(route);
+          return Offstage(offstage: hidden, child: HeroMode(enabled: !hidden, child: TickerMode(enabled: !hidden, child: child!)));
+        });
+  }
 }

@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../utils/native_window_geometry.dart';
+import 'adaptive_split_view.dart';
 
 /// Opt app-bar pages into the native horizontal status band without changing
 /// unrelated pages, dialogs or readers. Content consumes outer right clearance
@@ -13,6 +14,7 @@ class NativeWindowScaffold extends StatelessWidget {
   final Color? backgroundColor;
   final PreferredSizeWidget? appBar;
   final Widget? body;
+
   /// Embedded drawers keep their local header instead of sharing the window band.
   final bool adaptHeader;
 
@@ -45,7 +47,7 @@ class NativeWindowScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final geometry = NativeWindowGeometryScope.geometryOf(context);
-    return LayoutBuilder(builder: (context, constraints) {
+    return AdaptivePaneRouteVisibility(child: LayoutBuilder(builder: (context, constraints) {
       final trailing = NativeWindowPane.isTrailing(context);
       final reserve = geometry != null && trailing ? geometry.headerTrailingWidth : 0.0;
       final inline = adaptHeader && geometry?.hasInlineHeader == true && appBar is AppBar && constraints.maxWidth >= reserve + 144;
@@ -61,8 +63,7 @@ class NativeWindowScaffold extends StatelessWidget {
                   padding: EdgeInsets.only(top: geometry.headerTopInset + downshift, right: math.max(0.0, reserve - rightInset)),
                   child: Theme(
                     data: Theme.of(context).copyWith(
-                        appBarTheme:
-                            Theme.of(context).appBarTheme.copyWith(toolbarHeight: geometry.headerHeight - geometry.headerTopInset)),
+                        appBarTheme: Theme.of(context).appBarTheme.copyWith(toolbarHeight: geometry.headerHeight - geometry.headerTopInset)),
                     child: appBar!,
                   )),
             )
@@ -77,14 +78,15 @@ class NativeWindowScaffold extends StatelessWidget {
             floatingActionButton: floatingActionButton,
             floatingActionButtonLocation: floatingActionButtonLocation ??
                 (geometry != null && (constraints.maxHeight - geometry.size.height).abs() < 1
-                    ? _NativeWindowFabLocation(geometry, allowRail: trailing && (constraints.maxWidth - geometry.size.width).abs() < 1) : null),
+                    ? _NativeWindowFabLocation(geometry, allowRail: trailing && (constraints.maxWidth - geometry.size.width).abs() < 1)
+                    : null),
             endDrawer: endDrawer,
             drawerEdgeDragWidth: drawerEdgeDragWidth,
             endDrawerEnableOpenDragGesture: endDrawerEnableOpenDragGesture,
             resizeToAvoidBottomInset: resizeToAvoidBottomInset,
             bottomNavigationBar: bottomNavigationBar),
       );
-    });
+    }));
   }
 
   Widget? _buildBody(MediaQueryData originalMedia) {
@@ -109,7 +111,6 @@ class NativeWindowScaffold extends StatelessWidget {
   }
 }
 
-
 /// Use the same native rail as the root scroll action without changing the
 /// button callback, size or page transition. Explicit page locations win.
 class _NativeWindowFabLocation extends FloatingActionButtonLocation {
@@ -125,7 +126,9 @@ class _NativeWindowFabLocation extends FloatingActionButtonLocation {
       return protected;
     }
     final clearance = math.max(0.0, scaffold.scaffoldSize.height - protected.dy - scaffold.floatingActionButtonSize.height - 16);
-    return geometry.railActionRect(scaffold.floatingActionButtonSize,
-        bottomInset: clearance, availableHeight: scaffold.scaffoldSize.height)?.topLeft ?? protected;
+    return geometry
+            .railActionRect(scaffold.floatingActionButtonSize, bottomInset: clearance, availableHeight: scaffold.scaffoldSize.height)
+            ?.topLeft ??
+        protected;
   }
 }

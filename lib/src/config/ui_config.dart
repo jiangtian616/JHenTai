@@ -9,16 +9,17 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 import '../utils/screen_size_util.dart';
 import '../widget/viewport_scrollbar.dart';
+import '../utils/native_window_geometry.dart';
 
 class UIConfig {
   /// common
-  static ScrollBehavior scrollBehaviourWithScrollBar = EHScrollBehaviourWithScrollBar().copyWith(
+  static ScrollBehavior scrollBehaviourWithScrollBar = const EHScrollBehaviourWithScrollBar().copyWith(
     scrollbars: true,
   );
   static ScrollBehavior scrollBehaviourWithoutScrollBar = const MaterialScrollBehavior().copyWith(
     scrollbars: false,
   );
-  static ScrollBehavior scrollBehaviourWithScrollBarWithMouse = EHScrollBehaviourWithScrollBar().copyWith(
+  static ScrollBehavior scrollBehaviourWithScrollBarWithMouse = const EHScrollBehaviourWithScrollBar().copyWith(
     dragDevices: {
       PointerDeviceKind.mouse,
       PointerDeviceKind.touch,
@@ -27,6 +28,12 @@ class UIConfig {
       PointerDeviceKind.trackpad,
       PointerDeviceKind.unknown,
     },
+    scrollbars: true,
+  );
+
+  /// Full-width detail content opts into native side-rail painter alignment.
+  static ScrollBehavior detailScrollBehaviourWithScrollBarWithMouse = const EHScrollBehaviourWithScrollBar(alignWithNativeRail: true).copyWith(
+    dragDevices: scrollBehaviourWithScrollBarWithMouse.dragDevices,
     scrollbars: true,
   );
   static ScrollBehavior scrollBehaviourWithoutScrollBarWithMouse = const MaterialScrollBehavior().copyWith(
@@ -663,20 +670,31 @@ class UIConfig {
 }
 
 class EHScrollBehaviourWithScrollBar extends MaterialScrollBehavior {
+  final bool alignWithNativeRail;
+  const EHScrollBehaviourWithScrollBar({this.alignWithNativeRail = false});
+
   @override
   Widget buildScrollbar(BuildContext context, Widget child, ScrollableDetails details) {
     switch (axisDirectionToAxis(details.direction)) {
       case Axis.horizontal:
         return child;
       case Axis.vertical:
+        final readerEdge = ReaderWindowScope.isEdgeToEdge(context);
+        final geometry = alignWithNativeRail ? NativeWindowGeometryScope.geometryOf(context) : null;
+        // Ordinary phones retain their hardware safe area. The detail viewport
+        // stays full width on Duo, so only its indicator ignores the side inset.
+        final nativeRail = alignWithNativeRail &&
+            getPlatform(context) == TargetPlatform.iOS &&
+            geometry?.isDuoDevice == true &&
+            geometry?.rightRail != null;
         return ScrollbarTheme(
           data: ScrollbarThemeData(
             radius: styleSetting.isInMobileLayout ? CupertinoScrollbar.defaultRadius : const Radius.circular(8),
             thickness: WidgetStateProperty.all(styleSetting.isInMobileLayout ? CupertinoScrollbar.defaultThickness : 8),
           ),
-          child: styleSetting.isInTabletLayout || ReaderWindowScope.isEdgeToEdge(context)
+          child: styleSetting.isInTabletLayout || readerEdge || nativeRail
               ? ViewportScrollbar(controller: details.controller,
-                  scrollbarOrientation: ReaderWindowScope.isEdgeToEdge(context) ? ScrollbarOrientation.right : null, child: child)
+                  scrollbarOrientation: readerEdge || nativeRail ? ScrollbarOrientation.right : null, child: child)
               : Scrollbar(controller: details.controller, child: child),
         );
     }

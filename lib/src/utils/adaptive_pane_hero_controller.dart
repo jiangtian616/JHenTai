@@ -19,11 +19,18 @@ class AdaptivePaneHeroController extends HeroController {
 
   @override
   void didChangeTop(Route<dynamic> topRoute, Route<dynamic>? previousTopRoute) {
-    super.didChangeTop(_visiblePrevious(topRoute)!, _visiblePrevious(previousTopRoute));
+    if (navigation.compact && navigation.crossesFrom(topRoute, previousTopRoute)) {
+      super.didChangeTop(topRoute, navigation.leftSourceFor(topRoute));
+    } else if (navigation.compact && navigation.crossesFrom(previousTopRoute, topRoute)) {
+      super.didChangeTop(navigation.leftSourceFor(previousTopRoute) ?? topRoute, previousTopRoute);
+    } else {
+      super.didChangeTop(_visiblePrevious(topRoute)!, _visiblePrevious(previousTopRoute));
+    }
   }
 
   @override
   void didStartUserGesture(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    super.didStartUserGesture(route, _visiblePrevious(previousRoute));
+    super.didStartUserGesture(route,
+        navigation.compact && navigation.crossesFrom(route, previousRoute) ? navigation.leftSourceFor(route) : _visiblePrevious(previousRoute));
   }
 }

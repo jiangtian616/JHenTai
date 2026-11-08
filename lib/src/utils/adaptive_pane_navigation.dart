@@ -12,8 +12,8 @@ class AdaptivePaneNavigation extends ChangeNotifier {
   int _sequence = 0;
   PageRoute<dynamic>? _rightBoundaryRoute;
 
-  /// The first content route above the right placeholder. Keep a popped route
-  /// here until its reverse animation finishes, including interactive back.
+  /// The current compact cross-pane transition, or the first right content
+  /// route. Retain popped transitions until their reverse animation finishes.
   PageRoute<dynamic>? get rightBoundaryRoute => _rightBoundaryRoute;
 
   void _watchRightBoundary(PageRoute<dynamic>? route) {
@@ -22,9 +22,45 @@ class AdaptivePaneNavigation extends ChangeNotifier {
     route?.animation?.addStatusListener(_boundaryStatusChanged);
   }
 
+  final _leftSources = <PageRoute<dynamic>, PageRoute<dynamic>>{};
+  final _rightPredecessors = <PageRoute<dynamic>, Route<dynamic>?>{};
+
+  PageRoute<dynamic>? leftSourceFor(Route<dynamic>? route) {
+    final source = _leftSources[route];
+    if (source == null) {
+      return null;
+    }
+    return _routes[AdaptivePane.left]!.contains(source) ? source : topPageRoute(AdaptivePane.left);
+  }
+
+  bool crossesFrom(Route<dynamic>? route, Route<dynamic>? previous) =>
+      _leftSources.containsKey(route) && identical(_rightPredecessors[route], previous);
+
+  /// Keep older right-stack pages alive, but do not paint them behind an
+  /// incoming/outgoing page whose actual source is the left search pane.
+  bool hidesRightRoute(Route<dynamic>? route) {
+    final boundary = _rightBoundaryRoute;
+    if (route == null || !mounted || !compact || boundary == null || !_leftSources.containsKey(boundary)) {
+      return false;
+    }
+    final routes = _routes[AdaptivePane.right]!;
+    final index = routes.indexOf(route);
+    final boundaryIndex = routes.indexOf(boundary);
+    return index >= 0 && (boundaryIndex < 0 || index < boundaryIndex);
+  }
+
+  void _restoreBoundary() {
+    final routes = _routes[AdaptivePane.right]!;
+    final cross = routes.whereType<PageRoute<dynamic>>().where(_leftSources.containsKey).lastOrNull;
+    final first = routes.length > 1 && routes[1] is PageRoute<dynamic> ? routes[1] as PageRoute<dynamic> : null;
+    _watchRightBoundary(cross ?? first);
+  }
+
   void _boundaryStatusChanged(AnimationStatus status) {
     if (status == AnimationStatus.dismissed && !_routes[AdaptivePane.right]!.contains(_rightBoundaryRoute)) {
-      _watchRightBoundary(null);
+      _leftSources.remove(_rightBoundaryRoute);
+      _rightPredecessors.remove(_rightBoundaryRoute);
+      _restoreBoundary();
     }
     _changed();
   }
@@ -57,6 +93,8 @@ class AdaptivePaneNavigation extends ChangeNotifier {
       routes.clear();
     }
     _activity.clear();
+    _leftSources.clear();
+    _rightPredecessors.clear();
   }
 
   void focus(AdaptivePane pane) {
@@ -100,8 +138,14 @@ class _PaneObserver extends NavigatorObserver {
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    final fromLeft = pane == AdaptivePane.right && owner.compact && owner.activePane == AdaptivePane.left;
+    final source = owner.topPageRoute(AdaptivePane.left);
     owner._routes[pane]!.add(route);
-    if (pane == AdaptivePane.right && owner._routes[pane]!.length == 2 && route is PageRoute<dynamic>) {
+    if (fromLeft && previousRoute != null && source != null && route is PageRoute<dynamic>) {
+      owner._leftSources[route] = source;
+      owner._rightPredecessors[route] = previousRoute;
+      owner._watchRightBoundary(route);
+    } else if (pane == AdaptivePane.right && owner._routes[pane]!.length == 2 && route is PageRoute<dynamic>) {
       owner._watchRightBoundary(route);
     }
     owner.focus(pane);
@@ -114,13 +158,35 @@ class _PaneObserver extends NavigatorObserver {
   void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) => _remove(route);
 
   void _remove(Route<dynamic> route, {bool retainTransition = false}) {
-    owner._routes[pane]!.remove(route);
-    if (identical(route, owner._rightBoundaryRoute) &&
-        (!retainTransition || owner._rightBoundaryRoute?.animation?.status == AnimationStatus.dismissed)) {
-      final routes = owner._routes[AdaptivePane.right]!;
-      owner._watchRightBoundary(routes.length > 1 && routes[1] is PageRoute<dynamic> ? routes[1] as PageRoute<dynamic> : null);
-    }
+    final routes = owner._routes[pane]!;
+    final index = routes.indexOf(route);
+    final previous = index > 0 ? routes[index - 1] : null;
+    routes.remove(route);
     owner._activity.remove(route);
+    // The visible return target can be the left pane even when another old
+    // right route remains below this one. Interactive cancellation does not pop.
+    final source = owner.topPageRoute(AdaptivePane.left);
+    final returnsLeft = pane == AdaptivePane.right && owner.compact && owner.activePane == AdaptivePane.left;
+    if (retainTransition && returnsLeft && source != null && route is PageRoute<dynamic> && route.animation?.status != AnimationStatus.dismissed) {
+      owner._leftSources[route] = source;
+      owner._rightPredecessors[route] = previous;
+      owner._watchRightBoundary(route);
+    } else if (identical(route, owner._rightBoundaryRoute) &&
+        (!retainTransition || owner._rightBoundaryRoute?.animation?.status == AnimationStatus.dismissed)) {
+      owner._leftSources.remove(route);
+      owner._rightPredecessors.remove(route);
+      owner._restoreBoundary();
+    } else if (!identical(route, owner._rightBoundaryRoute)) {
+      owner._leftSources.remove(route);
+      owner._rightPredecessors.remove(route);
+    }
+    if (!retainTransition) {
+      for (final key in owner._rightPredecessors.keys.toList()) {
+        if (identical(owner._rightPredecessors[key], route)) {
+          owner._rightPredecessors[key] = previous;
+        }
+      }
+    }
     owner._changed();
   }
 
@@ -132,6 +198,24 @@ class _PaneObserver extends NavigatorObserver {
       routes.removeAt(index);
       if (newRoute != null) {
         routes.insert(index, newRoute);
+      }
+    }
+    final source = owner._leftSources.remove(oldRoute);
+    final previous = owner._rightPredecessors.remove(oldRoute);
+    if (source != null && newRoute is PageRoute<dynamic>) {
+      owner._leftSources[newRoute] = source;
+      owner._rightPredecessors[newRoute] = previous;
+    }
+    for (final key in owner._rightPredecessors.keys.toList()) {
+      if (identical(owner._rightPredecessors[key], oldRoute)) {
+        owner._rightPredecessors[key] = newRoute;
+      }
+    }
+    if (pane == AdaptivePane.left && newRoute is PageRoute<dynamic>) {
+      for (final key in owner._leftSources.keys.toList()) {
+        if (identical(owner._leftSources[key], oldRoute)) {
+          owner._leftSources[key] = newRoute;
+        }
       }
     }
     if (identical(oldRoute, owner._rightBoundaryRoute)) {

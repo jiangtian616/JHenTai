@@ -7,6 +7,7 @@ import 'package:jhentai/src/routes/routes.dart';
 import 'package:jhentai/src/setting/style_setting.dart';
 
 import '../model/jh_layout.dart';
+import '../pages/details/details_page_logic.dart';
 import 'adaptive_pane_navigation.dart';
 import '../pages/layout/desktop/desktop_layout_page_logic.dart';
 
@@ -19,6 +20,20 @@ int? get _compactActiveNavigator {
   return adaptivePaneNavigation.activePane == AdaptivePane.right ? rightV2 : leftV2;
 }
 
+/// Route names identify the page type, not the gallery being displayed.
+/// Hidden pane routes must not suppress navigation from the visible pane.
+bool _sameGalleryAtTop(dynamic arguments) {
+  if (arguments is! DetailsPageArgument || !isRouteAtTop(Routes.details)) {
+    return false;
+  }
+  final previous = _mobileRootNavigation
+      ? Get.arguments
+      : adaptivePaneNavigation.mounted
+          ? adaptivePaneNavigation.topPageRoute(AdaptivePane.right)?.settings.arguments
+          : rightRouting.args;
+  return previous is DetailsPageArgument && previous.galleryUrl.gid == arguments.galleryUrl.gid;
+}
+
 /// adaptive to different layout
 Future<T?>? toRoute<T>(
   String routeName, {
@@ -29,20 +44,25 @@ Future<T?>? toRoute<T>(
   int? id,
 }) {
   EHPage page = Routes.pages.firstWhere((page) => page.name == routeName);
+  final galleryRoute = routeName == Routes.details;
+  if (galleryRoute && preventDuplicates && _sameGalleryAtTop(arguments)) {
+    return null;
+  }
+  // GetX only compares names. Gallery identity has already been checked above.
+  final preventNamedDuplicates = galleryRoute ? false : preventDuplicates;
 
   /// only one [Route]
   if (_mobileRootNavigation || page.side == Side.fullScreen || id == fullScreen) {
     return Get.toNamed(
       routeName,
       arguments: arguments,
-      preventDuplicates: preventDuplicates,
+      preventDuplicates: preventNamedDuplicates,
       parameters: parameters,
     );
   }
 
-  if (adaptivePaneNavigation.mounted) {
-    adaptivePaneNavigation.focus(page.side == Side.left ? AdaptivePane.left : AdaptivePane.right);
-  }
+  // Successful pushes update pane activity through the Navigator observer.
+  // Focusing the old destination first would corrupt cross-pane back order.
 
   if (page.side == Side.left) {
     if (styleSetting.actualLayout == LayoutMode.desktop) {
@@ -58,7 +78,7 @@ Future<T?>? toRoute<T>(
           arguments: arguments,
           id: left,
           parameters: parameters,
-          preventDuplicates: preventDuplicates,
+          preventDuplicates: preventNamedDuplicates,
         );
       }
     }
@@ -68,7 +88,7 @@ Future<T?>? toRoute<T>(
       routeName,
       arguments: arguments,
       id: styleSetting.isInV2Layout ? leftV2 : left,
-      preventDuplicates: preventDuplicates,
+      preventDuplicates: preventNamedDuplicates,
       parameters: parameters,
     );
   }
@@ -85,7 +105,7 @@ Future<T?>? toRoute<T>(
         arguments: arguments,
         id: styleSetting.isInV2Layout ? rightV2 : right,
         parameters: parameters,
-        preventDuplicates: preventDuplicates,
+        preventDuplicates: preventNamedDuplicates,
       );
     });
 
@@ -93,7 +113,7 @@ Future<T?>? toRoute<T>(
   }
 
   /// right [Route]
-  if (preventDuplicates && isRouteAtTop(routeName)) {
+  if (preventNamedDuplicates && isRouteAtTop(routeName)) {
     return null;
   }
 
@@ -102,7 +122,7 @@ Future<T?>? toRoute<T>(
     arguments: arguments,
     id: styleSetting.isInV2Layout ? rightV2 : right,
     parameters: parameters,
-    preventDuplicates: preventDuplicates,
+    preventDuplicates: preventNamedDuplicates,
   );
 }
 
@@ -244,6 +264,13 @@ bool isRouteAtTop(String routeName) {
 
   if (_mobileRootNavigation || side == Side.fullScreen) {
     return Get.currentRoute == routeName;
+  }
+
+  if (adaptivePaneNavigation.mounted && adaptivePaneNavigation.compact) {
+    final pane = side == Side.left ? AdaptivePane.left : AdaptivePane.right;
+    if (adaptivePaneNavigation.activePane != pane) {
+      return false;
+    }
   }
 
   if (side == Side.left) {
