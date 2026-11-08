@@ -70,7 +70,12 @@ class DetailsPage extends StatelessWidget with Scroll2TopPageMixin {
       init: logic,
       builder: (_) => Scaffold(
         appBar: buildAppBar(context),
-        body: buildBody(context),
+
+        /// The content extends under iPhone Duo's vertical bar while the app bar and the floating button keep avoiding it, see
+        /// [EHPage.extendIntoVerticalBar]. Builder reads the padding below Scaffold, which has removed the top inset for the body.
+        body: Builder(
+          builder: (context) => MediaQuery.removePadding(context: context, removeLeft: true, removeRight: true, child: buildBody(context)),
+        ),
         floatingActionButton: buildFloatingActionButton(),
       ),
     );

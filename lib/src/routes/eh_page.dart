@@ -15,16 +15,20 @@ class EHPage extends GetPage {
   /// used when pushing a new route to right screen
   final bool offAllBefore;
 
+  /// let the page content extend under iPhone Duo's vertical bar, see [HorizontalSafeArea.extendIntoVerticalBar]
+  final bool extendIntoVerticalBar;
+
   EHPage({
     required super.name,
     required GetPageBuilder page,
     this.side = Side.right,
     this.offAllBefore = true,
+    this.extendIntoVerticalBar = false,
     super.transition,
     super.popGesture,
   }) : super(
           /// Both the root navigator and the nested navigators of tablet & desktop layout build pages from here, so every page
           /// avoids the left and right system insets in all layouts. Full screen pages like read page handle insets by themselves.
-          page: side == Side.fullScreen ? page : () => HorizontalSafeArea(child: page()),
+          page: side == Side.fullScreen ? page : () => HorizontalSafeArea(extendIntoVerticalBar: extendIntoVerticalBar, child: page()),
         );
 }
