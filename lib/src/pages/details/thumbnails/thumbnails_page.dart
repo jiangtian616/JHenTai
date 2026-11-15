@@ -70,7 +70,7 @@ class ThumbnailsPage extends StatelessWidget with Scroll2TopPageMixin {
       child: EHWheelSpeedController(
         controller: state.scrollController,
         child: CustomScrollView(
-          scrollCacheExtent: ScrollCacheExtent.pixels(5000),
+          scrollCacheExtent: ScrollCacheExtent.pixels(400),
           controller: state.scrollController,
           scrollBehavior: UIConfig.scrollBehaviourWithScrollBarWithMouse,
           slivers: [
@@ -112,7 +112,9 @@ class ThumbnailsPage extends StatelessWidget with Scroll2TopPageMixin {
                                 containerHeight: constraints.maxHeight,
                                 containerWidth: constraints.maxWidth,
                                 borderRadius: BorderRadius.circular(8),
-                                maxBytes: 128 * 1024,
+                                cacheWidth: displayDecodePixels(constraints.maxWidth, context),
+                                cacheHeight: displayDecodePixels(constraints.maxHeight, context),
+                                disableAnimation: true,
                               )
                                   : EHThumbnail(
                                 thumbnail: state.thumbnails[index],

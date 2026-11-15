@@ -83,6 +83,7 @@ class _ReadPageBody extends StatefulWidget {
 class _ReadPageBodyState extends State<_ReadPageBody> with ScrollStatusListener, WindowListener, WindowWidgetMixin {
   late final ReadPageLogic logic;
   late final ReadPageState state;
+  bool _thumbnailsReady = false;
 
   @override
   void initState() {
@@ -535,7 +536,11 @@ class _ReadPageBodyState extends State<_ReadPageBody> with ScrollStatusListener,
     return GetBuilder<ReadPageLogic>(
       id: logic.bottomMenuId,
       builder: (_) => Obx(
-        () => AnimatedPositioned(
+        () {
+          if (state.isMenuOpen) {
+            _thumbnailsReady = true;
+          }
+          return AnimatedPositioned(
           duration: const Duration(milliseconds: 200),
           curve: Curves.ease,
           bottom: state.isMenuOpen
@@ -559,7 +564,11 @@ class _ReadPageBodyState extends State<_ReadPageBody> with ScrollStatusListener,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (readSetting.showThumbnails.isTrue) Offstage(offstage: !state.isMenuOpen, child: _buildThumbnails(context)),
+                  if (readSetting.showThumbnails.isTrue && _thumbnailsReady)
+                    Offstage(
+                      offstage: !state.isMenuOpen,
+                      child: _buildThumbnails(context),
+                    ),
                   _buildSlider(),
                   if (readSetting.enableBottomMenu.isTrue) _buildBottomAction(),
                   SizedBox(height: max(MediaQuery.of(context).viewPadding.bottom, UIConfig.readPageBottomSpacingHeight)),
@@ -567,7 +576,8 @@ class _ReadPageBodyState extends State<_ReadPageBody> with ScrollStatusListener,
               ),
             ),
           ),
-        ),
+        );
+        },
       ),
     );
   }
@@ -585,7 +595,7 @@ class _ReadPageBodyState extends State<_ReadPageBody> with ScrollStatusListener,
             reverse: logic.isInRight2LeftDirection,
             physics: const ClampingScrollPhysics(),
             minCacheExtent: 1 * fullScreenWidth,
-            initialScrollIndex: state.readPageInfo.initialIndex,
+            initialScrollIndex: state.readPageInfo.currentImageIndex,
             itemCount: state.readPageInfo.pageCount,
             itemScrollController: state.thumbnailsScrollController,
             itemPositionsListener: state.thumbnailPositionsListener,
@@ -676,7 +686,8 @@ class _ReadPageBodyState extends State<_ReadPageBody> with ScrollStatusListener,
             containerHeight: constraints.maxHeight,
             containerWidth: constraints.maxWidth,
             borderRadius: BorderRadius.circular(8),
-            maxBytes: 1024 * 50,
+            cacheWidth: displayDecodePixels(constraints.maxWidth, context),
+            cacheHeight: displayDecodePixels(constraints.maxHeight, context),
             disableAnimation: true,
           ),
         );
