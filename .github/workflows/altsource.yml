@@ -1,0 +1,84 @@
+name: AltSource Update
+
+# Called after Publish has finished uploading assets. Releases created using GITHUB_TOKEN
+# do not trigger another workflow through release:published, so use workflow_call instead.
+on:
+  workflow_call:
+    inputs:
+      tag:
+        description: Release tag to publish into AltSource.json
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag; empty selects the latest stable release
+        required: false
+        type: string
+      allow_downgrade:
+        description: Explicitly allow replacing the stable feed with an older stable version
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: altsource-json
+      cancel-in-progress: false
+    env:
+      DEFAULT_BRANCH: ${{ github.event.repository.default_branch || 'master' }}
+    steps:
+      - name: Checkout default branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch || 'master' }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Resolve release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          if [ -n "$INPUT_TAG" ]; then
+            gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${INPUT_TAG}" > "$RUNNER_TEMP/altsource-release.json"
+          else
+            gh api "repos/${GITHUB_REPOSITORY}/releases/latest" > "$RUNNER_TEMP/altsource-release.json"
+          fi
+
+      - name: Update stable AltSource feed
+        env:
+          ALLOW_DOWNGRADE: ${{ github.event_name == 'workflow_dispatch' && inputs.allow_downgrade || false }}
+        run: |
+          set -euo pipefail
+          ARGS=()
+          if [ "$ALLOW_DOWNGRADE" = "true" ]; then
+            ARGS+=(--allow-downgrade)
+          fi
+          python scripts/update_altsource.py \
+            --release "$RUNNER_TEMP/altsource-release.json" \
+            --feed altsource/AltSource.json "${ARGS[@]}"
+
+      - name: Commit and push
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- altsource/AltSource.json; then
+            echo "AltSource.json unchanged, nothing to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add altsource/AltSource.json
+          git commit -m "Update stable AltSource feed from release assets"
+          git pull --rebase origin "$DEFAULT_BRANCH"
+          git push origin "HEAD:$DEFAULT_BRANCH"
