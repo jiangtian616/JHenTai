@@ -66,7 +66,7 @@ part 'gallery_upgrade_migrator.dart';
 /// Responsible for local images meta-data and download all images of a gallery
 GalleryDownloadService galleryDownloadService = GalleryDownloadService();
 
-class GalleryDownloadService extends GetxController with GridBasePageServiceMixin, JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
+class GalleryDownloadService extends GetxController with WidgetsBindingObserver, GridBasePageServiceMixin, JHLifeCircleBeanErrorCatch implements JHLifeCircleBean {
   final String downloadImageId = 'downloadImageId';
   final String downloadImageUrlId = 'downloadImageUrlId';
   final String galleryDownloadProgressId = 'galleryDownloadProgressId';
@@ -159,10 +159,21 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
   }
 
   @override
-  Future<void> doAfterBeanReady() async {}
+  Future<void> doAfterBeanReady() async {
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.inactive || state == AppLifecycleState.hidden || state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
+      unawaited(_flushPendingImageStatusWrites());
+    }
+  }
 
   @override
   void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
+    unawaited(_flushPendingImageStatusWrites());
     super.onClose();
 
     _downloadSettingListener?.dispose();
@@ -241,6 +252,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     if (downloading.isEmpty) {
       return;
     }
+
+    await _flushPendingImageStatusWrites();
 
     /// Single transaction: bulk gallery status + bulk image status.
     /// Avoids N per-gallery DB round-trips (one UPDATE + one image-batch
@@ -337,6 +350,8 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     if (downloadProgress.downloadStatus != DownloadStatus.downloading) {
       return;
     }
+
+    await _flushPendingImageStatusWrites();
 
     if (!await _updateGalleryInDatabase(
       GalleryDownloadedCompanion(gid: Value(gallery.gid), downloadStatusIndex: Value(DownloadStatus.paused.index)),
@@ -1455,8 +1470,67 @@ class GalleryDownloadService extends GetxController with GridBasePageServiceMixi
     return await GalleryDao.updateGallery(gallery, fromStatusIndex: fromStatusIndex) > 0;
   }
 
-  Future<bool> _updateImageInDatabase(ImageCompanion image) async {
-    return await GalleryImageDao.updateImage(image) > 0;
+  final Map<String, ImageCompanion> _pendingImageStatus = <String, ImageCompanion>{};
+  Timer? _imageStatusTimer;
+  Future<void> _imageStatusTail = Future<void>.value();
+
+  void _enqueueImageStatus(ImageCompanion image) {
+    _pendingImageStatus['${image.gid.value}:${image.serialNo.value}'] = image;
+    _imageStatusTimer ??= Timer(const Duration(milliseconds: 500), () {
+      _imageStatusTimer = null;
+      unawaited(_flushPendingImageStatusWrites());
+    });
+  }
+
+  Future<void> _flushPendingImageStatusWrites() {
+    _imageStatusTail = _imageStatusTail.then((_) => _flushPendingImageStatusBody());
+    return _imageStatusTail;
+  }
+
+  Future<void> _flushPendingImageStatusBody() async {
+    _imageStatusTimer?.cancel();
+    _imageStatusTimer = null;
+    if (_pendingImageStatus.isEmpty) {
+      return;
+    }
+    final Map<String, ImageCompanion> batch = Map<String, ImageCompanion>.of(_pendingImageStatus);
+    _pendingImageStatus.clear();
+    final List<ImageCompanion> writes = <ImageCompanion>[];
+    for (final MapEntry<String, ImageCompanion> entry in batch.entries) {
+      final List<String> parts = entry.key.split(':');
+      final int gid = int.parse(parts[0]);
+      final int serialNo = int.parse(parts[1]);
+      final GalleryImage? current = galleryDownloadInfos[gid]?.imageAtSync(serialNo);
+      final int? pending = entry.value.downloadStatusIndex.value;
+      if (current != null && pending != null && current.downloadStatus.index != pending) {
+        continue;
+      }
+      writes.add(entry.value);
+    }
+    if (writes.isEmpty) {
+      return;
+    }
+    try {
+      await appDb.transaction(() async {
+        for (final ImageCompanion image in writes) {
+          await GalleryImageDao.updateImage(image);
+        }
+      });
+    } catch (e, stack) {
+      for (final ImageCompanion image in writes) {
+        _pendingImageStatus.putIfAbsent('${image.gid.value}:${image.serialNo.value}', () => image);
+      }
+      _imageStatusTimer ??= Timer(const Duration(milliseconds: 500), () {
+        _imageStatusTimer = null;
+        unawaited(_flushPendingImageStatusWrites());
+      });
+      log.error('Flush image status writes failed', e, stack);
+    }
+  }
+
+  Future<bool> _updateImageInDatabase(ImageCompanion image) {
+    _enqueueImageStatus(image);
+    return Future<bool>.value(true);
   }
 
   Future<void> _clearGalleryDownloadInfoInDatabase(int gid) {

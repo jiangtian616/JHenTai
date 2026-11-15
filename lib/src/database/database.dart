@@ -454,9 +454,19 @@ LazyDatabase _openConnection() {
       await applyWorkaroundToOpenSqlite3OnOldAndroidVersions();
     }
 
-    sqlite3.tempDirectory = pathService.tempDir.path;
+    final String sqliteTempPath = pathService.tempDir.path;
+    sqlite3.tempDirectory = sqliteTempPath;
 
-    return NativeDatabase(file);
+    return NativeDatabase.createInBackground(
+      file,
+      isolateSetup: () {
+        sqlite3.tempDirectory = sqliteTempPath;
+      },
+      setup: (database) {
+        database.execute('PRAGMA journal_mode=WAL');
+        database.execute('PRAGMA synchronous=NORMAL');
+      },
+    );
   });
 }
 
