@@ -5,7 +5,9 @@ import 'package:get/get.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/pages/read/layout/horizontal_double_column/horizontal_double_column_layout_state.dart';
+import 'package:jhentai/src/widget/eh_swipe_page_turner.dart';
 import 'package:jhentai/src/widget/eh_wheel_scroll_listener.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 
 import '../../../../service/gallery_download/gallery_download_service.dart';
@@ -23,7 +25,10 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
 
   @override
   Widget buildBody(BuildContext context) {
-    return EHWheelListener(
+    /// with swipe animation off, a swipe should switch page immediately instead of dragging the page
+    bool instantTurnPage = readSetting.instantSwipeTurnPage;
+
+    Widget body = EHWheelListener(
       onPointerScroll: logic.onPointerScroll,
       child: FutureBuilder(
         future: logic.initCompleter.future,
@@ -31,7 +36,9 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
           if (snapshot.connectionState == ConnectionState.done) {
             return PhotoViewGallery.builder(
               enableCtrlScrollZoom: true,
-              scrollPhysics: const ClampingScrollPhysics(),
+              scrollPhysics: instantTurnPage ? const NeverScrollableScrollPhysics() : const ClampingScrollPhysics(),
+              scaleStateChangedCallback: (scaleState) => state.isZoomed = scaleState != PhotoViewScaleState.initial,
+              onPageChanged: (_) => state.isZoomed = false,
               pageController: state.pageController,
               cacheExtent: readPageState.readPageInfo.mode == ReadMode.online
                   ? (readSetting.preloadPageCount.value.toDouble() + 1) / 2
@@ -55,6 +62,14 @@ class HorizontalDoubleColumnLayout extends BaseLayout {
           return Container();
         },
       ),
+    );
+
+    return EHSwipePageTurner(
+      enabled: instantTurnPage,
+      canSwipe: () => !state.isZoomed,
+      onSwipeLeft: logic.toRight,
+      onSwipeRight: logic.toLeft,
+      child: body,
     );
   }
 
