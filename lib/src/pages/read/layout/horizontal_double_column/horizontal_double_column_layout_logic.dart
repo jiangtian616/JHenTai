@@ -66,7 +66,7 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
   void toPrev() {
     int currentPage = state.pageController.page!.toInt();
     if (currentPage <= 0) {
-      return;
+      return readPageLogic.handleTurnPageBeyondBoundary(false);
     }
 
     int targetIndex = computeImagesInPageIndex(currentPage - 1).first;
@@ -77,7 +77,7 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
   void toNext() {
     int currentPage = state.pageController.page!.toInt();
     if (currentPage >= state.pageCount - 1) {
-      return;
+      return readPageLogic.handleTurnPageBeyondBoundary(true);
     }
 
     int targetIndex = computeImagesInPageIndex(currentPage + 1).first;
@@ -209,6 +209,7 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
     int currentImageIndex = 0;
     int currentPageIndex = 0;
     bool hasLeftColumn = false;
+
     /// Extends displayFirstPageAlone to apply after each spread, not just the cover.
     bool nextIsAlone = readPageState.displayFirstPageAlone;
 

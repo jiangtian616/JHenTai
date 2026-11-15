@@ -24,6 +24,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   RxBool enableDoubleTapToScaleUp = false.obs;
   RxBool enableTapDragToScaleUp = false.obs;
   RxBool enableBottomMenu = false.obs;
+  RxBool enableAutoSwitchGallery = false.obs;
   Rx<DeviceDirection> deviceDirection = DeviceDirection.followSystem.obs;
   Rx<ReadDirection> readDirection = GetPlatform.isMobile ? ReadDirection.top2bottomList.obs : ReadDirection.left2rightList.obs;
   RxBool enableOrientationSpecificReadDirection = false.obs;
@@ -138,6 +139,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
     enableDoubleTapToScaleUp.value = map['enableDoubleTapToScaleUp'] ?? enableDoubleTapToScaleUp.value;
     enableTapDragToScaleUp.value = map['enableTapDragToScaleUp'] ?? enableTapDragToScaleUp.value;
     enableBottomMenu.value = map['enableBottomMenu'] ?? enableBottomMenu.value;
+    enableAutoSwitchGallery.value = map['enableAutoSwitchGallery'] ?? enableAutoSwitchGallery.value;
     autoModeInterval.value = map['autoModeInterval'] ?? autoModeInterval.value;
     autoModeStyle.value = AutoModeStyle.values[map['autoModeStyle'] ?? AutoModeStyle.scroll.index];
     deviceDirection.value = DeviceDirection.values[map['deviceDirection'] ?? DeviceDirection.followSystem.index];
@@ -183,6 +185,7 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
       'enableDoubleTapToScaleUp': enableDoubleTapToScaleUp.value,
       'enableTapDragToScaleUp': enableTapDragToScaleUp.value,
       'enableBottomMenu': enableBottomMenu.value,
+      'enableAutoSwitchGallery': enableAutoSwitchGallery.value,
       'autoModeInterval': autoModeInterval.value,
       'autoModeStyle': autoModeStyle.value.index,
       'deviceDirection': deviceDirection.value.index,
@@ -377,6 +380,12 @@ class ReadSetting with JHLifeCircleBeanWithConfigStorage implements JHLifeCircle
   Future<void> saveEnableBottomMenu(bool value) async {
     log.debug('saveEnableBottomMenu:$value');
     enableBottomMenu.value = value;
+    await saveBeanConfig();
+  }
+
+  Future<void> saveEnableAutoSwitchGallery(bool value) async {
+    log.debug('saveEnableAutoSwitchGallery:$value');
+    enableAutoSwitchGallery.value = value;
     await saveBeanConfig();
   }
 

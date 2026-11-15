@@ -37,6 +37,7 @@ class VerticalListLayout extends BaseLayout {
           child: EHWheelSpeedControllerForReadPage(
             scrollOffsetController: state.scrollOffsetController,
             stopScrollWhenCtrlPressed: true,
+            onWheelScroll: logic.onWheelScroll,
             child: ScrollablePositionedList.separated(
               physics: const ClampingScrollPhysics(),
               minCacheExtent: readPageState.readPageInfo.mode == ReadMode.online

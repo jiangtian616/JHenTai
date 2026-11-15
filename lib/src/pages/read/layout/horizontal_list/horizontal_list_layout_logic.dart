@@ -9,10 +9,14 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../../../../setting/read_setting.dart';
 import '../../../../utils/screen_size_util.dart';
 import '../base/base_layout_logic.dart';
+import '../base/list_layout_logic_mixin.dart';
 import 'horizontal_list_layout_state.dart';
 
-class HorizontalListLayoutLogic extends BaseLayoutLogic {
+class HorizontalListLayoutLogic extends BaseLayoutLogic with ListLayoutLogicMixin {
   HorizontalListLayoutState state = HorizontalListLayoutState();
+
+  @override
+  ScrollOffsetController get scrollOffsetController => state.scrollOffsetController;
 
   @override
   void onInit() {
@@ -43,6 +47,10 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
   /// to prev image or screen
   @override
   void toPrev() {
+    if (isAtBoundary(false)) {
+      return readPageLogic.handleTurnPageBeyondBoundary(false);
+    }
+
     switch (readSetting.turnPageMode.value) {
       case TurnPageMode.image:
         return _toPrevImage();
@@ -60,6 +68,10 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
   /// to next image or screen
   @override
   void toNext() {
+    if (isAtBoundary(true)) {
+      return readPageLogic.handleTurnPageBeyondBoundary(true);
+    }
+
     switch (readSetting.turnPageMode.value) {
       case TurnPageMode.image:
         return _toNextImage();
@@ -204,6 +216,7 @@ class HorizontalListLayoutLogic extends BaseLayoutLogic {
     );
   }
 
+  @override
   List<ItemPosition> getCurrentVisibleItems() {
     return readPageLogic.filterAndSortItems(state.itemPositionsListener.itemPositions.value);
   }

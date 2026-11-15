@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
@@ -43,14 +42,22 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
 
   @override
   void toPrev() {
-    int targetIndex = (pageController.page! - 1).toInt();
-    toImageIndex(max(targetIndex, 0));
+    int currentPage = pageController.page!.toInt();
+    if (currentPage <= 0) {
+      return readPageLogic.handleTurnPageBeyondBoundary(false);
+    }
+
+    toImageIndex(currentPage - 1);
   }
 
   @override
   void toNext() {
-    int targetIndex = (pageController.page! + 1).toInt();
-    toImageIndex(min(targetIndex, readPageState.readPageInfo.pageCount - 1));
+    int currentPage = pageController.page!.toInt();
+    if (currentPage >= readPageState.readPageInfo.pageCount - 1) {
+      return readPageLogic.handleTurnPageBeyondBoundary(true);
+    }
+
+    toImageIndex(currentPage + 1);
   }
 
   @override

@@ -69,8 +69,26 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
   final String sliderId = 'sliderId';
   final String tapZoneId = 'tapZoneId';
   final String guideOverlayId = 'guideOverlayId';
+  final String switchGalleryHintId = 'switchGalleryHintId';
 
-  ReadPageState state = ReadPageState();
+  ReadPageState state;
+
+  /// [readPageInfo] is null if read page is opened by route, see [ReadPage]
+  ReadPageLogic({ReadPageInfo? readPageInfo}) : state = ReadPageState(readPageInfo ?? Get.arguments);
+
+  /// Replace the gallery in read page, set by [ReadPage]
+  void Function(ReadPageInfo readPageInfo)? switchGalleryHandler;
+
+  /// This read page is being replaced by the one of another gallery, see [switchGalleryHandler]
+  bool isSwitchingGallery = false;
+
+  bool _isLoadingAdjacentGallery = false;
+
+  Timer? _switchGalleryHintTimer;
+  DateTime? _lastTurnPageBeyondBoundaryTime;
+
+  /// Drag distance beyond the first or last page in the gesture going on
+  double _dragOverscroll = 0;
 
   BaseLayoutLogic get layoutLogic => effectiveReadDirection == ReadDirection.top2bottomList
       ? Get.find<VerticalListLayoutLogic>()
@@ -300,17 +318,23 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
     landscapeDisplayFirstPageAloneListener.dispose();
     autoDetectWebtoonListener.dispose();
     tapZoneConfigListener.dispose();
+    _switchGalleryHintTimer?.cancel();
 
     restoreVolumeListener();
 
-    restoreImmersiveMode();
-
-    restoreDeviceOrientation();
-
     _flushReadProgress();
 
-    if (readSetting.enableCustomReadBrightness.isTrue) {
-      resetBrightness();
+    /// keep them when switching to another gallery, otherwise system bars, screen orientation and brightness would flicker
+    if (!isSwitchingGallery) {
+      restoreImmersiveMode();
+
+      restoreDeviceOrientation();
+
+      if (readSetting.enableCustomReadBrightness.isTrue) {
+        resetBrightness();
+      }
+
+      WakelockPlus.disable();
     }
 
     /// Gallery image retain released by [GalleryImagesRetainer.onClose]
@@ -323,8 +347,6 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
     Get.delete<HorizontalDoubleColumnLayoutLogic>(force: true);
 
     executor.close();
-
-    WakelockPlus.disable();
 
     /// Unpause + forget every animation gate this page created so a codec
     /// parked on a gate is not frozen forever after the page is torn down.
@@ -810,7 +832,114 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
     return positions;
   }
 
+  bool get canSwitchGallery =>
+      readSetting.enableAutoSwitchGallery.isTrue && state.readPageInfo.adjacentGalleryFinder != null && switchGalleryHandler != null;
+
+  /// User tries to turn to the page before the first one or after the last one, e.g. by tapping, keys or mouse wheel.
+  ///
+  /// The first try only shows which gallery is the previous or next one, and trying again switches to it, so that users won't leave
+  /// current gallery by accident.
+  void handleTurnPageBeyondBoundary(bool next) {
+    if (!canSwitchGallery || _isLoadingAdjacentGallery || isSwitchingGallery) {
+      return;
+    }
+
+    /// Mouse wheel and long pressed keys trigger this continuously, only a try after a pause is regarded as a confirmation
+    DateTime now = DateTime.now();
+    bool isNewTry = _lastTurnPageBeyondBoundaryTime == null || now.difference(_lastTurnPageBeyondBoundaryTime!) > const Duration(milliseconds: 400);
+    _lastTurnPageBeyondBoundaryTime = now;
+
+    SwitchGalleryHint? hint = state.switchGalleryHint;
+    if (hint != null && hint.next == next) {
+      if (isNewTry && hint.gallery != null) {
+        _switchGallery(hint.gallery!);
+      } else {
+        _hideSwitchGalleryHintLater();
+      }
+      return;
+    }
+
+    state.switchGalleryHint = SwitchGalleryHint(next: next, gallery: state.readPageInfo.adjacentGalleryFinder!.call(next));
+    updateSafely([switchGalleryHintId]);
+    _hideSwitchGalleryHintLater();
+  }
+
+  /// Dragging beyond the first or last page works the same as [handleTurnPageBeyondBoundary]
+  void handleScrollNotification(ScrollNotification notification) {
+    if (!canSwitchGallery) {
+      return;
+    }
+
+    /// ignore scrollables in the other axis, e.g. the one of a single image in fit width mode
+    Axis axis = effectiveReadDirection == ReadDirection.top2bottomList ? Axis.vertical : Axis.horizontal;
+    if (notification.metrics.axis != axis) {
+      return;
+    }
+
+    if (notification is ScrollStartNotification) {
+      _dragOverscroll = 0;
+    } else if (notification is OverscrollNotification && notification.dragDetails != null) {
+      _dragOverscroll += notification.overscroll;
+    } else if (notification is ScrollEndNotification) {
+      double dragOverscroll = _dragOverscroll;
+      _dragOverscroll = 0;
+      if (dragOverscroll.abs() >= 40) {
+        handleTurnPageBeyondBoundary(dragOverscroll > 0);
+      }
+    }
+  }
+
+  void hideSwitchGalleryHint() {
+    _switchGalleryHintTimer?.cancel();
+    if (state.switchGalleryHint != null) {
+      state.switchGalleryHint = null;
+      updateSafely([switchGalleryHintId]);
+    }
+  }
+
+  void _hideSwitchGalleryHintLater() {
+    _switchGalleryHintTimer?.cancel();
+    _switchGalleryHintTimer = Timer(const Duration(seconds: 4), hideSwitchGalleryHint);
+  }
+
+  Future<void> _switchGallery(AdjacentGallery gallery) async {
+    _isLoadingAdjacentGallery = true;
+
+    ReadPageInfo? readPageInfo;
+    try {
+      readPageInfo = await gallery.loadReadPageInfo();
+    } catch (e, s) {
+      log.error('Load adjacent gallery failed: ${gallery.title}', e, s);
+    }
+
+    _isLoadingAdjacentGallery = false;
+
+    /// read page is closed while loading
+    if (isClosed) {
+      return;
+    }
+
+    if (readPageInfo == null || readPageInfo.pageCount <= 0) {
+      hideSwitchGalleryHint();
+      toast('switchGalleryFailed'.tr);
+      return;
+    }
+
+    log.info('Switch gallery in read page: ${state.readPageInfo.galleryTitle} -> ${readPageInfo.galleryTitle}');
+
+    if (state.autoMode) {
+      closeAutoMode();
+    }
+    isSwitchingGallery = true;
+    switchGalleryHandler!.call(readPageInfo);
+  }
+
   void recordReadProgress(int index) {
+    /// left the first or last page
+    if (state.switchGalleryHint != null && index != state.readPageInfo.currentImageIndex) {
+      hideSwitchGalleryHint();
+    }
+
     state.readPageInfo.currentImageIndex = index;
     update([sliderId, pageNoId, thumbnailNoId]);
   }

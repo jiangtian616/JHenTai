@@ -25,6 +25,7 @@ import '../../setting/preference_setting.dart';
 import '../../setting/read_setting.dart';
 import '../../utils/date_util.dart';
 import '../../utils/process_util.dart';
+import '../../utils/read_page_info_util.dart';
 import '../../utils/route_util.dart';
 import '../../utils/table.dart' as t;
 import '../../widget/eh_alert_dialog.dart';
@@ -274,6 +275,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
           pageCount: gallery.pageCount,
           useSuperResolution: superResolutionService.get(gallery.gid, SuperResolutionType.gallery) != null,
           readDirection: readDirection,
+          adjacentGalleryFinder: (bool next) => findAdjacentDownloadedGallery(gallery.gid, next),
         ),
       );
     }
@@ -309,6 +311,7 @@ class DownloadSearchLogic extends GetxController with UpdateGlobalGalleryStatusL
           images: images,
           useSuperResolution: superResolutionService.get(archive.gid, SuperResolutionType.archive) != null,
           readDirection: readDirection,
+          adjacentGalleryFinder: (bool next) => findAdjacentArchive(archive.gid, next),
         ),
       );
     }

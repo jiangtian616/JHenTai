@@ -6,15 +6,12 @@ import 'package:jhentai/src/extension/string_extension.dart';
 import 'package:path/path.dart';
 
 import '../../../../config/ui_config.dart';
-import '../../../../enum/config_enum.dart';
-import '../../../../model/gallery_image.dart';
-import '../../../../model/read_page_info.dart';
 import '../../../../routes/routes.dart';
-import '../../../../service/local_config_service.dart';
 import '../../../../service/local_gallery_service.dart';
 import '../../../../service/storage_service.dart';
 import '../../../../setting/read_setting.dart';
 import '../../../../utils/process_util.dart';
+import '../../../../utils/read_page_info_util.dart';
 import '../../../../utils/route_util.dart' as route;
 import '../../../../utils/toast_util.dart';
 import '../../../../widget/eh_alert_dialog.dart';
@@ -86,23 +83,7 @@ mixin LocalGalleryDownloadPageLogicMixin on GetxController {
     if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
       openThirdPartyViewer(gallery.path);
     } else {
-      String? string = await localConfigService.read(configKey: ConfigEnum.readIndexRecord, subConfigKey: gallery.cover.path!);
-      int readIndexRecord = (string == null ? 0 : (int.tryParse(string) ?? 0));
-
-      List<GalleryImage> images = localGalleryService.getGalleryImages(gallery);
-
-      route.toRoute(
-        Routes.read,
-        arguments: ReadPageInfo(
-          mode: ReadMode.local,
-          galleryTitle: gallery.title,
-          initialIndex: readIndexRecord,
-          pageCount: images.length,
-          readProgressRecordStorageKey: gallery.cover.path!,
-          images: images,
-          useSuperResolution: false,
-        ),
-      );
+      route.toRoute(Routes.read, arguments: await buildLocalGalleryReadPageInfo(gallery));
     }
   }
 

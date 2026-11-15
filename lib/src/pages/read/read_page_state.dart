@@ -1,6 +1,5 @@
 import 'package:battery_plus/battery_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:jhentai/src/mixin/scroll_status_listener_state.dart';
 import 'package:jhentai/src/model/read_page_info.dart';
 import 'package:jhentai/src/setting/site_setting.dart';
@@ -14,7 +13,7 @@ import '../../widget/loading_state_indicator.dart';
 
 class ReadPageState with ScrollStatusListerState {
   /// gallery info
-  final ReadPageInfo readPageInfo = Get.arguments;
+  final ReadPageInfo readPageInfo;
 
   /// property used for parsing and loading
   int thumbnailsCountPerPage = SiteSetting.thumbnailsCountPerPage.value;
@@ -58,6 +57,9 @@ class ReadPageState with ScrollStatusListerState {
   bool autoMode = false;
   bool isMenuOpen = false;
   bool showTapZoneGuide = false;
+
+  /// Shown when user turns page beyond the first or last page, null if hidden
+  SwitchGalleryHint? switchGalleryHint;
   Battery battery = Battery();
   int batteryLevel = 100;
   bool useSuperResolution = false;
@@ -70,7 +72,7 @@ class ReadPageState with ScrollStatusListerState {
   final ItemScrollController thumbnailsScrollController = ItemScrollController();
   final ScrollOffsetController thumbnailsScrollOffsetController = ScrollOffsetController();
 
-  ReadPageState() {
+  ReadPageState(this.readPageInfo) {
     thumbnails = List.generate(readPageInfo.pageCount, (_) => null, growable: true);
 
     if (readPageInfo.mode == ReadMode.online) {
@@ -96,4 +98,14 @@ class ReadPageState with ScrollStatusListerState {
 
     useSuperResolution = readPageInfo.useSuperResolution;
   }
+}
+
+class SwitchGalleryHint {
+  /// Switch to the next gallery or the previous one
+  final bool next;
+
+  /// Null if there is no more gallery in that direction
+  final AdjacentGallery? gallery;
+
+  const SwitchGalleryHint({required this.next, this.gallery});
 }

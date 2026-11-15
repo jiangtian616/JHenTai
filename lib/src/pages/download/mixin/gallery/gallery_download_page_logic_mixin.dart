@@ -8,17 +8,15 @@ import 'package:jhentai/src/service/super_resolution_service.dart';
 import 'package:jhentai/src/setting/super_resolution_setting.dart';
 
 import '../../../../database/database.dart';
-import '../../../../model/read_page_info.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/gallery_download/download_path_resolver.dart';
 import '../../../../service/gallery_download/gallery_download_service.dart';
-import '../../../../service/read_progress_service.dart';
 import '../../../../setting/read_setting.dart';
 import '../../../../setting/preference_setting.dart';
 import '../../../../utils/process_util.dart';
+import '../../../../utils/read_page_info_util.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../utils/toast_util.dart';
-import '../../../../utils/convert_util.dart';
 import '../../../../widget/eh_alert_dialog.dart';
 import '../../../../widget/eh_context_menu.dart';
 import '../../../../widget/eh_download_dialog.dart';
@@ -154,31 +152,7 @@ mixin GalleryDownloadPageLogicMixin on GetxController
     if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
       openThirdPartyViewer(DownloadPathResolver.computeGalleryDownloadAbsolutePath(gallery.toGalleryDownloadedData()));
     } else {
-      int readIndexRecord = await readProgressService.getReadProgress(gallery.gid);
-
-      /// Ensure the gallery's image list is resident before entering read
-      /// page — ReadPageState's constructor reads [imageAtSync] synchronously
-      /// to build the initial snapshot. If images has been evicted (gallery
-      /// was fully downloaded), this reloads from DB.
-      await galleryDownloadService.galleryDownloadInfos[gallery.gid]!.ensureImagesLoaded();
-
-      ReadDirection? readDirection = isWebtoonGalleryFromTagString(gallery.tags) ? ReadDirection.top2bottomList : null;
-
-      toRoute(
-        Routes.read,
-        arguments: ReadPageInfo(
-          mode: ReadMode.downloaded,
-          gid: gallery.gid,
-          token: gallery.token,
-          galleryTitle: gallery.title,
-          galleryUrl: gallery.galleryUrl,
-          initialIndex: readIndexRecord,
-          readProgressRecordStorageKey: gallery.gid.toString(),
-          pageCount: gallery.pageCount,
-          useSuperResolution: superResolutionService.get(gallery.gid, SuperResolutionType.gallery) != null,
-          readDirection: readDirection,
-        ),
-      );
+      toRoute(Routes.read, arguments: await buildDownloadedGalleryReadPageInfo(gallery));
     }
   }
 

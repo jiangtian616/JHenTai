@@ -10,11 +10,15 @@ class EHWheelSpeedControllerForReadPage extends StatelessWidget {
   final ScrollOffsetController scrollOffsetController;
   final bool stopScrollWhenCtrlPressed;
 
+  /// Called before scrolling, [next] is true if scrolling towards the end of the list
+  final void Function(bool next)? onWheelScroll;
+
   const EHWheelSpeedControllerForReadPage({
     Key? key,
     required this.child,
     required this.scrollOffsetController,
     required this.stopScrollWhenCtrlPressed,
+    this.onWheelScroll,
   }) : super(key: key);
 
   @override
@@ -35,6 +39,8 @@ class EHWheelSpeedControllerForReadPage extends StatelessWidget {
           final double delta = event.scrollDelta.dy * mouseSetting.wheelScrollSpeed.value;
 
           if (delta != 0.0) {
+            onWheelScroll?.call(delta > 0);
+
             GestureBinding.instance.pointerSignalResolver.resolve(event);
 
             GestureBinding.instance.pointerSignalResolver.register(

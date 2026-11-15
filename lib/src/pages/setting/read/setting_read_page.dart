@@ -48,6 +48,7 @@ class SettingReadPage extends StatelessWidget {
                   _buildEnableDoubleTapToScaleUp().center(),
                   _buildEnableTapDragToScaleUp().center(),
                   _buildEnableBottomMenu().center(),
+                  _buildEnableAutoSwitchGallery().center(),
                   _buildTapZoneStyle(context).center(),
                   _buildEnableImageMaxKilobytes().center(),
                   if (readSetting.enableMaxImageKilobyte.isTrue) _buildImageMaxKilobytes(context).fadeIn(const Key('imageMaxKilobytes')).center(),
@@ -245,6 +246,15 @@ class SettingReadPage extends StatelessWidget {
       title: Text('enableBottomMenu'.tr),
       value: readSetting.enableBottomMenu.value,
       onChanged: readSetting.saveEnableBottomMenu,
+    );
+  }
+
+  Widget _buildEnableAutoSwitchGallery() {
+    return SwitchListTile(
+      title: Text('enableAutoSwitchGallery'.tr),
+      subtitle: Text('enableAutoSwitchGalleryHint'.tr),
+      value: readSetting.enableAutoSwitchGallery.value,
+      onChanged: readSetting.saveEnableAutoSwitchGallery,
     );
   }
 

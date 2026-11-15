@@ -36,6 +36,7 @@ class HorizontalListLayout extends BaseLayout {
         child: EHWheelSpeedControllerForReadPage(
           scrollOffsetController: state.scrollOffsetController,
           stopScrollWhenCtrlPressed: true,
+          onWheelScroll: logic.onWheelScroll,
           child: ScrollablePositionedList.separated(
             scrollDirection: Axis.horizontal,
             reverse: logic.readPageLogic.isInRight2LeftDirection,

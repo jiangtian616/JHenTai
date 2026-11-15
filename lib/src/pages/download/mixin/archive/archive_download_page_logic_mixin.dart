@@ -8,19 +8,16 @@ import 'package:jhentai/src/setting/archive_bot_setting.dart';
 import 'package:jhentai/src/widget/eh_archive_parse_source_select_dialog.dart';
 
 import '../../../../database/database.dart';
-import '../../../../model/gallery_image.dart';
-import '../../../../model/read_page_info.dart';
 import '../../../../routes/routes.dart';
 import '../../../../service/archive_download_service.dart';
-import '../../../../service/read_progress_service.dart';
 import '../../../../service/super_resolution_service.dart';
 import '../../../../setting/read_setting.dart';
 import '../../../../setting/preference_setting.dart';
 import '../../../../setting/super_resolution_setting.dart';
 import '../../../../utils/process_util.dart';
+import '../../../../utils/read_page_info_util.dart';
 import '../../../../utils/route_util.dart';
 import '../../../../utils/toast_util.dart';
-import '../../../../utils/convert_util.dart';
 import '../../../../widget/eh_alert_dialog.dart';
 import '../../../../widget/eh_context_menu.dart';
 import '../../../../widget/eh_download_dialog.dart';
@@ -152,28 +149,7 @@ mixin ArchiveDownloadPageLogicMixin on GetxController
     if (readSetting.useThirdPartyViewer.isTrue && readSetting.thirdPartyViewerPath.value != null) {
       openThirdPartyViewer(archiveDownloadService.computeArchiveUnpackingPath(archive));
     } else {
-      int readIndexRecord = await readProgressService.getReadProgress(archive.gid);
-
-      List<GalleryImage> images = await archiveDownloadService.getUnpackedImages(archive.gid);
-
-      ReadDirection? readDirection = isWebtoonGalleryFromTagString(archive.tags) ? ReadDirection.top2bottomList : null;
-
-      toRoute(
-        Routes.read,
-        arguments: ReadPageInfo(
-          mode: ReadMode.archive,
-          gid: archive.gid,
-          galleryTitle: archive.title,
-          galleryUrl: archive.galleryUrl,
-          initialIndex: readIndexRecord,
-          pageCount: images.length,
-          isOriginal: archive.isOriginal,
-          readProgressRecordStorageKey: archive.gid.toString(),
-          images: images,
-          useSuperResolution: superResolutionService.get(archive.gid, SuperResolutionType.archive) != null,
-          readDirection: readDirection,
-        ),
-      );
+      toRoute(Routes.read, arguments: await buildArchiveReadPageInfo(archive));
     }
   }
 
