@@ -74,10 +74,22 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   }
 
   /// Tap left region or click right arrow key. If read direction is right-to-left, we should call [toNext], otherwise [toPrev]
-  void toLeft();
+  void toLeft() {
+    if (readPageLogic.isInRight2LeftDirection) {
+      toNext();
+    } else {
+      toPrev();
+    }
+  }
 
   /// Tap right region or click right arrow key. If read direction is right-to-left, we should call [toPrev], otherwise [toNext]
-  void toRight();
+  void toRight() {
+    if (readPageLogic.isInRight2LeftDirection) {
+      toPrev();
+    } else {
+      toNext();
+    }
+  }
 
   /// to prev image or screen
   void toPrev();
@@ -120,6 +132,29 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
   @mustCallSuper
   void closeAutoMode() {
     autoModeTimer?.cancel();
+  }
+
+  void scheduleCloseAutoMode() {
+    Get.engine.addPostFrameCallback((_) {
+      readPageLogic.closeAutoMode();
+    });
+    autoModeTimer?.cancel();
+  }
+
+  void enterAutoModeByTurnPage({required bool Function() shouldStop}) {
+    readPageLogic.toggleMenu();
+
+    autoModeTimer = Timer.periodic(
+      Duration(milliseconds: (readSetting.autoModeInterval.value * 1000).toInt()),
+      (_) {
+        if (shouldStop()) {
+          scheduleCloseAutoMode();
+          return;
+        }
+
+        toNext();
+      },
+    );
   }
 
   void onPointerScroll(PointerScrollEvent value) {
@@ -710,6 +745,11 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
     FlutterClipboard.copy(pageUrl).then((_) => toast('hasCopiedToClipboard'.tr));
   }
 
+  void rememberImageContainerSize(int index, Size imageSize) {
+    FittedSizes fittedSizes = getImageFittedSize(imageSize);
+    readPageState.imageContainerSizes[index] = fittedSizes.destination;
+  }
+
   /// Compute image container size when we haven't parsed image's size
   Size getPlaceHolderSize(int imageIndex) {
     if (readPageState.imageContainerSizes[imageIndex] != null) {
@@ -725,10 +765,6 @@ abstract class BaseLayoutLogic extends GetxController with GetTickerProviderStat
       Size(imageSize.width, imageSize.height),
       Size(readPageState.displayRegionSize.width, double.infinity),
     );
-  }
-
-  Alignment _computeAlignmentByTapOffset(Offset offset) {
-    return Alignment((offset.dx - Get.size.width / 2) / (Get.size.width / 2), (offset.dy - Get.size.height / 2) / (Get.size.height / 2));
   }
 
   Future<bool> _ensureSave2AlbumPermission() async {

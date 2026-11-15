@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-import 'package:get/get.dart';
 import 'package:jhentai/src/enum/config_enum.dart';
 import 'package:jhentai/src/extension/get_logic_extension.dart';
 import 'package:jhentai/src/service/local_config_service.dart';
@@ -42,24 +41,6 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
     state.pageController.addListener(_readProgressListener);
 
     initCompleter.complete();
-  }
-
-  @override
-  void toLeft() {
-    if (readPageLogic.isInRight2LeftDirection) {
-      toNext();
-    } else {
-      toPrev();
-    }
-  }
-
-  @override
-  void toRight() {
-    if (readPageLogic.isInRight2LeftDirection) {
-      toPrev();
-    } else {
-      toNext();
-    }
   }
 
   @override
@@ -114,43 +95,16 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
 
   @override
   void enterAutoMode() {
-    _enterAutoModeByTurnPage();
-  }
-
-  void _enterAutoModeByTurnPage() {
-    readPageLogic.toggleMenu();
-
-    autoModeTimer = Timer.periodic(
-      Duration(milliseconds: (readSetting.autoModeInterval.value * 1000).toInt()),
-      (_) {
-        /// changed read direction
-        if (!readPageLogic.isInDoubleColumnReadDirection) {
-          Get.engine.addPostFrameCallback((_) {
-            readPageLogic.closeAutoMode();
-          });
-          autoModeTimer?.cancel();
-          return;
-        }
-
-        /// stop when at last
-        if (state.pageController.page!.toInt() == state.pageCount - 1) {
-          Get.engine.addPostFrameCallback((_) {
-            readPageLogic.closeAutoMode();
-          });
-          autoModeTimer?.cancel();
-          return;
-        }
-
-        toNext();
-      },
+    enterAutoModeByTurnPage(
+      shouldStop: () => !readPageLogic.isInDoubleColumnReadDirection || state.pageController.page!.toInt() == state.pageCount - 1,
     );
   }
 
   void _readProgressListener() {
-    int currentPage = state.pageController.page!.toInt();
-    List<int> imageIndexes = computeImagesInPageIndex(currentPage);
-    readPageLogic.recordReadProgress(imageIndexes.first);
-    readPageLogic.syncThumbnails(imageIndexes.first);
+    List<int> imageIndexes = computeImagesInPageIndex(state.pageController.page!.toInt());
+    if (imageIndexes.isNotEmpty) {
+      readPageLogic.recordReadProgress(imageIndexes.first);
+    }
   }
 
   @override

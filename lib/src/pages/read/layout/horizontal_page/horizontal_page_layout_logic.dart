@@ -1,8 +1,4 @@
-import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
-import 'package:get/get.dart';
-import 'package:jhentai/src/setting/read_setting.dart';
 
 import '../base/base_layout_logic.dart';
 import 'horizontal_page_layout_state.dart';
@@ -20,24 +16,6 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
 
     /// record reading progress and sync thumbnails list index
     pageController.addListener(_readProgressListener);
-  }
-
-  @override
-  void toLeft() {
-    if (readPageLogic.isInRight2LeftDirection) {
-      toNext();
-    } else {
-      toPrev();
-    }
-  }
-
-  @override
-  void toRight() {
-    if (readPageLogic.isInRight2LeftDirection) {
-      toPrev();
-    } else {
-      toNext();
-    }
   }
 
   @override
@@ -61,58 +39,30 @@ class HorizontalPageLayoutLogic extends BaseLayoutLogic {
   }
 
   @override
-  void jump2ImageIndex(int pageIndex) {
-    pageController.jumpToPage(pageIndex);
-    super.jump2ImageIndex(pageIndex);
+  void jump2ImageIndex(int imageIndex) {
+    pageController.jumpToPage(imageIndex);
+    super.jump2ImageIndex(imageIndex);
   }
 
   @override
-  void scroll2ImageIndex(int pageIndex, [Duration? duration]) {
+  void scroll2ImageIndex(int imageIndex, [Duration? duration]) {
     pageController.animateToPage(
-      pageIndex,
+      imageIndex,
       duration: duration ?? const Duration(milliseconds: 200),
       curve: Curves.ease,
     );
-    super.scroll2ImageIndex(pageIndex, duration);
+    super.scroll2ImageIndex(imageIndex, duration);
   }
 
   @override
   void enterAutoMode() {
-    _enterAutoModeByTurnPage();
-  }
-
-  void _enterAutoModeByTurnPage() {
-    readPageLogic.toggleMenu();
-
-    autoModeTimer = Timer.periodic(
-      Duration(milliseconds: (readSetting.autoModeInterval.value * 1000).toInt()),
-      (_) {
-        /// changed read setting
-        if (!readPageLogic.isInSinglePageReadDirection) {
-          Get.engine.addPostFrameCallback((_) {
-            readPageLogic.closeAutoMode();
-          });
-          autoModeTimer?.cancel();
-          return;
-        }
-
-        /// stop when at last
-        if (readPageState.readPageInfo.currentImageIndex == readPageState.readPageInfo.pageCount - 1) {
-          Get.engine.addPostFrameCallback((_) {
-            readPageLogic.closeAutoMode();
-          });
-          autoModeTimer?.cancel();
-          return;
-        }
-
-        toNext();
-      },
+    enterAutoModeByTurnPage(
+      shouldStop: () =>
+          !readPageLogic.isInSinglePageReadDirection || readPageState.readPageInfo.currentImageIndex == readPageState.readPageInfo.pageCount - 1,
     );
   }
 
   void _readProgressListener() {
-    int currentPage = pageController.page!.toInt();
-    readPageLogic.recordReadProgress(currentPage);
-    readPageLogic.syncThumbnails(currentPage);
+    readPageLogic.recordReadProgress(pageController.page!.toInt());
   }
 }

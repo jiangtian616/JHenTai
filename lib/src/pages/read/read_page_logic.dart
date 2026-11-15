@@ -942,6 +942,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
 
     state.readPageInfo.currentImageIndex = index;
     update([sliderId, pageNoId, thumbnailNoId]);
+    syncThumbnails(index);
   }
 
   Future<void> _flushReadProgress() async {

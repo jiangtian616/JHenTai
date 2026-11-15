@@ -211,10 +211,10 @@ abstract class BaseLayout extends StatelessWidget {
       if (state.extendedImageInfo == null || logic.readPageState.imageContainerSizes[index] != null) {
         return;
       }
-      FittedSizes fittedSizes = logic.getImageFittedSize(
+      logic.rememberImageContainerSize(
+        index,
         Size(state.extendedImageInfo!.image.width.toDouble(), state.extendedImageInfo!.image.height.toDouble()),
       );
-      logic.readPageState.imageContainerSizes[index] = fittedSizes.destination;
       logic.readPageLogic.updateSafely(['${readPageLogic.onlineImageId}::$index']);
     });
 
@@ -409,10 +409,10 @@ abstract class BaseLayout extends StatelessWidget {
       if (state.extendedImageInfo == null || logic.readPageState.imageContainerSizes[index] != null) {
         return;
       }
-      FittedSizes fittedSizes = logic.getImageFittedSize(
+      logic.rememberImageContainerSize(
+        index,
         Size(state.extendedImageInfo!.image.width.toDouble(), state.extendedImageInfo!.image.height.toDouble()),
       );
-      logic.readPageState.imageContainerSizes[index] = fittedSizes.destination;
       galleryDownloadService.updateSafely(['${galleryDownloadService.downloadImageId}::${readPageState.readPageInfo.gid}::$index']);
     });
 
