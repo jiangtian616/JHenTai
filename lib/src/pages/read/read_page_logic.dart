@@ -942,7 +942,59 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
 
     state.readPageInfo.currentImageIndex = index;
     update([sliderId, pageNoId, thumbnailNoId]);
+    syncThumbnails(index);
   }
+
+  /// Open/jump keeps N while it is still loading. After that: last loaded fully
+  /// visible page, or a tall page that fills the screen. At EOF, record the last
+  /// page once it is on screen.
+  void recordReadProgressFromVisibleItems(List<ItemPosition> visibleItems) {
+    if (visibleItems.isEmpty) {
+      return;
+    }
+
+    ItemPosition first = visibleItems.first;
+    ItemPosition last = visibleItems.last;
+    int index;
+    if (!_isLoaded(first.index) || _occupiesViewport(first)) {
+      index = first.index;
+    } else if (isAtGalleryEnd(last) && _isLoaded(last.index)) {
+      index = last.index;
+    } else {
+      index = visibleItems.lastWhereOrNull(_isFullyVisible)?.index ??
+          visibleItems.firstWhereOrNull(_occupiesViewport)?.index ??
+          first.index;
+    }
+    recordReadProgress(index);
+  }
+
+  bool _isLoaded(int index) => state.imageContainerSizes[index] != null;
+
+  /// Loaded, entirely in the viewport, and matching its measured size.
+  /// Stale placeholder edges will not match a real image, so they do not count.
+  bool _isFullyVisible(ItemPosition item) {
+    if (!_isLoaded(item.index) || item.itemLeadingEdge < 0 || item.itemTrailingEdge > 1) {
+      return false;
+    }
+    double sizeSpan = _measuredViewportFraction(item.index);
+    if (sizeSpan > 1) {
+      return false;
+    }
+    double edgeSpan = item.itemTrailingEdge - item.itemLeadingEdge;
+    return (edgeSpan - sizeSpan).abs() <= 0.1;
+  }
+
+  double _measuredViewportFraction(int index) {
+    Size size = state.imageContainerSizes[index]!;
+    Size region = state.displayRegionSize;
+    return effectiveReadDirection == ReadDirection.top2bottomList ? size.height / region.height : size.width / region.width;
+  }
+
+  bool _occupiesViewport(ItemPosition item) =>
+      _isLoaded(item.index) && item.itemLeadingEdge <= 0 && item.itemTrailingEdge >= 1;
+
+  /// Trailing edge can be slightly > 1.0 even when the last page is on screen.
+  bool isAtGalleryEnd(ItemPosition last) => last.index == state.readPageInfo.pageCount - 1 && last.itemTrailingEdge <= 1.2;
 
   Future<void> _flushReadProgress() async {
     readProgressService.updateReadProgress(
@@ -977,7 +1029,7 @@ class ReadPageLogic extends GetxController with WidgetsBindingObserver, GalleryI
     await showDialog<void>(
       context: context,
       barrierDismissible: true,
-      barrierColor: Colors.black.withOpacity(0.4),
+      barrierColor: Colors.black.withValues(alpha: 0.4),
       builder: (_) {
         double width = MediaQuery.of(context).size.width * 0.55;
         if (width < 360) {
