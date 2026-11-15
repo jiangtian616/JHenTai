@@ -27,11 +27,7 @@ mixin ListLayoutLogic on BaseLayoutLogic {
   }
 
   void _readProgressListener() {
-    int? firstImageIndex = getCurrentVisibleItems().firstOrNull?.index;
-    if (firstImageIndex == null) {
-      return;
-    }
-    readPageLogic.recordReadProgress(firstImageIndex);
+    readPageLogic.recordReadProgressFromVisibleItems(getCurrentVisibleItems());
   }
 
   List<ItemPosition> getCurrentVisibleItems() {
@@ -140,8 +136,7 @@ mixin ListLayoutLogic on BaseLayoutLogic {
             return true;
           }
           ItemPosition? lastPosition = getCurrentVisibleItems().lastOrNull;
-          return lastPosition == null ||
-              (lastPosition.index == readPageState.readPageInfo.pageCount - 1 && lastPosition.itemTrailingEdge <= 1.2);
+          return lastPosition == null || readPageLogic.isAtGalleryEnd(lastPosition);
         },
       );
     }

@@ -103,7 +103,7 @@ class HorizontalDoubleColumnLayoutLogic extends BaseLayoutLogic {
   void _readProgressListener() {
     List<int> imageIndexes = computeImagesInPageIndex(state.pageController.page!.toInt());
     if (imageIndexes.isNotEmpty) {
-      readPageLogic.recordReadProgress(imageIndexes.first);
+      readPageLogic.recordReadProgress(imageIndexes.last);
     }
   }
 
